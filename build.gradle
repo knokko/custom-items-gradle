@@ -1,0 +1,79 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
+}
+
+allprojects {
+    apply plugin: 'java'
+    
+    group = 'nl.knokko.customitems'
+
+    repositories {
+        mavenCentral()
+
+        maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
+        maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+        maven { url = 'https://nexus.badbones69.com/repository/maven-releases' }
+
+        mavenLocal()
+    }
+
+    dependencies {
+        testImplementation group: 'junit', name: 'junit', version: '4.12'
+    }
+}
+
+project(':shared-code') {
+    dependencies {
+        compileOnly project(':bit-helper')
+        testImplementation project(':bit-helper')
+    }
+}
+
+project(':plug-in') {
+    apply plugin: 'com.github.johnrengelman.shadow'
+    dependencies {
+        implementation project(':shared-code')
+        compileOnly project(':bit-helper')
+        compileOnly project(':core-plugin-12')
+        compileOnly 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
+        compileOnly 'me.badbones69:crazyenchantments-plugin:1.8-Dev-Build-v8@jar'
+
+        testImplementation project(':bit-helper')
+        testImplementation project(':core-plugin-12')
+        testImplementation 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
+    }
+}
+
+project(':editor') {
+    apply plugin: 'com.github.johnrengelman.shadow'
+    dependencies {
+        implementation project(':shared-code')
+        implementation project(':bit-helper')
+        implementation project(':gui')
+
+        testImplementation project(':safe-gui-tester')
+        testImplementation 'com.1stleg:jnativehook:2.1.0'
+    }
+    shadowJar {
+        manifest {
+            attributes ('Main-Class': 'nl.knokko.customitems.editor.Editor')
+        }
+    }
+}
+
+project(':core-plugin-12') {
+    apply plugin: 'com.github.johnrengelman.shadow'
+    dependencies {
+        implementation project(':bit-helper')
+        compileOnly 'org.bukkit:craftbukkit:1.12.2-R0.1-SNAPSHOT'
+    }
+}
+
+project(':safe-gui-tester') {
+    dependencies {
+        implementation project(':gui')
+        implementation 'com.1stleg:jnativehook:2.1.0'
+    }
+}
+

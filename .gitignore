@@ -1,0 +1,5 @@
+.gradle/
+.idea/
+autotest*.png
+before_test_failed.png
+build/

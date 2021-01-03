@@ -1,0 +1,8 @@
+name: KnokkoCore
+main: nl.knokko.core.plugin.CorePlugin
+version: 1.12 15
+commands:
+  knokkocore:
+    description: Test and debug command for the Knokko Core Plugin
+    useage: /knokkocore itemattribute/itemname/test
+    aliases: [knokko]
