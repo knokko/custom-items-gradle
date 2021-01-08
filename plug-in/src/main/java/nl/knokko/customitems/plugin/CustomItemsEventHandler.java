@@ -96,27 +96,14 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
-import org.bukkit.event.inventory.InventoryAction;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryMoveItemEvent;
-import org.bukkit.event.inventory.InventoryPickupItemEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.inventory.InventoryType.SlotType;
-import org.bukkit.event.inventory.PrepareAnvilEvent;
-import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
-import org.bukkit.inventory.AnvilInventory;
-import org.bukkit.inventory.CraftingInventory;
-import org.bukkit.inventory.EntityEquipment;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.MerchantInventory;
-import org.bukkit.inventory.MerchantRecipe;
-import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.Repairable;
@@ -2038,12 +2025,84 @@ public class CustomItemsEventHandler implements Listener {
 					event.getView().getPlayer().setItemOnCursor(cursor);
 				});
 			}
+		} else if (action == InventoryAction.COLLECT_TO_CURSOR) {
+			ItemSet set = set();
+			CustomItem customItem = set.getItem(event.getCursor());
+			if (customItem != null && customItem.canStack()) {
+				int currentStacksize = event.getCursor().getAmount();
+				InventoryView view = event.getView();
+				for (int slotIndex = 0; slotIndex < view.countSlots(); slotIndex++) {
+					if (slotIndex != event.getRawSlot()) {
+						ItemStack otherSlot = view.getItem(slotIndex);
+						CustomItem otherCustom = set.getItem(otherSlot);
+						if (customItem == otherCustom) {
+							int newStacksize = Math.min(
+									currentStacksize + otherSlot.getAmount(),
+									customItem.getMaxStacksize()
+							);
+							if (newStacksize > currentStacksize) {
+								int remainingStacksize = otherSlot.getAmount() - (newStacksize - currentStacksize);
+								if (remainingStacksize == 0) {
+									view.setItem(slotIndex, null);
+								} else {
+									otherSlot.setAmount(remainingStacksize);
+									view.setItem(slotIndex, otherSlot);
+								}
+
+								currentStacksize = newStacksize;
+								if (newStacksize == customItem.getMaxStacksize()) {
+									break;
+								}
+							}
+						}
+					}
+				}
+				if (currentStacksize != event.getCursor().getAmount()) {
+				    ItemStack newCursor = event.getCursor().clone();
+				    newCursor.setAmount(currentStacksize);
+					Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () -> {
+						event.getWhoClicked().setItemOnCursor(newCursor);
+					});
+				}
+			}
 		}
 		// Force a PrepareAnvilEvent
 		if (event.getInventory() instanceof AnvilInventory) {
 			Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
 				event.getInventory().setItem(0, event.getInventory().getItem(0));
 			});
+		}
+	}
+
+    @EventHandler
+	public void handleCustomItemDragging(InventoryDragEvent event) {
+	    if (event.getType() == DragType.EVEN) {
+			ItemStack remainingCursor = event.getCursor();
+			CustomItem customItem = set().getItem(remainingCursor);
+			if (customItem != null && customItem.canStack()) {
+			    int numSlots = event.getNewItems().size();
+			    int remainingSize = remainingCursor.getAmount();
+			    int extraPerSlot = remainingSize / numSlots;
+			    if (extraPerSlot > 0) {
+			    	for (Entry<Integer,ItemStack> entry : event.getNewItems().entrySet()) {
+			    		ItemStack toIncrease = entry.getValue();
+			    		int oldSize = toIncrease.getAmount();
+			    		int newSize = Math.min(oldSize + extraPerSlot, customItem.getMaxStacksize());
+			    		if (oldSize != newSize) {
+							remainingSize -= newSize - oldSize;
+							ItemStack replacement = toIncrease.clone();
+							replacement.setAmount(newSize);
+							Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () -> {
+								event.getView().setItem(entry.getKey(), replacement);
+							});
+						}
+					}
+				}
+
+			    if (remainingSize != remainingCursor.getAmount()) {
+			    	remainingCursor.setAmount(remainingSize);
+				}
+			}
 		}
 	}
 
