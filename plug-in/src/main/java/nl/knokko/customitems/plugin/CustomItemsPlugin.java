@@ -28,6 +28,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.logging.Level;
 
+import nl.knokko.core.plugin.item.SmithingBlocker;
 import nl.knokko.customitems.plugin.command.CustomItemsTabCompletions;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -102,6 +103,9 @@ public class CustomItemsPlugin extends JavaPlugin {
 		
 		itemUpdater.start();
 		CrazyEnchantmentsSupport.onEnable();
+
+		// Prevent custom items from being upgraded in a smithing table
+		SmithingBlocker.blockSmithingTableUpgrades(itemStack -> this.getSet().getItem(itemStack) != null);
 	}
 
 	@Override
