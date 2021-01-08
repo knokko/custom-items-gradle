@@ -166,7 +166,9 @@ public class CommandCustomItems implements CommandExecutor {
 					if (exportTime > 0) {
 						ZoneId timeZone = ZoneId.systemDefault();
 						DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm MMMM dd").withZone(timeZone);
-						String timeString = formatter.format(Calendar.getInstance().toInstant()) + " (with respect to timezone " + timeZone.getId() + ")";
+						Calendar exportTimeCalendar = Calendar.getInstance();
+						exportTimeCalendar.setTimeInMillis(CustomItemsPlugin.getInstance().getSetExportTime());
+						String timeString = formatter.format(exportTimeCalendar.toInstant()) + " (with respect to timezone " + timeZone.getId() + ")";
 						sender.sendMessage(ChatColor.AQUA + "The current .cis or .txt file was "
 								+ "exported at " + timeString + ". If you exported it more recently, "
 								+ "the current .cis or .txt file is outdated and should be replaced "
