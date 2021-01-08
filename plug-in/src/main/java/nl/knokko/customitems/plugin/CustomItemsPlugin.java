@@ -28,6 +28,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.logging.Level;
 
+import nl.knokko.customitems.plugin.command.CustomItemsTabCompletions;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -92,6 +93,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 		projectileManager = new ProjectileManager();
 		itemUpdater = new ItemUpdater(set.getBackingItems(), set::isItemDeleted, setExportTime);
 		getCommand("customitems").setExecutor(new CommandCustomItems(languageFile));
+		getCommand("customitems").setTabCompleter(new CustomItemsTabCompletions(this::getSet));
 		Bukkit.getPluginManager().registerEvents(new CustomItemsEventHandler(), this);
 		Bukkit.getPluginManager().registerEvents(new ContainerEventHandler(), this);
 		Bukkit.getPluginManager().registerEvents(projectileManager, this);
