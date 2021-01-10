@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import nl.knokko.customitems.editor.menu.edit.CollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
+import nl.knokko.customitems.editor.menu.edit.recipe.template.ChooseTemplateRecipeType;
 import nl.knokko.customitems.editor.set.item.CustomItem;
 import nl.knokko.customitems.editor.set.recipe.Recipe;
 import nl.knokko.customitems.editor.set.recipe.ShapedRecipe;
@@ -26,12 +27,15 @@ public class RecipeCollectionEdit extends CollectionEdit<Recipe> {
 	@Override
 	protected void addComponents() {
 		super.addComponents();
+		addComponent(new DynamicTextButton("Create template recipe", EditProps.BUTTON, EditProps.HOVER, () -> {
+			state.getWindow().setMainComponent(new ChooseTemplateRecipeType(this, menu.getSet()));
+		}), 0.025f, 0.35f, 0.29f, 0.45f);
 		addComponent(new DynamicTextButton("Create shaped recipe", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new ShapedRecipeEdit(menu, null, null));
-		}), 0.025f, 0.25f, 0.27f, 0.35f);
+		}), 0.025f, 0.2f, 0.27f, 0.3f);
 		addComponent(new DynamicTextButton("Create shapeless recipe", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new ShapelessRecipeCollectionEdit(menu, null, null));
-		}), 0.025f, 0.1f, 0.29f, 0.2f);
+		}), 0.025f, 0.05f, 0.29f, 0.15f);
 		
 		HelpButtons.addHelpLink(this, "edit%20menu/recipes/overview.html");
 	}
