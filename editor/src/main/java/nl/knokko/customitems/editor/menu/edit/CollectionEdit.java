@@ -22,8 +22,8 @@ public class CollectionEdit<T> extends GuiMenu {
 	private final Collection<T> changingCollection;
 	
 	private final List itemList;
-	private final TextEditField searchField;
-	private final DynamicTextComponent errorComponent;
+	protected final TextEditField searchField;
+	protected final DynamicTextComponent errorComponent;
 
 	public CollectionEdit(ActionHandler<T> handler, Collection<T> collectionToModify) {
 		this.handler = handler;
@@ -79,7 +79,6 @@ public class CollectionEdit<T> extends GuiMenu {
 	public void init() {
 		if(didInit) itemList.refresh();
 		super.init();
-		errorComponent.setText("");
 	}
 	
 	private class List extends GuiMenu {

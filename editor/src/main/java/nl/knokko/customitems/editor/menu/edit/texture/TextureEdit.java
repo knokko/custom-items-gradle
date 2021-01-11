@@ -132,44 +132,51 @@ public class TextureEdit extends GuiMenu {
 		
 		HelpButtons.addHelpLink(this, "edit%20menu/textures/edit.html");
 	}
+
+	public static NamedImage loadBasicImage(File file) throws IllegalArgumentException {
+		try {
+			BufferedImage loaded = ImageIO.read(file);
+			if(loaded != null) {
+				int width = loaded.getWidth();
+				if(width == loaded.getHeight()) {
+					if(width >= 16) {
+						if(width <= 512) {
+							if(width == 16 || width == 32 || width == 64 || width == 128 || width == 256 || width == 512) {
+								int indexDot = file.getName().indexOf('.');
+								String imageName;
+								if (indexDot == -1)
+									imageName = file.getName();
+								else
+									imageName = file.getName().substring(0, indexDot);
+
+								return new NamedImage(imageName, loaded);
+							} else
+								throw new IllegalArgumentException("The width and height (" + width + ") should be a power of 2");
+						} else
+							throw new IllegalArgumentException("The image should be at most 512 x 512 pixels.");
+					} else
+						throw new IllegalArgumentException("The image should be at least 16 x 16 pixels.");
+				} else
+					throw new IllegalArgumentException("The width (" + loaded.getWidth() + ") of this image should be equal to the height (" + loaded.getHeight() + ")");
+			} else
+				throw new IllegalArgumentException("This image can't be read.");
+		} catch(IOException ioex) {
+			throw new IllegalArgumentException("IO error: " + ioex.getMessage());
+		}
+	}
 	
 	public static DynamicTextButton createImageSelect(ImageListener listener, DynamicTextComponent errorComponent, GuiComponent returnMenu) {
 		return new DynamicTextButton("Edit...", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-			returnMenu.getState().getWindow().setMainComponent(new FileChooserMenu(returnMenu, (File file) -> {
+			returnMenu.getState().getWindow().setMainComponent(new FileChooserMenu(returnMenu, file -> {
 				try {
-					BufferedImage loaded = ImageIO.read(file);
-					if(loaded != null) {
-						int width = loaded.getWidth();
-						if(width == loaded.getHeight()) {
-							if(width >= 16) {
-								if(width <= 512) {
-									if(width == 16 || width == 32 || width == 64 || width == 128 || width == 256 || width == 512) {
-										int indexDot = file.getName().indexOf('.');
-										String imageName;
-										if (indexDot == -1)
-											imageName = file.getName();
-										else
-											imageName = file.getName().substring(0, indexDot);
-										
-										errorComponent.setText("");
-										return listener.listen(loaded, imageName);
-									} else
-										errorComponent.setText("The width and height (" + width + ") should be a power of 2");
-								} else
-									errorComponent.setText("The image should be at most 512 x 512 pixels.");
-							} else
-								errorComponent.setText("The image should be at least 16 x 16 pixels.");
-						} else
-							errorComponent.setText("The width (" + loaded.getWidth() + ") of this image should be equal to the height (" + loaded.getHeight() + ")");
-					} else
-						errorComponent.setText("This image can't be read.");
-				} catch(IOException ioex) {
-					errorComponent.setText("IO error: " + ioex.getMessage());
+					NamedImage loaded = loadBasicImage(file);
+					return listener.listen(loaded.getImage(), loaded.getName());
+				} catch (IllegalArgumentException error) {
+					errorComponent.setText(error.getMessage());
+					return returnMenu;
 				}
-				return returnMenu;
-			}, (File file) -> {
-				return file.getName().toLowerCase(Locale.ROOT).endsWith(".png");
-			}, EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, 
+			}, (File file) -> file.getName().toLowerCase(Locale.ROOT).endsWith(".png"),
+					EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER,
 					EditProps.BACKGROUND, EditProps.BACKGROUND2));
 		});
 	}
