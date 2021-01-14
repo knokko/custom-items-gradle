@@ -402,14 +402,14 @@ public class CustomItemsEventHandler implements Listener {
 				if (replace) {
 					switch(op) {
 					case AND:
-						CustomItem replaceItem = set().getCustomItemByName(conditions[0].getReplacingItemName());
+						CustomItem replaceItem;
 						item.setAmount(item.getAmount() - 1);
 						
 						for (ReplaceCondition condition : conditions) {
 							if (condition.getCondition() == ReplacementCondition.HASITEM) {
 								for (ItemStack stack : player.getInventory()) {
 									CustomItem inventoryItem = set().getItem(stack);
-									if (inventoryItem.getName() == condition.getItemName())
+									if (inventoryItem != null && inventoryItem.getName().equals(condition.getItemName()))
 										stack.setAmount(stack.getAmount() - condition.getValue());
 								}
 							}
@@ -444,7 +444,7 @@ public class CustomItemsEventHandler implements Listener {
 						if (conditions[replaceIndex].getCondition() == ReplacementCondition.HASITEM) {
 							for (ItemStack stack : player.getInventory()) {
 								CustomItem inventoryItem = set().getItem(stack);
-								if (inventoryItem.getName() == conditions[replaceIndex].getItemName())
+								if (inventoryItem != null && inventoryItem.getName().equals(conditions[replaceIndex].getItemName()))
 									stack.setAmount(stack.getAmount() - conditions[replaceIndex].getValue());
 							}
 						}
@@ -477,7 +477,7 @@ public class CustomItemsEventHandler implements Listener {
 						if (conditions[replaceIndex].getCondition() == ReplacementCondition.HASITEM) {
 							for (ItemStack stack : player.getInventory()) {
 								CustomItem inventoryItem = set().getItem(stack);
-								if (inventoryItem.getName() == conditions[replaceIndex].getItemName())
+								if (inventoryItem != null && inventoryItem.getName().equals(conditions[replaceIndex].getItemName()))
 									stack.setAmount(stack.getAmount() - conditions[replaceIndex].getValue());
 							}
 						}
