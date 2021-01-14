@@ -23,6 +23,7 @@ public class ReplacementCollectionEdit extends QuickCollectionEdit<ReplaceCondit
 	private final Collection<CustomItem> backingItems;
 	private ConditionOperation op;
 	private Consumer<ConditionOperation> operation;
+	private final int MAX_DEFAULT_SPACE = 2368; // 37 slots of 64 items at most
 	
 	public ReplacementCollectionEdit(Collection<ReplaceCondition> currentCollection, Consumer<Collection<ReplaceCondition>> onApply, GuiComponent returnMenu, 
 			ReplaceCondition exampleCondition, Collection<CustomItem> backingItems, Consumer<ConditionOperation> operation) {
@@ -43,17 +44,36 @@ public class ReplacementCollectionEdit extends QuickCollectionEdit<ReplaceCondit
 		removeComponent(apply);
 		
 		addComponent(new DynamicTextButton("Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
+			//Sanity checking whether every item is replaced with the same item when using the AND or OR operators
 			if (op == ConditionOperation.AND || op == ConditionOperation.OR) {
 				String replacementItem = null;
 				for (ReplaceCondition cond: ownCollection) {
 					if (replacementItem == null) {
 						replacementItem = cond.getReplacingItemName();
-					} else if (replacementItem != cond.getReplacingItemName()) {
+					} else if (!replacementItem.equals(cond.getReplacingItemName())) {
 						errorComponent.setText("With the OR and AND operators, all replacement items must be the same item. Use NONE if you want the item to be "
 								+ "replaced by different items based on different conditions");
 					}
 				}
 			}
+
+			//Sanity checking conditions for always being true or false
+			for (ReplaceCondition cond: ownCollection) {
+				if (cond.getCondition() == ReplacementCondition.HASITEM) {
+					if (cond.getOp() == ReplacementOperation.ATMOST	&& cond.getValue() >= MAX_DEFAULT_SPACE) {
+						errorComponent.setText("One of your conditions will always be true, check the condition where " +
+								"you have as operation ATMOST with value " + cond.getValue());
+					} else if (cond.getOp() == ReplacementOperation.ATLEAST && cond.getValue() >= MAX_DEFAULT_SPACE) {
+						errorComponent.setText("One of your conditions will always be false, check the condition where " +
+								"you have as operation ATLEAST with value " + cond.getValue());
+					} else if (cond.getOp() == ReplacementOperation.EXACTLY && (cond.getValue() >= MAX_DEFAULT_SPACE ||
+							cond.getValue() <= 0)) {
+						errorComponent.setText("One of your conditions will always be false, check the condition where " +
+								"you have as operation EXACTLY with value " + cond.getValue());
+					}
+				}
+			}
+
 			onApply.accept(ownCollection);
 			operation.accept(op);
 			state.getWindow().setMainComponent(returnMenu);
