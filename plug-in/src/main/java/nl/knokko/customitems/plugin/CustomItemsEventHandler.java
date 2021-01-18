@@ -2031,7 +2031,16 @@ public class CustomItemsEventHandler implements Listener {
 			if (customItem != null && customItem.canStack()) {
 				int currentStacksize = event.getCursor().getAmount();
 				InventoryView view = event.getView();
-				for (int slotIndex = 0; slotIndex < view.countSlots(); slotIndex++) {
+				/*
+				 * I would rather use Inventory#getSize, but that can include slots like equipment slots that
+				 * are hidden in some views. This has lead to stupid exceptions in the past...
+				 * (For the same reason, I can't just use view.countSlots()...)
+				 */
+				int numTopSlots = view.getTopInventory().getStorageContents().length;
+				int numBottomSlots = view.getBottomInventory().getStorageContents().length;
+				int numSlots = numTopSlots + numBottomSlots;
+
+				for (int slotIndex = 0; slotIndex < numSlots; slotIndex++) {
 					if (slotIndex != event.getRawSlot()) {
 						ItemStack otherSlot = view.getItem(slotIndex);
 						CustomItem otherCustom = set.getItem(otherSlot);
