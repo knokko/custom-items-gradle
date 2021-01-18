@@ -120,7 +120,6 @@ public class ContainerEventHandler implements Listener {
 
 	@EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
 	public void onInventoryClick(InventoryClickEvent event) {
-		
 		if (event.getWhoClicked() instanceof Player) {
 			
 			Player player = (Player) event.getWhoClicked();
@@ -196,7 +195,7 @@ public class ContainerEventHandler implements Listener {
 												}
 											} else {
                                 				int newAmount = bottomStack.getAmount() + remainingAmount;
-                                				bottomStack.setAmount(bottomStack.getAmount() + remainingAmount);
+                                				bottomStack.setAmount(newAmount);
                                 				remainingAmount = 0;
                                 				break;
 											}
@@ -204,7 +203,22 @@ public class ContainerEventHandler implements Listener {
 									}
 								}
 
-                                toTransfer.setAmount(remainingAmount);
+                                if (remainingAmount > 0) {
+                                	for (int bottomIndex = 0; bottomIndex < bottomInv.getSize(); bottomIndex++) {
+                                		ItemStack bottomStack = bottomInv.getItem(bottomIndex);
+                                		if (ItemUtils.isEmpty(bottomStack)) {
+                                			ItemStack finalStack = toTransfer.clone();
+                                			finalStack.setAmount(remainingAmount);
+                                			bottomInv.setItem(bottomIndex, finalStack);
+                                			remainingAmount = 0;
+                                			break;
+										}
+									}
+								}
+
+                                if (remainingAmount != toTransfer.getAmount()) {
+									toTransfer.setAmount(remainingAmount);
+								}
 							}
 							// If not, the default move to other inventory behavior is fine
 						} else {
@@ -296,7 +310,6 @@ public class ContainerEventHandler implements Listener {
 			
 			List<CustomContainer> containerSelection = pluginData().getCustomContainerSelection(event.getWhoClicked());
 			if (containerSelection != null) {
-				
 				// Block any inventory action during container selection
 				event.setCancelled(true);
 				
