@@ -162,10 +162,53 @@ public class ContainerEventHandler implements Listener {
 							 */
 							event.getAction() == InventoryAction.NOTHING) {
 						if (
-								// Placeholder items are considered empty
-								(!slot.canTakeItems() && !ItemUtils.isEmpty(event.getCurrentItem())) 
-								|| !slot.canInsertItems()) {
+							// Placeholder items are considered empty
+								(!slot.canTakeItems() && !ItemUtils.isEmpty(event.getCurrentItem()))
+										|| !slot.canInsertItems()) {
 							event.setCancelled(true);
+						}
+					} else if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
+					    if (slot.canTakeItems()) {
+
+							ItemSet set = CustomItemsPlugin.getInstance().getSet();
+							ItemStack toTransfer = event.getCurrentItem();
+							CustomItem customTransfer = set.getItem(toTransfer);
+
+							// If it is a stackable custom item, we can improve the action by attempting to merge
+							// the item stack with an existing item stack in the destination inventory
+							if (customTransfer != null && customTransfer.canStack()) {
+								event.setCancelled(true);
+
+								int remainingAmount = toTransfer.getAmount();
+
+                                Inventory bottomInv = event.getView().getBottomInventory();
+                                for (int bottomIndex = 0; bottomIndex < bottomInv.getSize(); bottomIndex++) {
+                                	ItemStack bottomStack = bottomInv.getItem(bottomIndex);
+                                	CustomItem customBottom = set.getItem(bottomStack);
+                                	if (customTransfer == customBottom) {
+                                		int remainingSpace = customBottom.getMaxStacksize() - bottomStack.getAmount();
+                                		if (remainingSpace > 0) {
+                                			if (remainingAmount > remainingSpace) {
+                                				bottomStack.setAmount(customBottom.getMaxStacksize());
+                                				remainingAmount -= remainingSpace;
+                                				if (remainingAmount == 0) {
+                                					break;
+												}
+											} else {
+                                				int newAmount = bottomStack.getAmount() + remainingAmount;
+                                				bottomStack.setAmount(bottomStack.getAmount() + remainingAmount);
+                                				remainingAmount = 0;
+                                				break;
+											}
+										}
+									}
+								}
+
+                                toTransfer.setAmount(remainingAmount);
+							}
+							// If not, the default move to other inventory behavior is fine
+						} else {
+					    	event.setCancelled(true);
 						}
 					} else {
 						
@@ -306,13 +349,13 @@ public class ContainerEventHandler implements Listener {
 		return action == InventoryAction.PICKUP_ONE ||
 				action == InventoryAction.PICKUP_SOME ||
 				action == InventoryAction.PICKUP_HALF ||
-				action == InventoryAction.PICKUP_ALL ||
-				action == InventoryAction.MOVE_TO_OTHER_INVENTORY;
+				action == InventoryAction.PICKUP_ALL;
 	}
 	
 	private boolean isInsert(InventoryAction action) {
 		return action == InventoryAction.PLACE_ONE ||
 				action == InventoryAction.PLACE_SOME ||
-				action == InventoryAction.PLACE_ALL;
+				action == InventoryAction.PLACE_ALL ||
+				action == InventoryAction.COLLECT_TO_CURSOR;
 	}
 }
