@@ -2074,7 +2074,7 @@ public class CustomItemsEventHandler implements Listener {
 		}
 	}
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void handleCustomItemDragging(InventoryDragEvent event) {
 	    if (event.getType() == DragType.EVEN) {
 			ItemStack remainingCursor = event.getCursor();
