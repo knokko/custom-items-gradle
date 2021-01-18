@@ -126,6 +126,14 @@ public class CommandCustomItems implements CommandExecutor {
 									return true;
 								}
 							}
+							if (amount > item.getMaxStacksize()) {
+								sender.sendMessage(ChatColor.RED + "The amount can be at most " + item.getMaxStacksize());
+								return true;
+							}
+							if (amount < 1) {
+								sender.sendMessage(ChatColor.RED + "The amount must be positive");
+								return true;
+							}
 							if (receiver != null) {
 								receiver.getInventory().addItem(item.create(amount));
 								sender.sendMessage(lang.getCommandItemGiven());
