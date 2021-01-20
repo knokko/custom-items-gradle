@@ -1398,15 +1398,15 @@ public class ItemSet implements ItemSetBase {
 		for (int index = 0; index < commands.length; index++) {
 			commands[index] = input.readJavaString();
 		}
-		
+
 		ReplaceCondition[] conditions = new ReplaceCondition[input.readByte() & 0xFF];
 		for (int index = 0; index < conditions.length; index++) {
 			conditions[index] = loadReplaceCondition(input);
 		}
 		ConditionOperation op = ConditionOperation.valueOf(input.readJavaString());
-		ExtraItemNbt extraNbt = new ExtraItemNbt();
+		ExtraItemNbt extraNbt = ExtraItemNbt.load(input);
 		float attackRange = input.readFloat();
-		
+
 		return new CustomShears(
 				damage, name, alias, displayName, lore, attributes, 
 				defaultEnchantments, durability, allowEnchanting, allowAnvil, 
