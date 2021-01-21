@@ -403,38 +403,25 @@ public class CustomItemsEventHandler implements Listener {
 					switch(op) {
 					case AND:
 						CustomItem replaceItem;
-						item.setAmount(item.getAmount() - 1);
-						
 						for (ReplaceCondition condition : conditions) {
-							if (condition.getCondition() == ReplacementCondition.HASITEM) {
-								int conditionValue = condition.getValue();
-								if (condition.getOp() == ReplaceCondition.ReplacementOperation.NONE) {
-									conditionValue = 1;
-								}
-
-								for (ItemStack stack : player.getInventory()) {
-									CustomItem inventoryItem = set().getItem(stack);
-									if (inventoryItem != null && inventoryItem.getName().equals(condition.getItemName())) {
-										if (condition.getOp() == ReplaceCondition.ReplacementOperation.ATLEAST ||
-											condition.getOp() == ReplaceCondition.ReplacementOperation.NONE) {
-											if (stack.getAmount() < conditionValue) {
-												conditionValue -= stack.getAmount();
-												stack.setAmount(0);
-											} else {
-												stack.setAmount(stack.getAmount() - conditionValue);
-												conditionValue = 0;
-											}
-										} else if (condition.getOp() == ReplaceCondition.ReplacementOperation.ATMOST
-											|| condition.getOp() == ReplaceCondition.ReplacementOperation.EXACTLY) {
-											stack.setAmount(0);
-										}
-									}
-								}
-							}
+							replaceItems(condition, player);
 						}
 						
 						replaceItem = set().getCustomItemByName(conditions[replaceIndex].getReplacingItemName());
 						EquipmentSlot slot = event.getHand();
+
+						boolean replaceSelf = false;
+						for (ReplaceCondition condition : conditions) {
+							if (condition.getItemName().equals(custom.getName())) {
+								replaceSelf = true;
+								break;
+							}
+						}
+
+						if (!replaceSelf) {
+							item.setAmount(item.getAmount() - 1);
+						}
+
 						if (replaceItem != null) {
 							ItemStack stack = replaceItem.create(1);
 							if (item.getAmount() <= 0) {
@@ -457,15 +444,12 @@ public class CustomItemsEventHandler implements Listener {
 								replaceIndex = index;
 						}
 						
-						item.setAmount(item.getAmount() - 1);
-						
 						if (conditions[replaceIndex].getCondition() == ReplacementCondition.HASITEM) {
-							for (ItemStack stack : player.getInventory()) {
-								CustomItem inventoryItem = set().getItem(stack);
-								if (inventoryItem != null && inventoryItem.getName().equals(conditions[replaceIndex].getItemName()))
-									stack.setAmount(stack.getAmount() - conditions[replaceIndex].getValue());
-							}
+							replaceItems(conditions[replaceIndex], player);
 						}
+
+						if (!conditions[replaceIndex].getItemName().equals(custom.getName()))
+							item.setAmount(item.getAmount() - 1);
 						
 						replaceItem = set().getCustomItemByName(conditions[replaceIndex].getReplacingItemName());
 						slot = event.getHand();
@@ -491,15 +475,14 @@ public class CustomItemsEventHandler implements Listener {
 								break;
 							}
 						}
-						
+
 						if (conditions[replaceIndex].getCondition() == ReplacementCondition.HASITEM) {
-							for (ItemStack stack : player.getInventory()) {
-								CustomItem inventoryItem = set().getItem(stack);
-								if (inventoryItem != null && inventoryItem.getName().equals(conditions[replaceIndex].getItemName()))
-									stack.setAmount(stack.getAmount() - conditions[replaceIndex].getValue());
-							}
+							replaceItems(conditions[replaceIndex], player);
 						}
-						item.setAmount(item.getAmount() - 1);
+
+						if (!conditions[replaceIndex].getItemName().equals(custom.getName()))
+							item.setAmount(item.getAmount() - 1);
+
 						replaceItem = set().getCustomItemByName(conditions[replaceIndex].getReplacingItemName());
 						slot = event.getHand();
 						if (replaceItem != null) {
@@ -2385,5 +2368,33 @@ public class CustomItemsEventHandler implements Listener {
 		}
 		
 		return null;
+	}
+
+	private void replaceItems(ReplaceCondition condition, Player player) {
+		if (condition.getCondition() == ReplacementCondition.HASITEM) {
+			int conditionValue = condition.getValue();
+			if (condition.getOp() == ReplaceCondition.ReplacementOperation.NONE) {
+				conditionValue = 1;
+			}
+
+			for (ItemStack stack : player.getInventory()) {
+				CustomItem inventoryItem = set().getItem(stack);
+				if (inventoryItem != null && inventoryItem.getName().equals(condition.getItemName())) {
+					if (condition.getOp() == ReplaceCondition.ReplacementOperation.ATLEAST ||
+							condition.getOp() == ReplaceCondition.ReplacementOperation.NONE) {
+						if (stack.getAmount() < conditionValue) {
+							conditionValue -= stack.getAmount();
+							stack.setAmount(0);
+						} else {
+							stack.setAmount(stack.getAmount() - conditionValue);
+							conditionValue = 0;
+						}
+					} else if (condition.getOp() == ReplaceCondition.ReplacementOperation.ATMOST
+							|| condition.getOp() == ReplaceCondition.ReplacementOperation.EXACTLY) {
+						stack.setAmount(0);
+					}
+				}
+			}
+		}
 	}
 }
