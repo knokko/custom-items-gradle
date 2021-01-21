@@ -407,10 +407,28 @@ public class CustomItemsEventHandler implements Listener {
 						
 						for (ReplaceCondition condition : conditions) {
 							if (condition.getCondition() == ReplacementCondition.HASITEM) {
+								int conditionValue = condition.getValue();
+								if (condition.getOp() == ReplaceCondition.ReplacementOperation.NONE) {
+									conditionValue = 1;
+								}
+
 								for (ItemStack stack : player.getInventory()) {
 									CustomItem inventoryItem = set().getItem(stack);
-									if (inventoryItem != null && inventoryItem.getName().equals(condition.getItemName()))
-										stack.setAmount(stack.getAmount() - condition.getValue());
+									if (inventoryItem != null && inventoryItem.getName().equals(condition.getItemName())) {
+										if (condition.getOp() == ReplaceCondition.ReplacementOperation.ATLEAST ||
+											condition.getOp() == ReplaceCondition.ReplacementOperation.NONE) {
+											if (stack.getAmount() < conditionValue) {
+												conditionValue -= stack.getAmount();
+												stack.setAmount(0);
+											} else {
+												stack.setAmount(stack.getAmount() - conditionValue);
+												conditionValue = 0;
+											}
+										} else if (condition.getOp() == ReplaceCondition.ReplacementOperation.ATMOST
+											|| condition.getOp() == ReplaceCondition.ReplacementOperation.EXACTLY) {
+											stack.setAmount(0);
+										}
+									}
 								}
 							}
 						}
@@ -2312,24 +2330,14 @@ public class CustomItemsEventHandler implements Listener {
 	}
 	
 	private boolean checkCondition(ReplaceCondition cond, Player player) {
+		int counted = 0;
 		for (ItemStack stack : player.getInventory()) {
 			CustomItem inventoryItem = set().getItem(stack);
 			if (inventoryItem != null) {
 				switch(cond.getCondition()) {
 				case HASITEM:
 					if (inventoryItem.getName().contentEquals(cond.getItemName())) {
-						switch(cond.getOp()) {
-						case ATLEAST:
-							return stack.getAmount() >= cond.getValue();
-						case ATMOST:
-							return stack.getAmount() <= cond.getValue();
-						case EXACTLY:
-							return stack.getAmount() == cond.getValue();
-						case NONE:
-							return true;
-						default:
-							break;
-						}
+						counted += stack.getAmount();
 					}
 					break;
 				case MISSINGITEM:
@@ -2349,6 +2357,21 @@ public class CustomItemsEventHandler implements Listener {
 		
 		if (cond.getCondition() == ReplacementCondition.MISSINGITEM) {
 			return true;
+		}
+
+		if (cond.getCondition() == ReplacementCondition.HASITEM) {
+			switch (cond.getOp()) {
+				case ATMOST:
+					return counted <= cond.getValue();
+				case ATLEAST:
+					return counted >= cond.getValue();
+				case EXACTLY:
+					return counted == cond.getValue();
+				case NONE:
+					return counted > 0;
+				default:
+					break;
+			}
 		}
 		
 		return false;
