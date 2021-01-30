@@ -48,8 +48,8 @@ public class EquipmentEffectsManager {
 					living.addPotionEffect(new PotionEffect(
 							PotionEffectType.getByName(
 									effect.getPotionEffect().getEffect().name()
-							), 50, effect.getPotionEffect().getLevel() - 1
-					));
+							), 80, effect.getPotionEffect().getLevel() - 1
+					), true);
 				}
 			}
 		}
