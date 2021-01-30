@@ -1,6 +1,6 @@
 # Knokko's Custom Items
 
-This is the source code for the Knokko's Custom Items minecraft plug-in: https://dev.bukkit.org/projects/custom-items-and-textures
+This is the source code for the Knokko's Custom Items minecraft plug-in: https://dev.bukkit.org/projects/custom-items-and-textures and https://www.spigotmc.org/resources/knokkos-custom-items.88182/ .
 This plug-in makes it possible to add custom items with their own textures, without sacrificing existing minecraft items. 
 (At least, if the (server) resourcepack is used.)
 
