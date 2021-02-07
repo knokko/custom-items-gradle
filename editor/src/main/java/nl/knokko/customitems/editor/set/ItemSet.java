@@ -70,6 +70,7 @@ import nl.knokko.customitems.container.slot.FuelIndicatorCustomSlot;
 import nl.knokko.customitems.container.slot.InputCustomSlot;
 import nl.knokko.customitems.container.slot.OutputCustomSlot;
 import nl.knokko.customitems.container.slot.ProgressIndicatorCustomSlot;
+import nl.knokko.customitems.container.slot.display.CustomItemDisplayItem;
 import nl.knokko.customitems.container.slot.display.DataVanillaDisplayItem;
 import nl.knokko.customitems.container.slot.display.SimpleVanillaDisplayItem;
 import nl.knokko.customitems.container.slot.display.SlotDisplay;
@@ -6264,6 +6265,14 @@ public class ItemSet implements ItemSetBase {
 		return null;
 	}
 
+	private CustomItem responsibleItem(SlotDisplay slotDisplay) {
+		if (slotDisplay.getItem() instanceof CustomItemDisplayItem) {
+			return (CustomItem) ((CustomItemDisplayItem) slotDisplay.getItem()).getItem();
+		} else {
+			return null;
+		}
+	}
+
 	/**
 	 * Attempts to remove the specified item from this set. If the item could not be
 	 * removed, the reason is returned. If the item can be removed, it will be
@@ -6325,6 +6334,56 @@ public class ItemSet implements ItemSetBase {
 				}
 			}
 			for (CustomContainer container : containers) {
+			    // Protect the selection icon of custom containers
+				if (responsibleItem(container.getSelectionIcon()) == item) {
+					return "This item is used as selection icon of container " + container.getName();
+				}
+
+				// Protect the slot displays of custom containers
+				for (int x = 0; x < 9; x++) {
+					for (int y = 0; y < container.getHeight(); y++) {
+						CustomSlot slot = container.getSlot(x, y);
+						if (slot instanceof DecorationCustomSlot) {
+							DecorationCustomSlot decoration = (DecorationCustomSlot) slot;
+							if (responsibleItem(decoration.getDisplay()) == item) {
+								return "This item is used as decoration in container " + container.getName();
+							}
+						} else if (slot instanceof FuelCustomSlot) {
+							FuelCustomSlot fuelSlot = (FuelCustomSlot) slot;
+							if (responsibleItem(fuelSlot.getPlaceholder()) == item) {
+								return "This item is used as fuel placeholder in container " + container.getName();
+							}
+						} else if (slot instanceof FuelIndicatorCustomSlot) {
+							FuelIndicatorCustomSlot indicatorSlot = (FuelIndicatorCustomSlot) slot;
+							if (responsibleItem(indicatorSlot.getPlaceholder()) == item) {
+								return "This item is used as a fuel indicator placeholder in container " + container.getName();
+							}
+							if (responsibleItem(indicatorSlot.getDisplay()) == item) {
+								return "This item is used as a fuel indicator display in container " + container.getName();
+							}
+						} else if (slot instanceof InputCustomSlot) {
+							InputCustomSlot inputSlot = (InputCustomSlot) slot;
+							if (responsibleItem(inputSlot.getPlaceholder()) == item) {
+								return "This item is used as input placeholder in container " + container.getName();
+							}
+						} else if (slot instanceof OutputCustomSlot) {
+							OutputCustomSlot outputSlot = (OutputCustomSlot) slot;
+							if (responsibleItem(outputSlot.getPlaceholder()) == item) {
+								return "This item is used as output placeholder in container " + container.getName();
+							}
+						} else if (slot instanceof ProgressIndicatorCustomSlot) {
+							ProgressIndicatorCustomSlot indicatorSlot = (ProgressIndicatorCustomSlot) slot;
+							if (responsibleItem(indicatorSlot.getPlaceHolder()) == item) {
+								return "This item is used as progress indicator placeholder in container " + container.getName();
+							}
+							if (responsibleItem(indicatorSlot.getDisplay()) == item) {
+								return "This item is used as progress indicator display in container " + container.getName();
+							}
+						}
+					}
+				}
+
+				// Protect the recipes of custom containers
 				for (ContainerRecipe recipe : container.getRecipes()) {
 					for (InputEntry input : recipe.getInputs()) {
 						if (input.getIngredient() instanceof CustomItemIngredient) {
@@ -6356,11 +6415,10 @@ public class ItemSet implements ItemSetBase {
 	}
 
 	/**
-	 * Attempts to add a shaped recipe with the specified id, ingredients and result
+	 * Attempts to add a shaped recipe with the specified ingredients and result
 	 * to this ItemSet. If the recipe can be added, it will be added. If the recipe
 	 * can't be added, the reason is returned.
 	 * 
-	 * @param id          The id of the recipe to add
 	 * @param ingredients The ingredients of the recipe to add
 	 * @param result      The result of the recipe to add
 	 * @return The reason why the recipe can't be added, or null if the recipe was
@@ -6947,8 +7005,7 @@ public class ItemSet implements ItemSetBase {
 	 * successfully, null will be returned. Otherwise the reason it couldn't be
 	 * changed will be returned.
 	 * @param toModify The container to be modified
-	 * @param newName The (new) name for the container
-	 * @param newDisplayName The (new) display name for the container
+     * @param newSelectionIcon The (new) selection icon for the container
 	 * @param newRecipes The (new) recipes for the container
 	 * @param newFuelMode The (new) fuel mode for the container
 	 * @param newSlots The (new) slots for the container
