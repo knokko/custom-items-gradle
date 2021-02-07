@@ -45,10 +45,13 @@ public class EquipmentEffectsManager {
 		if (item != null) {
 			for (EquippedPotionEffect effect : item.getEquippedEffects()) {
 				if (effect.getRequiredSlot() == slot) {
+					PotionEffectType effectType = PotionEffectType.getByName(effect.getPotionEffect().getEffect().name());
+
+					// The night vision effect needs a longer duration to avoid the flickering effect when it nearly expires
+					int duration = effectType.equals(PotionEffectType.NIGHT_VISION) ? 300 : 80;
+					
 					living.addPotionEffect(new PotionEffect(
-							PotionEffectType.getByName(
-									effect.getPotionEffect().getEffect().name()
-							), 80, effect.getPotionEffect().getLevel() - 1
+							effectType, duration, effect.getPotionEffect().getLevel() - 1
 					), true);
 				}
 			}
