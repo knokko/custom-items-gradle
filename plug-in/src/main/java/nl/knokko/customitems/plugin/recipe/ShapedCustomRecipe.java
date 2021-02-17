@@ -44,11 +44,37 @@ public class ShapedCustomRecipe implements CustomRecipe {
 
 	@Override
 	public boolean shouldAccept(ItemStack[] ingredients) {
+
+    	// For the 3x3 crafting grid
 		if (ingredients.length == 9) {
 			for(int index = 0; index < 9; index++) 
 				if(!this.ingredients[index].accept(ingredients[index]))
 					return false;
 			return true;
+		}
+
+		// For the 2x2 crafting grid
+		if (ingredients.length == 4) {
+			// In the 2x2 shape, the ingredient indices should be:
+			// [0] [1] (2)
+			// [3] [4] (5)
+			// (6) (7) (8)
+
+			// So we should only accept this if this recipe has no ingredients at index 2, 5, 6, 7, and 8
+			if (!this.ingredients[2].accept(null)) {
+				return false;
+			}
+			for (int index = 5; index < 9; index++) {
+				if (!this.ingredients[index].accept(null)) {
+					return false;
+				}
+			}
+
+			// Compare the relevant ingredients (note the weird displacement)
+			return this.ingredients[0].accept(ingredients[0])
+					&& this.ingredients[1].accept(ingredients[1])
+					&& this.ingredients[3].accept(ingredients[2])
+					&& this.ingredients[4].accept(ingredients[3]);
 		}
 		return false;
 	}
