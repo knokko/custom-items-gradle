@@ -6266,7 +6266,7 @@ public class ItemSet implements ItemSetBase {
 	}
 
 	private CustomItem responsibleItem(SlotDisplay slotDisplay) {
-		if (slotDisplay.getItem() instanceof CustomItemDisplayItem) {
+		if (slotDisplay != null && slotDisplay.getItem() instanceof CustomItemDisplayItem) {
 			return (CustomItem) ((CustomItemDisplayItem) slotDisplay.getItem()).getItem();
 		} else {
 			return null;
@@ -7119,7 +7119,7 @@ public class ItemSet implements ItemSetBase {
 		for (CustomItem item : items) {
 			if (item instanceof CustomArmor) {
 				CustomArmor armor = (CustomArmor) item;
-				if (armor.getWornTexture().get() == toRemove.get()) {
+				if (armor.getWornTexture() != null && armor.getWornTexture().get() == toRemove.get()) {
 					return "The armor " + armor.getName() + " still uses this worn texture";
 				}
 			}
