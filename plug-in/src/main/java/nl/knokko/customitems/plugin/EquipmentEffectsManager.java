@@ -46,13 +46,41 @@ public class EquipmentEffectsManager {
 			for (EquippedPotionEffect effect : item.getEquippedEffects()) {
 				if (effect.getRequiredSlot() == slot) {
 					PotionEffectType effectType = PotionEffectType.getByName(effect.getPotionEffect().getEffect().name());
+					boolean periodicEffect = effectType.equals(PotionEffectType.REGENERATION)
+							|| effectType.equals(PotionEffectType.POISON)
+							|| effectType.equals(PotionEffectType.WITHER);
 
 					// The night vision effect needs a longer duration to avoid the flickering effect when it nearly expires
-					int duration = effectType.equals(PotionEffectType.NIGHT_VISION) ? 300 : 80;
-					
-					living.addPotionEffect(new PotionEffect(
-							effectType, duration, effect.getPotionEffect().getLevel() - 1
-					), true);
+					// Period effects shouldn't be reset too often because they have a sensitive counter
+					int duration;
+					if (effectType.equals(PotionEffectType.NIGHT_VISION) || periodicEffect) {
+						duration = 300;
+					} else {
+						duration = 80;
+					}
+
+					boolean shouldReplaceEffect;
+					if (periodicEffect) {
+						PotionEffect existing = living.getPotionEffect(effectType);
+						if (existing != null) {
+							int existingLevel = existing.getAmplifier() + 1;
+							if (existingLevel > effect.getPotionEffect().getLevel()) {
+								shouldReplaceEffect = false;
+							} else {
+								shouldReplaceEffect = existing.getDuration() < 40;
+							}
+						} else {
+							shouldReplaceEffect = true;
+						}
+					} else {
+						shouldReplaceEffect = true;
+					}
+
+					if (shouldReplaceEffect) {
+						living.addPotionEffect(new PotionEffect(
+								effectType, duration, effect.getPotionEffect().getLevel() - 1
+						), true);
+					}
 				}
 			}
 		}
