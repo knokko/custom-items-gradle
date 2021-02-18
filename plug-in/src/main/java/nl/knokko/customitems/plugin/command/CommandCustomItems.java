@@ -9,7 +9,7 @@
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- *  
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
  *
@@ -70,7 +70,7 @@ public class CommandCustomItems implements CommandExecutor {
 		sender.sendMessage(lang.getCommandGiveUseage());
 	}
 	
-	private LanguageFile lang;
+	private final LanguageFile lang;
 	
 	public CommandCustomItems(LanguageFile lang) {
 		this.lang = lang;
@@ -252,81 +252,88 @@ public class CommandCustomItems implements CommandExecutor {
 													+ "(it misses the pack.mcmeta in the root directory)");
 										} else {
 											if (hasCustomItemsFolder) {
-												if (resourcePackHash.isEmpty()) {
-													sender.sendMessage(ChatColor.YELLOW + "The "
-															+ "resource-pack-sha1 in your "
-															+ "server.properties is not set. "
-															+ "Unless you always change the "
-															+ "resource-pack url when you change "
-															+ "your item set, players will NOT "
-															+ "download the new resourcepack if "
-															+ "they have downloaded an older "
-															+ "version of the server resourcepack.");
-												} else {
-
-													// We download the resourcepack again, but this time, we compute
-													// the sha1 sum.
+												// We download the resourcepack again, but this time, we compute
+												// the sha1 sum.
+												try {
+													sender.sendMessage(ChatColor.BLUE + "Downloading server resourcepack "
+															+ "to compute its sha1 sum, this could take a while...");
+													MessageDigest sha1 = MessageDigest.getInstance("SHA1");
+													long numBytes = 0L;
 													try {
-														sender.sendMessage(ChatColor.BLUE + "Downloading server resourcepack "
-																+ "to compute its sha1 sum, this could take a while...");
-														MessageDigest sha1 = MessageDigest.getInstance("SHA1");
-														long numBytes = 0L;
-														try {
-															BufferedInputStream checkStream = new BufferedInputStream(new URL(resourcePackUrl).openStream(), 1_000_000);
-															int readByte = checkStream.read();
-															while (readByte != -1) {
-																sha1.update((byte) readByte);
-																numBytes++;
-																readByte = checkStream.read();
+														BufferedInputStream checkStream = new BufferedInputStream(new URL(resourcePackUrl).openStream(), 1_000_000);
+														int readByte = checkStream.read();
+														while (readByte != -1) {
+															sha1.update((byte) readByte);
+															numBytes++;
+															readByte = checkStream.read();
+														}
+														checkStream.close();
+
+														byte[] hashBytes = sha1.digest();
+
+														StringBuilder sb = new StringBuilder();
+														for (byte hashByte : hashBytes) {
+															sb.append(Integer.toString((hashByte & 0xff) + 0x100, 16).substring(1));
+														}
+														String correctHash = sb.toString();
+
+														if (resourcePackHash.equals(correctHash)) {
+															long MAX_SIZE_OLD = 52428800L;
+															long MAX_SIZE_NEW = MAX_SIZE_OLD * 2;
+															if (numBytes > MAX_SIZE_NEW) {
+																sender.sendMessage(ChatColor.RED + "Your server resourcepack is "
+																		+ "too large. For minecraft 1.15 and later, the maximum is "
+																		+ "100MiB. For earlier minecraft versions, the maximum size "
+																		+ "is 50MiB.");
+															} else if (numBytes > MAX_SIZE_OLD) {
+																sender.sendMessage(ChatColor.YELLOW + "Your server resourcepack is "
+																		+ "too large for minecraft 1.14 and earlier. If your players "
+																		+ "are using such a minecraft version, they can't use the "
+																		+ "server resourcepack. The maximum size for these versions is "
+																		+ "50MiB.");
+															} else {
+																sender.sendMessage(ChatColor.GREEN + "Your server resourcepack seems fine.");
 															}
-															checkStream.close();
-
-															byte[] hashBytes = sha1.digest();
-
-															StringBuffer sb = new StringBuffer();
-															for (int i = 0; i < hashBytes.length; i++) {
-																sb.append(Integer.toString((hashBytes[i] & 0xff) + 0x100, 16).substring(1));
-															}
-															String correctHash = sb.toString();
-
-															if (resourcePackHash.equals(correctHash)) {
-																long MAX_SIZE_OLD = 52428800L;
-																long MAX_SIZE_NEW = MAX_SIZE_OLD * 2;
-																if (numBytes > MAX_SIZE_NEW) {
-																	sender.sendMessage(ChatColor.RED + "Your server resourcepack is "
-																			+ "too large. For minecraft 1.15 and later, the maximum is "
-																			+ "100MiB. For earlier minecraft versions, the maximum size "
-																			+ "is 50MiB.");
-																} else if (numBytes > MAX_SIZE_OLD) {
-																	sender.sendMessage(ChatColor.YELLOW + "Your server resourcepack is "
-																			+ "too large for minecraft 1.14 and earlier. If your players "
-																			+ "are using such a minecraft version, they can't use the "
-																			+ "server resourcepack. The maximum size for these versions is "
-																			+ "50MiB.");
-																} else {
-																	sender.sendMessage(ChatColor.GREEN + "Your server resourcepack seems fine.");
-																}
+														} else {
+															if (resourcePackHash.isEmpty()) {
+																sender.sendMessage(ChatColor.YELLOW + "The "
+																		+ "resource-pack-sha1 in your "
+																		+ "server.properties is not set. "
+																		+ "Unless you always change the "
+																		+ "resource-pack url when you change "
+																		+ "your item set, players will NOT "
+																		+ "download the new resourcepack if "
+																		+ "they have downloaded an older "
+																		+ "version of the server resourcepack. "
+																		+ "You should set the resource-pack-sha1 to "
+																		+ correctHash
+																		+ " and update it each time you add or change "
+																		+ "item textures."
+																);
 															} else {
 																sender.sendMessage(ChatColor.RED + "The resource-pack-sha1 "
 																		+ "in your server.properties is " + resourcePackHash
-																		+ " but it should be " + correctHash);
+																		+ " but it should be " + correctHash
+																		+ " Note: you have to update the sha1 each time "
+																		+ "you add or change item textures."
+																);
 															}
-														} catch (IOException secondDownloadFailed) {
-															sender.sendMessage(ChatColor.RED + "The server was able to "
-																	+ "download your server resourcepack once, but NOT "
-																	+ "twice. This indicates connection problems on your "
-																	+ "server or your resourcepack host.");
 														}
-													} catch (NoSuchAlgorithmException e) {
-														sender.sendMessage(ChatColor.YELLOW + "The resource-pack in "
-																+ "your server.properties points to a valid "
-																+ "CustomItems resourcepack and you have set the "
-																+ "resource-pack-sha1 in the server.properties. "
-																+ "Unfortunately, your server seems unable to "
-																+ "compute such sha1 sums, so I don't know if the "
-																+ "sha1 sum you provided is correct.");
+													} catch (IOException secondDownloadFailed) {
+														sender.sendMessage(ChatColor.RED + "The server was able to "
+																+ "download your server resourcepack once, but NOT "
+																+ "twice. This indicates connection problems on your "
+																+ "server or your resourcepack host.");
 													}
+												} catch (NoSuchAlgorithmException e) {
+													sender.sendMessage(ChatColor.YELLOW + "The resource-pack in "
+															+ "your server.properties points to a valid "
+															+ "CustomItems resourcepack."
+															+ "Unfortunately, your server seems unable to "
+															+ "compute such sha1 sums, so I don't know if the "
+															+ "sha1 sum you provided is correct.");
 												}
+
 											} else {
 												sender.sendMessage(ChatColor.RED + "The resource-pack "
 														+ "in your server.properties points to a valid "
