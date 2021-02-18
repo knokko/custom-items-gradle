@@ -358,154 +358,158 @@ public class CustomItemsEventHandler implements Listener {
 			if (custom != null) {
 				if (custom.forbidDefaultUse(item))
 					event.setCancelled(true);
-				
-				ReplaceCondition[] conditions = custom.getReplaceConditions();
-				ConditionOperation op = custom.getConditionOperator();
-				boolean replace = false;
-				boolean firstCond = true;
-				Player player = event.getPlayer();
-				int replaceIndex = -1;
-				boolean[] trueConditions = new boolean[conditions.length];
-				
-				for (ReplaceCondition cond : conditions) {
-					replaceIndex++;
-					if (op == ConditionOperation.AND) {
-						if (replace || firstCond) {
-							replace = checkCondition(cond, player);
-						}
-						
-						firstCond = false;
-					} else if (op == ConditionOperation.OR) {
-						if (!replace || firstCond) {
-							replace = checkCondition(cond, player);
-						}
-						
-						firstCond = false;
-					} else {
-						if (!replace || firstCond) {
-							replace = checkCondition(cond, player);
-						}
-						
-						firstCond = false;
-					}
-					
-					trueConditions[replaceIndex] = replace;
-				}
-				
-				for (boolean bool : trueConditions) {
-					if (bool) {
-						replace = true;
-						break;
-					}
-				}
-				
-				if (replace) {
-					switch(op) {
-					case AND:
-						CustomItem replaceItem;
-						for (ReplaceCondition condition : conditions) {
-							replaceItems(condition, player);
-						}
-						
-						replaceItem = set().getCustomItemByName(conditions[replaceIndex].getReplacingItemName());
-						EquipmentSlot slot = event.getHand();
 
-						boolean replaceSelf = false;
-						for (ReplaceCondition condition : conditions) {
-							if (condition.getItemName().equals(custom.getName())) {
-								replaceSelf = true;
+				//Delay replacing by half a second to give all other handlers time to do their thing. Especially
+				//important for wands.
+				plugin().getServer().getScheduler().scheduleSyncDelayedTask(plugin(), () -> {
+					ReplaceCondition[] conditions = custom.getReplaceConditions();
+					ConditionOperation op = custom.getConditionOperator();
+					boolean replace = false;
+					boolean firstCond = true;
+					Player player = event.getPlayer();
+					int replaceIndex = -1;
+					boolean[] trueConditions = new boolean[conditions.length];
+
+					for (ReplaceCondition cond : conditions) {
+						replaceIndex++;
+						if (op == ConditionOperation.AND) {
+							if (replace || firstCond) {
+								replace = checkCondition(cond, player);
+							}
+
+							firstCond = false;
+						} else if (op == ConditionOperation.OR) {
+							if (!replace || firstCond) {
+								replace = checkCondition(cond, player);
+							}
+
+							firstCond = false;
+						} else {
+							if (!replace || firstCond) {
+								replace = checkCondition(cond, player);
+							}
+
+							firstCond = false;
+						}
+
+						trueConditions[replaceIndex] = replace;
+					}
+
+					for (boolean bool : trueConditions) {
+						if (bool) {
+							replace = true;
+							break;
+						}
+					}
+
+					if (replace) {
+						switch (op) {
+							case AND:
+								CustomItem replaceItem;
+								for (ReplaceCondition condition : conditions) {
+									replaceItems(condition, player);
+								}
+
+								replaceItem = set().getCustomItemByName(conditions[replaceIndex].getReplacingItemName());
+								EquipmentSlot slot = event.getHand();
+
+								boolean replaceSelf = false;
+								for (ReplaceCondition condition : conditions) {
+									if (condition.getItemName().equals(custom.getName())) {
+										replaceSelf = true;
+										break;
+									}
+								}
+
+								if (!replaceSelf) {
+									item.setAmount(item.getAmount() - 1);
+								}
+
+								if (replaceItem != null) {
+									ItemStack stack = replaceItem.create(1);
+									if (item.getAmount() <= 0) {
+										if (slot.equals(EquipmentSlot.OFF_HAND)) {
+											player.getInventory().setItemInOffHand(stack);
+										} else {
+											player.getInventory().setItemInMainHand(stack);
+										}
+									} else {
+										player.getInventory().addItem(stack);
+									}
+								} else {
+									Bukkit.getLogger().log(Level.WARNING, "The item: " + custom.getDisplayName() + " tried to replace itself with nothing. This indicates an error during exporting or a bug in the plugin.");
+								}
+
 								break;
-							}
-						}
-
-						if (!replaceSelf) {
-							item.setAmount(item.getAmount() - 1);
-						}
-
-						if (replaceItem != null) {
-							ItemStack stack = replaceItem.create(1);
-							if (item.getAmount() <= 0) {
-								if (slot.equals(EquipmentSlot.OFF_HAND)) {
-									player.getInventory().setItemInOffHand(stack);
-								} else {
-									player.getInventory().setItemInMainHand(stack);
+							case OR:
+								for (int index = 0; index < conditions.length; index++) {
+									if (trueConditions[index])
+										replaceIndex = index;
 								}
-							} else {
-								player.getInventory().addItem(stack);
-							}
-						} else {
-							Bukkit.getLogger().log(Level.WARNING, "The item: " + custom.getDisplayName() + " tried to replace itself with nothing. This indicates an error during exporting or a bug in the plugin.");
-						}
-						
-						break;
-					case OR:
-						for (int index = 0; index < conditions.length; index++) {
-							if (trueConditions[index])
-								replaceIndex = index;
-						}
-						
-						if (conditions[replaceIndex].getCondition() == ReplacementCondition.HASITEM) {
-							replaceItems(conditions[replaceIndex], player);
-						}
 
-						if (!conditions[replaceIndex].getItemName().equals(custom.getName()))
-							item.setAmount(item.getAmount() - 1);
-						
-						replaceItem = set().getCustomItemByName(conditions[replaceIndex].getReplacingItemName());
-						slot = event.getHand();
-						if (replaceItem != null) {
-							ItemStack stack = replaceItem.create(1);
-							if (item.getAmount() <= 0) {
-								if (slot.equals(EquipmentSlot.OFF_HAND)) {
-									player.getInventory().setItemInOffHand(stack);
-								} else {
-									player.getInventory().setItemInMainHand(stack);
+								if (conditions[replaceIndex].getCondition() == ReplacementCondition.HASITEM) {
+									replaceItems(conditions[replaceIndex], player);
 								}
-							} else {
-								player.getInventory().addItem(stack);
-							}
-						} else {
-							Bukkit.getLogger().log(Level.WARNING, "The item: " + custom.getDisplayName() + " tried to replace itself with nothing. This indicates an error during exporting or a bug in the plugin.");
-						}
-						break;
-					case NONE:
-						for (int index = 0; index < conditions.length; index++) {
-							if (trueConditions[index]) {
-								replaceIndex = index;
+
+								if (!conditions[replaceIndex].getItemName().equals(custom.getName()))
+									item.setAmount(item.getAmount() - 1);
+
+								replaceItem = set().getCustomItemByName(conditions[replaceIndex].getReplacingItemName());
+								slot = event.getHand();
+								if (replaceItem != null) {
+									ItemStack stack = replaceItem.create(1);
+									if (item.getAmount() <= 0) {
+										if (slot.equals(EquipmentSlot.OFF_HAND)) {
+											player.getInventory().setItemInOffHand(stack);
+										} else {
+											player.getInventory().setItemInMainHand(stack);
+										}
+									} else {
+										player.getInventory().addItem(stack);
+									}
+								} else {
+									Bukkit.getLogger().log(Level.WARNING, "The item: " + custom.getDisplayName() + " tried to replace itself with nothing. This indicates an error during exporting or a bug in the plugin.");
+								}
 								break;
-							}
-						}
-
-						if (conditions[replaceIndex].getCondition() == ReplacementCondition.HASITEM) {
-							replaceItems(conditions[replaceIndex], player);
-						}
-
-						if (!conditions[replaceIndex].getItemName().equals(custom.getName()))
-							item.setAmount(item.getAmount() - 1);
-
-						replaceItem = set().getCustomItemByName(conditions[replaceIndex].getReplacingItemName());
-						slot = event.getHand();
-						if (replaceItem != null) {
-							ItemStack stack = replaceItem.create(1);
-							if (item.getAmount() <= 0) {
-								if (slot.equals(EquipmentSlot.OFF_HAND)) {
-									player.getInventory().setItemInOffHand(stack);
-								} else {
-									player.getInventory().setItemInMainHand(stack);
+							case NONE:
+								for (int index = 0; index < conditions.length; index++) {
+									if (trueConditions[index]) {
+										replaceIndex = index;
+										break;
+									}
 								}
-							} else {
-								player.getInventory().addItem(stack);
-							}
-						} else {
-							Bukkit.getLogger().log(Level.WARNING, "The item: " + custom.getDisplayName() + " tried to replace itself with nothing. This indicates an error during exporting or a bug in the plugin.");
+
+								if (conditions[replaceIndex].getCondition() == ReplacementCondition.HASITEM) {
+									replaceItems(conditions[replaceIndex], player);
+								}
+
+								if (!conditions[replaceIndex].getItemName().equals(custom.getName()))
+									item.setAmount(item.getAmount() - 1);
+
+								replaceItem = set().getCustomItemByName(conditions[replaceIndex].getReplacingItemName());
+								slot = event.getHand();
+								if (replaceItem != null) {
+									ItemStack stack = replaceItem.create(1);
+									if (item.getAmount() <= 0) {
+										if (slot.equals(EquipmentSlot.OFF_HAND)) {
+											player.getInventory().setItemInOffHand(stack);
+										} else {
+											player.getInventory().setItemInMainHand(stack);
+										}
+									} else {
+										player.getInventory().addItem(stack);
+									}
+								} else {
+									Bukkit.getLogger().log(Level.WARNING, "The item: " + custom.getDisplayName() + " tried to replace itself with nothing. This indicates an error during exporting or a bug in the plugin.");
+								}
+
+								break;
+							default:
+								break;
+
 						}
-						
-						break;
-					default:
-						break;
-					
 					}
-				}
+				}, 10L);
 			}
 		}
 	}
