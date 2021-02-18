@@ -3325,12 +3325,19 @@ public class ItemSet implements ItemSetBase {
 		return exportFor13Or14(MCVersions.VERSION1_16, 6);
 	}
 	
-	private void exportOptifineArmor(ZipOutputStream zipOutput) throws IOException {
+	private void exportOptifineArmor(ZipOutputStream zipOutput, int mcVersion) throws IOException {
+
+		String citPrefix;
+		if (mcVersion <= VERSION1_12) {
+			citPrefix = "assets/minecraft/mcpatcher/cit/";
+		} else {
+			citPrefix = "assets/minecraft/optifine/cit/";
+		}
+
 		// Armor textures
 		for (Reference<ArmorTextures> armorTexture : armorTextures) {
 			String prefix = 
-					"assets/minecraft/optifine/cit/"
-					+ "customarmor/" + armorTexture.get().getName() + "/";
+					citPrefix + "customarmor/" + armorTexture.get().getName() + "/";
 			ZipEntry firstLayerEntry = new ZipEntry(prefix + "layer_1.png");
 			zipOutput.putNextEntry(firstLayerEntry);
 			ImageIO.write(
@@ -3359,8 +3366,7 @@ public class ItemSet implements ItemSetBase {
 					
 					ArmorTextures wornTexture = armor.getWornTexture().get();
 					String prefix = 
-							"assets/minecraft/optifine/cit/"
-							+ "customarmor/" + wornTexture.getName() + "/";
+							citPrefix + "customarmor/" + wornTexture.getName() + "/";
 					ZipEntry armorEntry = new ZipEntry(prefix + armor.getName() + ".properties");
 					zipOutput.putNextEntry(armorEntry);
 					
@@ -3440,7 +3446,7 @@ public class ItemSet implements ItemSetBase {
 				zipOutput.closeEntry();
 			}
 			
-			exportOptifineArmor(zipOutput);
+			exportOptifineArmor(zipOutput, mcVersion);
 
 			// Custom item models
 			for (CustomItem item : items) {
@@ -4135,7 +4141,7 @@ public class ItemSet implements ItemSetBase {
 				zipOutput.closeEntry();
 			}
 			
-			exportOptifineArmor(zipOutput);
+			exportOptifineArmor(zipOutput, VERSION1_12);
 
 			// Custom item models
 			for (CustomItem item : items) {
