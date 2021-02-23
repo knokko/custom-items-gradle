@@ -192,9 +192,7 @@ public abstract class CustomItem extends nl.knokko.customitems.item.CustomItem {
     	return item.getDurability();
     }
     
-    public boolean forbidDefaultUse(ItemStack item) {
-    	return true;
-    }
+    public abstract boolean forbidDefaultUse(ItemStack item);
     
     public boolean is(ItemStack item){
     	if (!ItemUtils.isEmpty(item)) {

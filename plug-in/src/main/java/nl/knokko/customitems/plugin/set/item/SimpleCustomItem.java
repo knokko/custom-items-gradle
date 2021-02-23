@@ -34,6 +34,7 @@ import nl.knokko.customitems.item.Enchantment;
 import nl.knokko.customitems.item.ReplaceCondition;
 import nl.knokko.customitems.item.ReplaceCondition.ConditionOperation;
 import nl.knokko.customitems.item.nbt.ExtraItemNbt;
+import org.bukkit.inventory.ItemStack;
 
 public class SimpleCustomItem extends CustomItem {
 	
@@ -55,7 +56,12 @@ public class SimpleCustomItem extends CustomItem {
 		);
 		this.stackSize = stackSize;
 	}
-	
+
+	@Override
+	public boolean forbidDefaultUse(ItemStack item) {
+		return true;
+	}
+
 	@Override
 	public int getMaxStacksize() {
 		return stackSize;

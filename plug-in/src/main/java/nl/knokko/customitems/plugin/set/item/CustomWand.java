@@ -13,6 +13,7 @@ import nl.knokko.customitems.item.ReplaceCondition.ConditionOperation;
 import nl.knokko.customitems.item.WandCharges;
 import nl.knokko.customitems.item.nbt.ExtraItemNbt;
 import nl.knokko.customitems.projectile.CIProjectile;
+import org.bukkit.inventory.ItemStack;
 
 public class CustomWand extends CustomItem {
 	
@@ -40,6 +41,11 @@ public class CustomWand extends CustomItem {
 		this.cooldown = cooldown;
 		this.charges = charges;
 		this.amountPerShot = amountPerShot;
+	}
+
+	@Override
+	public boolean forbidDefaultUse(ItemStack item) {
+		return true;
 	}
 
 	@Override

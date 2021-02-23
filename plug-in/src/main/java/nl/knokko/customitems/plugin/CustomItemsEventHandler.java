@@ -300,13 +300,32 @@ public class CustomItemsEventHandler implements Listener {
 			CustomItem custom = set().getItem(item);
 			
 			if (custom != null) {
+
+				CIMaterial type = CIMaterial.getOrNull(ItemHelper.getMaterialName(event.getClickedBlock()));
+
 				// Don't let custom items be used as their internal item
-				if (custom.forbidDefaultUse(item))
-					event.setCancelled(true);
-				else if (custom instanceof CustomTool) {
+				if (custom.forbidDefaultUse(item)) {
+
+					// But don't cancel unnecessary events (so don't prevent opening containers)
+					if (custom.getItemType().canServe(CustomItemType.Category.HOE)) {
+						if (type == CIMaterial.DIRT || type == CIMaterial.GRASS) {
+							// TODO Check in 1.16 if we missed anything (like GRASS_BLOCK and GRASS_PATH materials)
+							event.setCancelled(true);
+						}
+					} else if (custom.getItemType().canServe(CustomItemType.Category.SHEAR)) {
+						if (type == CIMaterial.PUMPKIN || type == CIMaterial.BEE_NEST || type == CIMaterial.BEEHIVE) {
+							event.setCancelled(true);
+						}
+					} else {
+						// Shouldn't happen, but better safe than sorry
+						event.setCancelled(true);
+					}
+
+
+				} else if (custom instanceof CustomTool) {
 					CustomTool tool = (CustomTool) custom;
 					if (tool instanceof CustomHoe) {
-						CIMaterial type = CIMaterial.getOrNull(ItemHelper.getMaterialName(event.getClickedBlock()));
+
 						CustomHoe customHoe = (CustomHoe) tool;
 						if (type == CIMaterial.DIRT || type == CIMaterial.GRASS) {
 							ItemStack newStack = tool.decreaseDurability(item, customHoe.getTillDurabilityLoss());
@@ -339,8 +358,6 @@ public class CustomItemsEventHandler implements Listener {
 			ItemStack item = event.getItem();
 			CustomItem custom = set().getItem(item);
 			if (custom != null) {
-				if (custom.forbidDefaultUse(item))
-					event.setCancelled(true);
 				Player player = event.getPlayer();
 				String[] commands = custom.getCommands();
 				for (String command : commands) {
@@ -356,8 +373,6 @@ public class CustomItemsEventHandler implements Listener {
 			ItemStack item = event.getItem();
 			CustomItem custom = set().getItem(item);
 			if (custom != null) {
-				if (custom.forbidDefaultUse(item))
-					event.setCancelled(true);
 
 				//Delay replacing by half a second to give all other handlers time to do their thing. Especially
 				//important for wands.
