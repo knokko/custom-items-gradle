@@ -304,16 +304,22 @@ public class CustomItemsEventHandler implements Listener {
 				CIMaterial type = CIMaterial.getOrNull(ItemHelper.getMaterialName(event.getClickedBlock()));
 
 				// Don't let custom items be used as their internal item
+				boolean canBeTilled = type == CIMaterial.DIRT || type == CIMaterial.GRASS
+						|| type == CIMaterial.GRASS_BLOCK || type == CIMaterial.GRASS_PATH;
+				boolean canBeSheared = type == CIMaterial.PUMPKIN || type == CIMaterial.BEE_NEST
+						|| type == CIMaterial.BEEHIVE;
+
+				ItemStack newStack = item;
+
 				if (custom.forbidDefaultUse(item)) {
 
 					// But don't cancel unnecessary events (so don't prevent opening containers)
 					if (custom.getItemType().canServe(CustomItemType.Category.HOE)) {
-						if (type == CIMaterial.DIRT || type == CIMaterial.GRASS) {
-							// TODO Check in 1.16 if we missed anything (like GRASS_BLOCK and GRASS_PATH materials)
+						if (canBeTilled) {
 							event.setCancelled(true);
 						}
 					} else if (custom.getItemType().canServe(CustomItemType.Category.SHEAR)) {
-						if (type == CIMaterial.PUMPKIN || type == CIMaterial.BEE_NEST || type == CIMaterial.BEEHIVE) {
+						if (canBeSheared) {
 							event.setCancelled(true);
 						}
 					} else {
@@ -325,26 +331,33 @@ public class CustomItemsEventHandler implements Listener {
 				} else if (custom instanceof CustomTool) {
 					CustomTool tool = (CustomTool) custom;
 					if (tool instanceof CustomHoe) {
-
 						CustomHoe customHoe = (CustomHoe) tool;
-						if (type == CIMaterial.DIRT || type == CIMaterial.GRASS) {
-							ItemStack newStack = tool.decreaseDurability(item, customHoe.getTillDurabilityLoss());
-							if (newStack != item) {
-								if (newStack == null) {
-									String newItemName = checkBrokenCondition(tool.getReplaceConditions());
-									if (newItemName != null) {
-										newStack = set().getItem(newItemName).create(1);
-									}
-									playBreakSound(event.getPlayer());
-								}
-								
-								if (newStack != null) {
-									if (event.getHand() == EquipmentSlot.HAND)
-										event.getPlayer().getInventory().setItemInMainHand(newStack);
-									else
-										event.getPlayer().getInventory().setItemInOffHand(newStack);
-								}
+						if (canBeTilled) {
+							newStack = tool.decreaseDurability(item, customHoe.getTillDurabilityLoss());
+						}
+					}
+
+					if (tool instanceof CustomShears) {
+						CustomShears customShears = (CustomShears) tool;
+						if (canBeSheared) {
+							newStack = tool.decreaseDurability(item, customShears.getShearDurabilityLoss());
+						}
+					}
+
+					if (newStack != item) {
+						if (newStack == null) {
+							String newItemName = checkBrokenCondition(tool.getReplaceConditions());
+							if (newItemName != null) {
+								newStack = set().getItem(newItemName).create(1);
 							}
+							playBreakSound(event.getPlayer());
+						}
+
+						if (newStack != null) {
+							if (event.getHand() == EquipmentSlot.HAND)
+								event.getPlayer().getInventory().setItemInMainHand(newStack);
+							else
+								event.getPlayer().getInventory().setItemInOffHand(newStack);
 						}
 					}
 				}
