@@ -89,12 +89,21 @@ public class CommandCustomItems implements CommandExecutor {
 					}
 					if (args.length == 2 || args.length == 3 || args.length == 4) {
 
+						ItemSet set = CustomItemsPlugin.getInstance().getSet();
+						if (set.hasErrors()) {
+							sender.sendMessage(ChatColor.RED + "The following errors occurred while enabling " +
+									"this plug-in. These errors will likely cause this command to fail:");
+							for (String error : set.getErrors()) {
+								sender.sendMessage(ChatColor.DARK_RED + error);
+							}
+						}
+
 						// Try to find a custom item with the give name
-						CustomItem item = CustomItemsPlugin.getInstance().getSet().getItem(args[1]);
+						CustomItem item = set.getItem(args[1]);
 
 						// If no such item is found, try to find one with the given alias
 						if (item == null) {
-							for (CustomItem candidate : CustomItemsPlugin.getInstance().getSet().getBackingItems()) {
+							for (CustomItem candidate : set.getBackingItems()) {
 								if (candidate.getAlias().equals(args[1])) {
 									item = candidate;
 									break;
@@ -150,7 +159,17 @@ public class CommandCustomItems implements CommandExecutor {
 						sender.sendMessage(ChatColor.DARK_RED + "You don't have access to this command");
 						return true;
 					}
+
 					ItemSet set = CustomItemsPlugin.getInstance().getSet();
+
+					if (set.hasErrors()) {
+						sender.sendMessage(ChatColor.RED + "The following errors occurred while enabling " +
+								"this plug-in. These errors will likely cause this command to fail:");
+						for (String error : set.getErrors()) {
+							sender.sendMessage(ChatColor.DARK_RED + error);
+						}
+					}
+					
 					CustomItem[] items = set.getBackingItems();
 					if (items.length > 0) {
 						sender.sendMessage("All custom items:");
