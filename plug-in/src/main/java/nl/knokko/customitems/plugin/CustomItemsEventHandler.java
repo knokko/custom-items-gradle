@@ -2071,7 +2071,11 @@ public class CustomItemsEventHandler implements Listener {
 				 */
 				int numTopSlots = view.getTopInventory().getStorageContents().length;
 				int numBottomSlots = view.getBottomInventory().getStorageContents().length;
-				int numSlots = numTopSlots + numBottomSlots;
+
+				int rawNumBottomSlots = view.getBottomInventory().getSize();
+				boolean isInvCrafting = view.getTopInventory() instanceof CraftingInventory && view.getTopInventory().getSize() == 5;
+
+				int numSlots = numTopSlots + (isInvCrafting ? rawNumBottomSlots : numBottomSlots);
 
 				for (int slotIndex = 0; slotIndex < numSlots; slotIndex++) {
 					if (slotIndex != event.getRawSlot()) {
@@ -2105,6 +2109,106 @@ public class CustomItemsEventHandler implements Listener {
 					Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () -> {
 						event.getWhoClicked().setItemOnCursor(newCursor);
 					});
+				}
+			}
+		} else if (action == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
+			// This block ensures that shift-clicking custom items can stack them
+			ItemSet set = set();
+			ItemStack clickedItem = event.getCurrentItem();
+			CustomItem customClicked = set.getItem(clickedItem);
+
+			if (customClicked != null && customClicked.canStack()) {
+				event.setCancelled(true);
+				boolean clickedTopInv = event.getRawSlot() == event.getSlot();
+
+				int minDestIndex;
+				int boundDestIndex;
+				Inventory destInv;
+
+				Inventory topInv = event.getView().getTopInventory();
+				if (topInv instanceof CraftingInventory) {
+				    if (topInv.getSize() == 5) {
+				        // This is for crafting in survival inventory
+
+						// Top (raw) slots are 9 to 35
+						// The lower top slots are for equipment and crafting
+						// There is also a high top slot for the shield
+						// Hotbar slots are 0 to 8
+						// Hotbar raw slots are 36 to 44
+
+						if (clickedTopInv) {
+							minDestIndex = 0;
+							if (event.getRawSlot() < 9) {
+								boundDestIndex = 36;
+							} else {
+								boundDestIndex = 9;
+							}
+						} else {
+							minDestIndex = 9;
+							boundDestIndex = 36;
+						}
+
+						destInv = event.getView().getBottomInventory();
+					} else if (topInv.getSize() == 10) {
+				    	// This is for crafting table crafting
+						destInv = clickedTopInv ? event.getView().getBottomInventory() : topInv;
+						minDestIndex = clickedTopInv ? 0 : 1;
+						boundDestIndex = destInv.getStorageContents().length;
+					} else {
+				        // I don't know what kind of crafting inventory this is, so I don't know how to handle it
+						// Doing nothing is better than doing something wrong
+				    	return;
+					}
+				} else {
+				    // This is for other non-customer containers
+					destInv = clickedTopInv ? event.getView().getBottomInventory() : topInv;
+					minDestIndex = 0;
+					boundDestIndex = destInv.getStorageContents().length;
+				}
+
+				int originalAmount = clickedItem.getAmount();
+				int remainingAmount = originalAmount;
+				ItemStack[] destItems = destInv.getContents();
+
+				// Try to put the clicked item in a slot that contains the same custom item, but is not full
+				for (int index = minDestIndex; index < boundDestIndex; index++) {
+					ItemStack destItem = destItems[index];
+					CustomItem destCandidate = set.getItem(destItem);
+					if (destCandidate == customClicked) {
+
+						int remainingSpace = destCandidate.getMaxStacksize() - destItem.getAmount();
+						if (remainingSpace >= remainingAmount) {
+							destItem.setAmount(destItem.getAmount() + remainingAmount);
+							remainingAmount = 0;
+							break;
+						} else {
+							remainingAmount -= remainingSpace;
+							destItem.setAmount(destCandidate.getMaxStacksize());
+						}
+					}
+				}
+
+				// If the item is not yet 'consumed' entirely, use the remaining part to fill empty slots
+				if (remainingAmount > 0) {
+					for (int index = minDestIndex; index < boundDestIndex; index++) {
+						if (ItemUtils.isEmpty(destItems[index])) {
+							destItems[index] = clickedItem.clone();
+							destItems[index].setAmount(remainingAmount);
+							remainingAmount = 0;
+							break;
+						}
+					}
+				}
+
+				// Complete the shift-click actions
+				if (originalAmount != remainingAmount) {
+					destInv.setContents(destItems);
+					if (remainingAmount > 0) {
+						clickedItem.setAmount(remainingAmount);
+					} else {
+						clickedItem = null;
+					}
+					event.setCurrentItem(clickedItem);
 				}
 			}
 		}
