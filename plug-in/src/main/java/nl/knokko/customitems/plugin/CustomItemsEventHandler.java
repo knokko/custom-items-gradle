@@ -1254,13 +1254,20 @@ public class CustomItemsEventHandler implements Listener {
 
 				int armorDamage = Math.max(1, (int) (original / 4));
 				EntityEquipment e = player.getEquipment();
-				
+
+				int helmetDamage = armorDamage;
+				if (event.getCause() == DamageCause.FALLING_BLOCK) {
+				    // The regular helmet durability loss upon falling anvils seems somewhat randomized,
+					// but this amount should be reasonable
+					helmetDamage *= 25;
+				}
+
 				ItemStack oldHelmet = e.getHelmet();
-				ItemStack newHelmet = decreaseCustomArmorDurability(oldHelmet, armorDamage);
+				ItemStack newHelmet = decreaseCustomArmorDurability(oldHelmet, helmetDamage);
 				if (oldHelmet != newHelmet) {
 					if (newHelmet == null) {
 						CustomItem helmet = set().getItem(oldHelmet);
-						if (helmet != null && helmet instanceof CustomHelmet3D || helmet instanceof CustomArmor) {
+						if (helmet instanceof CustomArmor) {
 							String newItemName = checkBrokenCondition(helmet.getReplaceConditions());
 							if (newItemName != null) {
 								player.getInventory().addItem(set().getItem(newItemName).create(1));
@@ -1276,7 +1283,7 @@ public class CustomItemsEventHandler implements Listener {
 				if (oldChestplate != newChestplate) {
 					if (newChestplate == null) {
 						CustomItem plate = set().getItem(oldChestplate);
-						if (plate != null && plate instanceof CustomArmor) {
+						if (plate instanceof CustomArmor) {
 							String newItemName = checkBrokenCondition(plate.getReplaceConditions());
 							if (newItemName != null) {
 								player.getInventory().addItem(set().getItem(newItemName).create(1));
@@ -1292,7 +1299,7 @@ public class CustomItemsEventHandler implements Listener {
 				if (oldLeggings != newLeggings) {
 					if (newLeggings == null) {
 						CustomItem leggings = set().getItem(oldLeggings);
-						if (leggings != null && leggings instanceof CustomArmor) {
+						if (leggings instanceof CustomArmor) {
 							String newItemName = checkBrokenCondition(leggings.getReplaceConditions());
 							if (newItemName != null) {
 								player.getInventory().addItem(set().getItem(newItemName).create(1));
@@ -1308,7 +1315,7 @@ public class CustomItemsEventHandler implements Listener {
 				if (oldBoots != newBoots) {
 					if (newBoots == null) {
 						CustomItem boots = set().getItem(oldBoots);
-						if (boots != null && boots instanceof CustomArmor) {
+						if (boots instanceof CustomArmor) {
 							String newItemName = checkBrokenCondition(boots.getReplaceConditions());
 							if (newItemName != null) {
 								player.getInventory().addItem(set().getItem(newItemName).create(1));
