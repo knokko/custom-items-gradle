@@ -4,6 +4,7 @@ import static org.bukkit.enchantments.Enchantment.getByName;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.function.Function;
 
 import org.bukkit.Bukkit;
@@ -252,11 +253,13 @@ public class ItemUpdater {
 		ItemStack newStack = ItemAttributes.replaceAttributes(oldStack, newStackAttributes);
 
 		ItemStack[] pNewStack = {null};
+		Long[] pOldDurability = {null};
 		Long[] pNewDurability = {null};
 		CustomItemNBT.readWrite(newStack, nbt -> {
 			nbt.setLastExportTime(setExportTime);
 			nbt.setBooleanRepresentation(newItem.getBooleanRepresentation());
 			Long currentDurability = nbt.getDurability();
+			pOldDurability[0] = currentDurability;
 			if (currentDurability != null) {
 				if (newItem.getMaxDurabilityNew() != null) {
 					/*
@@ -339,7 +342,7 @@ public class ItemUpdater {
 		ItemMeta meta = newStack.getItemMeta();
 		
 		upgradeDisplayName(meta, oldItem, newItem);
-		upgradeLore(meta, oldItem, newItem, pNewDurability[0]);
+		upgradeLore(meta, oldItem, newItem, pOldDurability[0], pNewDurability[0]);
 		upgradeItemFlags(meta, oldItem, newItem);
 		
 		meta.setUnbreakable(true);
@@ -372,13 +375,15 @@ public class ItemUpdater {
 		}
 	}
 	
-	private void upgradeLore(ItemMeta toUpgrade, CustomItem oldItem, CustomItem newItem, Long newDurability) {
-		/*
-		 * I will do no attempt to 'upgrade' the lore rather than replacing it,
-		 * because tools will overwrite lore each time they take durability
-		 * anyway.
-		 */
-		toUpgrade.setLore(newItem.createLore(newDurability));
+	private void upgradeLore(ItemMeta toUpgrade, CustomItem oldItem, CustomItem newItem, Long oldDurability, Long newDurability) {
+		if (!Objects.equals(oldDurability, newDurability) || !Objects.deepEquals(oldItem.getLore(), newItem.getLore())) {
+			/*
+			 * I will do no attempt to 'upgrade' the lore rather than replacing it,
+			 * because tools will overwrite lore each time they take durability
+			 * anyway.
+			 */
+			toUpgrade.setLore(newItem.createLore(newDurability));
+		}
 	}
 	
 	private void upgradeItemFlags(ItemMeta toUpgrade, CustomItem oldItem, CustomItem newItem) {
