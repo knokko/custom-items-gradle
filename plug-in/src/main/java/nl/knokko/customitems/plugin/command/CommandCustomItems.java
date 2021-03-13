@@ -40,6 +40,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 
+import nl.knokko.customitems.plugin.set.item.CustomTool;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -183,6 +184,94 @@ public class CommandCustomItems implements CommandExecutor {
 					} else {
 						sender.sendMessage(ChatColor.RED + "There are 0 custom items");
 					}
+					break;
+				}
+				case "damage": {
+					// For the sake of code reuse, keep the body of this case empty and intentionally leave out
+					// the *break*
+				}
+				case "repair": {
+					if (
+							(args[0].equals("repair") && !sender.hasPermission("customitems.repair"))
+							|| (args[0].equals("damage") && !sender.hasPermission("customitems.damage"))
+					) {
+						sender.sendMessage(ChatColor.DARK_RED + "You don't have access to this command.");
+						return true;
+					}
+
+					ItemSet set = CustomItemsPlugin.getInstance().getSet();
+					if (args.length <= 1) {
+						sender.sendMessage(ChatColor.RED + "You should use /kci " + args[0] + "<amount> [player]");
+						return true;
+					}
+
+					int amount;
+					try {
+						amount = Integer.parseInt(args[1]);
+					} catch (NumberFormatException notAnInteger) {
+						sender.sendMessage(ChatColor.RED + "The amount (" + args[1] + ") should be an integer");
+						return true;
+					}
+
+					if (amount <= 0) {
+						sender.sendMessage(ChatColor.RED + "The amount should be positive");
+						return true;
+					}
+
+					Player target;
+					if (args.length > 2) {
+					    target = getOnlinePlayer(args[2]);
+					    if (target == null) {
+					    	sender.sendMessage(ChatColor.RED + "No online player with name " + args[2] + " was found");
+					    	return true;
+						}
+					} else {
+						if (sender instanceof Player) {
+							target = (Player) sender;
+						} else {
+							sender.sendMessage(ChatColor.RED + "You should use /kci " + args[0] + " <amount> <player>");
+							return true;
+						}
+					}
+
+					ItemStack item = target.getInventory().getItemInMainHand();
+					if (item == null) {
+						sender.sendMessage(ChatColor.RED + target.getName() + " should hold the item to " + args[0] + "in the main hand");
+						return true;
+					}
+
+					CustomItem customItem = set.getItem(item);
+					if (customItem == null) {
+						sender.sendMessage(ChatColor.RED + "The item in the main hand of " + target.getName() + " should be a custom item");
+						return true;
+					}
+
+					if (!(customItem instanceof CustomTool)) {
+						sender.sendMessage(ChatColor.RED + "The item in the main hand of " + target.getName() + " should be a custom tool");
+						return true;
+					}
+
+					CustomTool customTool = (CustomTool) customItem;
+					if (customTool.getMaxDurabilityNew() == null) {
+						sender.sendMessage(ChatColor.RED + "The tool in the main hand of " + target.getName() + " is unbreakable");
+						return true;
+					}
+
+					if (args[0].equals("repair")) {
+						CustomTool.IncreaseDurabilityResult result = customTool.increaseDurability(item, amount);
+						if (result.increasedAmount == 0) {
+							sender.sendMessage(ChatColor.RED + "The tool in the main hand of " + target.getName() + " wasn't damaged");
+							return true;
+						}
+
+						target.getInventory().setItemInMainHand(result.stack);
+					}
+
+					if (args[0].equals("damage")) {
+						ItemStack result = customTool.decreaseDurability(item, amount);
+						target.getInventory().setItemInMainHand(result);
+					}
+
 					break;
 				}
 				case "debug": {

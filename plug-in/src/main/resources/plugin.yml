@@ -1,11 +1,11 @@
 name: CustomItems
 main: nl.knokko.customitems.plugin.CustomItemsPlugin
-version: 8.6
+version: 8.7
 depend: [KnokkoCore]
 softdepend: [CrazyEnchantments]
 loadbefore: [UltraChest]
 commands:
   customitems:
     description: Commands for the CustomItems plugin
-    usage: /kci give <item name> [player name] or /kci list or /kci reload or /kci debug
+    usage: /kci give <item> [player] or /kci list or /kci reload or /kci debug or /kci repair <amount> [player] /kci damage <amount> [player]
     aliases: [ci, kci]
