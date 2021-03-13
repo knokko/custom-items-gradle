@@ -24,31 +24,25 @@ import nl.knokko.util.bits.BitOutput;
 public class CustomContainer {
 	
 	public static Iterable<CustomSlot> slotIterable(CustomSlot[][] slots) {
-		return new Iterable<CustomSlot>() {
-			
+		return () -> new Iterator<>() {
+
+			int x = 0;
+			int y = 0;
+
 			@Override
-			public Iterator<CustomSlot> iterator() {
-				return new Iterator<CustomSlot>() {
-					
-					int x = 0;
-					int y = 0;
+			public boolean hasNext() {
+				return y < slots[x].length;
+			}
 
-					@Override
-					public boolean hasNext() {
-						return y < slots[x].length;
-					}
-
-					@Override
-					public CustomSlot next() {
-						CustomSlot result = slots[x][y];
-						x++;
-						if (x == 9) {
-							x = 0;
-							y++;
-						}
-						return result;
-					}
-				};
+			@Override
+			public CustomSlot next() {
+				CustomSlot result = slots[x][y];
+				x++;
+				if (x == 9) {
+					x = 0;
+					y++;
+				}
+				return result;
 			}
 		};
 	}

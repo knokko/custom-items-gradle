@@ -20,19 +20,20 @@ public interface CustomSlot {
 					throws UnknownEncodingException {
 		
 		byte encoding = input.readByte();
-		switch (encoding) {
-		case DECORATION1: return DecorationCustomSlot.load1(input, itemByName);
-		case EMPTY: return new EmptyCustomSlot();
-		case FUEL1: return FuelCustomSlot.load1(input, fuelRegistryByName);
-		case FUEL2: return FuelCustomSlot.load2(input, fuelRegistryByName, itemByName);
-		case FUEL_INDICATOR1: return FuelIndicatorCustomSlot.load1(input, itemByName);
-		case INPUT1: return InputCustomSlot.load1(input);
-		case INPUT2: return InputCustomSlot.load2(input, itemByName);
-		case OUTPUT1: return OutputCustomSlot.load1(input);
-		case OUTPUT2: return OutputCustomSlot.load2(input, itemByName);
-		case PROGRESS_INDICATOR1: return ProgressIndicatorCustomSlot.load1(input, itemByName);
-		default: throw new UnknownEncodingException("CustomSlot", encoding);
-		}
+		return switch (encoding) {
+			case DECORATION1 -> DecorationCustomSlot.load1(input, itemByName);
+			case EMPTY -> new EmptyCustomSlot();
+			case FUEL1 -> FuelCustomSlot.load1(input, fuelRegistryByName);
+			case FUEL2 -> FuelCustomSlot.load2(input, fuelRegistryByName, itemByName);
+			case FUEL_INDICATOR1 -> FuelIndicatorCustomSlot.load1(input, itemByName);
+			case INPUT1 -> InputCustomSlot.load1(input);
+			case INPUT2 -> InputCustomSlot.load2(input, itemByName);
+			case OUTPUT1 -> OutputCustomSlot.load1(input);
+			case OUTPUT2 -> OutputCustomSlot.load2(input, itemByName);
+			case PROGRESS_INDICATOR1 -> ProgressIndicatorCustomSlot.load1(input, itemByName);
+			case STORAGE1 -> new StorageCustomSlot();
+			default -> throw new UnknownEncodingException("CustomSlot", encoding);
+		};
 	}
 
 	boolean canInsertItems();
@@ -61,5 +62,8 @@ public interface CustomSlot {
 		
 		/** Added output slot placeholders */
 		public static final byte OUTPUT2 = 9;
+
+		/** The first general storage slot encoding */
+		public static final byte STORAGE1 = 10;
 	}
 }

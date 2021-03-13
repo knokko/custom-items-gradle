@@ -49,6 +49,7 @@ public class PluginData {
 	
 	private static final byte ENCODING_1 = 1;
 	private static final byte ENCODING_2 = 2;
+	private static final byte ENCODING_3 = 3;
 	
 	private static File getDataFile() {
 		return new File(CustomItemsPlugin.getInstance().getDataFolder() + "/gamedata.bin");
@@ -69,11 +70,12 @@ public class PluginData {
 				BitInput input = ByteArrayBitInput.fromFile(dataFile);
 				
 				byte encoding = input.readByte();
-				switch (encoding) {
-				case ENCODING_1: return load1(input);
-				case ENCODING_2: return load2(input);
-				default: throw new IllegalArgumentException("Unknown data encoding: " + encoding);
-				}
+				return switch (encoding) {
+					case ENCODING_1 -> load1(input);
+					case ENCODING_2 -> load2(input);
+					case ENCODING_3 -> load3(input);
+					default -> throw new IllegalArgumentException("Unknown data encoding: " + encoding);
+				};
 			} catch (IOException e) {
 				Bukkit.getLogger().log(Level.SEVERE, "Failed to open the data file for CustomItems", e);
 				Bukkit.getLogger().severe("The current data for CustomItems won't be overwritten when you stop the server.");
@@ -137,7 +139,38 @@ public class PluginData {
 		
 		return new PluginData(currentTick, playersMap, persistentContainers);
 	}
-	
+
+	private static PluginData load3(BitInput input) {
+		long currentTick = input.readLong();
+		CustomItemsPlugin plugin = CustomItemsPlugin.getInstance();
+
+		Map<UUID, PlayerData> playersMap = loadPlayerData1(input, plugin.getSet());
+
+		int numPersistentContainers = input.readInt();
+		Map<ContainerLocation, ContainerInstance> persistentContainers = new HashMap<>(numPersistentContainers);
+
+		for (int counter = 0; counter < numPersistentContainers; counter++) {
+
+			UUID worldId = new UUID(input.readLong(), input.readLong());
+			int x = input.readInt();
+			int y = input.readInt();
+			int z = input.readInt();
+			String typeName = input.readString();
+
+			ContainerInfo typeInfo = plugin.getSet().getContainerInfo(typeName);
+
+			if (typeInfo != null) {
+				ContainerInstance instance = ContainerInstance.load2(input, typeInfo);
+				ContainerLocation location = new ContainerLocation(new PassiveLocation(worldId, x, y, z), typeInfo.getContainer());
+				persistentContainers.put(location, instance);
+			} else {
+				ContainerInstance.discard2(input);
+			}
+		}
+
+		return new PluginData(currentTick, playersMap, persistentContainers);
+	}
+
 	// Persisting data
 	private final Map<UUID,PlayerData> playerData;
 	private final Map<ContainerLocation,ContainerInstance> persistentContainers;
@@ -302,7 +335,7 @@ public class PluginData {
 	public void saveData() {
 		ByteArrayBitOutput output = new ByteArrayBitOutput();
 		output.addByte(ENCODING_2);
-		save2(output);
+		save3(output);
 		try {
 			OutputStream fileOutput = Files.newOutputStream(getDataFile().toPath());
 			fileOutput.write(output.getBytes());
@@ -386,7 +419,27 @@ public class PluginData {
 			state.save1(output);
 		}
 	}
-	
+
+	private void save3(BitOutput output) {
+		save1(output);
+
+		cleanEmptyContainers();
+		output.addInt(persistentContainers.size());
+		for (Entry<ContainerLocation, ContainerInstance> entry : persistentContainers.entrySet()) {
+
+			// Save container location
+			ContainerLocation loc = entry.getKey();
+			output.addLong(loc.location.getWorldId().getMostSignificantBits());
+			output.addLong(loc.location.getWorldId().getLeastSignificantBits());
+			output.addInts(loc.location.getX(), loc.location.getY(), loc.location.getZ());
+			output.addString(loc.type.getName());
+
+			// Save container state
+			ContainerInstance state = entry.getValue();
+			state.save2(output);
+		}
+	}
+
 	/**
 	 * Sets the given player in the so-called shooting state for the next 10 ticks (a half second). If the
 	 * player is already in the shooting state, nothing will happen. The player will leave the shooting state
