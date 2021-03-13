@@ -19,6 +19,7 @@ import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.FileChooserMenu;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.ConditionalTextButton;
+import nl.knokko.gui.component.text.ConditionalTextComponent;
 import nl.knokko.gui.component.text.TextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
@@ -39,23 +40,36 @@ public class EditCustomModel extends GuiMenu {
 		this.currentContent = currentContent;
 	}
 
+	protected boolean knowsTextureName() {
+		for (String exampleLine : exampleContent) {
+			if (exampleLine.contains("%TEXTURE_NAME%")) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	@Override
 	protected void addComponents() {
 		addComponent(new DynamicTextButton("Cancel", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
 			state.getWindow().setMainComponent(returnMenu);
 		}), 0.025f, 0.8f, 0.175f, 0.9f);
 		addComponent(new ConditionalTextButton("Change to default model with given parent", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-			String output = "";
+			StringBuilder output = new StringBuilder();
 			for (String content: exampleContent) {
-				output += content + "\n";
+				output.append(content).append("\n");
 			}
-			String result = output.replaceFirst("handheld", parent.getText());
+			String result = output.toString().replaceFirst("handheld", parent.getText());
 			byte[] array = result.getBytes();
 			receiver.readArray(array);
 			state.getWindow().setMainComponent(returnMenu);
-		}, () -> {
-			return exampleContent != null && !parent.getText().equals("handheld");
-		}), 0.65f, 0.025f, 0.995f, 0.125f);
+		}, () -> exampleContent != null && !parent.getText().equals("handheld") && knowsTextureName()
+		), 0.65f, 0.025f, 0.995f, 0.125f);
+		addComponent(new ConditionalTextComponent(
+				"You need to choose a texture before you can use this feature", EditProps.LABEL,
+				() -> exampleContent != null && !parent.getText().equals("handheld") && !knowsTextureName()
+		), 0.55f, 0.025f, 0.995f, 0.125f);
 		addComponent(new DynamicTextComponent("The editor will simply put the model you choose in the resourcepack", EditProps.LABEL), 0.1f, 0.7f, 0.9f, 0.8f);
 		addComponent(new DynamicTextComponent("upon exporting, no attempt will be made to read the model json.", EditProps.LABEL), 0.1f, 0.6f, 0.85f, 0.7f);
 		
