@@ -9,13 +9,7 @@ import java.util.Map.Entry;
 import nl.knokko.customitems.container.CustomContainer;
 import nl.knokko.customitems.container.IndicatorDomain;
 import nl.knokko.customitems.container.fuel.CustomFuelRegistry;
-import nl.knokko.customitems.container.slot.CustomSlot;
-import nl.knokko.customitems.container.slot.DecorationCustomSlot;
-import nl.knokko.customitems.container.slot.FuelCustomSlot;
-import nl.knokko.customitems.container.slot.FuelIndicatorCustomSlot;
-import nl.knokko.customitems.container.slot.InputCustomSlot;
-import nl.knokko.customitems.container.slot.OutputCustomSlot;
-import nl.knokko.customitems.container.slot.ProgressIndicatorCustomSlot;
+import nl.knokko.customitems.container.slot.*;
 import nl.knokko.customitems.container.slot.display.SlotDisplay;
 
 /**
@@ -26,9 +20,10 @@ public class ContainerInfo {
 
 	private final CustomContainer container;
 	
-	private final Map<String, InputProps> inputSlots;
-	private final Map<String, OutputProps> outputSlots;
+	private final Map<String, PlaceholderProps> inputSlots;
+	private final Map<String, PlaceholderProps> outputSlots;
 	private final Map<String, FuelProps> fuelSlots;
+	private final Collection<PlaceholderProps> storageSlots;
 	
 	private final Collection<IndicatorProps> craftingIndicators;
 	
@@ -40,6 +35,7 @@ public class ContainerInfo {
 		this.inputSlots = new HashMap<>();
 		this.outputSlots = new HashMap<>();
 		this.fuelSlots = new HashMap<>();
+		this.storageSlots = new ArrayList<>();
 		this.craftingIndicators = new ArrayList<>();
 		this.decorations = new ArrayList<>();
 		
@@ -73,14 +69,14 @@ public class ContainerInfo {
 					InputCustomSlot inputSlot = (InputCustomSlot) slot;
 					inputSlots.put(
 							inputSlot.getName(), 
-							new InputProps(invIndex, inputSlot.getPlaceholder())
+							new PlaceholderProps(invIndex, inputSlot.getPlaceholder())
 					);
 				} else if (slot instanceof OutputCustomSlot) {
 					
 					OutputCustomSlot outputSlot = (OutputCustomSlot) slot;
 					outputSlots.put(
 							outputSlot.getName(), 
-							new OutputProps(invIndex, outputSlot.getPlaceholder())
+							new PlaceholderProps(invIndex, outputSlot.getPlaceholder())
 					);
 				} else if (slot instanceof ProgressIndicatorCustomSlot) {
 					
@@ -91,6 +87,9 @@ public class ContainerInfo {
 					));
 				} else if (slot instanceof DecorationCustomSlot) {
 					decorations.add(new DecorationProps(invIndex, ((DecorationCustomSlot) slot).getDisplay()));
+				} else if (slot instanceof StorageCustomSlot) {
+					StorageCustomSlot storageSlot = (StorageCustomSlot) slot;
+					storageSlots.add(new PlaceholderProps(invIndex, storageSlot.getPlaceHolder()));
 				}
 				invIndex++;
 			}
@@ -106,11 +105,11 @@ public class ContainerInfo {
 		return container;
 	}
 	
-	public InputProps getInputSlot(String slotName) {
+	public PlaceholderProps getInputSlot(String slotName) {
 		return inputSlots.get(slotName);
 	}
 	
-	public OutputProps getOutputSlot(String slotName) {
+	public PlaceholderProps getOutputSlot(String slotName) {
 		return outputSlots.get(slotName);
 	}
 	
@@ -126,16 +125,20 @@ public class ContainerInfo {
 		return decorations;
 	}
 	
-	public Iterable<Entry<String, InputProps>> getInputSlots() {
+	public Iterable<Entry<String, PlaceholderProps>> getInputSlots() {
 		return inputSlots.entrySet();
 	}
 	
-	public Iterable<Entry<String, OutputProps>> getOutputSlots() {
+	public Iterable<Entry<String, PlaceholderProps>> getOutputSlots() {
 		return outputSlots.entrySet();
 	}
 	
 	public Iterable<Entry<String, FuelProps>> getFuelSlots() {
 		return fuelSlots.entrySet();
+	}
+
+	public Iterable<PlaceholderProps> getStorageSlots() {
+		return storageSlots;
 	}
 	
 	public static class IndicatorProps {
@@ -230,31 +233,12 @@ public class ContainerInfo {
 		}
 	}
 	
-	public static class InputProps {
+	public static class PlaceholderProps {
 		
 		private final int slotIndex;
 		private final SlotDisplay placeholder;
 		
-		public InputProps(int slotIndex, SlotDisplay placeholder) {
-			this.slotIndex = slotIndex;
-			this.placeholder = placeholder;
-		}
-		
-		public int getSlotIndex() {
-			return slotIndex;
-		}
-		
-		public SlotDisplay getPlaceholder() {
-			return placeholder;
-		}
-	}
-	
-	public static class OutputProps {
-		
-		private final int slotIndex;
-		private final SlotDisplay placeholder;
-		
-		public OutputProps(int slotIndex, SlotDisplay placeholder) {
+		public PlaceholderProps(int slotIndex, SlotDisplay placeholder) {
 			this.slotIndex = slotIndex;
 			this.placeholder = placeholder;
 		}

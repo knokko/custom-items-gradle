@@ -6,6 +6,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import nl.knokko.customitems.container.slot.CustomSlot;
@@ -35,8 +36,6 @@ import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.plugin.container.ContainerInfo.DecorationProps;
 import nl.knokko.customitems.plugin.container.ContainerInfo.FuelProps;
 import nl.knokko.customitems.plugin.container.ContainerInfo.IndicatorProps;
-import nl.knokko.customitems.plugin.container.ContainerInfo.InputProps;
-import nl.knokko.customitems.plugin.container.ContainerInfo.OutputProps;
 import nl.knokko.customitems.plugin.recipe.ingredient.Ingredient;
 import nl.knokko.customitems.plugin.set.item.CustomItem;
 import nl.knokko.customitems.plugin.util.ItemUtils;
@@ -264,9 +263,7 @@ public class ContainerInstance {
 				Collection<StringStack> slotStacks = new ArrayList<>();
 				for (int counter = 0; counter < numNonEmptySlots; counter++) {
 					String slotName = input.readString();
-					// TODO Test that this still works
 					ItemStack slotStack = loadStack(input);
-					
 					slotStacks.add(new StringStack(slotName, slotStack));
 				}
 				
@@ -314,25 +311,25 @@ public class ContainerInstance {
 		// Now the annoying cases where the slot is changed or renamed
 		for (StringStack inputStack : inputStacks) {
 			inputStack.putInEmptySlot(
-					takeValues(typeInfo.getInputSlots(), InputProps::getSlotIndex),
-					takeValues(typeInfo.getOutputSlots(), OutputProps::getSlotIndex),
+					takeValues(typeInfo.getInputSlots(), ContainerInfo.PlaceholderProps::getSlotIndex),
+					takeValues(typeInfo.getOutputSlots(), ContainerInfo.PlaceholderProps::getSlotIndex),
 					takeValues(typeInfo.getFuelSlots(), FuelProps::getSlotIndex)
 			);
 		}
 		
 		for (StringStack outputStack : outputStacks) {
 			outputStack.putInEmptySlot(
-					takeValues(typeInfo.getOutputSlots(), OutputProps::getSlotIndex),
+					takeValues(typeInfo.getOutputSlots(), ContainerInfo.PlaceholderProps::getSlotIndex),
 					takeValues(typeInfo.getFuelSlots(), FuelProps::getSlotIndex),
-					takeValues(typeInfo.getInputSlots(), InputProps::getSlotIndex)
+					takeValues(typeInfo.getInputSlots(), ContainerInfo.PlaceholderProps::getSlotIndex)
 			);
 		}
 		
 		for (StringStack fuelStack : fuelStacks) {
 			fuelStack.putInEmptySlot(
 					takeValues(typeInfo.getFuelSlots(), FuelProps::getSlotIndex),
-					takeValues(typeInfo.getOutputSlots(), OutputProps::getSlotIndex),
-					takeValues(typeInfo.getInputSlots(), InputProps::getSlotIndex)
+					takeValues(typeInfo.getOutputSlots(), ContainerInfo.PlaceholderProps::getSlotIndex),
+					takeValues(typeInfo.getInputSlots(), ContainerInfo.PlaceholderProps::getSlotIndex)
 			);
 		}
 		
@@ -393,7 +390,6 @@ public class ContainerInstance {
 		// If there are 'orphan' stacks (due to changes in the container layout between world saves), we should
 		// try to put them in free storage slots or in input/fuel slots. Preferably storage slots
 		if (!orphanStacks.isEmpty()) {
-			// TODO Test this mechanism
 			List<Integer> freeSlots = new ArrayList<>(40);
 
 			// Collect the indices of the free storage slots first
@@ -410,27 +406,16 @@ public class ContainerInstance {
 				}
 			}
 
-			// Collect the indices of the free input slots
-            typeInfo.getInputSlots().forEach(entry -> {
-            	int invIndex = entry.getValue().getSlotIndex();
-            	if (ItemUtils.isEmpty(base.inventory.getItem(invIndex))) {
-            		freeSlots.add(invIndex);
-				}
-			});
-
-			// Collect the indices of the free output slots
-			typeInfo.getOutputSlots().forEach(entry -> {
-				int invIndex = entry.getValue().getSlotIndex();
-				if (ItemUtils.isEmpty(base.inventory.getItem(invIndex))) {
-					freeSlots.add(invIndex);
-				}
-			});
-
-			// Collect the indices of the free fuel slots
-			typeInfo.getFuelSlots().forEach(entry -> {
-				int invIndex = entry.getValue().getSlotIndex();
-				if (ItemUtils.isEmpty(base.inventory.getItem(invIndex))) {
-					freeSlots.add(invIndex);
+			// Collect the indices of all free input, output, and fuel slots, explicitly in that order
+			Stream.concat(Stream.concat(
+					StreamSupport.stream(typeInfo.getInputSlots().spliterator(), false),
+					StreamSupport.stream(typeInfo.getOutputSlots().spliterator(), false)
+			).map(entry -> entry.getValue().getSlotIndex()),
+					StreamSupport.stream(typeInfo.getFuelSlots().spliterator(), false)
+					.map(entry -> entry.getValue().getSlotIndex())
+			).forEach(slotIndex -> {
+				if (ItemUtils.isEmpty(base.inventory.getItem(slotIndex)))	 {
+					freeSlots.add(slotIndex);
 				}
 			});
 
@@ -446,7 +431,6 @@ public class ContainerInstance {
 			}
 		}
 
-		// TODO Set the remaining free storage slots to their placeholder
 		return base;
 	}
 	
@@ -535,7 +519,6 @@ public class ContainerInstance {
 			ItemStack itemStack = inventory.getItem(invIndex);
 			
 			// Serializing item stacks is a little effort
-			// TODO Test that I didn't break this
 			saveStack(output, itemStack);
 		};
 		
@@ -559,10 +542,10 @@ public class ContainerInstance {
 		};
 		
 		slotsSaver.accept(mapEntries(
-				typeInfo.getInputSlots(), InputProps::getSlotIndex
+				typeInfo.getInputSlots(), ContainerInfo.PlaceholderProps::getSlotIndex
 		));
 		slotsSaver.accept(mapEntries(
-				typeInfo.getOutputSlots(), OutputProps::getSlotIndex
+				typeInfo.getOutputSlots(), ContainerInfo.PlaceholderProps::getSlotIndex
 		));
 		slotsSaver.accept(mapEntries(
 				typeInfo.getFuelSlots(), FuelProps::getSlotIndex
@@ -598,7 +581,6 @@ public class ContainerInstance {
 	public void save2(BitOutput output) {
 		save1(output);
 
-		// TODO Save the non-empty storage slots
 		class StackEntry {
 
 			final byte x;
@@ -613,17 +595,14 @@ public class ContainerInstance {
 		}
 
 		Collection<StackEntry> stacksToSave = new ArrayList<>();
-		for (int y = 0; y < typeInfo.getContainer().getHeight(); y++) {
-			for (int x = 0; x < 9; x++) {
-				CustomSlot slot = typeInfo.getContainer().getSlot(x, y);
-				if (slot instanceof StorageCustomSlot) {
-					int invIndex = x + 9 * y;
-					if (!ItemUtils.isEmpty(inventory.getItem(invIndex))) {
-						stacksToSave.add(new StackEntry(x, y, inventory.getItem(invIndex)));
-					}
-				}
+		typeInfo.getStorageSlots().forEach(slotProps -> {
+			int invIndex = slotProps.getSlotIndex();
+			int x = invIndex % 9;
+			int y = invIndex / 9;
+			if (!ItemUtils.isEmpty(inventory.getItem(invIndex))) {
+				stacksToSave.add(new StackEntry(x, y, inventory.getItem(invIndex)));
 			}
-		}
+		});
 
 		output.addInt(stacksToSave.size());
 		stacksToSave.forEach(entry -> {
@@ -642,9 +621,15 @@ public class ContainerInstance {
 	}
 	
 	public void dropAllItems(Location location) {
-		dropAllItems(location, typeInfo.getInputSlots(), InputProps::getSlotIndex);
-		dropAllItems(location, typeInfo.getOutputSlots(), OutputProps::getSlotIndex);
+		dropAllItems(location, typeInfo.getInputSlots(), ContainerInfo.PlaceholderProps::getSlotIndex);
+		dropAllItems(location, typeInfo.getOutputSlots(), ContainerInfo.PlaceholderProps::getSlotIndex);
 		dropAllItems(location, typeInfo.getFuelSlots(), FuelProps::getSlotIndex);
+		typeInfo.getStorageSlots().forEach(props -> {
+			if (!ItemUtils.isEmpty(inventory.getItem(props.getSlotIndex()))) {
+				location.getWorld().dropItem(location, inventory.getItem(props.getSlotIndex()));
+				inventory.setItem(props.getSlotIndex(), null);
+			}
+		});
 	}
 	
 	private <T> void dropAllItems(Location location, Iterable<Entry<String, T>> slots, Function<T, Integer> getIndex) {
@@ -741,43 +726,25 @@ public class ContainerInstance {
 				}
 			}
 		});
-		
-		typeInfo.getInputSlots().forEach(entry -> {
-			InputProps props = entry.getValue();
+
+		Stream.concat(Stream.concat(
+				StreamSupport.stream(typeInfo.getInputSlots().spliterator(), false),
+				StreamSupport.stream(typeInfo.getOutputSlots().spliterator(), false)
+		).map(Entry::getValue), StreamSupport.stream(typeInfo.getStorageSlots().spliterator(), false)
+		).forEach(props -> {
 			if (props.getPlaceholder() != null) {
 				ItemStack currentItem = inventory.getItem(props.getSlotIndex());
-				
+
 				// DONT use ItemUtils.isEmpty because that considers placeholders
 				// as empty items
 				if (
-						currentItem == null 
-						|| currentItem.getAmount() <= 0
-						|| ItemHelper.getMaterialName(currentItem)
-						.equals(CIMaterial.AIR.name())
+						currentItem == null
+								|| currentItem.getAmount() <= 0
+								|| ItemHelper.getMaterialName(currentItem)
+								.equals(CIMaterial.AIR.name())
 				) {
 					inventory.setItem(
-							props.getSlotIndex(), 
-							fromDisplay(props.getPlaceholder())
-					);
-				}
-			}
-		});
-		
-		typeInfo.getOutputSlots().forEach(entry -> {
-			OutputProps props = entry.getValue();
-			if (props.getPlaceholder() != null) {
-				ItemStack currentItem = inventory.getItem(props.getSlotIndex());
-				
-				// DONT use ItemUtils.isEmpty because that considers placeholders
-				// as empty items
-				if (
-						currentItem == null 
-						|| currentItem.getAmount() <= 0
-						|| ItemHelper.getMaterialName(currentItem)
-						.equals(CIMaterial.AIR.name())
-				) {
-					inventory.setItem(
-							props.getSlotIndex(), 
+							props.getSlotIndex(),
 							fromDisplay(props.getPlaceholder())
 					);
 				}
@@ -805,7 +772,7 @@ public class ContainerInstance {
 			
 			// Check that all other inputs are empty
 			inputLoop:
-			for (Entry<String, InputProps> inputEntry : typeInfo.getInputSlots()) {
+			for (Entry<String, ContainerInfo.PlaceholderProps> inputEntry : typeInfo.getInputSlots()) {
 				for (InputEntry usedInput : candidate.getInputs()) {
 					
 					// If this input is used, we shouldn't check if its empty

@@ -118,7 +118,7 @@ public class PluginData {
 		
 		int numPersistentContainers = input.readInt();
 		Map<ContainerLocation, ContainerInstance> persistentContainers = new HashMap<>(numPersistentContainers);
-		
+
 		for (int counter = 0; counter < numPersistentContainers; counter++) {
 			
 			UUID worldId = new UUID(input.readLong(), input.readLong());
@@ -298,22 +298,15 @@ public class PluginData {
 		Iterator<TempContainerInstance> tempIterator = tempContainers.iterator();
 		while (tempIterator.hasNext()) {
 			TempContainerInstance tempInstance = tempIterator.next();
-			if (tempInstance.viewer.getOpenInventory() != tempInstance.instance.getInventory()) {
+			if (tempInstance.viewer.getOpenInventory().getTopInventory() != tempInstance.instance.getInventory()) {
 				tempIterator.remove();
 				tempInstance.instance.dropAllItems(tempInstance.viewer.getLocation());
-				Bukkit.broadcastMessage("Closed temp container session");
-				// TODO Ehm... why is this still here?
 			}
 		}
 	}
 	
 	private void clean() {
-		Iterator<Entry<UUID, PlayerData>> it = playerData.entrySet().iterator();
-		while (it.hasNext()) {
-			if (it.next().getValue().clean(currentTick)) {
-				it.remove();
-			}
-		}
+		playerData.entrySet().removeIf(entry -> entry.getValue().clean(currentTick));
 		cleanEmptyContainers();
 	}
 	
@@ -337,7 +330,7 @@ public class PluginData {
 	 */
 	public void saveData() {
 		ByteArrayBitOutput output = new ByteArrayBitOutput();
-		output.addByte(ENCODING_2);
+		output.addByte(ENCODING_3);
 		save3(output);
 		try {
 			OutputStream fileOutput = Files.newOutputStream(getDataFile().toPath());
@@ -380,7 +373,7 @@ public class PluginData {
 				continue;
 			}
 			
-			// Check if any of its input/output/fuel slots is non-empty
+			// Check if any of its input/output/fuel/storage slots is non-empty
 			for (int x = 0; x < 9; x++) {
 				for (int y = 0; y < instance.getType().getHeight(); y++) {
 
@@ -392,10 +385,11 @@ public class PluginData {
 							continue entryLoop;
 						}
 					}
-
-					// TODO Test this
 				}
 			}
+
+			// If we reach this line, the container is empty and idle, so no need to keep it in memory anymore
+			entryIterator.remove();
 
 			// TODO Add something similar for pocket containers
 		}
