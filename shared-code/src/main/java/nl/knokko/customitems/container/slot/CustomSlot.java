@@ -31,7 +31,7 @@ public interface CustomSlot {
 			case OUTPUT1 -> OutputCustomSlot.load1(input);
 			case OUTPUT2 -> OutputCustomSlot.load2(input, itemByName);
 			case PROGRESS_INDICATOR1 -> ProgressIndicatorCustomSlot.load1(input, itemByName);
-			case STORAGE1 -> new StorageCustomSlot();
+			case STORAGE1 -> StorageCustomSlot.load1(input, itemByName);
 			default -> throw new UnknownEncodingException("CustomSlot", encoding);
 		};
 	}

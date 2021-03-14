@@ -16,6 +16,7 @@ import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import nl.knokko.customitems.container.slot.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -28,10 +29,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import nl.knokko.core.plugin.item.ItemHelper;
 import nl.knokko.customitems.container.CustomContainer;
 import nl.knokko.customitems.container.VanillaContainerType;
-import nl.knokko.customitems.container.slot.CustomSlot;
-import nl.knokko.customitems.container.slot.FuelCustomSlot;
-import nl.knokko.customitems.container.slot.InputCustomSlot;
-import nl.knokko.customitems.container.slot.OutputCustomSlot;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.container.ContainerInfo;
@@ -214,6 +211,7 @@ public class PluginData {
 	private void initContainerTypeMap() {
 		containerTypeMap = new EnumMap<>(VanillaContainerType.class);
 		containerSelectionMap = new EnumMap<>(VanillaContainerType.class);
+		// TODO Wait... what happens when /kci reload is used to add a new container?
 		
 		ItemSet set = CustomItemsPlugin.getInstance().getSet();
 		for (VanillaContainerType vanillaType : VanillaContainerType.values()) {
@@ -300,6 +298,7 @@ public class PluginData {
 				tempIterator.remove();
 				tempInstance.instance.dropAllItems(tempInstance.viewer.getLocation());
 				Bukkit.broadcastMessage("Closed temp container session");
+				// TODO Ehm... why is this still here?
 			}
 		}
 	}
@@ -380,23 +379,21 @@ public class PluginData {
 			// Check if any of its input/output/fuel slots is non-empty
 			for (int x = 0; x < 9; x++) {
 				for (int y = 0; y < instance.getType().getHeight(); y++) {
-					
+
 					CustomSlot slot = instance.getType().getSlot(x, y);
-					if (slot instanceof InputCustomSlot) {
-						if (!ItemUtils.isEmpty(instance.getInput(((InputCustomSlot) slot).getName()))) {
-							continue entryLoop;
-						}
-					} else if (slot instanceof OutputCustomSlot) {
-						if (!ItemUtils.isEmpty(instance.getOutput(((OutputCustomSlot) slot).getName()))) {
-							continue entryLoop;
-						}
-					} else if (slot instanceof FuelCustomSlot) {
-						if (!ItemUtils.isEmpty(instance.getFuel(((FuelCustomSlot) slot).getName()))) {
+					if (slot instanceof InputCustomSlot || slot instanceof OutputCustomSlot || slot instanceof FuelCustomSlot || slot instanceof StorageCustomSlot) {
+
+						int invIndex = x + 9 * y;
+						if (!ItemUtils.isEmpty(instance.getInventory().getItem(invIndex))) {
 							continue entryLoop;
 						}
 					}
+
+					// TODO Test this
 				}
 			}
+
+			// TODO Add something similar for pocket containers
 		}
 	}
 	

@@ -62,14 +62,7 @@ import nl.knokko.customitems.container.VanillaContainerType;
 import nl.knokko.customitems.container.fuel.CustomFuelRegistry;
 import nl.knokko.customitems.container.fuel.FuelEntry;
 import nl.knokko.customitems.container.fuel.FuelMode;
-import nl.knokko.customitems.container.slot.CustomSlot;
-import nl.knokko.customitems.container.slot.DecorationCustomSlot;
-import nl.knokko.customitems.container.slot.EmptyCustomSlot;
-import nl.knokko.customitems.container.slot.FuelCustomSlot;
-import nl.knokko.customitems.container.slot.FuelIndicatorCustomSlot;
-import nl.knokko.customitems.container.slot.InputCustomSlot;
-import nl.knokko.customitems.container.slot.OutputCustomSlot;
-import nl.knokko.customitems.container.slot.ProgressIndicatorCustomSlot;
+import nl.knokko.customitems.container.slot.*;
 import nl.knokko.customitems.container.slot.display.CustomItemDisplayItem;
 import nl.knokko.customitems.container.slot.display.DataVanillaDisplayItem;
 import nl.knokko.customitems.container.slot.display.SimpleVanillaDisplayItem;
@@ -5897,6 +5890,35 @@ public class ItemSet implements ItemSetBase {
 		
 		return null;
 	}
+
+	private String validateSlotDisplay(SlotDisplay display, String slotType, String displayType, boolean allowNull) {
+		if (display == null) {
+		    if (allowNull) {
+		    	return null;
+			} else {
+				return "There is a " + slotType + " slot without " + displayType;
+			}
+		}
+		if (display.getAmount() < 1) {
+			return "There is a " + slotType + " " + displayType + " slot with an amount smaller than 1";
+		}
+		if (display.getAmount() > 64) {
+			return "There is a " + slotType + " " + displayType + " slot with an amount greater than 64";
+		}
+		if (display.getDisplayName() == null) {
+			return "There is a " + slotType + " " + displayType + " with a null display name";
+		}
+		if (display.getLore() == null) {
+			return "There is a " + slotType + " " + displayType + " with a null lore";
+		}
+		for (String line : display.getLore()) {
+			if (line == null) {
+				return "There is a " + slotType + " " + displayType + " with a null line in its lore";
+			}
+		}
+
+		return null;
+	}
 	
 	private String validateSlot(CustomSlot slot, 
 			Iterable<CustomSlot> allSlots) {
@@ -5907,28 +5929,28 @@ public class ItemSet implements ItemSetBase {
 		if (slot instanceof DecorationCustomSlot) {
 			DecorationCustomSlot decorationSlot = (DecorationCustomSlot) slot;
 			SlotDisplay display = decorationSlot.getDisplay();
-			if (display == null) {
-				return "There is a decoration slot without display";
-			}
-			if (display.getAmount() < 1) {
-				return "There is a decoration slot with an amount smaller than 1";
-			}
-			if (display.getAmount() > 64) {
-				return "There is a decoration slot with an amount greater than 64";
-			}
-			if (display.getDisplayName() == null) {
-				return "There is a display with a null display name";
-			}
-			if (display.getLore() == null) {
-				return "There is a display with a null lore";
-			}
-			for (String line : display.getLore()) {
-				if (line == null) {
-					return "There is a display with a null line in its lore";
-				}
+			String displayError = validateSlotDisplay(
+					display,
+					"decoration",
+					"display",
+					false
+			);
+			if (displayError != null) {
+				return displayError;
 			}
 		} else if (slot instanceof FuelCustomSlot) {
 			FuelCustomSlot fuelSlot = (FuelCustomSlot) slot;
+
+			String placeholderError = validateSlotDisplay(
+					fuelSlot.getPlaceholder(),
+					"fuel",
+					"placeholder",
+					true
+			);
+			if (placeholderError != null) {
+				return placeholderError;
+			}
+
 			for (CustomSlot otherSlot : allSlots) {
 				if (otherSlot != fuelSlot && otherSlot instanceof FuelCustomSlot) {
 					FuelCustomSlot otherFuelSlot = (FuelCustomSlot) otherSlot;
@@ -5939,6 +5961,26 @@ public class ItemSet implements ItemSetBase {
 			}
 		} else if (slot instanceof FuelIndicatorCustomSlot) {
 			FuelIndicatorCustomSlot indicator = (FuelIndicatorCustomSlot) slot;
+			String displayError = validateSlotDisplay(
+					indicator.getDisplay(),
+					"fuel indicator",
+					"display",
+					false
+			);
+			if (displayError != null) {
+				return displayError;
+			}
+
+			String placeholderError = validateSlotDisplay(
+					indicator.getPlaceholder(),
+					"fuel indicator",
+					"place holder",
+					false
+			);
+			if (placeholderError != null) {
+				return placeholderError;
+			}
+
 			if (indicator.getDomain().getBegin() < 0) {
 				return "The indicator " + indicator.getFuelSlotName() + " starts before 0%";
 			} else if (indicator.getDomain().getEnd() > 100) {
@@ -5960,6 +6002,16 @@ public class ItemSet implements ItemSetBase {
 			}
 		} else if (slot instanceof InputCustomSlot) {
 			InputCustomSlot inputSlot = (InputCustomSlot) slot;
+			String placeholderError = validateSlotDisplay(
+					inputSlot.getPlaceholder(),
+					"input",
+					"place holder",
+					true
+			);
+			if (placeholderError != null) {
+				return placeholderError;
+			}
+
 			for (CustomSlot otherSlot : allSlots) {
 				if (otherSlot != slot && otherSlot instanceof InputCustomSlot) {
 					InputCustomSlot otherInputSlot = (InputCustomSlot) otherSlot;
@@ -5970,6 +6022,16 @@ public class ItemSet implements ItemSetBase {
 			}
 		} else if (slot instanceof OutputCustomSlot) {
 			OutputCustomSlot outputSlot = (OutputCustomSlot) slot;
+			String placeHolderError = validateSlotDisplay(
+					outputSlot.getPlaceholder(),
+					"output",
+					"place holder",
+					true
+			);
+			if (placeHolderError != null) {
+				return placeHolderError;
+			}
+
 			for (CustomSlot otherSlot : allSlots) {
 				if (otherSlot != slot && otherSlot instanceof OutputCustomSlot) {
 					OutputCustomSlot otherOutputSlot = (OutputCustomSlot) otherSlot;
@@ -5980,11 +6042,44 @@ public class ItemSet implements ItemSetBase {
 			}
 		} else if (slot instanceof ProgressIndicatorCustomSlot) {
 			ProgressIndicatorCustomSlot indicator = (ProgressIndicatorCustomSlot) slot;
+
+			String displayError = validateSlotDisplay(
+					indicator.getDisplay(),
+					"progress indicator",
+					"display",
+					false
+			);
+			if (displayError != null) {
+				return displayError;
+			}
+
+			String placeHolderError = validateSlotDisplay(
+					indicator.getPlaceHolder(),
+					"progress indicator",
+					"place holder",
+					false
+			);
+			if (placeHolderError != null) {
+				return placeHolderError;
+			}
+
 			if (indicator.getDomain().getBegin() < 0) {
 				return "There is a crafting progress indicator that starts before 0%";
 			} else if (indicator.getDomain().getEnd() > 100) {
 				return "There is a crafting progress indicator that ends after 100%";
 			}
+		} else if (slot instanceof StorageCustomSlot) {
+			StorageCustomSlot storageSlot = (StorageCustomSlot) slot;
+			String placeHolderError = validateSlotDisplay(
+			        storageSlot.getPlaceHolder(),
+					"storage",
+					"place holder",
+					true
+			);
+			if (placeHolderError != null) {
+				return placeHolderError;
+			}
+
 		} else if (!(slot instanceof EmptyCustomSlot)){
 			return "Unknown custom slot class: " + slot.getClass();
 		}
@@ -6384,6 +6479,11 @@ public class ItemSet implements ItemSetBase {
 							}
 							if (responsibleItem(indicatorSlot.getDisplay()) == item) {
 								return "This item is used as progress indicator display in container " + container.getName();
+							}
+						} else if (slot instanceof StorageCustomSlot) {
+							StorageCustomSlot storageSlot = (StorageCustomSlot) slot;
+							if (responsibleItem(storageSlot.getPlaceHolder()) == item) {
+								return "This item is used as storage placeholder in container " + container.getName();
 							}
 						}
 					}
