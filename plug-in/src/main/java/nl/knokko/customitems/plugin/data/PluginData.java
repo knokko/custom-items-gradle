@@ -67,12 +67,16 @@ public class PluginData {
 				BitInput input = ByteArrayBitInput.fromFile(dataFile);
 				
 				byte encoding = input.readByte();
-				return switch (encoding) {
-					case ENCODING_1 -> load1(input);
-					case ENCODING_2 -> load2(input);
-					case ENCODING_3 -> load3(input);
-					default -> throw new IllegalArgumentException("Unknown data encoding: " + encoding);
-				};
+				switch (encoding) {
+					case ENCODING_1:
+						return load1(input);
+					case ENCODING_2:
+						return load2(input);
+					case ENCODING_3:
+						return load3(input);
+					default:
+						throw new IllegalArgumentException("Unknown data encoding: " + encoding);
+				}
 			} catch (IOException e) {
 				Bukkit.getLogger().log(Level.SEVERE, "Failed to open the data file for CustomItems", e);
 				Bukkit.getLogger().severe("The current data for CustomItems won't be overwritten when you stop the server.");

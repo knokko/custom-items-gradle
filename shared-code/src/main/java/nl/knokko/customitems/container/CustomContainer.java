@@ -24,7 +24,7 @@ import nl.knokko.util.bits.BitOutput;
 public class CustomContainer {
 	
 	public static Iterable<CustomSlot> slotIterable(CustomSlot[][] slots) {
-		return () -> new Iterator<>() {
+		return () -> new Iterator<CustomSlot>() {
 
 			int x = 0;
 			int y = 0;
