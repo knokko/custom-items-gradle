@@ -48,16 +48,19 @@ public class CustomShears extends CustomTool {
 	}
 	
 	@Override
-	public void onBlockBreak(Player player, ItemStack tool, boolean wasSolid) {
+	public void onBlockBreak(Player player, ItemStack tool, boolean wasSolid, boolean wasFakeMainHand) {
 		// Only lose durability when breaking non-solid blocks because we shear it
 		if (!wasSolid && blockBreakDurabilityLoss != 0) {
-			// TODO Test this
 			ItemStack newTool = decreaseDurability(tool, blockBreakDurabilityLoss);
 			if (tool != newTool) {
 				if (newTool == null) {
 					CustomItemsEventHandler.playBreakSound(player);
 				}
-				player.getInventory().setItemInMainHand(newTool);
+				if (wasFakeMainHand) {
+					player.getInventory().setItemInOffHand(newTool);
+				} else {
+					player.getInventory().setItemInMainHand(newTool);
+				}
 			}
 		}
 	}

@@ -27,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -149,7 +151,7 @@ public class CustomTool extends CustomItem {
 	}
 	
 	@Override
-	public void onBlockBreak(Player player, ItemStack tool, boolean wasSolid) {
+	public void onBlockBreak(Player player, ItemStack tool, boolean wasSolid, boolean wasFakeMainHand) {
 		if (wasSolid && blockBreakDurabilityLoss != 0) {
 			
 			ItemStack decreased = decreaseDurability(tool, blockBreakDurabilityLoss);
@@ -163,7 +165,11 @@ public class CustomTool extends CustomItem {
 				CustomItemsEventHandler.playBreakSound(player);
 			}
 			if (decreased != tool) {
-				player.getInventory().setItemInMainHand(decreased);
+				if (wasFakeMainHand) {
+					player.getInventory().setItemInOffHand(DualWieldSupport.purge(decreased));
+				} else {
+					player.getInventory().setItemInMainHand(decreased);
+				}
 			}
 		}
 	}
