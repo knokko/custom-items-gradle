@@ -30,6 +30,7 @@ public class SimpleGuiColor implements GuiColor, Comparable<SimpleGuiColor> {
 	public static final SimpleGuiColor BLUE = new SimpleGuiColor(0, 0, 255);
 	public static final SimpleGuiColor BLACK = new SimpleGuiColor(0, 0, 0);
 	public static final SimpleGuiColor WHITE = new SimpleGuiColor(255, 255, 255);
+	public static final SimpleGuiColor TRANSPARENT = new SimpleGuiColor(0, 0, 0, 0);
 	
 	private final float red;
 	private final float green;

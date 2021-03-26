@@ -62,6 +62,12 @@ public class CreateItem extends GuiMenu {
 		addComponent(new DynamicTextButton("Wand", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
 			state.getWindow().setMainComponent(new EditItemWand(menu, null, null));
 		}), 0.25f, 0.65f, 0.45f, 0.75f);
+
+		// TODO Reserve this place for guns
+
+		addComponent(new DynamicTextButton("Pocket Container", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
+			state.getWindow().setMainComponent(new EditItemPocketContainer(menu, null, null));
+		}), 0.25f, 0.4f, 0.45f, 0.5f);
 		
 		// The row for the basic tools
 		addComponent(new DynamicTextButton("Sword", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {

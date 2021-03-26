@@ -64,6 +64,8 @@ public class ItemCollectionEdit extends CollectionEdit<CustomItem> {
 				return new EditItemTool(menu, (CustomTool) item, (CustomTool) secondParam, item.getItemType().getMainCategory());
 			else if (item instanceof CustomWand)
 				return new EditItemWand(menu, (CustomWand) item, (CustomWand) secondParam);
+			else if (item instanceof CustomPocketContainer)
+				return new EditItemPocketContainer(menu, (CustomPocketContainer) item, (CustomPocketContainer) secondParam);
 			else if (item instanceof SimpleCustomItem)
 				return new EditItemSimple(menu, (SimpleCustomItem) item, (SimpleCustomItem) secondParam);
 			else

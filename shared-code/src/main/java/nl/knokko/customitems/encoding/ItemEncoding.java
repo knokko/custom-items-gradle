@@ -134,4 +134,9 @@ public class ItemEncoding {
 	 * The first encoding of 3d helmets
 	 */
 	public static final byte ENCODING_HELMET3D_9 = 38;
+
+	/**
+	 * The first encoding of pocket containers
+	 */
+	public static final byte ENCODING_POCKET_CONTAINER_9 = 39;
 }
