@@ -3,20 +3,16 @@ package nl.knokko.customitems.plugin.data;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.UUID;
 import java.util.logging.Level;
 
+import nl.knokko.core.plugin.item.GeneralItemNBT;
 import nl.knokko.customitems.container.slot.*;
+import nl.knokko.customitems.plugin.set.item.CustomPocketContainer;
+import nl.knokko.customitems.util.StringEncoder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Sound;
@@ -24,6 +20,7 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import nl.knokko.core.plugin.item.ItemHelper;
@@ -175,7 +172,7 @@ public class PluginData {
 	// Persisting data
 	private final Map<UUID,PlayerData> playerData;
 	private final Map<ContainerLocation,ContainerInstance> persistentContainers;
-	
+
 	private long currentTick;
 	
 	// Non-persisting data
@@ -183,6 +180,7 @@ public class PluginData {
 	private List<Player> shootingPlayers;
 	private Map<VanillaContainerType, List<CustomContainer>> containerTypeMap;
 	private Map<VanillaContainerType, Inventory> containerSelectionMap;
+	private Map<String, Inventory> pocketContainerSelectionMap;
 
 	private PluginData() {
 		playerData = new HashMap<>();
@@ -205,6 +203,7 @@ public class PluginData {
 		tempContainers = new LinkedList<>();
 		shootingPlayers = new LinkedList<>();
 		initContainerTypeMap();
+		initPocketContainerMap();
 		
 		CustomItemsPlugin plugin = CustomItemsPlugin.getInstance();
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, this::update, 1, 1);
@@ -215,8 +214,7 @@ public class PluginData {
 	private void initContainerTypeMap() {
 		containerTypeMap = new EnumMap<>(VanillaContainerType.class);
 		containerSelectionMap = new EnumMap<>(VanillaContainerType.class);
-		// TODO Wait... what happens when /kci reload is used to add a new container?
-		
+
 		ItemSet set = CustomItemsPlugin.getInstance().getSet();
 		for (VanillaContainerType vanillaType : VanillaContainerType.values()) {
 			
@@ -230,6 +228,23 @@ public class PluginData {
 			containerTypeMap.put(vanillaType, containersForType);
 			if (containersForType.size() > 1) {
 				containerSelectionMap.put(vanillaType, createContainerSelectionMenu(containersForType));
+			}
+		}
+	}
+
+	private void initPocketContainerMap() {
+		pocketContainerSelectionMap = new HashMap<>();
+
+		ItemSet set = CustomItemsPlugin.getInstance().getSet();
+		for (CustomItem item : set.getBackingItems()) {
+			if (item instanceof CustomPocketContainer) {
+				CustomPocketContainer pocketContainer = (CustomPocketContainer) item;
+				if (pocketContainer.getContainers().length > 1) {
+					pocketContainerSelectionMap.put(
+							item.getName(),
+							createContainerSelectionMenu(Arrays.asList(pocketContainer.getContainers()))
+					);
+				}
 			}
 		}
 	}
@@ -303,6 +318,9 @@ public class PluginData {
 				tempInstance.instance.dropAllItems(tempInstance.viewer.getLocation());
 			}
 		}
+
+		// TODO Also clean pocket containers when the player isn't viewing it anymore, or the backpack is
+		// no longer in hand
 	}
 	
 	private void clean() {
@@ -390,8 +408,6 @@ public class PluginData {
 
 			// If we reach this line, the container is empty and idle, so no need to keep it in memory anymore
 			entryIterator.remove();
-
-			// TODO Add something similar for pocket containers
 		}
 	}
 	
@@ -483,8 +499,9 @@ public class PluginData {
 				return persistent;
 			}
 		}
-		
-		return null;
+
+		PlayerData pd = getPlayerData(viewer);
+		return pd.openPocketContainer;
 	}
 	
 	public ContainerInstance getCustomContainer(Location location, Player newViewer, CustomContainer prototype) {
@@ -539,6 +556,18 @@ public class PluginData {
 			return containerSelectionMap.get(containerType);
 		}
 	}
+
+	public void openPocketContainerMenu(Player player, CustomPocketContainer pocketContainer) {
+		CustomContainer[] containers = pocketContainer.getContainers();
+		PlayerData pd = getPlayerData(player);
+		pd.pocketContainerSelection = true;
+
+		if (containers.length == 1) {
+		    selectCustomContainer(player, containers[0]);
+		} else {
+            player.openInventory(pocketContainerSelectionMap.get(pocketContainer.getName()));
+		}
+	}
 	
 	public List<CustomContainer> getCustomContainerSelection(HumanEntity player) {
 		for (Entry<VanillaContainerType, Inventory> entry : containerSelectionMap.entrySet()) {
@@ -546,40 +575,107 @@ public class PluginData {
 				return containerTypeMap.get(entry.getKey());
 			}
 		}
-		
+
+		for (Entry<String, Inventory> entry : pocketContainerSelectionMap.entrySet()) {
+			if (entry.getValue().getViewers().contains(player)) {
+				CustomItem pocketContainer = CustomItemsPlugin.getInstance().getSet().getItem(entry.getKey());
+				return Arrays.asList(((CustomPocketContainer)pocketContainer).getContainers());
+			}
+		}
+
 		return null;
+	}
+
+	private static String[] getPocketContainerNbtKey(String containerName) {
+		return new String[] {"KnokkosPocketContainer", "State", containerName};
 	}
 	
 	public void selectCustomContainer(Player player, CustomContainer selected) {
 		PlayerData pd = getPlayerData(player);
-		if (pd.containerSelectionLocation == null) {
-			throw new IllegalStateException("Player " + player + " hasn't opened any container selection");
-		}
-		
-		Location containerLocation = pd.containerSelectionLocation.toBukkitLocation();
-		pd.containerSelectionLocation = null;
-		CIMaterial blockMaterial = CIMaterial.valueOf(
-				ItemHelper.getMaterialName(containerLocation.getBlock())
-		);
-		VanillaContainerType vanillaType = VanillaContainerType.fromMaterial(blockMaterial);
-		
-		/*
-		 * It may happen that a player opens the container selection, but that the
-		 * block is broken before the player makes his choice. That situation would
-		 * cause a somewhat corrupted state, which is avoided by simply closing the
-		 * players inventory.
-		 */
-		if (vanillaType == selected.getVanillaType()) {
-			player.openInventory(getCustomContainer(
-					containerLocation, player, selected
-			).getInventory());
-		} else {
-			player.closeInventory();
+
+		if (pd.containerSelectionLocation != null) {
+			Location containerLocation = pd.containerSelectionLocation.toBukkitLocation();
+			pd.containerSelectionLocation = null;
+			CIMaterial blockMaterial = CIMaterial.valueOf(
+					ItemHelper.getMaterialName(containerLocation.getBlock())
+			);
+			VanillaContainerType vanillaType = VanillaContainerType.fromMaterial(blockMaterial);
+
+			/*
+			 * It may happen that a player opens the container selection, but that the
+			 * block is broken before the player makes his choice. That situation would
+			 * cause a somewhat corrupted state, which is avoided by simply closing the
+			 * players inventory.
+			 */
+			if (vanillaType == selected.getVanillaType()) {
+				player.openInventory(getCustomContainer(
+						containerLocation, player, selected
+				).getInventory());
+			} else {
+				player.closeInventory();
+			}
+		} else if (pd.pocketContainerSelection) {
+
+			PlayerInventory inv = player.getInventory();
+			ItemSet set = CustomItemsPlugin.getInstance().getSet();
+			ItemStack mainItem = inv.getItemInMainHand();
+			ItemStack offItem = inv.getItemInOffHand();
+			CustomItem customMain = set.getItem(mainItem);
+			CustomItem customOff = set.getItem(offItem);
+
+			CustomPocketContainer pocketContainer = null;
+			ItemStack pocketContainerStack = null;
+			boolean isMainHand = false;
+			if (customMain instanceof CustomPocketContainer) {
+				pocketContainer = (CustomPocketContainer) customMain;
+				pocketContainerStack = mainItem;
+				isMainHand = true;
+			} else if (customOff instanceof CustomPocketContainer) {
+				pocketContainer = (CustomPocketContainer) customOff;
+				pocketContainerStack = offItem;
+			}
+
+			if (pocketContainer != null) {
+				GeneralItemNBT nbt = GeneralItemNBT.readWriteInstance(pocketContainerStack);
+				String[] nbtKey = getPocketContainerNbtKey(selected.getName());
+				String stringContainerState = nbt.getOrDefault(nbtKey, null);
+				nbt.remove(nbtKey);
+				if (isMainHand) {
+					player.getInventory().setItemInMainHand(nbt.backToBukkit());
+				} else {
+					player.getInventory().setItemInOffHand(nbt.backToBukkit());
+				}
+
+				ContainerInstance instance;
+				if (stringContainerState != null) {
+					byte[] byteContainerState = StringEncoder.decodeTextyBytes(
+							stringContainerState.getBytes(StandardCharsets.US_ASCII)
+					);
+					instance = ContainerInstance.load2(
+							new ByteArrayBitInput(byteContainerState),
+							set.getContainerInfo(selected)
+					);
+				} else {
+					instance = new ContainerInstance(set.getContainerInfo(selected));
+				}
+
+				player.openInventory(instance.getInventory());
+				pd.openPocketContainer = instance;
+			}
+
+			pd.pocketContainerSelection = false;
 		}
 	}
 	
-	public void clearContainerSelectionLocation(Player player) {
-		getPlayerData(player).containerSelectionLocation = null;
+	public void onInventoryClose(Player player) {
+		PlayerData pd = getPlayerData(player);
+		pd.containerSelectionLocation = null;
+
+		if (pd.openPocketContainer != null) {
+			// TODO Either drop the inventory items or put them in the backpack item
+			pd.openPocketContainer = null;
+		}
+		pd.pocketContainerSelection = false;
 	}
 	
 	public void destroyCustomContainersAt(Location location) {

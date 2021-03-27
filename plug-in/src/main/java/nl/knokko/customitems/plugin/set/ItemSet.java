@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.logging.Level;
 
+import nl.knokko.customitems.plugin.set.item.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -84,19 +85,6 @@ import nl.knokko.customitems.plugin.recipe.ingredient.DataVanillaIngredient;
 import nl.knokko.customitems.plugin.recipe.ingredient.Ingredient;
 import nl.knokko.customitems.plugin.recipe.ingredient.NoIngredient;
 import nl.knokko.customitems.plugin.recipe.ingredient.SimpleVanillaIngredient;
-import nl.knokko.customitems.plugin.set.item.BooleanRepresentation;
-import nl.knokko.customitems.plugin.set.item.CustomArmor;
-import nl.knokko.customitems.plugin.set.item.CustomBow;
-import nl.knokko.customitems.plugin.set.item.CustomHelmet3D;
-import nl.knokko.customitems.plugin.set.item.CustomHoe;
-import nl.knokko.customitems.plugin.set.item.CustomItem;
-import nl.knokko.customitems.plugin.set.item.CustomItemNBT;
-import nl.knokko.customitems.plugin.set.item.CustomShears;
-import nl.knokko.customitems.plugin.set.item.CustomShield;
-import nl.knokko.customitems.plugin.set.item.CustomTool;
-import nl.knokko.customitems.plugin.set.item.CustomTrident;
-import nl.knokko.customitems.plugin.set.item.CustomWand;
-import nl.knokko.customitems.plugin.set.item.SimpleCustomItem;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import nl.knokko.customitems.projectile.CIProjectile;
 import nl.knokko.customitems.projectile.ProjectileCover;
@@ -559,6 +547,13 @@ public class ItemSet implements ItemSetBase {
 		for (int counter = 0; counter < numContainers; counter++) {
 			addCustomContainer(loadContainer(input));
 		}
+
+		// Now that we have the containers, we can match the pocket container items with their container
+		for (CustomItem item : items) {
+			if (item instanceof CustomPocketContainer) {
+				((CustomPocketContainer) item).findContainers(this);
+			}
+		}
 		
 		// Deleted items
 		int numDeletedItems = input.readInt();
@@ -703,6 +698,7 @@ public class ItemSet implements ItemSetBase {
 		case ItemEncoding.ENCODING_TRIDENT_9 : return loadTrident9(input, loadIngredient);
 		case ItemEncoding.ENCODING_HOE_9 : return loadHoe9(input, loadIngredient);
 		case ItemEncoding.ENCODING_WAND_9: return loadWand9(input, getProjectileByName);
+		case ItemEncoding.ENCODING_POCKET_CONTAINER_9: return loadPocketContainer9(input);
 		default : throw new UnknownEncodingException("Item", encoding);
 	}
 	}
@@ -2386,6 +2382,62 @@ public class ItemSet implements ItemSetBase {
 				defaultEnchantments, itemFlags, playerEffects, targetEffects, 
 				equippedEffects, commands, conditions, op, projectile, cooldown, 
 				charges, amountPerShot, extraNbt, attackRange
+		);
+	}
+
+	private static CustomItem loadPocketContainer9(
+			BitInput input
+	) throws UnknownEncodingException {
+		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
+		short damage = input.readShort();
+		String name = input.readJavaString();
+		String alias = input.readString();
+		String displayName = input.readJavaString();
+		String[] lore = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < lore.length; index++)
+			lore[index] = input.readJavaString();
+		AttributeModifier[] attributes = new AttributeModifier[input.readByte() & 0xFF];
+		for (int index = 0; index < attributes.length; index++)
+			attributes[index] = loadAttribute2(input);
+		Enchantment[] defaultEnchantments = new Enchantment[input.readByte() & 0xFF];
+		for (int index = 0; index < defaultEnchantments.length; index++)
+			defaultEnchantments[index] = new Enchantment(EnchantmentType.valueOf(input.readString()), input.readInt());
+		boolean[] itemFlags = input.readBooleans(6);
+		List<PotionEffect> playerEffects = new ArrayList<PotionEffect>();
+		int peLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < peLength; index++) {
+			playerEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		List<PotionEffect> targetEffects = new ArrayList<PotionEffect>();
+		int teLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < teLength; index++) {
+			targetEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		Collection<EquippedPotionEffect> equippedEffects = CustomItem.readEquippedEffects(input);
+		String[] commands = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < commands.length; index++) {
+			commands[index] = input.readJavaString();
+		}
+
+		ReplaceCondition[] conditions = new ReplaceCondition[input.readByte() & 0xFF];
+		for (int index = 0; index < conditions.length; index++) {
+			conditions[index] = loadReplaceCondition(input);
+		}
+		ConditionOperation op = ConditionOperation.valueOf(input.readJavaString());
+		ExtraItemNbt extraNbt = ExtraItemNbt.load(input);
+		float attackRange = input.readFloat();
+
+		int numContainers = input.readInt();
+		String[] containerNames = new String[numContainers];
+		for (int index = 0; index < numContainers; index++) {
+			containerNames[index] = input.readString();
+		}
+
+		return new CustomPocketContainer(
+				itemType, damage, name, alias, displayName, lore, attributes,
+				defaultEnchantments, itemFlags, playerEffects,
+				targetEffects, equippedEffects, commands, conditions, op,
+				extraNbt, attackRange, containerNames
 		);
 	}
 

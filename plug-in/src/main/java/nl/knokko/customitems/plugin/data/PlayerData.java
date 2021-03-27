@@ -6,11 +6,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
+import nl.knokko.customitems.plugin.container.ContainerInstance;
 import nl.knokko.customitems.plugin.set.ItemSet;
 import nl.knokko.customitems.plugin.set.item.CustomItem;
 import nl.knokko.customitems.plugin.set.item.CustomWand;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
+import org.bukkit.inventory.ItemStack;
 
 class PlayerData {
 
@@ -51,10 +53,12 @@ class PlayerData {
 	// TODO Also handle guns
 	
 	// Non-persisting data
-	
+
+	ContainerInstance openPocketContainer;
 	private long lastShootTick;
 	
 	PassiveLocation containerSelectionLocation;
+	boolean pocketContainerSelection;
 	
 	public PlayerData() {
 		wandsData = new HashMap<>();
@@ -154,12 +158,17 @@ class PlayerData {
 				iterator.remove();
 			}
 		}
-		
+
+		 // Don't remove the player data if it still has container data
+		if (openPocketContainer != null || containerSelectionLocation != null) {
+			return false;
+		}
+
 		/*
 		 * If the player is not shooting and doesn't have any remaining cooldowns or missing wand
 		 * charges, there is no reason to keep data about this player because the absence of a player
 		 * entry also indicates this.
 		 */
-		return !isShooting(currentTick) && wandsData.isEmpty() && containerSelectionLocation == null;
+		return !isShooting(currentTick) && wandsData.isEmpty();
 	}
 }
