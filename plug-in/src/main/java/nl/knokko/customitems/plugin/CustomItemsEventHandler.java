@@ -1672,7 +1672,7 @@ public class CustomItemsEventHandler implements Listener {
 								}
 								ItemMeta resultMeta = result.getItemMeta();
 								int repairCount = (int) Math.round(Math.log(repairCost + 1) / Math.log(2));
-								// TODO repair cost becomes invisible after no change?
+								// We have a minor visual anvil bug here that presumably can't be fixed
 								((Repairable) resultMeta)
 								.setRepairCost((int) Math.round(Math.pow(2, repairCount + 1) - 1));
 								result.setItemMeta(resultMeta);
