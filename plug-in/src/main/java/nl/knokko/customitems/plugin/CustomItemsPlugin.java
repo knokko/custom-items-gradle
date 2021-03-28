@@ -225,7 +225,6 @@ public class CustomItemsPlugin extends JavaPlugin {
 					set = new ItemSet(input);
 					input.terminate();
 				} else {
-					// TODO Test that I didn't break this
 					byte[] dataBytes = StringEncoder.decodeTextyBytes(bytes);
 					BitInput input = new ByteArrayBitInput(dataBytes);
 					set = new ItemSet(input);

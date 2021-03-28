@@ -354,6 +354,12 @@ public class PluginData {
 				}
 
 				if (closeContainerInv) {
+
+					// If the container doesn't have persistent storage, we shouldn't try to store its content
+					if (!pd.openPocketContainer.getType().hasPersistentStorage()) {
+						closeDestination = null;
+					}
+
 					if (closeDestination != null) {
 
 						CustomPocketContainer pocketContainer = (CustomPocketContainer) set.getItem(closeDestination);
@@ -402,6 +408,7 @@ public class PluginData {
 					}
 
 					pd.openPocketContainer = null;
+					player.closeInventory();
 				}
 			}
 		});
@@ -740,7 +747,7 @@ public class PluginData {
 					byte stateEncoding = containerStateInput.readByte();
 					if (stateEncoding == ContainerEncoding.ENCODING_2) {
 						instance = ContainerInstance.load2(
-								new ByteArrayBitInput(byteContainerState),
+								containerStateInput,
 								set.getContainerInfo(selected)
 						);
 					} else {

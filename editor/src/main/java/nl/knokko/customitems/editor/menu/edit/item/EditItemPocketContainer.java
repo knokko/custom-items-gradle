@@ -52,7 +52,7 @@ public class EditItemPocketContainer extends EditItemBase {
     @Override
     protected void addComponents() {
         super.addComponents();
-        addComponent(new DynamicTextComponent("Container:", EditProps.LABEL), 0.71f, 0.35f, 0.895f, 0.45f);
+        addComponent(new DynamicTextComponent("Containers:", EditProps.LABEL), 0.71f, 0.35f, 0.895f, 0.45f);
         addComponent(new DynamicTextButton("Choose...", EditProps.BUTTON, EditProps.HOVER, () -> {
             state.getWindow().setMainComponent(new SelectContainers(
                     this, menu.getSet().getBackingContainers(),

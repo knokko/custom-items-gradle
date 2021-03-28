@@ -161,7 +161,7 @@ class PlayerData {
 		}
 
 		 // Don't remove the player data if it still has container data
-		if (openPocketContainer != null || containerSelectionLocation != null) {
+		if (openPocketContainer != null || containerSelectionLocation != null || pocketContainerSelection) {
 			return false;
 		}
 
