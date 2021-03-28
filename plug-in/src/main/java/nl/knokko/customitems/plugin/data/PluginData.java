@@ -322,94 +322,116 @@ public class PluginData {
 		}
 	}
 
-	private void handleClosedPocketContainers() {
-		playerData.forEach((playerId, pd) -> {
+	public void onPlayerQuit(Player player) {
+		PlayerData pd = playerData.get(player.getUniqueId());
+		if (pd != null) {
+			pd.pocketContainerSelection = false;
+			pd.containerSelectionLocation = null;
+
 			if (pd.openPocketContainer != null) {
+				maybeClosePocketContainer(pd, player, true);
+			}
+		}
+	}
 
-				ItemSet set = CustomItemsPlugin.getInstance().getSet();
-				Player player = Bukkit.getPlayer(playerId);
-				PlayerInventory inv = player.getInventory();
+	private void maybeClosePocketContainer(PlayerData pd, Player player, boolean force) {
 
-				boolean closeContainerInv = false;
-				ItemStack closeDestination = null;
-				boolean putBackInMainHand = false;
+		ItemSet set = CustomItemsPlugin.getInstance().getSet();
+		PlayerInventory inv = player.getInventory();
 
-				if (pd.pocketContainerInMainHand) {
-					ItemStack mainItem = inv.getItemInMainHand();
-					if (!(set.getItem(mainItem) instanceof CustomPocketContainer)) {
-						closeContainerInv = true;
-					} else if (!pd.openPocketContainer.getInventory().getViewers().contains(player)) {
-						closeContainerInv = true;
-						closeDestination = mainItem;
-						putBackInMainHand = true;
-					}
-				} else {
-					ItemStack offItem = inv.getItemInOffHand();
-					if (!(set.getItem(offItem) instanceof CustomPocketContainer)) {
-						closeContainerInv = true;
-					} else if (!pd.openPocketContainer.getInventory().getViewers().contains(player)) {
-						closeContainerInv = true;
-						closeDestination = offItem;
+		boolean closeContainerInv = false;
+		ItemStack closeDestination = null;
+		boolean putBackInMainHand = false;
+
+		if (pd.pocketContainerInMainHand) {
+			ItemStack mainItem = inv.getItemInMainHand();
+			if (!(set.getItem(mainItem) instanceof CustomPocketContainer)) {
+				closeContainerInv = true;
+			} else if (!pd.openPocketContainer.getInventory().getViewers().contains(player) || force) {
+				closeContainerInv = true;
+				closeDestination = mainItem;
+				putBackInMainHand = true;
+			}
+		} else {
+			ItemStack offItem = inv.getItemInOffHand();
+			if (!(set.getItem(offItem) instanceof CustomPocketContainer)) {
+				closeContainerInv = true;
+			} else if (!pd.openPocketContainer.getInventory().getViewers().contains(player) || force) {
+				closeContainerInv = true;
+				closeDestination = offItem;
+			}
+		}
+
+		if (closeContainerInv) {
+
+			// If the container doesn't have persistent storage, we shouldn't try to store its content
+			if (!pd.openPocketContainer.getType().hasPersistentStorage()) {
+				closeDestination = null;
+			}
+
+			if (closeDestination != null) {
+
+				CustomPocketContainer pocketContainer = (CustomPocketContainer) set.getItem(closeDestination);
+				boolean acceptsCurrentContainer = false;
+				for (CustomContainer candidate : pocketContainer.getContainers()) {
+					if (candidate == pd.openPocketContainer.getType()) {
+						acceptsCurrentContainer = true;
+						break;
 					}
 				}
 
-				if (closeContainerInv) {
+				if (acceptsCurrentContainer) {
+					String[] nbtKey = getPocketContainerNbtKey(pd.openPocketContainer.getType().getName());
+					GeneralItemNBT destNbt = GeneralItemNBT.readWriteInstance(closeDestination);
 
-					// If the container doesn't have persistent storage, we shouldn't try to store its content
-					if (!pd.openPocketContainer.getType().hasPersistentStorage()) {
+					if (destNbt.getOrDefault(nbtKey, null) != null) {
+						// Don't overwrite the contents of another pocket container
+						// (This can happen in some edge case where the pocket container in the hand
+						// is replaced with another pocket container)
 						closeDestination = null;
 					}
 
-					if (closeDestination != null) {
-
-						CustomPocketContainer pocketContainer = (CustomPocketContainer) set.getItem(closeDestination);
-						boolean acceptsCurrentContainer = false;
-						for (CustomContainer candidate : pocketContainer.getContainers()) {
-							if (candidate == pd.openPocketContainer.getType()) {
-								acceptsCurrentContainer = true;
-								break;
-							}
-						}
-
-						if (acceptsCurrentContainer) {
-							String[] nbtKey = getPocketContainerNbtKey(pd.openPocketContainer.getType().getName());
-							GeneralItemNBT destNbt = GeneralItemNBT.readWriteInstance(closeDestination);
-
-							if (destNbt.getOrDefault(nbtKey, null) != null) {
-								// Don't overwrite the contents of another pocket container
-								// (This can happen in some edge case where the pocket container in the hand
-								// is replaced with another pocket container)
-								closeDestination = null;
-							}
-
-							ByteArrayBitOutput containerStateOutput = new ByteArrayBitOutput();
-							containerStateOutput.addByte(ContainerEncoding.ENCODING_2);
-							pd.openPocketContainer.save2(containerStateOutput);
-							destNbt.set(nbtKey, new String(StringEncoder.encodeTextyBytes(
-											containerStateOutput.getBytes(),
-											false), StandardCharsets.US_ASCII)
-							);
-							if (putBackInMainHand) {
-								inv.setItemInMainHand(destNbt.backToBukkit());
-							} else {
-								inv.setItemInOffHand(destNbt.backToBukkit());
-							}
-						} else {
-
-							// Don't store the pocket container data in a pocket container that doesn't accept
-							// this type of container. This can happen in some edge cases where the pocket
-							// container in the hand is replaced with another kind of pocket container
-							closeDestination = null;
-						}
+					ByteArrayBitOutput containerStateOutput = new ByteArrayBitOutput();
+					containerStateOutput.addByte(ContainerEncoding.ENCODING_2);
+					pd.openPocketContainer.save2(containerStateOutput);
+					destNbt.set(nbtKey, new String(StringEncoder.encodeTextyBytes(
+							containerStateOutput.getBytes(),
+							false), StandardCharsets.US_ASCII)
+					);
+					if (putBackInMainHand) {
+						inv.setItemInMainHand(destNbt.backToBukkit());
+					} else {
+						inv.setItemInOffHand(destNbt.backToBukkit());
 					}
+				} else {
 
-					if (closeDestination == null) {
-						pd.openPocketContainer.dropAllItems(player.getLocation());
-					}
-
-					pd.openPocketContainer = null;
-					player.closeInventory();
+					// Don't store the pocket container data in a pocket container that doesn't accept
+					// this type of container. This can happen in some edge cases where the pocket
+					// container in the hand is replaced with another kind of pocket container
+					closeDestination = null;
 				}
+			}
+
+			if (closeDestination == null) {
+				pd.openPocketContainer.dropAllItems(player.getLocation());
+			}
+
+			pd.openPocketContainer = null;
+			player.closeInventory();
+		}
+	}
+
+	private void handleClosedPocketContainers() {
+		playerData.forEach((playerId, pd) -> {
+			if (pd.openPocketContainer != null) {
+				Player player = Bukkit.getPlayer(playerId);
+
+				if (player == null) {
+					Bukkit.getLogger().log(Level.SEVERE, "Lost pocket container for player " + Bukkit.getOfflinePlayer(playerId).getName());
+					return;
+				}
+
+				maybeClosePocketContainer(pd, player, false);
 			}
 		});
 	}
@@ -540,6 +562,19 @@ public class PluginData {
 			ContainerInstance state = entry.getValue();
 			state.save2(output);
 		}
+
+		playerData.forEach((playerId, pd) -> {
+			if (pd.openPocketContainer != null) {
+				Player player = Bukkit.getPlayer(playerId);
+
+				if (player == null) {
+					Bukkit.getLogger().log(Level.SEVERE, "Lost pocket container for player " + Bukkit.getOfflinePlayer(playerId).getName());
+					return;
+				}
+
+				maybeClosePocketContainer(pd, player, true);
+			}
+		});
 	}
 
 	/**
