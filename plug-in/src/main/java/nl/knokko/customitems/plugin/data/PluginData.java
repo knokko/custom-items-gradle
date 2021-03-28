@@ -332,6 +332,15 @@ public class PluginData {
 				maybeClosePocketContainer(pd, player, true);
 			}
 		}
+
+		Iterator<TempContainerInstance> tempIterator = tempContainers.iterator();
+		while (tempIterator.hasNext()) {
+			TempContainerInstance tempInstance = tempIterator.next();
+			if (tempInstance.viewer.getUniqueId().equals(player.getUniqueId())) {
+				tempIterator.remove();
+				tempInstance.instance.dropAllItems(tempInstance.viewer.getLocation());
+			}
+		}
 	}
 
 	private void maybeClosePocketContainer(PlayerData pd, Player player, boolean force) {
@@ -575,6 +584,9 @@ public class PluginData {
 				maybeClosePocketContainer(pd, player, true);
 			}
 		});
+
+		tempContainers.forEach(entry -> entry.instance.dropAllItems(entry.viewer.getLocation()));
+		tempContainers.clear();
 	}
 
 	/**
