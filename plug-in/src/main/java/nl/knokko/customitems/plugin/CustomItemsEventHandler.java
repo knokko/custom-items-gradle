@@ -63,6 +63,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -1038,10 +1039,11 @@ public class CustomItemsEventHandler implements Listener {
 		
 		if (custom != null) {
 			boolean wasSolid = ItemHelper.isMaterialSolid(event.getBlock());
+			boolean wasFakeMainHand = DualWieldSupport.isFakeMainHand(event);
 			
 			// Delay this to avoid messing around with other plug-ins
 			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () -> {
-				custom.onBlockBreak(event.getPlayer(), mainItem, wasSolid);
+				custom.onBlockBreak(event.getPlayer(), mainItem, wasSolid, wasFakeMainHand);
 			});
 		}
 		

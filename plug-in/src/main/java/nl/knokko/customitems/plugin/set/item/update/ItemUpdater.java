@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Function;
 
+import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -74,10 +75,12 @@ public class ItemUpdater {
 			return null;
 		}
 		
-		// If players somehow obtain placeholder items, get rid of those!
+		GeneralItemNBT preNbt = GeneralItemNBT.readOnlyInstance(originalStack);
 		if (
-				GeneralItemNBT.readOnlyInstance(originalStack)
-				.getOrDefault(ContainerInstance.PLACEHOLDER_KEY, 0) == 1
+				// If players somehow obtain placeholder items, get rid of those!
+				preNbt.getOrDefault(ContainerInstance.PLACEHOLDER_KEY, 0) == 1
+						// And also destroy duplicated Dual Wield items
+				|| DualWieldSupport.isCorrupted(preNbt)
 		) {
 			return null;
 		}
