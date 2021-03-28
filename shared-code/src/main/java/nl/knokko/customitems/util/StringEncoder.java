@@ -104,4 +104,29 @@ public class StringEncoder {
 
 		return dataBytes;
 	}
+
+	public static byte[] encodeTextyBytes(byte[] bytes, boolean useLineBreaks) {
+		byte[] textBytes = new byte[2 * bytes.length + 2 * (bytes.length / 50)];
+
+		int textIndex = 0;
+		int textCounter = 0;
+		byte charCodeA = (byte) 'a';
+		byte charCodeSR = (byte) '\r';
+		byte charCodeSN = (byte) '\n';
+
+		for (byte data : bytes) {
+			int value = data & 0xFF;
+			textBytes[textIndex++] = (byte) (charCodeA + value % 16);
+			textBytes[textIndex++] = (byte) (charCodeA + value / 16);
+
+			textCounter++;
+			if (useLineBreaks && textCounter == 50) {
+				textCounter = 0;
+				textBytes[textIndex++] = charCodeSR;
+				textBytes[textIndex++] = charCodeSN;
+			}
+		}
+
+		return textBytes;
+	}
 }

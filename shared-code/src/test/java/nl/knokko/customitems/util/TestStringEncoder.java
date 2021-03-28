@@ -1,5 +1,6 @@
 package nl.knokko.customitems.util;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.nio.charset.StandardCharsets;
@@ -44,6 +45,37 @@ public class TestStringEncoder {
 			} else {
 				counter--;
 			}
+		}
+	}
+
+	private void checkEncodeTexty(byte[] payload) {
+		byte[] textyPayload1 = StringEncoder.encodeTextyBytes(payload, false);
+		byte[] textyPayload2 = StringEncoder.encodeTextyBytes(payload, true);
+
+		String stringPayload1 = new String(textyPayload1, StandardCharsets.US_ASCII);
+		String stringPayload2 = new String(textyPayload2, StandardCharsets.US_ASCII);
+
+		byte[] revertedString1 = stringPayload1.getBytes(StandardCharsets.US_ASCII);
+		byte[] revertedString2 = stringPayload2.getBytes(StandardCharsets.US_ASCII);
+
+		assertArrayEquals(textyPayload1, revertedString1);
+		assertArrayEquals(textyPayload2, revertedString2);
+
+		byte[] decodedPayload1 = StringEncoder.decodeTextyBytes(revertedString1);
+		byte[] decodedPayload2 = StringEncoder.decodeTextyBytes(revertedString2);
+
+		assertArrayEquals(decodedPayload1, payload);
+		assertArrayEquals(decodedPayload2, payload);
+	}
+
+	@Test
+	public void testRandomBytes() {
+		Random rng = new Random(83401);
+
+		for (int counter = 0; counter < 100; counter++) {
+			byte[] payload = new byte[rng.nextInt(1000)];
+			rng.nextBytes(payload);
+			checkEncodeTexty(payload);
 		}
 	}
 }

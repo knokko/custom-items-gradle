@@ -129,6 +129,7 @@ import nl.knokko.customitems.recipe.ContainerRecipe.OutputEntry;
 import nl.knokko.customitems.recipe.OutputTable;
 import nl.knokko.customitems.trouble.IntegrityException;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
+import nl.knokko.customitems.util.StringEncoder;
 import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.gui.keycode.KeyCode;
 import nl.knokko.gui.window.input.WindowInput;
@@ -3477,7 +3478,7 @@ public class ItemSet implements ItemSetBase {
 			fileOutput.flush();
 			fileOutput.close();
 			
-			byte[] textyBytes = createTextyBytes(bytes);
+			byte[] textyBytes = StringEncoder.encodeTextyBytes(bytes, true);
 			fileOutput = Files.newOutputStream(new File(Editor.getFolder() + "/" + fileName + ".txt").toPath());
 			fileOutput.write(textyBytes);
 			fileOutput.flush();
@@ -4029,29 +4030,7 @@ public class ItemSet implements ItemSetBase {
 		
 		return null;
 	}
-	
-	private byte[] createTextyBytes(byte[] bytes) {
-		byte[] textBytes = new byte[2 * bytes.length + 2 * (bytes.length / 50)];
-		int textIndex = 0;
-		int textCounter = 0;
-		byte charCodeA = (byte) 'a';
-		byte charCodeSR = (byte) '\r';
-		byte charCodeSN = (byte) '\n';
-		for (byte data : bytes) {
-			int value = data & 0xFF;
-			textBytes[textIndex++] = (byte) (charCodeA + value % 16);
-			textBytes[textIndex++] = (byte) (charCodeA + value / 16);
-					
-			textCounter++;
-			if (textCounter == 50) {
-				textCounter = 0;
-				textBytes[textIndex++] = charCodeSR;
-				textBytes[textIndex++] = charCodeSN;
-			}
-		}
-		return textBytes;
-	}
-	
+
 	private static class DurabilityClaim {
 		
 		final short itemDamage;
@@ -4170,7 +4149,7 @@ public class ItemSet implements ItemSetBase {
 			 * It will only use alphabetic characters, which makes it possible to copy the data
 			 * as text (although it still won't be readable by humans).
 			 */
-			byte[] textBytes = createTextyBytes(bytes);
+			byte[] textBytes = StringEncoder.encodeTextyBytes(bytes, true);
 			File textFile = new File(Editor.getFolder() + "/" + fileName + ".txt");
 			fileOutput = Files.newOutputStream(textFile.toPath());
 			fileOutput.write(textBytes);

@@ -11,6 +11,7 @@ import java.util.logging.Level;
 
 import nl.knokko.core.plugin.item.GeneralItemNBT;
 import nl.knokko.customitems.container.slot.*;
+import nl.knokko.customitems.encoding.ContainerEncoding;
 import nl.knokko.customitems.plugin.set.item.CustomPocketContainer;
 import nl.knokko.customitems.util.StringEncoder;
 import org.bukkit.Bukkit;
@@ -280,6 +281,7 @@ public class PluginData {
 		
 		updateShooting();
 		updateContainers();
+		handleClosedPocketContainers();
 	}
 	
 	private void updateShooting() {
@@ -318,9 +320,91 @@ public class PluginData {
 				tempInstance.instance.dropAllItems(tempInstance.viewer.getLocation());
 			}
 		}
+	}
 
-		// TODO Also clean pocket containers when the player isn't viewing it anymore, or the backpack is
-		// no longer in hand
+	private void handleClosedPocketContainers() {
+		playerData.forEach((playerId, pd) -> {
+			if (pd.openPocketContainer != null) {
+
+				ItemSet set = CustomItemsPlugin.getInstance().getSet();
+				Player player = Bukkit.getPlayer(playerId);
+				PlayerInventory inv = player.getInventory();
+
+				boolean closeContainerInv = false;
+				ItemStack closeDestination = null;
+				boolean putBackInMainHand = false;
+
+				if (pd.pocketContainerInMainHand) {
+					ItemStack mainItem = inv.getItemInMainHand();
+					if (!(set.getItem(mainItem) instanceof CustomPocketContainer)) {
+						closeContainerInv = true;
+					} else if (!pd.openPocketContainer.getInventory().getViewers().contains(player)) {
+						closeContainerInv = true;
+						closeDestination = mainItem;
+						putBackInMainHand = true;
+					}
+				} else {
+					ItemStack offItem = inv.getItemInOffHand();
+					if (!(set.getItem(offItem) instanceof CustomPocketContainer)) {
+						closeContainerInv = true;
+					} else if (!pd.openPocketContainer.getInventory().getViewers().contains(player)) {
+						closeContainerInv = true;
+						closeDestination = offItem;
+					}
+				}
+
+				if (closeContainerInv) {
+					if (closeDestination != null) {
+
+						CustomPocketContainer pocketContainer = (CustomPocketContainer) set.getItem(closeDestination);
+						boolean acceptsCurrentContainer = false;
+						for (CustomContainer candidate : pocketContainer.getContainers()) {
+							if (candidate == pd.openPocketContainer.getType()) {
+								acceptsCurrentContainer = true;
+								break;
+							}
+						}
+
+						if (acceptsCurrentContainer) {
+							String[] nbtKey = getPocketContainerNbtKey(pd.openPocketContainer.getType().getName());
+							GeneralItemNBT destNbt = GeneralItemNBT.readWriteInstance(closeDestination);
+
+							if (destNbt.getOrDefault(nbtKey, null) != null) {
+								// Don't overwrite the contents of another pocket container
+								// (This can happen in some edge case where the pocket container in the hand
+								// is replaced with another pocket container)
+								closeDestination = null;
+							}
+
+							ByteArrayBitOutput containerStateOutput = new ByteArrayBitOutput();
+							containerStateOutput.addByte(ContainerEncoding.ENCODING_2);
+							pd.openPocketContainer.save2(containerStateOutput);
+							destNbt.set(nbtKey, new String(StringEncoder.encodeTextyBytes(
+											containerStateOutput.getBytes(),
+											false), StandardCharsets.US_ASCII)
+							);
+							if (putBackInMainHand) {
+								inv.setItemInMainHand(destNbt.backToBukkit());
+							} else {
+								inv.setItemInOffHand(destNbt.backToBukkit());
+							}
+						} else {
+
+							// Don't store the pocket container data in a pocket container that doesn't accept
+							// this type of container. This can happen in some edge cases where the pocket
+							// container in the hand is replaced with another kind of pocket container
+							closeDestination = null;
+						}
+					}
+
+					if (closeDestination == null) {
+						pd.openPocketContainer.dropAllItems(player.getLocation());
+					}
+
+					pd.openPocketContainer = null;
+				}
+			}
+		});
 	}
 	
 	private void clean() {
@@ -651,16 +735,25 @@ public class PluginData {
 					byte[] byteContainerState = StringEncoder.decodeTextyBytes(
 							stringContainerState.getBytes(StandardCharsets.US_ASCII)
 					);
-					instance = ContainerInstance.load2(
-							new ByteArrayBitInput(byteContainerState),
-							set.getContainerInfo(selected)
-					);
+
+					BitInput containerStateInput = new ByteArrayBitInput(byteContainerState);
+					byte stateEncoding = containerStateInput.readByte();
+					if (stateEncoding == ContainerEncoding.ENCODING_2) {
+						instance = ContainerInstance.load2(
+								new ByteArrayBitInput(byteContainerState),
+								set.getContainerInfo(selected)
+						);
+					} else {
+						throw new IllegalStateException("Illegal stored pocket container contents in inventory of " + player.getName());
+					}
+
 				} else {
 					instance = new ContainerInstance(set.getContainerInfo(selected));
 				}
 
 				player.openInventory(instance.getInventory());
 				pd.openPocketContainer = instance;
+				pd.pocketContainerInMainHand = isMainHand;
 			}
 
 			pd.pocketContainerSelection = false;
@@ -670,11 +763,6 @@ public class PluginData {
 	public void onInventoryClose(Player player) {
 		PlayerData pd = getPlayerData(player);
 		pd.containerSelectionLocation = null;
-
-		if (pd.openPocketContainer != null) {
-			// TODO Either drop the inventory items or put them in the backpack item
-			pd.openPocketContainer = null;
-		}
 		pd.pocketContainerSelection = false;
 	}
 	

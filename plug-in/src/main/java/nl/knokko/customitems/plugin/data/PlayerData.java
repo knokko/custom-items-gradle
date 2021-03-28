@@ -55,6 +55,7 @@ class PlayerData {
 	// Non-persisting data
 
 	ContainerInstance openPocketContainer;
+	boolean pocketContainerInMainHand;
 	private long lastShootTick;
 	
 	PassiveLocation containerSelectionLocation;
