@@ -112,7 +112,6 @@ public class ProjectileManager implements Listener {
 	}
 	
 	private boolean isProjectileCover(ItemStack item) {
-		// TODO Test this again
 		return GeneralItemNBT.readOnlyInstance(item).getOrDefault(FlyingProjectile.KEY_COVER_ITEM, 0) == 1;
 	}
 	
