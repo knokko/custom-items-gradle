@@ -50,6 +50,8 @@ import static org.bukkit.enchantments.Enchantment.THORNS;
 import static org.bukkit.enchantments.Enchantment.VANISHING_CURSE;
 import static org.bukkit.enchantments.Enchantment.WATER_WORKER;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -63,6 +65,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import nl.knokko.core.plugin.item.GeneralItemNBT;
+import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -696,108 +700,106 @@ public class CustomItemsEventHandler implements Listener {
 	public void processCustomTridentThrow(ProjectileLaunchEvent event) {
 		if (isTrident(event.getEntity())) {
 			Projectile trident = event.getEntity();
-			if (trident.getShooter() instanceof Player) {
-				CustomTrident customTrident = null;
-				Player shooter = (Player) trident.getShooter();
-				ItemStack main = shooter.getInventory().getItemInMainHand();
-				ItemStack off = shooter.getInventory().getItemInOffHand();
-				ItemSet set = set();
-				
-				// TODO Test durability loss here!
-				if (main != null && ItemHelper.getMaterialName(main).equals(CIMaterial.TRIDENT.name())) {
-					CustomItem customMain = set.getItem(main);
-					if (customMain instanceof CustomTrident) {
-						customTrident = (CustomTrident) customMain;
-						ItemStack newMain = customTrident.decreaseDurability(main, customTrident.throwDurabilityLoss);
-						if (newMain == null) {
-							String newItemName = checkBrokenCondition(customTrident.getReplaceConditions());
-							if (newItemName != null) {
-								ItemStack newItem = set().getItem(newItemName).create(1);
-								shooter.getInventory().setItemInMainHand(newItem);
+			CustomTrident customTrident = null;
+
+			ItemSet set = set();
+
+			// Not my cleanest piece of code, but it was necessary...
+			try {
+				Object handle = trident.getClass().getMethod("getHandle").invoke(trident);
+				Object nmsTridentItem = handle.getClass().getField("trident").get(handle);
+
+				Constructor<GeneralItemNBT> generalNbtConstructor = GeneralItemNBT.class.getDeclaredConstructor(
+						nmsTridentItem.getClass(), boolean.class
+				);
+				generalNbtConstructor.setAccessible(true);
+				ItemStack tridentItem = generalNbtConstructor.newInstance(nmsTridentItem, false).backToBukkit();
+
+				CustomItem customTridentItem = set.getItem(tridentItem);
+				if (customTridentItem instanceof CustomTrident) {
+					customTrident = (CustomTrident) customTridentItem;
+
+					ItemStack newTridentItem = customTrident.decreaseDurability(tridentItem, customTrident.throwDurabilityLoss);
+					if (newTridentItem == null) {
+						trident.setMetadata("CustomTridentBreak", TRIDENT_BREAK_META);
+					} else if (newTridentItem != tridentItem) {
+						GeneralItemNBT helperNbt = GeneralItemNBT.readOnlyInstance(newTridentItem);
+						Field nmsStackField = helperNbt.getClass().getDeclaredField("nmsStack");
+						nmsStackField.setAccessible(true);
+						Object newTridentNmsItem = nmsStackField.get(helperNbt);
+
+						Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () -> {
+							try {
+								handle.getClass().getField("trident").set(handle, newTridentNmsItem);
+							} catch (IllegalAccessException | NoSuchFieldException e) {
+								throw new RuntimeException("Failed custom trident throw: ", e);
 							}
-							trident.setMetadata("CustomTridentBreak", TRIDENT_BREAK_META);
-						} else if (newMain != main) {
-							shooter.getInventory().setItemInMainHand(newMain);
-						}
-					}
-				} else if (off != null && ItemHelper.getMaterialName(off).equals(CIMaterial.TRIDENT.name())) {
-					CustomItem customOff = set.getItem(off);
-					if (customOff instanceof CustomTrident) {
-						customTrident = (CustomTrident) customOff;
-						ItemStack newOff = customTrident.decreaseDurability(off, customTrident.throwDurabilityLoss);
-						if (newOff == null) {
-							String newItemName = checkBrokenCondition(customTrident.getReplaceConditions());
-							if (newItemName != null) {
-								ItemStack newItem = set().getItem(newItemName).create(1);
-								shooter.getInventory().setItemInOffHand(newItem);
-							}
-							trident.setMetadata("CustomTridentBreak", TRIDENT_BREAK_META);
-						} else if (newOff != off) {
-							shooter.getInventory().setItemInOffHand(newOff);
-						}
+						});
 					}
 				}
+			} catch (Exception e) {
+			    throw new RuntimeException("Failed custom trident throw: ", e);
+			}
 
-				if (customTrident != null) {
-					trident.setVelocity(trident.getVelocity().multiply(customTrident.throwSpeedMultiplier));
-					String customTridentName = customTrident.getName();
-					trident.setMetadata("CustomTridentName", new MetadataValue() {
+			if (customTrident != null) {
+				trident.setVelocity(trident.getVelocity().multiply(customTrident.throwSpeedMultiplier));
+				String customTridentName = customTrident.getName();
+				trident.setMetadata("CustomTridentName", new MetadataValue() {
 
-						@Override
-						public Object value() {
-							return null;
-						}
+					@Override
+					public Object value() {
+						return null;
+					}
 
-						@Override
-						public int asInt() {
-							return 0;
-						}
+					@Override
+					public int asInt() {
+						return 0;
+					}
 
-						@Override
-						public float asFloat() {
-							return 0;
-						}
+					@Override
+					public float asFloat() {
+						return 0;
+					}
 
-						@Override
-						public double asDouble() {
-							return 0;
-						}
+					@Override
+					public double asDouble() {
+						return 0;
+					}
 
-						@Override
-						public long asLong() {
-							return 0;
-						}
+					@Override
+					public long asLong() {
+						return 0;
+					}
 
-						@Override
-						public short asShort() {
-							return 0;
-						}
+					@Override
+					public short asShort() {
+						return 0;
+					}
 
-						@Override
-						public byte asByte() {
-							return 0;
-						}
+					@Override
+					public byte asByte() {
+						return 0;
+					}
 
-						@Override
-						public boolean asBoolean() {
-							return false;
-						}
+					@Override
+					public boolean asBoolean() {
+						return false;
+					}
 
-						@Override
-						public String asString() {
-							return customTridentName;
-						}
+					@Override
+					public String asString() {
+						return customTridentName;
+					}
 
-						@Override
-						public Plugin getOwningPlugin() {
-							return plugin();
-						}
+					@Override
+					public Plugin getOwningPlugin() {
+						return plugin();
+					}
 
-						@Override
-						public void invalidate() {
-						}
-					});
-				}
+					@Override
+					public void invalidate() {
+					}
+				});
 			}
 		}
 	}
@@ -1038,10 +1040,11 @@ public class CustomItemsEventHandler implements Listener {
 		
 		if (custom != null) {
 			boolean wasSolid = ItemHelper.isMaterialSolid(event.getBlock());
+			boolean wasFakeMainHand = DualWieldSupport.isFakeMainHand(event);
 			
 			// Delay this to avoid messing around with other plug-ins
 			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () -> {
-				custom.onBlockBreak(event.getPlayer(), mainItem, wasSolid);
+				custom.onBlockBreak(event.getPlayer(), mainItem, wasSolid, wasFakeMainHand);
 			});
 		}
 		
@@ -1606,41 +1609,7 @@ public class CustomItemsEventHandler implements Listener {
 						}
 					} else if (contents[1] != null && !ItemHelper.getMaterialName(contents[1]).equals(CIMaterial.AIR.name())) {
 						if (ItemHelper.getMaterialName(contents[1]).equals(CIMaterial.ENCHANTED_BOOK.name())) {
-							/*
-							 * Ehm... yes... I kinda forgot this works fine automatically before writing
-							 * this...
-							 * 
-							 * ItemMeta meta2 = contents[1].getItemMeta(); ItemStack result =
-							 * contents[0].clone(); if (meta2 instanceof EnchantmentStorageMeta) {
-							 * EnchantmentStorageMeta esm = (EnchantmentStorageMeta) meta2; int levelCost =
-							 * 2; Set<Entry<Enchantment,Integer>> entrySet =
-							 * esm.getStoredEnchants().entrySet(); for (Entry<Enchantment,Integer> entry :
-							 * entrySet) { if (entry.getKey().canEnchantItem(result)) { try {
-							 * result.addEnchantment(entry.getKey(), entry.getValue()); levelCost +=
-							 * entry.getValue() * getBookEnchantFactor(entry.getKey()); } catch
-							 * (IllegalArgumentException illegal) { // The rules from the wiki levelCost++;
-							 * } // Only add enchantments that can be added } } int repairCount1 = 0; int
-							 * repairCount2 = 0; ItemMeta meta1 = contents[0].getItemMeta(); if (meta1
-							 * instanceof Repairable) { Repairable repairable = (Repairable) meta1;
-							 * System.out.println("repairable1: " + repairable.getRepairCost());
-							 * repairCount1 = repairable.getRepairCost(); levelCost += Math.pow(2,
-							 * repairCount1) - 1; } if (meta2 instanceof Repairable) { Repairable repairable
-							 * = (Repairable) meta2; System.out.println("repairable2: " +
-							 * repairable.getRepairCost()); repairCount2 = repairable.getRepairCost();
-							 * levelCost += Math.pow(2, repairCount2) - 1; } if
-							 * (!event.getInventory().getRenameText().isEmpty()) { ItemMeta meta =
-							 * result.getItemMeta();
-							 * meta.setDisplayName(event.getInventory().getRenameText());
-							 * result.setItemMeta(meta); levelCost++; } ItemMeta resultMeta =
-							 * result.getItemMeta(); ((Repairable)
-							 * resultMeta).setRepairCost(Math.max(repairCount1, repairCount2) + 1);
-							 * result.setItemMeta(resultMeta); event.setResult(result); int finalLevelCost =
-							 * levelCost;
-							 * Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance()
-							 * , () -> { // Apparently, settings the repair cost during the event has no
-							 * effect event.getInventory().setRepairCost(finalLevelCost); }); } else {
-							 * event.setResult(null); }
-							 */
+						    // This case is handled by minecraft automagically
 						} else if (tool.getRepairItem().accept(contents[1])) {
 							long durability = tool.getDurability(contents[0]);
 							long maxDurability = tool.getMaxDurability();
@@ -1672,7 +1641,7 @@ public class CustomItemsEventHandler implements Listener {
 								}
 								ItemMeta resultMeta = result.getItemMeta();
 								int repairCount = (int) Math.round(Math.log(repairCost + 1) / Math.log(2));
-								// TODO repair cost becomes invisible after no change?
+								// We have a minor visual anvil bug here that presumably can't be fixed
 								((Repairable) resultMeta)
 								.setRepairCost((int) Math.round(Math.pow(2, repairCount + 1) - 1));
 								result.setItemMeta(resultMeta);
@@ -1681,13 +1650,6 @@ public class CustomItemsEventHandler implements Listener {
 								Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
 									// Apparently, settings the repair cost during the event has no effect
 									event.getInventory().setRepairCost(finalLevelCost);
-									/*
-									 * if (finalLevelCost == event.getInventory().getRepairCost()) {
-									 * System.out.println("Force level cost update");
-									 * Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance()
-									 * , () -> { event.getInventory().setItem(0, event.getInventory().getItem(0));
-									 * }); }
-									 */
 								});
 							} else {
 								event.setResult(null);

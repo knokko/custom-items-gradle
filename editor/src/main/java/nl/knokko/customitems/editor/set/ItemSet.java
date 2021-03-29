@@ -62,14 +62,7 @@ import nl.knokko.customitems.container.VanillaContainerType;
 import nl.knokko.customitems.container.fuel.CustomFuelRegistry;
 import nl.knokko.customitems.container.fuel.FuelEntry;
 import nl.knokko.customitems.container.fuel.FuelMode;
-import nl.knokko.customitems.container.slot.CustomSlot;
-import nl.knokko.customitems.container.slot.DecorationCustomSlot;
-import nl.knokko.customitems.container.slot.EmptyCustomSlot;
-import nl.knokko.customitems.container.slot.FuelCustomSlot;
-import nl.knokko.customitems.container.slot.FuelIndicatorCustomSlot;
-import nl.knokko.customitems.container.slot.InputCustomSlot;
-import nl.knokko.customitems.container.slot.OutputCustomSlot;
-import nl.knokko.customitems.container.slot.ProgressIndicatorCustomSlot;
+import nl.knokko.customitems.container.slot.*;
 import nl.knokko.customitems.container.slot.display.CustomItemDisplayItem;
 import nl.knokko.customitems.container.slot.display.DataVanillaDisplayItem;
 import nl.knokko.customitems.container.slot.display.SimpleVanillaDisplayItem;
@@ -82,18 +75,7 @@ import nl.knokko.customitems.drops.CIEntityType;
 import nl.knokko.customitems.drops.Drop;
 import nl.knokko.customitems.drops.EntityDrop;
 import nl.knokko.customitems.editor.Editor;
-import nl.knokko.customitems.editor.set.item.CustomArmor;
-import nl.knokko.customitems.editor.set.item.CustomBow;
-import nl.knokko.customitems.editor.set.item.CustomHelmet3D;
-import nl.knokko.customitems.editor.set.item.CustomHoe;
-import nl.knokko.customitems.editor.set.item.CustomItem;
-import nl.knokko.customitems.editor.set.item.CustomShears;
-import nl.knokko.customitems.editor.set.item.CustomShield;
-import nl.knokko.customitems.editor.set.item.CustomTool;
-import nl.knokko.customitems.editor.set.item.CustomTrident;
-import nl.knokko.customitems.editor.set.item.CustomWand;
-import nl.knokko.customitems.editor.set.item.NamedImage;
-import nl.knokko.customitems.editor.set.item.SimpleCustomItem;
+import nl.knokko.customitems.editor.set.item.*;
 import nl.knokko.customitems.editor.set.item.texture.ArmorTextures;
 import nl.knokko.customitems.editor.set.item.texture.BowTextures;
 import nl.knokko.customitems.editor.set.projectile.cover.CustomProjectileCover;
@@ -147,6 +129,7 @@ import nl.knokko.customitems.recipe.ContainerRecipe.OutputEntry;
 import nl.knokko.customitems.recipe.OutputTable;
 import nl.knokko.customitems.trouble.IntegrityException;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
+import nl.knokko.customitems.util.StringEncoder;
 import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.gui.keycode.KeyCode;
 import nl.knokko.gui.window.input.WindowInput;
@@ -221,6 +204,7 @@ public class ItemSet implements ItemSetBase {
 			case ItemEncoding.ENCODING_WAND_8: return loadWand8(input);
 			case ItemEncoding.ENCODING_WAND_9: return loadWand9(input);
 			case ItemEncoding.ENCODING_HELMET3D_9: return loadHelmet3d9(input, checkCustomModel);
+			case ItemEncoding.ENCODING_POCKET_CONTAINER_9: return loadPocketContainer9(input, checkCustomModel);
 			default : throw new UnknownEncodingException("Item", encoding);
 		}
 	}
@@ -2364,6 +2348,78 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 
+	private CustomItem loadPocketContainer9(
+			BitInput input, boolean checkCustomModel
+	) throws UnknownEncodingException {
+		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
+		input.readShort();
+		String name = input.readJavaString();
+		String alias = input.readString();
+		String displayName = input.readJavaString();
+		String[] lore = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < lore.length; index++) {
+			lore[index] = input.readJavaString();
+		}
+		AttributeModifier[] attributes = new AttributeModifier[input.readByte() & 0xFF];
+		for (int index = 0; index < attributes.length; index++)
+			attributes[index] = loadAttribute2(input);
+		Enchantment[] defaultEnchantments = new Enchantment[input.readByte() & 0xFF];
+		for (int index = 0; index < defaultEnchantments.length; index++)
+			defaultEnchantments[index] = new Enchantment(EnchantmentType.valueOf(input.readString()), input.readInt());
+
+		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
+		boolean[] itemFlags = input.readBooleans(6);
+
+		List<PotionEffect> playerEffects = new ArrayList<PotionEffect>();
+		int peLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < peLength; index++) {
+			playerEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		List<PotionEffect> targetEffects = new ArrayList<PotionEffect>();
+		int teLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < teLength; index++) {
+			targetEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		Collection<EquippedPotionEffect> equippedEffects = CustomItem.readEquippedEffects(input);
+		String[] commands = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < commands.length; index++) {
+			commands[index] = input.readJavaString();
+		}
+
+		ReplaceCondition[] conditions = new ReplaceCondition[input.readByte() & 0xFF];
+		for (int index = 0; index < conditions.length; index++) {
+			conditions[index] = loadReplaceCondition(input);
+		}
+		ConditionOperation op = ConditionOperation.valueOf(input.readJavaString());
+		ExtraItemNbt extraNbt = ExtraItemNbt.load(input);
+		float attackRange = input.readFloat();
+
+		int numContainers = input.readInt();
+		Collection<String> containerNames = new ArrayList<>(numContainers);
+		for (int counter = 0; counter < numContainers; counter++) {
+			containerNames.add(input.readString());
+		}
+
+		String imageName = input.readJavaString();
+		NamedImage texture = null;
+		for (NamedImage current : textures) {
+			if (current.getName().equals(imageName)) {
+				texture = current;
+				break;
+			}
+		}
+		if (texture == null)
+			throw new IllegalArgumentException("Can't find texture " + imageName);
+		byte[] customModel = loadCustomModel(input, checkCustomModel);
+		return new CustomPocketContainer(
+				itemType, name, alias, displayName, lore, attributes,
+				defaultEnchantments, texture, itemFlags, customModel,
+				playerEffects, targetEffects, equippedEffects,
+				commands, conditions, op, extraNbt, attackRange,
+				containerNames, null
+		);
+	}
+
 	private AttributeModifier loadAttribute2(BitInput input) {
 		return new AttributeModifier(Attribute.valueOf(input.readJavaString()), Slot.valueOf(input.readJavaString()),
 				Operation.values()[(int) input.readNumber((byte) 2, false)], input.readDouble());
@@ -3003,6 +3059,13 @@ public class ItemSet implements ItemSetBase {
 		for (int counter = 0; counter < numContainers; counter++) {
 			containers.add(loadContainer(input));
 		}
+
+		// Match the pocket containers with their containers (this had to be postponed until containers were loaded)
+		for (CustomItem item : items) {
+			if (item instanceof CustomPocketContainer) {
+				((CustomPocketContainer) item).findContainers(this);
+			}
+		}
 		
 		// Deleted item names
 		int numDeletedItems = input.readInt();
@@ -3415,7 +3478,7 @@ public class ItemSet implements ItemSetBase {
 			fileOutput.flush();
 			fileOutput.close();
 			
-			byte[] textyBytes = createTextyBytes(bytes);
+			byte[] textyBytes = StringEncoder.encodeTextyBytes(bytes, true);
 			fileOutput = Files.newOutputStream(new File(Editor.getFolder() + "/" + fileName + ".txt").toPath());
 			fileOutput.write(textyBytes);
 			fileOutput.flush();
@@ -3967,29 +4030,7 @@ public class ItemSet implements ItemSetBase {
 		
 		return null;
 	}
-	
-	private byte[] createTextyBytes(byte[] bytes) {
-		byte[] textBytes = new byte[2 * bytes.length + 2 * (bytes.length / 50)];
-		int textIndex = 0;
-		int textCounter = 0;
-		byte charCodeA = (byte) 'a';
-		byte charCodeSR = (byte) '\r';
-		byte charCodeSN = (byte) '\n';
-		for (byte data : bytes) {
-			int value = data & 0xFF;
-			textBytes[textIndex++] = (byte) (charCodeA + value % 16);
-			textBytes[textIndex++] = (byte) (charCodeA + value / 16);
-					
-			textCounter++;
-			if (textCounter == 50) {
-				textCounter = 0;
-				textBytes[textIndex++] = charCodeSR;
-				textBytes[textIndex++] = charCodeSN;
-			}
-		}
-		return textBytes;
-	}
-	
+
 	private static class DurabilityClaim {
 		
 		final short itemDamage;
@@ -4108,7 +4149,7 @@ public class ItemSet implements ItemSetBase {
 			 * It will only use alphabetic characters, which makes it possible to copy the data
 			 * as text (although it still won't be readable by humans).
 			 */
-			byte[] textBytes = createTextyBytes(bytes);
+			byte[] textBytes = StringEncoder.encodeTextyBytes(bytes, true);
 			File textFile = new File(Editor.getFolder() + "/" + fileName + ".txt");
 			fileOutput = Files.newOutputStream(textFile.toPath());
 			fileOutput.write(textBytes);
@@ -5790,6 +5831,20 @@ public class ItemSet implements ItemSetBase {
 		}
 		return addItem(wand);
 	}
+
+	public String addPocketContainer(CustomPocketContainer toAdd) {
+		if (!bypassChecks()) {
+			if (toAdd == null)
+				return "Can't add null pocket containers";
+			if (toAdd.getContainers() == null)
+				return "The container collection can't be null";
+			if (toAdd.getContainers().isEmpty())
+				return "You need to select at least 1 container";
+			if (!containers.containsAll(toAdd.getContainers()))
+				return "Not all selected containers are in the list of containers";
+		}
+		return addItem(toAdd);
+	}
 	
 	/**
 	 * Attempts to change the properties of the given wand to the given values.
@@ -5832,6 +5887,37 @@ public class ItemSet implements ItemSetBase {
 			original.cooldown = newCooldown;
 			original.charges = newCharges;
 			original.amountPerShot = newAmountPerShot;
+		}
+		return error;
+	}
+
+	public String changePocketContainer(
+		CustomPocketContainer original, CustomItemType newType, String newAlias,
+		String newDisplayName, String[] newLore,
+		AttributeModifier[] newAttributes, Enchantment[] newEnchantments,
+		NamedImage newImage, boolean[] itemFlags, byte[] newCustomModel,
+		List<PotionEffect> playerEffects, List<PotionEffect> targetEffects,
+		Collection<EquippedPotionEffect> newEquippedEffects, String[] commands,
+		ReplaceCondition[] conditions, ConditionOperation op,
+		ExtraItemNbt newExtraNbt, float newAttackRange, Collection<CustomContainer> newContainers
+	) {
+		if (!bypassChecks()) {
+			if (original == null)
+				return "Can't change null items";
+			if (newContainers == null)
+				return "The collection of containers can't be null";
+			if (newContainers.isEmpty())
+				return "You need to select at least 1 container";
+			if (!containers.containsAll(newContainers))
+				return "The selected container is not in the list of containers";
+		}
+		String error = changeItem(
+				original, newType, newAlias, newDisplayName, newLore, newAttributes, newEnchantments,
+				newImage, itemFlags, newCustomModel, playerEffects, targetEffects, newEquippedEffects,
+				commands, conditions, op, newExtraNbt, newAttackRange
+		);
+		if (error == null) {
+			original.setContainers(newContainers);
 		}
 		return error;
 	}
@@ -5897,6 +5983,35 @@ public class ItemSet implements ItemSetBase {
 		
 		return null;
 	}
+
+	private String validateSlotDisplay(SlotDisplay display, String slotType, String displayType, boolean allowNull) {
+		if (display == null) {
+		    if (allowNull) {
+		    	return null;
+			} else {
+				return "There is a " + slotType + " slot without " + displayType;
+			}
+		}
+		if (display.getAmount() < 1) {
+			return "There is a " + slotType + " " + displayType + " slot with an amount smaller than 1";
+		}
+		if (display.getAmount() > 64) {
+			return "There is a " + slotType + " " + displayType + " slot with an amount greater than 64";
+		}
+		if (display.getDisplayName() == null) {
+			return "There is a " + slotType + " " + displayType + " with a null display name";
+		}
+		if (display.getLore() == null) {
+			return "There is a " + slotType + " " + displayType + " with a null lore";
+		}
+		for (String line : display.getLore()) {
+			if (line == null) {
+				return "There is a " + slotType + " " + displayType + " with a null line in its lore";
+			}
+		}
+
+		return null;
+	}
 	
 	private String validateSlot(CustomSlot slot, 
 			Iterable<CustomSlot> allSlots) {
@@ -5907,28 +6022,28 @@ public class ItemSet implements ItemSetBase {
 		if (slot instanceof DecorationCustomSlot) {
 			DecorationCustomSlot decorationSlot = (DecorationCustomSlot) slot;
 			SlotDisplay display = decorationSlot.getDisplay();
-			if (display == null) {
-				return "There is a decoration slot without display";
-			}
-			if (display.getAmount() < 1) {
-				return "There is a decoration slot with an amount smaller than 1";
-			}
-			if (display.getAmount() > 64) {
-				return "There is a decoration slot with an amount greater than 64";
-			}
-			if (display.getDisplayName() == null) {
-				return "There is a display with a null display name";
-			}
-			if (display.getLore() == null) {
-				return "There is a display with a null lore";
-			}
-			for (String line : display.getLore()) {
-				if (line == null) {
-					return "There is a display with a null line in its lore";
-				}
+			String displayError = validateSlotDisplay(
+					display,
+					"decoration",
+					"display",
+					false
+			);
+			if (displayError != null) {
+				return displayError;
 			}
 		} else if (slot instanceof FuelCustomSlot) {
 			FuelCustomSlot fuelSlot = (FuelCustomSlot) slot;
+
+			String placeholderError = validateSlotDisplay(
+					fuelSlot.getPlaceholder(),
+					"fuel",
+					"placeholder",
+					true
+			);
+			if (placeholderError != null) {
+				return placeholderError;
+			}
+
 			for (CustomSlot otherSlot : allSlots) {
 				if (otherSlot != fuelSlot && otherSlot instanceof FuelCustomSlot) {
 					FuelCustomSlot otherFuelSlot = (FuelCustomSlot) otherSlot;
@@ -5939,6 +6054,26 @@ public class ItemSet implements ItemSetBase {
 			}
 		} else if (slot instanceof FuelIndicatorCustomSlot) {
 			FuelIndicatorCustomSlot indicator = (FuelIndicatorCustomSlot) slot;
+			String displayError = validateSlotDisplay(
+					indicator.getDisplay(),
+					"fuel indicator",
+					"display",
+					false
+			);
+			if (displayError != null) {
+				return displayError;
+			}
+
+			String placeholderError = validateSlotDisplay(
+					indicator.getPlaceholder(),
+					"fuel indicator",
+					"place holder",
+					false
+			);
+			if (placeholderError != null) {
+				return placeholderError;
+			}
+
 			if (indicator.getDomain().getBegin() < 0) {
 				return "The indicator " + indicator.getFuelSlotName() + " starts before 0%";
 			} else if (indicator.getDomain().getEnd() > 100) {
@@ -5960,6 +6095,16 @@ public class ItemSet implements ItemSetBase {
 			}
 		} else if (slot instanceof InputCustomSlot) {
 			InputCustomSlot inputSlot = (InputCustomSlot) slot;
+			String placeholderError = validateSlotDisplay(
+					inputSlot.getPlaceholder(),
+					"input",
+					"place holder",
+					true
+			);
+			if (placeholderError != null) {
+				return placeholderError;
+			}
+
 			for (CustomSlot otherSlot : allSlots) {
 				if (otherSlot != slot && otherSlot instanceof InputCustomSlot) {
 					InputCustomSlot otherInputSlot = (InputCustomSlot) otherSlot;
@@ -5970,6 +6115,16 @@ public class ItemSet implements ItemSetBase {
 			}
 		} else if (slot instanceof OutputCustomSlot) {
 			OutputCustomSlot outputSlot = (OutputCustomSlot) slot;
+			String placeHolderError = validateSlotDisplay(
+					outputSlot.getPlaceholder(),
+					"output",
+					"place holder",
+					true
+			);
+			if (placeHolderError != null) {
+				return placeHolderError;
+			}
+
 			for (CustomSlot otherSlot : allSlots) {
 				if (otherSlot != slot && otherSlot instanceof OutputCustomSlot) {
 					OutputCustomSlot otherOutputSlot = (OutputCustomSlot) otherSlot;
@@ -5980,11 +6135,44 @@ public class ItemSet implements ItemSetBase {
 			}
 		} else if (slot instanceof ProgressIndicatorCustomSlot) {
 			ProgressIndicatorCustomSlot indicator = (ProgressIndicatorCustomSlot) slot;
+
+			String displayError = validateSlotDisplay(
+					indicator.getDisplay(),
+					"progress indicator",
+					"display",
+					false
+			);
+			if (displayError != null) {
+				return displayError;
+			}
+
+			String placeHolderError = validateSlotDisplay(
+					indicator.getPlaceHolder(),
+					"progress indicator",
+					"place holder",
+					false
+			);
+			if (placeHolderError != null) {
+				return placeHolderError;
+			}
+
 			if (indicator.getDomain().getBegin() < 0) {
 				return "There is a crafting progress indicator that starts before 0%";
 			} else if (indicator.getDomain().getEnd() > 100) {
 				return "There is a crafting progress indicator that ends after 100%";
 			}
+		} else if (slot instanceof StorageCustomSlot) {
+			StorageCustomSlot storageSlot = (StorageCustomSlot) slot;
+			String placeHolderError = validateSlotDisplay(
+			        storageSlot.getPlaceHolder(),
+					"storage",
+					"place holder",
+					true
+			);
+			if (placeHolderError != null) {
+				return placeHolderError;
+			}
+
 		} else if (!(slot instanceof EmptyCustomSlot)){
 			return "Unknown custom slot class: " + slot.getClass();
 		}
@@ -6384,6 +6572,11 @@ public class ItemSet implements ItemSetBase {
 							}
 							if (responsibleItem(indicatorSlot.getDisplay()) == item) {
 								return "This item is used as progress indicator display in container " + container.getName();
+							}
+						} else if (slot instanceof StorageCustomSlot) {
+							StorageCustomSlot storageSlot = (StorageCustomSlot) slot;
+							if (responsibleItem(storageSlot.getPlaceHolder()) == item) {
+								return "This item is used as storage placeholder in container " + container.getName();
 							}
 						}
 					}
@@ -7077,15 +7270,21 @@ public class ItemSet implements ItemSetBase {
 	}
 	
 	/**
-	 * Removes the given container from the list of containers. Currently, this
-	 * operation can't really fail because no other objects depend on containers.
+	 * Removes the given container from the list of containers.
 	 * @param toRemove The container to be removed
 	 * @return null if the container was removed successfully, or a string
 	 * indicating that the given container wasn't in the list of containers
 	 */
 	public String removeContainer(CustomContainer toRemove) {
-		// Since nothing depends on the presence of custom containers,
-		// almost no checks are needed
+	    for (CustomItem item : items) {
+	    	if (item instanceof CustomPocketContainer) {
+	    		for (CustomContainer container : ((CustomPocketContainer) item).getContainers()) {
+	    			if (container == toRemove) {
+						return "This container is still used by the pocket container " + item.getName();
+					}
+				}
+			}
+		}
 		if (containers.remove(toRemove)) {
 			return null;
 		} else {

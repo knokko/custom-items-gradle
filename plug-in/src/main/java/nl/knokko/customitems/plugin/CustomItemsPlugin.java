@@ -30,6 +30,7 @@ import java.util.logging.Level;
 
 import nl.knokko.core.plugin.item.SmithingBlocker;
 import nl.knokko.customitems.plugin.command.CustomItemsTabCompletions;
+import nl.knokko.customitems.util.StringEncoder;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -224,34 +225,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 					set = new ItemSet(input);
 					input.terminate();
 				} else {
-					int counter = 0;
-					for (byte b : bytes) {
-						if (b >= 'a' && b < ('a' + 16)) {
-							counter++;
-						}
-					}
-					
-					int byteSize = counter / 2;
-					if (byteSize * 2 != counter) {
-						Bukkit.getLogger().log(Level.SEVERE, "The item set " + file + " had an odd number of alphabetic characters, which is not allowed!");
-						set = new ItemSet();
-						return;
-					}
-					byte[] dataBytes = new byte[byteSize];
-					int textIndex = 0;
-					for (int dataIndex = 0; dataIndex < byteSize; dataIndex++) {
-						int firstPart = bytes[textIndex++];
-						while (firstPart < 'a' || firstPart >= 'a' + 16) {
-							firstPart = bytes[textIndex++];
-						}
-						firstPart -= 'a';
-						int secondPart = bytes[textIndex++];
-						while (secondPart < 'a' || secondPart >= 'a' + 16) {
-							secondPart = bytes[textIndex++];
-						}
-						secondPart -= 'a';
-						dataBytes[dataIndex] = (byte) (firstPart + 16 * secondPart);
-					}
+					byte[] dataBytes = StringEncoder.decodeTextyBytes(bytes);
 					BitInput input = new ByteArrayBitInput(dataBytes);
 					set = new ItemSet(input);
 					input.terminate();

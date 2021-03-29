@@ -15,7 +15,12 @@ public enum VanillaContainerType {
 	BLAST_FURNACE(VERSION1_14, VERSION1_16),
 	SMOKER(VERSION1_14, VERSION1_16),
 	STONE_CUTTER(VERSION1_14, VERSION1_16),
-	GRINDSTONE(VERSION1_14, VERSION1_16);
+	GRINDSTONE(VERSION1_14, VERSION1_16),
+
+	/**
+	 * If this vanilla type is chosen, the container can only be used as pocket container
+	 */
+	NONE(VERSION1_12, VERSION1_16);
 	
 	public static VanillaContainerType fromMaterial(CIMaterial material) {
 		if (material == CIMaterial.CRAFTING_TABLE || 

@@ -97,8 +97,7 @@ public class EditorTestFull implements GuiTestProgram {
 				"generic.attackDamage", "Mainhand", "Multiply", "2", 
 				"Mending", "1", "Thorns", "2");
 		test.assertComponentsWithTexts("simple_test_item", "test_aks", "fragile_bow");
-		// TODO Also create EditorTestQuick
-		
+
 		// Test adding recipes
 		test.click("Back");
 		test.click("Recipes");

@@ -229,7 +229,7 @@ public abstract class CustomItem extends nl.knokko.customitems.item.CustomItem {
     	return false;
     }
     
-    public void onBlockBreak(Player player, ItemStack item, boolean wasSolid) {}
+    public void onBlockBreak(Player player, ItemStack item, boolean wasSolid, boolean wasFakeMainHand) {}
     
     public void onEntityHit(LivingEntity attacker, ItemStack weapon, Entity target) {
     	Collection<org.bukkit.potion.PotionEffect> pe = new ArrayList<org.bukkit.potion.PotionEffect>();

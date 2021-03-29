@@ -2,6 +2,7 @@ package nl.knokko.customitems.plugin.container;
 
 import java.util.List;
 
+import nl.knokko.customitems.plugin.set.item.CustomPocketContainer;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.entity.HumanEntity;
@@ -18,6 +19,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -33,6 +36,7 @@ import nl.knokko.customitems.plugin.data.PluginData;
 import nl.knokko.customitems.plugin.set.ItemSet;
 import nl.knokko.customitems.plugin.set.item.CustomItem;
 import nl.knokko.customitems.plugin.util.ItemUtils;
+import org.bukkit.inventory.PlayerInventory;
 
 public class ContainerEventHandler implements Listener {
 	
@@ -80,7 +84,7 @@ public class ContainerEventHandler implements Listener {
 	@EventHandler
 	public void onInventoryClose(InventoryCloseEvent event) {
 		if (event.getPlayer() instanceof Player) {
-			pluginData().clearContainerSelectionLocation((Player) event.getPlayer());
+			pluginData().onInventoryClose((Player) event.getPlayer());
 		}
 	}
 	
@@ -333,6 +337,11 @@ public class ContainerEventHandler implements Listener {
 			}
 		}
 	}
+
+	@EventHandler
+	public void onPlayerQuit(PlayerQuitEvent event) {
+		pluginData().onPlayerQuit(event.getPlayer());
+	}
 	
 	@EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
 	public void onPlayerInteract(PlayerInteractEvent event) {
@@ -354,6 +363,32 @@ public class ContainerEventHandler implements Listener {
 			
 			if (menu != null) {
 				event.getPlayer().openInventory(menu);
+			}
+		}
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void openPocketContainer(PlayerInteractEvent event) {
+		if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+
+			PlayerInventory inv = event.getPlayer().getInventory();
+			ItemSet set = CustomItemsPlugin.getInstance().getSet();
+			CustomItem customMain = set.getItem(inv.getItemInMainHand());
+			CustomItem customOff = set.getItem(inv.getItemInOffHand());
+
+			// Prevent players from opening 2 pocket containers at the same time
+			if (
+					customMain instanceof CustomPocketContainer
+							&& customOff instanceof CustomPocketContainer
+							&& event.getHand() != EquipmentSlot.HAND
+			) {
+				return;
+			}
+
+			CustomItem customItem = set.getItem(event.getItem());
+			if (customItem instanceof CustomPocketContainer) {
+				CustomPocketContainer pocketContainer = (CustomPocketContainer) customItem;
+				pluginData().openPocketContainerMenu(event.getPlayer(), pocketContainer);
 			}
 		}
 	}

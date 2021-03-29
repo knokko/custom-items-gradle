@@ -2,6 +2,7 @@ package nl.knokko.customitems.util;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.logging.Level;
 
 import nl.knokko.util.bits.BitHelper;
 
@@ -69,5 +70,63 @@ public class StringEncoder {
 		
 		byte[] payloadBytes = Arrays.copyOfRange(inputBytes, 4, inputBytes.length);
 		return new String(payloadBytes, StandardCharsets.UTF_8);
+	}
+
+	public static byte[] decodeTextyBytes(byte[] bytes) throws IllegalArgumentException {
+		int counter = 0;
+		for (byte b : bytes) {
+			if (b >= 'a' && b < ('a' + 16)) {
+				counter++;
+			}
+		}
+
+		int byteSize = counter / 2;
+		if (byteSize * 2 != counter) {
+            throw new IllegalArgumentException();
+		}
+
+		byte[] dataBytes = new byte[byteSize];
+
+		int textIndex = 0;
+		for (int dataIndex = 0; dataIndex < byteSize; dataIndex++) {
+			int firstPart = bytes[textIndex++];
+			while (firstPart < 'a' || firstPart >= 'a' + 16) {
+				firstPart = bytes[textIndex++];
+			}
+			firstPart -= 'a';
+			int secondPart = bytes[textIndex++];
+			while (secondPart < 'a' || secondPart >= 'a' + 16) {
+				secondPart = bytes[textIndex++];
+			}
+			secondPart -= 'a';
+			dataBytes[dataIndex] = (byte) (firstPart + 16 * secondPart);
+		}
+
+		return dataBytes;
+	}
+
+	public static byte[] encodeTextyBytes(byte[] bytes, boolean useLineBreaks) {
+		byte[] textBytes = new byte[2 * bytes.length + 2 * (bytes.length / 50)];
+
+		int textIndex = 0;
+		int textCounter = 0;
+		byte charCodeA = (byte) 'a';
+		byte charCodeSR = (byte) '\r';
+		byte charCodeSN = (byte) '\n';
+
+		for (byte data : bytes) {
+			int value = data & 0xFF;
+			textBytes[textIndex++] = (byte) (charCodeA + value % 16);
+			textBytes[textIndex++] = (byte) (charCodeA + value / 16);
+
+			textCounter++;
+			if (useLineBreaks && textCounter == 50) {
+				textCounter = 0;
+				textBytes[textIndex++] = charCodeSR;
+				textBytes[textIndex++] = charCodeSN;
+			}
+		}
+
+		return textBytes;
 	}
 }
