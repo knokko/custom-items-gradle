@@ -5,6 +5,7 @@ import nl.knokko.customitems.container.slot.StorageCustomSlot;
 import nl.knokko.customitems.container.slot.display.SlotDisplay;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.set.item.CustomItem;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -47,7 +48,8 @@ public class CreateStorageSlot extends GuiMenu {
             state.getWindow().setMainComponent(returnMenu);
         }), 0.025f, 0.1f, 0.175f, 0.2f);
 
-        // TODO Add help link and update CreateSlot documentation
+        // TODO Test this link after merging the v9 docs
+        HelpButtons.addHelpLink(this, "edit menu/containers/slots/storage.html");
     }
 
     @Override
