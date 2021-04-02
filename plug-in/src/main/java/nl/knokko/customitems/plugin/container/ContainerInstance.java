@@ -839,7 +839,8 @@ public class ContainerInstance {
 	}
 	
 	public void update() {
-	    if (!inventory.getViewers().isEmpty()) {
+		boolean hasViewers = !inventory.getViewers().isEmpty();
+	    if (hasViewers) {
 	    	markHot();
 		}
 
@@ -852,7 +853,9 @@ public class ContainerInstance {
 			ContainerRecipe oldRecipe = currentRecipe;
 			currentRecipe = null;
 
-			updatePlaceholders();
+			if (hasViewers) {
+				updatePlaceholders();
+			}
 
 			currentRecipe = determineCurrentRecipe(oldRecipe);
 			if (currentRecipe != null) {
@@ -913,23 +916,29 @@ public class ContainerInstance {
 			}
 
 			if (oldCraftingProgress != currentCraftingProgress) {
-				for (IndicatorProps indicator : typeInfo.getCraftingIndicators()) {
 
-					int newStacksize = 0;
-					if (currentCraftingProgress > 0) {
-						IndicatorDomain domain = indicator.getIndicatorDomain();
-						newStacksize = domain.getStacksize(currentCraftingProgress, currentRecipe.getDuration());
-					}
+				// For performance reasons, we should only update the crafting indicators when there is a
+				// player who can actually see it, but also when the crafting stops (see the comments in
+				// decrementBurnTimes for an explanation about this).
+			    if (hasViewers || currentCraftingProgress == 0) {
+					for (IndicatorProps indicator : typeInfo.getCraftingIndicators()) {
 
-					if (newStacksize > 0) {
-						ItemStack newItemStack = fromDisplay(indicator.getSlotDisplay());
-						newItemStack.setAmount(newStacksize);
-						inventory.setItem(indicator.getInventoryIndex(), newItemStack);
-					} else {
-						inventory.setItem(
-								indicator.getInventoryIndex(),
-								fromDisplay(indicator.getPlaceholder()
-								));
+						int newStacksize = 0;
+						if (currentCraftingProgress > 0) {
+							IndicatorDomain domain = indicator.getIndicatorDomain();
+							newStacksize = domain.getStacksize(currentCraftingProgress, currentRecipe.getDuration());
+						}
+
+						if (newStacksize > 0) {
+							ItemStack newItemStack = fromDisplay(indicator.getSlotDisplay());
+							newItemStack.setAmount(newStacksize);
+							inventory.setItem(indicator.getInventoryIndex(), newItemStack);
+						} else {
+							inventory.setItem(
+									indicator.getInventoryIndex(),
+									fromDisplay(indicator.getPlaceholder()
+									));
+						}
 					}
 				}
 			}
@@ -961,12 +970,21 @@ public class ContainerInstance {
 	}
 	
 	private void decrementBurnTimes() {
+		boolean hasViewers = !inventory.getViewers().isEmpty();
 		for (Entry<String, FuelBurnEntry> burnEntry : fuelSlots.entrySet()) {
 			FuelBurnEntry burn = burnEntry.getValue();
 			String fuelSlotName = burnEntry.getKey();
 			if (burn.remainingBurnTime > 0) {
 				burn.remainingBurnTime--;
-				updateFuelIndicator(fuelSlotName);
+
+				// When at least 1 player is viewing this container, we should always update the fuel
+				// indicators. If nobody is viewing it, we generally don't need to update the indicator
+				// (because there is no-one to see it). But, if the remaining burn time is 0, it will
+				// stop burning. If we wouldn't update this, the next time a player opens the container,
+				// he would still see the old burning indicator even though it is not burning anymore.
+				if (burn.remainingBurnTime == 0 || hasViewers) {
+					updateFuelIndicator(fuelSlotName);
+				}
 			}
 		}
 	}
