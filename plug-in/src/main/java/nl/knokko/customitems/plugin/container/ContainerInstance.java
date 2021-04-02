@@ -356,6 +356,10 @@ public class ContainerInstance {
 		// This one is simple
 		instance.currentCraftingProgress = craftingProgress;
 		instance.storedExperience = storedExperience;
+
+		// This is needed to prevent resetting the currentCraftingProgress in the first update
+		// (due to the check if oldRecipe != currentRecipe).
+		instance.currentRecipe = instance.determineCurrentRecipe(null);
 		
 		return instance;
 	}
