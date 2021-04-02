@@ -857,7 +857,18 @@ public class ContainerInstance {
 				updatePlaceholders();
 			}
 
-			currentRecipe = determineCurrentRecipe(oldRecipe);
+			// Performance improvement: rather than always checking current recipe 20 times per second,
+			// we should only check 20 times per second when either there is no current recipe (and at
+			// least 1 player is viewing it). When the recipe is in progress, we only update 2 times
+			// per second (which is still a quite fast response).
+			// We also need to validate it right before producing the result (to avoid any potential
+			// duplicate glitches).
+			if (currentCraftingProgress % 10 == 0) {
+				currentRecipe = determineCurrentRecipe(oldRecipe);
+			} else {
+				currentRecipe = oldRecipe;
+			}
+
 			if (currentRecipe != null) {
 				markHot();
 			}
@@ -876,41 +887,49 @@ public class ContainerInstance {
 					currentCraftingProgress++;
 					if (currentCraftingProgress >= currentRecipe.getDuration()) {
 
-						// Decrease the stacksize of all relevant input slots by 1
-						for (InputEntry input : currentRecipe.getInputs()) {
+						// Now that we only check the inputs periodically, we should be absolutely sure
+						// that all inputs are still present before producing a result.
+					    if (currentRecipe == determineCurrentRecipe(currentRecipe)) {
+							// Decrease the stacksize of all relevant input slots by 1
+							for (InputEntry input : currentRecipe.getInputs()) {
 
-							int invIndex = typeInfo.getInputSlot(input.getInputSlotName()).getSlotIndex();
-							ItemStack inputItem = inventory.getItem(invIndex);
-							inputItem.setAmount(inputItem.getAmount() - 1);
+								int invIndex = typeInfo.getInputSlot(input.getInputSlotName()).getSlotIndex();
+								ItemStack inputItem = inventory.getItem(invIndex);
+								inputItem.setAmount(inputItem.getAmount() - 1);
 
-							if (inputItem.getAmount() == 0) {
-								inputItem = null;
-							}
-
-							inventory.setItem(invIndex, inputItem);
-						}
-
-						// Add the results to the output slots
-						for (OutputEntry output : currentRecipe.getOutputs()) {
-
-							int invIndex = typeInfo.getOutputSlot(output.getOutputSlotName()).getSlotIndex();
-							ItemStack outputItem = inventory.getItem(invIndex);
-							ItemStack result = (ItemStack) output.getOutputTable().pickResult(new Random());
-
-							// result can be null because the chance to get something could be < 100%
-							if (result != null) {
-								// If the output slot is empty, set its item to the result
-								// Otherwise increase its amount
-								if (ItemUtils.isEmpty(outputItem)) {
-									outputItem = result.clone();
-								} else {
-									outputItem.setAmount(outputItem.getAmount() + result.getAmount());
+								if (inputItem.getAmount() == 0) {
+									inputItem = null;
 								}
-								inventory.setItem(invIndex, outputItem);
+
+								inventory.setItem(invIndex, inputItem);
 							}
+
+							// Add the results to the output slots
+							for (OutputEntry output : currentRecipe.getOutputs()) {
+
+								int invIndex = typeInfo.getOutputSlot(output.getOutputSlotName()).getSlotIndex();
+								ItemStack outputItem = inventory.getItem(invIndex);
+								ItemStack result = (ItemStack) output.getOutputTable().pickResult(new Random());
+
+								// result can be null because the chance to get something could be < 100%
+								if (result != null) {
+									// If the output slot is empty, set its item to the result
+									// Otherwise increase its amount
+									if (ItemUtils.isEmpty(outputItem)) {
+										outputItem = result.clone();
+									} else {
+										outputItem.setAmount(outputItem.getAmount() + result.getAmount());
+									}
+									inventory.setItem(invIndex, outputItem);
+								}
+							}
+							storedExperience += currentRecipe.getExperience();
+						} else {
+					    	// The current could be updating during the next tick, but this tick is lost
+					    	currentRecipe = null;
 						}
+
 						currentCraftingProgress = 0;
-						storedExperience += currentRecipe.getExperience();
 					}
 				}
 			}
