@@ -480,6 +480,8 @@ public class ContainerInstance {
 	
 	// Will be ignored if the crafting for this container type is instant
 	private int currentCraftingProgress;
+
+	private int remainingHotTime;
 	
 	private ContainerRecipe currentRecipe;
 	
@@ -494,6 +496,15 @@ public class ContainerInstance {
 		this.initFuelSlots();
 		
 		this.currentCraftingProgress = 0;
+		this.markHot();
+	}
+
+	private void markHot() {
+		remainingHotTime = 20;
+	}
+
+	private boolean isHot() {
+		return remainingHotTime > 0;
 	}
 	
 	public int getStoredExperience() {
@@ -751,143 +762,177 @@ public class ContainerInstance {
 			}
 		});
 	}
+
+	private boolean canPerformRecipe(ContainerRecipe candidate) {
+
+		// Check that all inputs are present
+		for (InputEntry input : candidate.getInputs()) {
+			ItemStack inSlot = getInput(input.getInputSlotName());
+			Ingredient ingredient = (Ingredient) input.getIngredient();
+			if (!ingredient.accept(inSlot)) {
+				return false;
+			}
+		}
+
+		// Check that all other inputs are empty
+		inputLoop:
+		for (Entry<String, ContainerInfo.PlaceholderProps> inputEntry : typeInfo.getInputSlots()) {
+			for (InputEntry usedInput : candidate.getInputs()) {
+
+				// If this input is used, we shouldn't check if its empty
+				if (usedInput.getInputSlotName().equals(inputEntry.getKey())) {
+					continue inputLoop;
+				}
+			}
+
+			// If this input slot is not used, it should be empty!
+			ItemStack inSlot = inventory.getItem(inputEntry.getValue().getSlotIndex());
+			if (!ItemUtils.isEmpty(inSlot)) {
+				return false;
+			}
+		}
+
+		for (OutputEntry output : candidate.getOutputs()) {
+			ItemStack outSlot = getOutput(output.getOutputSlotName());
+			OutputTable outputTable = output.getOutputTable();
+
+			// If the output slot is empty, nothing could go wrong
+			if (!ItemUtils.isEmpty(outSlot)) {
+
+				// All possible output entries must be able to stack on top of
+				// the current item stack in the output slot
+				for (OutputTable.Entry entry : outputTable.getEntries()) {
+					ItemStack potentialResult = (ItemStack) entry.getResult();
+					if (!potentialResult.isSimilar(outSlot)) {
+						return false;
+					}
+					if (ItemUtils.getMaxStacksize(outSlot) < outSlot.getAmount() + potentialResult.getAmount()) {
+					    return false;
+					}
+				}
+			}
+		}
+
+		return true;
+	}
+
+	private ContainerRecipe determineCurrentRecipe(ContainerRecipe mostLikely) {
+
+		// Performance trick: first check the recipe that is most likely. If we can perform that recipe,
+		// we don't need to waste time with checking the other recipes.
+		if (mostLikely != null && canPerformRecipe(mostLikely)) {
+			return mostLikely;
+		}
+
+		// If the most likely candidate can't be performed, we will have to try all other recipes
+		for (ContainerRecipe candidate : typeInfo.getContainer().getRecipes()) {
+			if (canPerformRecipe(candidate)) {
+				return candidate;
+			}
+		}
+
+		return null;
+	}
 	
 	public void update() {
-		ContainerRecipe oldRecipe = currentRecipe;
-		currentRecipe = null;
-		
-		updatePlaceholders();
+	    if (!inventory.getViewers().isEmpty()) {
+	    	markHot();
+		}
 
-		candidateLoop:
-		for (ContainerRecipe candidate : typeInfo.getContainer().getRecipes()) {
-			
-			// Check that all inputs are present
-			for (InputEntry input : candidate.getInputs()) {
-				ItemStack inSlot = getInput(input.getInputSlotName());
-				Ingredient ingredient = (Ingredient) input.getIngredient();
-				if (!ingredient.accept(inSlot)) {
-					continue candidateLoop;
-				}
-			}
-			
-			// Check that all other inputs are empty
-			inputLoop:
-			for (Entry<String, ContainerInfo.PlaceholderProps> inputEntry : typeInfo.getInputSlots()) {
-				for (InputEntry usedInput : candidate.getInputs()) {
-					
-					// If this input is used, we shouldn't check if its empty
-					if (usedInput.getInputSlotName().equals(inputEntry.getKey())) {
-						continue inputLoop;
-					}
-				}
-				
-				// If this input slot is not used, it should be empty!
-				ItemStack inSlot = inventory.getItem(inputEntry.getValue().getSlotIndex());
-				if (!ItemUtils.isEmpty(inSlot)) {
-					continue candidateLoop;
-				}
-			}
-			
-			for (OutputEntry output : candidate.getOutputs()) {
-				ItemStack outSlot = getOutput(output.getOutputSlotName());
-				OutputTable outputTable = output.getOutputTable();
-				
-				// If the output slot is empty, nothing could go wrong
-				if (!ItemUtils.isEmpty(outSlot)) {
-					
-					// All possible output entries must be able to stack on top of
-					// the current item stack in the output slot
-					for (OutputTable.Entry entry : outputTable.getEntries()) {
-						ItemStack potentialResult = (ItemStack) entry.getResult();
-						if (!potentialResult.isSimilar(outSlot)) {
-							continue candidateLoop;
-						}
-						if (ItemUtils.getMaxStacksize(outSlot) < outSlot.getAmount() + potentialResult.getAmount()) {
-							continue candidateLoop;
-						}
-					}
-				}
-			}
-			
-			currentRecipe = candidate;
-			break;
-		}
-		
-		int oldCraftingProgress = currentCraftingProgress;
-		if (oldRecipe != currentRecipe) {
-			currentCraftingProgress = 0;
-		}
-		
-		if (currentRecipe != null) {
-			maybeStartBurning();
-		}
-		
-		if (isBurning()) {
+	    // For the sake of performance, we only update *hot* containers. Containers are considered hot when
+		// they have been viewed by a player very recently (or are currently being viewed), or have very
+		// recently performed a container recipe (or is currently busy with a recipe).
+		// Also, all containers are *hot* right after this plugin is enabled (so that each container can
+		// check whether it has to do recipes).
+		if (isHot()) {
+			ContainerRecipe oldRecipe = currentRecipe;
+			currentRecipe = null;
+
+			updatePlaceholders();
+
+			currentRecipe = determineCurrentRecipe(oldRecipe);
 			if (currentRecipe != null) {
-				currentCraftingProgress++;
-				if (currentCraftingProgress >= currentRecipe.getDuration()) {
-					
-					// Decrease the stacksize of all relevant input slots by 1
-					for (InputEntry input : currentRecipe.getInputs()) {
-						
-						int invIndex = typeInfo.getInputSlot(input.getInputSlotName()).getSlotIndex();
-						ItemStack inputItem = inventory.getItem(invIndex);
-						inputItem.setAmount(inputItem.getAmount() - 1);
-						
-						if (inputItem.getAmount() == 0) {
-							inputItem = null;
-						}
-						
-						inventory.setItem(invIndex, inputItem);
-					}
-					
-					// Add the results to the output slots
-					for (OutputEntry output : currentRecipe.getOutputs()) {
-						
-						int invIndex = typeInfo.getOutputSlot(output.getOutputSlotName()).getSlotIndex();
-						ItemStack outputItem = inventory.getItem(invIndex);
-						ItemStack result = (ItemStack) output.getOutputTable().pickResult(new Random());
-						
-						// result can be null because the chance to get something could be < 100%
-						if (result != null) {
-							// If the output slot is empty, set its item to the result
-							// Otherwise increase its amount
-							if (ItemUtils.isEmpty(outputItem)) {
-								outputItem = result.clone();
-							} else {
-								outputItem.setAmount(outputItem.getAmount() + result.getAmount());
+				markHot();
+			}
+
+			int oldCraftingProgress = currentCraftingProgress;
+			if (oldRecipe != currentRecipe) {
+				currentCraftingProgress = 0;
+			}
+
+			if (currentRecipe != null) {
+				maybeStartBurning();
+			}
+
+			if (isBurning()) {
+				if (currentRecipe != null) {
+					currentCraftingProgress++;
+					if (currentCraftingProgress >= currentRecipe.getDuration()) {
+
+						// Decrease the stacksize of all relevant input slots by 1
+						for (InputEntry input : currentRecipe.getInputs()) {
+
+							int invIndex = typeInfo.getInputSlot(input.getInputSlotName()).getSlotIndex();
+							ItemStack inputItem = inventory.getItem(invIndex);
+							inputItem.setAmount(inputItem.getAmount() - 1);
+
+							if (inputItem.getAmount() == 0) {
+								inputItem = null;
 							}
-							inventory.setItem(invIndex, outputItem);
+
+							inventory.setItem(invIndex, inputItem);
 						}
+
+						// Add the results to the output slots
+						for (OutputEntry output : currentRecipe.getOutputs()) {
+
+							int invIndex = typeInfo.getOutputSlot(output.getOutputSlotName()).getSlotIndex();
+							ItemStack outputItem = inventory.getItem(invIndex);
+							ItemStack result = (ItemStack) output.getOutputTable().pickResult(new Random());
+
+							// result can be null because the chance to get something could be < 100%
+							if (result != null) {
+								// If the output slot is empty, set its item to the result
+								// Otherwise increase its amount
+								if (ItemUtils.isEmpty(outputItem)) {
+									outputItem = result.clone();
+								} else {
+									outputItem.setAmount(outputItem.getAmount() + result.getAmount());
+								}
+								inventory.setItem(invIndex, outputItem);
+							}
+						}
+						currentCraftingProgress = 0;
+						storedExperience += currentRecipe.getExperience();
 					}
-					currentCraftingProgress = 0;
-					storedExperience += currentRecipe.getExperience();
 				}
 			}
-		}
-		
-		if (oldCraftingProgress != currentCraftingProgress) {
-			for (IndicatorProps indicator : typeInfo.getCraftingIndicators()) {
-				
-				int newStacksize = 0;
-				if (currentCraftingProgress > 0) {
-					IndicatorDomain domain = indicator.getIndicatorDomain();
-					newStacksize = domain.getStacksize(currentCraftingProgress, currentRecipe.getDuration());
-				}
-				
-				if (newStacksize > 0) {
-					ItemStack newItemStack = fromDisplay(indicator.getSlotDisplay());
-					newItemStack.setAmount(newStacksize);
-					inventory.setItem(indicator.getInventoryIndex(), newItemStack);
-				} else {
-					inventory.setItem(
-							indicator.getInventoryIndex(), 
-							fromDisplay(indicator.getPlaceholder()
-					));
+
+			if (oldCraftingProgress != currentCraftingProgress) {
+				for (IndicatorProps indicator : typeInfo.getCraftingIndicators()) {
+
+					int newStacksize = 0;
+					if (currentCraftingProgress > 0) {
+						IndicatorDomain domain = indicator.getIndicatorDomain();
+						newStacksize = domain.getStacksize(currentCraftingProgress, currentRecipe.getDuration());
+					}
+
+					if (newStacksize > 0) {
+						ItemStack newItemStack = fromDisplay(indicator.getSlotDisplay());
+						newItemStack.setAmount(newStacksize);
+						inventory.setItem(indicator.getInventoryIndex(), newItemStack);
+					} else {
+						inventory.setItem(
+								indicator.getInventoryIndex(),
+								fromDisplay(indicator.getPlaceholder()
+								));
+					}
 				}
 			}
+
+			remainingHotTime--;
 		}
-		
+
 		// Always decrease the burn times
 		decrementBurnTimes();
 	}
