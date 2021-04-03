@@ -46,7 +46,7 @@ public class ShapedRecipe extends Recipe {
 		super(input, set);
 		ingredients = new Ingredient[9];
 		for (int index = 0; index < ingredients.length; index++)
-			ingredients[index] = loadIngredient(input, set);
+			ingredients[index] = Ingredient.loadIngredient(input, set);
 	}
 
 	@Override

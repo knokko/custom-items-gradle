@@ -25,34 +25,27 @@ package nl.knokko.customitems.editor.set.recipe.ingredient;
 
 import nl.knokko.customitems.editor.set.ItemSet;
 import nl.knokko.customitems.editor.set.item.CustomItem;
+import nl.knokko.customitems.editor.set.recipe.result.Result;
 import nl.knokko.customitems.encoding.RecipeEncoding;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
-public class CustomItemIngredient implements Ingredient {
+public class CustomItemIngredient extends Ingredient {
 	
 	private final CustomItem item;
-	private String[] info;
 
-	public CustomItemIngredient(CustomItem item) {
+	public CustomItemIngredient(CustomItem item, byte amount, Result remaining) {
+		super(amount, remaining);
 		this.item = item;
-		determineInfo();
 	}
 	
-	public CustomItemIngredient(BitInput input, ItemSet set) {
+	CustomItemIngredient(BitInput input, ItemSet set, byte amount, Result remaining) {
+		super(amount, remaining);
 		String name = input.readJavaString();
 		
 		this.item = set.getCustomItemByName(name);
 		if (this.item == null)
 			throw new IllegalArgumentException("There is no custom item with name " + name);
-		determineInfo();
-	}
-	
-	private void determineInfo() {
-		this.info = new String[] {
-				"Custom Item: ",
-				"Name: " + item.getName()
-		};
 	}
 	
 	public CustomItem getItem() {
@@ -60,33 +53,27 @@ public class CustomItemIngredient implements Ingredient {
 	}
 
 	@Override
-	public void save(BitOutput output) {
-		output.addByte(getID());
+	public void saveSpecifics(BitOutput output) {
 		output.addJavaString(item.getName());
 	}
 
 	@Override
 	public byte getID() {
-		return RecipeEncoding.Ingredient.CUSTOM;
+		return RecipeEncoding.Ingredient.CUSTOM_2;
 	}
 
 	@Override
 	public boolean conflictsWith(Ingredient other) {
-		return  other instanceof CustomItemIngredient && ((CustomItemIngredient)other).item == item;
+		return other instanceof CustomItemIngredient && ((CustomItemIngredient)other).item == item;
 	}
 	
 	@Override
 	public String toString(String emptyString) {
-		return item.getName();
+		return item.getName() + " x" + amount;
 	}
 	
 	@Override
 	public String toString() {
 		return toString(null);
-	}
-	
-	@Override
-	public String[] getInfo(String emptyString) {
-		return info;
 	}
 }

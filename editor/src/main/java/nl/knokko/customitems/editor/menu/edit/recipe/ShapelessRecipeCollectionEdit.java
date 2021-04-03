@@ -2,6 +2,7 @@ package nl.knokko.customitems.editor.menu.edit.recipe;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -30,8 +31,7 @@ public class ShapelessRecipeCollectionEdit extends SafeCollectionEdit<Ingredient
 	
 	private static Collection<Ingredient> toCollection(Ingredient[] array) {
 		Collection<Ingredient> collection = new ArrayList<>(array.length);
-		for (Ingredient ingredient : array)
-			collection.add(ingredient);
+		collection.addAll(Arrays.asList(array));
 		return collection;
 	}
 	
@@ -140,15 +140,15 @@ public class ShapelessRecipeCollectionEdit extends SafeCollectionEdit<Ingredient
 	public void keyPressed(char character) {
 		if (character == 'v') {
 			state.getWindow().setMainComponent(new SelectSimpleVanillaItem(this, (CIMaterial material) -> {
-				currentCollection.add(new SimpleVanillaIngredient(material));
+				currentCollection.add(new SimpleVanillaIngredient(material, (byte) 1, null));
 			},false));
 		} else if (character == 'c') {
 			state.getWindow().setMainComponent(new SelectCustomItem(this, (CustomItem item) -> {
-				currentCollection.add(new CustomItemIngredient(item));
+				currentCollection.add(new CustomItemIngredient(item, (byte) 1, null));
 			}, menu.getSet()));
 		} else if (character == 'd') {
 			state.getWindow().setMainComponent(new SelectDataVanillaItem(this, (CIMaterial material, byte data) -> {
-				currentCollection.add(new DataVanillaIngredient(material, data));
+				currentCollection.add(new DataVanillaIngredient(material, data, (byte) 1, null));
 			}));
 		}
 	}

@@ -151,13 +151,13 @@ public class ItemSet implements ItemSetBase {
 	}
 	
 	private CustomFuelRegistry loadFuelRegistry(BitInput input) throws UnknownEncodingException {
-		return CustomFuelRegistry.load(input, () -> Recipe.loadIngredient(input, this));
+		return CustomFuelRegistry.load(input, () -> Ingredient.loadIngredient(input, this));
 	}
 	
 	private CustomContainer loadContainer(BitInput input) throws UnknownEncodingException {
 		return CustomContainer.load(input, 
 				this::getCustomItemByName, this::getFuelRegistryByName, 
-				() -> Recipe.loadIngredient(input, this),
+				() -> Ingredient.loadIngredient(input, this),
 				() -> Recipe.loadResult(input, this)
 		);
 	}
@@ -538,7 +538,7 @@ public class ItemSet implements ItemSetBase {
 		int durability = input.readInt();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		String imageName = input.readJavaString();
 		NamedImage texture = getTextureByName(imageName);
 		if (texture == null)
@@ -575,7 +575,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		String imageName = input.readJavaString();
 		NamedImage texture = getTextureByName(imageName);
 		if (texture == null)
@@ -612,7 +612,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -653,7 +653,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -718,7 +718,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -786,7 +786,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -828,7 +828,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -894,7 +894,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -964,7 +964,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -1006,7 +1006,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -1071,7 +1071,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -1141,7 +1141,7 @@ public class ItemSet implements ItemSetBase {
 		boolean gravity = input.readBoolean();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		String imageName = input.readJavaString();
 		NamedImage texture = getTextureByName(imageName);
 		if (texture == null)
@@ -1180,7 +1180,7 @@ public class ItemSet implements ItemSetBase {
 		boolean gravity = input.readBoolean();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		String imageName = input.readJavaString();
 		NamedImage texture = getTextureByName(imageName);
 		if (texture == null)
@@ -1219,7 +1219,7 @@ public class ItemSet implements ItemSetBase {
 		boolean gravity = input.readBoolean();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -1265,7 +1265,7 @@ public class ItemSet implements ItemSetBase {
 		boolean gravity = input.readBoolean();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -1333,7 +1333,7 @@ public class ItemSet implements ItemSetBase {
 		boolean gravity = input.readBoolean();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -1405,7 +1405,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		int red;
 		int green;
 		int blue;
@@ -1452,7 +1452,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		int red;
 		int green;
 		int blue;
@@ -1506,7 +1506,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		int red;
 		int green;
 		int blue;
@@ -1561,7 +1561,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		int red;
 		int green;
 		int blue;
@@ -1617,7 +1617,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		int red;
 		int green;
 		int blue;
@@ -1694,7 +1694,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		int red;
 		int green;
 		int blue;
@@ -1785,7 +1785,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Don't use ItemFlag.values().length because it only had 6 flags during the version it was saved
 		boolean[] itemFlags = input.readBooleans(6);
@@ -1859,7 +1859,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -1902,7 +1902,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -1966,7 +1966,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -2037,7 +2037,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -2084,7 +2084,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -2152,7 +2152,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);

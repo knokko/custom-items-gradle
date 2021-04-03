@@ -47,7 +47,7 @@ public class ShapelessRecipe extends Recipe {
 		byte ingredientCount = (byte) input.readNumber((byte) 4, false);
 		ingredients = new Ingredient[ingredientCount];
 		for (int counter = 0; counter < ingredientCount; counter++)
-			ingredients[counter] = loadIngredient(input, set);
+			ingredients[counter] = Ingredient.loadIngredient(input, set);
 	}
 
 	@Override

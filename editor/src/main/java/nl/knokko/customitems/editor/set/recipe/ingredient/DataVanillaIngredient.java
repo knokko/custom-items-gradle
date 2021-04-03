@@ -24,38 +24,29 @@
 package nl.knokko.customitems.editor.set.recipe.ingredient;
 
 import nl.knokko.customitems.NameHelper;
+import nl.knokko.customitems.editor.set.recipe.result.Result;
 import nl.knokko.customitems.encoding.RecipeEncoding;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
-public class DataVanillaIngredient implements Ingredient {
+public class DataVanillaIngredient extends Ingredient {
 	
 	private final CIMaterial type;
 	private final byte data;
 	
-	private String[] info;
-
-	public DataVanillaIngredient(CIMaterial type, byte data) {
+	public DataVanillaIngredient(CIMaterial type, byte data, byte amount, Result remaining) {
+		super(amount, remaining);
 		this.type = type;
 		this.data = data;
-		determineInfo();
 	}
 	
-	public DataVanillaIngredient(BitInput input) {
+	DataVanillaIngredient(BitInput input, byte amount, Result remaining) {
+		super(amount, remaining);
 		type = CIMaterial.valueOf(input.readJavaString());
 		data = (byte) input.readNumber((byte) 4, false);
-		determineInfo();
 	}
-	
-	private void determineInfo() {
-		info = new String[] {
-				"Vanilla ingredient:",
-				"Type: " + NameHelper.getNiceEnumName(type.name()),
-				"Data: " + data
-		};
-	}
-	
+
 	public CIMaterial getType() {
 		return type;
 	}
@@ -65,15 +56,14 @@ public class DataVanillaIngredient implements Ingredient {
 	}
 
 	@Override
-	public void save(BitOutput output) {
-		output.addByte(getID());
+	public void saveSpecifics(BitOutput output) {
 		output.addJavaString(type.name());
 		output.addNumber(data, (byte) 4, false);
 	}
 
 	@Override
 	public byte getID() {
-		return RecipeEncoding.Ingredient.VANILLA_DATA;
+		return RecipeEncoding.Ingredient.VANILLA_DATA_2;
 	}
 
 	@Override
@@ -89,16 +79,11 @@ public class DataVanillaIngredient implements Ingredient {
 	
 	@Override
 	public String toString(String emptyString) {
-		return NameHelper.getNiceEnumName(type.name()) + "(" + data + ")";
+		return NameHelper.getNiceEnumName(type.name()) + "(" + data + ") x" + amount;
 	}
 	
 	@Override
 	public String toString() {
 		return toString(null);
-	}
-
-	@Override
-	public String[] getInfo(String emptyString) {
-		return info;
 	}
 }
