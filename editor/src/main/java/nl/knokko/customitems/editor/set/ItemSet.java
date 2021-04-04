@@ -127,6 +127,7 @@ import nl.knokko.customitems.recipe.ContainerRecipe;
 import nl.knokko.customitems.recipe.ContainerRecipe.InputEntry;
 import nl.knokko.customitems.recipe.ContainerRecipe.OutputEntry;
 import nl.knokko.customitems.recipe.OutputTable;
+import nl.knokko.customitems.recipe.SCIngredient;
 import nl.knokko.customitems.trouble.IntegrityException;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.StringEncoder;
@@ -6467,6 +6468,19 @@ public class ItemSet implements ItemSetBase {
 		}
 	}
 
+	public static boolean hasRemainingCustomItem(SCIngredient ingredient, CustomItem toCheck) {
+		if (ingredient == null || ingredient instanceof NoIngredient) {
+			return false;
+		}
+
+		Result result = ((Ingredient) ingredient).getRemainingItem();
+		if (result instanceof CustomItemResult) {
+			return ((CustomItemResult) result).getItem() == toCheck;
+		} else {
+			return false;
+		}
+	}
+
 	/**
 	 * Attempts to remove the specified item from this set. If the item could not be
 	 * removed, the reason is returned. If the item can be removed, it will be
@@ -6483,7 +6497,7 @@ public class ItemSet implements ItemSetBase {
 						&& ((CustomItemResult) recipe.getResult()).getItem() == item)
 					return "At least one of your recipes has this item as result.";
 				if (recipe.requires(item))
-					return "At least one of your recipes has this item as an ingredient.";
+					return "At least one of your recipes has this item as an ingredient or remaining ingredient.";
 			}
 			for (CustomItem current : items) {
 				if (current instanceof CustomTool) {
@@ -6493,6 +6507,9 @@ public class ItemSet implements ItemSetBase {
 						if (ingredient.getItem() == item) {
 							return "The tool " + tool.getName() + " has this item as repair item.";
 						}
+					}
+					if (hasRemainingCustomItem(tool.getRepairItem(), item)) {
+						return "The tool " + tool.getName() + " has this item as remaining repair item";
 					}
 				}
 			}
@@ -6524,6 +6541,9 @@ public class ItemSet implements ItemSetBase {
 						if (ingredient.getItem() == item) {
 							return "The fuel registry " + registry.getName() + " uses this item as fuel";
 						}
+					}
+					if (hasRemainingCustomItem(entry.getFuel(), item)) {
+						return "The fuel registry " + registry.getName() + " uses this item as remaining fuel";
 					}
 				}
 			}
@@ -6590,6 +6610,10 @@ public class ItemSet implements ItemSetBase {
 							if (customIngredient.getItem() == item) {
 								return "The container " + container.getName() + " has this item as input of a recipe";
 							}
+						}
+
+						if (hasRemainingCustomItem(input.getIngredient(), item)) {
+							return "The container " + container.getName() + " has this item as a remaining input of a recipe";
 						}
 					}
 					for (OutputEntry output : recipe.getOutputs()) {
