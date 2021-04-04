@@ -27,10 +27,14 @@ import org.bukkit.inventory.ItemStack;
 
 import nl.knokko.customitems.plugin.util.ItemUtils;
 
-public class NoIngredient implements Ingredient {
+public class NoIngredient extends Ingredient {
+
+	public NoIngredient() {
+		super((byte) 0, null);
+	}
 
 	@Override
-	public boolean accept(ItemStack item) {
+	public boolean acceptSpecific(ItemStack item) {
 		return ItemUtils.isEmpty(item);
 	}
 }

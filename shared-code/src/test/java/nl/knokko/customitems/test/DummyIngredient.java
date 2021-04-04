@@ -23,4 +23,9 @@ public class DummyIngredient implements SCIngredient {
 	public int getId() {
 		return id;
 	}
+
+	@Override
+	public byte getAmount() {
+		return 1;
+	}
 }

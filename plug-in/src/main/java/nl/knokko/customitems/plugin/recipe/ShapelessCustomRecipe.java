@@ -29,6 +29,9 @@ import nl.knokko.core.plugin.item.ItemHelper;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.plugin.recipe.ingredient.Ingredient;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ShapelessCustomRecipe implements CustomRecipe {
 	
 	private final Ingredient[] ingredients;
@@ -45,28 +48,33 @@ public class ShapelessCustomRecipe implements CustomRecipe {
 	}
 
 	@Override
-	public boolean shouldAccept(ItemStack[] ingredients) {
+	public List<IngredientEntry> shouldAccept(ItemStack[] ingredients) {
+
 		boolean[] has = new boolean[this.ingredients.length];
+		List<IngredientEntry> result = new ArrayList<>(this.ingredients.length);
+
 		outerLoop:
-		for (ItemStack ingredient : ingredients) {
+		for (int ingredientIndex = 0; ingredientIndex < ingredients.length; ingredientIndex++) {
+		    ItemStack ingredient = ingredients[ingredientIndex];
 			if (!ItemHelper.getMaterialName(ingredient).equals(CIMaterial.AIR.name())) {
 				for (int index = 0; index < has.length; index++) {
 					if (!has[index] && this.ingredients[index].accept(ingredient)) {
 						has[index] = true;
+						result.add(new IngredientEntry(this.ingredients[index], ingredientIndex));
 						continue outerLoop;
 					}
 				}
 				// When we reach this code, we don't need that ingredient
-				return false;
+				return null;
 			}
 		}
 		
 		// Now see if we have all necessary ingredients
 		for (boolean b : has)
 			if (!b)
-				return false;
+				return null;
 		
 		// We have exactly what we need
-		return true;
+		return result;
 	}
 }

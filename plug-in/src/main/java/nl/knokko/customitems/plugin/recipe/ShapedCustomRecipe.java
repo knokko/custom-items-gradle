@@ -27,6 +27,9 @@ import nl.knokko.customitems.plugin.recipe.ingredient.Ingredient;
 
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ShapedCustomRecipe implements CustomRecipe {
     
     private final Ingredient[] ingredients;
@@ -43,14 +46,21 @@ public class ShapedCustomRecipe implements CustomRecipe {
 	}
 
 	@Override
-	public boolean shouldAccept(ItemStack[] ingredients) {
+	public List<IngredientEntry> shouldAccept(ItemStack[] ingredients) {
 
     	// For the 3x3 crafting grid
 		if (ingredients.length == 9) {
-			for(int index = 0; index < 9; index++) 
-				if(!this.ingredients[index].accept(ingredients[index]))
-					return false;
-			return true;
+		    List<IngredientEntry> result = new ArrayList<>(9);
+			for (int index = 0; index < 9; index++) {
+				if (this.ingredients[index].accept(ingredients[index])) {
+					if (this.ingredients[index].getAmount() > 0) {
+						result.add(new IngredientEntry(this.ingredients[index], index));
+					}
+				} else {
+					return null;
+				}
+			}
+			return result;
 		}
 
 		// For the 2x2 crafting grid
@@ -62,20 +72,41 @@ public class ShapedCustomRecipe implements CustomRecipe {
 
 			// So we should only accept this if this recipe has no ingredients at index 2, 5, 6, 7, and 8
 			if (!this.ingredients[2].accept(null)) {
-				return false;
+				return null;
 			}
 			for (int index = 5; index < 9; index++) {
 				if (!this.ingredients[index].accept(null)) {
-					return false;
+					return null;
 				}
 			}
 
+
+
 			// Compare the relevant ingredients (note the weird displacement)
-			return this.ingredients[0].accept(ingredients[0])
+			if (this.ingredients[0].accept(ingredients[0])
 					&& this.ingredients[1].accept(ingredients[1])
 					&& this.ingredients[3].accept(ingredients[2])
-					&& this.ingredients[4].accept(ingredients[3]);
+					&& this.ingredients[4].accept(ingredients[3])) {
+
+				List<IngredientEntry> result = new ArrayList<>(4);
+				if (this.ingredients[0].getAmount() > 0) {
+					result.add(new IngredientEntry(this.ingredients[0], 0));
+				}
+				if (this.ingredients[1].getAmount() > 0) {
+					result.add(new IngredientEntry(this.ingredients[1], 1));
+				}
+				if (this.ingredients[3].getAmount() > 0) {
+					result.add(new IngredientEntry(this.ingredients[3], 2));
+				}
+				if (this.ingredients[4].getAmount() > 0) {
+					result.add(new IngredientEntry(this.ingredients[3], 3));
+				}
+
+				return result;
+			} else {
+				return null;
+			}
 		}
-		return false;
+		return null;
 	}
 }

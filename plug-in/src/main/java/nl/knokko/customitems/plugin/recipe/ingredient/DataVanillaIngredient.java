@@ -29,9 +29,10 @@ import nl.knokko.core.plugin.item.ItemHelper;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 
-public class DataVanillaIngredient implements Ingredient {
+public class DataVanillaIngredient extends Ingredient {
 	
-	public DataVanillaIngredient(CIMaterial type, byte data) {
+	public DataVanillaIngredient(CIMaterial type, byte data, byte amount, ItemStack remainingItem) {
+		super(amount, remainingItem);
 		this.type = type;
 		this.data = data;
 	}
@@ -41,7 +42,7 @@ public class DataVanillaIngredient implements Ingredient {
 	
 	@Override
 	@SuppressWarnings("deprecation")
-	public boolean accept(ItemStack item) {
+	public boolean acceptSpecific(ItemStack item) {
 		if (type == CIMaterial.AIR) {
 			return ItemUtils.isEmpty(item);
 		} else {

@@ -890,18 +890,25 @@ public class ContainerInstance {
 						// Now that we only check the inputs periodically, we should be absolutely sure
 						// that all inputs are still present before producing a result.
 					    if (currentRecipe == determineCurrentRecipe(currentRecipe)) {
-							// Decrease the stacksize of all relevant input slots by 1
+							// Decrease the stacksize of all relevant input slots
 							for (InputEntry input : currentRecipe.getInputs()) {
 
 								int invIndex = typeInfo.getInputSlot(input.getInputSlotName()).getSlotIndex();
-								ItemStack inputItem = inventory.getItem(invIndex);
-								inputItem.setAmount(inputItem.getAmount() - 1);
 
-								if (inputItem.getAmount() == 0) {
-									inputItem = null;
+								// TODO Test this
+								ItemStack remainingItem = ((Ingredient) input.getIngredient()).getRemainingItem();
+								if (remainingItem != null) {
+									inventory.setItem(invIndex, remainingItem);
+								} else {
+									ItemStack inputItem = inventory.getItem(invIndex);
+									inputItem.setAmount(inputItem.getAmount() - input.getIngredient().getAmount());
+
+									if (inputItem.getAmount() == 0) {
+										inputItem = null;
+									}
+
+									inventory.setItem(invIndex, inputItem);
 								}
-
-								inventory.setItem(invIndex, inputItem);
 							}
 
 							// Add the results to the output slots
@@ -1033,23 +1040,23 @@ public class ContainerInstance {
 	}
 	
 	private boolean isFuel(String fuelSlotName, FuelBurnEntry slot, ItemStack candidateFuel) {
-		return getBurnTime(fuelSlotName, slot, candidateFuel) != null;
+		return getSuitableFuelEntry(fuelSlotName, slot, candidateFuel) != null;
 	}
 	
-	private Integer getBurnTime(String fuelSlotName, FuelBurnEntry slot, ItemStack fuel) {
+	private FuelEntry getSuitableFuelEntry(String fuelSlotName, FuelBurnEntry slot, ItemStack fuel) {
 		if (ItemUtils.isEmpty(fuel)) {
 			return null;
 		}
 		for (FuelEntry registryEntry : typeInfo.getFuelSlot(fuelSlotName).getRegistry().getEntries()) {
 			Ingredient ingredient = (Ingredient) registryEntry.getFuel();
 			if (ingredient.accept(fuel)) {
-				return registryEntry.getBurnTime();
+				return registryEntry;
 			}
 		}
 		
 		return null;
 	}
-	
+
 	private boolean canStartBurning() {
 		if (typeInfo.getContainer().getFuelMode() == FuelMode.ALL) {
 			
@@ -1097,6 +1104,35 @@ public class ContainerInstance {
 			throw new Error("Unknown FuelMode: " + typeInfo.getContainer().getFuelMode());
 		}
 	}
+
+	private boolean startBurningIfIdle(String fuelSlotName, FuelBurnEntry fuel) {
+		// Start burning if it isn't burning yet
+		if (fuel.remainingBurnTime == 0) {
+
+			ItemStack fuelStack = getFuel(fuelSlotName);
+			FuelEntry entryToBurn = getSuitableFuelEntry(fuelSlotName, fuel, fuelStack);
+			if (entryToBurn != null) {
+				fuel.remainingBurnTime = entryToBurn.getBurnTime();
+				fuel.maxBurnTime = fuel.remainingBurnTime;
+
+				Ingredient fuelIngredient = (Ingredient) entryToBurn.getFuel();
+				// TODO Test this
+				if (fuelIngredient.getRemainingItem() == null) {
+					fuelStack.setAmount(fuelStack.getAmount() - fuelIngredient.getAmount());
+					setFuel(fuelSlotName, fuelStack);
+				} else {
+					setFuel(fuelSlotName, fuelIngredient.getRemainingItem().clone());
+				}
+
+				updateFuelIndicator(fuelSlotName);
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return true;
+		}
+	}
 	
 	/**
 	 * Should only be called when canStartBurning() returned true
@@ -1106,42 +1142,14 @@ public class ContainerInstance {
 			
 			// Make sure all fuel slots are burning
 			for (Entry<String, FuelBurnEntry> fuelEntry : fuelSlots.entrySet()) {
-				
-				String fuelSlotName = fuelEntry.getKey();
-				FuelBurnEntry fuel = fuelEntry.getValue();
-				
-				// Start burning if it isn't burning yet
-				if (fuel.remainingBurnTime == 0) {
-					
-					ItemStack fuelStack = getFuel(fuelSlotName);
-					Integer burnTime = getBurnTime(fuelSlotName, fuel, fuelStack);
-					if (burnTime != null) {
-						fuel.remainingBurnTime = burnTime;
-						fuel.maxBurnTime = fuel.remainingBurnTime;
-						fuelStack.setAmount(fuelStack.getAmount() - 1);
-
-						setFuel(fuelSlotName, fuelStack);
-						updateFuelIndicator(fuelSlotName);
-					}
-				}
+				startBurningIfIdle(fuelEntry.getKey(), fuelEntry.getValue());
 			}
+
 		} else if (typeInfo.getContainer().getFuelMode() == FuelMode.ANY) {
 			
 			// Start burning the first best valid fuel
 			for (Entry<String, FuelBurnEntry> fuelEntry : fuelSlots.entrySet()) {
-				
-				String fuelSlotName = fuelEntry.getKey();
-				FuelBurnEntry fuel = fuelEntry.getValue();
-				
-				ItemStack fuelStack = getFuel(fuelSlotName);
-				Integer burnTime = getBurnTime(fuelSlotName, fuel, fuelStack);
-				if (burnTime != null) {
-					fuel.remainingBurnTime = burnTime;
-					fuel.maxBurnTime = burnTime;
-					fuelStack.setAmount(fuelStack.getAmount() - 1);
-					
-					setFuel(fuelSlotName, fuelStack);
-					updateFuelIndicator(fuelSlotName);
+				if (startBurningIfIdle(fuelEntry.getKey(), fuelEntry.getValue())) {
 					return;
 				}
 			}

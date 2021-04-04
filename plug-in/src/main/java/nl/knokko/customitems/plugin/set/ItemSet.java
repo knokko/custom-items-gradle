@@ -2513,17 +2513,45 @@ public class ItemSet implements ItemSetBase {
 		throw new UnknownEncodingException("Result", encoding);
 	}
 
+	private ItemStack loadRemainingItem(BitInput input) throws UnknownEncodingException {
+		if (input.readBoolean()) {
+			return loadResult(input);
+		} else {
+			return null;
+		}
+	}
+
 	private Ingredient loadIngredient(BitInput input) throws UnknownEncodingException {
 		byte encoding = input.readByte();
+		byte defaultAmount = 1;
+
 		if (encoding == RecipeEncoding.Ingredient.NONE)
 			return new NoIngredient();
 		if (encoding == RecipeEncoding.Ingredient.VANILLA_SIMPLE)
-			return new SimpleVanillaIngredient(CIMaterial.valueOf(input.readJavaString()));
+			return new SimpleVanillaIngredient(CIMaterial.valueOf(input.readJavaString()), defaultAmount, null);
 		if (encoding == RecipeEncoding.Ingredient.VANILLA_DATA)
 			return new DataVanillaIngredient(CIMaterial.valueOf(input.readJavaString()),
-					(byte) input.readNumber((byte) 4, false));
+					(byte) input.readNumber((byte) 4, false), defaultAmount, null);
 		if (encoding == RecipeEncoding.Ingredient.CUSTOM)
-			return new CustomIngredient(getItem(input.readJavaString()));
+			return new CustomIngredient(getItem(input.readJavaString()), defaultAmount, null);
+
+		if (encoding == RecipeEncoding.Ingredient.VANILLA_SIMPLE_2)
+			return new SimpleVanillaIngredient(
+					CIMaterial.valueOf(input.readJavaString()),
+					input.readByte(), loadRemainingItem(input)
+			);
+		if (encoding == RecipeEncoding.Ingredient.VANILLA_DATA_2)
+			return new DataVanillaIngredient(
+					CIMaterial.valueOf(input.readJavaString()),
+					(byte) input.readNumber((byte) 4, false),
+					input.readByte(), loadRemainingItem(input)
+			);
+		if (encoding == RecipeEncoding.Ingredient.CUSTOM_2)
+			return new CustomIngredient(
+					getItem(input.readJavaString()), input.readByte(),
+					loadRemainingItem(input)
+			);
+
 		throw new UnknownEncodingException("Ingredient", encoding);
 	}
 	

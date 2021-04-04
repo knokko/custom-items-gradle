@@ -94,7 +94,7 @@ public abstract class Ingredient implements SCIngredient {
 		saveSpecifics(output);
 	}
 
-	public int getAmount() {
+	public byte getAmount() {
 		return amount;
 	}
 

@@ -29,16 +29,17 @@ import nl.knokko.core.plugin.item.ItemHelper;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 
-public class SimpleVanillaIngredient implements Ingredient {
+public class SimpleVanillaIngredient extends Ingredient {
     
     private final CIMaterial type;
     
-    public SimpleVanillaIngredient(CIMaterial type){
+    public SimpleVanillaIngredient(CIMaterial type, byte amount, ItemStack remaining){
+        super(amount, remaining);
         this.type = type;
     }
 
     @Override
-    public boolean accept(ItemStack item) {
+    public boolean acceptSpecific(ItemStack item) {
     	if (type == CIMaterial.AIR) {
     		return ItemUtils.isEmpty(item);
     	} else {

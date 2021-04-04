@@ -27,17 +27,18 @@ import org.bukkit.inventory.ItemStack;
 
 import nl.knokko.customitems.plugin.set.item.CustomItem;
 
-public class CustomIngredient implements Ingredient {
+public class CustomIngredient extends Ingredient {
     
     private final CustomItem item;
     
-    public CustomIngredient(CustomItem item){
+    public CustomIngredient(CustomItem item, byte amount, ItemStack remainingItem){
+        super(amount, remainingItem);
     	if (item == null) throw new NullPointerException("item");
         this.item = item;
     }
 
     @Override
-    public boolean accept(ItemStack item) {
+    public boolean acceptSpecific(ItemStack item) {
         return this.item.is(item);
     }
     
