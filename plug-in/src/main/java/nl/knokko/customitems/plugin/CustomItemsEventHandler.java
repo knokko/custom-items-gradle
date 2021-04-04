@@ -1614,12 +1614,16 @@ public class CustomItemsEventHandler implements Listener {
 						if (ItemHelper.getMaterialName(contents[1]).equals(CIMaterial.ENCHANTED_BOOK.name())) {
 						    // This case is handled by minecraft automagically
 						} else if (tool.getRepairItem().acceptSpecific(contents[1])) {
+							// We use acceptSpecific because we need to handle remaining items differently
 							long durability = tool.getDurability(contents[0]);
 							long maxDurability = tool.getMaxDurability();
 							long neededDurability = maxDurability - durability;
 
+							System.out.println("test1: " + durability + " / " + maxDurability + " (" + neededDurability + ")");
+
 							if (neededDurability > 0) {
 								// TODO Test this
+								System.out.println("test2");
 								Ingredient repairItem = tool.getRepairItem();
 								int neededAmount = (int) Math.ceil(neededDurability * 4.0 / maxDurability) * repairItem.getAmount();
 
@@ -1629,6 +1633,7 @@ public class CustomItemsEventHandler implements Listener {
 								if (repairValue > 0 && (repairItem.getRemainingItem() == null || repairValue * repairItem.getAmount() == contents[1].getAmount())) {
 									long resultDurability = Math.min(durability + tool.getMaxDurability() * repairValue / 4,
 											tool.getMaxDurability());
+									System.out.println("test3");
 									ItemStack result = tool.create(1, resultDurability);
 									result.addUnsafeEnchantments(contents[0].getEnchantments());
 									int levelCost = repairValue;
@@ -1656,6 +1661,7 @@ public class CustomItemsEventHandler implements Listener {
 											.setRepairCost((int) Math.round(Math.pow(2, repairCount + 1) - 1));
 									result.setItemMeta(resultMeta);
 									event.setResult(result);
+									// TODO Partial repairs seem to have very weird effect on durability
 									int finalLevelCost = levelCost;
 									Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
 										// Apparently, settings the repair cost during the event has no effect
@@ -1992,7 +1998,9 @@ public class CustomItemsEventHandler implements Listener {
 							if (custom instanceof CustomTool && contents[1] != null
 									&& !ItemHelper.getMaterialName(contents[1]).equals(CIMaterial.AIR.name())) {
 								CustomTool tool = (CustomTool) custom;
-								if (tool.getRepairItem().accept(contents[1])) {
+
+								// Use acceptSpecific because we need to handle remaining item differently
+								if (tool.getRepairItem().acceptSpecific(contents[1])) {
 									long durability = tool.getDurability(contents[0]);
 									long maxDurability = tool.getMaxDurability();
 									long neededDurability = maxDurability - durability;
@@ -2000,11 +2008,24 @@ public class CustomItemsEventHandler implements Listener {
 
 									int repairValue = Math.min(neededAmount, contents[1].getAmount()) / tool.getRepairItem().getAmount();
 									int usedAmount = repairValue * tool.getRepairItem().getAmount();
-									// TODO Test this
-									if (usedAmount < contents[1].getAmount())
-										contents[1].setAmount(contents[1].getAmount() - usedAmount);
-									else
-										contents[1] = tool.getRepairItem().getRemainingItem().clone();
+
+									// If there is a remaining item, we can only proceed if the entire repair item stack is consumed
+									Ingredient repairItem = tool.getRepairItem();
+									if (repairValue > 0 && (repairItem.getRemainingItem() == null || repairValue * repairItem.getAmount() == contents[1].getAmount())) {
+										// TODO Test this
+										if (usedAmount < contents[1].getAmount()) {
+											System.out.println("test4: " + usedAmount + " < " + contents[1].getAmount());
+											contents[1].setAmount(contents[1].getAmount() - usedAmount);
+										} else {
+											System.out.println("test4: go for it");
+											contents[1] = tool.getRepairItem().cloneRemainingItem();
+											if (tool.getRepairItem().getRemainingItem() != null) {
+												contents[1].setAmount(contents[1].getAmount() * repairValue);
+											}
+										}
+									} else {
+										contents[1] = null;
+									}
 								} else {
 									contents[1] = null;
 								}

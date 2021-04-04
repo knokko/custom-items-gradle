@@ -2528,27 +2528,24 @@ public class ItemSet implements ItemSetBase {
 		if (encoding == RecipeEncoding.Ingredient.NONE)
 			return new NoIngredient();
 		if (encoding == RecipeEncoding.Ingredient.VANILLA_SIMPLE)
-			return new SimpleVanillaIngredient(CIMaterial.valueOf(input.readJavaString()), defaultAmount, null);
+			return new SimpleVanillaIngredient(input, defaultAmount, null);
 		if (encoding == RecipeEncoding.Ingredient.VANILLA_DATA)
-			return new DataVanillaIngredient(CIMaterial.valueOf(input.readJavaString()),
-					(byte) input.readNumber((byte) 4, false), defaultAmount, null);
+			return new DataVanillaIngredient(input, defaultAmount, null);
 		if (encoding == RecipeEncoding.Ingredient.CUSTOM)
-			return new CustomIngredient(getItem(input.readJavaString()), defaultAmount, null);
+			return new CustomIngredient(input, this, defaultAmount, null);
 
 		if (encoding == RecipeEncoding.Ingredient.VANILLA_SIMPLE_2)
 			return new SimpleVanillaIngredient(
-					CIMaterial.valueOf(input.readJavaString()),
+					input,
 					input.readByte(), loadRemainingItem(input)
 			);
 		if (encoding == RecipeEncoding.Ingredient.VANILLA_DATA_2)
 			return new DataVanillaIngredient(
-					CIMaterial.valueOf(input.readJavaString()),
-					(byte) input.readNumber((byte) 4, false),
-					input.readByte(), loadRemainingItem(input)
+					input, input.readByte(), loadRemainingItem(input)
 			);
 		if (encoding == RecipeEncoding.Ingredient.CUSTOM_2)
 			return new CustomIngredient(
-					getItem(input.readJavaString()), input.readByte(),
+					input, this, input.readByte(),
 					loadRemainingItem(input)
 			);
 
