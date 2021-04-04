@@ -79,7 +79,7 @@ public class DataVanillaIngredient extends Ingredient {
 	
 	@Override
 	public String toString(String emptyString) {
-		return NameHelper.getNiceEnumName(type.name()) + "(" + data + ") x" + amount;
+		return NameHelper.getNiceEnumName(type.name()) + "(" + data + ") x" + amount + remainingToString();
 	}
 	
 	@Override

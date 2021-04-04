@@ -69,7 +69,7 @@ public class SimpleVanillaIngredient extends Ingredient {
 	
 	@Override
 	public String toString(String emptyString) {
-		return NameHelper.getNiceEnumName(type.name()) + " x" + amount;
+		return NameHelper.getNiceEnumName(type.name()) + " x" + amount + remainingToString();
 	}
 	
 	@Override

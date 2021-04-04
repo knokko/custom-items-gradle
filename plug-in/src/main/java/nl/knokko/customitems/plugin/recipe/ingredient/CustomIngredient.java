@@ -23,6 +23,8 @@
  *******************************************************************************/
 package nl.knokko.customitems.plugin.recipe.ingredient;
 
+import nl.knokko.customitems.plugin.set.ItemSet;
+import nl.knokko.util.bits.BitInput;
 import org.bukkit.inventory.ItemStack;
 
 import nl.knokko.customitems.plugin.set.item.CustomItem;
@@ -31,8 +33,9 @@ public class CustomIngredient extends Ingredient {
     
     private final CustomItem item;
     
-    public CustomIngredient(CustomItem item, byte amount, ItemStack remainingItem){
+    public CustomIngredient(BitInput input, ItemSet set, byte amount, ItemStack remainingItem){
         super(amount, remainingItem);
+        CustomItem item = set.getItem(input.readJavaString());
     	if (item == null) throw new NullPointerException("item");
         this.item = item;
     }

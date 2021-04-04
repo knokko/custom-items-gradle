@@ -69,7 +69,7 @@ public class CustomItemIngredient extends Ingredient {
 	
 	@Override
 	public String toString(String emptyString) {
-		return item.getName() + " x" + amount;
+		return item.getName() + " x" + amount + remainingToString();
 	}
 	
 	@Override

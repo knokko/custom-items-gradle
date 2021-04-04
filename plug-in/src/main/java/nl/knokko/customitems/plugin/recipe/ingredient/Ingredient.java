@@ -66,4 +66,12 @@ public abstract class Ingredient implements SCIngredient {
     public ItemStack getRemainingItem() {
         return remainingItem;
     }
+
+    public ItemStack cloneRemainingItem() {
+        if (remainingItem == null) {
+            return null;
+        } else {
+            return remainingItem.clone();
+        }
+    }
 }

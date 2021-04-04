@@ -94,6 +94,14 @@ public abstract class Ingredient implements SCIngredient {
 		saveSpecifics(output);
 	}
 
+	protected String remainingToString() {
+		if (remaining == null) {
+			return "";
+		} else {
+			return " [" + remaining.toString() + "]";
+		}
+	}
+
 	public byte getAmount() {
 		return amount;
 	}

@@ -23,6 +23,7 @@
  *******************************************************************************/
 package nl.knokko.customitems.plugin.recipe.ingredient;
 
+import nl.knokko.util.bits.BitInput;
 import org.bukkit.inventory.ItemStack;
 
 import nl.knokko.core.plugin.item.ItemHelper;
@@ -33,9 +34,9 @@ public class SimpleVanillaIngredient extends Ingredient {
     
     private final CIMaterial type;
     
-    public SimpleVanillaIngredient(CIMaterial type, byte amount, ItemStack remaining){
+    public SimpleVanillaIngredient(BitInput input, byte amount, ItemStack remaining){
         super(amount, remaining);
-        this.type = type;
+        this.type = CIMaterial.valueOf(input.readJavaString());
     }
 
     @Override
