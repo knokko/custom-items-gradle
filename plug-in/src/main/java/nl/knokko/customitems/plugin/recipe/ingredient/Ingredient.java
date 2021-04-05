@@ -41,7 +41,7 @@ public abstract class Ingredient implements SCIngredient {
         if (remainingItem == null) {
 
             // If there is no remaining item, we can accept if the amount is large enough
-            if (item.getAmount() >= amount) {
+            if (item == null || item.getAmount() >= amount) {
                 return acceptSpecific(item);
             } else {
                 return false;
@@ -49,7 +49,7 @@ public abstract class Ingredient implements SCIngredient {
         } else {
 
             // If there is a remaining item, it must be consumed ENTIRELY to make space for the remaining item
-            if (item.getAmount() == amount) {
+            if (item == null || item.getAmount() == amount) {
                 return acceptSpecific(item);
             } else {
                 return false;
