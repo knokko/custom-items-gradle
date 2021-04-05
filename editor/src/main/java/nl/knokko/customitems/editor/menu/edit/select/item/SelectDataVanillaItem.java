@@ -25,8 +25,10 @@ package nl.knokko.customitems.editor.menu.edit.select.item;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Locale;
 
+import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.CIMaterial;
@@ -127,16 +129,16 @@ public class SelectDataVanillaItem extends GuiMenu {
 		
 		private List() {
 			CIMaterial[] materials = CIMaterial.values();
-			Arrays.sort(materials, (CIMaterial a, CIMaterial b) -> {
-				return a.name().compareTo(b.name());
-			});
-			buttons = new ArrayList<DynamicTextButton>(materials.length);
+			Arrays.sort(materials, Comparator.comparing(Enum::name));
+			buttons = new ArrayList<>(materials.length);
 			for (CIMaterial material : materials) {
-				buttons.add(new DynamicActivatableTextButton(material.toString(), EditProps.SELECT_BASE, EditProps.SELECT_HOVER, EditProps.SELECT_ACTIVE, () -> {
-					selected = material;
-				}, () -> {
-					return selected == material;
-				}));
+			    if (material.firstVersion <= MCVersions.VERSION1_12) {
+					buttons.add(new DynamicActivatableTextButton(
+							material.toString(),
+							EditProps.SELECT_BASE, EditProps.SELECT_HOVER, EditProps.SELECT_ACTIVE,
+							() -> selected = material, () -> selected == material)
+					);
+				}
 			}
 		}
 		
