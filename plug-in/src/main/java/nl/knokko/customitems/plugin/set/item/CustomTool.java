@@ -147,7 +147,16 @@ public class CustomTool extends CustomItem {
 	
 	public ItemStack create(int amount, long durability) {
 		if (amount != 1) throw new IllegalArgumentException("Amount must be 1, but is " + amount);
-		return super.create(amount, createLore(durability));
+		ItemStack partialResult = super.create(amount, createLore(durability));
+		ItemStack[] pResult = {partialResult};
+
+		if (!this.isUnbreakable()) {
+			CustomItemNBT.readWrite(partialResult, nbt -> {
+				nbt.setDurability(durability);
+			}, result -> pResult[0] = result);
+		}
+
+		return pResult[0];
 	}
 	
 	@Override
