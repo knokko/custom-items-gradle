@@ -1843,7 +1843,10 @@ public class CustomItemsEventHandler implements Listener {
 					) {
 
 					    ItemStack[] oldContents = event.getInventory().getContents();
-					    ItemStack[] contents = Arrays.copyOf(oldContents, oldContents.length);
+					    ItemStack[] contents = new ItemStack[oldContents.length];
+					    for (int index = 0; index < contents.length; index++) {
+					    	contents[index] = oldContents[index].clone();
+						}
 
 					    int computeAmountsToRemove = 1;
 
@@ -2257,12 +2260,25 @@ public class CustomItemsEventHandler implements Listener {
 		}
 	}
 
-	@EventHandler(priority = EventPriority.HIGH)
-	public void beforeCraft(PrepareItemCraftEvent event) {
-		beforeCraft(event.getInventory(), event.getView().getPlayer());
+	@EventHandler
+	public void triggerCraftingHandler(InventoryClickEvent event) {
+		if (event.getInventory() instanceof CraftingInventory) {
+			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () -> {
+				beforeCraft((CraftingInventory) event.getInventory(), event.getView().getPlayer());
+			});
+		}
 	}
 
-	public void beforeCraft(CraftingInventory inventory, HumanEntity owner) {
+	@EventHandler
+	public void triggerCraftingHandler(InventoryDragEvent event) {
+		if (event.getInventory() instanceof CraftingInventory) {
+			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () -> {
+				beforeCraft((CraftingInventory) event.getInventory(), event.getView().getPlayer());
+			});
+		}
+	}
+
+	private void beforeCraft(CraftingInventory inventory, HumanEntity owner) {
 		ItemStack result = inventory.getResult();
 
 		// Block vanilla recipes that attempt to use custom items
@@ -2289,6 +2305,11 @@ public class CustomItemsEventHandler implements Listener {
 					List<IngredientEntry> ingredientMapping = recipe.shouldAccept(ingredients);
 					if (ingredientMapping != null) {
 						inventory.setResult(recipe.getResult());
+						inventory.getViewers().forEach(viewer -> {
+							if (viewer instanceof Player) {
+								((Player) viewer).updateInventory();
+							}
+						});
 						shouldInterfere.put(owner.getUniqueId(), ingredientMapping);
 						return;
 					}
@@ -2301,6 +2322,11 @@ public class CustomItemsEventHandler implements Listener {
 					List<IngredientEntry> ingredientMapping = recipe.shouldAccept(ingredients);
 					if (ingredientMapping != null) {
 						inventory.setResult(recipe.getResult());
+						inventory.getViewers().forEach(viewer -> {
+							if (viewer instanceof Player) {
+								((Player) viewer).updateInventory();
+							}
+						});
 						shouldInterfere.put(owner.getUniqueId(), ingredientMapping);
 						return;
 					}
