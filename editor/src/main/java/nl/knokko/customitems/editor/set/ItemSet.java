@@ -5583,6 +5583,12 @@ public class ItemSet implements ItemSetBase {
 			if (item.getRepairItem() instanceof CustomItemIngredient
 					&& !(((CustomItemIngredient) item.getRepairItem()).getItem().getClass() == SimpleCustomItem.class))
 				return "Only vanilla items and simple custom items are allowed as repair item.";
+			if (item.getRepairItem() != null && item.getRepairItem().getRemainingItem() instanceof CustomItemResult) {
+				CustomItemResult remainingCustomItem = (CustomItemResult) item.getRepairItem().getRemainingItem();
+				if (remainingCustomItem.getItem().getClass() != SimpleCustomItem.class) {
+					return "Only vanilla items and simple custom items are allowed as remaining repair item";
+				}
+			}
 			if (item.allowAnvilActions() && item.getDisplayName().contains("§"))
 				return "Items with color codes in their display name can not allow anvil actions";
 			if (item.allowEnchanting() && item.getDefaultEnchantments().length > 0)
@@ -5660,6 +5666,12 @@ public class ItemSet implements ItemSetBase {
 			if (repairItem instanceof CustomItemIngredient
 					&& !(((CustomItemIngredient) repairItem).getItem().getClass() == SimpleCustomItem.class))
 				return "Only vanilla items and simple custom items are allowed as repair item.";
+			if (repairItem != null && repairItem.getRemainingItem() instanceof CustomItemResult) {
+				CustomItemResult remainingCustomItem = (CustomItemResult) repairItem.getRemainingItem();
+				if (remainingCustomItem.getItem().getClass() != SimpleCustomItem.class) {
+					return "Only vanilla items and simple custom items are allowed as remaining repair item";
+				}
+			}
 			if (allowEnchanting && newEnchantments.length > 0)
 				return "You can't allow enchanting on items that have default enchantments";
 			if (entityHitDurabilityLoss < 0)
