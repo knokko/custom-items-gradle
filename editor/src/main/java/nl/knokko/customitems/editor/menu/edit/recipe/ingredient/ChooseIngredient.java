@@ -35,6 +35,7 @@ import nl.knokko.customitems.editor.set.recipe.ingredient.DataVanillaIngredient;
 import nl.knokko.customitems.editor.set.recipe.ingredient.NoIngredient;
 import nl.knokko.customitems.editor.set.recipe.ingredient.SimpleVanillaIngredient;
 import nl.knokko.customitems.editor.set.recipe.result.Result;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -126,6 +127,9 @@ public class ChooseIngredient extends GuiMenu {
 				}
 			}), 0.6f, 0.25f, 0.8f, 0.35f);
 		}
+
+		// TODO Test this link after merging v9 docs into master
+		HelpButtons.addHelpLink(this, "edit%20menu/recipes/choose ingredient.html");
 	}
 	
 	@Override
