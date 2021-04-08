@@ -29,6 +29,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -43,10 +44,8 @@ public class BowTextures extends NamedImage {
 
 	public BowTextures(String name, BufferedImage texture, Entry[] entries) {
 		super(name, texture);
-		this.entries = new ArrayList<Entry>(entries.length);
-		for (Entry entry : entries) {
-			this.entries.add(entry);
-		}
+		this.entries = new ArrayList<>(entries.length);
+		Collections.addAll(this.entries, entries);
 	}
 	
 	public BowTextures(String name, BufferedImage texture) {
