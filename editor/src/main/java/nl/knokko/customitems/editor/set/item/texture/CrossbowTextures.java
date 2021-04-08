@@ -4,23 +4,23 @@ import nl.knokko.customitems.editor.set.item.NamedImage;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class CrossbowTextures extends NamedImage {
 
-    private List<PullTexture> pullTextures;
+    private final List<PullTexture> pullTextures;
 
     private BufferedImage arrowImage;
     private BufferedImage fireworkImage;
 
     public CrossbowTextures(
-            String name, PullTexture[] pullTextures,
+            String name, List<PullTexture> pullTextures,
             BufferedImage standbyImage, BufferedImage arrowImage, BufferedImage fireworkImage
     ) {
         super(name, standbyImage);
-        this.pullTextures = new ArrayList<>(pullTextures.length);
-        Collections.addAll(this.pullTextures, pullTextures);
+        this.pullTextures = new ArrayList<>(pullTextures);
+        this.arrowImage = arrowImage;
+        this.fireworkImage = fireworkImage;
     }
 
     public List<PullTexture> getPullTextures() {
@@ -35,9 +35,9 @@ public class CrossbowTextures extends NamedImage {
         return fireworkImage;
     }
 
-    public void setPullTextures(PullTexture[] newPullTextures) {
+    public void setPullTextures(List<PullTexture> newPullTextures) {
         this.pullTextures.clear();
-        Collections.addAll(this.pullTextures, newPullTextures);
+        this.pullTextures.addAll(newPullTextures);
     }
 
     public void setArrowImage(BufferedImage newArrowImage) {
@@ -50,8 +50,8 @@ public class CrossbowTextures extends NamedImage {
 
     public static class PullTexture {
 
-        private final BufferedImage image;
-        private final double pull;
+        private BufferedImage image;
+        private double pull;
 
         public PullTexture(BufferedImage image, double pull) {
             this.image = image;
@@ -64,6 +64,14 @@ public class CrossbowTextures extends NamedImage {
 
         public double getPull() {
             return pull;
+        }
+
+        public void setImage(BufferedImage newImage) {
+            this.image = newImage;
+        }
+
+        public void setPull(double newPull) {
+            this.pull = newPull;
         }
     }
 }

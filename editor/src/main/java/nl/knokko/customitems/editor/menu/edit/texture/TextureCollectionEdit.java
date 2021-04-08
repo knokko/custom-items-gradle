@@ -8,6 +8,7 @@ import java.util.Locale;
 import nl.knokko.customitems.editor.menu.edit.*;
 import nl.knokko.customitems.editor.set.item.NamedImage;
 import nl.knokko.customitems.editor.set.item.texture.BowTextures;
+import nl.knokko.customitems.editor.set.item.texture.CrossbowTextures;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.DirectoryChooserMenu;
@@ -87,6 +88,8 @@ public class TextureCollectionEdit extends CollectionEdit<NamedImage> {
 		public GuiComponent createEditMenu(NamedImage texture, GuiComponent returnMenu) {
 			if (texture instanceof BowTextures)
 				return new BowTextureEdit(menu, modified -> {}, (BowTextures) texture, (BowTextures) texture);
+			else if (texture instanceof CrossbowTextures)
+				return new CrossbowTextureEdit(menu, modified -> {}, (CrossbowTextures) texture, (CrossbowTextures) texture);
 			else
 				return new TextureEdit(menu, modified -> {}, texture, texture);
 		}
@@ -95,6 +98,8 @@ public class TextureCollectionEdit extends CollectionEdit<NamedImage> {
 		public GuiComponent createCopyMenu(NamedImage texture, GuiComponent returnMenu) {
 			if (texture instanceof BowTextures)
 				return new BowTextureEdit(menu, copied -> {}, (BowTextures) texture, null);
+			else if (texture instanceof CrossbowTextures)
+				return new CrossbowTextureEdit(menu, copied -> {}, (CrossbowTextures) texture, null);
 			else
 				return new TextureEdit(menu, copied -> {}, texture, null);
 		}
