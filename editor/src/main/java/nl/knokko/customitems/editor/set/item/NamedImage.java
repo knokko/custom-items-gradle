@@ -38,6 +38,7 @@ public class NamedImage {
 	
 	public static final byte ENCODING_SIMPLE = 0;
 	public static final byte ENCODING_BOW = 1;
+	public static final byte ENCODING_CROSSBOW = 2;
 	
 	private String name;
 	

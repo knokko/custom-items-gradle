@@ -78,6 +78,7 @@ import nl.knokko.customitems.editor.Editor;
 import nl.knokko.customitems.editor.set.item.*;
 import nl.knokko.customitems.editor.set.item.texture.ArmorTextures;
 import nl.knokko.customitems.editor.set.item.texture.BowTextures;
+import nl.knokko.customitems.editor.set.item.texture.CrossbowTextures;
 import nl.knokko.customitems.editor.set.projectile.cover.CustomProjectileCover;
 import nl.knokko.customitems.editor.set.projectile.cover.EditorProjectileCover;
 import nl.knokko.customitems.editor.set.projectile.cover.SphereProjectileCover;
@@ -2988,6 +2989,8 @@ public class ItemSet implements ItemSetBase {
 			byte textureType = input.readByte();
 			if (textureType == NamedImage.ENCODING_BOW)
 				textures.add(new BowTextures(input, true));
+			else if (textureType == NamedImage.ENCODING_CROSSBOW)
+				textures.add(new CrossbowTextures(input));
 			else if (textureType == NamedImage.ENCODING_SIMPLE)
 				textures.add(new NamedImage(input, true));
 			else
@@ -3491,6 +3494,8 @@ public class ItemSet implements ItemSetBase {
 			// Custom textures
 			for (NamedImage texture : textures) {
 				String textureName = texture.getName();
+
+				// Pull textures for bow textures
 				if (texture instanceof BowTextures) {
 					textureName += "_standby";
 					BowTextures bt = (BowTextures) texture;
@@ -3504,6 +3509,35 @@ public class ItemSet implements ItemSetBase {
 						zipOutput.closeEntry();
 					}
 				}
+
+				// Pull textures, arrow texture, and firework texture for crossbow textures
+				if (texture instanceof CrossbowTextures) {
+					textureName += "_standby";
+					CrossbowTextures cbt = (CrossbowTextures) texture;
+
+					List<CrossbowTextures.PullTexture> pullTextures = cbt.getPullTextures();
+					int index = 0;
+					for (CrossbowTextures.PullTexture pullTexture : pullTextures) {
+						ZipEntry entry = new ZipEntry("assets/minecraft/textures/customitems/" + cbt.getName()
+								+ "_pulling_" + index++ + ".png");
+						zipOutput.putNextEntry(entry);
+						ImageIO.write(pullTexture.getImage(), "PNG", new MemoryCacheImageOutputStream(zipOutput));
+						zipOutput.closeEntry();
+					}
+
+					ZipEntry arrowEntry = new ZipEntry("assets/minecraft/textures/customitems/" + cbt.getName()
+							+ "_arrow.png");
+					zipOutput.putNextEntry(arrowEntry);
+					ImageIO.write(cbt.getArrowImage(), "PNG", new MemoryCacheImageOutputStream(zipOutput));
+					zipOutput.closeEntry();
+
+					ZipEntry fireworkEntry = new ZipEntry("assets/minecraft/textures/customitems/" + cbt.getName()
+							+ "_firework.png");
+					zipOutput.putNextEntry(fireworkEntry);
+					ImageIO.write(cbt.getFireworkImage(), "PNG", new MemoryCacheImageOutputStream(zipOutput));
+					zipOutput.closeEntry();
+				}
+
 				ZipEntry entry = new ZipEntry("assets/minecraft/textures/customitems/" + textureName + ".png");
 				zipOutput.putNextEntry(entry);
 				ImageIO.write(texture.getImage(), "PNG", new MemoryCacheImageOutputStream(zipOutput));
@@ -3514,6 +3548,8 @@ public class ItemSet implements ItemSetBase {
 
 			// Custom item models
 			for (CustomItem item : items) {
+
+				// Core item model
 				ZipEntry entry = new ZipEntry("assets/minecraft/models/customitems/" + item.getName() + ".json");
 				zipOutput.putNextEntry(entry);
 				PrintWriter jsonWriter = new PrintWriter(zipOutput);
@@ -3529,6 +3565,8 @@ public class ItemSet implements ItemSetBase {
 					jsonWriter.flush();
 				}
 				zipOutput.closeEntry();
+
+				// Some kinds of items need more models
 				if (item instanceof CustomBow) {
 					CustomBow bow = (CustomBow) item;
 					List<BowTextures.Entry> pullTextures = bow.getTexture().getPullTextures();
@@ -4164,6 +4202,7 @@ public class ItemSet implements ItemSetBase {
 			// Custom textures
 			for (NamedImage texture : textures) {
 				String textureName = texture.getName();
+
 				if (texture instanceof BowTextures) {
 					textureName += "_standby";
 					BowTextures bt = (BowTextures) texture;
@@ -4177,6 +4216,8 @@ public class ItemSet implements ItemSetBase {
 						zipOutput.closeEntry();
 					}
 				}
+
+				// Minecraft 1.12 doesn't have crossbow (textures)
 				ZipEntry entry = new ZipEntry("assets/minecraft/textures/customitems/" + textureName + ".png");
 				zipOutput.putNextEntry(entry);
 				ImageIO.write(texture.getImage(), "PNG", new MemoryCacheImageOutputStream(zipOutput));
@@ -5080,6 +5121,8 @@ public class ItemSet implements ItemSetBase {
 		for (NamedImage texture : textures) {
 			if (texture instanceof BowTextures)
 				output.addByte(NamedImage.ENCODING_BOW);
+			else if (texture instanceof CrossbowTextures)
+				output.addByte(NamedImage.ENCODING_CROSSBOW);
 			else
 				output.addByte(NamedImage.ENCODING_SIMPLE);
 			texture.save(output, true);
@@ -5273,6 +5316,50 @@ public class ItemSet implements ItemSetBase {
 		return addTexture(texture, false);
 	}
 
+	/**
+	 * Attempts to add the given crossbow texture to this item set. If there are no validation errors, it
+	 * will be added to the item set and this method will return null. If there are validation errors, this
+	 * method will return 1 validation error as string.
+	 * @param texture The crossbow texture to be added
+	 * @param checkClass Whether a validation error should be raised if the class of the texture is not
+	 *                      CrossbowTextures.class (but a subclass).
+	 * @return A validation error if adding failed, or null if adding succeeded
+	 */
+	public String addCrossbowTexture(CrossbowTextures texture, boolean checkClass) {
+		if (!bypassChecks()) {
+			if (texture == null) return "Can't add null textures";
+			if (checkClass && texture.getClass() != CrossbowTextures.class)
+				return "Use the right method for this class";
+
+			String nameError = checkName(texture.getName());
+			if (nameError != null) return nameError;
+
+			for (NamedImage existingTexture : textures) {
+				if (existingTexture.getName().equals(texture.getName()))
+					return "There is an existing texture with name " + texture.getName();
+			}
+
+			double prevPull = -1.0;
+			for (CrossbowTextures.PullTexture pullTexture : texture.getPullTextures()) {
+				if (pullTexture.getImage() == null)
+					return "One of the pulls is missing a texture";
+				if (pullTexture.getPull() < 0.0 || pullTexture.getPull() > 1.0)
+					return "All pulls must be between 0.0 and 1.0";
+				if (pullTexture.getPull() <= prevPull) {
+					return "The pull values must be sorted in ascending order from top to bottom";
+				}
+				prevPull = pullTexture.getPull();
+			}
+
+			if (texture.getArrowImage() == null)
+				return "You need to select an arrow image";
+			if (texture.getFireworkImage() == null)
+				return "You need to select a firework image";
+		}
+
+		return addTexture(texture, false);
+	}
+
 	public String changeBowTexture(BowTextures current, String newName, BufferedImage newTexture,
 			List<BowTextures.Entry> newPullTextures, boolean checkClass) {
 		if (!bypassChecks()) {
@@ -5293,6 +5380,52 @@ public class ItemSet implements ItemSetBase {
 		if (error == null) {
 			current.setEntries(newPullTextures);
 		}
+		return error;
+	}
+
+	public String changeCrossbowTexture(
+			CrossbowTextures current, String newName, BufferedImage newStandbyTexture,
+			List<CrossbowTextures.PullTexture> newPullTextures,
+			BufferedImage newArrowImage, BufferedImage newFireworkImage, boolean checkClass
+	) {
+		if (!bypassChecks()) {
+			if (current == null) return "Can't change null crossbows";
+			if (checkClass && current.getClass() != CrossbowTextures.class)
+				return "Use the right method for that class";
+
+			String nameError = checkName(newName);
+			if (nameError != null) return nameError;
+
+			for (NamedImage existingTexture : textures) {
+				if (existingTexture != current && existingTexture.getName().equals(newName))
+					return "There is another texture with name " + newName;
+			}
+
+			double prevPull = -1.0;
+			for (CrossbowTextures.PullTexture pullTexture : newPullTextures) {
+				if (pullTexture.getImage() == null)
+					return "One of the pulls is missing a texture";
+				if (pullTexture.getPull() < 0.0 || pullTexture.getPull() > 1.0)
+					return "All pulls must be between 0.0 and 1.0";
+				if (pullTexture.getPull() <= prevPull) {
+					return "All pull values must be in ascending order from top to bottom";
+				}
+				prevPull = pullTexture.getPull();
+			}
+
+			if (newArrowImage == null)
+				return "You need to select an arrow image";
+			if (newFireworkImage == null)
+				return "You need to select a firework image";
+		}
+
+		String error = changeTexture(current, newName, newStandbyTexture, false);
+		if (error == null) {
+			current.setPullTextures(newPullTextures);
+			current.setArrowImage(newArrowImage);
+			current.setFireworkImage(newFireworkImage);
+		}
+
 		return error;
 	}
 	

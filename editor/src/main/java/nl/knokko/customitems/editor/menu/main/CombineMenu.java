@@ -25,6 +25,7 @@ import nl.knokko.customitems.editor.set.item.NamedImage;
 import nl.knokko.customitems.editor.set.item.SimpleCustomItem;
 import nl.knokko.customitems.editor.set.item.texture.ArmorTextures;
 import nl.knokko.customitems.editor.set.item.texture.BowTextures;
+import nl.knokko.customitems.editor.set.item.texture.CrossbowTextures;
 import nl.knokko.customitems.editor.set.projectile.cover.CustomProjectileCover;
 import nl.knokko.customitems.editor.set.projectile.cover.EditorProjectileCover;
 import nl.knokko.customitems.editor.set.projectile.cover.SphereProjectileCover;
@@ -186,6 +187,8 @@ public class CombineMenu extends GuiMenu {
 						error = primarySet.addTexture(texture, true);
 					} else if (texture.getClass() == BowTextures.class) {
 						error = primarySet.addBowTexture((BowTextures) texture, true);
+					} else if (texture.getClass() == CrossbowTextures.class) {
+						error = primarySet.addCrossbowTexture((CrossbowTextures) texture, true);
 					} else {
 						error = "Don't know how to deal with this texture, please report on discord or BukkitDev";
 					}

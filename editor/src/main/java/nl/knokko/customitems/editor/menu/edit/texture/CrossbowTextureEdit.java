@@ -4,6 +4,7 @@ import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.set.ItemSet;
 import nl.knokko.customitems.editor.set.item.texture.CrossbowTextures;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
@@ -75,18 +76,34 @@ public class CrossbowTextureEdit extends GuiMenu {
         }), 0.025f, 0.7f, 0.2f, 0.8f);
 
         addComponent(errorComponent, 0.05f, 0.9f, 0.95f, 1.0f);
-        addComponent(pullTextureMenu, 0.7f, 0f, 0.975f, 1.0f);
+        addComponent(pullTextureMenu, 0.7f, 0f, 0.975f, 0.9f);
 
         if (toModify == null) {
             addComponent(new DynamicTextButton("Create", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
                 CrossbowTextures toAdd = new CrossbowTextures(
                         nameField.getText(), pullTextures, standbyImage, arrowImage, fireworkImage
                 );
-                // TODO Add it to the item set
+
+                String error = set.addCrossbowTexture(toAdd, true);
+                if (error == null) {
+                    state.getWindow().setMainComponent(returnMenu);
+                    afterSave.accept(toAdd);
+                } else {
+                    errorComponent.setText(error);
+                }
             }), 0.025f, 0.2f, 0.2f, 0.3f);
         } else {
             addComponent(new DynamicTextButton("Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-                // TODO Change it in the item set
+                String error = set.changeCrossbowTexture(
+                        toModify, nameField.getText(), standbyImage, pullTextures, arrowImage, fireworkImage, true
+                );
+
+                if (error == null) {
+                    state.getWindow().setMainComponent(returnMenu);
+                    afterSave.accept(toModify);
+                } else {
+                    errorComponent.setText(error);
+                }
             }), 0.025f, 0.2f, 0.2f, 0.3f);
         }
 
@@ -94,7 +111,9 @@ public class CrossbowTextureEdit extends GuiMenu {
         addComponent(nameField, 0.375f, 0.6f, 0.5f, 0.7f);
 
         addComponent(new DynamicTextComponent("Standby image:", EditProps.LABEL), 0.25f, 0.45f, 0.45f, 0.55f);
-        WrapperComponent<SimpleImageComponent> standbyImageWrapper = new WrapperComponent<>(null);
+        WrapperComponent<SimpleImageComponent> standbyImageWrapper = new WrapperComponent<>(
+                standbyImage == null ? null : new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(standbyImage))
+        );
         addComponent(TextureEdit.createImageSelect(new TextureEdit.PartialTransparencyFilter(this, (BufferedImage texture, String imageName) -> {
             standbyImageWrapper.setComponent(new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(texture)));
             standbyImage = texture;
@@ -110,7 +129,9 @@ public class CrossbowTextureEdit extends GuiMenu {
         addComponent(standbyImageWrapper, 0.575f, 0.45f, 0.65f, 0.55f);
 
         addComponent(new DynamicTextComponent("Arrow image:", EditProps.LABEL), 0.25f, 0.3f, 0.45f, 0.4f);
-        WrapperComponent<SimpleImageComponent> arrowImageWrapper = new WrapperComponent<>(null);
+        WrapperComponent<SimpleImageComponent> arrowImageWrapper = new WrapperComponent<>(
+                arrowImage == null ? null : new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(arrowImage))
+        );
         addComponent(TextureEdit.createImageSelect(new TextureEdit.PartialTransparencyFilter(this, (BufferedImage texture, String imageName) -> {
             arrowImageWrapper.setComponent(new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(texture)));
             arrowImage = texture;
@@ -119,7 +140,9 @@ public class CrossbowTextureEdit extends GuiMenu {
         addComponent(arrowImageWrapper, 0.575f, 0.3f, 0.65f, 0.4f);
 
         addComponent(new DynamicTextComponent("Firework image:", EditProps.LABEL), 0.25f, 0.15f, 0.45f, 0.25f);
-        WrapperComponent<SimpleImageComponent> fireworkImageWrapper = new WrapperComponent<>(null);
+        WrapperComponent<SimpleImageComponent> fireworkImageWrapper = new WrapperComponent<>(
+                fireworkImage == null ? null : new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(fireworkImage))
+        );
         addComponent(TextureEdit.createImageSelect(new TextureEdit.PartialTransparencyFilter(this, (BufferedImage texture, String imageName) -> {
             fireworkImageWrapper.setComponent(new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(texture)));
             fireworkImage = texture;
@@ -127,7 +150,8 @@ public class CrossbowTextureEdit extends GuiMenu {
         }), errorComponent, this), 0.475f, 0.15f, 0.55f, 0.25f);
         addComponent(fireworkImageWrapper, 0.575f, 0.15f, 0.65f, 0.25f);
 
-        // TODO Create help menu
+        // TODO Test that the link works after merging the docs
+        HelpButtons.addHelpLink(this, "edit%20menu/textures/crossbow%20edit.html");
     }
 
     @Override

@@ -47,15 +47,7 @@ public class BowTextures extends NamedImage {
 		this.entries = new ArrayList<>(entries.length);
 		Collections.addAll(this.entries, entries);
 	}
-	
-	public BowTextures(String name, BufferedImage texture) {
-		super(name, texture);
-		entries = new ArrayList<Entry>(3);
-		entries.add(new Entry(null, 0));
-		entries.add(new Entry(null, 0.65));
-		entries.add(new Entry(null, 0.9));
-	}
-	
+
 	public BowTextures(BitInput input, boolean expectCompressed) throws IOException {
 		super(input, expectCompressed);
 		int size = input.readInt();
