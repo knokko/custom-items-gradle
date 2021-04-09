@@ -57,6 +57,7 @@ public class CreateItem extends GuiMenu {
 		addComponent(new DynamicTextButton("Trident (1.13 and 1.14)", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
 			state.getWindow().setMainComponent(new EditItemTrident(menu, null, null));
 		}), 0f, 0.65f, 0.23f, 0.75f);
+		// TODO Add a crossbow button
 		
 		// The row for the special stuff
 		addComponent(new DynamicTextButton("Wand", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {

@@ -157,7 +157,7 @@ public class EditMenu extends GuiMenu {
 					if (error != null) {
 						setError(error);
 					} else {
-						error = this.set.exportFor13Or14(13);
+						error = this.set.exportFor13OrLater(13);
 						if (error != null) {
 							setError(error);
 						} else {
@@ -171,7 +171,7 @@ public class EditMenu extends GuiMenu {
 					if (error != null) {
 						setError(error);
 					} else {
-						error = this.set.exportFor13Or14(14);
+						error = this.set.exportFor13OrLater(14);
 						if (error != null) {
 							setError(error);
 						} else {

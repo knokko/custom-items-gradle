@@ -207,6 +207,7 @@ public class ItemSet implements ItemSetBase {
 			case ItemEncoding.ENCODING_WAND_9: return loadWand9(input);
 			case ItemEncoding.ENCODING_HELMET3D_9: return loadHelmet3d9(input, checkCustomModel);
 			case ItemEncoding.ENCODING_POCKET_CONTAINER_9: return loadPocketContainer9(input, checkCustomModel);
+			case ItemEncoding.ENCODING_CROSSBOW_9: return loadCrossbow9(input, checkCustomModel);
 			default : throw new UnknownEncodingException("Item", encoding);
 		}
 	}
@@ -2422,6 +2423,90 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 
+	private CustomItem loadCrossbow9(
+			BitInput input, boolean checkCustomModel
+	) throws UnknownEncodingException {
+		String name = input.readJavaString();
+		String alias = input.readString();
+		String displayName = input.readJavaString();
+		String[] lore = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < lore.length; index++) {
+			lore[index] = input.readJavaString();
+		}
+		AttributeModifier[] attributes = new AttributeModifier[input.readByte() & 0xFF];
+		for (int index = 0; index < attributes.length; index++)
+			attributes[index] = loadAttribute2(input);
+		Enchantment[] defaultEnchantments = new Enchantment[input.readByte() & 0xFF];
+		for (int index = 0; index < defaultEnchantments.length; index++)
+			defaultEnchantments[index] = new Enchantment(EnchantmentType.valueOf(input.readString()), input.readInt());
+		long durability = input.readLong();
+		boolean allowEnchanting = input.readBoolean();
+		boolean allowAnvil = input.readBoolean();
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
+
+		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
+		boolean[] itemFlags = input.readBooleans(6);
+		int entityHitDurabilityLoss = input.readInt();
+		int blockBreakDurabilityLoss = input.readInt();
+
+		List<PotionEffect> playerEffects = new ArrayList<PotionEffect>();
+		int peLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < peLength; index++) {
+			playerEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		List<PotionEffect> targetEffects = new ArrayList<PotionEffect>();
+		int teLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < teLength; index++) {
+			targetEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		Collection<EquippedPotionEffect> equippedEffects = CustomItem.readEquippedEffects(input);
+		String[] commands = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < commands.length; index++) {
+			commands[index] = input.readJavaString();
+		}
+		ReplaceCondition[] conditions = new ReplaceCondition[input.readByte() & 0xFF];
+		for (int index = 0; index < conditions.length; index++) {
+			conditions[index] = loadReplaceCondition(input);
+		}
+		ConditionOperation op = ConditionOperation.valueOf(input.readJavaString());
+		ExtraItemNbt extraNbt = ExtraItemNbt.load(input);
+		float attackRange = input.readFloat();
+
+		int arrowDurabilityLoss = input.readInt();
+		int fireworkDurabilityLoss = input.readInt();
+
+		float arrowDamageMultiplier = input.readFloat();
+		float fireworkDamageMultiplier = input.readFloat();
+
+		float arrowSpeedMultiplier = input.readFloat();
+		float fireworkSpeedMultiplier = input.readFloat();
+
+		int arrowKnockbackStrength = input.readInt();
+		boolean arrowGravity = input.readBoolean();
+
+		String imageName = input.readJavaString();
+		NamedImage texture = null;
+		for (NamedImage current : textures) {
+			if (current.getName().equals(imageName)) {
+				texture = current;
+				break;
+			}
+		}
+		if (texture == null)
+			throw new IllegalArgumentException("Can't find texture " + imageName);
+		byte[] customModel = loadCustomModel(input, checkCustomModel);
+		return new CustomCrossbow(
+				name, alias, displayName, lore, attributes,
+				defaultEnchantments, durability, allowEnchanting, allowAnvil,
+				repairItem, (CrossbowTextures) texture, itemFlags, entityHitDurabilityLoss,
+				blockBreakDurabilityLoss, customModel, playerEffects, targetEffects,
+				equippedEffects, commands, conditions, op, extraNbt, attackRange,
+				arrowDurabilityLoss, fireworkDurabilityLoss, arrowDamageMultiplier,
+				fireworkDamageMultiplier, arrowSpeedMultiplier, fireworkSpeedMultiplier,
+				arrowKnockbackStrength, arrowGravity
+		);
+	}
+
 	private AttributeModifier loadAttribute2(BitInput input) {
 		return new AttributeModifier(Attribute.valueOf(input.readJavaString()), Slot.valueOf(input.readJavaString()),
 				Operation.values()[(int) input.readNumber((byte) 2, false)], input.readDouble());
@@ -3103,6 +3188,8 @@ public class ItemSet implements ItemSetBase {
 			};
 		} else if (type == CustomItemType.BOW) {
 			return getDefaultModelBow(textureName);
+		} else if (type == CustomItemType.CROSSBOW) {
+			return getDefaultModelCrossbow(textureName);
 		} else if (type == CustomItemType.SHIELD) {
 			return getDefaultModelShield(textureName);
 		} else if (type == CustomItemType.TRIDENT) {
@@ -3141,7 +3228,18 @@ public class ItemSet implements ItemSetBase {
 			"}"
 		};
 	}
-	
+
+	public static String[] getDefaultModelCrossbow(String textureName) {
+		return new String[] {
+				"{",
+				"    \"parent\": \"item/crossbow\",",
+				"    \"textures\": {",
+				"        \"layer0\": \"customitems/" + textureName + "_standby\"",
+				"    }",
+				"}"
+		};
+	}
+
 	public static String[] getDefaultModelShield(String textureName) {
 		return new String[] {
 				"{",
@@ -3375,21 +3473,21 @@ public class ItemSet implements ItemSetBase {
 	 * @param mcVersion The minecraft version to export for, after the 1.
 	 * @return The error message if exporting failed, or null if the item set was exported successfully
 	 */
-	public String exportFor13Or14(int mcVersion) {
-		return exportFor13Or14(mcVersion, 4);
+	public String exportFor13OrLater(int mcVersion) {
+		return exportFor13OrLater(mcVersion, 4);
 	}
 	
 	public String exportFor15() {
 		
 		// It seems like nothing relevant for this plug-in changed in the resourcepack format
-		return exportFor13Or14(MCVersions.VERSION1_15, 5);
+		return exportFor13OrLater(MCVersions.VERSION1_15, 5);
 	}
 	
 	public String exportFor16() {
 		
 		// They raised the resourcepack format from 5 to 6
 		// But for some reason, they made that switch between 1.16.1 and 1.16.2
-		return exportFor13Or14(MCVersions.VERSION1_16, 6);
+		return exportFor13OrLater(MCVersions.VERSION1_16, 6);
 	}
 	
 	private void exportOptifineArmor(ZipOutputStream zipOutput, int mcVersion) throws IOException {
@@ -3454,7 +3552,7 @@ public class ItemSet implements ItemSetBase {
 		}
 	}
 	
-	private String exportFor13Or14(int mcVersion, int packFormat) {
+	private String exportFor13OrLater(int mcVersion, int packFormat) {
 		String versionError = validateExportVersion(mcVersion);
 		if (versionError != null) {
 			return versionError;
@@ -3586,6 +3684,51 @@ public class ItemSet implements ItemSetBase {
 						jsonWriter.flush();
 						zipOutput.closeEntry();
 					}
+				} else if (item instanceof CustomCrossbow) {
+					CustomCrossbow crossbow = (CustomCrossbow) item;
+
+					// Add the models for the pull textures
+					List<CrossbowTextures.PullTexture> pullTextures = crossbow.getTexture().getPullTextures();
+					String textureName = crossbow.getTexture().getName() + "_pulling_";
+					for (int index = 0; index < pullTextures.size(); index++) {
+						entry = new ZipEntry("assets/minecraft/models/customitems/" + item.getName() + "_pulling_"
+								+ index + ".json");
+						zipOutput.putNextEntry(entry);
+						jsonWriter = new PrintWriter(zipOutput);
+						jsonWriter.println("{");
+						jsonWriter.println("    \"parent\": \"item/crossbow\",");
+						jsonWriter.println("    \"textures\": {");
+						jsonWriter.println("        \"layer0\": \"customitems/" + textureName + index + Q);
+						jsonWriter.println("    }");
+						jsonWriter.println("}");
+						jsonWriter.flush();
+						zipOutput.closeEntry();
+					}
+
+					// Add the models for the arrow texture and firework texture
+					entry = new ZipEntry("assets/minecraft/models/customitems/" + item.getName() + "_arrow.json");
+					zipOutput.putNextEntry(entry);
+					jsonWriter = new PrintWriter(zipOutput);
+					jsonWriter.println("{");
+					jsonWriter.println("    \"parent\": \"item/crossbow\",");
+					jsonWriter.println("    \"textures\": {");
+					jsonWriter.println("        \"layer0\": \"customitems/" + textureName + "_arrow\"");
+					jsonWriter.println("    }");
+					jsonWriter.println("}");
+					jsonWriter.flush();
+					zipOutput.closeEntry();
+
+					entry = new ZipEntry("assets/minecraft/models/customitems/" + item.getName() + "_firework.json");
+					zipOutput.putNextEntry(entry);
+					jsonWriter = new PrintWriter(zipOutput);
+					jsonWriter.println("{");
+					jsonWriter.println("    \"parent\": \"item/crossbow\",");
+					jsonWriter.println("    \"textures\": {");
+					jsonWriter.println("        \"layer0\": \"customitems/" + textureName + "_firework\"");
+					jsonWriter.println("    }");
+					jsonWriter.println("}");
+					jsonWriter.flush();
+					zipOutput.closeEntry();
 				} else if (item instanceof CustomShield) {
 					CustomShield shield = (CustomShield) item;
 					byte[] blockingModel = shield.getBlockingModel();
@@ -3658,6 +3801,7 @@ public class ItemSet implements ItemSetBase {
 					zipOutput.putNextEntry(zipEntry);
 					final PrintWriter jsonWriter = new PrintWriter(zipOutput);
 
+					// Some kinds of items need special treatment
 					if (itemType == CustomItemType.BOW) {
 						// Begin of the json file
 						jsonWriter.println("{");
@@ -3721,6 +3865,74 @@ public class ItemSet implements ItemSetBase {
 						jsonWriter.println("        { \"predicate\": {\"damaged\": 1, \"damage\": 0, \"pulling\": 1 }, \"model\": \"item/" + modelName + "_pulling_0\"},");
 						jsonWriter.println("        { \"predicate\": {\"damaged\": 1, \"damage\": 0, \"pulling\": 1, \"pull\": 0.65 }, \"model\": \"item/" + modelName + "_pulling_1\"},");
 						jsonWriter.println("        { \"predicate\": {\"damaged\": 1, \"damage\": 0, \"pulling\": 1, \"pull\": 0.9 }, \"model\": \"item/" + modelName + "_pulling_2\"}");
+						jsonWriter.println("    ]");
+						jsonWriter.println("}");
+					} else if (itemType == CustomItemType.CROSSBOW) {
+
+						// The crossbow model should always start with these lines:
+						jsonWriter.println("{");
+						jsonWriter.println("    \"parent\": \"item/generated\",");
+						jsonWriter.println("    \"textures\": {");
+						jsonWriter.println("        \"layer0\": \"item/crossbow_standby\"");
+						jsonWriter.println("    },");
+						jsonWriter.println("    \"display\": {");
+						jsonWriter.println("        \"thirdperson_righthand\": {");
+						jsonWriter.println("            \"rotation\": [-90, 0, -60],");
+						jsonWriter.println("            \"translation\": [2, 0.1, -3],");
+						jsonWriter.println("            \"scale\": [0.9, 0.9, 0.9]");
+						jsonWriter.println("        \"thirdperson_lefthand\": {");
+						jsonWriter.println("            \"rotation\": [-90, 0, 30],");
+						jsonWriter.println("            \"translation\": [2, 0.1, -3],");
+						jsonWriter.println("            \"scale\": [0.9, 0.9, 0.9]");
+						jsonWriter.println("        },");
+						jsonWriter.println("        \"firstperson_righthand\": {");
+						jsonWriter.println("            \"rotation\": [-90, 0, -55],");
+						jsonWriter.println("            \"translation\": [1.13, 3.2, 1.13],");
+						jsonWriter.println("            \"scale\": [0.68, 0.68, 0.68]");
+						jsonWriter.println("        },");
+						jsonWriter.println("        \"firstperson_lefthand\": {");
+						jsonWriter.println("            \"rotation\": [-90, 0, 35],");
+						jsonWriter.println("            \"translation\": [1.13, 3.2, 1.13],");
+						jsonWriter.println("            \"scale\": [0.68, 0.68, 0.68]");
+						jsonWriter.println("        },");
+						jsonWriter.println("    },");
+						jsonWriter.println("    \"overrides\": [");
+						jsonWriter.println("        { \"predicate\": { \"pulling\": 1 }, \"model\": \"item/crossbow_pulling_0\" },");
+						jsonWriter.println("        { \"predicate\": { \"pulling\": 1, \"pull\": 0.58 }, \"model\": \"item/crossbow_pulling_1\" },");
+						jsonWriter.println("        { \"predicate\": { \"pulling\": 1, \"pull\": 1.0 }, \"model\": \"item/crossbow_pulling_2\" },");
+						jsonWriter.println("        { \"predicate\": { \"charged\": 1 }, \"model\": \"item/crossbow_arrow\" },");
+						jsonWriter.println("        { \"predicate\": { \"charged\": 1, \"firework\": 1 }, \"model\": \"item/crossbow_firework\" },");
+
+						// This is where things get interesting...
+						for (DurabilityClaim claim : claims) {
+
+						    double damageFraction = (double) claim.itemDamage / itemType.getMaxDurability();
+							jsonWriter.println("        { \"predicate\": { \"damaged\": 0, \"damage\": "
+									+ damageFraction + " }, \"model\": \"" + claim.resourcePath + "\" },");
+
+							List<CrossbowTextures.PullTexture> pullTextures = claim.crossbowTextures.getPullTextures();
+							int counter = 0;
+							for (CrossbowTextures.PullTexture pullTexture : pullTextures) {
+								jsonWriter.println("        { \"predicate\": { \"damaged\": 0, \"damage\": "
+										+ damageFraction + ", \"pulling\": 1, \"pull\": " + pullTexture.getPull()
+										+ " }, \"model\": \"" + claim.resourcePath + "_pulling_" + counter++ + "\" },");
+							}
+
+							jsonWriter.println("        { \"predicate\": { \"damaged\": 0, \"damage\": "
+										+ damageFraction + ", \"charged\": 1 }, \"model\": \"" + claim.resourcePath
+										+ "_arrow\" },");
+							jsonWriter.println("        { \"predicate\": { \"damaged\": 0, \"damage\": "
+									+ damageFraction + ", \"charged\": 1, \"firework\": 1 }, \"model\": \""
+									+ claim.resourcePath + "_firework\" },");
+						}
+
+						// The crossbow model should always end with these lines:
+						jsonWriter.println("        { \"predicate\": { \"damaged\": 1, \"damage\": 0 \"}, \"model\": \"item/crossbow\" },");
+						jsonWriter.println("        { \"predicate\": { \"pulling\": 1, \"damaged\": 1, \"damage\": 0 \"}, \"model\": \"item/crossbow_pulling_0\" },");
+						jsonWriter.println("        { \"predicate\": { \"pulling\": 1, \"pull\": 0.58, \"damaged\": 1, \"damage\": 0 \"}, \"model\": \"item/crossbow_pulling_1\" },");
+						jsonWriter.println("        { \"predicate\": { \"pulling\": 1, \"pull\": 1.0, \"damaged\": 1, \"damage\": 0 \"}, \"model\": \"item/crossbow_pulling_2\" },");
+						jsonWriter.println("        { \"predicate\": { \"charged\": 1, \"damaged\": 1, \"damage\": 0 \"}, \"model\": \"item/crossbow_arrow\" },");
+						jsonWriter.println("        { \"predicate\": { \"charged\": 1, \"firework\": 1, \"damaged\": 1, \"damage\": 0 \"}, \"model\": \"item/crossbow_firework\" }");
 						jsonWriter.println("    ]");
 						jsonWriter.println("}");
 					} else if (itemType == CustomItemType.SHIELD) {
@@ -4077,11 +4289,14 @@ public class ItemSet implements ItemSetBase {
 		final String resourcePath;
 		
 		final BowTextures bowTextures;
+		final CrossbowTextures crossbowTextures;
 		
-		DurabilityClaim(short itemDamage, String resourcePath, BowTextures bowTextures) {
+		DurabilityClaim(short itemDamage, String resourcePath,
+						BowTextures bowTextures, CrossbowTextures crossbowTextures) {
 			this.itemDamage = itemDamage;
 			this.resourcePath = resourcePath;
 			this.bowTextures = bowTextures;
+			this.crossbowTextures = crossbowTextures;
 		}
 	}
 	
@@ -4115,7 +4330,8 @@ public class ItemSet implements ItemSetBase {
 						item.setItemDamage(nextItemDamage);
 						claims.add(new DurabilityClaim(
 								nextItemDamage, item.getResourcePath(),
-								itemType == CustomItemType.BOW ? (BowTextures) item.getTexture() : null
+								itemType == CustomItemType.BOW ? (BowTextures) item.getTexture() : null,
+								itemType == CustomItemType.CROSSBOW ? (CrossbowTextures) item.getTexture() : null
 						));
 						
 						if (item.getCustomModel() == null) {
@@ -4130,7 +4346,7 @@ public class ItemSet implements ItemSetBase {
 			for (EditorProjectileCover cover : projectileCovers) {
 				if (cover.itemType == itemType) {
 					cover.itemDamage = nextItemDamage;
-					claims.add(new DurabilityClaim(nextItemDamage, cover.getResourcePath(), null));
+					claims.add(new DurabilityClaim(nextItemDamage, cover.getResourcePath(), null, null));
 					nextItemDamage++;
 				}
 			}
@@ -5580,17 +5796,30 @@ public class ItemSet implements ItemSetBase {
 				return "Can't add null items";
 			if (checkClass && item.getClass() != CustomBow.class)
 				return "Use the appropriate method for that class";
-			if (item.getTexture() == null)
-				return "Every item needs a texture";
-			List<BowTextures.Entry> pullTextures = item.getTexture().getPullTextures();
-			for (BowTextures.Entry pullTexture : pullTextures) {
-				if (pullTexture == null)
-					return "One of the pull textures is undefined";
-				if (pullTexture.getTexture() == null)
-					return "The texture for pull " + pullTexture.getPull() + " is undefined.";
-			}
+			if (item.getShootDurabilityLoss() < 0)
+				return "The shoot durability loss can't be negative";
+			if (item.getDamageMultiplier() < 0f)
+				return "The damage multiplier can't be negative";
 		}
 		return addTool(item, false);
+	}
+
+	public String addCrossbow(CustomCrossbow toAdd, boolean checkClass) {
+		if (!bypassChecks()) {
+			if (toAdd == null) return "Can't add null crossbows";
+			if (checkClass && toAdd.getClass() != CustomCrossbow.class)
+				return "Use the appropriate method for that class of crossbow";
+			if (toAdd.getArrowDurabilityLoss() < 0)
+				return "The arrow durability loss can't be negative";
+			if (toAdd.getFireworkDurabilityLoss() < 0)
+				return "The firework durability loss can't be negative";
+			if (toAdd.getArrowDamageMultiplier() < 0f)
+				return "The arrow damage multiplier can't be negative";
+			if (toAdd.getFireworkDamageMultiplier() < 0f)
+				return "The firework damage multiplier can't be negative";
+		}
+
+		return addTool(toAdd, false);
 	}
 
 	public String changeBow(
@@ -5636,6 +5865,60 @@ public class ItemSet implements ItemSetBase {
 			bow.setKnockbackStrength(newKnockbackStrength);
 			bow.setGravity(useGravity);
 			bow.setShootDurabilityLoss(shootDurabilityLoss);
+			return null;
+		} else {
+			return error;
+		}
+	}
+
+	public String changeCrossbow(
+			CustomCrossbow toChange, String newAlias, String newDisplayName, String[] newLore,
+			AttributeModifier[] newAttributes, Enchantment[] newEnchantments,
+			boolean allowEnchanting, boolean allowAnvil, Ingredient repairItem, long newDurability,
+			BowTextures newTextures, boolean[] itemFlags,
+			int entityHitDurabilityLoss, int blockBreakDurabilityLoss, byte[] newCustomModel,
+			List<PotionEffect> playerEffects, List<PotionEffect> targetEffects,
+			Collection<EquippedPotionEffect> newEquippedEffects, String[] commands,
+			ReplaceCondition[] conditions, ConditionOperation op,
+			ExtraItemNbt newExtraNbt, float newAttackRange,
+			int newArrowDurabilityLoss, int newFireworkDurabilityLoss, float newArrowDamageMultiplier,
+			float newFireworkDamageMultiplier, float newArrowSpeedMultiplier,
+			float newFireworkSpeedMultiplier, int newArrowKnockbackStrength,
+			boolean newArrowGravity, boolean checkClass
+	) {
+		if (!bypassChecks()) {
+			if (toChange == null)
+				return "Can't change bows that do not exist";
+			if (checkClass && toChange.getClass() != CustomCrossbow.class)
+				return "Use the appropriate method for the class";
+			if (newArrowDurabilityLoss < 0)
+				return "The arrow shoot durability loss can't be negative";
+			if (newFireworkDurabilityLoss < 0)
+				return "The firework shoot durability loss can't be negative";
+			if (newArrowDamageMultiplier < 0f)
+				return "The arrow damage multiplier can't be negative";
+			if (newFireworkDamageMultiplier < 0f)
+				return "The firework damage multiplier can't be negative";
+		}
+
+		String error = changeTool(
+				toChange, CustomItemType.CROSSBOW, newAlias, newDisplayName, newLore,
+				newAttributes, newEnchantments, allowEnchanting, allowAnvil,
+				repairItem, newDurability, newTextures, itemFlags,
+				entityHitDurabilityLoss, blockBreakDurabilityLoss, newCustomModel,
+				playerEffects, targetEffects, newEquippedEffects,
+				commands, conditions, op, newExtraNbt, newAttackRange, false
+		);
+
+		if (error == null) {
+			toChange.setArrowDurabilityLoss(newArrowDurabilityLoss);
+			toChange.setFireworkDurabilityLoss(newFireworkDurabilityLoss);
+			toChange.setArrowDamageMultiplier(newArrowDamageMultiplier);
+			toChange.setFireworkDamageMultiplier(newFireworkDamageMultiplier);
+			toChange.setArrowSpeedMultiplier(newArrowSpeedMultiplier);
+			toChange.setFireworkSpeedMultiplier(newFireworkSpeedMultiplier);
+			toChange.setArrowKnockbackStrength(newArrowKnockbackStrength);
+			toChange.setArrowGravity(newArrowGravity);
 			return null;
 		} else {
 			return error;

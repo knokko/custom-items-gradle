@@ -78,13 +78,7 @@ import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
+import org.bukkit.entity.*;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
@@ -111,6 +105,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.BlockStateMeta;
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.Repairable;
 import org.bukkit.metadata.MetadataValue;
@@ -576,6 +571,7 @@ public class CustomItemsEventHandler implements Listener {
 	public void processCustomBowAndTridentDamage(EntityDamageByEntityEvent event) {
 		CustomItemsPlugin plugin = plugin();
 		if (event.getDamager() instanceof Arrow) {
+		    Bukkit.broadcastMessage("Struck by arrow");
 			List<MetadataValue> metas = event.getDamager().getMetadata("CustomBowName");
 			for (MetadataValue meta : metas) {
 				if (meta.getOwningPlugin() == plugin) {
@@ -606,6 +602,11 @@ public class CustomItemsEventHandler implements Listener {
 				}
 			}
 		}
+
+		if (event.getDamager() instanceof Firework) {
+			Bukkit.broadcastMessage("Struck by firework");
+		}
+
 		if (isTrident(event.getDamager())) {
 			List<MetadataValue> metas = event.getDamager().getMetadata("CustomTridentName");
 			for (MetadataValue meta : metas) {
@@ -903,6 +904,25 @@ public class CustomItemsEventHandler implements Listener {
 				});
 			}
 		}
+
+		// TODO Remove after testing
+		if (ItemHelper.getMaterialName(event.getBow()).equals(CIMaterial.CROSSBOW.name())) {
+			if (event.getProjectile() instanceof Arrow) {
+				Bukkit.broadcastMessage("Shot arrow");
+
+				Arrow arrow = (Arrow) event.getProjectile();
+				arrow.setKnockbackStrength(arrow.getKnockbackStrength() + 3);
+				arrow.setVelocity(arrow.getVelocity().multiply(0.1));
+				arrow.setGravity(false);
+			} else if (event.getProjectile() instanceof Firework) {
+				Bukkit.broadcastMessage("Shot firework");
+				Firework firework = (Firework) event.getProjectile();
+				firework.setVelocity(firework.getVelocity().multiply(0.1));
+			} else {
+				Bukkit.broadcastMessage("Shot something else?");
+			}
+		}
+
 	}
 
 	@EventHandler(ignoreCancelled = true)
