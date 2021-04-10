@@ -132,6 +132,7 @@ public class CustomCrossbow extends CustomTool {
     @Override
     public void export(BitOutput output) {
         output.addByte(ItemEncoding.ENCODING_CROSSBOW_9);
+        output.addShort(itemDamage);
         output.addJavaString(name);
         output.addString(alias);
         output.addJavaString(displayName);

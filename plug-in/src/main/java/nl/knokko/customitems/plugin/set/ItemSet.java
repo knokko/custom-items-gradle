@@ -699,6 +699,7 @@ public class ItemSet implements ItemSetBase {
 		case ItemEncoding.ENCODING_HOE_9 : return loadHoe9(input, loadIngredient);
 		case ItemEncoding.ENCODING_WAND_9: return loadWand9(input, getProjectileByName);
 		case ItemEncoding.ENCODING_POCKET_CONTAINER_9: return loadPocketContainer9(input);
+		case ItemEncoding.ENCODING_CROSSBOW_9: return loadCrossbow9(input, loadIngredient);
 		default : throw new UnknownEncodingException("Item", encoding);
 	}
 	}
@@ -2438,6 +2439,77 @@ public class ItemSet implements ItemSetBase {
 				defaultEnchantments, itemFlags, playerEffects,
 				targetEffects, equippedEffects, commands, conditions, op,
 				extraNbt, attackRange, containerNames
+		);
+	}
+
+	private static CustomItem loadCrossbow9(
+			BitInput input, LoadIngredient loadIngredient
+	) throws UnknownEncodingException {
+		short damage = input.readShort();
+		String name = input.readJavaString();
+		String alias = input.readString();
+		String displayName = input.readJavaString();
+		String[] lore = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < lore.length; index++)
+			lore[index] = input.readJavaString();
+		AttributeModifier[] attributes = new AttributeModifier[input.readByte() & 0xFF];
+		for (int index = 0; index < attributes.length; index++)
+			attributes[index] = loadAttribute2(input);
+		Enchantment[] defaultEnchantments = new Enchantment[input.readByte() & 0xFF];
+		for (int index = 0; index < defaultEnchantments.length; index++)
+			defaultEnchantments[index] = new Enchantment(EnchantmentType.valueOf(input.readString()), input.readInt());
+		long durability = input.readLong();
+		boolean allowEnchanting = input.readBoolean();
+		boolean allowAnvil = input.readBoolean();
+		Ingredient repairItem = loadIngredient.apply(input);
+		boolean[] itemFlags = input.readBooleans(6);
+		int entityHitDurabilityLoss = input.readInt();
+		int blockBreakDurabilityLoss = input.readInt();
+		List<PotionEffect> playerEffects = new ArrayList<PotionEffect>();
+		int peLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < peLength; index++) {
+			playerEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		List<PotionEffect> targetEffects = new ArrayList<PotionEffect>();
+		int teLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < teLength; index++) {
+			targetEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		Collection<EquippedPotionEffect> equippedEffects = CustomItem.readEquippedEffects(input);
+		String[] commands = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < commands.length; index++) {
+			commands[index] = input.readJavaString();
+		}
+
+		ReplaceCondition[] conditions = new ReplaceCondition[input.readByte() & 0xFF];
+		for (int index = 0; index < conditions.length; index++) {
+			conditions[index] = loadReplaceCondition(input);
+		}
+		ConditionOperation op = ConditionOperation.valueOf(input.readJavaString());
+		ExtraItemNbt extraNbt = ExtraItemNbt.load(input);
+		float attackRange = input.readFloat();
+
+		int arrowDurabilityLoss = input.readInt();
+		int fireworkDurabilityLoss = input.readInt();
+
+		float arrowDamageMultiplier = input.readFloat();
+		float fireworkDamageMultiplier = input.readFloat();
+
+		float arrowSpeedMultiplier = input.readFloat();
+		float fireworkSpeedMultiplier = input.readFloat();
+
+		int arrowKnockbackStrength = input.readInt();
+		boolean arrowGravity = input.readBoolean();
+
+		return new CustomCrossbow(
+				damage, name, alias, displayName, lore, attributes,
+				defaultEnchantments, durability, allowEnchanting, allowAnvil,
+				repairItem, itemFlags, entityHitDurabilityLoss, blockBreakDurabilityLoss,
+				playerEffects, targetEffects, equippedEffects,
+				commands, conditions, op, extraNbt, attackRange, arrowDurabilityLoss,
+				fireworkDurabilityLoss, arrowDamageMultiplier, fireworkDamageMultiplier,
+				arrowSpeedMultiplier, fireworkSpeedMultiplier, arrowKnockbackStrength,
+				arrowGravity
 		);
 	}
 

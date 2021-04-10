@@ -895,7 +895,6 @@ public class ContainerInstance {
 
 								int invIndex = typeInfo.getInputSlot(input.getInputSlotName()).getSlotIndex();
 
-								// TODO Test this
 								ItemStack remainingItem = ((Ingredient) input.getIngredient()).getRemainingItem();
 								if (remainingItem != null) {
 									inventory.setItem(invIndex, remainingItem);
@@ -1116,7 +1115,6 @@ public class ContainerInstance {
 				fuel.maxBurnTime = fuel.remainingBurnTime;
 
 				Ingredient fuelIngredient = (Ingredient) entryToBurn.getFuel();
-				// TODO Test this
 				if (fuelIngredient.getRemainingItem() == null) {
 					fuelStack.setAmount(fuelStack.getAmount() - fuelIngredient.getAmount());
 					setFuel(fuelSlotName, fuelStack);

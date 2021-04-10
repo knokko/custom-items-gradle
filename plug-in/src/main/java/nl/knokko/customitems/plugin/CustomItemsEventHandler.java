@@ -69,6 +69,7 @@ import nl.knokko.core.plugin.item.GeneralItemNBT;
 import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
 import nl.knokko.customitems.plugin.recipe.IngredientEntry;
 import nl.knokko.customitems.plugin.recipe.ingredient.Ingredient;
+import nl.knokko.customitems.plugin.set.item.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -129,19 +130,10 @@ import nl.knokko.customitems.plugin.recipe.CustomRecipe;
 import nl.knokko.customitems.plugin.recipe.ShapedCustomRecipe;
 import nl.knokko.customitems.plugin.recipe.ShapelessCustomRecipe;
 import nl.knokko.customitems.plugin.set.ItemSet;
-import nl.knokko.customitems.plugin.set.item.CustomArmor;
-import nl.knokko.customitems.plugin.set.item.CustomBow;
-import nl.knokko.customitems.plugin.set.item.CustomHelmet3D;
-import nl.knokko.customitems.plugin.set.item.CustomHoe;
-import nl.knokko.customitems.plugin.set.item.CustomItem;
-import nl.knokko.customitems.plugin.set.item.CustomShears;
-import nl.knokko.customitems.plugin.set.item.CustomShield;
-import nl.knokko.customitems.plugin.set.item.CustomTool;
 import nl.knokko.customitems.plugin.set.item.CustomTool.IncreaseDurabilityResult;
-import nl.knokko.customitems.plugin.set.item.CustomTrident;
-import nl.knokko.customitems.plugin.set.item.CustomWand;
 import nl.knokko.customitems.plugin.set.item.update.ItemUpdater;
 import nl.knokko.customitems.plugin.util.ItemUtils;
+import org.bukkit.projectiles.ProjectileSource;
 
 @SuppressWarnings("deprecation")
 public class CustomItemsEventHandler implements Listener {
@@ -569,42 +561,64 @@ public class CustomItemsEventHandler implements Listener {
 
 	@EventHandler(ignoreCancelled = true)
 	public void processCustomBowAndTridentDamage(EntityDamageByEntityEvent event) {
+
 		CustomItemsPlugin plugin = plugin();
-		if (event.getDamager() instanceof Arrow) {
-		    Bukkit.broadcastMessage("Struck by arrow");
-			List<MetadataValue> metas = event.getDamager().getMetadata("CustomBowName");
+		if (event.getDamager() instanceof Arrow || event.getDamager() instanceof Firework) {
+
+			List<MetadataValue> metas = event.getDamager().getMetadata("CustomBowOrCrossbowName");
 			for (MetadataValue meta : metas) {
 				if (meta.getOwningPlugin() == plugin) {
-					CustomItem shouldBeCustomBow = plugin.getSet().getCustomItemByName(meta.asString());
-					if (shouldBeCustomBow instanceof CustomBow) {
-						CustomBow customBow = (CustomBow) shouldBeCustomBow;
-						event.setDamage(event.getDamage() * customBow.getDamageMultiplier());
+
+					CustomItem customBowOrCrossbow = plugin.getSet().getCustomItemByName(meta.asString());
+					if (customBowOrCrossbow instanceof CustomBow || customBowOrCrossbow instanceof CustomCrossbow) {
+
+					    double damageMultiplier;
+					    if (customBowOrCrossbow instanceof CustomBow) {
+					    	damageMultiplier = ((CustomBow) customBowOrCrossbow).getDamageMultiplier();
+						} else {
+					    	if (event.getDamager() instanceof Arrow) {
+					    		damageMultiplier = ((CustomCrossbow) customBowOrCrossbow).getArrowDamageMultiplier();
+							} else {
+					    		damageMultiplier = ((CustomCrossbow) customBowOrCrossbow).getFireworkDamageMultiplier();
+							}
+						}
+
+						event.setDamage(event.getDamage() * damageMultiplier);
 						LivingEntity target = (LivingEntity) event.getEntity();
-						if (target instanceof LivingEntity) {
+						if (target != null) {
+
 							Collection<org.bukkit.potion.PotionEffect> effects = new ArrayList<org.bukkit.potion.PotionEffect> ();
-							for (PotionEffect effect : customBow.getTargetEffects()) {
-								effects.add(new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.getByName(effect.getEffect().name()), effect.getDuration() * 20, effect.getLevel() - 1));
+							for (PotionEffect effect : customBowOrCrossbow.getTargetEffects()) {
+								effects.add(new org.bukkit.potion.PotionEffect(
+										org.bukkit.potion.PotionEffectType.getByName(effect.getEffect().name()),
+										effect.getDuration() * 20,
+										effect.getLevel() - 1
+								));
 							}
 							target.addPotionEffects(effects);
 						}
-						Arrow arrow = (Arrow) event.getDamager();
-						if (arrow.getShooter() instanceof LivingEntity) {
-							LivingEntity shooter = (LivingEntity) arrow.getShooter();
-							Collection<org.bukkit.potion.PotionEffect> effects = new ArrayList<org.bukkit.potion.PotionEffect> ();
-							for (PotionEffect effect : customBow.getPlayerEffects()) {
-								effects.add(new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.getByName(effect.getEffect().name()), effect.getDuration() * 20, effect.getLevel() - 1));
-							}
-							shooter.addPotionEffects(effects);
+
+						ProjectileSource shooter = null;
+						if (event.getDamager() instanceof Arrow) {
+							shooter = ((Arrow) event.getDamager()).getShooter();
 						}
-					} else {
-						Bukkit.getLogger().log(Level.WARNING, "An arrow was shot with the custom bow '" + meta.asString() + "', but no such custom bow exists");
+						// Hm... it looks like Firework doesn't have a nice getShooter() method...
+
+						if (shooter instanceof LivingEntity) {
+							Collection<org.bukkit.potion.PotionEffect> effects = new ArrayList<org.bukkit.potion.PotionEffect> ();
+							for (PotionEffect effect : customBowOrCrossbow.getPlayerEffects()) {
+								effects.add(new org.bukkit.potion.PotionEffect(
+										org.bukkit.potion.PotionEffectType.getByName(effect.getEffect().name()),
+										effect.getDuration() * 20,
+										effect.getLevel() - 1
+								));
+							}
+
+							((LivingEntity) shooter).addPotionEffects(effects);
+						}
 					}
 				}
 			}
-		}
-
-		if (event.getDamager() instanceof Firework) {
-			Bukkit.broadcastMessage("Struck by firework");
 		}
 
 		if (isTrident(event.getDamager())) {
@@ -815,38 +829,92 @@ public class CustomItemsEventHandler implements Listener {
 
 	@EventHandler(ignoreCancelled = true)
 	public void onBowShoot(EntityShootBowEvent event) {
-		ItemStack oldBow = event.getBow();
-		CustomItem customItem = set().getItem(oldBow);
-		if (customItem instanceof CustomBow) {
-			CustomBow bow = (CustomBow) customItem;
+
+		CustomItem customItem = set().getItem(event.getBow());
+
+		if (customItem instanceof CustomBow || customItem instanceof CustomCrossbow) {
 			Entity projectile = event.getProjectile();
-			if (projectile instanceof Arrow) {
+			if (projectile instanceof Arrow || projectile instanceof Firework) {
+
+				// Only decrease durability when shot by a player
 				if (event.getEntity() instanceof Player) {
+
 					Player player = (Player) event.getEntity();
-					ItemStack newBow = bow.decreaseDurability(oldBow, bow.getShootDurabilityLoss());
-					if (newBow == null) {
-						String newItemName = checkBrokenCondition(bow.getReplaceConditions());
-						if (newItemName != null) {
-							newBow = set().getItem(newItemName).create(1);
-						}
-						playBreakSound(player);
-					}
-					if (newBow != oldBow) {
-						ItemStack mainHand = player.getInventory().getItemInMainHand();
-						if (mainHand != null && set().getItem(mainHand) == bow) {
-							player.getInventory().setItemInMainHand(newBow);
+					boolean isMainHand = set().getItem(player.getInventory().getItemInMainHand()) == customItem;
+
+					// Delay updating durability to prevent messing around with the crossbow state
+					Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () -> {
+
+					    ItemStack oldBowOrCrossbow = isMainHand ?
+								player.getInventory().getItemInMainHand() :
+								player.getInventory().getItemInOffHand();
+
+						ItemStack newBowOrCrossbow;
+						if (customItem instanceof CustomBow) {
+							CustomBow bow = (CustomBow) customItem;
+							newBowOrCrossbow = bow.decreaseDurability(oldBowOrCrossbow, bow.getShootDurabilityLoss());
 						} else {
-							player.getInventory().setItemInOffHand(newBow);
+							CustomCrossbow crossbow = (CustomCrossbow) customItem;
+							if (projectile instanceof Arrow) {
+								newBowOrCrossbow = crossbow.decreaseDurability(oldBowOrCrossbow, crossbow.getArrowDurabilityLoss());
+							} else {
+								newBowOrCrossbow = crossbow.decreaseDurability(oldBowOrCrossbow, crossbow.getFireworkDurabilityLoss());
+							}
 						}
+
+						if (newBowOrCrossbow == null) {
+							String newItemName = checkBrokenCondition(customItem.getReplaceConditions());
+							if (newItemName != null) {
+								newBowOrCrossbow = set().getItem(newItemName).create(1);
+							}
+							playBreakSound(player);
+						}
+
+						if (newBowOrCrossbow != oldBowOrCrossbow) {
+							if (isMainHand) {
+								player.getInventory().setItemInMainHand(newBowOrCrossbow);
+							} else {
+								player.getInventory().setItemInOffHand(newBowOrCrossbow);
+							}
+						}
+					});
+				}
+
+				if (projectile instanceof Arrow) {
+					Arrow arrow = (Arrow) projectile;
+
+					int knockbackStrength;
+					double speedMultiplier;
+					boolean gravity;
+
+					if (customItem instanceof CustomBow) {
+						CustomBow bow = (CustomBow) customItem;
+						knockbackStrength = bow.getKnockbackStrength();
+						speedMultiplier = bow.getSpeedMultiplier();
+						gravity = bow.hasGravity();
+					} else {
+						CustomCrossbow crossbow = (CustomCrossbow) customItem;
+						knockbackStrength = crossbow.getArrowKnockbackStrength();
+						speedMultiplier = crossbow.getArrowSpeedMultiplier();
+						gravity = crossbow.hasArrowGravity();
+					}
+
+					arrow.setKnockbackStrength(arrow.getKnockbackStrength() + knockbackStrength);
+					arrow.setVelocity(arrow.getVelocity().multiply(speedMultiplier));
+					arrow.setGravity(gravity);
+				} else {
+					Firework firework = (Firework) projectile;
+
+					// The item SHOULD be a crossbow, but could hypothetically be a bow
+					// (not in normal minecraft behavior, but perhaps other plug-ins do something weird)
+					if (customItem instanceof CustomCrossbow) {
+					    CustomCrossbow crossbow = (CustomCrossbow) customItem;
+						firework.setVelocity(firework.getVelocity().multiply(crossbow.getFireworkSpeedMultiplier()));
 					}
 				}
 
-				Arrow arrow = (Arrow) projectile;
-				arrow.setKnockbackStrength(arrow.getKnockbackStrength() + bow.getKnockbackStrength());
-				arrow.setVelocity(arrow.getVelocity().multiply(bow.getSpeedMultiplier()));
-				arrow.setGravity(bow.hasGravity());
-				String customBowName = bow.getName();
-				arrow.setMetadata("CustomBowName", new MetadataValue() {
+				String customBowOrCrossbowName = customItem.getName();
+				projectile.setMetadata("CustomBowOrCrossbowName", new MetadataValue() {
 
 					@Override
 					public Object value() {
@@ -890,7 +958,7 @@ public class CustomItemsEventHandler implements Listener {
 
 					@Override
 					public String asString() {
-						return customBowName;
+						return customBowOrCrossbowName;
 					}
 
 					@Override
@@ -904,25 +972,6 @@ public class CustomItemsEventHandler implements Listener {
 				});
 			}
 		}
-
-		// TODO Remove after testing
-		if (ItemHelper.getMaterialName(event.getBow()).equals(CIMaterial.CROSSBOW.name())) {
-			if (event.getProjectile() instanceof Arrow) {
-				Bukkit.broadcastMessage("Shot arrow");
-
-				Arrow arrow = (Arrow) event.getProjectile();
-				arrow.setKnockbackStrength(arrow.getKnockbackStrength() + 3);
-				arrow.setVelocity(arrow.getVelocity().multiply(0.1));
-				arrow.setGravity(false);
-			} else if (event.getProjectile() instanceof Firework) {
-				Bukkit.broadcastMessage("Shot firework");
-				Firework firework = (Firework) event.getProjectile();
-				firework.setVelocity(firework.getVelocity().multiply(0.1));
-			} else {
-				Bukkit.broadcastMessage("Shot something else?");
-			}
-		}
-
 	}
 
 	@EventHandler(ignoreCancelled = true)
@@ -1856,7 +1905,6 @@ public class CustomItemsEventHandler implements Listener {
 			if (event.getInventory() instanceof CraftingInventory) {
 			    List<IngredientEntry> customCrafting = shouldInterfere.get(event.getWhoClicked().getUniqueId());
 				if (customCrafting != null) {
-				    // TODO Test this very carefully!!
 					if (
 							action == InventoryAction.PICKUP_ALL || action == InventoryAction.DROP_ONE_SLOT
 							|| action == InventoryAction.MOVE_TO_OTHER_INVENTORY || action == InventoryAction.NOTHING

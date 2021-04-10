@@ -2426,6 +2426,7 @@ public class ItemSet implements ItemSetBase {
 	private CustomItem loadCrossbow9(
 			BitInput input, boolean checkCustomModel
 	) throws UnknownEncodingException {
+		input.readShort();
 		String name = input.readJavaString();
 		String alias = input.readString();
 		String displayName = input.readJavaString();
@@ -3712,7 +3713,7 @@ public class ItemSet implements ItemSetBase {
 					jsonWriter.println("{");
 					jsonWriter.println("    \"parent\": \"item/crossbow\",");
 					jsonWriter.println("    \"textures\": {");
-					jsonWriter.println("        \"layer0\": \"customitems/" + textureName + "_arrow\"");
+					jsonWriter.println("        \"layer0\": \"customitems/" + item.getTexture().getName() + "_arrow\"");
 					jsonWriter.println("    }");
 					jsonWriter.println("}");
 					jsonWriter.flush();
@@ -3724,7 +3725,7 @@ public class ItemSet implements ItemSetBase {
 					jsonWriter.println("{");
 					jsonWriter.println("    \"parent\": \"item/crossbow\",");
 					jsonWriter.println("    \"textures\": {");
-					jsonWriter.println("        \"layer0\": \"customitems/" + textureName + "_firework\"");
+					jsonWriter.println("        \"layer0\": \"customitems/" + item.getTexture().getName() + "_firework\"");
 					jsonWriter.println("    }");
 					jsonWriter.println("}");
 					jsonWriter.flush();
@@ -3880,6 +3881,7 @@ public class ItemSet implements ItemSetBase {
 						jsonWriter.println("            \"rotation\": [-90, 0, -60],");
 						jsonWriter.println("            \"translation\": [2, 0.1, -3],");
 						jsonWriter.println("            \"scale\": [0.9, 0.9, 0.9]");
+						jsonWriter.println("        },");
 						jsonWriter.println("        \"thirdperson_lefthand\": {");
 						jsonWriter.println("            \"rotation\": [-90, 0, 30],");
 						jsonWriter.println("            \"translation\": [2, 0.1, -3],");
@@ -3894,7 +3896,7 @@ public class ItemSet implements ItemSetBase {
 						jsonWriter.println("            \"rotation\": [-90, 0, 35],");
 						jsonWriter.println("            \"translation\": [1.13, 3.2, 1.13],");
 						jsonWriter.println("            \"scale\": [0.68, 0.68, 0.68]");
-						jsonWriter.println("        },");
+						jsonWriter.println("        }");
 						jsonWriter.println("    },");
 						jsonWriter.println("    \"overrides\": [");
 						jsonWriter.println("        { \"predicate\": { \"pulling\": 1 }, \"model\": \"item/crossbow_pulling_0\" },");
@@ -3927,12 +3929,12 @@ public class ItemSet implements ItemSetBase {
 						}
 
 						// The crossbow model should always end with these lines:
-						jsonWriter.println("        { \"predicate\": { \"damaged\": 1, \"damage\": 0 \"}, \"model\": \"item/crossbow\" },");
-						jsonWriter.println("        { \"predicate\": { \"pulling\": 1, \"damaged\": 1, \"damage\": 0 \"}, \"model\": \"item/crossbow_pulling_0\" },");
-						jsonWriter.println("        { \"predicate\": { \"pulling\": 1, \"pull\": 0.58, \"damaged\": 1, \"damage\": 0 \"}, \"model\": \"item/crossbow_pulling_1\" },");
-						jsonWriter.println("        { \"predicate\": { \"pulling\": 1, \"pull\": 1.0, \"damaged\": 1, \"damage\": 0 \"}, \"model\": \"item/crossbow_pulling_2\" },");
-						jsonWriter.println("        { \"predicate\": { \"charged\": 1, \"damaged\": 1, \"damage\": 0 \"}, \"model\": \"item/crossbow_arrow\" },");
-						jsonWriter.println("        { \"predicate\": { \"charged\": 1, \"firework\": 1, \"damaged\": 1, \"damage\": 0 \"}, \"model\": \"item/crossbow_firework\" }");
+						jsonWriter.println("        { \"predicate\": { \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/crossbow\" },");
+						jsonWriter.println("        { \"predicate\": { \"pulling\": 1, \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/crossbow_pulling_0\" },");
+						jsonWriter.println("        { \"predicate\": { \"pulling\": 1, \"pull\": 0.58, \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/crossbow_pulling_1\" },");
+						jsonWriter.println("        { \"predicate\": { \"pulling\": 1, \"pull\": 1.0, \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/crossbow_pulling_2\" },");
+						jsonWriter.println("        { \"predicate\": { \"charged\": 1, \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/crossbow_arrow\" },");
+						jsonWriter.println("        { \"predicate\": { \"charged\": 1, \"firework\": 1, \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/crossbow_firework\" }");
 						jsonWriter.println("    ]");
 						jsonWriter.println("}");
 					} else if (itemType == CustomItemType.SHIELD) {

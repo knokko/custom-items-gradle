@@ -6,6 +6,7 @@ import nl.knokko.customitems.editor.set.item.CustomCrossbow;
 import nl.knokko.customitems.editor.set.item.NamedImage;
 import nl.knokko.customitems.editor.set.item.texture.BowTextures;
 import nl.knokko.customitems.editor.set.item.texture.CrossbowTextures;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.AttributeModifier;
 import nl.knokko.customitems.item.CustomItemType;
 import nl.knokko.gui.component.image.CheckboxComponent;
@@ -109,7 +110,8 @@ public class EditItemCrossbow extends EditItemTool {
                 0.8f, -0.175f, 0.94f, -0.1f);
         addComponent(arrowGravityCheckbox, 0.96f, -0.165f, 0.98f, -0.13f);
 
-        // TODO Insert help link
+        // TODO Test this link after merging the v9 docs into master
+        HelpButtons.addHelpLink(this, "edit%20menu/items/edit/crossbow.html");
     }
 
     @Override

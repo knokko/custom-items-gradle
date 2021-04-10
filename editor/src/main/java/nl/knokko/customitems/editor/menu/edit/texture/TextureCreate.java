@@ -53,7 +53,6 @@ public class TextureCreate extends GuiMenu {
 		    state.getWindow().setMainComponent(new CrossbowTextureEdit(menu, created -> {}, null, null));
 		}), 0.5f, 0.3f, 0.8f, 0.4f);
 
-		// TODO Update the page behind this link
 		HelpButtons.addHelpLink(this, "edit%20menu/textures/type%20selection.html");
 	}
 	
