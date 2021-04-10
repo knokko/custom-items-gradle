@@ -57,8 +57,10 @@ public class CreateItem extends GuiMenu {
 		addComponent(new DynamicTextButton("Trident (1.13 and 1.14)", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
 			state.getWindow().setMainComponent(new EditItemTrident(menu, null, null));
 		}), 0f, 0.65f, 0.23f, 0.75f);
-		// TODO Add a crossbow button
-		
+		addComponent(new DynamicTextButton("Crossbow (1.14+)", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
+			state.getWindow().setMainComponent(new EditItemCrossbow(menu, null, null));
+		}), 0f, 0.525f, 0.23f, 0.625f);
+
 		// The row for the special stuff
 		addComponent(new DynamicTextButton("Wand", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
 			state.getWindow().setMainComponent(new EditItemWand(menu, null, null));
@@ -112,7 +114,8 @@ public class CreateItem extends GuiMenu {
 		addComponent(new DynamicTextButton("Shield", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
 			state.getWindow().setMainComponent(new EditItemShield(menu, null, null));
 		}), 0.75f, 0.025f, 0.95f, 0.125f);
-		
+
+		// TODO Update help page after adding crossbows and guns
 		HelpButtons.addHelpLink(this, "edit%20menu/items/select%20type.html");
 	}
 }

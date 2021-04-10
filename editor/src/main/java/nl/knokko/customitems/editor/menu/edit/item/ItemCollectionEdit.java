@@ -46,9 +46,10 @@ public class ItemCollectionEdit extends CollectionEdit<CustomItem> {
 		
 		private GuiComponent createEditMenu(CustomItem item, boolean copy) {
 			CustomItem secondParam = copy ? null : item;
-			// TODO Crossbow support
 			if (item instanceof CustomBow)
 				return new EditItemBow(menu, (CustomBow) item, (CustomBow) secondParam);
+			else if (item instanceof CustomCrossbow)
+				return new EditItemCrossbow(menu, (CustomCrossbow) item, (CustomCrossbow) secondParam);
 			else if (item instanceof CustomHelmet3D)
 				return new EditItemHelmet3D(menu, (CustomArmor) item, (CustomArmor) secondParam);
 			else if (item instanceof CustomArmor)

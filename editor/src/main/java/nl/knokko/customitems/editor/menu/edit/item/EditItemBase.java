@@ -201,8 +201,8 @@ public abstract class EditItemBase extends GuiMenu {
 		addComponent(new DynamicTextComponent("NBT: ", EditProps.LABEL), LABEL_X, -0.1f, LABEL_X + 0.08f, -0.05f);
 		addComponent(new DynamicTextComponent("Attack range multiplier: ", EditProps.LABEL), LABEL_X, -0.16f, LABEL_X + 0.2f, -0.11f);
 		
-		// I might add custom bow models later, but I leave it out for now
-		if (!(this instanceof EditItemBow)) {
+		// I might add custom bow and crossbow models later, but I leave it out for now
+		if (!(this instanceof EditItemBow || this instanceof EditItemCrossbow)) {
 			addComponent(new DynamicTextComponent("Model: ", EditProps.LABEL), LABEL_X, 0.26f, LABEL_X + 0.11f, 0.31f);
 		}
 		if (toModify != null) {
@@ -282,8 +282,8 @@ public abstract class EditItemBase extends GuiMenu {
 		}), BUTTON_X, 0.38f, BUTTON_X + 0.1f, 0.43f);
 		addComponent(textureSelect, BUTTON_X, 0.32f, BUTTON_X + 0.1f, 0.37f);
 
-		// Bow models are more complex and have less priority, so leave it out for now
-		if (!(this instanceof EditItemBow)) {
+		// Bow models and crossbow models are more complex and have less priority, so leave it out for now
+		if (!(this instanceof EditItemBow || this instanceof EditItemCrossbow)) {
 			addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
 				state.getWindow().setMainComponent(new EditCustomModel(ItemSet.getDefaultModel(
 						internalType, 

@@ -5875,7 +5875,7 @@ public class ItemSet implements ItemSetBase {
 			CustomCrossbow toChange, String newAlias, String newDisplayName, String[] newLore,
 			AttributeModifier[] newAttributes, Enchantment[] newEnchantments,
 			boolean allowEnchanting, boolean allowAnvil, Ingredient repairItem, long newDurability,
-			BowTextures newTextures, boolean[] itemFlags,
+			CrossbowTextures newTextures, boolean[] itemFlags,
 			int entityHitDurabilityLoss, int blockBreakDurabilityLoss, byte[] newCustomModel,
 			List<PotionEffect> playerEffects, List<PotionEffect> targetEffects,
 			Collection<EquippedPotionEffect> newEquippedEffects, String[] commands,

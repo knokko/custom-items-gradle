@@ -85,6 +85,8 @@ public class EditItemTool extends EditItemBase {
 				preferredType = CustomItemType.SHEARS;
 			else if (toolCategory == Category.BOW)
 				preferredType = CustomItemType.BOW;
+			else if (toolCategory == Category.CROSSBOW)
+				preferredType = CustomItemType.CROSSBOW;
 			else if (toolCategory == Category.HELMET)
 				preferredType = CustomItemType.IRON_HELMET;
 			else if (toolCategory == Category.CHESTPLATE)
