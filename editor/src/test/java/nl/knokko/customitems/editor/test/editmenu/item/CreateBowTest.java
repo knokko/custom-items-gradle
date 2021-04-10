@@ -22,9 +22,9 @@ public class CreateBowTest {
 				"Durability loss on attack:", "Durability loss on block break:",
 				"Durability loss on shooting:", "Damage multiplier: ", "Speed multiplier: ",
 				"knockback strength: ", "Arrow gravity", "500", "0", "1", "1");
-		SimpleTextureTest.test(test, textureName);
 		ItemNameTest.test(test, "fragile_bow");
-		DisplayNameTest.test(test, itemName, 2);
+		SimpleTextureTest.test(test, textureName);
+		DisplayNameTest.test(test, itemName, 3);
 		LoreTest.test(test, lore1, lore2, 10);
 		
 		AttributeModTest.test(test, "generic.movementSpeed", "Offhand", "Add factor", "1.5", 
