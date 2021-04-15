@@ -78,6 +78,14 @@ public class ProjectileEffectCollectionEdit extends CollectionEdit<ProjectileEff
 				return new EditStraightAccelleration((StraightAccelleration) itemToEdit, (ProjectileAccelleration) second, backingCollection, returnMenu);
 			} else if (itemToEdit instanceof SubProjectiles) {
 				return new EditSubProjectiles((SubProjectiles) itemToEdit, (SubProjectiles) second, set, backingCollection, returnMenu);
+			} else if (itemToEdit instanceof PlaySound) {
+				return new EditPlaySound((PlaySound) itemToEdit, (PlaySound) second, backingCollection, returnMenu);
+			} else if (itemToEdit instanceof PotionAura) {
+				return new EditPotionAura((PotionAura) itemToEdit, (PotionAura) second, backingCollection, returnMenu);
+			} else if (itemToEdit instanceof PushOrPull) {
+				return new EditPushOrPull((PushOrPull) itemToEdit, (PushOrPull) second, backingCollection, returnMenu);
+			} else if (itemToEdit instanceof ShowFirework) {
+				return new EditShowFirework((ShowFirework) itemToEdit, (ShowFirework) second, backingCollection, returnMenu);
 			} else {
 				throw new Error("Unknown projectile effect class: " + itemToEdit.getClass());
 			}
