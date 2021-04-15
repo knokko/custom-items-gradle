@@ -10,8 +10,7 @@ import java.util.List;
 public class ShowFirework extends ProjectileEffect {
 
     public static ShowFirework load1(BitInput input) {
-        ShowFirework result = new ShowFirework();
-        result.power = input.readInt();
+        int power = input.readInt();
 
         int numEffects = input.readInt();
         List<Effect> effects = new ArrayList<>(numEffects);
@@ -19,18 +18,16 @@ public class ShowFirework extends ProjectileEffect {
             effects.add(Effect.load1(input));
         }
 
-        result.effects = effects;
-        return result;
+        return new ShowFirework(power, effects);
     }
 
     public int power;
 
     public List<Effect> effects;
 
-    public ShowFirework() {
-        this.power = 1;
-        this.effects = new ArrayList<>(1);
-        this.effects.add(new Effect());
+    public ShowFirework(int power, List<Effect> effects) {
+        this.power = power;
+        this.effects = effects;
     }
 
     @Override
@@ -47,6 +44,13 @@ public class ShowFirework extends ProjectileEffect {
     public String validate() {
         if (power < 1) return "The power must be at least 1";
         if (effects.isEmpty()) return "You need to select at least 1 effect";
+
+        for (Effect effect : effects) {
+            String effectError = effect.validate();
+            if (effectError != null) {
+                return "Effect error: " + effectError;
+            }
+        }
         return null;
     }
 
@@ -96,6 +100,25 @@ public class ShowFirework extends ProjectileEffect {
             this.type = EffectType.BALL;
             this.colors = new ArrayList<>(1);
             this.fadeColors = new ArrayList<>(0);
+        }
+
+        public Effect(
+                boolean flicker, boolean trail, EffectType type, List<Color> colors, List<Color> fadeColors
+        ) {
+            this.flicker = flicker;
+            this.trail = trail;
+            this.type = type;
+            this.colors = colors;
+            this.fadeColors = fadeColors;
+        }
+
+        // Copy constructor
+        public Effect(Effect toClone) {
+            this.flicker = toClone.flicker;
+            this.trail = toClone.trail;
+            this.type = toClone.type;
+            this.colors = new ArrayList<>(toClone.colors);
+            this.fadeColors = new ArrayList<>(toClone.fadeColors);
         }
 
         public void save1(BitOutput output) {
