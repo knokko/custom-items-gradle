@@ -122,8 +122,7 @@ import nl.knokko.customitems.item.WandCharges;
 import nl.knokko.customitems.item.nbt.ExtraItemNbt;
 import nl.knokko.customitems.projectile.CIProjectile;
 import nl.knokko.customitems.projectile.ProjectileCover;
-import nl.knokko.customitems.projectile.effects.ProjectileEffect;
-import nl.knokko.customitems.projectile.effects.ProjectileEffects;
+import nl.knokko.customitems.projectile.effects.*;
 import nl.knokko.customitems.recipe.ContainerRecipe;
 import nl.knokko.customitems.recipe.ContainerRecipe.InputEntry;
 import nl.knokko.customitems.recipe.ContainerRecipe.OutputEntry;
@@ -4280,7 +4279,53 @@ public class ItemSet implements ItemSetBase {
 				}
 			}
 		}
+
+		for (CIProjectile projectile : projectiles) {
+			for (ProjectileEffect impactEffect : projectile.impactEffects) {
+				String versionError = validateProjectileEffectVersion(projectile.name, impactEffect, version);
+				if (versionError != null) return versionError;
+			}
+
+			for (ProjectileEffects flightEffects : projectile.inFlightEffects) {
+				for (ProjectileEffect flightEffect : flightEffects.effects) {
+					String versionError = validateProjectileEffectVersion(projectile.name, flightEffect, version);
+					if (versionError != null) return versionError;
+				}
+			}
+		}
 		
+		return null;
+	}
+
+	private String validateProjectileEffectVersion(String projectileName, ProjectileEffect effect, int version) {
+		if (effect instanceof PlaySound) {
+			PlaySound playSound = (PlaySound) effect;
+			if (playSound.sound.firstVersion > version) {
+				return projectileName + " has an effect that plays sound " + playSound.sound + ", which is not yet available in this mc version";
+			}
+			if (playSound.sound.lastVersion < version) {
+				return projectileName + " has an effect that plays sound " + playSound.sound + ", which is no longer available in this mc version";
+			}
+		} else if (effect instanceof PotionAura) {
+			PotionAura aura = (PotionAura) effect;
+			for (PotionEffect potionEffect : aura.effects) {
+				if (potionEffect.getEffect().firstVersion > version) {
+					return projectileName + " has a potion aura for effect " + potionEffect.getEffect() + ", which is not yet available in this mc version";
+				}
+				if (potionEffect.getEffect().lastVersion < version) {
+					return projectileName + " has a potion aura for effect " + potionEffect.getEffect() + ", which is no longer available in this mc version";
+				}
+			}
+		} else if (effect instanceof SimpleParticles) {
+			SimpleParticles particles = (SimpleParticles) effect;
+			if (particles.particle.firstVersion > version) {
+				return projectileName + " spawns particle " + particles.particle + ", which is not yet available in this mc version";
+			}
+			if (particles.particle.lastVersion < version) {
+				return projectileName + " spawns particle " + particles.particle + ", which is no longer available in this mc version";
+			}
+		}
+
 		return null;
 	}
 
