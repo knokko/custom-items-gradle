@@ -26,6 +26,7 @@ package nl.knokko.gui.component.image;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.function.Consumer;
 
 import nl.knokko.gui.component.AbstractGuiComponent;
 import nl.knokko.gui.render.GuiRenderer;
@@ -42,8 +43,21 @@ public class CheckboxComponent extends AbstractGuiComponent implements Checkable
 	
 	protected boolean checked;
 
+	protected Consumer<Boolean> onChange;
+
 	public CheckboxComponent(boolean startChecked) {
 		checked = startChecked;
+	}
+
+	public CheckboxComponent(boolean startChecked, Consumer<Boolean> onChange) {
+		this(startChecked);
+		this.onChange = onChange;
+	}
+
+	protected void triggerOnChange() {
+		if (onChange != null) {
+			onChange.accept(checked);
+		}
 	}
 	
 	@Override
@@ -61,6 +75,7 @@ public class CheckboxComponent extends AbstractGuiComponent implements Checkable
 	public void click(float x, float y, int button) {
 		checked = !checked;
 		state.getWindow().markChange();
+		this.triggerOnChange();
 	}
 	
 	@Override
@@ -85,16 +100,19 @@ public class CheckboxComponent extends AbstractGuiComponent implements Checkable
 	public void check() {
 		checked = true;
 		state.getWindow().markChange();
+		this.triggerOnChange();
 	}
 	
 	public void uncheck() {
 		checked = false;
 		state.getWindow().markChange();
+		this.triggerOnChange();
 	}
 	
 	public void check(boolean value) {
 		checked = value;
 		state.getWindow().markChange();
+		this.triggerOnChange();
 	}
 
 	@Override
