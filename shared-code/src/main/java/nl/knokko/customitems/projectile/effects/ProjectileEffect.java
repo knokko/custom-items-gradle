@@ -21,6 +21,10 @@ public abstract class ProjectileEffect {
 	protected static final byte ENCODING_RANDOM_ACCELLERATION_1 = 4;
 	protected static final byte ENCODING_SUB_PROJECTILE_1 = 5;
 	protected static final byte ENCODING_COMMAND_1 = 6;
+	protected static final byte ENCODING_PUSH_PULL_1 = 7;
+	protected static final byte ENCODING_PLAY_SOUND_1 = 8;
+	protected static final byte ENCODING_FIREWORK_1 = 9;
+	protected static final byte ENCODING_POTION_AURA_1 = 10;
 	
 	public static ProjectileEffect fromBits(BitInput input) throws UnknownEncodingException {
 		byte encoding = input.readByte();
@@ -32,6 +36,10 @@ public abstract class ProjectileEffect {
 		case ENCODING_RANDOM_ACCELLERATION_1: return RandomAccelleration.load1(input);
 		case ENCODING_SUB_PROJECTILE_1: return SubProjectiles.load1(input);
 		case ENCODING_COMMAND_1: return ExecuteCommand.load1(input);
+		case ENCODING_PUSH_PULL_1: return PushOrPull.load1(input);
+		case ENCODING_PLAY_SOUND_1: return PlaySound.load1(input);
+		case ENCODING_FIREWORK_1: return ShowFirework.load1(input);
+		case ENCODING_POTION_AURA_1: return PotionAura.load1(input);
 		default: throw new UnknownEncodingException("ProjectileEffect", encoding);
 		}
 	}
