@@ -224,7 +224,11 @@ class FlyingProjectile {
 
 				for (Entity entity : world.getNearbyEntities(currentPosition.toLocation(world), r, r, r)) {
 					Vector direction = entity.getLocation().toVector().subtract(currentPosition).normalize();
-					entity.setVelocity(entity.getVelocity().add(direction.multiply(pushOrPull.strength)));
+
+					// Avoid division by zero when the entity is very close to the projectile
+					if (direction.lengthSquared() > 0.01) {
+						entity.setVelocity(entity.getVelocity().add(direction.multiply(pushOrPull.strength)));
+					}
 				}
 			} else if (effect instanceof PlaySound) {
 				PlaySound playSound = (PlaySound) effect;
