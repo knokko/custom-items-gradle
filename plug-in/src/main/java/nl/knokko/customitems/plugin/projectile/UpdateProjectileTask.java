@@ -2,8 +2,11 @@ package nl.knokko.customitems.plugin.projectile;
 
 import org.bukkit.World;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import nl.knokko.core.plugin.entity.EntityDamageHelper;
@@ -69,11 +72,25 @@ public class UpdateProjectileTask implements Runnable {
 						projectile.currentVelocity.getX(), projectile.currentVelocity.getY(), 
 						projectile.currentVelocity.getZ());
 			}
+
+			if (ray.getHitEntity() != null && projectile.currentVelocity.lengthSquared() > 0.0001) {
+				Vector direction = projectile.currentVelocity.normalize();
+				ray.getHitEntity().setVelocity(ray.getHitEntity().getVelocity().add(direction.multiply(projectile.prototype.impactKnockback)));
+			}
+
+			if (ray.getHitEntity() instanceof LivingEntity) {
+				LivingEntity living = (LivingEntity) ray.getHitEntity();
+				projectile.prototype.impactPotionEffects.forEach(
+						effect -> living.addPotionEffect(new PotionEffect(
+							PotionEffectType.getByName(effect.getEffect().name()),
+							effect.getDuration(),
+							effect.getLevel() - 1
+						))
+				);
+			}
 			
 			projectile.destroy();
 		}
-		
-		
 	}
 	
 	void fixItemMotion() {

@@ -226,7 +226,7 @@ class FlyingProjectile {
 					Vector direction = entity.getLocation().toVector().subtract(currentPosition).normalize();
 
 					// Avoid division by zero when the entity is very close to the projectile
-					if (direction.lengthSquared() > 0.01) {
+					if (direction.lengthSquared() > 0.0001) {
 						entity.setVelocity(entity.getVelocity().add(direction.multiply(pushOrPull.strength)));
 					}
 				}
