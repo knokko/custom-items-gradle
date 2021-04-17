@@ -7516,15 +7516,21 @@ public class ItemSet implements ItemSetBase {
 	 * it won't be changed and a human-readable error message will be returned.
 	 * @return null if the projectile changed successfully, or the reason it couldn't be changed
 	 */
-	public String changeProjectile(CIProjectile original, String newName, float newDamage,
+	public String changeProjectile(
+			CIProjectile original, String newName, float newDamage,
 			float newMinLaunchAngle, float newMaxLaunchAngle, 
-			float newMinLaunchSpeed, float newMaxLaunchSpeed, float newGravity, int newMaxLifeTime, 
+			float newMinLaunchSpeed, float newMaxLaunchSpeed, float newGravity,
+			float newLaunchKnockback, float newImpactKnockback,
+			Collection<PotionEffect> newImpactPotionEffects, int newMaxLifeTime,
 			Collection<ProjectileEffects> newFlightEffects, Collection<ProjectileEffect> newImpactEffects,
 			ProjectileCover newCover) {
 		if (!bypassChecks()) {
-			String error = validateProjectile(new CIProjectile(newName, newDamage, 
-					newMinLaunchAngle, newMaxLaunchAngle, newMinLaunchSpeed, newMaxLaunchSpeed, newGravity, newMaxLifeTime,
-					newFlightEffects, newImpactEffects, newCover));
+			String error = validateProjectile(new CIProjectile(
+					newName, newDamage,
+					newMinLaunchAngle, newMaxLaunchAngle, newMinLaunchSpeed, newMaxLaunchSpeed, newGravity,
+					newLaunchKnockback, newImpactKnockback, newImpactPotionEffects,
+					newMaxLifeTime, newFlightEffects, newImpactEffects, newCover
+			));
 			if (error != null)
 				return error;
 			if (!projectiles.contains(original))
@@ -7540,6 +7546,9 @@ public class ItemSet implements ItemSetBase {
 		original.minLaunchSpeed = newMinLaunchSpeed;
 		original.maxLaunchSpeed = newMaxLaunchSpeed;
 		original.gravity = newGravity;
+		original.launchKnockback = newLaunchKnockback;
+		original.impactKnockback = newImpactKnockback;
+		original.impactPotionEffects = newImpactPotionEffects;
 		original.maxLifeTime = newMaxLifeTime;
 		original.inFlightEffects = newFlightEffects;
 		original.impactEffects = newImpactEffects;

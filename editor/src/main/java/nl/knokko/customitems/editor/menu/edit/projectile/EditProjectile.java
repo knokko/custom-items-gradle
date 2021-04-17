@@ -7,10 +7,13 @@ import java.util.Collection;
 
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
+import nl.knokko.customitems.editor.menu.edit.EditProps;
+import nl.knokko.customitems.editor.menu.edit.item.EffectsCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.projectile.effect.ProjectileEffectCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.projectile.effect.ProjectileEffectsCollectionEdit;
 import nl.knokko.customitems.editor.set.projectile.cover.EditorProjectileCover;
 import nl.knokko.customitems.editor.util.HelpButtons;
+import nl.knokko.customitems.effect.PotionEffect;
 import nl.knokko.customitems.projectile.CIProjectile;
 import nl.knokko.customitems.projectile.effects.ProjectileEffect;
 import nl.knokko.customitems.projectile.effects.ProjectileEffects;
@@ -67,17 +70,20 @@ public class EditProjectile extends GuiMenu {
 		// The edit fields
 		TextEditField nameField;
 		FloatEditField damageField, minLaunchAngleField, maxLaunchAngleField, 
-			minLaunchSpeedField, maxLaunchSpeedField, gravityField;
+			minLaunchSpeedField, maxLaunchSpeedField, gravityField,
+				launchKnockbackField, impactKnockbackField;
 		IntEditField lifetimeField;
 		
 		// The initial values of the edit fields
 		Collection<ProjectileEffect> impactEffects;
 		Collection<ProjectileEffects> inFlightEffects;
+		Collection<PotionEffect> impactPotionEffects;
 		{
 			String name;
 			float damage;
 			float minLaunchAngle, maxLaunchAngle;
 			float minLaunchSpeed, maxLaunchSpeed;
+			float launchKnockback, impactKnockback;
 			float gravity;
 			int maxLifeTime;
 			
@@ -90,6 +96,9 @@ public class EditProjectile extends GuiMenu {
 				minLaunchSpeed = 1.1f;
 				maxLaunchSpeed = 1.3f;
 				gravity = 0.02f;
+				launchKnockback = 0f;
+				impactKnockback = 0f;
+				impactPotionEffects = new ArrayList<>(0);
 				maxLifeTime = 200;
 				impactEffects = new ArrayList<>(1);
 				inFlightEffects = new ArrayList<>(0);
@@ -101,6 +110,9 @@ public class EditProjectile extends GuiMenu {
 				minLaunchSpeed = oldValues.minLaunchSpeed;
 				maxLaunchSpeed = oldValues.maxLaunchSpeed;
 				gravity = oldValues.gravity;
+				launchKnockback = oldValues.launchKnockback;
+				impactKnockback = oldValues.impactKnockback;
+				impactPotionEffects = new ArrayList<>(oldValues.impactPotionEffects);
 				maxLifeTime = oldValues.maxLifeTime;
 				impactEffects = new ArrayList<>(oldValues.impactEffects);
 				inFlightEffects = new ArrayList<>(oldValues.inFlightEffects);
@@ -113,6 +125,8 @@ public class EditProjectile extends GuiMenu {
 			maxLaunchAngleField = new FloatEditField(maxLaunchAngle, 0f, EDIT_BASE, EDIT_ACTIVE);
 			minLaunchSpeedField = new FloatEditField(minLaunchSpeed, 0f, EDIT_BASE, EDIT_ACTIVE);
 			maxLaunchSpeedField = new FloatEditField(maxLaunchSpeed, 0f, EDIT_BASE, EDIT_ACTIVE);
+			launchKnockbackField = new FloatEditField(launchKnockback, -100f, 100f, EDIT_BASE, EDIT_ACTIVE);
+			impactKnockbackField = new FloatEditField(impactKnockback, -100f, 100f, EDIT_BASE, EDIT_ACTIVE);
 			gravityField = new FloatEditField(gravity, -Float.MAX_VALUE, EDIT_BASE, EDIT_ACTIVE);
 			lifetimeField = new IntEditField(maxLifeTime, 1, EDIT_BASE, EDIT_ACTIVE);
 		}
@@ -151,7 +165,23 @@ public class EditProjectile extends GuiMenu {
 				}, (EditorProjectileCover coverToName) -> {
 					return coverToName.name;
 		}, cover), BUTTON_X2, 0.64f, BUTTON_X2 + 0.09f, 0.71f);
-		
+
+		// Third column of the form
+		addComponent(new DynamicTextComponent("Launch knockback:", LABEL),
+				LABEL_X2 - 0.25f, 0.5f, LABEL_X2, 0.57f);
+		addComponent(launchKnockbackField, BUTTON_X2, 0.5f, BUTTON_X2 + 0.1f, 0.57f);
+		addComponent(new DynamicTextComponent("Impact knockback:", LABEL),
+				LABEL_X2 - 0.25f, 0.42f, LABEL_X2, 0.49f);
+		addComponent(impactKnockbackField, BUTTON_X2, 0.42f, BUTTON_X2 + 0.1f, 0.49f);
+		addComponent(new DynamicTextComponent("Impact potion effects:", LABEL),
+				LABEL_X2 - 0.3f, 0.33f, LABEL_X2, 0.41f);
+		addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new EffectsCollectionEdit(impactPotionEffects, newEffects -> {
+				impactPotionEffects.clear();
+				impactPotionEffects.addAll(newEffects);
+			}, this));
+		}), BUTTON_X2, 0.33f, BUTTON_X2 + 0.09f, 0.41f);
+
 		// The Create/Apply button
 		addComponent(new DynamicTextButton(toModify == null ? "Create" : "Apply", SAVE_BASE, SAVE_HOVER, () -> {
 			
@@ -162,6 +192,8 @@ public class EditProjectile extends GuiMenu {
 			Option.Float minLaunchSpeed = minLaunchSpeedField.getFloat();
 			Option.Float maxLaunchSpeed = maxLaunchSpeedField.getFloat();
 			Option.Float gravity = gravityField.getFloat();
+			Option.Float launchKnockback = launchKnockbackField.getFloat();
+			Option.Float impactKnockback = impactKnockbackField.getFloat();
 			Option.Int lifetime = lifetimeField.getInt();
 			
 			String error = null;
@@ -172,19 +204,25 @@ public class EditProjectile extends GuiMenu {
 			if (!minLaunchSpeed.hasValue()) error = "The minimum launch speed must be a positive number";
 			if (!maxLaunchSpeed.hasValue()) error = "The maximum launch speed must be a positive number";
 			if (!gravity.hasValue()) error = "The gravity must be a number";
+			if (!launchKnockback.hasValue()) error = "The launch knockback must be a number";
+			if (!impactKnockback.hasValue()) error = "The impact knockback must be a number";
 			if (!lifetime.hasValue()) error = "The lifetime must be a positive integer";
 			
 			if (error == null) {
 				if (toModify == null) {
 					error = menu.getSet().addProjectile(new CIProjectile(name, damage.getValue(), 
 							minLaunchAngle.getValue(), maxLaunchAngle.getValue(), minLaunchSpeed.getValue(), 
-							maxLaunchSpeed.getValue(), gravity.getValue(), lifetime.getValue(), 
-							inFlightEffects, impactEffects, cover));
+							maxLaunchSpeed.getValue(), gravity.getValue(),
+							launchKnockback.getValue(), impactKnockback.getValue(), impactPotionEffects,
+							lifetime.getValue(), inFlightEffects, impactEffects, cover
+					));
 				} else {
 					error = menu.getSet().changeProjectile(toModify, name, damage.getValue(), 
 							minLaunchAngle.getValue(), maxLaunchAngle.getValue(), minLaunchSpeed.getValue(), 
-							maxLaunchSpeed.getValue(), gravity.getValue(), lifetime.getValue(), 
-							inFlightEffects, impactEffects, cover);
+							maxLaunchSpeed.getValue(), gravity.getValue(),
+							launchKnockback.getValue(), impactKnockback.getValue(), impactPotionEffects,
+							lifetime.getValue(), inFlightEffects, impactEffects, cover
+					);
 				}
 				
 				if (error == null) {
