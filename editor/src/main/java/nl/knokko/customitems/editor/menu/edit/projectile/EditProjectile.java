@@ -235,7 +235,6 @@ public class EditProjectile extends GuiMenu {
 			}
 		}), 0.025f, 0.1f, 0.2f, 0.2f);
 
-		// TODO Update the page behind this link
 		HelpButtons.addHelpLink(this, "edit%20menu/projectiles/edit.html");
 	}
 	
