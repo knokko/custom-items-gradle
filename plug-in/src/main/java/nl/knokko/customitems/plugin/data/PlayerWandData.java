@@ -96,6 +96,14 @@ class PlayerWandData {
 	public boolean isOnCooldown(long currentTick) {
 		return cooldownExpireTick > currentTick;
 	}
+
+	public long getRemainingCooldown(long currentTick) {
+		if (isOnCooldown(currentTick)) {
+			return cooldownExpireTick - currentTick;
+		} else {
+			return 0;
+		}
+	}
 	
 	private void updateCharges(CustomWand wand, long currentTick) {
 		if (isMissingChargesDirect(wand)) {
@@ -103,6 +111,15 @@ class PlayerWandData {
 				currentCharges++;
 				chargeRestoreTick += wand.charges.rechargeTime;
 			}
+		}
+	}
+
+	public long getTimeUntilNextRecharge(CustomWand wand, long currentTick) {
+		updateCharges(wand, currentTick);
+		if (isMissingChargesDirect(wand)) {
+			return chargeRestoreTick - currentTick;
+		} else {
+			return 0;
 		}
 	}
 	
@@ -114,7 +131,16 @@ class PlayerWandData {
 		updateCharges(wand, currentTick);
 		return isMissingChargesDirect(wand);
 	}
-	
+
+	public int getCurrentCharges(CustomWand wand, long currentTick) {
+		updateCharges(wand, currentTick);
+		if (wand.charges != null) {
+			return currentCharges;
+		} else {
+			return 1;
+		}
+	}
+
 	public boolean canShootNow(CustomWand wand, long currentTick) {
 		updateCharges(wand, currentTick);
 		return !isOnCooldown(currentTick) && (wand.charges == null || currentCharges > 0);

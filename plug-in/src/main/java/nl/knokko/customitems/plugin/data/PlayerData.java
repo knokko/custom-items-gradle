@@ -48,7 +48,7 @@ class PlayerData {
 	 * If an entry for a given wand is missing, it indicates that the wand is currently not on
 	 * cooldown and has all charges available (if the wand uses charges).
 	 */
-	private final Map<CustomWand,PlayerWandData> wandsData;
+	final Map<CustomWand,PlayerWandData> wandsData;
 	
 	// TODO Also handle guns
 	

@@ -322,6 +322,22 @@ public class PluginData {
 		}
 	}
 
+	public PlayerWandInfo getWandInfo(Player player, CustomWand wand) {
+		PlayerData targetPlayerData = playerData.get(player.getUniqueId());
+		if (targetPlayerData != null) {
+		    PlayerWandData wandData = targetPlayerData.wandsData.get(wand);
+		    if (wandData != null) {
+		    	return new PlayerWandInfo(
+		    			wandData.getRemainingCooldown(currentTick),
+						wandData.getCurrentCharges(wand, currentTick),
+						wandData.getTimeUntilNextRecharge(wand, currentTick)
+				);
+			}
+		}
+
+		return null;
+	}
+
 	public void onPlayerQuit(Player player) {
 		PlayerData pd = playerData.get(player.getUniqueId());
 		if (pd != null) {
