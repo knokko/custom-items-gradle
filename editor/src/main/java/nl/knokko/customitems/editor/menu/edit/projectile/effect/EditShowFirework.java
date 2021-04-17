@@ -51,7 +51,7 @@ public class EditShowFirework extends EditProjectileEffect {
             }
         }
 
-        addComponent(new EditEffects(effects), 0.45f, 0f, 1f, 0.9f);
+        addComponent(new EditEffects(effects), 0.35f, 0f, 1f, 0.9f);
 
         addComponent(new DynamicTextButton(toModify == null ? "Create" : "Apply", SAVE_BASE, SAVE_HOVER, () -> {
 
