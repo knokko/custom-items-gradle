@@ -454,8 +454,6 @@ public class PluginData {
 		if (weapon instanceof CustomWand) {
 			CustomWand wand = (CustomWand) weapon;
 			
-			player.getWorld().playSound(player.getLocation(), Sound.ENTITY_BLAZE_SHOOT, 1f, 1f);
-			
 			for (int counter = 0; counter < wand.amountPerShot; counter++)
 				CustomItemsPlugin.getInstance().getProjectileManager().fireProjectile(player, wand.projectile);
 		}
