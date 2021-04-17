@@ -40,13 +40,6 @@ public class EditShowFirework extends EditProjectileEffect {
     protected void addComponents() {
         super.addComponents();
 
-        IntEditField powerField = new IntEditField(
-                oldValues == null ? 1 : oldValues.power, 1,
-                EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE
-        );
-        addComponent(new DynamicTextComponent("Power:", EditProps.LABEL), 0.2f, 0.7f, 0.3f, 0.8f);
-        addComponent(powerField, 0.325f, 0.7f, 0.4f, 0.8f);
-
         List<MutableEffect> effects;
         if (oldValues == null) {
             effects = new ArrayList<>(1);
@@ -62,28 +55,17 @@ public class EditShowFirework extends EditProjectileEffect {
 
         addComponent(new DynamicTextButton(toModify == null ? "Create" : "Apply", SAVE_BASE, SAVE_HOVER, () -> {
 
-            Option.Int power = powerField.getInt();
-
-            String error = null;
-            if (!power.hasValue()) error = "The power must be a positive integer";
-
+            ShowFirework dummy = new ShowFirework(
+                    effects.stream().map(MutableEffect::build).collect(Collectors.toList())
+            );
+            String error = dummy.validate();
             if (error == null) {
-                ShowFirework dummy = new ShowFirework(
-                        power.getValue(),
-                        effects.stream().map(MutableEffect::build).collect(Collectors.toList())
-                );
-                error = dummy.validate();
-                if (error == null) {
-                    if (toModify == null) {
-                        backingCollection.add(dummy);
-                    } else {
-                        toModify.power = dummy.power;
-                        toModify.effects = dummy.effects;
-                    }
-                    state.getWindow().setMainComponent(returnMenu);
+                if (toModify == null) {
+                    backingCollection.add(dummy);
                 } else {
-                    errorComponent.setText(error);
+                    toModify.effects = dummy.effects;
                 }
+                state.getWindow().setMainComponent(returnMenu);
             } else {
                 errorComponent.setText(error);
             }

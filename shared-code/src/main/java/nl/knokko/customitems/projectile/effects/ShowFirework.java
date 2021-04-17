@@ -10,30 +10,24 @@ import java.util.List;
 public class ShowFirework extends ProjectileEffect {
 
     public static ShowFirework load1(BitInput input) {
-        int power = input.readInt();
-
         int numEffects = input.readInt();
         List<Effect> effects = new ArrayList<>(numEffects);
         for (int counter = 0; counter < numEffects; counter++) {
             effects.add(Effect.load1(input));
         }
 
-        return new ShowFirework(power, effects);
+        return new ShowFirework(effects);
     }
-
-    public int power;
 
     public List<Effect> effects;
 
-    public ShowFirework(int power, List<Effect> effects) {
-        this.power = power;
+    public ShowFirework(List<Effect> effects) {
         this.effects = effects;
     }
 
     @Override
     public void toBits(BitOutput output) {
         output.addByte(ENCODING_FIREWORK_1);
-        output.addInt(power);
         output.addInt(effects.size());
         for (Effect effect : effects) {
             effect.save1(output);
@@ -42,7 +36,6 @@ public class ShowFirework extends ProjectileEffect {
 
     @Override
     public String validate() {
-        if (power < 1) return "The power must be at least 1";
         if (effects.isEmpty()) return "You need to select at least 1 effect";
 
         for (Effect effect : effects) {
@@ -62,7 +55,7 @@ public class ShowFirework extends ProjectileEffect {
         }
 
         String typesString = typesStringBuilder.substring(0, typesStringBuilder.length() - 2);
-        return typesString + " (" + power + ")";
+        return typesString;
     }
 
     public static class Effect {

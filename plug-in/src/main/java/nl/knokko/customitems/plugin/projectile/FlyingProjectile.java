@@ -242,7 +242,6 @@ class FlyingProjectile {
 				world.spawn(currentPosition.toLocation(world), Firework.class, firework -> {
 
 					FireworkMeta meta = firework.getFireworkMeta();
-					meta.setPower(showFirework.power);
 					for (ShowFirework.Effect fireworkEffect : showFirework.effects) {
 
 						Color[] colors = new Color[fireworkEffect.colors.size()];
