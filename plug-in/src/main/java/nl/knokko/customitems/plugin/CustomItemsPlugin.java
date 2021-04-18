@@ -30,7 +30,6 @@ import java.util.logging.Level;
 
 import nl.knokko.core.plugin.item.SmithingBlocker;
 import nl.knokko.customitems.plugin.command.CustomItemsTabCompletions;
-import nl.knokko.customitems.plugin.projectile.WandCooldownIndicator;
 import nl.knokko.customitems.util.StringEncoder;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -68,6 +67,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 	
 	public void reload() {
 		loadConfig();
+		languageFile = new LanguageFile(new File(getDataFolder() + "/lang.yml"));
 		loadSet();
 		
 		// Inform the item updater about the new items
@@ -103,7 +103,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 		
 		itemUpdater.start();
 		CrazyEnchantmentsSupport.onEnable();
-		WandCooldownIndicator.init();
+		PluginIndicators.init();
 	}
 
 	@Override

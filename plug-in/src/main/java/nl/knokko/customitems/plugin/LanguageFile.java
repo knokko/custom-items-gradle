@@ -34,6 +34,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 public class LanguageFile {
 	
 	private static final String DEFAULT_DURABILITY_PREFIX = "Durability";
+	private static final String DEFAULT_WAND_COOLDOWN_INDICATOR = ChatColor.AQUA + "Cooldown in %REMAINING_TIME%";
+	private static final String DEFAULT_WAND_CHARGES_INDICATOR = ChatColor.YELLOW + "%CURRENT_CHARGES% / %MAX_CHARGES% charges";
+	private static final String DEFAULT_WAND_RECHARGE_INDICATOR = ChatColor.GREEN + "Recharge in %REMAINING_TIME%";
 	
 	private static final String DEFAULT_COMMAND_GIVE_USEAGE = ChatColor.YELLOW + "Use /kci give <item name> [player name] [amount]";
 	private static final String DEFAULT_COMMAND_NO_ACCESS = ChatColor.DARK_RED + "Only operators can use this command.";
@@ -47,6 +50,9 @@ public class LanguageFile {
 	private static final String DEFAULT_COMMAND_DAMAGE_NO_PLAYER = "Only players can view the damage of the item in their main hand";
 	
 	private static final String KEY_DURABILITY_PREFIX = "durability-prefix";
+	private static final String KEY_WAND_COOLDOWN_INDICATOR = "wand-cooldown-indicator";
+	private static final String KEY_WAND_CHARGES_INDICATOR = "wand-charges-indicator";
+	private static final String KEY_WAND_RECHARGE_INDICATOR = "wand-recharge-indicator";
 	
 	private static final String KEY_COMMAND_GIVE_USEAGE = "command-useage";
 	private static final String KEY_COMMAND_NO_ACCESS = "command-no-access";
@@ -60,6 +66,9 @@ public class LanguageFile {
 	private static final String KEY_COMMAND_DAMAGE_NO_PLAYER = "command-damage-no-player";
 	
 	private String durabilityPrefix;
+	private String wandCooldownIndicator;
+	private String wandChargesIndicator;
+	private String wandRechargeIndicator;
 	
 	private String commandGiveUseage;
 	private String commandNoAccess;
@@ -73,24 +82,36 @@ public class LanguageFile {
 	private String commandDamageNoPlayer;
 
 	public LanguageFile(File file) {
+		setDefaults();
 		if (file.exists()) {
 			YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
 			load(config);
-		} else {
-			setDefaults();
-			YamlConfiguration config = new YamlConfiguration();
-			save(config);
-			try {
-				file.getParentFile().mkdirs();
-				config.save(file);
-			} catch (IOException e) {
-				Bukkit.getLogger().log(Level.WARNING, "Failed to save custom item config", e);
-			}
+		}
+
+		YamlConfiguration config = new YamlConfiguration();
+		save(config);
+		try {
+			file.getParentFile().mkdirs();
+			config.save(file);
+		} catch (IOException e) {
+			Bukkit.getLogger().log(Level.WARNING, "Failed to save custom item config", e);
 		}
 	}
 	
 	public String getDurabilityPrefix() {
 		return durabilityPrefix;
+	}
+
+	public String getWandCooldownIndicator() {
+		return wandCooldownIndicator;
+	}
+
+	public String getWandChargesIndicator() {
+		return wandChargesIndicator;
+	}
+
+	public String getWandRechargeIndicator() {
+		return wandRechargeIndicator;
 	}
 	
 	public String getCommandGiveUseage() {
@@ -131,6 +152,9 @@ public class LanguageFile {
 	
 	public void load(YamlConfiguration config) {
 		durabilityPrefix = config.getString(KEY_DURABILITY_PREFIX, DEFAULT_DURABILITY_PREFIX);
+		wandCooldownIndicator = config.getString(KEY_WAND_COOLDOWN_INDICATOR, DEFAULT_WAND_COOLDOWN_INDICATOR);
+		wandChargesIndicator = config.getString(KEY_WAND_CHARGES_INDICATOR, DEFAULT_WAND_CHARGES_INDICATOR);
+		wandRechargeIndicator = config.getString(KEY_WAND_RECHARGE_INDICATOR, DEFAULT_WAND_RECHARGE_INDICATOR);
 		commandGiveUseage = config.getString(KEY_COMMAND_GIVE_USEAGE, DEFAULT_COMMAND_GIVE_USEAGE);
 		commandNoAccess = config.getString(KEY_COMMAND_NO_ACCESS, DEFAULT_COMMAND_NO_ACCESS);
 		commandNoPlayerSpecified = config.getString(KEY_COMMAND_NO_PLAYER_SPECIFIED, DEFAULT_COMMAND_NO_PLAYER_SPECIFIED);
@@ -144,6 +168,9 @@ public class LanguageFile {
 	
 	public void setDefaults() {
 		durabilityPrefix = DEFAULT_DURABILITY_PREFIX;
+		wandCooldownIndicator = DEFAULT_WAND_COOLDOWN_INDICATOR;
+		wandChargesIndicator = DEFAULT_WAND_CHARGES_INDICATOR;
+		wandRechargeIndicator = DEFAULT_WAND_RECHARGE_INDICATOR;
 		commandGiveUseage = DEFAULT_COMMAND_GIVE_USEAGE;
 		commandNoAccess = DEFAULT_COMMAND_NO_ACCESS;
 		commandNoPlayerSpecified = DEFAULT_COMMAND_NO_PLAYER_SPECIFIED;
@@ -157,6 +184,9 @@ public class LanguageFile {
 	
 	public void save(YamlConfiguration config) {
 		config.set(KEY_DURABILITY_PREFIX, durabilityPrefix);
+		config.set(KEY_WAND_COOLDOWN_INDICATOR, wandCooldownIndicator);
+		config.set(KEY_WAND_CHARGES_INDICATOR, wandChargesIndicator);
+		config.set(KEY_WAND_RECHARGE_INDICATOR, wandRechargeIndicator);
 		config.set(KEY_COMMAND_GIVE_USEAGE, commandGiveUseage);
 		config.set(KEY_COMMAND_NO_ACCESS, commandNoAccess);
 		config.set(KEY_COMMAND_NO_PLAYER_SPECIFIED, commandNoPlayerSpecified);
