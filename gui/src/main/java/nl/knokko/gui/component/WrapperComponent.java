@@ -40,6 +40,8 @@ implements TextShowingComponent, ImageShowingComponent, CheckableComponent, Edit
     
     protected C component;
     protected GuiColor background;
+
+    private boolean wasActive;
     
     public WrapperComponent(C component){
         this.component = component;
@@ -83,6 +85,13 @@ implements TextShowingComponent, ImageShowingComponent, CheckableComponent, Edit
     public void update() {
         if(component != null && isActive())
             component.update();
+
+        boolean isActive = isActive();
+        if (isActive != wasActive) {
+            state.getWindow().markChange();
+        }
+
+        wasActive = isActive;
     }
 
     @Override
