@@ -119,6 +119,9 @@ import nl.knokko.customitems.item.ReplaceCondition.ConditionOperation;
 import nl.knokko.customitems.item.ReplaceCondition.ReplacementCondition;
 import nl.knokko.customitems.item.ReplaceCondition.ReplacementOperation;
 import nl.knokko.customitems.item.WandCharges;
+import nl.knokko.customitems.item.gun.DirectGunAmmo;
+import nl.knokko.customitems.item.gun.GunAmmo;
+import nl.knokko.customitems.item.gun.IndirectGunAmmo;
 import nl.knokko.customitems.item.nbt.ExtraItemNbt;
 import nl.knokko.customitems.projectile.CIProjectile;
 import nl.knokko.customitems.projectile.ProjectileCover;
@@ -207,6 +210,7 @@ public class ItemSet implements ItemSetBase {
 			case ItemEncoding.ENCODING_HELMET3D_9: return loadHelmet3d9(input, checkCustomModel);
 			case ItemEncoding.ENCODING_POCKET_CONTAINER_9: return loadPocketContainer9(input, checkCustomModel);
 			case ItemEncoding.ENCODING_CROSSBOW_9: return loadCrossbow9(input, checkCustomModel);
+			case ItemEncoding.ENCODING_GUN_9: return loadGun9(input, checkCustomModel);
 			default : throw new UnknownEncodingException("Item", encoding);
 		}
 	}
@@ -2504,6 +2508,78 @@ public class ItemSet implements ItemSetBase {
 				arrowDurabilityLoss, fireworkDurabilityLoss, arrowDamageMultiplier,
 				fireworkDamageMultiplier, arrowSpeedMultiplier, fireworkSpeedMultiplier,
 				arrowKnockbackStrength, arrowGravity
+		);
+	}
+
+	private CustomItem loadGun9(
+			BitInput input, boolean checkCustomModel
+	) throws UnknownEncodingException {
+		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
+		input.readShort();
+		String name = input.readJavaString();
+		String alias = input.readString();
+		String displayName = input.readJavaString();
+		String[] lore = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < lore.length; index++) {
+			lore[index] = input.readJavaString();
+		}
+		AttributeModifier[] attributes = new AttributeModifier[input.readByte() & 0xFF];
+		for (int index = 0; index < attributes.length; index++)
+			attributes[index] = loadAttribute2(input);
+		Enchantment[] defaultEnchantments = new Enchantment[input.readByte() & 0xFF];
+		for (int index = 0; index < defaultEnchantments.length; index++)
+			defaultEnchantments[index] = new Enchantment(EnchantmentType.valueOf(input.readString()), input.readInt());
+
+		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
+		boolean[] itemFlags = input.readBooleans(6);
+
+		List<PotionEffect> playerEffects = new ArrayList<PotionEffect>();
+		int peLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < peLength; index++) {
+			playerEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		List<PotionEffect> targetEffects = new ArrayList<PotionEffect>();
+		int teLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < teLength; index++) {
+			targetEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		Collection<EquippedPotionEffect> equippedEffects = CustomItem.readEquippedEffects(input);
+		String[] commands = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < commands.length; index++) {
+			commands[index] = input.readJavaString();
+		}
+
+		ReplaceCondition[] conditions = new ReplaceCondition[input.readByte() & 0xFF];
+		for (int index = 0; index < conditions.length; index++) {
+			conditions[index] = loadReplaceCondition(input);
+		}
+		ConditionOperation op = ConditionOperation.valueOf(input.readJavaString());
+		ExtraItemNbt extraNbt = ExtraItemNbt.load(input);
+		float attackRange = input.readFloat();
+
+		String projectileName = input.readString();
+		CIProjectile projectile = getProjectileByName(projectileName);
+		GunAmmo ammo = GunAmmo.load(input, () -> Ingredient.loadIngredient(input, this));
+		int amountPerShot = input.readInt();
+
+		String imageName = input.readJavaString();
+		NamedImage texture = null;
+		for (NamedImage current : textures) {
+			if (current.getName().equals(imageName)) {
+				texture = current;
+				break;
+			}
+		}
+		if (texture == null)
+			throw new IllegalArgumentException("Can't find texture " + imageName);
+		byte[] customModel = loadCustomModel(input, checkCustomModel);
+
+		return new CustomGun(
+				itemType, name, alias, displayName, lore, attributes,
+				defaultEnchantments, texture, itemFlags, customModel,
+				playerEffects, targetEffects, equippedEffects,
+				commands, conditions, op, extraNbt, attackRange,
+				projectile, ammo, amountPerShot
 		);
 	}
 
@@ -4963,12 +5039,13 @@ public class ItemSet implements ItemSetBase {
 
 		// Tools can have non-tools as repair item, so the non-tools must be exported first.
 		// This way, that all repair items are available once the tools are being loaded.
+		// Guns can have simple custom items as ammo, so must be saved later for similar reasons
 		for (CustomItem noTool : items)
-			if (!(noTool instanceof CustomTool))
+			if (!(noTool instanceof CustomTool || noTool instanceof CustomGun))
 				noTool.export(output);
 
 		for (CustomItem tool : items)
-			if (tool instanceof CustomTool)
+			if (tool instanceof CustomTool || tool instanceof CustomGun)
 				tool.export(output);
 
 		// Recipes
@@ -5407,15 +5484,15 @@ public class ItemSet implements ItemSetBase {
 		output.addInt(items.size());
 
 		// Save the normal items before the tools so that tools can use normal items as
-		// repair item
+		// repair item. For the same reason, normal items should be saved before the guns
 		List<CustomItem> sorted = new ArrayList<CustomItem>(items.size());
 		for (CustomItem item : items) {
-			if (!(item instanceof CustomTool)) {
+			if (!(item instanceof CustomTool || item instanceof CustomGun)) {
 				sorted.add(item);
 			}
 		}
 		for (CustomItem item : items) {
-			if (item instanceof CustomTool) {
+			if (item instanceof CustomTool || item instanceof CustomGun) {
 				sorted.add(item);
 			}
 		}
@@ -6308,6 +6385,22 @@ public class ItemSet implements ItemSetBase {
 		return addItem(wand);
 	}
 
+	public String addGun(CustomGun toAdd) {
+		if (!bypassChecks()) {
+			if (toAdd == null) return "Can't add null guns";
+			if (toAdd.projectile == null) return "You need to select a projectile";
+			if (!projectiles.contains(toAdd.projectile))
+				return "The selected projectile is not in the list of projectiles";
+			String ammoError = toAdd.ammo.validate(
+					scIngredient -> !(scIngredient instanceof CustomItemIngredient) || ((CustomItemIngredient) scIngredient).getItem() instanceof SimpleCustomItem
+			);
+			if (ammoError != null) return ammoError;
+			if (toAdd.amountPerShot <= 0) return "The amount per shot must be a positive integer";
+		}
+
+		return addItem(toAdd);
+	}
+
 	public String addPocketContainer(CustomPocketContainer toAdd) {
 		if (!bypassChecks()) {
 			if (toAdd == null)
@@ -6364,6 +6457,45 @@ public class ItemSet implements ItemSetBase {
 			original.charges = newCharges;
 			original.amountPerShot = newAmountPerShot;
 		}
+		return error;
+	}
+
+	public String changeGun(
+			CustomGun original, CustomItemType newType, String newAlias,
+			String newDisplayName, String[] newLore,
+			AttributeModifier[] newAttributes, Enchantment[] newEnchantments,
+			NamedImage newImage, boolean[] itemFlags, byte[] newCustomModel,
+			List<PotionEffect> playerEffects, List<PotionEffect> targetEffects,
+			Collection<EquippedPotionEffect> newEquippedEffects, String[] commands,
+			ReplaceCondition[] conditions, ConditionOperation op,
+			ExtraItemNbt newExtraNbt, float newAttackRange,
+			CIProjectile newProjectile, GunAmmo newAmmo, int newAmountPerShot
+	) {
+		if (!bypassChecks()) {
+			if (original == null) return "Can't change null guns";
+			if (newProjectile == null) return "You need to select a projectile";
+			if (!projectiles.contains(newProjectile))
+				return "The selected projectile is not in the list of projectiles";
+
+			String ammoError = newAmmo.validate(
+					scIngredient -> !(scIngredient instanceof CustomItemIngredient) || ((CustomItemIngredient) scIngredient).getItem() instanceof SimpleCustomItem
+			);
+			if (ammoError != null) return ammoError;
+			if (newAmountPerShot <= 0) return "The amount per shot must be a positive integer";
+		}
+
+		String error = changeItem(
+				original, newType, newAlias, newDisplayName, newLore, newAttributes,
+				newEnchantments, newImage, itemFlags, newCustomModel, playerEffects,
+				targetEffects, newEquippedEffects, commands, conditions, op,
+				newExtraNbt, newAttackRange
+		);
+		if (error == null) {
+			original.projectile = newProjectile;
+			original.ammo = newAmmo;
+			original.amountPerShot = newAmountPerShot;
+		}
+
 		return error;
 	}
 
@@ -6986,6 +7118,30 @@ public class ItemSet implements ItemSetBase {
 					if (hasRemainingCustomItem(tool.getRepairItem(), item)) {
 						return "The tool " + tool.getName() + " has this item as remaining repair item";
 					}
+				} else if (current instanceof CustomGun) {
+					CustomGun gun = (CustomGun) current;
+					SCIngredient ammoItem;
+					if (gun.ammo instanceof DirectGunAmmo) {
+
+						DirectGunAmmo directAmmo = (DirectGunAmmo) gun.ammo;
+						ammoItem = directAmmo.ammoItem;
+
+					} else if (gun.ammo instanceof IndirectGunAmmo) {
+						IndirectGunAmmo indirectAmmo = (IndirectGunAmmo) gun.ammo;
+						ammoItem = indirectAmmo.reloadItem;
+					} else {
+						return "ProgrammingError: the gun " + gun.getName() + " has an unsupported ammo system";
+					}
+
+					if (ammoItem instanceof CustomItemIngredient) {
+						CustomItemIngredient customAmmo = (CustomItemIngredient) ammoItem;
+						if (customAmmo.getItem() == item) {
+							return "The gun " + gun.getName() + " uses this item as ammo";
+						}
+					}
+					if (hasRemainingCustomItem(ammoItem, item)) {
+						return "The gun " + gun.getName() + " has this item as remaining ammo item";
+					}
 				}
 			}
 			for (EntityDrop drop : mobDrops) {
@@ -7568,7 +7724,8 @@ public class ItemSet implements ItemSetBase {
 			for (CustomItem item : items) {
 				if (item instanceof CustomWand && ((CustomWand) item).projectile == toRemove)
 					return "The wand " + item.getName() + " is still using this projectile";
-				// TODO Also check for guns once they are added
+				if (item instanceof CustomGun && ((CustomGun) item).projectile == toRemove)
+					return "The gun " + item.getName() + " is still using this projectile";
 			}
 		}
 		if (!projectiles.remove(toRemove) && !bypassChecks())

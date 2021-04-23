@@ -66,7 +66,9 @@ public class CreateItem extends GuiMenu {
 			state.getWindow().setMainComponent(new EditItemWand(menu, null, null));
 		}), 0.25f, 0.65f, 0.45f, 0.75f);
 
-		// TODO Reserve this place for guns
+		addComponent(new DynamicTextButton("Gun", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
+			state.getWindow().setMainComponent(new EditItemGun(menu, null, null));
+		}), 0.25f, 0.525f, 0.45f, 0.625f);
 
 		addComponent(new DynamicTextButton("Pocket Container", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
 			state.getWindow().setMainComponent(new EditItemPocketContainer(menu, null, null));
@@ -115,7 +117,7 @@ public class CreateItem extends GuiMenu {
 			state.getWindow().setMainComponent(new EditItemShield(menu, null, null));
 		}), 0.75f, 0.025f, 0.95f, 0.125f);
 
-		// TODO Update help page after adding crossbows and guns
+		// TODO Update help page
 		HelpButtons.addHelpLink(this, "edit%20menu/items/select%20type.html");
 	}
 }

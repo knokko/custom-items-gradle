@@ -144,4 +144,9 @@ public class ItemEncoding {
 	 * The first encoding of crossbows
 	 */
 	public static final byte ENCODING_CROSSBOW_9 = 40;
+
+	/**
+	 * The first encoding of guns
+	 */
+	public static final byte ENCODING_GUN_9 = 41;
 }
