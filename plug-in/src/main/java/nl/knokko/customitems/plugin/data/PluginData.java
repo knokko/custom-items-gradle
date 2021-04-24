@@ -331,6 +331,13 @@ public class PluginData {
 							IndirectGunAmmo indirectAmmo = (IndirectGunAmmo) gun.ammo;
 							if (checkAmmo(player.getInventory(), (Ingredient) indirectAmmo.reloadItem, true)) {
 								player.getInventory().setItemInMainHand(gun.reload(currentItem));
+								if (indirectAmmo.finishReloadSound != null) {
+									player.playSound(
+											player.getLocation(),
+											Sound.valueOf(indirectAmmo.finishReloadSound.name()),
+											1f, 1f
+									);
+								}
 							}
 						} else {
 							throw new Error("Unsupported indirect ammo: " + gun.ammo.getClass());
@@ -357,6 +364,14 @@ public class PluginData {
 							IndirectGunAmmo indirectAmmo = (IndirectGunAmmo) gun.ammo;
 							if (checkAmmo(player.getInventory(), (Ingredient) indirectAmmo.reloadItem, true)) {
                                 player.getInventory().setItemInOffHand(gun.reload(currentItem));
+                                if (indirectAmmo.finishReloadSound != null) {
+									player.playSound(
+											player.getLocation(),
+											Sound.valueOf(indirectAmmo.finishReloadSound.name()),
+											1f, 1f
+									);
+								}
+
 							}
 						} else {
 							throw new Error("Unsupported indirect ammo: " + gun.ammo.getClass());
@@ -621,7 +636,7 @@ public class PluginData {
 					if (checkAmmo(player.getInventory(), (Ingredient) indirectAmmo.reloadItem, false)) {
 						if (indirectAmmo.startReloadSound != null) {
 							player.playSound(
-									player.getLocation(), indirectAmmo.startReloadSound.name(),
+									player.getLocation(), Sound.valueOf(indirectAmmo.startReloadSound.name()),
 									1f, 1f
 							);
 						}
