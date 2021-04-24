@@ -117,7 +117,7 @@ public class CreateItem extends GuiMenu {
 			state.getWindow().setMainComponent(new EditItemShield(menu, null, null));
 		}), 0.75f, 0.025f, 0.95f, 0.125f);
 
-		// TODO Update help page
+		// TODO Update help page after adding custom food/drinks
 		HelpButtons.addHelpLink(this, "edit%20menu/items/select%20type.html");
 	}
 }

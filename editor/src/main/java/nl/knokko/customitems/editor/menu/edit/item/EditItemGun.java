@@ -4,6 +4,7 @@ import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.set.item.CustomGun;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.AttributeModifier;
 import nl.knokko.customitems.item.CustomItemType;
 import nl.knokko.customitems.item.gun.DirectGunAmmo;
@@ -67,7 +68,7 @@ public class EditItemGun extends EditItemBase {
         addComponent(new DynamicTextComponent("Amount per shot:", EditProps.LABEL), 0.6f, 0.68f, 0.72f, 0.73f);
         addComponent(amountField, 0.73f, 0.68f, 0.78f, 0.73f);
 
-        // TODO Add help link
+        HelpButtons.addHelpLink(this, "edit%20menu/items/edit/gun.html");
     }
 
     @Override

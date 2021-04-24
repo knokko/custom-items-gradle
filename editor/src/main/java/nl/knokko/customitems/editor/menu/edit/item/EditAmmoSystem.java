@@ -4,6 +4,7 @@ import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.ChooseIngredient;
 import nl.knokko.customitems.editor.set.ItemSet;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.gun.DirectGunAmmo;
 import nl.knokko.customitems.item.gun.GunAmmo;
 import nl.knokko.customitems.item.gun.IndirectGunAmmo;
@@ -148,7 +149,8 @@ public class EditAmmoSystem extends GuiMenu {
         addComponent(new AmmoTypeWrapper<>(new IndirectAmmoProperties(), AmmoType.INDIRECT),
                 0.4f, 0f, 1f, 1f);
 
-        // TODO Create help page
+        // TODO Test this link after merging v9 docs into master
+        HelpButtons.addHelpLink(this, "edit%20menu/items/edit/gun%20ammo.html");
     }
 
     @Override
