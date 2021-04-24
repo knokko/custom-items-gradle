@@ -37,6 +37,9 @@ public class LanguageFile {
 	private static final String DEFAULT_WAND_COOLDOWN_INDICATOR = ChatColor.AQUA + "Cooldown in %REMAINING_TIME%";
 	private static final String DEFAULT_WAND_CHARGES_INDICATOR = ChatColor.YELLOW + "%CURRENT_CHARGES% / %MAX_CHARGES% charges";
 	private static final String DEFAULT_WAND_RECHARGE_INDICATOR = ChatColor.GREEN + "Recharge in %REMAINING_TIME%";
+	private static final String DEFAULT_INDIRECT_STORED_AMMO = "Stored ammo:";
+	private static final String DEFAULT_INDIRECT_RELOAD = "Reloading...";
+	private static final String DEFAULT_GUN_COOLDOWN_INDICATOR = ChatColor.BLACK + "Cooldown in %REMAINING_TIME%";
 	
 	private static final String DEFAULT_COMMAND_GIVE_USEAGE = ChatColor.YELLOW + "Use /kci give <item name> [player name] [amount]";
 	private static final String DEFAULT_COMMAND_NO_ACCESS = ChatColor.DARK_RED + "Only operators can use this command.";
@@ -53,6 +56,9 @@ public class LanguageFile {
 	private static final String KEY_WAND_COOLDOWN_INDICATOR = "wand-cooldown-indicator";
 	private static final String KEY_WAND_CHARGES_INDICATOR = "wand-charges-indicator";
 	private static final String KEY_WAND_RECHARGE_INDICATOR = "wand-recharge-indicator";
+	private static final String KEY_INDIRECT_STORED_AMMO = "indirect-gun-stored-ammo";
+	private static final String KEY_INDIRECT_RELOAD = "indirect-gun-reload";
+	private static final String KEY_GUN_COOLDOWN_INDICATOR = "gun-cooldown-indicator";
 	
 	private static final String KEY_COMMAND_GIVE_USEAGE = "command-useage";
 	private static final String KEY_COMMAND_NO_ACCESS = "command-no-access";
@@ -69,6 +75,9 @@ public class LanguageFile {
 	private String wandCooldownIndicator;
 	private String wandChargesIndicator;
 	private String wandRechargeIndicator;
+	private String indirectStoredAmmo;
+	private String indirectReload;
+	private String gunCooldownIndicator;
 	
 	private String commandGiveUseage;
 	private String commandNoAccess;
@@ -113,7 +122,19 @@ public class LanguageFile {
 	public String getWandRechargeIndicator() {
 		return wandRechargeIndicator;
 	}
-	
+
+	public String getIndirectStoredAmmo() {
+		return indirectStoredAmmo;
+	}
+
+	public String getIndirectReload() {
+		return indirectReload;
+	}
+
+	public String getGunCooldownIndicator() {
+		return gunCooldownIndicator;
+	}
+
 	public String getCommandGiveUseage() {
 		return commandGiveUseage;
 	}
@@ -155,6 +176,9 @@ public class LanguageFile {
 		wandCooldownIndicator = config.getString(KEY_WAND_COOLDOWN_INDICATOR, DEFAULT_WAND_COOLDOWN_INDICATOR);
 		wandChargesIndicator = config.getString(KEY_WAND_CHARGES_INDICATOR, DEFAULT_WAND_CHARGES_INDICATOR);
 		wandRechargeIndicator = config.getString(KEY_WAND_RECHARGE_INDICATOR, DEFAULT_WAND_RECHARGE_INDICATOR);
+		indirectStoredAmmo = config.getString(KEY_INDIRECT_STORED_AMMO, DEFAULT_INDIRECT_STORED_AMMO);
+		indirectReload = config.getString(KEY_INDIRECT_RELOAD, DEFAULT_INDIRECT_RELOAD);
+		gunCooldownIndicator = config.getString(KEY_GUN_COOLDOWN_INDICATOR, DEFAULT_GUN_COOLDOWN_INDICATOR);
 		commandGiveUseage = config.getString(KEY_COMMAND_GIVE_USEAGE, DEFAULT_COMMAND_GIVE_USEAGE);
 		commandNoAccess = config.getString(KEY_COMMAND_NO_ACCESS, DEFAULT_COMMAND_NO_ACCESS);
 		commandNoPlayerSpecified = config.getString(KEY_COMMAND_NO_PLAYER_SPECIFIED, DEFAULT_COMMAND_NO_PLAYER_SPECIFIED);
@@ -171,6 +195,9 @@ public class LanguageFile {
 		wandCooldownIndicator = DEFAULT_WAND_COOLDOWN_INDICATOR;
 		wandChargesIndicator = DEFAULT_WAND_CHARGES_INDICATOR;
 		wandRechargeIndicator = DEFAULT_WAND_RECHARGE_INDICATOR;
+		indirectStoredAmmo = DEFAULT_INDIRECT_STORED_AMMO;
+		indirectReload = DEFAULT_INDIRECT_RELOAD;
+		gunCooldownIndicator = DEFAULT_GUN_COOLDOWN_INDICATOR;
 		commandGiveUseage = DEFAULT_COMMAND_GIVE_USEAGE;
 		commandNoAccess = DEFAULT_COMMAND_NO_ACCESS;
 		commandNoPlayerSpecified = DEFAULT_COMMAND_NO_PLAYER_SPECIFIED;
@@ -187,6 +214,9 @@ public class LanguageFile {
 		config.set(KEY_WAND_COOLDOWN_INDICATOR, wandCooldownIndicator);
 		config.set(KEY_WAND_CHARGES_INDICATOR, wandChargesIndicator);
 		config.set(KEY_WAND_RECHARGE_INDICATOR, wandRechargeIndicator);
+		config.set(KEY_INDIRECT_STORED_AMMO, indirectStoredAmmo);
+		config.set(KEY_INDIRECT_RELOAD, indirectReload);
+		config.set(KEY_GUN_COOLDOWN_INDICATOR, gunCooldownIndicator);
 		config.set(KEY_COMMAND_GIVE_USEAGE, commandGiveUseage);
 		config.set(KEY_COMMAND_NO_ACCESS, commandNoAccess);
 		config.set(KEY_COMMAND_NO_PLAYER_SPECIFIED, commandNoPlayerSpecified);

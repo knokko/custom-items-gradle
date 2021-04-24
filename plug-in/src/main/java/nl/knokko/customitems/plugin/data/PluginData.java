@@ -12,6 +12,11 @@ import java.util.logging.Level;
 import nl.knokko.core.plugin.item.GeneralItemNBT;
 import nl.knokko.customitems.container.slot.*;
 import nl.knokko.customitems.encoding.ContainerEncoding;
+import nl.knokko.customitems.item.gun.DirectGunAmmo;
+import nl.knokko.customitems.item.gun.IndirectGunAmmo;
+import nl.knokko.customitems.plugin.recipe.ingredient.Ingredient;
+import nl.knokko.customitems.plugin.recipe.ingredient.NoIngredient;
+import nl.knokko.customitems.plugin.set.item.CustomGun;
 import nl.knokko.customitems.plugin.set.item.CustomPocketContainer;
 import nl.knokko.customitems.util.StringEncoder;
 import org.bukkit.Bukkit;
@@ -282,6 +287,7 @@ public class PluginData {
 		updateShooting();
 		updateContainers();
 		handleClosedPocketContainers();
+		manageReloadingGuns();
 	}
 	
 	private void updateShooting() {
@@ -294,16 +300,74 @@ public class PluginData {
 				CustomItem mainItem = set.getItem(current.getInventory().getItemInMainHand());
 				CustomItem offItem = set.getItem(current.getInventory().getItemInOffHand());
 				
-				if (data.shootIfAllowed(mainItem, currentTick)) {
-					fire(current, data, mainItem, current.getInventory().getItemInMainHand());
+				if (data.shootIfAllowed(mainItem, currentTick, true)) {
+					fire(current, data, mainItem, current.getInventory().getItemInMainHand(), true);
 				}
-				if (data.shootIfAllowed(offItem, currentTick)) {
-					fire(current, data, offItem, current.getInventory().getItemInOffHand());
+				if (data.shootIfAllowed(offItem, currentTick, false)) {
+					fire(current, data, offItem, current.getInventory().getItemInOffHand(), false);
 				}
 			} else {
 				iterator.remove();
 			}
 		}
+	}
+
+	private void manageReloadingGuns() {
+		ItemSet set = CustomItemsPlugin.getInstance().getSet();
+		playerData.forEach((playerId, data) -> {
+
+			// Check if we need to reload the gun in the main hand
+			if (data.mainhandGunToReload != null && currentTick >= data.finishMainhandGunReloadTick) {
+
+				CustomGun gun = data.mainhandGunToReload;
+				Player player = Bukkit.getPlayer(playerId);
+				if (player != null) {
+
+					ItemStack currentItem = player.getInventory().getItemInMainHand();
+					CustomItem currentCustomItem = set.getItem(currentItem);
+					if (currentCustomItem == gun) {
+						if (gun.ammo instanceof IndirectGunAmmo) {
+
+							IndirectGunAmmo indirectAmmo = (IndirectGunAmmo) gun.ammo;
+							if (checkAmmo(player.getInventory(), (Ingredient) indirectAmmo.reloadItem, true)) {
+								player.getInventory().setItemInMainHand(gun.reload(currentItem));
+							}
+						} else {
+							throw new Error("Unsupported indirect ammo: " + gun.ammo.getClass());
+						}
+					}
+				}
+
+				data.mainhandGunToReload = null;
+				data.finishMainhandGunReloadTick = -1;
+			}
+
+			// Check if we need to reload the gun in the off hand
+			if (data.offhandGunToReload != null && currentTick >= data.finishOffhandGunReloadTick) {
+
+				CustomGun gun = data.offhandGunToReload;
+				Player player = Bukkit.getPlayer(playerId);
+				if (player != null) {
+
+					ItemStack currentItem = player.getInventory().getItemInOffHand();
+					CustomItem currentCustomItem = set.getItem(currentItem);
+					if (currentCustomItem == gun) {
+						if (gun.ammo instanceof IndirectGunAmmo) {
+
+							IndirectGunAmmo indirectAmmo = (IndirectGunAmmo) gun.ammo;
+							if (checkAmmo(player.getInventory(), (Ingredient) indirectAmmo.reloadItem, true)) {
+                                player.getInventory().setItemInOffHand(gun.reload(currentItem));
+							}
+						} else {
+							throw new Error("Unsupported indirect ammo: " + gun.ammo.getClass());
+						}
+					}
+				}
+
+				data.offhandGunToReload = null;
+				data.finishOffhandGunReloadTick = -1;
+			}
+		});
 	}
 	
 	private void updateContainers() {
@@ -336,6 +400,62 @@ public class PluginData {
 		}
 
 		return null;
+	}
+
+	public PlayerGunInfo getGunInfo(Player player, CustomGun gun, ItemStack gunStack, boolean isMainhand) {
+		PlayerData targetPlayerData = playerData.get(player.getUniqueId());
+
+		if (gun.ammo instanceof DirectGunAmmo) {
+
+			if (targetPlayerData != null) {
+				if (isMainhand) {
+					if (targetPlayerData.nextMainhandGunShootTick > currentTick) {
+						return PlayerGunInfo.directCooldown(targetPlayerData.nextMainhandGunShootTick - currentTick);
+					} else {
+						return null;
+					}
+				} else {
+					if (targetPlayerData.nextOffhandGunShootTick > currentTick) {
+						return PlayerGunInfo.directCooldown(targetPlayerData.nextOffhandGunShootTick - currentTick);
+					} else {
+						return null;
+					}
+				}
+			} else {
+				return null;
+			}
+		} else if (gun.ammo instanceof IndirectGunAmmo) {
+
+			if (targetPlayerData != null) {
+				if (isMainhand) {
+					if (targetPlayerData.mainhandGunToReload == gun && targetPlayerData.finishMainhandGunReloadTick > currentTick) {
+						return PlayerGunInfo.indirectReloading((int) (targetPlayerData.finishMainhandGunReloadTick - currentTick));
+					} else {
+						long remainingCooldown = 0;
+						if (targetPlayerData.nextMainhandGunShootTick > currentTick) {
+							remainingCooldown = targetPlayerData.nextMainhandGunShootTick - currentTick;
+						}
+
+						return PlayerGunInfo.indirect(remainingCooldown, gun.getCurrentAmmo(gunStack));
+					}
+				} else {
+					if (targetPlayerData.offhandGunToReload == gun && targetPlayerData.finishOffhandGunReloadTick > currentTick) {
+						return PlayerGunInfo.indirectReloading((int) (targetPlayerData.finishOffhandGunReloadTick - currentTick));
+					} else {
+						long remainingCooldown = 0;
+						if (targetPlayerData.nextOffhandGunShootTick > currentTick) {
+							remainingCooldown = targetPlayerData.nextOffhandGunShootTick - currentTick;
+						}
+
+						return PlayerGunInfo.indirect(remainingCooldown, gun.getCurrentAmmo(gunStack));
+					}
+				}
+			} else {
+				return PlayerGunInfo.indirect(0, gun.getCurrentAmmo(gunStack));
+			}
+		} else {
+			throw new Error("Unknown ammo system: " + gun.ammo.getClass());
+		}
 	}
 
 	public void onPlayerQuit(Player player) {
@@ -466,14 +586,101 @@ public class PluginData {
 		cleanEmptyContainers();
 	}
 	
-	private void fire(Player player, PlayerData data, CustomItem weapon, ItemStack weaponStack) {
+	private void fire(Player player, PlayerData data, CustomItem weapon, ItemStack weaponStack, boolean isMainhand) {
 		if (weapon instanceof CustomWand) {
 			CustomWand wand = (CustomWand) weapon;
 			
 			for (int counter = 0; counter < wand.amountPerShot; counter++)
 				CustomItemsPlugin.getInstance().getProjectileManager().fireProjectile(player, wand.projectile);
+		} else if (weapon instanceof CustomGun) {
+
+			CustomGun gun = (CustomGun) weapon;
+
+			boolean fireGun = false;
+			if (gun.ammo instanceof DirectGunAmmo) {
+
+				DirectGunAmmo directAmmo = (DirectGunAmmo) gun.ammo;
+				if (checkAmmo(player.getInventory(), (Ingredient) directAmmo.ammoItem, true)) {
+					fireGun = true;
+				}
+			} else if (gun.ammo instanceof IndirectGunAmmo) {
+
+				IndirectGunAmmo indirectAmmo = (IndirectGunAmmo) gun.ammo;
+				ItemStack newWeaponStack = gun.decrementAmmo(weaponStack);
+				if (newWeaponStack != null) {
+
+                    if (isMainhand) {
+                    	player.getInventory().setItemInMainHand(newWeaponStack);
+					} else {
+                    	player.getInventory().setItemInOffHand(newWeaponStack);
+					}
+
+					fireGun = true;
+				} else {
+
+					if (checkAmmo(player.getInventory(), (Ingredient) indirectAmmo.reloadItem, false)) {
+						if (indirectAmmo.startReloadSound != null) {
+							player.playSound(
+									player.getLocation(), indirectAmmo.startReloadSound.name(),
+									1f, 1f
+							);
+						}
+
+                        if (isMainhand) {
+                        	data.finishMainhandGunReloadTick = currentTick + indirectAmmo.reloadTime;
+                        	data.mainhandGunToReload = gun;
+						} else {
+                        	data.finishOffhandGunReloadTick = currentTick + indirectAmmo.reloadTime;
+                        	data.offhandGunToReload = gun;
+						}
+					}
+				}
+			} else {
+				throw new IllegalArgumentException("Unknown gun ammo system: " + gun.ammo.getClass());
+			}
+
+			if (fireGun) {
+				for (int counter = 0; counter < gun.amountPerShot; counter++) {
+					CustomItemsPlugin.getInstance().getProjectileManager().fireProjectile(player, gun.projectile);
+				}
+			} else {
+
+				// If shooting failed, we discard the cooldown
+				if (isMainhand) {
+					data.nextMainhandGunShootTick = -1;
+				} else {
+					data.nextOffhandGunShootTick = -1;
+				}
+			}
 		}
-		// TODO Add a clause for CustomGun, once it's added
+	}
+
+	private boolean checkAmmo(Inventory inv, Ingredient ammo, boolean consume) {
+
+		if (ammo instanceof NoIngredient) {
+			return true;
+		}
+
+		ItemStack[] contents = inv.getContents();
+		for (int index = 0; index < contents.length; index++) {
+			ItemStack candidate = contents[index];
+			if (ammo.accept(candidate)) {
+
+				if (consume) {
+					if (ammo.getRemainingItem() == null) {
+						candidate.setAmount(candidate.getAmount() - ammo.getAmount());
+					} else {
+						contents[index] = ammo.getRemainingItem().clone();
+					}
+
+					inv.setContents(contents);
+				}
+
+				return true;
+			}
+		}
+
+		return false;
 	}
 	
 	/**

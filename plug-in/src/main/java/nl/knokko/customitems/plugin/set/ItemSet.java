@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.logging.Level;
 
+import nl.knokko.customitems.item.gun.GunAmmo;
 import nl.knokko.customitems.plugin.set.item.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
@@ -700,6 +701,7 @@ public class ItemSet implements ItemSetBase {
 		case ItemEncoding.ENCODING_WAND_9: return loadWand9(input, getProjectileByName);
 		case ItemEncoding.ENCODING_POCKET_CONTAINER_9: return loadPocketContainer9(input);
 		case ItemEncoding.ENCODING_CROSSBOW_9: return loadCrossbow9(input, loadIngredient);
+		case ItemEncoding.ENCODING_GUN_9: return loadGun9(input, loadIngredient, getProjectileByName);
 		default : throw new UnknownEncodingException("Item", encoding);
 	}
 	}
@@ -2510,6 +2512,64 @@ public class ItemSet implements ItemSetBase {
 				fireworkDurabilityLoss, arrowDamageMultiplier, fireworkDamageMultiplier,
 				arrowSpeedMultiplier, fireworkSpeedMultiplier, arrowKnockbackStrength,
 				arrowGravity
+		);
+	}
+
+	private static CustomGun loadGun9(
+			BitInput input, LoadIngredient loadIngredient, ProjectileByName getProjectileByName
+	) throws UnknownEncodingException {
+		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
+		short internalItemDamage = input.readShort();
+		String name = input.readJavaString();
+		String alias = input.readString();
+		String displayName = input.readJavaString();
+		String[] lore = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < lore.length; index++) {
+			lore[index] = input.readJavaString();
+		}
+		AttributeModifier[] attributes = new AttributeModifier[input.readByte() & 0xFF];
+		for (int index = 0; index < attributes.length; index++)
+			attributes[index] = loadAttribute2(input);
+		Enchantment[] defaultEnchantments = new Enchantment[input.readByte() & 0xFF];
+		for (int index = 0; index < defaultEnchantments.length; index++)
+			defaultEnchantments[index] = new Enchantment(EnchantmentType.valueOf(input.readString()), input.readInt());
+
+		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
+		boolean[] itemFlags = input.readBooleans(6);
+
+		List<PotionEffect> playerEffects = new ArrayList<PotionEffect>();
+		int peLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < peLength; index++) {
+			playerEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		List<PotionEffect> targetEffects = new ArrayList<PotionEffect>();
+		int teLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < teLength; index++) {
+			targetEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		Collection<EquippedPotionEffect> equippedEffects = CustomItem.readEquippedEffects(input);
+		String[] commands = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < commands.length; index++) {
+			commands[index] = input.readJavaString();
+		}
+
+		ReplaceCondition[] conditions = new ReplaceCondition[input.readByte() & 0xFF];
+		for (int index = 0; index < conditions.length; index++) {
+			conditions[index] = loadReplaceCondition(input);
+		}
+		ConditionOperation op = ConditionOperation.valueOf(input.readJavaString());
+		ExtraItemNbt extraNbt = ExtraItemNbt.load(input);
+		float attackRange = input.readFloat();
+
+		String projectileName = input.readString();
+		CIProjectile projectile = getProjectileByName.apply(projectileName);
+		GunAmmo ammo = GunAmmo.load(input, () -> loadIngredient.apply(input));
+		int amountPerShot = input.readInt();
+
+		return new CustomGun(
+				itemType, internalItemDamage, name, alias, displayName, lore, attributes,
+				defaultEnchantments, itemFlags, playerEffects, targetEffects, equippedEffects,
+				commands, conditions, op, extraNbt, attackRange, projectile, ammo, amountPerShot
 		);
 	}
 

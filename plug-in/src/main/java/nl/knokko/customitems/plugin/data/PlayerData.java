@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 
 import nl.knokko.customitems.plugin.container.ContainerInstance;
 import nl.knokko.customitems.plugin.set.ItemSet;
+import nl.knokko.customitems.plugin.set.item.CustomGun;
 import nl.knokko.customitems.plugin.set.item.CustomItem;
 import nl.knokko.customitems.plugin.set.item.CustomWand;
 import nl.knokko.util.bits.BitInput;
@@ -50,8 +51,6 @@ class PlayerData {
 	 */
 	final Map<CustomWand,PlayerWandData> wandsData;
 	
-	// TODO Also handle guns
-	
 	// Non-persisting data
 
 	ContainerInstance openPocketContainer;
@@ -60,6 +59,14 @@ class PlayerData {
 	
 	PassiveLocation containerSelectionLocation;
 	boolean pocketContainerSelection;
+
+	long nextMainhandGunShootTick;
+	long nextOffhandGunShootTick;
+
+    long finishMainhandGunReloadTick;
+    CustomGun mainhandGunToReload;
+    long finishOffhandGunReloadTick;
+    CustomGun offhandGunToReload;
 	
 	public PlayerData() {
 		wandsData = new HashMap<>();
@@ -75,6 +82,10 @@ class PlayerData {
 	
 	private void init() {
 		lastShootTick = -1;
+		nextMainhandGunShootTick = -1;
+		nextOffhandGunShootTick = -1;
+		mainhandGunToReload = null;
+		offhandGunToReload = null;
 	}
 	
 	public void save1(BitOutput output, long currentTick) {
@@ -100,11 +111,13 @@ class PlayerData {
 	 * @param weapon The weapon the player is trying to fire projectiles with
 	 * @param currentTick The value that would be returned by 
 	 * {@code CustomItemsPlugin.getData().getCurrentTick()}.
+	 * @param isMainhand true if {@code weapon} is in the mainhand of the player. false if it is in
+	 *                   the offhand of the player.
 	 * @return true if the player was allowed to fire projectiles and the cooldown has been set, false
 	 * if the player wasn't allowed to fire projectiles
 	 */
-	public boolean shootIfAllowed(CustomItem weapon, long currentTick) {
-		if (weapon instanceof CustomWand) { // TODO Add similar check for CustomGun, once it's added
+	public boolean shootIfAllowed(CustomItem weapon, long currentTick, boolean isMainhand) {
+		if (weapon instanceof CustomWand) {
 			CustomWand wand = (CustomWand) weapon;
 			PlayerWandData data = wandsData.get(wand);
 			
@@ -121,11 +134,37 @@ class PlayerData {
 				data.onShoot(wand, currentTick);
 				return true;
 			}
+		} else if (weapon instanceof CustomGun) {
+
+			CustomGun gun = (CustomGun) weapon;
+			if (isMainhand) {
+				if ((nextMainhandGunShootTick == -1 || currentTick >= nextMainhandGunShootTick) && !isReloadingMainhand(currentTick)) {
+					nextMainhandGunShootTick = currentTick + gun.ammo.getCooldown();
+					return true;
+				} else {
+					return false;
+				}
+			} else {
+				if ((nextOffhandGunShootTick == -1 || currentTick >= nextOffhandGunShootTick) && !isReloadingOffhand(currentTick)) {
+					nextOffhandGunShootTick = currentTick + gun.ammo.getCooldown();
+					return true;
+				} else {
+					return false;
+				}
+			}
 		} else {
 			return false;
 		}
 	}
-	
+
+	boolean isReloadingMainhand(long currentTick) {
+		return mainhandGunToReload != null && finishMainhandGunReloadTick > currentTick;
+	}
+
+	boolean isReloadingOffhand(long currentTick) {
+		return offhandGunToReload != null && finishOffhandGunReloadTick > currentTick;
+	}
+
 	public boolean isShooting(long currentTick) {
 		if (lastShootTick != -1) {
 			if (currentTick <= lastShootTick + SHOOT_TIME) {
@@ -164,6 +203,13 @@ class PlayerData {
 		if (openPocketContainer != null || containerSelectionLocation != null || pocketContainerSelection) {
 			return false;
 		}
+
+		// Check if the player data has an active gun cooldown
+		if (nextMainhandGunShootTick != -1 && nextMainhandGunShootTick > currentTick) return false;
+		if (nextOffhandGunShootTick != -1 && nextOffhandGunShootTick > currentTick) return false;
+
+		// Check if the player is currently reloading a gun
+		if (isReloadingMainhand(currentTick) || isReloadingOffhand(currentTick)) return false;
 
 		/*
 		 * If the player is not shooting and doesn't have any remaining cooldowns or missing wand

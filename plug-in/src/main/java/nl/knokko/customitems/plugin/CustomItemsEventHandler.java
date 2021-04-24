@@ -535,12 +535,13 @@ public class CustomItemsEventHandler implements Listener {
 		}
 	}
 	
-	@EventHandler(ignoreCancelled = false)
+	@EventHandler
 	public void updateGunsAndWands(PlayerInteractEvent event) {
 		if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 			ItemSet set = set();
-			
-			if (set.getItem(event.getItem()) instanceof CustomWand) {
+
+			CustomItem usedItem = set.getItem(event.getItem());
+			if (usedItem instanceof CustomWand || usedItem instanceof CustomGun) {
 				CustomItemsPlugin.getInstance().getData().setShooting(event.getPlayer());
 			}
 		}

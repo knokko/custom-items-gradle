@@ -29,12 +29,12 @@ public class TestPlayerData {
 		PlayerData data = new PlayerData();
 		
 		// Add data for the WITHOUT wand, to test if the discarding works well
-		assertTrue(data.shootIfAllowed(WITHOUT, 12));
+		assertTrue(data.shootIfAllowed(WITHOUT, 12, true));
 		
 		// Convert it to bits
 		ByteArrayBitOutput output = new ByteArrayBitOutput();
 		data.save1(output, 10);
-		assertTrue(data.shootIfAllowed(WITH, 15));
+		assertTrue(data.shootIfAllowed(WITH, 15, true));
 		data.save1(output, 17);
 		data.save1(output, 20);
 		output.terminate();
@@ -46,9 +46,9 @@ public class TestPlayerData {
 		PlayerData afterShoot = PlayerData.load1(input, set, dummyLogger);
 		input.terminate();
 		
-		assertTrue(beforeShoot.shootIfAllowed(WITH, 10));
-		assertFalse(rightAfterShoot.shootIfAllowed(WITH, 17));
-		assertTrue(afterShoot.shootIfAllowed(WITH, 20));
+		assertTrue(beforeShoot.shootIfAllowed(WITH, 10, true));
+		assertFalse(rightAfterShoot.shootIfAllowed(WITH, 17, true));
+		assertTrue(afterShoot.shootIfAllowed(WITH, 20, true));
 	}
 	
 	@Test
@@ -79,14 +79,14 @@ public class TestPlayerData {
 		assertTrue(data.clean(16 + PlayerData.SHOOT_TIME));
 		
 		// Now check if clean returns false when something is on cooldown
-		assertTrue(data.shootIfAllowed(WITHOUT, 100));
+		assertTrue(data.shootIfAllowed(WITHOUT, 100, true));
 		assertFalse(data.clean(100));
 		
 		// And returns true when the cooldown expired
 		assertTrue(data.clean(125));
 		
 		// Now try the charges
-		assertTrue(data.shootIfAllowed(WITH, 200));
+		assertTrue(data.shootIfAllowed(WITH, 200, true));
 		assertFalse(data.clean(201));
 		assertFalse(data.clean(205));
 		assertTrue(data.clean(220));

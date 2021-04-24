@@ -25,6 +25,7 @@ package nl.knokko.customitems.plugin.set.item;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
@@ -138,10 +139,8 @@ public class CustomTool extends CustomItem {
         	itemLore.add(createDurabilityLine(currentDurability, maxDurability));
         	itemLore.add("");
         }
-        for (String s : lore)
-    		itemLore.add(s);
+		Collections.addAll(itemLore, lore);
         
-        // Interesting item:
         return itemLore;
 	}
 	

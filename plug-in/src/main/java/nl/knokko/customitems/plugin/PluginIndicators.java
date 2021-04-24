@@ -1,9 +1,10 @@
 package nl.knokko.customitems.plugin;
 
-import nl.knokko.customitems.plugin.CustomItemsPlugin;
-import nl.knokko.customitems.plugin.LanguageFile;
+import nl.knokko.customitems.item.gun.IndirectGunAmmo;
+import nl.knokko.customitems.plugin.data.PlayerGunInfo;
 import nl.knokko.customitems.plugin.data.PlayerWandInfo;
 import nl.knokko.customitems.plugin.multisupport.actionbarapi.ActionBarAPISupport;
+import nl.knokko.customitems.plugin.set.item.CustomGun;
 import nl.knokko.customitems.plugin.set.item.CustomItem;
 import nl.knokko.customitems.plugin.set.item.CustomTool;
 import nl.knokko.customitems.plugin.set.item.CustomWand;
@@ -38,7 +39,6 @@ public class PluginIndicators {
         LanguageFile lang = plugin.getLanguageFile();
         CustomItem customMain = plugin.getSet().getItem(mainItem);
 
-        // TODO Add support for custom guns, once they are added
         if (customMain instanceof CustomWand) {
             CustomWand wand = (CustomWand) customMain;
 
@@ -68,6 +68,36 @@ public class PluginIndicators {
                 }
 
                 String actionBarMessage = chargesString + rechargeString + cooldownString;
+                if (!actionBarMessage.isEmpty()) {
+                    ActionBarAPISupport.sendActionBar(player, actionBarMessage);
+                    seesIndicator.add(player.getUniqueId());
+                }
+            }
+        } else if (customMain instanceof CustomGun) {
+
+            CustomGun gun = (CustomGun) customMain;
+            PlayerGunInfo gunInfo = plugin.getData().getGunInfo(player, gun, mainItem, true);
+            if (gunInfo != null) {
+
+                String actionBarMessage;
+                if (gunInfo.remainingReloadTime != null) {
+                    actionBarMessage = lang.getIndirectReload();
+                } else {
+
+                    String ammoString = "";
+                    if (gunInfo.remainingStoredAmmo != null) {
+                        ammoString = lang.getIndirectStoredAmmo() + " " + gunInfo.remainingStoredAmmo + " / " + ((IndirectGunAmmo) gun.ammo).storedAmmo + " ";
+                    }
+
+                    String cooldownString = "";
+                    if (gunInfo.remainingCooldown > 0 && gun.ammo.getCooldown() > TIME_THRESHOLD) {
+                        cooldownString = lang.getGunCooldownIndicator()
+                                .replace("%REMAINING_TIME%", formatTime(gunInfo.remainingCooldown));
+                    }
+
+                    actionBarMessage = ammoString + cooldownString;
+                }
+
                 if (!actionBarMessage.isEmpty()) {
                     ActionBarAPISupport.sendActionBar(player, actionBarMessage);
                     seesIndicator.add(player.getUniqueId());
