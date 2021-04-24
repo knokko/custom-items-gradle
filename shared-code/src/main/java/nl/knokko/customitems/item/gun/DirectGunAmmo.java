@@ -43,4 +43,9 @@ public class DirectGunAmmo extends GunAmmo {
 
         return null;
     }
+
+    @Override
+    public int getCooldown() {
+        return cooldown;
+    }
 }

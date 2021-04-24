@@ -29,4 +29,6 @@ public abstract class GunAmmo {
     public abstract void save(BitOutput output, Consumer<SCIngredient> saveIngredient);
 
     public abstract String validate(Predicate<SCIngredient> allowIngredient);
+
+    public abstract int getCooldown();
 }
