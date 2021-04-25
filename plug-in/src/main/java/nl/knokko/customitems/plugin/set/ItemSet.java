@@ -34,6 +34,7 @@ import java.util.logging.Level;
 
 import nl.knokko.customitems.item.gun.GunAmmo;
 import nl.knokko.customitems.plugin.set.item.*;
+import nl.knokko.customitems.sound.CISound;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -702,6 +703,7 @@ public class ItemSet implements ItemSetBase {
 		case ItemEncoding.ENCODING_POCKET_CONTAINER_9: return loadPocketContainer9(input);
 		case ItemEncoding.ENCODING_CROSSBOW_9: return loadCrossbow9(input, loadIngredient);
 		case ItemEncoding.ENCODING_GUN_9: return loadGun9(input, loadIngredient, getProjectileByName);
+		case ItemEncoding.ENCODING_FOOD_9: return loadFood9(input);
 		default : throw new UnknownEncodingException("Item", encoding);
 	}
 	}
@@ -2570,6 +2572,75 @@ public class ItemSet implements ItemSetBase {
 				itemType, internalItemDamage, name, alias, displayName, lore, attributes,
 				defaultEnchantments, itemFlags, playerEffects, targetEffects, equippedEffects,
 				commands, conditions, op, extraNbt, attackRange, projectile, ammo, amountPerShot
+		);
+	}
+
+	private static CustomFood loadFood9(
+			BitInput input
+	) throws UnknownEncodingException {
+		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
+		short internalItemDamage = input.readShort();
+		String name = input.readJavaString();
+		String alias = input.readString();
+		String displayName = input.readJavaString();
+		String[] lore = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < lore.length; index++) {
+			lore[index] = input.readJavaString();
+		}
+		AttributeModifier[] attributes = new AttributeModifier[input.readByte() & 0xFF];
+		for (int index = 0; index < attributes.length; index++)
+			attributes[index] = loadAttribute2(input);
+		Enchantment[] defaultEnchantments = new Enchantment[input.readByte() & 0xFF];
+		for (int index = 0; index < defaultEnchantments.length; index++)
+			defaultEnchantments[index] = new Enchantment(EnchantmentType.valueOf(input.readString()), input.readInt());
+
+		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
+		boolean[] itemFlags = input.readBooleans(6);
+
+		List<PotionEffect> playerEffects = new ArrayList<PotionEffect>();
+		int peLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < peLength; index++) {
+			playerEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		List<PotionEffect> targetEffects = new ArrayList<PotionEffect>();
+		int teLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < teLength; index++) {
+			targetEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		Collection<EquippedPotionEffect> equippedEffects = CustomItem.readEquippedEffects(input);
+		String[] commands = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < commands.length; index++) {
+			commands[index] = input.readJavaString();
+		}
+
+		ReplaceCondition[] conditions = new ReplaceCondition[input.readByte() & 0xFF];
+		for (int index = 0; index < conditions.length; index++) {
+			conditions[index] = loadReplaceCondition(input);
+		}
+		ConditionOperation op = ConditionOperation.valueOf(input.readJavaString());
+		ExtraItemNbt extraNbt = ExtraItemNbt.load(input);
+		float attackRange = input.readFloat();
+
+		int foodValue = input.readInt();
+		int numEatEffects = input.readInt();
+		Collection<PotionEffect> eatEffects = new ArrayList<>(numEatEffects);
+		for (int counter = 0; counter < numEatEffects; counter++) {
+			eatEffects.add(PotionEffect.load1(input));
+		}
+		int eatTime = input.readInt();
+
+		CISound eatSound = CISound.valueOf(input.readString());
+		float soundVolume = input.readFloat();
+		float soundPitch = input.readFloat();
+		int soundPeriod = input.readInt();
+
+		int maxStacksize = input.readInt();
+
+		return new CustomFood(
+				itemType, internalItemDamage, name, alias, displayName, lore, attributes,
+				defaultEnchantments, itemFlags, playerEffects, targetEffects, equippedEffects,
+				commands, conditions, op, extraNbt, attackRange, foodValue, eatEffects, eatTime,
+				eatSound, soundVolume, soundPitch, soundPeriod, maxStacksize
 		);
 	}
 

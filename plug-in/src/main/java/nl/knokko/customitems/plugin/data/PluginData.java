@@ -16,8 +16,7 @@ import nl.knokko.customitems.item.gun.DirectGunAmmo;
 import nl.knokko.customitems.item.gun.IndirectGunAmmo;
 import nl.knokko.customitems.plugin.recipe.ingredient.Ingredient;
 import nl.knokko.customitems.plugin.recipe.ingredient.NoIngredient;
-import nl.knokko.customitems.plugin.set.item.CustomGun;
-import nl.knokko.customitems.plugin.set.item.CustomPocketContainer;
+import nl.knokko.customitems.plugin.set.item.*;
 import nl.knokko.customitems.sound.CISound;
 import nl.knokko.customitems.util.StringEncoder;
 import org.bukkit.Bukkit;
@@ -38,13 +37,13 @@ import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.container.ContainerInfo;
 import nl.knokko.customitems.plugin.container.ContainerInstance;
 import nl.knokko.customitems.plugin.set.ItemSet;
-import nl.knokko.customitems.plugin.set.item.CustomItem;
-import nl.knokko.customitems.plugin.set.item.CustomWand;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 import nl.knokko.util.bits.ByteArrayBitInput;
 import nl.knokko.util.bits.ByteArrayBitOutput;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 public class PluginData {
 	
@@ -185,6 +184,7 @@ public class PluginData {
 	// Non-persisting data
 	private Collection<TempContainerInstance> tempContainers;
 	private List<Player> shootingPlayers;
+	private List<Player> eatingPlayers;
 	private Map<VanillaContainerType, List<CustomContainer>> containerTypeMap;
 	private Map<VanillaContainerType, Inventory> containerSelectionMap;
 	private Map<String, Inventory> pocketContainerSelectionMap;
@@ -209,6 +209,7 @@ public class PluginData {
 	private void init() {
 		tempContainers = new LinkedList<>();
 		shootingPlayers = new LinkedList<>();
+		eatingPlayers = new LinkedList<>();
 		initContainerTypeMap();
 		initPocketContainerMap();
 		
@@ -289,7 +290,7 @@ public class PluginData {
 		updateContainers();
 		handleClosedPocketContainers();
 		manageReloadingGuns();
-		updateFood();
+		updateEating();
 	}
 	
 	private void updateShooting() {
@@ -314,8 +315,114 @@ public class PluginData {
 		}
 	}
 
-	private void updateFood() {
-		// TODO Manage custom food
+	private void updateEating() {
+
+		ItemSet set = CustomItemsPlugin.getInstance().getSet();
+		Iterator<Player> iterator = eatingPlayers.iterator();
+		while (iterator.hasNext()) {
+		    Player player = iterator.next();
+		    PlayerData pd = getPlayerData(player);
+
+			if (pd.isEating(currentTick)) {
+
+				ItemStack mainItemStack = player.getInventory().getItemInMainHand();
+				ItemStack offItemStack = player.getInventory().getItemInOffHand();
+				CustomItem mainItem = set.getItem(mainItemStack);
+				CustomItem offItem = set.getItem(offItemStack);
+
+				if (mainItem instanceof CustomFood) {
+
+					CustomFood mainFood = (CustomFood) mainItem;
+					if (mainFood != pd.mainhandFood) {
+						if (!mainFood.eatEffects.isEmpty() || player.getFoodLevel() < 20) {
+							pd.mainhandFood = mainFood;
+							pd.startMainhandEatTime = currentTick;
+						} else {
+							pd.mainhandFood = null;
+							pd.startMainhandEatTime = -1;
+						}
+					}
+
+					if (pd.mainhandFood != null) {
+						long elapsedTime = currentTick - pd.startMainhandEatTime;
+						if (elapsedTime % mainFood.soundPeriod == 0) {
+							player.playSound(
+									player.getLocation(),
+									Sound.valueOf(mainFood.eatSound.name()),
+									mainFood.soundVolume, mainFood.soundPitch
+							);
+						}
+
+						if (elapsedTime >= mainFood.eatTime) {
+							player.setFoodLevel(player.getFoodLevel() + mainFood.foodValue);
+							mainFood.eatEffects.forEach(eatEffect ->
+									player.addPotionEffect(new PotionEffect(
+											PotionEffectType.getByName(eatEffect.getEffect().name()),
+											eatEffect.getDuration(),
+											eatEffect.getLevel() - 1
+									))
+							);
+							mainItemStack.setAmount(mainItemStack.getAmount() - 1);
+							player.getInventory().setItemInMainHand(mainItemStack);
+							pd.mainhandFood = null;
+							pd.startMainhandEatTime = -1;
+						}
+					}
+				} else {
+					pd.mainhandFood = null;
+					pd.startMainhandEatTime = -1;
+				}
+
+				if (offItem instanceof CustomFood) {
+
+					CustomFood offFood = (CustomFood) offItem;
+					if (pd.offhandFood != offFood) {
+						if (!offFood.eatEffects.isEmpty() || player.getFoodLevel() < 20) {
+							pd.offhandFood = offFood;
+							pd.startOffhandEatTime = currentTick;
+						} else {
+							pd.offhandFood = null;
+							pd.startOffhandEatTime = -1;
+						}
+					}
+
+					if (pd.offhandFood != null) {
+						long elapsedTime = currentTick - pd.startOffhandEatTime;
+						if (elapsedTime % offFood.soundPeriod == 0) {
+							player.playSound(
+									player.getLocation(),
+									Sound.valueOf(offFood.eatSound.name()),
+									offFood.soundVolume, offFood.soundPitch
+							);
+						}
+
+						if (elapsedTime >= offFood.eatTime) {
+							player.setFoodLevel(player.getFoodLevel() + offFood.foodValue);
+							offFood.eatEffects.forEach(eatEffect ->
+									player.addPotionEffect(new PotionEffect(
+											PotionEffectType.getByName(eatEffect.getEffect().name()),
+											eatEffect.getDuration(),
+											eatEffect.getLevel() - 1
+									))
+							);
+							offItemStack.setAmount(offItemStack.getAmount() - 1);
+							player.getInventory().setItemInOffHand(offItemStack);
+							pd.offhandFood = null;
+							pd.startOffhandEatTime = -1;
+						}
+					}
+				} else {
+					pd.offhandFood = null;
+					pd.startOffhandEatTime = -1;
+				}
+			} else {
+			    pd.mainhandFood = null;
+			    pd.offhandFood = null;
+			    pd.startMainhandEatTime = -1;
+			    pd.startOffhandEatTime = -1;
+				iterator.remove();
+			}
+        }
 	}
 
 	private void manageReloadingGuns() {
@@ -842,6 +949,20 @@ public class PluginData {
 		getPlayerData(player).setShooting(currentTick);
 		if (!shootingPlayers.contains(player)) {
 			shootingPlayers.add(player);
+		}
+	}
+
+	/**
+	 * Sets the given player in the so-called eating state for the next 10 ticks (a half second). If the
+	 * player is already in the eating state, nothing will happen. The player will leave the eating state
+	 * if this method is not called again within 10 ticks after this call.
+	 *
+	 * @param player The player that wants to start eating
+	 */
+	public void setEating(Player player) {
+		getPlayerData(player).setEating(currentTick);
+		if (!eatingPlayers.contains(player)) {
+			eatingPlayers.add(player);
 		}
 	}
 	

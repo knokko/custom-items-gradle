@@ -547,6 +547,18 @@ public class CustomItemsEventHandler implements Listener {
 		}
 	}
 
+	@EventHandler
+	public void startEating(PlayerInteractEvent event) {
+		if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+			ItemSet set = set();
+
+			CustomItem usedItem = set.getItem(event.getItem());
+			if (usedItem instanceof CustomFood) {
+				CustomItemsPlugin.getInstance().getData().setEating(event.getPlayer());
+			}
+		}
+	}
+
 	public static void playBreakSound(Player player) {
 		player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1, 1);
 	}

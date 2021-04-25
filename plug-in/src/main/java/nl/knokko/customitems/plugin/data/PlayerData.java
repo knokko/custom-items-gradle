@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 
 import nl.knokko.customitems.plugin.container.ContainerInstance;
 import nl.knokko.customitems.plugin.set.ItemSet;
+import nl.knokko.customitems.plugin.set.item.CustomFood;
 import nl.knokko.customitems.plugin.set.item.CustomGun;
 import nl.knokko.customitems.plugin.set.item.CustomItem;
 import nl.knokko.customitems.plugin.set.item.CustomWand;
@@ -22,6 +23,8 @@ class PlayerData {
 	 * Right clicking again will 'reset' the timer to this number of ticks again.
 	 */
 	static final int SHOOT_TIME = 10;
+
+	static final int EAT_TIME = 10;
 	
 	public static PlayerData load1(BitInput input, ItemSet set, Logger logger) {
 		int numWandsData = input.readInt();
@@ -56,6 +59,7 @@ class PlayerData {
 	ContainerInstance openPocketContainer;
 	boolean pocketContainerInMainHand;
 	private long lastShootTick;
+	private long lastEatTick;
 	
 	PassiveLocation containerSelectionLocation;
 	boolean pocketContainerSelection;
@@ -67,6 +71,12 @@ class PlayerData {
     CustomGun mainhandGunToReload;
     long finishOffhandGunReloadTick;
     CustomGun offhandGunToReload;
+
+    long startMainhandEatTime;
+    CustomFood mainhandFood;
+
+    long startOffhandEatTime;
+    CustomFood offhandFood;
 	
 	public PlayerData() {
 		wandsData = new HashMap<>();
@@ -82,10 +92,15 @@ class PlayerData {
 	
 	private void init() {
 		lastShootTick = -1;
+		lastEatTick = -1;
 		nextMainhandGunShootTick = -1;
 		nextOffhandGunShootTick = -1;
 		mainhandGunToReload = null;
 		offhandGunToReload = null;
+		mainhandFood = null;
+		offhandFood = null;
+		startMainhandEatTime = -1;
+		startOffhandEatTime = -1;
 	}
 	
 	public void save1(BitOutput output, long currentTick) {
@@ -98,6 +113,10 @@ class PlayerData {
 	
 	public void setShooting(long currentTick) {
 		lastShootTick = currentTick;
+	}
+
+	public void setEating(long currentTick) {
+		lastEatTick = currentTick;
 	}
 	
 	/**
@@ -177,6 +196,19 @@ class PlayerData {
 			return false;
 		}
 	}
+
+	public boolean isEating(long currentTick) {
+		if (lastEatTick != -1) {
+			if (currentTick <= lastEatTick + EAT_TIME) {
+				return true;
+			} else {
+				lastEatTick = -1;
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
 	
 	/**
 	 * @return true if this PlayerData doesn't have any active data
@@ -210,6 +242,9 @@ class PlayerData {
 
 		// Check if the player is currently reloading a gun
 		if (isReloadingMainhand(currentTick) || isReloadingOffhand(currentTick)) return false;
+
+		// Check if the player is currently eating
+		if (lastEatTick != -1 || mainhandFood != null || offhandFood != null) return false;
 
 		/*
 		 * If the player is not shooting and doesn't have any remaining cooldowns or missing wand
