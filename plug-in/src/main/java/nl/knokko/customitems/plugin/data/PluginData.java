@@ -334,7 +334,7 @@ public class PluginData {
 
 					CustomFood mainFood = (CustomFood) mainItem;
 					if (mainFood != pd.mainhandFood) {
-						if (!mainFood.eatEffects.isEmpty() || player.getFoodLevel() < 20) {
+						if (!mainFood.eatEffects.isEmpty() || player.getFoodLevel() < 20 || mainFood.foodValue < 0) {
 							pd.mainhandFood = mainFood;
 							pd.startMainhandEatTime = currentTick;
 						} else {
@@ -377,7 +377,7 @@ public class PluginData {
 
 					CustomFood offFood = (CustomFood) offItem;
 					if (pd.offhandFood != offFood) {
-						if (!offFood.eatEffects.isEmpty() || player.getFoodLevel() < 20) {
+						if (!offFood.eatEffects.isEmpty() || player.getFoodLevel() < 20 || offFood.foodValue < 0) {
 							pd.offhandFood = offFood;
 							pd.startOffhandEatTime = currentTick;
 						} else {

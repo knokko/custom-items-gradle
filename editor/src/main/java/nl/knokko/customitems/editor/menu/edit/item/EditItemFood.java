@@ -4,6 +4,7 @@ import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.set.item.CustomFood;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.effect.PotionEffect;
 import nl.knokko.customitems.item.AttributeModifier;
 import nl.knokko.customitems.item.CustomItemType;
@@ -117,7 +118,8 @@ public class EditItemFood extends EditItemBase {
                 0.71f, 0.06f, 0.895f, 0.14f);
         addComponent(maxStacksizeField, 0.9f, 0.06f, 0.975f, 0.14f);
 
-        // TODO Create help page
+        // TODO Test this link after merging v9 docs into master
+        HelpButtons.addHelpLink(this, "edit%20menu/items/edit/food.html");
     }
 
     @Override
