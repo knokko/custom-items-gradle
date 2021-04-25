@@ -149,4 +149,9 @@ public class ItemEncoding {
 	 * The first encoding of guns
 	 */
 	public static final byte ENCODING_GUN_9 = 41;
+
+	/**
+	 * The first encoding of food
+	 */
+	public static final byte ENCODING_FOOD_9 = 42;
 }

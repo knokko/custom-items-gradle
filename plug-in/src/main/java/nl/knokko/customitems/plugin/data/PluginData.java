@@ -18,6 +18,7 @@ import nl.knokko.customitems.plugin.recipe.ingredient.Ingredient;
 import nl.knokko.customitems.plugin.recipe.ingredient.NoIngredient;
 import nl.knokko.customitems.plugin.set.item.CustomGun;
 import nl.knokko.customitems.plugin.set.item.CustomPocketContainer;
+import nl.knokko.customitems.sound.CISound;
 import nl.knokko.customitems.util.StringEncoder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -288,6 +289,7 @@ public class PluginData {
 		updateContainers();
 		handleClosedPocketContainers();
 		manageReloadingGuns();
+		updateFood();
 	}
 	
 	private void updateShooting() {
@@ -310,6 +312,10 @@ public class PluginData {
 				iterator.remove();
 			}
 		}
+	}
+
+	private void updateFood() {
+		// TODO Manage custom food
 	}
 
 	private void manageReloadingGuns() {

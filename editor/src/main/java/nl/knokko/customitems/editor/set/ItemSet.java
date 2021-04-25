@@ -131,6 +131,7 @@ import nl.knokko.customitems.recipe.ContainerRecipe.InputEntry;
 import nl.knokko.customitems.recipe.ContainerRecipe.OutputEntry;
 import nl.knokko.customitems.recipe.OutputTable;
 import nl.knokko.customitems.recipe.SCIngredient;
+import nl.knokko.customitems.sound.CISound;
 import nl.knokko.customitems.trouble.IntegrityException;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.StringEncoder;
@@ -211,6 +212,7 @@ public class ItemSet implements ItemSetBase {
 			case ItemEncoding.ENCODING_POCKET_CONTAINER_9: return loadPocketContainer9(input, checkCustomModel);
 			case ItemEncoding.ENCODING_CROSSBOW_9: return loadCrossbow9(input, checkCustomModel);
 			case ItemEncoding.ENCODING_GUN_9: return loadGun9(input, checkCustomModel);
+			case ItemEncoding.ENCODING_FOOD_9: return loadFood9(input, checkCustomModel);
 			default : throw new UnknownEncodingException("Item", encoding);
 		}
 	}
@@ -2580,6 +2582,87 @@ public class ItemSet implements ItemSetBase {
 				playerEffects, targetEffects, equippedEffects,
 				commands, conditions, op, extraNbt, attackRange,
 				projectile, ammo, amountPerShot
+		);
+	}
+
+	private CustomItem loadFood9(
+			BitInput input, boolean checkCustomModel
+	) throws UnknownEncodingException {
+		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
+		input.readShort();
+		String name = input.readJavaString();
+		String alias = input.readString();
+		String displayName = input.readJavaString();
+		String[] lore = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < lore.length; index++) {
+			lore[index] = input.readJavaString();
+		}
+		AttributeModifier[] attributes = new AttributeModifier[input.readByte() & 0xFF];
+		for (int index = 0; index < attributes.length; index++)
+			attributes[index] = loadAttribute2(input);
+		Enchantment[] defaultEnchantments = new Enchantment[input.readByte() & 0xFF];
+		for (int index = 0; index < defaultEnchantments.length; index++)
+			defaultEnchantments[index] = new Enchantment(EnchantmentType.valueOf(input.readString()), input.readInt());
+
+		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
+		boolean[] itemFlags = input.readBooleans(6);
+
+		List<PotionEffect> playerEffects = new ArrayList<PotionEffect>();
+		int peLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < peLength; index++) {
+			playerEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		List<PotionEffect> targetEffects = new ArrayList<PotionEffect>();
+		int teLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < teLength; index++) {
+			targetEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		Collection<EquippedPotionEffect> equippedEffects = CustomItem.readEquippedEffects(input);
+		String[] commands = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < commands.length; index++) {
+			commands[index] = input.readJavaString();
+		}
+
+		ReplaceCondition[] conditions = new ReplaceCondition[input.readByte() & 0xFF];
+		for (int index = 0; index < conditions.length; index++) {
+			conditions[index] = loadReplaceCondition(input);
+		}
+		ConditionOperation op = ConditionOperation.valueOf(input.readJavaString());
+		ExtraItemNbt extraNbt = ExtraItemNbt.load(input);
+		float attackRange = input.readFloat();
+
+		int foodValue = input.readInt();
+		int numEatEffects = input.readInt();
+		Collection<PotionEffect> eatEffects = new ArrayList<>(numEatEffects);
+		for (int counter = 0; counter < numEatEffects; counter++) {
+			eatEffects.add(PotionEffect.load1(input));
+		}
+
+		CISound eatSound = CISound.valueOf(input.readString());
+		float soundVolume = input.readFloat();
+		float soundPitch = input.readFloat();
+		int soundPeriod = input.readInt();
+		int maxStacksize = input.readInt();
+
+		String imageName = input.readJavaString();
+		NamedImage texture = null;
+		for (NamedImage current : textures) {
+			if (current.getName().equals(imageName)) {
+				texture = current;
+				break;
+			}
+		}
+		if (texture == null)
+			throw new IllegalArgumentException("Can't find texture " + imageName);
+		byte[] customModel = loadCustomModel(input, checkCustomModel);
+
+		return new CustomFood(
+				itemType, name, alias, displayName, lore, attributes,
+				defaultEnchantments, texture, itemFlags, customModel,
+				playerEffects, targetEffects, equippedEffects,
+				commands, conditions, op, extraNbt, attackRange,
+				foodValue, eatEffects, eatSound, soundVolume, soundPitch,
+				soundPeriod, maxStacksize
 		);
 	}
 
@@ -6401,6 +6484,21 @@ public class ItemSet implements ItemSetBase {
 		return addItem(toAdd);
 	}
 
+	public String addFood(CustomFood toAdd) {
+		if (!bypassChecks()) {
+			if (toAdd == null) return "Can't add null food";
+			if (toAdd.eatEffects == null) return "The eat effects can't be null";
+			if (toAdd.eatSound == null) return "You must choose an eat sound";
+			if (toAdd.soundVolume <= 0f) return "The sound volume must be a positive number";
+			if (toAdd.soundPitch <= 0f) return "The sound pitch must be a positive number";
+			if (toAdd.soundPeriod <= 0) return "The sound period must be a positive integer";
+			if (toAdd.maxStacksize <= 0) return "The max stacksize must be a positive integer";
+			if (toAdd.maxStacksize > 64) return "The max stacksize can be at most 64";
+		}
+
+		return addItem(toAdd);
+	}
+
 	public String addPocketContainer(CustomPocketContainer toAdd) {
 		if (!bypassChecks()) {
 			if (toAdd == null)
@@ -6494,6 +6592,49 @@ public class ItemSet implements ItemSetBase {
 			original.projectile = newProjectile;
 			original.ammo = newAmmo;
 			original.amountPerShot = newAmountPerShot;
+		}
+
+		return error;
+	}
+
+	public String changeFood(
+			CustomFood original, CustomItemType newType, String newAlias,
+			String newDisplayName, String[] newLore,
+			AttributeModifier[] newAttributes, Enchantment[] newEnchantments,
+			NamedImage newImage, boolean[] itemFlags, byte[] newCustomModel,
+			List<PotionEffect> playerEffects, List<PotionEffect> targetEffects,
+			Collection<EquippedPotionEffect> newEquippedEffects, String[] commands,
+			ReplaceCondition[] conditions, ConditionOperation op,
+			ExtraItemNbt newExtraNbt, float newAttackRange, int newFoodValue,
+			Collection<PotionEffect> newEatEffects, CISound newEatSound,
+			float newSoundVolume, float newSoundPitch, int newSoundPeriod,
+			int newStacksize
+	) {
+		if (!bypassChecks()) {
+			if (original == null) return "Can't change null food";
+			if (newEatEffects == null) return "Can't change the eat effects to null";
+			if (newEatSound == null) return "You must select an eat sound";
+			if (newSoundVolume <= 0f) return "The sound volume must be a positive number";
+			if (newSoundPitch <= 0f) return "The sound pitch must be a positive number";
+			if (newSoundPeriod <= 0) return "The sound period must be a positive integer";
+			if (newStacksize <= 0) return "The max stacksize must be a positive integer";
+			if (newStacksize > 64) return "The max stacksize can be at most 64";
+		}
+
+		String error = changeItem(
+				original, newType, newAlias, newDisplayName, newLore, newAttributes,
+				newEnchantments, newImage, itemFlags, newCustomModel, playerEffects,
+				targetEffects, newEquippedEffects, commands, conditions, op,
+				newExtraNbt, newAttackRange
+		);
+		if (error == null) {
+			original.foodValue = newFoodValue;
+			original.eatEffects = newEatEffects;
+			original.eatSound = newEatSound;
+			original.soundVolume = newSoundVolume;
+			original.soundPitch = newSoundPitch;
+			original.soundPeriod = newSoundPeriod;
+			original.maxStacksize = newStacksize;
 		}
 
 		return error;

@@ -72,6 +72,8 @@ public class ItemCollectionEdit extends CollectionEdit<CustomItem> {
 				return new EditItemPocketContainer(menu, (CustomPocketContainer) item, (CustomPocketContainer) secondParam);
 			else if (item instanceof SimpleCustomItem)
 				return new EditItemSimple(menu, (SimpleCustomItem) item, (SimpleCustomItem) secondParam);
+			else if (item instanceof CustomFood)
+				return new EditItemFood(menu, (CustomFood) item, (CustomFood) secondParam);
 			else
 				throw new IllegalArgumentException("Unsupported custom item class: " + item.getClass());
 		}

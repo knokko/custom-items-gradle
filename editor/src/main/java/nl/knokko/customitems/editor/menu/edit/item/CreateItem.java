@@ -49,9 +49,13 @@ public class CreateItem extends GuiMenu {
 		addComponent(new DynamicTextButton("Cancel", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
 			state.getWindow().setMainComponent(menu.getItemOverview());
 		}), 0.1f, 0.8f, 0.25f, 0.9f);
+
+		addComponent(new DynamicTextButton("Food or Potion", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
+			state.getWindow().setMainComponent(new EditItemFood(menu, null, null));
+		}), 0.5f, 0.89f, 0.7f, 0.99f);
 		addComponent(new DynamicTextButton("Simple Item", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
 			state.getWindow().setMainComponent(new EditItemSimple(menu, null, null));
-		}), 0.5f, 0.8f, 0.7f, 0.9f);
+		}), 0.5f, 0.78f, 0.7f, 0.88f);
 		
 		// The row for later minecraft versions
 		addComponent(new DynamicTextButton("Trident (1.13 and 1.14)", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
@@ -117,7 +121,7 @@ public class CreateItem extends GuiMenu {
 			state.getWindow().setMainComponent(new EditItemShield(menu, null, null));
 		}), 0.75f, 0.025f, 0.95f, 0.125f);
 
-		// TODO Update help page after adding custom food/drinks
+		// TODO Update help page
 		HelpButtons.addHelpLink(this, "edit%20menu/items/select%20type.html");
 	}
 }
