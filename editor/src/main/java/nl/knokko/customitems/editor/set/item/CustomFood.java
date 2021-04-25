@@ -18,6 +18,7 @@ public class CustomFood extends CustomItem {
 
     public int foodValue;
     public Collection<PotionEffect> eatEffects;
+    public int eatTime;
 
     public CISound eatSound;
     public float soundVolume;
@@ -33,7 +34,8 @@ public class CustomFood extends CustomItem {
             List<PotionEffect> targetEffects, Collection<EquippedPotionEffect> equippedEffects,
             String[] commands, ReplaceCondition[] conditions, ReplaceCondition.ConditionOperation op,
             ExtraItemNbt extraNbt, float attackRange, int foodValue, Collection<PotionEffect> eatEffects,
-            CISound eatSound, float soundVolume, float soundPitch, int soundPeriod, int maxStacksize
+            int eatTime, CISound eatSound, float soundVolume, float soundPitch, int soundPeriod,
+            int maxStacksize
     ) {
         super(
                 itemType, name, alias, displayName, lore, attributes, defaultEnchantments, texture, itemFlags,
@@ -43,6 +45,7 @@ public class CustomFood extends CustomItem {
 
         this.foodValue = foodValue;
         this.eatEffects = eatEffects;
+        this.eatTime = eatTime;
         this.eatSound = eatSound;
         this.soundVolume = soundVolume;
         this.soundPitch = soundPitch;
@@ -107,6 +110,7 @@ public class CustomFood extends CustomItem {
         for (PotionEffect eatEffect : eatEffects) {
             eatEffect.save1(output);
         }
+        output.addInt(eatTime);
         output.addString(eatSound.name());
         output.addFloat(soundVolume);
         output.addFloat(soundPitch);

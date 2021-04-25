@@ -2637,6 +2637,7 @@ public class ItemSet implements ItemSetBase {
 		for (int counter = 0; counter < numEatEffects; counter++) {
 			eatEffects.add(PotionEffect.load1(input));
 		}
+		int eatTime = input.readInt();
 
 		CISound eatSound = CISound.valueOf(input.readString());
 		float soundVolume = input.readFloat();
@@ -2661,7 +2662,7 @@ public class ItemSet implements ItemSetBase {
 				defaultEnchantments, texture, itemFlags, customModel,
 				playerEffects, targetEffects, equippedEffects,
 				commands, conditions, op, extraNbt, attackRange,
-				foodValue, eatEffects, eatSound, soundVolume, soundPitch,
+				foodValue, eatEffects, eatTime, eatSound, soundVolume, soundPitch,
 				soundPeriod, maxStacksize
 		);
 	}
@@ -6488,6 +6489,7 @@ public class ItemSet implements ItemSetBase {
 		if (!bypassChecks()) {
 			if (toAdd == null) return "Can't add null food";
 			if (toAdd.eatEffects == null) return "The eat effects can't be null";
+			if (toAdd.eatTime <= 0) return "The eat time must be a positive integer";
 			if (toAdd.eatSound == null) return "You must choose an eat sound";
 			if (toAdd.soundVolume <= 0f) return "The sound volume must be a positive number";
 			if (toAdd.soundPitch <= 0f) return "The sound pitch must be a positive number";
@@ -6606,13 +6608,14 @@ public class ItemSet implements ItemSetBase {
 			Collection<EquippedPotionEffect> newEquippedEffects, String[] commands,
 			ReplaceCondition[] conditions, ConditionOperation op,
 			ExtraItemNbt newExtraNbt, float newAttackRange, int newFoodValue,
-			Collection<PotionEffect> newEatEffects, CISound newEatSound,
-			float newSoundVolume, float newSoundPitch, int newSoundPeriod,
+			Collection<PotionEffect> newEatEffects, int newEatTime,
+			CISound newEatSound, float newSoundVolume, float newSoundPitch, int newSoundPeriod,
 			int newStacksize
 	) {
 		if (!bypassChecks()) {
 			if (original == null) return "Can't change null food";
 			if (newEatEffects == null) return "Can't change the eat effects to null";
+			if (newEatTime <= 0) return "The eat time must be a positive integer";
 			if (newEatSound == null) return "You must select an eat sound";
 			if (newSoundVolume <= 0f) return "The sound volume must be a positive number";
 			if (newSoundPitch <= 0f) return "The sound pitch must be a positive number";
@@ -6630,6 +6633,7 @@ public class ItemSet implements ItemSetBase {
 		if (error == null) {
 			original.foodValue = newFoodValue;
 			original.eatEffects = newEatEffects;
+			original.eatTime = newEatTime;
 			original.eatSound = newEatSound;
 			original.soundVolume = newSoundVolume;
 			original.soundPitch = newSoundPitch;
