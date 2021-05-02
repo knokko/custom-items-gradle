@@ -102,4 +102,8 @@ public class BlockDrop {
 	public void setDrop(Drop newDrop) {
 		drop = newDrop;
 	}
+
+	public void setAllowSilkTouch(boolean allowSilk) {
+		allowSilkTouch = allowSilk;
+	}
 }

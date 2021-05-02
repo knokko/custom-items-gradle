@@ -132,6 +132,7 @@ import nl.knokko.customitems.recipe.ContainerRecipe.OutputEntry;
 import nl.knokko.customitems.recipe.OutputTable;
 import nl.knokko.customitems.recipe.SCIngredient;
 import nl.knokko.customitems.sound.CISound;
+import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.customitems.trouble.IntegrityException;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.StringEncoder;
@@ -7551,7 +7552,7 @@ public class ItemSet implements ItemSetBase {
 		return null;
 	}
 	
-	public String changeBlockDrop(BlockDrop old, BlockType newBlock, Drop newDrop) {
+	public String changeBlockDrop(BlockDrop old, BlockType newBlock, Drop newDrop, boolean newAllowSilk) {
 		if (!bypassChecks()) {
 			if (old == null)
 				return "The old blockDrop is null";
@@ -7566,6 +7567,7 @@ public class ItemSet implements ItemSetBase {
 		}
 		old.setBlock(newBlock);
 		old.setDrop(newDrop);
+		old.setAllowSilkTouch(newAllowSilk);
 		return null;
 	}
 	
