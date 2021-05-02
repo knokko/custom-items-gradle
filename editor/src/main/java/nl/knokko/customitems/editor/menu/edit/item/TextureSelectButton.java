@@ -3,7 +3,7 @@ package nl.knokko.customitems.editor.menu.edit.item;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.item.SelectTexture.CreateMenuFactory;
 import nl.knokko.customitems.editor.set.ItemSet;
-import nl.knokko.customitems.editor.set.item.NamedImage;
+import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
 public abstract class TextureSelectButton extends DynamicTextButton {

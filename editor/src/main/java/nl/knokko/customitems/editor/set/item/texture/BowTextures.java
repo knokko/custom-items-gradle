@@ -34,7 +34,7 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
-import nl.knokko.customitems.editor.set.item.NamedImage;
+import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 

@@ -4,7 +4,7 @@ import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.item.TextureSelectButton;
 import nl.knokko.customitems.editor.menu.edit.texture.TextureEdit;
-import nl.knokko.customitems.editor.set.item.NamedImage;
+import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.customitems.editor.set.projectile.cover.EditorProjectileCover;
 import nl.knokko.customitems.editor.set.projectile.cover.SphereProjectileCover;
 import nl.knokko.customitems.editor.util.HelpButtons;

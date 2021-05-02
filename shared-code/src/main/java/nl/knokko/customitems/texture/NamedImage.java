@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *******************************************************************************/
-package nl.knokko.customitems.editor.set.item;
+package nl.knokko.customitems.texture;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;

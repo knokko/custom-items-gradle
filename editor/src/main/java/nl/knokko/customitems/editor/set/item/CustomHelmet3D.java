@@ -14,21 +14,22 @@ import nl.knokko.customitems.item.Enchantment;
 import nl.knokko.customitems.item.ReplaceCondition;
 import nl.knokko.customitems.item.ReplaceCondition.ConditionOperation;
 import nl.knokko.customitems.item.nbt.ExtraItemNbt;
+import nl.knokko.customitems.texture.NamedImage;
 
 public class CustomHelmet3D extends CustomArmor {
 
 	public CustomHelmet3D(
-			CustomItemType itemType, String name, String alias, String displayName, 
-			String[] lore, AttributeModifier[] attributes, 
-			Enchantment[] defaultEnchantments, long durability, 
-			boolean allowEnchanting, boolean allowAnvil, Ingredient repairItem, 
-			NamedImage texture, boolean[] itemFlags, int entityHitDurabilityLoss, 
-			int blockBreakDurabilityLoss, DamageResistances damageResistances, 
-			byte[] customModel, List<PotionEffect> playerEffects,
-			List<PotionEffect> targetEffects, 
-			Collection<EquippedPotionEffect> equippedEffects, String[] commands, 
-			ReplaceCondition[] conditions, ConditionOperation op,
-			ExtraItemNbt extraNbt, float attackRange
+            CustomItemType itemType, String name, String alias, String displayName,
+            String[] lore, AttributeModifier[] attributes,
+            Enchantment[] defaultEnchantments, long durability,
+            boolean allowEnchanting, boolean allowAnvil, Ingredient repairItem,
+            NamedImage texture, boolean[] itemFlags, int entityHitDurabilityLoss,
+            int blockBreakDurabilityLoss, DamageResistances damageResistances,
+            byte[] customModel, List<PotionEffect> playerEffects,
+            List<PotionEffect> targetEffects,
+            Collection<EquippedPotionEffect> equippedEffects, String[] commands,
+            ReplaceCondition[] conditions, ConditionOperation op,
+            ExtraItemNbt extraNbt, float attackRange
 	) {
 		// The null is because 3d custom helmets don't need a worn texture
 		super(

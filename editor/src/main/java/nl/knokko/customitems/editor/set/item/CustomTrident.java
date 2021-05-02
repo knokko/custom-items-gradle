@@ -13,6 +13,7 @@ import nl.knokko.customitems.item.Enchantment;
 import nl.knokko.customitems.item.ReplaceCondition;
 import nl.knokko.customitems.item.ReplaceCondition.ConditionOperation;
 import nl.knokko.customitems.item.nbt.ExtraItemNbt;
+import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.util.bits.BitOutput;
 
 public class CustomTrident extends CustomTool {
@@ -26,18 +27,18 @@ public class CustomTrident extends CustomTool {
 	public byte[] customThrowingModel;
 
 	public CustomTrident(
-			String name, String alias, String displayName, String[] lore,
-			AttributeModifier[] attributes, Enchantment[] defaultEnchantments, 
-			long durability, boolean allowEnchanting, boolean allowAnvil, 
-			double throwDamageMultiplier, double speedMultiplier, 
-			Ingredient repairItem, NamedImage texture, boolean[] itemFlags, 
-			int entityHitDurabilityLoss, int blockBreakDurabilityLoss, 
-			int throwDurabilityLoss, byte[] customModel, byte[] customInHandModel, 
-			byte[] customThrowingModel, List<PotionEffect> playerEffects, 
-			List<PotionEffect> targetEffects, 
-			Collection<EquippedPotionEffect> equippedEffects,
-			String[] commands, ReplaceCondition[] conditions, ConditionOperation op,
-			ExtraItemNbt extraNbt, float attackRange
+            String name, String alias, String displayName, String[] lore,
+            AttributeModifier[] attributes, Enchantment[] defaultEnchantments,
+            long durability, boolean allowEnchanting, boolean allowAnvil,
+            double throwDamageMultiplier, double speedMultiplier,
+            Ingredient repairItem, NamedImage texture, boolean[] itemFlags,
+            int entityHitDurabilityLoss, int blockBreakDurabilityLoss,
+            int throwDurabilityLoss, byte[] customModel, byte[] customInHandModel,
+            byte[] customThrowingModel, List<PotionEffect> playerEffects,
+            List<PotionEffect> targetEffects,
+            Collection<EquippedPotionEffect> equippedEffects,
+            String[] commands, ReplaceCondition[] conditions, ConditionOperation op,
+            ExtraItemNbt extraNbt, float attackRange
 	) {
 		super(
 				CustomItemType.TRIDENT, name, alias, displayName, lore, attributes, 

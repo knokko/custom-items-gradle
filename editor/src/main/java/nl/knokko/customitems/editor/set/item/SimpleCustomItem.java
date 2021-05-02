@@ -35,6 +35,7 @@ import nl.knokko.customitems.item.Enchantment;
 import nl.knokko.customitems.item.ReplaceCondition;
 import nl.knokko.customitems.item.ReplaceCondition.ConditionOperation;
 import nl.knokko.customitems.item.nbt.ExtraItemNbt;
+import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.util.bits.BitOutput;
 
 public class SimpleCustomItem extends CustomItem {
@@ -44,7 +45,7 @@ public class SimpleCustomItem extends CustomItem {
 	public SimpleCustomItem(
 			CustomItemType itemType, String name, String alias, String displayName, 
 			String[] lore, AttributeModifier[] attributes, 
-			Enchantment[] defaultEnchantments, int maxStacksize, NamedImage texture, 
+			Enchantment[] defaultEnchantments, int maxStacksize, NamedImage texture,
 			boolean[] itemFlags, byte[] customModel, 
 			List<PotionEffect> playerEffects, List<PotionEffect> targetEffects, 
 			Collection<EquippedPotionEffect> equippedEffects, String[] commands, 

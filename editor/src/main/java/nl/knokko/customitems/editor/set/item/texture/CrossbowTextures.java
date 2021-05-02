@@ -1,6 +1,6 @@
 package nl.knokko.customitems.editor.set.item.texture;
 
-import nl.knokko.customitems.editor.set.item.NamedImage;
+import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 

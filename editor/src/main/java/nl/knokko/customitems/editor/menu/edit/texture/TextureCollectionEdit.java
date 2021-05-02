@@ -2,19 +2,16 @@ package nl.knokko.customitems.editor.menu.edit.texture;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
 import java.util.Locale;
 
 import nl.knokko.customitems.editor.menu.edit.*;
-import nl.knokko.customitems.editor.set.item.NamedImage;
+import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.customitems.editor.set.item.texture.BowTextures;
 import nl.knokko.customitems.editor.set.item.texture.CrossbowTextures;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.DirectoryChooserMenu;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
-
-import javax.imageio.ImageIO;
 
 public class TextureCollectionEdit extends CollectionEdit<NamedImage> {
 	

@@ -14,6 +14,7 @@ import nl.knokko.customitems.item.ReplaceCondition.ConditionOperation;
 import nl.knokko.customitems.item.WandCharges;
 import nl.knokko.customitems.item.nbt.ExtraItemNbt;
 import nl.knokko.customitems.projectile.CIProjectile;
+import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.util.bits.BitOutput;
 
 public class CustomWand extends CustomItem {
@@ -29,7 +30,7 @@ public class CustomWand extends CustomItem {
 	public CustomWand(
 			CustomItemType itemType, String name, String alias, String displayName, 
 			String[] lore, AttributeModifier[] attributes, 
-			Enchantment[] defaultEnchantments, NamedImage texture, 
+			Enchantment[] defaultEnchantments, NamedImage texture,
 			boolean[] itemFlags, byte[] customModel, 
 			List<PotionEffect> playerEffects, List<PotionEffect> targetEffects, 
 			Collection<EquippedPotionEffect> equippedEffects, String[] commands, 
