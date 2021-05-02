@@ -65,16 +65,14 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import nl.knokko.core.plugin.block.MushroomBlocks;
 import nl.knokko.core.plugin.item.GeneralItemNBT;
 import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
 import nl.knokko.customitems.plugin.recipe.IngredientEntry;
 import nl.knokko.customitems.plugin.recipe.ingredient.Ingredient;
+import nl.knokko.customitems.plugin.set.block.MushroomBlockMapping;
 import nl.knokko.customitems.plugin.set.item.*;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
@@ -87,28 +85,20 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
-import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.event.entity.EntityShootBowEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.inventory.InventoryType.SlotType;
-import org.bukkit.event.player.PlayerExpChangeEvent;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerShearEntityEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.Repairable;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 
@@ -2646,6 +2636,82 @@ public class CustomItemsEventHandler implements Listener {
 					} else if (condition.getOp() == ReplaceCondition.ReplacementOperation.ATMOST
 							|| condition.getOp() == ReplaceCondition.ReplacementOperation.EXACTLY) {
 						stack.setAmount(0);
+					}
+				}
+			}
+		}
+	}
+
+	private int blockId = 12;
+
+	@EventHandler
+	public void testCustomBlocks(PlayerInteractEvent event) {
+		if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getItem() != null && ItemHelper.getMaterialName(event.getItem()).equals(CIMaterial.STICK.name())) {
+			MushroomBlocks.place(
+					event.getClickedBlock(),
+					MushroomBlockMapping.getDirections(blockId),
+					MushroomBlockMapping.getType(blockId)
+			);
+		}
+	}
+
+	@EventHandler
+	public void testCustomBlocks(BlockPhysicsEvent event) {
+	    if (MushroomBlocks.areEnabled() && MushroomBlockMapping.isMushroomBlock(event.getBlock())) {
+	    	event.setCancelled(true);
+		}
+	}
+
+	@EventHandler
+	public void testCustomBlocks(AsyncPlayerChatEvent event) {
+		try {
+			blockId = Integer.parseInt(event.getMessage());
+		} catch (NumberFormatException ex) {
+			// Ignore this
+		}
+	}
+
+	@EventHandler
+	public void testCustomBlocks(BlockBreakEvent event) {
+		if (MushroomBlocks.areEnabled() && MushroomBlockMapping.isCustomMushroomBlock(event.getBlock())) {
+			event.setDropItems(false);
+
+			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () -> {
+				event.getBlock().getWorld().dropItemNaturally(
+						event.getBlock().getLocation(),
+						ItemHelper.createStack(CIMaterial.MOSSY_COBBLESTONE.name(), 2)
+				);
+			});
+		}
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void testCustomBlocks(BlockExplodeEvent event) {
+		handleExplosion(event.blockList(), event.getYield());
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void testCustomBlocks(EntityExplodeEvent event) {
+		handleExplosion(event.blockList(), event.getYield());
+	}
+
+	private void handleExplosion(Collection<Block> blockList, float yield) {
+		if (MushroomBlocks.areEnabled()) {
+			Random rng = new Random();
+			for (Block block : blockList) {
+				if (MushroomBlockMapping.isCustomMushroomBlock(block)) {
+
+					// This will cause the block to be 'removed' before the explosion starts, which will
+					// prevent it from dropping mushrooms
+					block.setType(Material.AIR);
+
+					// This will cause the custom block to drop the right drops
+					if (yield > rng.nextFloat()) {
+						Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () -> {
+							block.getWorld().dropItemNaturally(block.getLocation(), ItemHelper.createStack(
+									CIMaterial.OBSIDIAN.name(), 1
+							));
+						});
 					}
 				}
 			}
