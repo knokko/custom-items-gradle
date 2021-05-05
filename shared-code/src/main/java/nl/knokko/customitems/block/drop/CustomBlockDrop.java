@@ -1,5 +1,6 @@
 package nl.knokko.customitems.block.drop;
 
+import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.item.CustomItem;
 import nl.knokko.customitems.recipe.OutputTable;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -52,6 +53,19 @@ public class CustomBlockDrop {
         this.requiredItems = toCopy.getRequiredItems();
         this.silkTouch = toCopy.getSilkTouchRequirement();
         this.itemsToDrop = toCopy.getItemsToDrop();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof CustomBlockDrop) {
+
+            CustomBlockDrop otherDrop = (CustomBlockDrop) other;
+            return otherDrop.requiredItems.equals(this.requiredItems) &&
+                    otherDrop.silkTouch == this.silkTouch &&
+                    otherDrop.itemsToDrop.equals(this.itemsToDrop);
+        } else {
+            return false;
+        }
     }
 
     private void load1(

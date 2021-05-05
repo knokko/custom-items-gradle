@@ -55,6 +55,17 @@ public class RequiredItems {
         this.invert = toCopy.isInverted();
     }
 
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof RequiredItems) {
+            RequiredItems otherItems = (RequiredItems) other;
+            return otherItems.enabled == this.enabled && otherItems.vanillaItems.equals(this.vanillaItems) &&
+                    otherItems.customItems.equals(this.customItems) && otherItems.invert == this.invert;
+        } else {
+            return false;
+        }
+    }
+
     private void loadVanillaItems1(BitInput input) {
         int numItems = input.readInt();
         this.vanillaItems = new ArrayList<>(numItems);
@@ -189,6 +200,16 @@ public class RequiredItems {
         public VanillaEntry(CIMaterial material, boolean allowCustom) {
             this.material = material;
             this.allowCustom = allowCustom;
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (other instanceof VanillaEntry) {
+                VanillaEntry otherEntry = (VanillaEntry) other;
+                return otherEntry.material == this.material && otherEntry.allowCustom == this.allowCustom;
+            } else {
+                return false;
+            }
         }
     }
 }

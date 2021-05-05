@@ -23,7 +23,7 @@ public class CustomBlockValues {
             BitInput input, Function<String, CustomItem> getItemByName,
             ExceptionSupplier<Object, UnknownEncodingException> loadResult,
             // loadTexture will simply return null on the plug-in side
-            ExceptionSupplier<NamedImage, UnknownEncodingException> loadTexture, boolean mutable
+            Function<String, NamedImage> loadTexture, boolean mutable
     ) throws UnknownEncodingException {
         byte encoding = input.readByte();
 
@@ -62,6 +62,17 @@ public class CustomBlockValues {
         this.texture = toCopy.getTexture();
     }
 
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof CustomBlockValues) {
+            CustomBlockValues otherBlock = (CustomBlockValues) other;
+            return otherBlock.name.equals(this.name) && otherBlock.drops.equals(this.drops) &&
+                    otherBlock.texture.getName().equals(this.texture.getName());
+        } else {
+            return false;
+        }
+    }
+
     private void loadDrops1(
             BitInput input, Function<String, CustomItem> getItemByName,
             ExceptionSupplier<Object, UnknownEncodingException> loadResult
@@ -76,11 +87,11 @@ public class CustomBlockValues {
     private void load1(
             BitInput input, Function<String, CustomItem> getItemByName,
             ExceptionSupplier<Object, UnknownEncodingException> loadResult,
-            ExceptionSupplier<NamedImage, UnknownEncodingException> loadTexture
+            Function<String, NamedImage> loadTexture
     ) throws UnknownEncodingException {
         this.name = input.readString();
         this.loadDrops1(input, getItemByName, loadResult);
-        this.texture = loadTexture.get();
+        this.texture = loadTexture.apply(input.readString());
     }
 
     public void save(BitOutput output, Consumer<Object> saveResult) {
@@ -95,9 +106,18 @@ public class CustomBlockValues {
         }
     }
 
+    private void saveTexture1(BitOutput output) {
+        if (texture == null) {
+            output.addString(null);
+        } else {
+            output.addString(texture.getName());
+        }
+    }
+
     private void save1(BitOutput output, Consumer<Object> saveResult) {
         output.addString(name);
         saveDrops1(output, saveResult);
+        saveTexture1(output);
     }
 
     public boolean isMutable() {
