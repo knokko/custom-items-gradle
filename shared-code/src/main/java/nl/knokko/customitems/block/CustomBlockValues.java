@@ -1,6 +1,7 @@
 package nl.knokko.customitems.block;
 
 import nl.knokko.customitems.block.drop.CustomBlockDrop;
+import nl.knokko.customitems.item.CustomItem;
 import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
@@ -28,7 +29,7 @@ public class CustomBlockValues {
     }
 
     public CustomBlockValues(CustomBlockValues toCopy, boolean mutable) {
-        this(mutable);
+        this.mutable = mutable;
 
         this.name = toCopy.getName();
         this.drops = toCopy.getDrops();
@@ -78,12 +79,17 @@ public class CustomBlockValues {
         if (name.contains(" ")) throw new ValidationException("The name contains spaces");
 
         if (drops == null) throw new ProgrammingValidationException("No drops");
-        // TODO Validate the individual drops
+        for (CustomBlockDrop drop : drops) {
+            if (drop == null)
+                throw new ProgrammingValidationException("A drop is null");
+            drop.validateIndependent();
+        }
 
         if (texture == null) throw new ValidationException("You haven't chosen a texture");
     }
 
     public void validateComplete(
+            Iterable<? extends CustomItem> customItems,
             Iterable<CustomBlock> blocks,
             CustomBlock toIgnore,
             Iterable<NamedImage> textures
@@ -94,6 +100,10 @@ public class CustomBlockValues {
             if (block != toIgnore && block.getValues().getName().equals(this.name)) {
                 throw new ValidationException("There exists another block with the same name");
             }
+        }
+
+        for (CustomBlockDrop drop : drops) {
+            drop.validateComplete(customItems);
         }
 
         boolean containsTexture = false;

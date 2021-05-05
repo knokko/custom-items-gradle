@@ -27,7 +27,7 @@ public class RequiredItems {
     }
 
     public RequiredItems(RequiredItems toCopy, boolean mutable) {
-        this(mutable);
+        this.mutable = mutable;
 
         this.enabled = toCopy.isEnabled();
         this.vanillaItems = toCopy.getVanillaItems();
@@ -90,7 +90,7 @@ public class RequiredItems {
         }
     }
 
-    public void validate(
+    public void validateComplete(
             Iterable<? extends CustomItem> customItems
     ) throws ProgrammingValidationException {
         validateIndependent();
