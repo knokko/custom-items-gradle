@@ -3,13 +3,39 @@ package nl.knokko.customitems.block;
 import nl.knokko.customitems.block.drop.CustomBlockDrop;
 import nl.knokko.customitems.item.CustomItem;
 import nl.knokko.customitems.texture.NamedImage;
+import nl.knokko.customitems.trouble.UnknownEncodingException;
+import nl.knokko.customitems.util.ExceptionSupplier;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
+import nl.knokko.util.bits.BitInput;
+import nl.knokko.util.bits.BitOutput;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class CustomBlockValues {
+
+    private static final byte ENCODING_1 = 1;
+
+    public static CustomBlockValues load(
+            BitInput input, Function<String, CustomItem> getItemByName,
+            ExceptionSupplier<Object, UnknownEncodingException> loadResult,
+            // loadTexture will simply return null on the plug-in side
+            ExceptionSupplier<NamedImage, UnknownEncodingException> loadTexture, boolean mutable
+    ) throws UnknownEncodingException {
+        byte encoding = input.readByte();
+
+        CustomBlockValues result = new CustomBlockValues(mutable);
+        if (encoding == ENCODING_1) {
+            result.load1(input, getItemByName, loadResult, loadTexture);
+        } else {
+            throw new UnknownEncodingException("CustomBlockValues", encoding);
+        }
+
+        return result;
+    }
 
     private String name;
 
@@ -34,6 +60,44 @@ public class CustomBlockValues {
         this.name = toCopy.getName();
         this.drops = toCopy.getDrops();
         this.texture = toCopy.getTexture();
+    }
+
+    private void loadDrops1(
+            BitInput input, Function<String, CustomItem> getItemByName,
+            ExceptionSupplier<Object, UnknownEncodingException> loadResult
+    ) throws UnknownEncodingException {
+        int numDrops = input.readInt();
+        this.drops = new ArrayList<>(numDrops);
+        for (int counter = 0; counter < numDrops; counter++) {
+            this.drops.add(CustomBlockDrop.load(input, getItemByName, loadResult, false));
+        }
+    }
+
+    private void load1(
+            BitInput input, Function<String, CustomItem> getItemByName,
+            ExceptionSupplier<Object, UnknownEncodingException> loadResult,
+            ExceptionSupplier<NamedImage, UnknownEncodingException> loadTexture
+    ) throws UnknownEncodingException {
+        this.name = input.readString();
+        this.loadDrops1(input, getItemByName, loadResult);
+        this.texture = loadTexture.get();
+    }
+
+    public void save(BitOutput output, Consumer<Object> saveResult) {
+        output.addByte(ENCODING_1);
+        save1(output, saveResult);
+    }
+
+    private void saveDrops1(BitOutput output, Consumer<Object> saveResult) {
+        output.addInt(drops.size());
+        for (CustomBlockDrop drop : drops) {
+            drop.save(output, saveResult);
+        }
+    }
+
+    private void save1(BitOutput output, Consumer<Object> saveResult) {
+        output.addString(name);
+        saveDrops1(output, saveResult);
     }
 
     public boolean isMutable() {
@@ -65,7 +129,10 @@ public class CustomBlockValues {
 
     public void setDrops(Collection<CustomBlockDrop> newDrops) {
         assertMutable();
-        this.drops = new ArrayList<>(newDrops);
+        this.drops = new ArrayList<>(newDrops.size());
+        for (CustomBlockDrop newDrop : newDrops) {
+            this.drops.add(new CustomBlockDrop(newDrop, false));
+        }
     }
 
     public void setTexture(NamedImage newTexture) {

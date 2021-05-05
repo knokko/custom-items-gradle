@@ -2,13 +2,33 @@ package nl.knokko.customitems.block.drop;
 
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.item.CustomItem;
+import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
-import nl.knokko.customitems.util.ValidationException;
+import nl.knokko.util.bits.BitInput;
+import nl.knokko.util.bits.BitOutput;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.function.Function;
 
 public class RequiredItems {
+
+    private static final byte ENCODING_1 = 1;
+
+    public static RequiredItems load(
+            BitInput input, Function<String, CustomItem> getItemByName, boolean mutable
+    ) throws UnknownEncodingException {
+        byte encoding = input.readByte();
+
+        RequiredItems result = new RequiredItems(mutable);
+        if (encoding == ENCODING_1) {
+            result.load1(input, getItemByName);
+        } else {
+            throw new UnknownEncodingException("RequiredItems", encoding);
+        }
+
+        return result;
+    }
 
     private boolean enabled;
     private Collection<VanillaEntry> vanillaItems;
@@ -33,6 +53,59 @@ public class RequiredItems {
         this.vanillaItems = toCopy.getVanillaItems();
         this.customItems = toCopy.getCustomItems();
         this.invert = toCopy.isInverted();
+    }
+
+    private void loadVanillaItems1(BitInput input) {
+        int numItems = input.readInt();
+        this.vanillaItems = new ArrayList<>(numItems);
+        for (int counter = 0; counter < numItems; counter++) {
+            this.vanillaItems.add(new VanillaEntry(
+                    CIMaterial.valueOf(input.readString()),
+                    input.readBoolean()
+            ));
+        }
+    }
+
+    private void loadCustomItems1(BitInput input, Function<String, CustomItem> getItemByName) {
+        int numItems = input.readInt();
+        this.customItems = new ArrayList<>(numItems);
+        for (int counter = 0; counter < numItems; counter++) {
+            this.customItems.add(getItemByName.apply(input.readString()));
+        }
+    }
+
+    private void load1(BitInput input, Function<String, CustomItem> getItemByName) {
+        this.enabled = input.readBoolean();
+        this.loadVanillaItems1(input);
+        this.loadCustomItems1(input, getItemByName);
+        this.invert = input.readBoolean();
+    }
+
+    public void save(BitOutput output) {
+        output.addByte(ENCODING_1);
+        save1(output);
+    }
+
+    private void saveVanillaItems1(BitOutput output) {
+        output.addInt(vanillaItems.size());
+        for (VanillaEntry entry : vanillaItems) {
+            output.addString(entry.material.name());
+            output.addBoolean(entry.allowCustom);
+        }
+    }
+
+    private void saveCustomItems1(BitOutput output) {
+        output.addInt(customItems.size());
+        for (CustomItem item : customItems) {
+            output.addString(item.getName());
+        }
+    }
+
+    private void save1(BitOutput output) {
+        output.addBoolean(enabled);
+        saveVanillaItems1(output);
+        saveCustomItems1(output);
+        output.addBoolean(invert);
     }
 
     public boolean isEnabled() {

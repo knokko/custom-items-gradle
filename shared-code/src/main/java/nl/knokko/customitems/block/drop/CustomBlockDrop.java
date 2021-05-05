@@ -2,10 +2,35 @@ package nl.knokko.customitems.block.drop;
 
 import nl.knokko.customitems.item.CustomItem;
 import nl.knokko.customitems.recipe.OutputTable;
+import nl.knokko.customitems.trouble.UnknownEncodingException;
+import nl.knokko.customitems.util.ExceptionSupplier;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
+import nl.knokko.util.bits.BitInput;
+import nl.knokko.util.bits.BitOutput;
+
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 public class CustomBlockDrop {
+
+    private static final byte ENCODING_1 = 1;
+
+    public static CustomBlockDrop load(
+            BitInput input, Function<String, CustomItem> getItemByName,
+            ExceptionSupplier<Object, UnknownEncodingException> loadResult, boolean mutable
+    ) throws UnknownEncodingException {
+        byte encoding = input.readByte();
+
+        CustomBlockDrop result = new CustomBlockDrop(mutable);
+        if (encoding == ENCODING_1) {
+            result.load1(input, getItemByName, loadResult);
+        } else {
+            throw new UnknownEncodingException("CustomBlockDrop", encoding);
+        }
+
+        return result;
+    }
 
     private RequiredItems requiredItems;
     private SilkTouchRequirement silkTouch;
@@ -27,6 +52,26 @@ public class CustomBlockDrop {
         this.requiredItems = toCopy.getRequiredItems();
         this.silkTouch = toCopy.getSilkTouchRequirement();
         this.itemsToDrop = toCopy.getItemsToDrop();
+    }
+
+    private void load1(
+            BitInput input, Function<String, CustomItem> getItemByName,
+            ExceptionSupplier<Object, UnknownEncodingException> loadResult
+    ) throws UnknownEncodingException {
+        this.requiredItems = RequiredItems.load(input, getItemByName, false);
+        this.silkTouch = SilkTouchRequirement.valueOf(input.readString());
+        this.itemsToDrop = OutputTable.load1(input, loadResult);
+    }
+
+    public void save(BitOutput output, Consumer<Object> saveResult) {
+        output.addByte(ENCODING_1);
+        save1(output, saveResult);
+    }
+
+    private void save1(BitOutput output, Consumer<Object> saveResult) {
+        requiredItems.save(output);
+        output.addString(silkTouch.name());
+        itemsToDrop.save1(output, saveResult);
     }
 
     public RequiredItems getRequiredItems() {
@@ -56,6 +101,7 @@ public class CustomBlockDrop {
     }
 
     public void setItemsToDrop(OutputTable newItemsToDrop) {
+        assertMutable();
         this.itemsToDrop = newItemsToDrop.copy();
     }
 
