@@ -65,4 +65,9 @@ public class SetEncoding {
 	 * Added export time, image compression, and armor textures to the editor.
 	 */
 	public static final byte ENCODING_8 = 7;
+
+	/**
+	 * Added custom blocks
+	 */
+	public static final byte ENCODING_9 = 8;
 }

@@ -177,14 +177,14 @@ public class CustomBlockValues {
 
     public void validateComplete(
             Iterable<? extends CustomItem> customItems,
-            Iterable<CustomBlock> blocks,
-            CustomBlock toIgnore,
+            Iterable<CustomBlockView> blocks,
+            int blockIdToIgnore,
             Iterable<NamedImage> textures
     ) throws ValidationException, ProgrammingValidationException {
         validateIndependent();
 
-        for (CustomBlock block : blocks) {
-            if (block != toIgnore && block.getValues().getName().equals(this.name)) {
+        for (CustomBlockView block : blocks) {
+            if (block.getInternalID() != blockIdToIgnore && block.getValues().getName().equals(this.name)) {
                 throw new ValidationException("There exists another block with the same name");
             }
         }
