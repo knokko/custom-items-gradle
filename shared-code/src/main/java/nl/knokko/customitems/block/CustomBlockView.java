@@ -15,4 +15,8 @@ public class CustomBlockView {
     public CustomBlockValues getValues() {
         return block.getValues();
     }
+
+    public CustomBlockValues cloneValues() {
+        return block.cloneValues();
+    }
 }

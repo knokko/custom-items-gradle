@@ -49,10 +49,21 @@ public class CustomBlockDrop {
 
     public CustomBlockDrop(CustomBlockDrop toCopy, boolean mutable) {
         this.mutable = mutable;
+        copyFrom(toCopy, false);
+    }
+
+    private void copyFrom(CustomBlockDrop toCopy, boolean checkMutability) {
+        if (checkMutability) {
+            assertMutable();
+        }
 
         this.requiredItems = toCopy.getRequiredItems();
         this.silkTouch = toCopy.getSilkTouchRequirement();
         this.itemsToDrop = toCopy.getItemsToDrop();
+    }
+
+    public void copyFrom(CustomBlockDrop toCopy) {
+        copyFrom(toCopy, true);
     }
 
     @Override
