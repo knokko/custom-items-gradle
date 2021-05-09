@@ -27,14 +27,7 @@ import static nl.knokko.customitems.MCVersions.FIRST_VERSION;
 import static nl.knokko.customitems.MCVersions.LAST_VERSION;
 import static nl.knokko.customitems.MCVersions.VERSION1_12;
 import static nl.knokko.customitems.NameHelper.versionName;
-import static nl.knokko.customitems.encoding.SetEncoding.ENCODING_1;
-import static nl.knokko.customitems.encoding.SetEncoding.ENCODING_2;
-import static nl.knokko.customitems.encoding.SetEncoding.ENCODING_3;
-import static nl.knokko.customitems.encoding.SetEncoding.ENCODING_4;
-import static nl.knokko.customitems.encoding.SetEncoding.ENCODING_5;
-import static nl.knokko.customitems.encoding.SetEncoding.ENCODING_6;
-import static nl.knokko.customitems.encoding.SetEncoding.ENCODING_7;
-import static nl.knokko.customitems.encoding.SetEncoding.ENCODING_8;
+import static nl.knokko.customitems.encoding.SetEncoding.*;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -57,6 +50,7 @@ import javax.imageio.ImageIO;
 import javax.imageio.stream.MemoryCacheImageOutputStream;
 
 import nl.knokko.customitems.MCVersions;
+import nl.knokko.customitems.block.*;
 import nl.knokko.customitems.container.CustomContainer;
 import nl.knokko.customitems.container.VanillaContainerType;
 import nl.knokko.customitems.container.fuel.CustomFuelRegistry;
@@ -135,6 +129,7 @@ import nl.knokko.customitems.sound.CISound;
 import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.customitems.trouble.IntegrityException;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
+import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.StringEncoder;
 import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.gui.keycode.KeyCode;
@@ -2687,6 +2682,7 @@ public class ItemSet implements ItemSetBase {
 
 	private Collection<NamedImage> textures;
 	private Collection<CustomItem> items;
+	private Collection<CustomBlock> blocks;
 	private Collection<Recipe> recipes;
 	private Collection<BlockDrop> blockDrops;
 	private Collection<EntityDrop> mobDrops;
@@ -2701,6 +2697,7 @@ public class ItemSet implements ItemSetBase {
 		this.fileName = fileName;
 		textures = new ArrayList<>();
 		items = new ArrayList<>();
+		blocks = new ArrayList<>();
 		recipes = new ArrayList<>();
 		blockDrops = new ArrayList<>();
 		mobDrops = new ArrayList<>();
@@ -2715,6 +2712,7 @@ public class ItemSet implements ItemSetBase {
 	public ItemSet(String fileName, BitInput input) 
 			throws UnknownEncodingException, IntegrityException, IOException {
 		this.fileName = fileName;
+		blocks = new ArrayList<>();
 		byte encoding = input.readByte();
 		if (encoding == ENCODING_1)
 			load1(input);
@@ -2732,6 +2730,8 @@ public class ItemSet implements ItemSetBase {
 			load7(input);
 		else if (encoding == ENCODING_8)
 			load8(input);
+		else if (encoding == ENCODING_9)
+			load9(input);
 		else
 			throw new UnknownEncodingException("ItemSet", encoding);
 	}
@@ -3317,6 +3317,139 @@ public class ItemSet implements ItemSetBase {
 			}
 		}
 		
+		// Deleted item names
+		int numDeletedItems = input.readInt();
+		deletedItems = new ArrayList<>(numDeletedItems);
+		for (int counter = 0; counter < numDeletedItems; counter++) {
+			deletedItems.add(input.readString());
+		}
+	}
+
+	private void load9(BitInput rawInput)
+			throws UnknownEncodingException, IntegrityException, IOException {
+		// Check integrity
+		long expectedHash = rawInput.readLong();
+		byte[] remaining;
+		try {
+			// Catch undefined behavior when the remaining size is wrong
+			remaining = rawInput.readByteArray();
+		} catch (Throwable t) {
+			throw new IntegrityException(t);
+		}
+		long actualHash = hash(remaining);
+		if (expectedHash != actualHash)
+			throw new IntegrityException(expectedHash, actualHash);
+
+		BitInput input = new ByteArrayBitInput(remaining);
+
+		// Textures
+		int textureAmount = input.readInt();
+		textures = new ArrayList<NamedImage>(textureAmount);
+		for (int counter = 0; counter < textureAmount; counter++) {
+			byte textureType = input.readByte();
+			if (textureType == NamedImage.ENCODING_BOW)
+				textures.add(new BowTextures(input, true));
+			else if (textureType == NamedImage.ENCODING_CROSSBOW)
+				textures.add(new CrossbowTextures(input));
+			else if (textureType == NamedImage.ENCODING_SIMPLE)
+				textures.add(new NamedImage(input, true));
+			else
+				throw new UnknownEncodingException("Texture", textureType);
+		}
+
+		// Armor textures
+		int numArmorTextures = input.readInt();
+		armorTextures = new ArrayList<>(numArmorTextures);
+		for (int counter = 0; counter < numArmorTextures; counter++) {
+			armorTextures.add(new Reference<>(ArmorTextures.load(input)));
+		}
+
+		// Projectile covers
+		int numProjectileCovers = input.readInt();
+		projectileCovers = new ArrayList<>(numProjectileCovers);
+		for (int counter = 0; counter < numProjectileCovers; counter++)
+			projectileCovers.add(EditorProjectileCover.fromBits(input, this));
+
+		// Projectiles
+		int numProjectiles = input.readInt();
+		projectiles = new ArrayList<>(numProjectiles);
+		for (int counter = 0; counter < numProjectiles; counter++)
+			projectiles.add(CIProjectile.fromBits(input, this));
+
+		// Notify the projectile effects that all projectiles have been loaded
+		for (CIProjectile projectile : projectiles)
+			projectile.afterProjectilesAreLoaded(this);
+
+		// Items
+		int itemAmount = input.readInt();
+		items = new ArrayList<>(itemAmount);
+		for (int counter = 0; counter < itemAmount; counter++)
+			items.add(loadItem(input, true));
+
+		// Blocks
+		int numBlocks = input.readInt();
+		blocks = new ArrayList<>(numBlocks);
+		for (int counter = 0; counter < numBlocks; counter++) {
+		    int blockId = input.readInt();
+			CustomBlockValues blockValues = CustomBlockValues.load(
+					input, this::getCustomItemByName,
+					() -> Recipe.loadResult(input, this),
+					this::getTextureByName, false
+			);
+
+			blocks.add(new CustomBlock(blockId, blockValues));
+		}
+
+		// Notify the (block) items that all blocks are loaded
+		for (CustomItem item : items) {
+			item.afterBlocksAreLoaded(this);
+		}
+
+		// Recipes
+		int recipeAmount = input.readInt();
+		recipes = new ArrayList<Recipe>(recipeAmount);
+		for (int counter = 0; counter < recipeAmount; counter++)
+			recipes.add(loadRecipe(input));
+
+		// Drops
+		int numBlockDrops = input.readInt();
+		blockDrops = new ArrayList<>(numBlockDrops);
+		for (int counter = 0; counter < numBlockDrops; counter++) {
+			blockDrops.add(BlockDrop.load(
+					input, this::createCustomItemResult,
+					() -> Recipe.loadResult(input, this), this::getCustomItemByName
+			));
+		}
+
+		int numMobDrops = input.readInt();
+		mobDrops = new ArrayList<>(numMobDrops);
+		for (int counter = 0; counter < numMobDrops; counter++) {
+			mobDrops.add(EntityDrop.load(
+					input, this::createCustomItemResult,
+					() -> Recipe.loadResult(input, this), this::getCustomItemByName
+			));
+		}
+
+		// Custom containers and fuel registries
+		int numFuelRegistries = input.readInt();
+		fuelRegistries = new ArrayList<>(numFuelRegistries);
+		for (int counter = 0; counter < numFuelRegistries; counter++) {
+			fuelRegistries.add(loadFuelRegistry(input));
+		}
+
+		int numContainers = input.readInt();
+		containers = new ArrayList<>(numContainers);
+		for (int counter = 0; counter < numContainers; counter++) {
+			containers.add(loadContainer(input));
+		}
+
+		// Match the pocket containers with their containers (this had to be postponed until containers were loaded)
+		for (CustomItem item : items) {
+			if (item instanceof CustomPocketContainer) {
+				((CustomPocketContainer) item).findContainers(this);
+			}
+		}
+
 		// Deleted item names
 		int numDeletedItems = input.readInt();
 		deletedItems = new ArrayList<>(numDeletedItems);
@@ -5180,7 +5313,7 @@ public class ItemSet implements ItemSetBase {
 			File file = new File(Editor.getFolder() + "/" + fileName + ".cisb");// cisb stands for Custom Item Set
 																				// Builder
 			ByteArrayBitOutput output = new ByteArrayBitOutput();
-			save8(output);
+			save9(output);
 			output.terminate();
 			byte[] bytes = output.getBytes();
 			OutputStream mainOutput = Files.newOutputStream(file.toPath());
@@ -5613,6 +5746,98 @@ public class ItemSet implements ItemSetBase {
 			output.addString(deletedItem);
 		}
 		
+		// Finish the integrity work
+		byte[] contentBytes = output.getBytes();
+		outerOutput.addLong(hash(contentBytes));
+		outerOutput.addByteArray(contentBytes);
+	}
+
+	// Add custom blocks
+	private void save9(BitOutput outerOutput) throws IOException {
+		outerOutput.addByte(ENCODING_9);
+
+		// BooleanArrayBitOutput requires more memory, but is also much faster
+		// than ByteArrayBitOutput
+		BooleanArrayBitOutput output = new BooleanArrayBitOutput();
+
+		output.addInt(textures.size());
+		for (NamedImage texture : textures) {
+			if (texture instanceof BowTextures)
+				output.addByte(NamedImage.ENCODING_BOW);
+			else if (texture instanceof CrossbowTextures)
+				output.addByte(NamedImage.ENCODING_CROSSBOW);
+			else
+				output.addByte(NamedImage.ENCODING_SIMPLE);
+			texture.save(output, true);
+		}
+
+		output.addInt(armorTextures.size());
+		for (Reference<ArmorTextures> textureRef : armorTextures) {
+			textureRef.get().save(output);
+		}
+
+		output.addInt(projectileCovers.size());
+		for (EditorProjectileCover cover : projectileCovers)
+			cover.toBits(output);
+
+		output.addInt(projectiles.size());
+		for (CIProjectile projectile : projectiles)
+			projectile.toBits(output);
+
+		output.addInt(items.size());
+
+		// Save the normal items before the tools so that tools can use normal items as
+		// repair item. For the same reason, normal items should be saved before the guns
+		List<CustomItem> sorted = new ArrayList<CustomItem>(items.size());
+		for (CustomItem item : items) {
+			if (!(item instanceof CustomTool || item instanceof CustomGun)) {
+				sorted.add(item);
+			}
+		}
+		for (CustomItem item : items) {
+			if (item instanceof CustomTool || item instanceof CustomGun) {
+				sorted.add(item);
+			}
+		}
+		for (CustomItem item : sorted)
+			item.save2(output);
+
+		// Save the blocks
+		output.addInt(blocks.size());
+		for (CustomBlock block : blocks) {
+			output.addInt(block.getInternalID());
+			block.getValues().save(output, result -> ((Result) result).save(output));
+		}
+
+		output.addInt(recipes.size());
+		for (Recipe recipe : recipes)
+			recipe.save(output);
+
+		output.addInt(blockDrops.size());
+		for (BlockDrop drop : blockDrops)
+			drop.save(output, result -> ((Result) result).save(output));
+
+		output.addInt(mobDrops.size());
+		for (EntityDrop drop : mobDrops)
+			drop.save(output, result -> ((Result) result).save(output));
+
+		output.addInt(fuelRegistries.size());
+		for (CustomFuelRegistry registry : fuelRegistries)
+			registry.save(output, scIngredient -> ((Ingredient)scIngredient).save(output));
+
+		output.addInt(containers.size());
+		for (CustomContainer container : containers) {
+			container.save(output,
+					ingredient -> ((Ingredient)ingredient).save(output),
+					result -> ((Result)result).save(output)
+			);
+		}
+
+		output.addInt(deletedItems.size());
+		for (String deletedItem : deletedItems) {
+			output.addString(deletedItem);
+		}
+
 		// Finish the integrity work
 		byte[] contentBytes = output.getBytes();
 		outerOutput.addLong(hash(contentBytes));
@@ -8149,6 +8374,64 @@ public class ItemSet implements ItemSetBase {
 		}
 	}
 
+	public String addBlock(CustomBlockValues blockValues) {
+		try {
+			if (blockValues == null) {
+				throw new ProgrammingValidationException("blockValues is null");
+			}
+
+			blockValues.validateComplete(
+					items, getBlocks(), -1, textures
+			);
+
+			int newBlockID = 1;
+			while (getBlockByID(newBlockID) != null) {
+				newBlockID++;
+			}
+
+			if (newBlockID > BlockConstants.MAX_BLOCK_ID) {
+				throw new ValidationException("You reached the maximum number of blocks");
+			}
+
+			blocks.add(new CustomBlock(newBlockID, blockValues));
+			return null;
+		} catch (ValidationException validationError) {
+			return validationError.getMessage();
+		} catch (ProgrammingValidationException programmingError) {
+			return "Programming error: " + programmingError.getMessage();
+		}
+	}
+
+	public String changeBlock(CustomBlockView toChange, CustomBlockValues newValues) {
+		try {
+			if (toChange == null) {
+				throw new ProgrammingValidationException("toChange is null");
+			}
+			CustomBlock blockToChange = null;
+			for (CustomBlock candidate : blocks) {
+				if (candidate.getInternalID() == toChange.getInternalID()) {
+					blockToChange = candidate;
+					break;
+				}
+			}
+
+			if (blockToChange == null) {
+				throw new ProgrammingValidationException("No block with id " + toChange.getInternalID() + " exists");
+			}
+
+			newValues.validateComplete(
+					items, getBlocks(), toChange.getInternalID(), textures
+			);
+
+			blockToChange.setValues(newValues);
+			return null;
+		} catch (ValidationException validationError) {
+			return validationError.getMessage();
+		} catch (ProgrammingValidationException programmingError) {
+			return "Programming error: " + programmingError.getMessage();
+		}
+	}
+
 	/**
 	 * Do not modify this collection directly!
 	 * 
@@ -8156,6 +8439,10 @@ public class ItemSet implements ItemSetBase {
 	 */
 	public Collection<CustomItem> getBackingItems() {
 		return items;
+	}
+
+	public CustomBlocksView getBlocks() {
+		return new CustomBlocksView(blocks);
 	}
 
 	/**
@@ -8298,5 +8585,15 @@ public class ItemSet implements ItemSetBase {
 	private CustomItemResult createCustomItemResult(String itemName, byte amount) {
 		CustomItem item = getCustomItemByName(itemName);
 		return new CustomItemResult(item, amount);
+	}
+
+	public CustomBlockView getBlockByID(int internalID) {
+		for (CustomBlockView block : getBlocks()) {
+			if (block.getInternalID() == internalID) {
+				return block;
+			}
+		}
+
+		return null;
 	}
 }
