@@ -13,6 +13,12 @@ public class Checks {
 		for (Object object : array)
 			notNull(object);
 	}
+
+	public static void nonNullArray(Object[] array) {
+	    for (Object object : array) {
+	    	notNull(object);
+		}
+	}
 	
 	public static void nonNull(Collection<?> collection) {
 		collection.forEach(Checks::notNull);

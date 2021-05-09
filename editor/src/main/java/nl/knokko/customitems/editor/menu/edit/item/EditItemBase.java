@@ -151,13 +151,13 @@ public abstract class EditItemBase extends GuiMenu {
 			);
 		}
 		
-		Checks.nonNull(lore);
-		Checks.nonNull(attributes);
-		Checks.nonNull(enchantments);
+		Checks.nonNullArray(lore);
+		Checks.nonNullArray(attributes);
+		Checks.nonNullArray(enchantments);
 		Checks.nonNull(playerEffects);
 		Checks.nonNull(targetEffects);
-		Checks.nonNull(commands);
-		Checks.nonNull(conditions);
+		Checks.nonNullArray(commands);
+		Checks.nonNullArray(conditions);
 	}
 	
 	@Override
@@ -354,7 +354,7 @@ public abstract class EditItemBase extends GuiMenu {
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new AttributeCollectionEdit(Arrays.asList(attributes),
 					newAttributes -> {
-						Checks.nonNull(attributes);
+						Checks.nonNullArray(attributes);
 						this.attributes = newAttributes.toArray(new AttributeModifier[newAttributes.size()]);
 					}, EditItemBase.this, getExampleAttributeModifier()));
 		}), BUTTON_X, 0.5f, BUTTON_X + 0.1f, 0.55f);
@@ -411,7 +411,7 @@ public abstract class EditItemBase extends GuiMenu {
 			if (menu.getSet().getBackingItems().size() > 0) {
 				state.getWindow().setMainComponent(new ReplacementCollectionEdit(Arrays.asList(conditions), 
 						newConditions -> {
-							Checks.nonNull(conditions);
+							Checks.nonNullArray(conditions);
 							this.conditions = newConditions.toArray(new ReplaceCondition[newConditions.size()]);
 						}, EditItemBase.this, getExampleReplaceCondition(), menu.getSet().getBackingItems(), newOp ->  {
 							if (newOp == null) {

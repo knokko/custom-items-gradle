@@ -58,7 +58,7 @@ public class EditRequiredItems extends GuiMenu  {
         addComponent(new DynamicTextComponent("Enabled", EditProps.LABEL),
                 0.125f, 0.5f, 0.25f, 0.6f);
 
-        addComponent(new WrapperComponent<>(new EditEnabled()){
+        addComponent(new WrapperComponent<EditEnabled>(new EditEnabled()){
             @Override
             public boolean isActive() {
                 return requiredItems.isEnabled();
