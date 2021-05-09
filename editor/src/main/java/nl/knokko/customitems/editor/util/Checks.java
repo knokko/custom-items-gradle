@@ -9,7 +9,7 @@ public class Checks {
 			throw new NullPointerException();
 	}
 	
-	public static void nonNull(Object[] array) {
+	public static void nonNull(Object... array) {
 		for (Object object : array)
 			notNull(object);
 	}

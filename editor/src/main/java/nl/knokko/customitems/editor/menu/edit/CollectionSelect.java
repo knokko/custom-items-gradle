@@ -1,6 +1,10 @@
 package nl.knokko.customitems.editor.menu.edit;
 
+import java.nio.file.DirectoryStream;
 import java.util.Locale;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -11,35 +15,35 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 public class CollectionSelect<T> extends GuiMenu {
 	
-	public static <T> DynamicTextButton createButton(Iterable<T> backingCollection, Receiver<T> onSelect,
-			Filter<T> filter, Formatter<T> formatter, T current) {
+	public static <T> DynamicTextButton createButton(Iterable<T> backingCollection, Consumer<T> onSelect,
+			Predicate<T> filter, Function<T, String> formatter, T current) {
 		String text = current == null ? "None" : current.toString();
 		return new DynamicTextButton(text, EditProps.BUTTON, EditProps.HOVER, null) {
 			
 			@Override
 			public void click(float x, float y, int button) {
 				state.getWindow().setMainComponent(new CollectionSelect<T>(backingCollection, (T selected) -> {
-					setText(formatter.getName(selected));
-					onSelect.onSelect(selected);
+					setText(formatter.apply(selected));
+					onSelect.accept(selected);
 				}, filter, formatter, state.getWindow().getMainComponent()));
 			}
 		};
 	}
 	
-	public static <T> DynamicTextButton createButton(Iterable<T> backingCollection, Receiver<T> onSelect,
-			Formatter<T> formatter, T current) {
+	public static <T> DynamicTextButton createButton(Iterable<T> backingCollection, Consumer<T> onSelect,
+			Function<T, String> formatter, T current) {
 		return createButton(backingCollection, onSelect, (T item) -> { return true; }, formatter, current);
 	}
 	
 	private final Iterable<T> collection;
-	private final Receiver<T> onSelect;
-	private final Filter<T> filter;
-	private final Formatter<T> formatter;
+	private final Consumer<T> onSelect;
+	private final Predicate<T> filter;
+	private final Function<T, String> formatter;
 	
 	private final GuiComponent returnMenu;
 
-	public CollectionSelect(Iterable<T> backingCollection, Receiver<T> onSelect, Filter<T> filter,
-			Formatter<T> formatter, GuiComponent returnMenu) {
+	public CollectionSelect(Iterable<T> backingCollection, Consumer<T> onSelect, Predicate<T> filter,
+							Function<T, String> formatter, GuiComponent returnMenu) {
 		this.collection = backingCollection;
 		this.onSelect = onSelect;
 		this.filter = filter;
@@ -97,35 +101,20 @@ public class CollectionSelect<T> extends GuiMenu {
 			lastSearchText = searchField.getText();
 			int counter = 0;
 			for (T item : collection) {
-				String name = formatter.getName(item);
+				String name = formatter.apply(item);
 				if (
-						filter.canSelect(item) && name.toLowerCase(Locale.ROOT)
+						filter.test(item) && name.toLowerCase(Locale.ROOT)
 						.contains(lastSearchText.toLowerCase(Locale.ROOT))
 				) {
 					T copy = item;
 					
 					addComponent(new DynamicTextButton(name, EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-						onSelect.onSelect(copy);
+						onSelect.accept(copy);
 						state.getWindow().setMainComponent(returnMenu);
 					}), 0f, 0.88f - counter * 0.13f, 0f + Math.min(1f, name.length() * 0.02f), 1f - counter * 0.13f);
 					counter++;
 				}
 			}
 		}
-	}
-	
-	public static interface Receiver<T> {
-		
-		void onSelect(T selected);
-	}
-	
-	public static interface Filter<T> {
-		
-		boolean canSelect(T item);
-	}
-	
-	public static interface Formatter<T> {
-		
-		String getName(T item);
 	}
 }

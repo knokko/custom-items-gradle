@@ -91,6 +91,7 @@ import nl.knokko.customitems.editor.set.recipe.result.Result;
 import nl.knokko.customitems.editor.set.recipe.result.SimpleVanillaResult;
 import nl.knokko.customitems.editor.util.ReadOnlyReference;
 import nl.knokko.customitems.editor.util.Reference;
+import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.effect.EffectType;
 import nl.knokko.customitems.effect.EquippedPotionEffect;
 import nl.knokko.customitems.effect.PotionEffect;
@@ -8375,7 +8376,7 @@ public class ItemSet implements ItemSetBase {
 	}
 
 	public String addBlock(CustomBlockValues blockValues) {
-		try {
+		return Validation.toErrorString(() -> {
 			if (blockValues == null) {
 				throw new ProgrammingValidationException("blockValues is null");
 			}
@@ -8394,16 +8395,11 @@ public class ItemSet implements ItemSetBase {
 			}
 
 			blocks.add(new CustomBlock(newBlockID, blockValues));
-			return null;
-		} catch (ValidationException validationError) {
-			return validationError.getMessage();
-		} catch (ProgrammingValidationException programmingError) {
-			return "Programming error: " + programmingError.getMessage();
-		}
+		});
 	}
 
 	public String changeBlock(CustomBlockView toChange, CustomBlockValues newValues) {
-		try {
+		return Validation.toErrorString(() -> {
 			if (toChange == null) {
 				throw new ProgrammingValidationException("toChange is null");
 			}
@@ -8424,12 +8420,7 @@ public class ItemSet implements ItemSetBase {
 			);
 
 			blockToChange.setValues(newValues);
-			return null;
-		} catch (ValidationException validationError) {
-			return validationError.getMessage();
-		} catch (ProgrammingValidationException programmingError) {
-			return "Programming error: " + programmingError.getMessage();
-		}
+		});
 	}
 
 	/**
