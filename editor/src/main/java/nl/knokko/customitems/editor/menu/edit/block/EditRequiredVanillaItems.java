@@ -1,5 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.block;
 
+import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.block.drop.RequiredItems;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
@@ -34,7 +35,7 @@ public class EditRequiredVanillaItems extends QuickCollectionEdit<RequiredItems.
                             newMaterial, currentEntry.allowCustom
                     );
                     ownCollection.set(itemIndex, newEntry);
-                }, original.material
+                }, candidate -> candidate.lastVersion >= MCVersions.VERSION1_13, original.material
         ), 0.3f, minY, 0.6f, maxY);
         addComponent(new CheckboxComponent(original.allowCustom, newValue -> {
             RequiredItems.VanillaEntry currentEntry = ownCollection.get(itemIndex);

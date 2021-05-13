@@ -236,9 +236,9 @@ public class EditMenu extends GuiMenu {
 		addComponent(new DynamicTextButton("Containers", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(containerPortal);
 		}), 0.6f, 0.2f, 0.875f, 0.3f);
-		addComponent(new DynamicTextButton("Blocks", EditProps.BUTTON, EditProps.HOVER, () ->
+		addComponent(new DynamicTextButton("Blocks (1.13+)", EditProps.BUTTON, EditProps.HOVER, () ->
 				state.getWindow().setMainComponent(new BlockCollectionEdit(set, this))
-		), 0.6f, 0.08f, 0.8f, 0.18f);
+		), 0.6f, 0.08f, 0.9f, 0.18f);
 
 		// TODO Update this page after adding blocks and possibly adding support for mc 1.9 to 1.11
 		HelpButtons.addHelpLink(this, "edit%20menu/index.html");
