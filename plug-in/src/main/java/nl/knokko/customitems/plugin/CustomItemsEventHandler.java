@@ -67,10 +67,11 @@ import java.util.logging.Level;
 
 import nl.knokko.core.plugin.block.MushroomBlocks;
 import nl.knokko.core.plugin.item.GeneralItemNBT;
+import nl.knokko.customitems.block.MushroomBlockMapping;
 import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
 import nl.knokko.customitems.plugin.recipe.IngredientEntry;
 import nl.knokko.customitems.plugin.recipe.ingredient.Ingredient;
-import nl.knokko.customitems.plugin.set.block.MushroomBlockMapping;
+import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
 import nl.knokko.customitems.plugin.set.item.*;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
@@ -95,10 +96,8 @@ import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.BlockStateMeta;
-import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.Repairable;
-import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 
@@ -2650,14 +2649,14 @@ public class CustomItemsEventHandler implements Listener {
 			MushroomBlocks.place(
 					event.getClickedBlock(),
 					MushroomBlockMapping.getDirections(blockId),
-					MushroomBlockMapping.getType(blockId)
+					MushroomBlockMapping.getType(blockId).material.name()
 			);
 		}
 	}
 
 	@EventHandler
 	public void testCustomBlocks(BlockPhysicsEvent event) {
-	    if (MushroomBlocks.areEnabled() && MushroomBlockMapping.isMushroomBlock(event.getBlock())) {
+	    if (MushroomBlocks.areEnabled() && MushroomBlockHelper.isMushroomBlock(event.getBlock())) {
 	    	event.setCancelled(true);
 		}
 	}
@@ -2673,7 +2672,7 @@ public class CustomItemsEventHandler implements Listener {
 
 	@EventHandler
 	public void testCustomBlocks(BlockBreakEvent event) {
-		if (MushroomBlocks.areEnabled() && MushroomBlockMapping.isCustomMushroomBlock(event.getBlock())) {
+		if (MushroomBlocks.areEnabled() && MushroomBlockHelper.isCustomMushroomBlock(event.getBlock())) {
 			event.setDropItems(false);
 
 			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () -> {
@@ -2699,7 +2698,7 @@ public class CustomItemsEventHandler implements Listener {
 		if (MushroomBlocks.areEnabled()) {
 			Random rng = new Random();
 			for (Block block : blockList) {
-				if (MushroomBlockMapping.isCustomMushroomBlock(block)) {
+				if (MushroomBlockHelper.isCustomMushroomBlock(block)) {
 
 					// This will cause the block to be 'removed' before the explosion starts, which will
 					// prevent it from dropping mushrooms

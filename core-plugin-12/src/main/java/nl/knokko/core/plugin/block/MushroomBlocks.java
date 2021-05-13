@@ -9,17 +9,11 @@ public class MushroomBlocks {
         return false;
     }
 
-    public static void place(Block destination, boolean[] directions, Type type) {
+    public static void place(Block destination, boolean[] directions, String materialName) {
         throw new UnsupportedOperationException("Custom mushroom blocks are not supported in minecraft 1.12");
     }
 
     public static boolean[] getDirections(Block toCheck) {
         throw new UnsupportedOperationException("Custom mushroom blocks are not supported in minecraft 1.12");
-    }
-
-    public enum Type {
-        STEM,
-        RED,
-        BROWN
     }
 }

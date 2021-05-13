@@ -1,9 +1,6 @@
-package nl.knokko.customitems.plugin.set.block;
+package nl.knokko.customitems.block;
 
-import nl.knokko.core.plugin.block.MushroomBlocks;
-import nl.knokko.core.plugin.item.ItemHelper;
 import nl.knokko.customitems.item.CIMaterial;
-import org.bukkit.block.Block;
 
 import java.util.Arrays;
 
@@ -188,23 +185,23 @@ public class MushroomBlockMapping {
         return id >= MIN_BLOCK_ID && id <= MAX_BLOCK_ID;
     }
 
-    public static MushroomBlocks.Type getType(int id) {
+    public static Type getType(int id) {
         checkId(id);
 
-        if (id <= 53) return MushroomBlocks.Type.BROWN;
-        if (id <= 98) return MushroomBlocks.Type.RED;
-        return MushroomBlocks.Type.STEM;
+        if (id <= 53) return Type.BROWN;
+        if (id <= 98) return Type.RED;
+        return Type.STEM;
     }
 
-    public static MushroomBlocks.Type getType(String materialName) {
+    public static Type getType(String materialName) {
         if (materialName.equals(CIMaterial.BROWN_MUSHROOM_BLOCK.name())) {
-            return MushroomBlocks.Type.BROWN;
+            return Type.BROWN;
         }
         if (materialName.equals(CIMaterial.RED_MUSHROOM_BLOCK.name())) {
-            return MushroomBlocks.Type.RED;
+            return Type.RED;
         }
         if (materialName.equals(CIMaterial.MUSHROOM_STEM.name())) {
-            return MushroomBlocks.Type.STEM;
+            return Type.STEM;
         }
 
         return null;
@@ -216,22 +213,141 @@ public class MushroomBlockMapping {
         return DIRECTIONS[id];
     }
 
-    public static boolean isMushroomBlock(Block block) {
-        return getType(ItemHelper.getMaterialName(block)) != null;
-    }
+    public enum Type {
+        STEM(CIMaterial.MUSHROOM_STEM),
+        RED(CIMaterial.RED_MUSHROOM_BLOCK),
+        BROWN(CIMaterial.BROWN_MUSHROOM_BLOCK);
 
-    public static boolean isCustomMushroomBlock(Block block) {
+        public final CIMaterial material;
 
-        MushroomBlocks.Type mushroomType = getType(ItemHelper.getMaterialName(block));
-        if (mushroomType != null) {
-            boolean[] directions = MushroomBlocks.getDirections(block);
-            for (int id = MIN_BLOCK_ID; id <= MAX_BLOCK_ID; id++) {
-                if (getType(id) == mushroomType && Arrays.equals(directions, getDirections(id))) {
-                    return true;
-                }
-            }
+        Type(CIMaterial material) {
+            this.material = material;
         }
 
-        return false;
+        public String getResourceName() {
+            return material.name().toLowerCase();
+        }
     }
+
+    public static class VanillaMushroomEntry {
+
+        private final boolean[] directions;
+        private final String fileName;
+
+        VanillaMushroomEntry(boolean[] directions, String fileName) {
+            this.directions = directions;
+            this.fileName = fileName;
+        }
+
+        public boolean[] getDirections() {
+            return Arrays.copyOf(directions, directions.length);
+        }
+
+        public String getFileName() {
+            return fileName;
+        }
+    }
+
+    private static final VanillaMushroomEntry[] VANILLA_BROWN_ENTRIES = {
+            new VanillaMushroomEntry(
+                    new boolean[] {false, false, false, false, false, false}, "false"
+            ), new VanillaMushroomEntry(
+                    new boolean[] {false, false, false, false, true, false}, "1"
+            ), new VanillaMushroomEntry(
+                    new boolean[] {false, false, false, false, true, true}, "2"
+            ), new VanillaMushroomEntry(
+                    new boolean[] {false, false, false, true, true, false}, "3"
+            ), new VanillaMushroomEntry(
+                    new boolean[] {false, false, false, true, true, true}, "4"
+            ), new VanillaMushroomEntry(
+                    new boolean[] {false, false, true, false, true, false}, "5"
+            ), new VanillaMushroomEntry(
+                    new boolean[] {false, false, true, false, true, true}, "6"
+            ), new VanillaMushroomEntry(
+                    new boolean[] {false, true, false, false, true, false}, "7"
+            ), new VanillaMushroomEntry(
+                    new boolean[] {false, true, false, true, true, false}, "8"
+            ), new VanillaMushroomEntry(
+                    new boolean[] {false, true, true, false, true, false}, "9"
+            ), new VanillaMushroomEntry(
+                    new boolean[] {true, true, true, true, true, true}, "true"
+            )
+    };
+
+    private static final VanillaMushroomEntry[] VANILLA_RED_ENTRIES = {
+            new VanillaMushroomEntry(
+                    new boolean[] {false, false, false, false, false, false}, "false"
+            ), new VanillaMushroomEntry(
+                    new boolean[] {false, false, false, false, false, true}, "1"
+            ), new VanillaMushroomEntry(
+                    new boolean[] {false, false, false, false, true, true}, "2"
+            ), new VanillaMushroomEntry(
+                    new boolean[] {false, false, false, true, false, false}, "3"
+            ), new VanillaMushroomEntry(
+                    new boolean[] {false, false, false, true, false, true}, "4"
+            ), new VanillaMushroomEntry(
+                    new boolean[] {false, false, false, true, true, false}, "5"
+            ), new VanillaMushroomEntry(
+                    new boolean[] {false, false, false, true, true, true}, "6"
+            ), new VanillaMushroomEntry(
+                    new boolean[] {false, false, true, false, false, false}, "7"
+            ), new VanillaMushroomEntry(
+                    new boolean[] {false, false, true, false, false, true}, "8"
+            ), new VanillaMushroomEntry(
+                    new boolean[] {false, false, true, false, true, false}, "9"
+            ), new VanillaMushroomEntry(
+                    new boolean[] {false, false, true, false, true, true}, "10"
+            ), new VanillaMushroomEntry(
+                    new boolean[] {false, true, false, false, false, false}, "11"
+            ), new VanillaMushroomEntry(
+                    new boolean[] {false, true, false, false, true, false}, "12"
+            ), new VanillaMushroomEntry(
+                    new boolean[] {false, true, false, true, false, false}, "13"
+            ), new VanillaMushroomEntry(
+                    new boolean[] {false, true, false, true, true, false}, "14"
+            ), new VanillaMushroomEntry(
+                    new boolean[] {false, true, true, false, false, false}, "15"
+            ), new VanillaMushroomEntry(
+                    new boolean[] {false, true, true, false, true, false}, "16"
+            ), new VanillaMushroomEntry(
+                    // I wonder why this one comes last rather than second
+                    new boolean[] {false, false, false, false, true, false}, "17"
+            ), new VanillaMushroomEntry(
+                    new boolean[] {true, true, true, true, true, true}, "true"
+            )
+    };
+
+    private static final VanillaMushroomEntry[] VANILLA_STEM_ENTRIES = {
+            new VanillaMushroomEntry(
+                    new boolean[] {false, false, false, false, false, false}, "false"
+            ), new VanillaMushroomEntry(
+                    // TODO I use a slightly different name than lapisdemon here
+                    new boolean[] {false, true, true, true, false, true}, "1"
+            ), new VanillaMushroomEntry(
+                    new boolean[] {true, true, true, true, true, true}, "true"
+            )
+    };
+
+    public static VanillaMushroomEntry[] getVanillaBrownEntries() {
+        return Arrays.copyOf(VANILLA_BROWN_ENTRIES, VANILLA_BROWN_ENTRIES.length);
+    }
+
+    public static VanillaMushroomEntry[] getVanillaRedEntries() {
+        return Arrays.copyOf(VANILLA_RED_ENTRIES, VANILLA_RED_ENTRIES.length);
+    }
+
+    public static VanillaMushroomEntry[] getVanillaStemEntries() {
+        return Arrays.copyOf(VANILLA_STEM_ENTRIES, VANILLA_STEM_ENTRIES.length);
+    }
+
+    public static VanillaMushroomEntry[] getVanillaEntries(Type type) {
+        switch (type) {
+            case BROWN: return getVanillaBrownEntries();
+            case RED: return getVanillaRedEntries();
+            case STEM: return getVanillaStemEntries();
+            default: throw new IllegalArgumentException("Unknown mushroom type: " + type);
+        }
+    }
+
+    // TODO Remove the Type enum from KnokkoCore 1.13+
 }
