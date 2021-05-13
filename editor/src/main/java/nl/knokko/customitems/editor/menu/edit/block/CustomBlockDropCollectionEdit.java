@@ -13,14 +13,19 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
 import java.awt.image.BufferedImage;
 import java.util.Collection;
+import java.util.function.Consumer;
 
 public class CustomBlockDropCollectionEdit extends CollectionEdit<CustomBlockDrop> {
 
     private final Collection<CustomBlockDrop> currentDrops;
     private final ItemSet set;
 
-    public CustomBlockDropCollectionEdit(Collection<CustomBlockDrop> currentDrops, ItemSet set, GuiComponent returnMenu) {
-        super(new BlockDropActionHandler(currentDrops, set, returnMenu), currentDrops);
+    public CustomBlockDropCollectionEdit(
+            Collection<CustomBlockDrop> currentDrops,
+            Consumer<Collection<CustomBlockDrop>> changeDrops,
+            ItemSet set, GuiComponent returnMenu
+    ) {
+        super(new BlockDropActionHandler(currentDrops, changeDrops, set, returnMenu), currentDrops);
         this.currentDrops = currentDrops;
         this.set = set;
     }
@@ -33,7 +38,7 @@ public class CustomBlockDropCollectionEdit extends CollectionEdit<CustomBlockDro
                 state.getWindow().setMainComponent(new EditCustomBlockDrop(
                         currentDrops, new CustomBlockDrop(false), set, this
                 ))
-        ), 0.025f, 0.4f, 0.2f, 0.5f);
+        ), 0.025f, 0.2f, 0.2f, 0.3f);
 
         // TODO Create help menu
     }
@@ -41,17 +46,23 @@ public class CustomBlockDropCollectionEdit extends CollectionEdit<CustomBlockDro
     private static class BlockDropActionHandler implements ActionHandler<CustomBlockDrop> {
 
         private final Collection<CustomBlockDrop> currentDrops;
+        private final Consumer<Collection<CustomBlockDrop>> changeDrops;
         private final ItemSet set;
         private final GuiComponent returnMenu;
 
-        BlockDropActionHandler(Collection<CustomBlockDrop> currentDrops, ItemSet set, GuiComponent returnMenu) {
+        BlockDropActionHandler(
+                Collection<CustomBlockDrop> currentDrops,
+                Consumer<Collection<CustomBlockDrop>> changeDrops,
+                ItemSet set, GuiComponent returnMenu) {
             this.currentDrops = currentDrops;
+            this.changeDrops = changeDrops;
             this.set = set;
             this.returnMenu = returnMenu;
         }
 
         @Override
         public void goBack() {
+            changeDrops.accept(currentDrops);
             returnMenu.getState().getWindow().setMainComponent(returnMenu);
         }
 

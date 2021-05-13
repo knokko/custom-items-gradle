@@ -53,7 +53,7 @@ public class BlockCollectionEdit extends CollectionEdit<CustomBlockView> {
 
         @Override
         public String getLabel(CustomBlockView block) {
-            return block.getValues().getName();
+            return block.getValues().getName() + " (" + block.getInternalID() + ")";
         }
 
         @Override

@@ -78,17 +78,23 @@ public class EditRequiredItems extends GuiMenu  {
         @Override
         protected void addComponents() {
             addComponent(new DynamicTextComponent("Required custom items:", EditProps.LABEL),
-                    0.01f, 0.8f, 0.2f, 0.9f);
+                    0.1f, 0.8f, 0.35f, 0.9f);
             addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () ->
                     state.getWindow().setMainComponent(new ChooseRequiredHeldItems(
                             set.getBackingItems(), requiredItems.getCustomItems(),
                             requiredItems::setCustomItems, EditRequiredItems.this
                     ))
-            ), 0.21f, 0.8f, 0.3f, 0.9f);
+            ), 0.37f, 0.8f, 0.5f, 0.9f);
 
             addComponent(new DynamicTextComponent("Required vanilla items:", EditProps.LABEL),
-                    0f, 0.6f, 0.2f, 0.7f);
-            // TODO Create menu to select multiple vanilla items
+                    0.1f, 0.6f, 0.35f, 0.7f);
+            addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () ->
+                    state.getWindow().setMainComponent(new EditRequiredVanillaItems(
+                            requiredItems.getVanillaItems(),
+                            requiredItems::setVanillaItems,
+                            EditRequiredItems.this
+                    ))),
+                    0.37f, 0.6f, 0.5f, 0.7f);
 
             addComponent(new CheckboxComponent(
                     requiredItems.isInverted(), requiredItems::setInverted

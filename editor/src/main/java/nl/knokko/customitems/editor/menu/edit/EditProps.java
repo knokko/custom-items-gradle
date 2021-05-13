@@ -49,6 +49,8 @@ public class EditProps {
 	public static final Properties HOVER = Properties.createButton(FONT, new Color(255, 255, 255), new Color(65, 65, 65), Color.BLACK);
 	
 	public static final Properties LABEL = Properties.createLabel();
+	public static final Properties LINK_BASE = Properties.createLabel(new Color(0, 0, 100));
+	public static final Properties LINK_HOVER = Properties.createLabel(new Color(0, 0, 200));
 	
 	public static final Properties EDIT_BASE = Properties.createEdit(new Color(200, 200, 200), new Color(50, 50, 50));
 	public static final Properties EDIT_ACTIVE = Properties.createEdit(new Color(255, 255, 255), new Color(65, 65, 65));

@@ -4,6 +4,7 @@ import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.block.CustomBlockView;
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
+import nl.knokko.customitems.editor.menu.main.MainMenu;
 import nl.knokko.customitems.editor.set.ItemSet;
 import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.gui.color.GuiColor;
@@ -12,6 +13,9 @@ import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.EagerTextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
+
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class EditBlock extends GuiMenu  {
 
@@ -62,7 +66,7 @@ public class EditBlock extends GuiMenu  {
                 0.35f, 0.65f, 0.44f, 0.75f);
         addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () ->
                 state.getWindow().setMainComponent(new CustomBlockDropCollectionEdit(
-                        currentValues.getDrops(), set, this
+                        currentValues.getDrops(), currentValues::setDrops, set, this
                 ))
         ), 0.45f, 0.65f, 0.6f, 0.75f);
 
@@ -75,6 +79,22 @@ public class EditBlock extends GuiMenu  {
                 NamedImage::getName,
                 currentValues.getTexture()
         ), 0.45f, 0.5f, 0.6f, 0.6f);
+
+        addComponent(new DynamicTextComponent(
+                "The custom block texture system is based on the resourcepack of LapisDemon:", EditProps.LABEL),
+                0.2f, 0.3f, 1f, 0.4f
+        );
+        addComponent(new DynamicTextButton(
+                "https://www.youtube.com/watch?v=d_08KIvg7TM", EditProps.LINK_BASE, EditProps.LINK_HOVER, () -> {
+            URL url = null;
+            try {
+                url = new URL("https://www.youtube.com/watch?v=d_08KIvg7TM");
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            MainMenu.openWebpage(url);
+        }
+        ), 0.2f, 0.2f, 0.8f, 0.3f);
 
         // TODO Add help menu
     }
