@@ -1,5 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.block;
 
+import nl.knokko.customitems.block.BlockConstants;
 import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.block.CustomBlockView;
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
@@ -95,6 +96,10 @@ public class EditBlock extends GuiMenu  {
             MainMenu.openWebpage(url);
         }
         ), 0.2f, 0.2f, 0.8f, 0.3f);
+
+        addComponent(new DynamicTextComponent(
+                "Note: you can create at most " + BlockConstants.MAX_NUM_BLOCKS + " custom blocks",
+                EditProps.LABEL), 0.2f, 0.05f, 0.8f, 0.15f);
 
         // TODO Add help menu
     }

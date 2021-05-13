@@ -8385,7 +8385,7 @@ public class ItemSet implements ItemSetBase {
 					items, getBlocks(), -1, textures
 			);
 
-			int newBlockID = 1;
+			int newBlockID = BlockConstants.MIN_BLOCK_ID;
 			while (getBlockByID(newBlockID) != null) {
 				newBlockID++;
 			}
