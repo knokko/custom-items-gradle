@@ -154,4 +154,6 @@ public class ItemEncoding {
 	 * The first encoding of food
 	 */
 	public static final byte ENCODING_FOOD_9 = 42;
+
+	public static final byte ENCODING_BLOCK_ITEM_9 = 43;
 }
