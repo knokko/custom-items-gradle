@@ -321,7 +321,6 @@ public class MushroomBlockMapping {
             new VanillaMushroomEntry(
                     new boolean[] {false, false, false, false, false, false}, "false"
             ), new VanillaMushroomEntry(
-                    // TODO I use a slightly different name than lapisdemon here
                     new boolean[] {false, true, true, true, false, true}, "1"
             ), new VanillaMushroomEntry(
                     new boolean[] {true, true, true, true, true, true}, "true"
@@ -348,6 +347,4 @@ public class MushroomBlockMapping {
             default: throw new IllegalArgumentException("Unknown mushroom type: " + type);
         }
     }
-
-    // TODO Remove the Type enum from KnokkoCore 1.13+
 }

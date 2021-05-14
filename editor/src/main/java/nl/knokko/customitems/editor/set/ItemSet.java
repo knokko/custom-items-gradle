@@ -32,18 +32,9 @@ import static nl.knokko.customitems.block.BlockConstants.MIN_BLOCK_ID;
 import static nl.knokko.customitems.encoding.SetEncoding.*;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -3787,7 +3778,7 @@ public class ItemSet implements ItemSetBase {
 		return exportFor13OrLater(MCVersions.VERSION1_16, 6);
 	}
 
-	private void exportCustomBlocks(ZipOutputStream zipOutput, int mcVersion) throws IOException {
+	private void exportCustomBlocks(ZipOutputStream zipOutput) throws IOException {
 		for (MushroomBlockMapping.Type mushroomType : MushroomBlockMapping.Type.values()) {
 		    boolean hasSuchBlock = false;
 			for (CustomBlock block : blocks) {
@@ -3860,8 +3851,41 @@ public class ItemSet implements ItemSetBase {
 				jsonWriter.println("}");
 				jsonWriter.flush();
 
-				// TODO We also need to write the default models
+				for (MushroomBlockMapping.VanillaMushroomEntry vanillaEntry : MushroomBlockMapping.getVanillaEntries(mushroomType)) {
+				    ZipEntry vanillaModelEntry = new ZipEntry(
+				    		"assets/minecraft/models/block/lapisdemon/" + mushroomType.getResourceName() +
+									"/default_" + vanillaEntry.getFileName() + ".json"
+					);
+				    zipOutput.putNextEntry(vanillaModelEntry);
+				    PrintWriter vanillaModelWriter = new PrintWriter(zipOutput);
+
+				    InputStream defaultInput = ItemSet.class.getClassLoader().getResourceAsStream(
+				    		"lapisdemon/bonusblocks/defaultblocks/" + mushroomType.getResourceName() + "/" + vanillaEntry.getFileName() + ".json"
+					);
+					assert defaultInput != null;
+					Scanner defaultScanner = new Scanner(defaultInput);
+				    while (defaultScanner.hasNextLine()) {
+				    	vanillaModelWriter.println(defaultScanner.nextLine());
+					}
+				    vanillaModelWriter.flush();
+				    defaultScanner.close();
+                }
 			}
+		}
+
+		// Write the models of all custom blocks
+		for (CustomBlock block : blocks) {
+			ZipEntry blockModelEntry = new ZipEntry("assets/minecraft/models/customblocks/" + block.getValues().getName() + ".json");
+			zipOutput.putNextEntry(blockModelEntry);
+
+			PrintWriter modelWriter = new PrintWriter(zipOutput);
+			modelWriter.println("{");
+			modelWriter.println("    \"parent\": \"block/cube_all\",");
+			modelWriter.println("    \"textures\": {");
+			modelWriter.println("        \"all\": \"customitems/" + block.getValues().getTexture().getName() + "\"");
+			modelWriter.println("    }");
+			modelWriter.println("}");
+			modelWriter.flush();
 		}
 	}
 	
@@ -4019,7 +4043,7 @@ public class ItemSet implements ItemSetBase {
 			
 			exportOptifineArmor(zipOutput, mcVersion);
 
-			exportCustomBlocks(zipOutput, mcVersion);
+			exportCustomBlocks(zipOutput);
 
 			// Custom item models
 			for (CustomItem item : items) {
