@@ -823,6 +823,7 @@ public class ItemSet implements ItemSetBase {
 		case ItemEncoding.ENCODING_CROSSBOW_9: return loadCrossbow9(input, loadIngredient);
 		case ItemEncoding.ENCODING_GUN_9: return loadGun9(input, loadIngredient, getProjectileByName);
 		case ItemEncoding.ENCODING_FOOD_9: return loadFood9(input);
+		case ItemEncoding.ENCODING_BLOCK_ITEM_9: return loadBlockItem9(input);
 		default : throw new UnknownEncodingException("Item", encoding);
 	}
 	}
@@ -2760,6 +2761,58 @@ public class ItemSet implements ItemSetBase {
 				defaultEnchantments, itemFlags, playerEffects, targetEffects, equippedEffects,
 				commands, conditions, op, extraNbt, attackRange, foodValue, eatEffects, eatTime,
 				eatSound, soundVolume, soundPitch, soundPeriod, maxStacksize
+		);
+	}
+
+	private static CustomItem loadBlockItem9(
+			BitInput input
+	) throws UnknownEncodingException {
+		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
+		short damage = input.readShort();
+		String name = input.readJavaString();
+		String alias = input.readString();
+		String displayName = input.readJavaString();
+		String[] lore = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < lore.length; index++)
+			lore[index] = input.readJavaString();
+		AttributeModifier[] attributes = new AttributeModifier[input.readByte() & 0xFF];
+		for (int index = 0; index < attributes.length; index++)
+			attributes[index] = loadAttribute2(input);
+		Enchantment[] defaultEnchantments = new Enchantment[input.readByte() & 0xFF];
+		for (int index = 0; index < defaultEnchantments.length; index++)
+			defaultEnchantments[index] = new Enchantment(EnchantmentType.valueOf(input.readString()), input.readInt());
+		boolean[] itemFlags = input.readBooleans(6);
+		List<PotionEffect> playerEffects = new ArrayList<PotionEffect>();
+		int peLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < peLength; index++) {
+			playerEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		List<PotionEffect> targetEffects = new ArrayList<PotionEffect>();
+		int teLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < teLength; index++) {
+			targetEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		Collection<EquippedPotionEffect> equippedEffects = CustomItem.readEquippedEffects(input);
+		String[] commands = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < commands.length; index++) {
+			commands[index] = input.readJavaString();
+		}
+
+		ReplaceCondition[] conditions = new ReplaceCondition[input.readByte() & 0xFF];
+		for (int index = 0; index < conditions.length; index++) {
+			conditions[index] = loadReplaceCondition(input);
+		}
+		ConditionOperation op = ConditionOperation.valueOf(input.readJavaString());
+		ExtraItemNbt extraNbt = ExtraItemNbt.load(input);
+		float attackRange = input.readFloat();
+
+		int blockID = input.readInt();
+		int stackSize = input.readInt();
+		return new CustomBlockItem(
+				itemType, damage, name, alias, displayName, lore, attributes,
+				defaultEnchantments, itemFlags, playerEffects,
+				targetEffects, equippedEffects, commands, conditions, op,
+				extraNbt, attackRange, blockID, stackSize
 		);
 	}
 

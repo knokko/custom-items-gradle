@@ -88,10 +88,7 @@ import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockExplodeEvent;
-import org.bukkit.event.block.BlockPhysicsEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
@@ -2649,6 +2646,32 @@ public class CustomItemsEventHandler implements Listener {
 	public void maintainCustomBlocks(BlockPhysicsEvent event) {
 	    if (MushroomBlocks.areEnabled() && MushroomBlockHelper.isMushroomBlock(event.getBlock())) {
 	    	event.setCancelled(true);
+		}
+	}
+
+	@EventHandler
+	public void handleCustomBlockPlacements(PlayerInteractEvent event) {
+		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+
+			CustomItem usedItem = set().getItem(event.getItem());
+			if (usedItem instanceof CustomBlockItem) {
+				CustomBlockItem blockItem = (CustomBlockItem) usedItem;
+				CustomBlockView block = blockItem.getBlock();
+
+				Block destination = event.getClickedBlock().getRelative(event.getBlockFace());
+				if (destination.isEmpty() || destination.isLiquid()) {
+					BlockPlaceEvent placeEvent = new BlockPlaceEvent(
+							destination, destination.getState(), event.getClickedBlock(),
+							event.getItem(), event.getPlayer(), true, event.getHand()
+					);
+					Bukkit.getPluginManager().callEvent(placeEvent);
+
+					if (placeEvent.canBuild() && !placeEvent.isCancelled()) {
+						event.getItem().setAmount(event.getItem().getAmount() - 1);
+						MushroomBlockHelper.place(destination, block);
+					}
+				}
+			}
 		}
 	}
 
