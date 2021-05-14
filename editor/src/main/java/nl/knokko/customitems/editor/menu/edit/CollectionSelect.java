@@ -17,7 +17,7 @@ public class CollectionSelect<T> extends GuiMenu {
 	
 	public static <T> DynamicTextButton createButton(Iterable<T> backingCollection, Consumer<T> onSelect,
 			Predicate<T> filter, Function<T, String> formatter, T current) {
-		String text = current == null ? "None" : current.toString();
+		String text = current == null ? "None" : formatter.apply(current);
 		return new DynamicTextButton(text, EditProps.BUTTON, EditProps.HOVER, null) {
 			
 			@Override

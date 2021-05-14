@@ -23,9 +23,7 @@
  *******************************************************************************/
 package nl.knokko.customitems.editor.set;
 
-import static nl.knokko.customitems.MCVersions.FIRST_VERSION;
-import static nl.knokko.customitems.MCVersions.LAST_VERSION;
-import static nl.knokko.customitems.MCVersions.VERSION1_12;
+import static nl.knokko.customitems.MCVersions.*;
 import static nl.knokko.customitems.NameHelper.versionName;
 import static nl.knokko.customitems.block.BlockConstants.MAX_BLOCK_ID;
 import static nl.knokko.customitems.block.BlockConstants.MIN_BLOCK_ID;
@@ -2716,10 +2714,11 @@ public class ItemSet implements ItemSetBase {
 		}
 		if (texture == null)
 			throw new IllegalArgumentException("Can't find texture " + imageName);
-		byte[] customModel = loadCustomModel(input, checkCustomModel);
+		// Block items don't have their own custom model, but we keep this line for the sake of consistency
+		loadCustomModel(input, checkCustomModel);
 		return new CustomBlockItem(
 				itemType, name, alias, displayName, lore, attributes,
-				defaultEnchantments, texture, itemFlags, customModel,
+				defaultEnchantments, itemFlags,
 				playerEffects, targetEffects, equippedEffects,
 				commands, conditions, op, extraNbt, attackRange,
 				// The blocks will load *after* the items, so we can't get a block instance yet
@@ -3529,11 +3528,22 @@ public class ItemSet implements ItemSetBase {
 	private static final String Q = "" + '"';
 	
 	public static String[] getDefaultModel(CustomItem item) {
+		if (item instanceof CustomBlockItem) {
+			return createModelBlockItem(((CustomBlockItem) item).getBlock());
+		}
 		return getDefaultModel(
 				item.getItemType(), item.getTexture().getName(), 
-				item.getItemType().isLeatherArmor(), 
+				item.getItemType().isLeatherArmor(),
 				!(item instanceof CustomHelmet3D)
 		);
+	}
+
+	private static String[] createModelBlockItem(CustomBlockView block) {
+		return new String[] {
+				"{",
+				"    \"parent\": \"customblocks/" + block.getValues().getName() + "\"",
+				"}"
+		};
 	}
 	
 	public static String[] getDefaultModel(CustomItemType type, String textureName, boolean isLeather, boolean hasDefault) {
@@ -3663,7 +3673,7 @@ public class ItemSet implements ItemSetBase {
 				"}"
 		};
 	}
-	
+
 	public static String[] getDefaultModelTrident(String textureName) {
 		return new String[] {
 				"{",
@@ -4634,6 +4644,9 @@ public class ItemSet implements ItemSetBase {
 				if (item.getItemType().lastVersion < version) {
 					return "The item " + item.getName() + " is a " + item.getItemType() + ", which is not available in minecraft " + versionName(version);
 				}
+			}
+			if (version < VERSION1_13 && item instanceof CustomBlockItem) {
+				return "The block item " + item.getName() + " is a block item, which is not available in minecraft " + versionName(version);
 			}
 		}
 		
@@ -7141,8 +7154,7 @@ public class ItemSet implements ItemSetBase {
 			CustomBlockItem original, CustomItemType newType, String newAlias,
 			String newDisplayName, String[] newLore,
 			AttributeModifier[] newAttributes, Enchantment[] newEnchantments,
-			NamedImage newImage, boolean[] itemFlags, byte[] newCustomModel,
-			List<PotionEffect> playerEffects, List<PotionEffect> targetEffects,
+			boolean[] itemFlags, List<PotionEffect> playerEffects, List<PotionEffect> targetEffects,
 			Collection<EquippedPotionEffect> newEquippedEffects, String[] commands,
 			ReplaceCondition[] conditions, ConditionOperation op,
 			ExtraItemNbt newExtraNbt, float newAttackRange, CustomBlockView newBlock,
@@ -7157,9 +7169,9 @@ public class ItemSet implements ItemSetBase {
 
 		String error = changeItem(
 				original, newType, newAlias, newDisplayName, newLore, newAttributes,
-				newEnchantments, newImage, itemFlags, newCustomModel, playerEffects,
-				targetEffects, newEquippedEffects, commands, conditions, op,
-				newExtraNbt, newAttackRange
+				newEnchantments, newBlock.getValues().getTexture(), itemFlags,
+				null, playerEffects, targetEffects, newEquippedEffects, commands,
+				conditions, op, newExtraNbt, newAttackRange
 		);
 		if (error == null) {
 			original.setBlock(newBlock);

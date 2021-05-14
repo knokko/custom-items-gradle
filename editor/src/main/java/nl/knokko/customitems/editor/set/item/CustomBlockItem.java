@@ -27,15 +27,16 @@ public class CustomBlockItem extends CustomItem {
 
     public CustomBlockItem(
             CustomItemType itemType, String name, String alias, String displayName, String[] lore,
-            AttributeModifier[] attributes, Enchantment[] defaultEnchantments, NamedImage texture,
-            boolean[] itemFlags, byte[] customModel, List<PotionEffect> playerEffects,
+            AttributeModifier[] attributes, Enchantment[] defaultEnchantments,
+            boolean[] itemFlags, List<PotionEffect> playerEffects,
             List<PotionEffect> targetEffects, Collection<EquippedPotionEffect> equippedEffects,
             String[] commands, ReplaceCondition[] conditions, ReplaceCondition.ConditionOperation op,
             ExtraItemNbt extraNbt, float attackRange, CustomBlockView block, int blockID, int stackSize
     ) {
         super(
-                itemType, name, alias, displayName, lore, attributes, defaultEnchantments, texture, itemFlags,
-                customModel, playerEffects, targetEffects, equippedEffects, commands, conditions, op,
+                itemType, name, alias, displayName, lore, attributes, defaultEnchantments,
+                block == null ? null : block.getValues().getTexture(), itemFlags,
+                null, playerEffects, targetEffects, equippedEffects, commands, conditions, op,
                 extraNbt, attackRange
         );
         this.block = block;
@@ -45,7 +46,7 @@ public class CustomBlockItem extends CustomItem {
 
     @Override
     public void afterBlocksAreLoaded(ItemSet set) {
-        this.block = set.getBlockByID(this.blockID);
+        setBlock(set.getBlockByID(blockID));
     }
 
     public CustomBlockView getBlock() {
@@ -59,6 +60,7 @@ public class CustomBlockItem extends CustomItem {
     public void setBlock(CustomBlockView newBlock) {
         block = newBlock;
         blockID = newBlock.getInternalID();
+        texture = newBlock.getValues().getTexture();
     }
 
     public void setStackSize(int newStackSize) {

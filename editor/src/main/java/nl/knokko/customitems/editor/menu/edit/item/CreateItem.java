@@ -64,6 +64,9 @@ public class CreateItem extends GuiMenu {
 		addComponent(new DynamicTextButton("Crossbow (1.14+)", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
 			state.getWindow().setMainComponent(new EditItemCrossbow(menu, null, null));
 		}), 0f, 0.525f, 0.23f, 0.625f);
+		addComponent(new DynamicTextButton("Block (1.13+)", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
+			state.getWindow().setMainComponent(new EditItemBlock(menu, null, null));
+		}), 0f, 0.4f, 0.2f, 0.5f);
 
 		// The row for the special stuff
 		addComponent(new DynamicTextButton("Wand", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
@@ -121,6 +124,7 @@ public class CreateItem extends GuiMenu {
 			state.getWindow().setMainComponent(new EditItemShield(menu, null, null));
 		}), 0.75f, 0.025f, 0.95f, 0.125f);
 
+		// TODO Update the page behind this link
 		HelpButtons.addHelpLink(this, "edit%20menu/items/select%20type.html");
 	}
 }

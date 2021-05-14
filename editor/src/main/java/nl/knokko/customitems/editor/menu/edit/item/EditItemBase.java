@@ -192,7 +192,10 @@ public abstract class EditItemBase extends GuiMenu {
 				LABEL_X + 0.2f, 0.49f);
 		addComponent(new DynamicTextComponent("Item flags: ", EditProps.LABEL), LABEL_X, 0.38f, LABEL_X + 0.135f,
 				0.43f);
-		addComponent(new DynamicTextComponent("Texture: ", EditProps.LABEL), LABEL_X, 0.32f, LABEL_X + 0.125f, 0.37f);
+		// Block items don't have their own texture
+		if (!(this instanceof EditItemBlock)) {
+			addComponent(new DynamicTextComponent("Texture: ", EditProps.LABEL), LABEL_X, 0.32f, LABEL_X + 0.125f, 0.37f);
+		}
 		addComponent(new DynamicTextComponent("On-Hit Player effects: ", EditProps.LABEL), LABEL_X, 0.2f, LABEL_X + 0.2f, 0.25f);
 		addComponent(new DynamicTextComponent("On-Hit Target effects: ", EditProps.LABEL), LABEL_X, 0.14f, LABEL_X + 0.2f, 0.19f);
 		addComponent(new DynamicTextComponent("Commands: ", EditProps.LABEL), LABEL_X, 0.08f, LABEL_X + 0.125f, 0.13f);
@@ -201,8 +204,12 @@ public abstract class EditItemBase extends GuiMenu {
 		addComponent(new DynamicTextComponent("NBT: ", EditProps.LABEL), LABEL_X, -0.1f, LABEL_X + 0.08f, -0.05f);
 		addComponent(new DynamicTextComponent("Attack range multiplier: ", EditProps.LABEL), LABEL_X, -0.16f, LABEL_X + 0.2f, -0.11f);
 		
-		// I might add custom bow and crossbow models later, but I leave it out for now
-		if (!(this instanceof EditItemBow || this instanceof EditItemCrossbow)) {
+		if (!(
+				// I might add custom bow and crossbow models later, but I leave it out for now
+				this instanceof EditItemBow || this instanceof EditItemCrossbow
+                // Block items take on the model of their block
+				|| this instanceof EditItemBlock
+		)) {
 			addComponent(new DynamicTextComponent("Model: ", EditProps.LABEL), LABEL_X, 0.26f, LABEL_X + 0.11f, 0.31f);
 		}
 		if (toModify != null) {
@@ -280,15 +287,21 @@ public abstract class EditItemBase extends GuiMenu {
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new ItemFlagMenu(this, itemFlags));
 		}), BUTTON_X, 0.38f, BUTTON_X + 0.1f, 0.43f);
-		addComponent(textureSelect, BUTTON_X, 0.32f, BUTTON_X + 0.1f, 0.37f);
+		if (!(this instanceof EditItemBlock)) {
+			addComponent(textureSelect, BUTTON_X, 0.32f, BUTTON_X + 0.1f, 0.37f);
+		}
 
-		// Bow models and crossbow models are more complex and have less priority, so leave it out for now
-		if (!(this instanceof EditItemBow || this instanceof EditItemCrossbow)) {
+		if (!(
+				// Bow models and crossbow models are more complex and have less priority, so leave it out for now
+				this instanceof EditItemBow || this instanceof EditItemCrossbow
+				// Block items will simply take on the model of their block
+                || this instanceof EditItemBlock
+		)) {
 			addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
 				state.getWindow().setMainComponent(new EditCustomModel(ItemSet.getDefaultModel(
 						internalType, 
 						textureSelect.getSelected() != null ? textureSelect.getSelected().getName()
-								: "%TEXTURE_NAME%", internalType.isLeatherArmor(), 
+								: "%TEXTURE_NAME%", internalType.isLeatherArmor(),
 								!(this instanceof EditItemHelmet3D))
 								, this, (byte[] array) -> {
 									customModel = array;
