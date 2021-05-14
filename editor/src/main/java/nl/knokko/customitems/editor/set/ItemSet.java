@@ -42,6 +42,7 @@ import javax.imageio.stream.MemoryCacheImageOutputStream;
 
 import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.block.*;
+import nl.knokko.customitems.block.drop.CustomBlockDrop;
 import nl.knokko.customitems.container.CustomContainer;
 import nl.knokko.customitems.container.VanillaContainerType;
 import nl.knokko.customitems.container.fuel.CustomFuelRegistry;
@@ -7787,6 +7788,21 @@ public class ItemSet implements ItemSetBase {
 					return "At least one of your recipes has this item as result.";
 				if (recipe.requires(item))
 					return "At least one of your recipes has this item as an ingredient or remaining ingredient.";
+			}
+			for (CustomBlock block : blocks) {
+				for (CustomBlockDrop blockDrop : block.getValues().getDrops()) {
+					for (OutputTable.Entry entry : blockDrop.getItemsToDrop().getEntries()) {
+						if (entry.getResult() instanceof CustomItemResult) {
+							if (((CustomItemResult) entry.getResult()).getItem() == item) {
+								return "The block " + block.getValues().getName() + " uses this item as block drop";
+							}
+						}
+					}
+
+					if (blockDrop.getRequiredItems().getCustomItems().contains(item)) {
+						return "The block " + block.getValues().getName() + " uses this item as required item in a block drop";
+					}
+				}
 			}
 			for (CustomItem current : items) {
 				if (current instanceof CustomTool) {
