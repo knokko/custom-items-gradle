@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import nl.knokko.customitems.plugin.set.ItemSet;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -246,4 +247,8 @@ public abstract class CustomItem extends nl.knokko.customitems.item.CustomItem {
     		t.addPotionEffects(te);
     	}
     }
+
+	public void afterBlocksAreLoaded(ItemSet set) {
+		// Only block items need to use this, so the default implementation does nothing
+	}
 }

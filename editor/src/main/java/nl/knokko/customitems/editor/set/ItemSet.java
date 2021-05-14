@@ -3971,7 +3971,7 @@ public class ItemSet implements ItemSetBase {
 			File file = new File(Editor.getFolder() + "/" + fileName + ".cis");// cis stands for Custom Item Set
 			OutputStream fileOutput = Files.newOutputStream(file.toPath());
 			ByteArrayBitOutput output = new ByteArrayBitOutput();
-			export8(output);
+			export9(output);
 			output.terminate();
 			
 			byte[] bytes = output.getBytes();
@@ -4832,7 +4832,7 @@ public class ItemSet implements ItemSetBase {
 		
 		try {
 			ByteArrayBitOutput output = new ByteArrayBitOutput();
-			export8(output);
+			export9(output);
 			output.terminate();
 			
 			byte[] bytes = output.getBytes();
@@ -5407,6 +5407,85 @@ public class ItemSet implements ItemSetBase {
 			output.addString(deletedItem);
 		}
 		
+		// Finish the integrity stuff
+		byte[] contentBytes = output.getBytes();
+		outerOutput.addLong(hash(contentBytes));
+		outerOutput.addByteArray(contentBytes);
+	}
+
+	// Add custom blocks
+	private void export9(BitOutput outerOutput) {
+		outerOutput.addByte(ENCODING_9);
+
+		ByteArrayBitOutput output = new ByteArrayBitOutput();
+
+		// Export time
+		output.addLong(System.currentTimeMillis());
+
+		// Projectiles
+		output.addInt(projectileCovers.size());
+		for (EditorProjectileCover cover : projectileCovers)
+			cover.export(output);
+
+		output.addInt(projectiles.size());
+		for (CIProjectile projectile : projectiles)
+			projectile.toBits(output);
+
+		// Items
+		output.addInt(items.size());
+
+		// Tools can have non-tools as repair item, so the non-tools must be exported first.
+		// This way, that all repair items are available once the tools are being loaded.
+		// Guns can have simple custom items as ammo, so must be saved later for similar reasons
+		for (CustomItem noTool : items)
+			if (!(noTool instanceof CustomTool || noTool instanceof CustomGun))
+				noTool.export(output);
+
+		for (CustomItem tool : items)
+			if (tool instanceof CustomTool || tool instanceof CustomGun)
+				tool.export(output);
+
+		// Blocks
+        output.addInt(blocks.size());
+        for (CustomBlock block : blocks) {
+     		output.addInt(block.getInternalID());
+     		block.getValues().save(output, result -> ((Result) result).save(output));
+		}
+
+		// Recipes
+		output.addInt(recipes.size());
+		for (Recipe recipe : recipes)
+			recipe.save(output);
+
+		// Drops
+		output.addInt(blockDrops.size());
+		for (BlockDrop drop : blockDrops)
+			drop.save(output, result -> ((Result) result).save(output));
+
+		output.addInt(mobDrops.size());
+		for (EntityDrop drop : mobDrops)
+			drop.save(output, result -> ((Result) result).save(output));
+
+		// Fuel registries
+		output.addInt(fuelRegistries.size());
+		for (CustomFuelRegistry registry : fuelRegistries)
+			registry.save(output, scIngredient -> ((Ingredient)scIngredient).save(output));
+
+		// Custom containers
+		output.addInt(containers.size());
+		for (CustomContainer container : containers) {
+			container.save(output,
+					ingredient -> ((Ingredient)ingredient).save(output),
+					result -> ((Result)result).save(output)
+			);
+		}
+
+		// Deleted item names
+		output.addInt(deletedItems.size());
+		for (String deletedItem : deletedItems) {
+			output.addString(deletedItem);
+		}
+
 		// Finish the integrity stuff
 		byte[] contentBytes = output.getBytes();
 		outerOutput.addLong(hash(contentBytes));

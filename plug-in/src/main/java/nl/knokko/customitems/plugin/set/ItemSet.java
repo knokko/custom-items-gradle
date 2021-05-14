@@ -32,6 +32,9 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.logging.Level;
 
+import nl.knokko.customitems.block.CustomBlock;
+import nl.knokko.customitems.block.CustomBlockValues;
+import nl.knokko.customitems.block.CustomBlocksView;
 import nl.knokko.customitems.item.gun.GunAmmo;
 import nl.knokko.customitems.plugin.set.item.*;
 import nl.knokko.customitems.sound.CISound;
@@ -104,6 +107,7 @@ public class ItemSet implements ItemSetBase {
 	private final Map<String, ContainerInfo> containerInfo;
 
 	private CustomItem[] items;
+	private CustomBlocksView blocks;
 	
 	private ProjectileCover[] projectileCovers;
 	private CIProjectile[] projectiles;
@@ -122,6 +126,7 @@ public class ItemSet implements ItemSetBase {
 		containerInfo = new HashMap<>();
 		
 		items = new CustomItem[0];
+		blocks = new CustomBlocksView(new ArrayList<>(0));
 		recipes = new CustomRecipe[0];
 		
 		projectileCovers = new ProjectileCover[0];
@@ -138,6 +143,7 @@ public class ItemSet implements ItemSetBase {
 
 	public ItemSet(BitInput input) throws UnknownEncodingException, IntegrityException, UnknownMaterialException {
 		containerInfo = new HashMap<>();
+		blocks = new CustomBlocksView(new ArrayList<>(0));
 		
 		byte encoding = input.readByte();
 		
@@ -154,6 +160,8 @@ public class ItemSet implements ItemSetBase {
 			load7(input);
 		else if (encoding == SetEncoding.ENCODING_8)
 			load8(input);
+		else if (encoding == SetEncoding.ENCODING_9)
+			load9(input);
 		else
 			throw new UnknownEncodingException("ItemSet", encoding);
 		
@@ -557,6 +565,117 @@ public class ItemSet implements ItemSetBase {
 			}
 		}
 		
+		// Deleted items
+		int numDeletedItems = input.readInt();
+		deletedItems = new String[numDeletedItems];
+		for (int index = 0; index < numDeletedItems; index++) {
+			deletedItems[index] = input.readString();
+		}
+	}
+
+	private void load9(BitInput rawInput) throws UnknownEncodingException, IntegrityException, UnknownMaterialException {
+
+		long expectedHash = rawInput.readLong();
+		byte[] content;
+		try {
+			// Catch undefined behavior
+			content = rawInput.readByteArray();
+		} catch (Throwable t) {
+			throw new IntegrityException(t);
+		}
+		long actualHash = hash(content);
+		if (expectedHash != actualHash) {
+			throw new IntegrityException(expectedHash, actualHash);
+		}
+
+		BitInput input = new ByteArrayBitInput(content);
+
+		CustomItemsPlugin.getInstance().setExportTime(input.readLong());
+
+		// Projectiles
+		int numProjectileCovers = input.readInt();
+		projectileCovers = new ProjectileCover[numProjectileCovers];
+		for (int index = 0; index < numProjectileCovers; index++) {
+			PluginProjectileCover cover = new PluginProjectileCover(input);
+			projectileCovers[index] = cover;
+		}
+
+		int numProjectiles = input.readInt();
+		projectiles = new CIProjectile[numProjectiles];
+		for (int index = 0; index < numProjectiles; index++)
+			projectiles[index] = CIProjectile.fromBits(input, this);
+
+		// Notify the projectiles that all projectiles are loaded
+		for (CIProjectile projectile : projectiles)
+			projectile.afterProjectilesAreLoaded(this);
+
+		// Items
+		int itemSize = input.readInt();
+		items = new CustomItem[itemSize];
+		for (int counter = 0; counter < itemSize; counter++)
+			register(loadItem(input), counter);
+
+		// Blocks
+		int numBlocks = input.readInt();
+		Collection<CustomBlock> loadedBlocks = new ArrayList<>(numBlocks);
+		for (int counter = 0; counter < numBlocks; counter++) {
+			int internalID = input.readInt();
+			CustomBlockValues blockValues = CustomBlockValues.load(
+					input, this::getCustomItemByName, () -> loadResult(input), name -> null, false
+			);
+			loadedBlocks.add(new CustomBlock(internalID, blockValues));
+		}
+		this.blocks = new CustomBlocksView(loadedBlocks);
+
+		// Link the block items to their blocks
+		for (CustomItem item : items) {
+			item.afterBlocksAreLoaded(this);
+		}
+
+		// Recipes
+		int recipeAmount = input.readInt();
+		recipes = new CustomRecipe[recipeAmount];
+		for (int counter = 0; counter < recipeAmount; counter++)
+			register(loadRecipe(input), counter);
+
+		int numBlockDrops = input.readInt();
+		blockDropMap = new BlockDrop[BlockType.AMOUNT][0];
+		for (int counter = 0; counter < numBlockDrops; counter++) {
+			register(BlockDrop.load(
+					input, this::createCustomItemResultByName,
+					() -> loadResult(input), this::getItem
+			));
+		}
+
+		int numMobDrops = input.readInt();
+		mobDropMap = new EntityDrop[CIEntityType.AMOUNT][0];
+		for (int counter = 0; counter < numMobDrops; counter++) {
+			register(EntityDrop.load(
+					input, this::createCustomItemResultByName,
+					() -> loadResult(input), this::getItem
+			));
+		}
+
+		// Custom containers & fuel registries
+		int numFuelRegistries = input.readInt();
+		fuelRegistries = new ArrayList<>(numFuelRegistries);
+		for (int counter = 0; counter < numFuelRegistries; counter++) {
+			fuelRegistries.add(loadFuelRegistry(input));
+		}
+
+		int numContainers = input.readInt();
+		containers = new ArrayList<>(numContainers);
+		for (int counter = 0; counter < numContainers; counter++) {
+			addCustomContainer(loadContainer(input));
+		}
+
+		// Now that we have the containers, we can match the pocket container items with their container
+		for (CustomItem item : items) {
+			if (item instanceof CustomPocketContainer) {
+				((CustomPocketContainer) item).findContainers(this);
+			}
+		}
+
 		// Deleted items
 		int numDeletedItems = input.readInt();
 		deletedItems = new String[numDeletedItems];
@@ -2899,6 +3018,10 @@ public class ItemSet implements ItemSetBase {
 	
 	public int getNumContainers() {
 		return containers.size();
+	}
+
+	public CustomBlocksView getBlocks() {
+		return blocks;
 	}
 
 	@Override

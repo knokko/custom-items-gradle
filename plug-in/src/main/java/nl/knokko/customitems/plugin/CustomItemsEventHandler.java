@@ -67,7 +67,11 @@ import java.util.logging.Level;
 
 import nl.knokko.core.plugin.block.MushroomBlocks;
 import nl.knokko.core.plugin.item.GeneralItemNBT;
+import nl.knokko.customitems.block.CustomBlockView;
 import nl.knokko.customitems.block.MushroomBlockMapping;
+import nl.knokko.customitems.block.drop.CustomBlockDrop;
+import nl.knokko.customitems.block.drop.RequiredItems;
+import nl.knokko.customitems.block.drop.SilkTouchRequirement;
 import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
 import nl.knokko.customitems.plugin.recipe.IngredientEntry;
 import nl.knokko.customitems.plugin.recipe.ingredient.Ingredient;
@@ -2641,56 +2645,38 @@ public class CustomItemsEventHandler implements Listener {
 		}
 	}
 
-	private int blockId = 12;
-
 	@EventHandler
-	public void testCustomBlocks(PlayerInteractEvent event) {
-		if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getItem() != null && ItemHelper.getMaterialName(event.getItem()).equals(CIMaterial.STICK.name())) {
-			MushroomBlocks.place(
-					event.getClickedBlock(),
-					MushroomBlockMapping.getDirections(blockId),
-					MushroomBlockMapping.getType(blockId).material.name()
-			);
-		}
-	}
-
-	@EventHandler
-	public void testCustomBlocks(BlockPhysicsEvent event) {
+	public void maintainCustomBlocks(BlockPhysicsEvent event) {
 	    if (MushroomBlocks.areEnabled() && MushroomBlockHelper.isMushroomBlock(event.getBlock())) {
 	    	event.setCancelled(true);
 		}
 	}
 
 	@EventHandler
-	public void testCustomBlocks(AsyncPlayerChatEvent event) {
-		try {
-			blockId = Integer.parseInt(event.getMessage());
-		} catch (NumberFormatException ex) {
-			// Ignore this
-		}
-	}
+	public void handleCustomBlockDrops(BlockBreakEvent event) {
+		if (MushroomBlocks.areEnabled()) {
+		    CustomBlockView customBlock = MushroomBlockHelper.getMushroomBlock(event.getBlock());
+		    if (customBlock != null) {
+				event.setDropItems(false);
 
-	@EventHandler
-	public void testCustomBlocks(BlockBreakEvent event) {
-		if (MushroomBlocks.areEnabled() && MushroomBlockHelper.isCustomMushroomBlock(event.getBlock())) {
-			event.setDropItems(false);
-
-			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () -> {
-				event.getBlock().getWorld().dropItemNaturally(
-						event.getBlock().getLocation(),
-						ItemHelper.createStack(CIMaterial.MOSSY_COBBLESTONE.name(), 2)
+				Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () ->
+						dropCustomBlockDrops(
+								customBlock,
+								event.getBlock().getLocation(),
+								event.getPlayer().getInventory().getItemInMainHand()
+						)
 				);
-			});
+			}
 		}
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-	public void testCustomBlocks(BlockExplodeEvent event) {
+	public void handleCustomBlockDrops(BlockExplodeEvent event) {
 		handleExplosion(event.blockList(), event.getYield());
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-	public void testCustomBlocks(EntityExplodeEvent event) {
+	public void handleCustomBlockDrops(EntityExplodeEvent event) {
 		handleExplosion(event.blockList(), event.getYield());
 	}
 
@@ -2698,7 +2684,8 @@ public class CustomItemsEventHandler implements Listener {
 		if (MushroomBlocks.areEnabled()) {
 			Random rng = new Random();
 			for (Block block : blockList) {
-				if (MushroomBlockHelper.isCustomMushroomBlock(block)) {
+				CustomBlockView customBlock = MushroomBlockHelper.getMushroomBlock(block);
+				if (customBlock != null) {
 
 					// This will cause the block to be 'removed' before the explosion starts, which will
 					// prevent it from dropping mushrooms
@@ -2706,13 +2693,73 @@ public class CustomItemsEventHandler implements Listener {
 
 					// This will cause the custom block to drop the right drops
 					if (yield > rng.nextFloat()) {
-						Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () -> {
-							block.getWorld().dropItemNaturally(block.getLocation(), ItemHelper.createStack(
-									CIMaterial.OBSIDIAN.name(), 1
-							));
-						});
+						Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () ->
+								dropCustomBlockDrops(customBlock, block.getLocation(), null)
+						);
 					}
 				}
+			}
+		}
+	}
+
+	private void dropCustomBlockDrops(CustomBlockView block, Location location, ItemStack usedTool) {
+		Random rng = new Random();
+
+		for (CustomBlockDrop blockDrop : block.getValues().getDrops()) {
+
+		    boolean usedSilkTouch = false;
+		    CIMaterial usedMaterial = CIMaterial.AIR;
+			CustomItem usedCustomItem = null;
+
+		    if (!ItemUtils.isEmpty(usedTool)) {
+		    	usedSilkTouch = usedTool.containsEnchantment(SILK_TOUCH);
+		    	usedMaterial = CIMaterial.valueOf(ItemHelper.getMaterialName(usedTool));
+		    	usedCustomItem = set().getItem(usedTool);
+			}
+
+		    if (usedSilkTouch && blockDrop.getSilkTouchRequirement() == SilkTouchRequirement.FORBIDDEN) {
+		    	continue;
+			}
+		    if (!usedSilkTouch && blockDrop.getSilkTouchRequirement() == SilkTouchRequirement.REQUIRED) {
+		    	continue;
+			}
+
+			RequiredItems ri = blockDrop.getRequiredItems();
+		    if (ri.isEnabled()) {
+
+				boolean matchesVanillaItem = false;
+				for (RequiredItems.VanillaEntry vanillaEntry : ri.getVanillaItems()) {
+					if (vanillaEntry.material == usedMaterial) {
+						if (vanillaEntry.allowCustom || usedCustomItem == null) {
+							matchesVanillaItem = true;
+							break;
+						}
+					}
+				}
+
+				boolean matchesCustomItem = false;
+				for (Object candidateItem : ri.getCustomItems()) {
+					if (candidateItem == usedCustomItem) {
+						matchesCustomItem = true;
+						break;
+					}
+				}
+
+				boolean matchesAny = matchesVanillaItem || matchesCustomItem;
+				if (matchesAny == ri.isInverted()) {
+
+				    /*
+				     * If ri.isInverted(), we should drop items IFF there is NO match. If not ri.isInverted(),
+				     * we should drop items IFF there is a match. If we shouldn't drop an item, we should
+				     * continue with the next drop.
+				     */
+					continue;
+				}
+			}
+
+			ItemStack itemToDrop = (ItemStack) blockDrop.getItemsToDrop().pickResult(rng);
+		    if (itemToDrop != null) {
+		    	location.getWorld().dropItemNaturally(location, itemToDrop);
 			}
 		}
 	}
