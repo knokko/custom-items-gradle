@@ -5,12 +5,16 @@ import static java.lang.Math.*;
 import java.util.Collection;
 import java.util.Random;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.World;
+import nl.knokko.core.plugin.item.ItemHelper;
+import nl.knokko.customitems.item.CIMaterial;
+import org.bukkit.*;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.FireworkMeta;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.*;
 import org.bukkit.util.Vector;
 
 import nl.knokko.core.plugin.particles.ParticleHelper;
@@ -80,9 +84,7 @@ class FlyingProjectile {
 		
 		CustomItemsPlugin plugin = CustomItemsPlugin.getInstance();
 		
-		taskIDs[0] = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-			destroy();
-		}, supposedLifetime);
+		taskIDs[0] = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, this::destroy, supposedLifetime);
 		
 		updateTask = new UpdateProjectileTask(this);
 		taskIDs[1] = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, updateTask, 0, 1);
@@ -215,6 +217,84 @@ class FlyingProjectile {
 					}
 				} else if (remaining < 0) {
 					Bukkit.getLogger().warning("Custom projectile " + prototype.name + " outlived its lifetime");
+				}
+			} else if (effect instanceof PushOrPull) {
+				PushOrPull pushOrPull = (PushOrPull) effect;
+				float r = pushOrPull.radius;
+
+				for (Entity entity : world.getNearbyEntities(currentPosition.toLocation(world), r, r, r)) {
+					Vector direction = entity.getLocation().toVector().subtract(currentPosition).normalize();
+
+					// Avoid division by zero when the entity is very close to the projectile
+					if (direction.lengthSquared() > 0.0001) {
+						entity.setVelocity(entity.getVelocity().add(direction.multiply(pushOrPull.strength)));
+					}
+				}
+			} else if (effect instanceof PlaySound) {
+				PlaySound playSound = (PlaySound) effect;
+				world.playSound(
+						currentPosition.toLocation(world),
+						Sound.valueOf(playSound.sound.name()),
+						playSound.volume, playSound.pitch
+				);
+			} else if (effect instanceof ShowFirework) {
+				ShowFirework showFirework = (ShowFirework) effect;
+				world.spawn(currentPosition.toLocation(world), Firework.class, firework -> {
+
+					FireworkMeta meta = firework.getFireworkMeta();
+					for (ShowFirework.Effect fireworkEffect : showFirework.effects) {
+
+						Color[] colors = new Color[fireworkEffect.colors.size()];
+						for (int index = 0; index < fireworkEffect.colors.size(); index++) {
+							java.awt.Color color = fireworkEffect.colors.get(index);
+							colors[index] = Color.fromRGB(color.getRed(), color.getGreen(), color.getBlue());
+						}
+
+						Color[] fadeColors = new Color[fireworkEffect.fadeColors.size()];
+						for (int index = 0; index < fireworkEffect.fadeColors.size(); index++) {
+							java.awt.Color color = fireworkEffect.fadeColors.get(index);
+							fadeColors[index] = Color.fromRGB(color.getRed(), color.getGreen(), color.getBlue());
+						}
+
+						meta.addEffect(FireworkEffect.builder()
+								.flicker(fireworkEffect.flicker)
+								.trail(fireworkEffect.trail)
+								.withColor(colors)
+								.withFade(fadeColors)
+								.build()
+						);
+					}
+
+					firework.setFireworkMeta(meta);
+					firework.detonate();
+				});
+			} else if (effect instanceof PotionAura) {
+				PotionAura aura = (PotionAura) effect;
+				float r = aura.radius;
+				for (Entity entity : world.getNearbyEntities(currentPosition.toLocation(world), r, r, r)) {
+					if (entity instanceof LivingEntity) {
+						LivingEntity living = (LivingEntity) entity;
+						double distance = entity.getLocation().toVector().distance(currentPosition);
+						double nearbyFactor = 1.0 - distance / r;
+
+						if (nearbyFactor > 0) {
+							aura.effects.forEach(ciEffect -> {
+
+								PotionEffectType bukkitType = PotionEffectType.getByName(ciEffect.getEffect().name());
+								if (bukkitType.isInstant()) {
+
+									// If it is instant, we should make the effect more powerful when closer to the projectile
+									int level = Math.max(1, (int) (ciEffect.getLevel() * nearbyFactor));
+									living.addPotionEffect(new PotionEffect(bukkitType, 1, level - 1));
+								} else {
+
+									// If it is not instant, we should let the effect last longer when closer to the projectile
+									int duration = Math.max(1, (int) (ciEffect.getDuration() * nearbyFactor));
+									living.addPotionEffect(new PotionEffect(bukkitType, duration, ciEffect.getLevel() - 1));
+								}
+							});
+						}
+					}
 				}
 			}
 		}

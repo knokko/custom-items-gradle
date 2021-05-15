@@ -75,7 +75,7 @@ public class CreateToolTest {
 	public static void repairItem(GuiTestHelper test, String repairItemCategory, String repairItem) {
 		test.assertComponentWithText("Repair item: ");
 		test.click("None");
-		test.assertComponentsWithTexts("Back", "None", "Custom Item", 
+		test.assertComponentsWithTexts("Cancel", "Empty", "Custom Item",
 				"Simple vanilla item", "Vanilla item with datavalue");
 		test.click(repairItemCategory);
 		if (!repairItemCategory.equals("Empty")) {
@@ -89,18 +89,18 @@ public class CreateToolTest {
 			// Exclude the version suffix, if there is one (for instance 1.12 to 1.16)
 			int indexBracket = repairItem.indexOf(" (");
 			if (indexBracket != -1) {
-				test.assertComponentWithText(repairItem.substring(0, indexBracket) + "(0)");
+				test.assertComponentWithText(repairItem.substring(0, indexBracket) + "(0) x1");
 			} else {
-				test.assertComponentWithText(repairItem + "(0)");
+				test.assertComponentWithText(repairItem + "(0) x1");
 			}
 		} else if (repairItem != null){
 			
 			// Exclude the version suffix, if there is one (for instance 1.12 to 1.16)
 			int indexBracket = repairItem.indexOf(" (");
 			if (indexBracket != -1)
-				test.assertComponentWithText(repairItem.substring(0, indexBracket));
+				test.assertComponentWithText(repairItem.substring(0, indexBracket) + " x1");
 			else
-				test.assertComponentWithText(repairItem);
+				test.assertComponentWithText(repairItem + " x1");
 		} else {
 			test.assertComponentWithText("None");
 		}

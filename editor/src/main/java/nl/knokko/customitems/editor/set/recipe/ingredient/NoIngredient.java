@@ -26,12 +26,14 @@ package nl.knokko.customitems.editor.set.recipe.ingredient;
 import nl.knokko.customitems.encoding.RecipeEncoding;
 import nl.knokko.util.bits.BitOutput;
 
-public class NoIngredient implements Ingredient {
+public class NoIngredient extends Ingredient {
+
+	public NoIngredient() {
+		super((byte) 0, null);
+	}
 
 	@Override
-	public void save(BitOutput output) {
-		output.addByte(getID());
-	}
+	public void saveSpecifics(BitOutput output) {}
 
 	@Override
 	public byte getID() {
@@ -43,11 +45,6 @@ public class NoIngredient implements Ingredient {
 		return other instanceof NoIngredient;
 	}
 
-	@Override
-	public String[] getInfo(String emptyString) {
-		return new String[] {emptyString};
-	}
-	
 	@Override
 	public String toString(String emptyString) {
 		return emptyString;

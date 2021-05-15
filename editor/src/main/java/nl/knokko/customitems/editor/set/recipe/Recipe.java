@@ -33,20 +33,7 @@ import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
 public abstract class Recipe {
-	
-	public static Ingredient loadIngredient(BitInput input, ItemSet set) throws UnknownEncodingException {
-		byte encoding = input.readByte();
-		if (encoding == RecipeEncoding.Ingredient.NONE)
-			return new NoIngredient();
-		if (encoding == RecipeEncoding.Ingredient.VANILLA_SIMPLE)
-			return new SimpleVanillaIngredient(input);
-		if (encoding == RecipeEncoding.Ingredient.VANILLA_DATA)
-			return new DataVanillaIngredient(input);
-		if (encoding == RecipeEncoding.Ingredient.CUSTOM)
-			return new CustomItemIngredient(input, set);
-		throw new UnknownEncodingException("Ingredient", encoding);
-	}
-	
+
 	public static Result loadResult(BitInput input, ItemSet set) throws UnknownEncodingException {
 		byte encoding = input.readByte();
 		if (encoding == RecipeEncoding.Result.VANILLA_SIMPLE)

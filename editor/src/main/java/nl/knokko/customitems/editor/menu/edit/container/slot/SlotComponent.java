@@ -4,14 +4,8 @@ import java.awt.image.BufferedImage;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import nl.knokko.customitems.container.slot.CustomSlot;
-import nl.knokko.customitems.container.slot.DecorationCustomSlot;
-import nl.knokko.customitems.container.slot.EmptyCustomSlot;
-import nl.knokko.customitems.container.slot.FuelCustomSlot;
-import nl.knokko.customitems.container.slot.FuelIndicatorCustomSlot;
-import nl.knokko.customitems.container.slot.InputCustomSlot;
-import nl.knokko.customitems.container.slot.OutputCustomSlot;
-import nl.knokko.customitems.container.slot.ProgressIndicatorCustomSlot;
+import nl.knokko.customitems.container.slot.*;
+import nl.knokko.customitems.container.slot.display.SlotDisplay;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.set.ItemSet;
 import nl.knokko.gui.color.SimpleGuiColor;
@@ -84,6 +78,15 @@ public class SlotComponent implements GuiComponent {
 			topText = "progress ind. " + indicatorSlot.getDomain().getBegin() + "% to "
 					+ indicatorSlot.getDomain().getEnd() + "%";
 			bottomText = indicatorSlot.getDisplay().toString();
+		} else if (newSlot instanceof StorageCustomSlot) {
+			StorageCustomSlot storageSlot = (StorageCustomSlot)	newSlot;
+			topText = "storage";
+			SlotDisplay placeHolder = storageSlot.getPlaceHolder();
+			if (placeHolder != null) {
+				bottomText = placeHolder.toString();
+			} else {
+				bottomText = "";
+			}
 		} else {
 			throw new Error("Unknown custom slot class: " + newSlot.getClass());
 		}

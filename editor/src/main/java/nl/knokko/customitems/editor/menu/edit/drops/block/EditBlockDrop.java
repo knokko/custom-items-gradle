@@ -98,7 +98,7 @@ public class EditBlockDrop extends GuiMenu {
 			}), 0.025f, 0.1f, 0.2f, 0.2f);
 		} else {
 			addComponent(new DynamicTextButton("Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-				String error = set.changeBlockDrop(toModify, selectedBlock, selectedDrop);
+				String error = set.changeBlockDrop(toModify, selectedBlock, selectedDrop, allowSilkTouch);
 				if (error == null) {
 					state.getWindow().setMainComponent(returnMenu);
 				} else {

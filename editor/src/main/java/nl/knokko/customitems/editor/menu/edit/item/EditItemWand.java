@@ -143,7 +143,7 @@ public class EditItemWand extends EditItemBase {
 		}
 	}
 	
-	private static interface PropsListener {
+	private interface PropsListener {
 		
 		String process(int cooldown, WandCharges charges, int amount);
 	}

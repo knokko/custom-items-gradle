@@ -46,7 +46,7 @@ public class ShapedRecipe extends Recipe {
 		super(input, set);
 		ingredients = new Ingredient[9];
 		for (int index = 0; index < ingredients.length; index++)
-			ingredients[index] = loadIngredient(input, set);
+			ingredients[index] = Ingredient.loadIngredient(input, set);
 	}
 
 	@Override
@@ -57,9 +57,13 @@ public class ShapedRecipe extends Recipe {
 	
 	@Override
 	public boolean requires(CustomItem item) {
-		for (Ingredient ingredient : ingredients)
-			if (ingredient instanceof CustomItemIngredient && ((CustomItemIngredient)ingredient).getItem() == item)
+		for (Ingredient ingredient : ingredients) {
+			if (ingredient instanceof CustomItemIngredient && ((CustomItemIngredient) ingredient).getItem() == item)
 				return true;
+			if (ItemSet.hasRemainingCustomItem(ingredient, item)) {
+				return true;
+			}
+		}
 		return false;
 	}
 	

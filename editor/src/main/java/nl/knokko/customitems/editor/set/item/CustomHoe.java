@@ -13,6 +13,7 @@ import nl.knokko.customitems.item.Enchantment;
 import nl.knokko.customitems.item.ReplaceCondition;
 import nl.knokko.customitems.item.ReplaceCondition.ConditionOperation;
 import nl.knokko.customitems.item.nbt.ExtraItemNbt;
+import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.util.bits.BitOutput;
 
 public class CustomHoe extends CustomTool {
@@ -20,17 +21,17 @@ public class CustomHoe extends CustomTool {
 	protected int tillDurabilityLoss;
 
 	public CustomHoe(
-			CustomItemType itemType, String name, String alias, String displayName, 
-			String[] lore, AttributeModifier[] attributes, 
-			Enchantment[] defaultEnchantments, long durability, 
-			boolean allowEnchanting, boolean allowAnvil, Ingredient repairItem, 
-			NamedImage texture, boolean[] itemFlags,
-			int entityHitDurabilityLoss, int blockBreakDurabilityLoss, 
-			int tillDurabilityLoss, byte[] customModel, 
-			List<PotionEffect> playerEffects, List<PotionEffect> targetEffects, 
-			Collection<EquippedPotionEffect> equippedEffects, String[] commands, 
-			ReplaceCondition[] conditions, ConditionOperation op,
-			ExtraItemNbt extraNbt, float attackRange
+            CustomItemType itemType, String name, String alias, String displayName,
+            String[] lore, AttributeModifier[] attributes,
+            Enchantment[] defaultEnchantments, long durability,
+            boolean allowEnchanting, boolean allowAnvil, Ingredient repairItem,
+            NamedImage texture, boolean[] itemFlags,
+            int entityHitDurabilityLoss, int blockBreakDurabilityLoss,
+            int tillDurabilityLoss, byte[] customModel,
+            List<PotionEffect> playerEffects, List<PotionEffect> targetEffects,
+            Collection<EquippedPotionEffect> equippedEffects, String[] commands,
+            ReplaceCondition[] conditions, ConditionOperation op,
+            ExtraItemNbt extraNbt, float attackRange
 	) {
 		super(
 				itemType, name, alias, displayName, lore, attributes, 

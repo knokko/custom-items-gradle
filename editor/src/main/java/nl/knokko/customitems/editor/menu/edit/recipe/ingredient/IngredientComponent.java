@@ -43,23 +43,19 @@ public class IngredientComponent extends DynamicTextButton {
 	private Ingredient current;
 	private final GuiComponent menu;
 	private final String emptyText;
-	private ItemSet set;
+	private final ItemSet set;
 
 	public IngredientComponent(String emptyText, Ingredient original, GuiComponent menu, ItemSet set) {
 		super(original.toString(emptyText), EditProps.BUTTON, EditProps.HOVER, null);
 		this.clickAction = () -> {
-			state.getWindow().setMainComponent(new IngredientView(emptyText, this, set));
+			state.getWindow().setMainComponent(new ChooseIngredient(menu, this::setIngredient, true, set));
 		};
 		current = original;
 		this.emptyText = emptyText;
 		this.menu = menu;
 		this.set = set;
 	}
-	
-	public IngredientComponent(String emptyText, GuiComponent menu, ItemSet set) {
-		this(emptyText, new NoIngredient(), menu, set);
-	}
-	
+
 	public void setIngredient(Ingredient ingredient) {
 		current = ingredient;
 		setText(current.toString(emptyText));
@@ -78,17 +74,17 @@ public class IngredientComponent extends DynamicTextButton {
 		if (state.isMouseOver()) {
 			if (character == 'v') {
 				state.getWindow().setMainComponent(new SelectSimpleVanillaItem(getMenu(), (CIMaterial material) -> {
-					IngredientComponent.this.setIngredient(new SimpleVanillaIngredient(material));
+					IngredientComponent.this.setIngredient(new SimpleVanillaIngredient(material, (byte) 1, null));
 					//the SelectSimpleVanillaItem will go to the returnGui automatically
 				},false));
 			} else if (character == 'c') {
 				state.getWindow().setMainComponent(new SelectCustomItem(getMenu(), (CustomItem item) -> {
-					IngredientComponent.this.setIngredient(new CustomItemIngredient(item));
+					IngredientComponent.this.setIngredient(new CustomItemIngredient(item, (byte) 1, null));
 					//the SelectCustomItem will go the the returnGui automatically
 				}, set));
 			} else if (character == 'd') {
 				state.getWindow().setMainComponent(new SelectDataVanillaItem(getMenu(), (CIMaterial material, byte data) -> {
-					IngredientComponent.this.setIngredient(new DataVanillaIngredient(material, data));
+					IngredientComponent.this.setIngredient(new DataVanillaIngredient(material, data, (byte) 1, null));
 				}));
 			}
 		}

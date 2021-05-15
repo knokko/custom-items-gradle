@@ -49,19 +49,37 @@ public class CreateItem extends GuiMenu {
 		addComponent(new DynamicTextButton("Cancel", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
 			state.getWindow().setMainComponent(menu.getItemOverview());
 		}), 0.1f, 0.8f, 0.25f, 0.9f);
+
+		addComponent(new DynamicTextButton("Food or Potion", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
+			state.getWindow().setMainComponent(new EditItemFood(menu, null, null));
+		}), 0.5f, 0.89f, 0.7f, 0.99f);
 		addComponent(new DynamicTextButton("Simple Item", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
 			state.getWindow().setMainComponent(new EditItemSimple(menu, null, null));
-		}), 0.5f, 0.8f, 0.7f, 0.9f);
+		}), 0.5f, 0.78f, 0.7f, 0.88f);
 		
 		// The row for later minecraft versions
 		addComponent(new DynamicTextButton("Trident (1.13 and 1.14)", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
 			state.getWindow().setMainComponent(new EditItemTrident(menu, null, null));
 		}), 0f, 0.65f, 0.23f, 0.75f);
-		
+		addComponent(new DynamicTextButton("Crossbow (1.14+)", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
+			state.getWindow().setMainComponent(new EditItemCrossbow(menu, null, null));
+		}), 0f, 0.525f, 0.23f, 0.625f);
+		addComponent(new DynamicTextButton("Block (1.13+)", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
+			state.getWindow().setMainComponent(new EditItemBlock(menu, null, null));
+		}), 0f, 0.4f, 0.2f, 0.5f);
+
 		// The row for the special stuff
 		addComponent(new DynamicTextButton("Wand", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
 			state.getWindow().setMainComponent(new EditItemWand(menu, null, null));
 		}), 0.25f, 0.65f, 0.45f, 0.75f);
+
+		addComponent(new DynamicTextButton("Gun", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
+			state.getWindow().setMainComponent(new EditItemGun(menu, null, null));
+		}), 0.25f, 0.525f, 0.45f, 0.625f);
+
+		addComponent(new DynamicTextButton("Pocket Container", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
+			state.getWindow().setMainComponent(new EditItemPocketContainer(menu, null, null));
+		}), 0.25f, 0.4f, 0.45f, 0.5f);
 		
 		// The row for the basic tools
 		addComponent(new DynamicTextButton("Sword", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
@@ -105,7 +123,7 @@ public class CreateItem extends GuiMenu {
 		addComponent(new DynamicTextButton("Shield", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
 			state.getWindow().setMainComponent(new EditItemShield(menu, null, null));
 		}), 0.75f, 0.025f, 0.95f, 0.125f);
-		
+
 		HelpButtons.addHelpLink(this, "edit%20menu/items/select%20type.html");
 	}
 }

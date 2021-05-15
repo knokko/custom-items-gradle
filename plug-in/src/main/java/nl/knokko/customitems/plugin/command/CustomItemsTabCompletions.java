@@ -1,10 +1,12 @@
 package nl.knokko.customitems.plugin.command;
 
 import com.google.common.collect.Lists;
+import nl.knokko.customitems.block.CustomBlockView;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.set.ItemSet;
 import nl.knokko.customitems.plugin.set.item.CustomItem;
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -23,7 +25,7 @@ public class CustomItemsTabCompletions implements TabCompleter {
     }
 
     private static List<String> getRootCompletions(CommandSender sender) {
-        return Lists.newArrayList("give", "list", "debug", "encode", "reload", "repair", "damage")
+        return Lists.newArrayList("give", "list", "debug", "encode", "reload", "repair", "damage", "setblock")
                 .stream().filter(element -> sender.hasPermission("customitems." + element))
                 .collect(Collectors.toList()
         );
@@ -64,6 +66,14 @@ public class CustomItemsTabCompletions implements TabCompleter {
             ) {
                 return Lists.newArrayList("1", "2", "3", "4");
             }
+
+            if (first.equals("setblock") && sender.hasPermission("customitems.setblock")) {
+                List<String> result = new ArrayList<>(set.getBlocks().size());
+                for (CustomBlockView block : set.getBlocks()) {
+                    result.add(block.getValues().getName());
+                }
+                return filter(result, prefix);
+            }
         } else if (args.length == 3) {
             String first = args[0];
             String prefix = args[2];
@@ -74,6 +84,10 @@ public class CustomItemsTabCompletions implements TabCompleter {
             ) {
                 List<String> names = Bukkit.getOnlinePlayers().stream().map(HumanEntity::getName).collect(Collectors.toList());
                 return filter(names, prefix);
+            }
+
+            if (first.equals("setblock") && sender.hasPermission("customitems.setblock")) {
+                return Lists.newArrayList("~");
             }
         } else if (args.length == 4) {
             String first = args[0];
@@ -87,6 +101,27 @@ public class CustomItemsTabCompletions implements TabCompleter {
                         return Lists.newArrayList("1");
                     }
                 }
+            }
+
+            if (first.equals("setblock") && sender.hasPermission("customitems.setblock")) {
+                return Lists.newArrayList("~");
+            }
+        } else if (args.length == 5) {
+
+            String first = args[0];
+            if (first.equals("setblock") && sender.hasPermission("customitems.setblock")) {
+                return Lists.newArrayList("~");
+            }
+        } else if (args.length == 6) {
+
+            String first = args[0];
+            String prefix = args[5];
+            if (first.equals("setblock") && sender.hasPermission("customitems.setblock")) {
+                List<String> result = new ArrayList<>(Bukkit.getWorlds().size());
+                for (World world : Bukkit.getWorlds()) {
+                    result.add(world.getName());
+                }
+                return filter(result, prefix);
             }
         }
         return Collections.emptyList();

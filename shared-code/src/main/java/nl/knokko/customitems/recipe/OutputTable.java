@@ -54,6 +54,16 @@ public class OutputTable {
 		
 		return result.toString();
 	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof OutputTable) {
+			OutputTable otherTable = (OutputTable) other;
+			return otherTable.entries.equals(this.entries);
+		} else {
+			return false;
+		}
+	}
 	
 	public List<Entry> getEntries() {
 		return entries;
@@ -140,6 +150,16 @@ public class OutputTable {
 		public Entry(Object result, int chance) {
 			this.result = result;
 			this.chance = chance;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (other instanceof Entry) {
+				Entry otherEntry = (Entry) other;
+				return otherEntry.result.equals(this.result) && otherEntry.chance == chance;
+			} else {
+				return false;
+			}
 		}
 		
 		/**

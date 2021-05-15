@@ -150,13 +150,13 @@ public class DirectoryChooserMenu extends GuiMenu {
                 for (File file : files) {
                     if (file.isDirectory() || filter.test(file)) {
 
-                        // TODO Reuse buffered images containing icons
                         Icon icon = FileSystemView.getFileSystemView().getSystemIcon(file);
                         BufferedImage image = new BufferedImage(icon.getIconWidth(), icon.getIconHeight(),
                                 BufferedImage.TYPE_INT_ARGB);
                         Graphics2D g = image.createGraphics();
                         icon.paintIcon(null, g, 0, 0);
                         g.dispose();
+
                         addComponent(new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(image)), 0f,
                                 0.9f - index * 0.1f, 0.1f, 1f - index * 0.1f);
                         if (file.isDirectory()) {

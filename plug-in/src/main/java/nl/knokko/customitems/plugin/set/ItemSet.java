@@ -32,6 +32,12 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.logging.Level;
 
+import nl.knokko.customitems.block.CustomBlock;
+import nl.knokko.customitems.block.CustomBlockValues;
+import nl.knokko.customitems.block.CustomBlocksView;
+import nl.knokko.customitems.item.gun.GunAmmo;
+import nl.knokko.customitems.plugin.set.item.*;
+import nl.knokko.customitems.sound.CISound;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -84,19 +90,6 @@ import nl.knokko.customitems.plugin.recipe.ingredient.DataVanillaIngredient;
 import nl.knokko.customitems.plugin.recipe.ingredient.Ingredient;
 import nl.knokko.customitems.plugin.recipe.ingredient.NoIngredient;
 import nl.knokko.customitems.plugin.recipe.ingredient.SimpleVanillaIngredient;
-import nl.knokko.customitems.plugin.set.item.BooleanRepresentation;
-import nl.knokko.customitems.plugin.set.item.CustomArmor;
-import nl.knokko.customitems.plugin.set.item.CustomBow;
-import nl.knokko.customitems.plugin.set.item.CustomHelmet3D;
-import nl.knokko.customitems.plugin.set.item.CustomHoe;
-import nl.knokko.customitems.plugin.set.item.CustomItem;
-import nl.knokko.customitems.plugin.set.item.CustomItemNBT;
-import nl.knokko.customitems.plugin.set.item.CustomShears;
-import nl.knokko.customitems.plugin.set.item.CustomShield;
-import nl.knokko.customitems.plugin.set.item.CustomTool;
-import nl.knokko.customitems.plugin.set.item.CustomTrident;
-import nl.knokko.customitems.plugin.set.item.CustomWand;
-import nl.knokko.customitems.plugin.set.item.SimpleCustomItem;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import nl.knokko.customitems.projectile.CIProjectile;
 import nl.knokko.customitems.projectile.ProjectileCover;
@@ -114,6 +107,7 @@ public class ItemSet implements ItemSetBase {
 	private final Map<String, ContainerInfo> containerInfo;
 
 	private CustomItem[] items;
+	private CustomBlocksView blocks;
 	
 	private ProjectileCover[] projectileCovers;
 	private CIProjectile[] projectiles;
@@ -132,6 +126,7 @@ public class ItemSet implements ItemSetBase {
 		containerInfo = new HashMap<>();
 		
 		items = new CustomItem[0];
+		blocks = new CustomBlocksView(new ArrayList<>(0));
 		recipes = new CustomRecipe[0];
 		
 		projectileCovers = new ProjectileCover[0];
@@ -148,6 +143,7 @@ public class ItemSet implements ItemSetBase {
 
 	public ItemSet(BitInput input) throws UnknownEncodingException, IntegrityException, UnknownMaterialException {
 		containerInfo = new HashMap<>();
+		blocks = new CustomBlocksView(new ArrayList<>(0));
 		
 		byte encoding = input.readByte();
 		
@@ -164,6 +160,8 @@ public class ItemSet implements ItemSetBase {
 			load7(input);
 		else if (encoding == SetEncoding.ENCODING_8)
 			load8(input);
+		else if (encoding == SetEncoding.ENCODING_9)
+			load9(input);
 		else
 			throw new UnknownEncodingException("ItemSet", encoding);
 		
@@ -559,7 +557,125 @@ public class ItemSet implements ItemSetBase {
 		for (int counter = 0; counter < numContainers; counter++) {
 			addCustomContainer(loadContainer(input));
 		}
+
+		// Now that we have the containers, we can match the pocket container items with their container
+		for (CustomItem item : items) {
+			if (item instanceof CustomPocketContainer) {
+				((CustomPocketContainer) item).findContainers(this);
+			}
+		}
 		
+		// Deleted items
+		int numDeletedItems = input.readInt();
+		deletedItems = new String[numDeletedItems];
+		for (int index = 0; index < numDeletedItems; index++) {
+			deletedItems[index] = input.readString();
+		}
+	}
+
+	private void load9(BitInput rawInput) throws UnknownEncodingException, IntegrityException, UnknownMaterialException {
+
+		long expectedHash = rawInput.readLong();
+		byte[] content;
+		try {
+			// Catch undefined behavior
+			content = rawInput.readByteArray();
+		} catch (Throwable t) {
+			throw new IntegrityException(t);
+		}
+		long actualHash = hash(content);
+		if (expectedHash != actualHash) {
+			throw new IntegrityException(expectedHash, actualHash);
+		}
+
+		BitInput input = new ByteArrayBitInput(content);
+
+		CustomItemsPlugin.getInstance().setExportTime(input.readLong());
+
+		// Projectiles
+		int numProjectileCovers = input.readInt();
+		projectileCovers = new ProjectileCover[numProjectileCovers];
+		for (int index = 0; index < numProjectileCovers; index++) {
+			PluginProjectileCover cover = new PluginProjectileCover(input);
+			projectileCovers[index] = cover;
+		}
+
+		int numProjectiles = input.readInt();
+		projectiles = new CIProjectile[numProjectiles];
+		for (int index = 0; index < numProjectiles; index++)
+			projectiles[index] = CIProjectile.fromBits(input, this);
+
+		// Notify the projectiles that all projectiles are loaded
+		for (CIProjectile projectile : projectiles)
+			projectile.afterProjectilesAreLoaded(this);
+
+		// Items
+		int itemSize = input.readInt();
+		items = new CustomItem[itemSize];
+		for (int counter = 0; counter < itemSize; counter++)
+			register(loadItem(input), counter);
+
+		// Blocks
+		int numBlocks = input.readInt();
+		Collection<CustomBlock> loadedBlocks = new ArrayList<>(numBlocks);
+		for (int counter = 0; counter < numBlocks; counter++) {
+			int internalID = input.readInt();
+			CustomBlockValues blockValues = CustomBlockValues.load(
+					input, this::getCustomItemByName, () -> loadResult(input), name -> null, false
+			);
+			loadedBlocks.add(new CustomBlock(internalID, blockValues));
+		}
+		this.blocks = new CustomBlocksView(loadedBlocks);
+
+		// Link the block items to their blocks
+		for (CustomItem item : items) {
+			item.afterBlocksAreLoaded(this);
+		}
+
+		// Recipes
+		int recipeAmount = input.readInt();
+		recipes = new CustomRecipe[recipeAmount];
+		for (int counter = 0; counter < recipeAmount; counter++)
+			register(loadRecipe(input), counter);
+
+		int numBlockDrops = input.readInt();
+		blockDropMap = new BlockDrop[BlockType.AMOUNT][0];
+		for (int counter = 0; counter < numBlockDrops; counter++) {
+			register(BlockDrop.load(
+					input, this::createCustomItemResultByName,
+					() -> loadResult(input), this::getItem
+			));
+		}
+
+		int numMobDrops = input.readInt();
+		mobDropMap = new EntityDrop[CIEntityType.AMOUNT][0];
+		for (int counter = 0; counter < numMobDrops; counter++) {
+			register(EntityDrop.load(
+					input, this::createCustomItemResultByName,
+					() -> loadResult(input), this::getItem
+			));
+		}
+
+		// Custom containers & fuel registries
+		int numFuelRegistries = input.readInt();
+		fuelRegistries = new ArrayList<>(numFuelRegistries);
+		for (int counter = 0; counter < numFuelRegistries; counter++) {
+			fuelRegistries.add(loadFuelRegistry(input));
+		}
+
+		int numContainers = input.readInt();
+		containers = new ArrayList<>(numContainers);
+		for (int counter = 0; counter < numContainers; counter++) {
+			addCustomContainer(loadContainer(input));
+		}
+
+		// Now that we have the containers, we can match the pocket container items with their container
+		for (CustomItem item : items) {
+			if (item instanceof CustomPocketContainer) {
+				((CustomPocketContainer) item).findContainers(this);
+			}
+		}
+
 		// Deleted items
 		int numDeletedItems = input.readInt();
 		deletedItems = new String[numDeletedItems];
@@ -703,6 +819,11 @@ public class ItemSet implements ItemSetBase {
 		case ItemEncoding.ENCODING_TRIDENT_9 : return loadTrident9(input, loadIngredient);
 		case ItemEncoding.ENCODING_HOE_9 : return loadHoe9(input, loadIngredient);
 		case ItemEncoding.ENCODING_WAND_9: return loadWand9(input, getProjectileByName);
+		case ItemEncoding.ENCODING_POCKET_CONTAINER_9: return loadPocketContainer9(input);
+		case ItemEncoding.ENCODING_CROSSBOW_9: return loadCrossbow9(input, loadIngredient);
+		case ItemEncoding.ENCODING_GUN_9: return loadGun9(input, loadIngredient, getProjectileByName);
+		case ItemEncoding.ENCODING_FOOD_9: return loadFood9(input);
+		case ItemEncoding.ENCODING_BLOCK_ITEM_9: return loadBlockItem9(input);
 		default : throw new UnknownEncodingException("Item", encoding);
 	}
 	}
@@ -2389,6 +2510,312 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 
+	private static CustomItem loadPocketContainer9(
+			BitInput input
+	) throws UnknownEncodingException {
+		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
+		short damage = input.readShort();
+		String name = input.readJavaString();
+		String alias = input.readString();
+		String displayName = input.readJavaString();
+		String[] lore = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < lore.length; index++)
+			lore[index] = input.readJavaString();
+		AttributeModifier[] attributes = new AttributeModifier[input.readByte() & 0xFF];
+		for (int index = 0; index < attributes.length; index++)
+			attributes[index] = loadAttribute2(input);
+		Enchantment[] defaultEnchantments = new Enchantment[input.readByte() & 0xFF];
+		for (int index = 0; index < defaultEnchantments.length; index++)
+			defaultEnchantments[index] = new Enchantment(EnchantmentType.valueOf(input.readString()), input.readInt());
+		boolean[] itemFlags = input.readBooleans(6);
+		List<PotionEffect> playerEffects = new ArrayList<PotionEffect>();
+		int peLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < peLength; index++) {
+			playerEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		List<PotionEffect> targetEffects = new ArrayList<PotionEffect>();
+		int teLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < teLength; index++) {
+			targetEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		Collection<EquippedPotionEffect> equippedEffects = CustomItem.readEquippedEffects(input);
+		String[] commands = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < commands.length; index++) {
+			commands[index] = input.readJavaString();
+		}
+
+		ReplaceCondition[] conditions = new ReplaceCondition[input.readByte() & 0xFF];
+		for (int index = 0; index < conditions.length; index++) {
+			conditions[index] = loadReplaceCondition(input);
+		}
+		ConditionOperation op = ConditionOperation.valueOf(input.readJavaString());
+		ExtraItemNbt extraNbt = ExtraItemNbt.load(input);
+		float attackRange = input.readFloat();
+
+		int numContainers = input.readInt();
+		String[] containerNames = new String[numContainers];
+		for (int index = 0; index < numContainers; index++) {
+			containerNames[index] = input.readString();
+		}
+
+		return new CustomPocketContainer(
+				itemType, damage, name, alias, displayName, lore, attributes,
+				defaultEnchantments, itemFlags, playerEffects,
+				targetEffects, equippedEffects, commands, conditions, op,
+				extraNbt, attackRange, containerNames
+		);
+	}
+
+	private static CustomItem loadCrossbow9(
+			BitInput input, LoadIngredient loadIngredient
+	) throws UnknownEncodingException {
+		short damage = input.readShort();
+		String name = input.readJavaString();
+		String alias = input.readString();
+		String displayName = input.readJavaString();
+		String[] lore = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < lore.length; index++)
+			lore[index] = input.readJavaString();
+		AttributeModifier[] attributes = new AttributeModifier[input.readByte() & 0xFF];
+		for (int index = 0; index < attributes.length; index++)
+			attributes[index] = loadAttribute2(input);
+		Enchantment[] defaultEnchantments = new Enchantment[input.readByte() & 0xFF];
+		for (int index = 0; index < defaultEnchantments.length; index++)
+			defaultEnchantments[index] = new Enchantment(EnchantmentType.valueOf(input.readString()), input.readInt());
+		long durability = input.readLong();
+		boolean allowEnchanting = input.readBoolean();
+		boolean allowAnvil = input.readBoolean();
+		Ingredient repairItem = loadIngredient.apply(input);
+		boolean[] itemFlags = input.readBooleans(6);
+		int entityHitDurabilityLoss = input.readInt();
+		int blockBreakDurabilityLoss = input.readInt();
+		List<PotionEffect> playerEffects = new ArrayList<PotionEffect>();
+		int peLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < peLength; index++) {
+			playerEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		List<PotionEffect> targetEffects = new ArrayList<PotionEffect>();
+		int teLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < teLength; index++) {
+			targetEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		Collection<EquippedPotionEffect> equippedEffects = CustomItem.readEquippedEffects(input);
+		String[] commands = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < commands.length; index++) {
+			commands[index] = input.readJavaString();
+		}
+
+		ReplaceCondition[] conditions = new ReplaceCondition[input.readByte() & 0xFF];
+		for (int index = 0; index < conditions.length; index++) {
+			conditions[index] = loadReplaceCondition(input);
+		}
+		ConditionOperation op = ConditionOperation.valueOf(input.readJavaString());
+		ExtraItemNbt extraNbt = ExtraItemNbt.load(input);
+		float attackRange = input.readFloat();
+
+		int arrowDurabilityLoss = input.readInt();
+		int fireworkDurabilityLoss = input.readInt();
+
+		float arrowDamageMultiplier = input.readFloat();
+		float fireworkDamageMultiplier = input.readFloat();
+
+		float arrowSpeedMultiplier = input.readFloat();
+		float fireworkSpeedMultiplier = input.readFloat();
+
+		int arrowKnockbackStrength = input.readInt();
+		boolean arrowGravity = input.readBoolean();
+
+		return new CustomCrossbow(
+				damage, name, alias, displayName, lore, attributes,
+				defaultEnchantments, durability, allowEnchanting, allowAnvil,
+				repairItem, itemFlags, entityHitDurabilityLoss, blockBreakDurabilityLoss,
+				playerEffects, targetEffects, equippedEffects,
+				commands, conditions, op, extraNbt, attackRange, arrowDurabilityLoss,
+				fireworkDurabilityLoss, arrowDamageMultiplier, fireworkDamageMultiplier,
+				arrowSpeedMultiplier, fireworkSpeedMultiplier, arrowKnockbackStrength,
+				arrowGravity
+		);
+	}
+
+	private static CustomGun loadGun9(
+			BitInput input, LoadIngredient loadIngredient, ProjectileByName getProjectileByName
+	) throws UnknownEncodingException {
+		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
+		short internalItemDamage = input.readShort();
+		String name = input.readJavaString();
+		String alias = input.readString();
+		String displayName = input.readJavaString();
+		String[] lore = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < lore.length; index++) {
+			lore[index] = input.readJavaString();
+		}
+		AttributeModifier[] attributes = new AttributeModifier[input.readByte() & 0xFF];
+		for (int index = 0; index < attributes.length; index++)
+			attributes[index] = loadAttribute2(input);
+		Enchantment[] defaultEnchantments = new Enchantment[input.readByte() & 0xFF];
+		for (int index = 0; index < defaultEnchantments.length; index++)
+			defaultEnchantments[index] = new Enchantment(EnchantmentType.valueOf(input.readString()), input.readInt());
+
+		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
+		boolean[] itemFlags = input.readBooleans(6);
+
+		List<PotionEffect> playerEffects = new ArrayList<PotionEffect>();
+		int peLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < peLength; index++) {
+			playerEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		List<PotionEffect> targetEffects = new ArrayList<PotionEffect>();
+		int teLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < teLength; index++) {
+			targetEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		Collection<EquippedPotionEffect> equippedEffects = CustomItem.readEquippedEffects(input);
+		String[] commands = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < commands.length; index++) {
+			commands[index] = input.readJavaString();
+		}
+
+		ReplaceCondition[] conditions = new ReplaceCondition[input.readByte() & 0xFF];
+		for (int index = 0; index < conditions.length; index++) {
+			conditions[index] = loadReplaceCondition(input);
+		}
+		ConditionOperation op = ConditionOperation.valueOf(input.readJavaString());
+		ExtraItemNbt extraNbt = ExtraItemNbt.load(input);
+		float attackRange = input.readFloat();
+
+		String projectileName = input.readString();
+		CIProjectile projectile = getProjectileByName.apply(projectileName);
+		GunAmmo ammo = GunAmmo.load(input, () -> loadIngredient.apply(input));
+		int amountPerShot = input.readInt();
+
+		return new CustomGun(
+				itemType, internalItemDamage, name, alias, displayName, lore, attributes,
+				defaultEnchantments, itemFlags, playerEffects, targetEffects, equippedEffects,
+				commands, conditions, op, extraNbt, attackRange, projectile, ammo, amountPerShot
+		);
+	}
+
+	private static CustomFood loadFood9(
+			BitInput input
+	) throws UnknownEncodingException {
+		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
+		short internalItemDamage = input.readShort();
+		String name = input.readJavaString();
+		String alias = input.readString();
+		String displayName = input.readJavaString();
+		String[] lore = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < lore.length; index++) {
+			lore[index] = input.readJavaString();
+		}
+		AttributeModifier[] attributes = new AttributeModifier[input.readByte() & 0xFF];
+		for (int index = 0; index < attributes.length; index++)
+			attributes[index] = loadAttribute2(input);
+		Enchantment[] defaultEnchantments = new Enchantment[input.readByte() & 0xFF];
+		for (int index = 0; index < defaultEnchantments.length; index++)
+			defaultEnchantments[index] = new Enchantment(EnchantmentType.valueOf(input.readString()), input.readInt());
+
+		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
+		boolean[] itemFlags = input.readBooleans(6);
+
+		List<PotionEffect> playerEffects = new ArrayList<PotionEffect>();
+		int peLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < peLength; index++) {
+			playerEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		List<PotionEffect> targetEffects = new ArrayList<PotionEffect>();
+		int teLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < teLength; index++) {
+			targetEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		Collection<EquippedPotionEffect> equippedEffects = CustomItem.readEquippedEffects(input);
+		String[] commands = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < commands.length; index++) {
+			commands[index] = input.readJavaString();
+		}
+
+		ReplaceCondition[] conditions = new ReplaceCondition[input.readByte() & 0xFF];
+		for (int index = 0; index < conditions.length; index++) {
+			conditions[index] = loadReplaceCondition(input);
+		}
+		ConditionOperation op = ConditionOperation.valueOf(input.readJavaString());
+		ExtraItemNbt extraNbt = ExtraItemNbt.load(input);
+		float attackRange = input.readFloat();
+
+		int foodValue = input.readInt();
+		int numEatEffects = input.readInt();
+		Collection<PotionEffect> eatEffects = new ArrayList<>(numEatEffects);
+		for (int counter = 0; counter < numEatEffects; counter++) {
+			eatEffects.add(PotionEffect.load1(input));
+		}
+		int eatTime = input.readInt();
+
+		CISound eatSound = CISound.valueOf(input.readString());
+		float soundVolume = input.readFloat();
+		float soundPitch = input.readFloat();
+		int soundPeriod = input.readInt();
+
+		int maxStacksize = input.readInt();
+
+		return new CustomFood(
+				itemType, internalItemDamage, name, alias, displayName, lore, attributes,
+				defaultEnchantments, itemFlags, playerEffects, targetEffects, equippedEffects,
+				commands, conditions, op, extraNbt, attackRange, foodValue, eatEffects, eatTime,
+				eatSound, soundVolume, soundPitch, soundPeriod, maxStacksize
+		);
+	}
+
+	private static CustomItem loadBlockItem9(
+			BitInput input
+	) throws UnknownEncodingException {
+		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
+		short damage = input.readShort();
+		String name = input.readJavaString();
+		String alias = input.readString();
+		String displayName = input.readJavaString();
+		String[] lore = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < lore.length; index++)
+			lore[index] = input.readJavaString();
+		AttributeModifier[] attributes = new AttributeModifier[input.readByte() & 0xFF];
+		for (int index = 0; index < attributes.length; index++)
+			attributes[index] = loadAttribute2(input);
+		Enchantment[] defaultEnchantments = new Enchantment[input.readByte() & 0xFF];
+		for (int index = 0; index < defaultEnchantments.length; index++)
+			defaultEnchantments[index] = new Enchantment(EnchantmentType.valueOf(input.readString()), input.readInt());
+		boolean[] itemFlags = input.readBooleans(6);
+		List<PotionEffect> playerEffects = new ArrayList<PotionEffect>();
+		int peLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < peLength; index++) {
+			playerEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		List<PotionEffect> targetEffects = new ArrayList<PotionEffect>();
+		int teLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < teLength; index++) {
+			targetEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		Collection<EquippedPotionEffect> equippedEffects = CustomItem.readEquippedEffects(input);
+		String[] commands = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < commands.length; index++) {
+			commands[index] = input.readJavaString();
+		}
+
+		ReplaceCondition[] conditions = new ReplaceCondition[input.readByte() & 0xFF];
+		for (int index = 0; index < conditions.length; index++) {
+			conditions[index] = loadReplaceCondition(input);
+		}
+		ConditionOperation op = ConditionOperation.valueOf(input.readJavaString());
+		ExtraItemNbt extraNbt = ExtraItemNbt.load(input);
+		float attackRange = input.readFloat();
+
+		int blockID = input.readInt();
+		int stackSize = input.readInt();
+		return new CustomBlockItem(
+				itemType, damage, name, alias, displayName, lore, attributes,
+				defaultEnchantments, itemFlags, playerEffects,
+				targetEffects, equippedEffects, commands, conditions, op,
+				extraNbt, attackRange, blockID, stackSize
+		);
+	}
+
 	private static AttributeModifier loadAttribute2(BitInput input) {
 		return new AttributeModifier(Attribute.valueOf(input.readJavaString()), Slot.valueOf(input.readJavaString()),
 				Operation.values()[(int) input.readNumber((byte) 2, false)], input.readDouble());
@@ -2461,17 +2888,42 @@ public class ItemSet implements ItemSetBase {
 		throw new UnknownEncodingException("Result", encoding);
 	}
 
+	private ItemStack loadRemainingItem(BitInput input) throws UnknownEncodingException {
+		if (input.readBoolean()) {
+			return loadResult(input);
+		} else {
+			return null;
+		}
+	}
+
 	private Ingredient loadIngredient(BitInput input) throws UnknownEncodingException {
 		byte encoding = input.readByte();
+		byte defaultAmount = 1;
+
 		if (encoding == RecipeEncoding.Ingredient.NONE)
 			return new NoIngredient();
 		if (encoding == RecipeEncoding.Ingredient.VANILLA_SIMPLE)
-			return new SimpleVanillaIngredient(CIMaterial.valueOf(input.readJavaString()));
+			return new SimpleVanillaIngredient(input, defaultAmount, null);
 		if (encoding == RecipeEncoding.Ingredient.VANILLA_DATA)
-			return new DataVanillaIngredient(CIMaterial.valueOf(input.readJavaString()),
-					(byte) input.readNumber((byte) 4, false));
+			return new DataVanillaIngredient(input, defaultAmount, null);
 		if (encoding == RecipeEncoding.Ingredient.CUSTOM)
-			return new CustomIngredient(getItem(input.readJavaString()));
+			return new CustomIngredient(input, this, defaultAmount, null);
+
+		if (encoding == RecipeEncoding.Ingredient.VANILLA_SIMPLE_2)
+			return new SimpleVanillaIngredient(
+					input,
+					input.readByte(), loadRemainingItem(input)
+			);
+		if (encoding == RecipeEncoding.Ingredient.VANILLA_DATA_2)
+			return new DataVanillaIngredient(
+					input, input.readByte(), loadRemainingItem(input)
+			);
+		if (encoding == RecipeEncoding.Ingredient.CUSTOM_2)
+			return new CustomIngredient(
+					input, this, input.readByte(),
+					loadRemainingItem(input)
+			);
+
 		throw new UnknownEncodingException("Ingredient", encoding);
 	}
 	
@@ -2619,6 +3071,10 @@ public class ItemSet implements ItemSetBase {
 	
 	public int getNumContainers() {
 		return containers.size();
+	}
+
+	public CustomBlocksView getBlocks() {
+		return blocks;
 	}
 
 	@Override

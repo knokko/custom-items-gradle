@@ -30,6 +30,8 @@ import nl.knokko.gui.texture.loader.GuiTextureLoader;
 import nl.knokko.gui.util.CharBuilder;
 import nl.knokko.gui.window.input.WindowInput;
 
+import java.awt.image.BufferedImage;
+
 /**
  * The GuiWindow is the core of this library. The 2 types of GuiWindow are AWTGuiWindow and GLGuiWindow. GLGuiWindow is part of the GLGui library because it requires LWJGL. AWTGuiWindow is part of this library because everything it needs is part of java. Applications should create 1 instance of GuiWindow for their window. The getTextureLoader() should be used to create textures for the components of the window.
  * @author knokko
@@ -79,22 +81,22 @@ public abstract class GuiWindow {
 	 * @param height The height of the window in pixels
 	 * @param border Determines whether this window has a border or not
 	 */
-	public void open(String title, int width, int height, boolean border){
-		directOpen(title, width, height, border);
+	public void open(String title, int width, int height, boolean border, BufferedImage iconImage){
+		directOpen(title, width, height, border, iconImage);
 		state = createState();
 		setMainComponentState();
 		markChange();
 	}
 	
-	protected abstract void directOpen(String title, int width, int height, boolean border);
+	protected abstract void directOpen(String title, int width, int height, boolean border, BufferedImage iconImage);
 	
 	/**
 	 * Opens a window with the specified title in full screen. If border is true, the window will have a close button and other buttons.
 	 * @param title The title of the window. This should be visible above the window if border is true
 	 * @param border Determines whether this window has a border or not
 	 */
-	public void open(String title, boolean border){
-		directOpen(title, border);
+	public void open(String title, boolean border, BufferedImage iconImage){
+		directOpen(title, border, iconImage);
 		state = createState();
 		setMainComponentState();
 		markChange();
@@ -107,7 +109,7 @@ public abstract class GuiWindow {
 		}
 	}
 	
-	protected abstract void directOpen(String title, boolean border);
+	protected abstract void directOpen(String title, boolean border, BufferedImage iconImage);
 	
 	/**
 	 * Sets the main component of this window. This components is supposed to be the root component that contains all other components. It would be wise to use a GuiMenu as main component, but that is not required.

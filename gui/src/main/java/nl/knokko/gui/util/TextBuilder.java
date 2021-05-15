@@ -53,7 +53,7 @@ public final class TextBuilder {
 		Rectangle2D bounds = g.getFontMetrics().getStringBounds(text, g);
 		if(bounds.getWidth() == 0 || bounds.getHeight() == 0) {
 			return createTexture(text, p, 32, 16);
-		}//TODO small edge issues
+		}
 		double factor = bounds.getWidth() / bounds.getHeight();
 		double effectiveHeight = 128 / (1 + 2 * p.borderY + 2 * p.marginY);
 		double preferredWidth = effectiveHeight * factor * (1 + 2 * p.borderX + 2 * p.marginX);

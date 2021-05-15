@@ -74,8 +74,7 @@ public class GuiTester {
 	 * register some kind of emergency listener that listens for some key input and calls the stop()
 	 * method of this call.
 	 * @param test The test program
-	 * @param helper The test helper
-	 * 
+	 *
 	 * @throws TestException If the provided test program throws a TestException or if the test has been
 	 * forced to stop early.
 	 * @throws IllegalStateException If a test is currently running
@@ -84,7 +83,7 @@ public class GuiTester {
 		Thread windowThread = new Thread(() -> {
 			try {
 				SwingUtilities.invokeAndWait(() -> {
-					window.open("Test Window", 1000, 600, true);
+					window.open("Test Window", 1000, 600, true, null);
 				});
 			} catch (InvocationTargetException e) {
 				throw new RuntimeException(e);

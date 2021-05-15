@@ -26,7 +26,7 @@ package nl.knokko.customitems.editor.menu.edit.item;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.set.item.CustomBow;
-import nl.knokko.customitems.editor.set.item.NamedImage;
+import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.customitems.editor.set.item.texture.BowTextures;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.AttributeModifier;

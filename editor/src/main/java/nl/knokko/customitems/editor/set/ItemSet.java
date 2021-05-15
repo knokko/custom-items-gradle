@@ -23,32 +23,16 @@
  *******************************************************************************/
 package nl.knokko.customitems.editor.set;
 
-import static nl.knokko.customitems.MCVersions.FIRST_VERSION;
-import static nl.knokko.customitems.MCVersions.LAST_VERSION;
-import static nl.knokko.customitems.MCVersions.VERSION1_12;
+import static nl.knokko.customitems.MCVersions.*;
 import static nl.knokko.customitems.NameHelper.versionName;
-import static nl.knokko.customitems.encoding.SetEncoding.ENCODING_1;
-import static nl.knokko.customitems.encoding.SetEncoding.ENCODING_2;
-import static nl.knokko.customitems.encoding.SetEncoding.ENCODING_3;
-import static nl.knokko.customitems.encoding.SetEncoding.ENCODING_4;
-import static nl.knokko.customitems.encoding.SetEncoding.ENCODING_5;
-import static nl.knokko.customitems.encoding.SetEncoding.ENCODING_6;
-import static nl.knokko.customitems.encoding.SetEncoding.ENCODING_7;
-import static nl.knokko.customitems.encoding.SetEncoding.ENCODING_8;
+import static nl.knokko.customitems.block.BlockConstants.MAX_BLOCK_ID;
+import static nl.knokko.customitems.block.BlockConstants.MIN_BLOCK_ID;
+import static nl.knokko.customitems.encoding.SetEncoding.*;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -57,19 +41,14 @@ import javax.imageio.ImageIO;
 import javax.imageio.stream.MemoryCacheImageOutputStream;
 
 import nl.knokko.customitems.MCVersions;
+import nl.knokko.customitems.block.*;
+import nl.knokko.customitems.block.drop.CustomBlockDrop;
 import nl.knokko.customitems.container.CustomContainer;
 import nl.knokko.customitems.container.VanillaContainerType;
 import nl.knokko.customitems.container.fuel.CustomFuelRegistry;
 import nl.knokko.customitems.container.fuel.FuelEntry;
 import nl.knokko.customitems.container.fuel.FuelMode;
-import nl.knokko.customitems.container.slot.CustomSlot;
-import nl.knokko.customitems.container.slot.DecorationCustomSlot;
-import nl.knokko.customitems.container.slot.EmptyCustomSlot;
-import nl.knokko.customitems.container.slot.FuelCustomSlot;
-import nl.knokko.customitems.container.slot.FuelIndicatorCustomSlot;
-import nl.knokko.customitems.container.slot.InputCustomSlot;
-import nl.knokko.customitems.container.slot.OutputCustomSlot;
-import nl.knokko.customitems.container.slot.ProgressIndicatorCustomSlot;
+import nl.knokko.customitems.container.slot.*;
 import nl.knokko.customitems.container.slot.display.CustomItemDisplayItem;
 import nl.knokko.customitems.container.slot.display.DataVanillaDisplayItem;
 import nl.knokko.customitems.container.slot.display.SimpleVanillaDisplayItem;
@@ -82,20 +61,10 @@ import nl.knokko.customitems.drops.CIEntityType;
 import nl.knokko.customitems.drops.Drop;
 import nl.knokko.customitems.drops.EntityDrop;
 import nl.knokko.customitems.editor.Editor;
-import nl.knokko.customitems.editor.set.item.CustomArmor;
-import nl.knokko.customitems.editor.set.item.CustomBow;
-import nl.knokko.customitems.editor.set.item.CustomHelmet3D;
-import nl.knokko.customitems.editor.set.item.CustomHoe;
-import nl.knokko.customitems.editor.set.item.CustomItem;
-import nl.knokko.customitems.editor.set.item.CustomShears;
-import nl.knokko.customitems.editor.set.item.CustomShield;
-import nl.knokko.customitems.editor.set.item.CustomTool;
-import nl.knokko.customitems.editor.set.item.CustomTrident;
-import nl.knokko.customitems.editor.set.item.CustomWand;
-import nl.knokko.customitems.editor.set.item.NamedImage;
-import nl.knokko.customitems.editor.set.item.SimpleCustomItem;
+import nl.knokko.customitems.editor.set.item.*;
 import nl.knokko.customitems.editor.set.item.texture.ArmorTextures;
 import nl.knokko.customitems.editor.set.item.texture.BowTextures;
+import nl.knokko.customitems.editor.set.item.texture.CrossbowTextures;
 import nl.knokko.customitems.editor.set.projectile.cover.CustomProjectileCover;
 import nl.knokko.customitems.editor.set.projectile.cover.EditorProjectileCover;
 import nl.knokko.customitems.editor.set.projectile.cover.SphereProjectileCover;
@@ -114,6 +83,7 @@ import nl.knokko.customitems.editor.set.recipe.result.Result;
 import nl.knokko.customitems.editor.set.recipe.result.SimpleVanillaResult;
 import nl.knokko.customitems.editor.util.ReadOnlyReference;
 import nl.knokko.customitems.editor.util.Reference;
+import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.effect.EffectType;
 import nl.knokko.customitems.effect.EquippedPotionEffect;
 import nl.knokko.customitems.effect.PotionEffect;
@@ -136,17 +106,24 @@ import nl.knokko.customitems.item.ReplaceCondition.ConditionOperation;
 import nl.knokko.customitems.item.ReplaceCondition.ReplacementCondition;
 import nl.knokko.customitems.item.ReplaceCondition.ReplacementOperation;
 import nl.knokko.customitems.item.WandCharges;
+import nl.knokko.customitems.item.gun.DirectGunAmmo;
+import nl.knokko.customitems.item.gun.GunAmmo;
+import nl.knokko.customitems.item.gun.IndirectGunAmmo;
 import nl.knokko.customitems.item.nbt.ExtraItemNbt;
 import nl.knokko.customitems.projectile.CIProjectile;
 import nl.knokko.customitems.projectile.ProjectileCover;
-import nl.knokko.customitems.projectile.effects.ProjectileEffect;
-import nl.knokko.customitems.projectile.effects.ProjectileEffects;
+import nl.knokko.customitems.projectile.effects.*;
 import nl.knokko.customitems.recipe.ContainerRecipe;
 import nl.knokko.customitems.recipe.ContainerRecipe.InputEntry;
 import nl.knokko.customitems.recipe.ContainerRecipe.OutputEntry;
 import nl.knokko.customitems.recipe.OutputTable;
+import nl.knokko.customitems.recipe.SCIngredient;
+import nl.knokko.customitems.sound.CISound;
+import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.customitems.trouble.IntegrityException;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
+import nl.knokko.customitems.util.ProgrammingValidationException;
+import nl.knokko.customitems.util.StringEncoder;
 import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.gui.keycode.KeyCode;
 import nl.knokko.gui.window.input.WindowInput;
@@ -168,13 +145,13 @@ public class ItemSet implements ItemSetBase {
 	}
 	
 	private CustomFuelRegistry loadFuelRegistry(BitInput input) throws UnknownEncodingException {
-		return CustomFuelRegistry.load(input, () -> Recipe.loadIngredient(input, this));
+		return CustomFuelRegistry.load(input, () -> Ingredient.loadIngredient(input, this));
 	}
 	
 	private CustomContainer loadContainer(BitInput input) throws UnknownEncodingException {
 		return CustomContainer.load(input, 
 				this::getCustomItemByName, this::getFuelRegistryByName, 
-				() -> Recipe.loadIngredient(input, this),
+				() -> Ingredient.loadIngredient(input, this),
 				() -> Recipe.loadResult(input, this)
 		);
 	}
@@ -221,6 +198,11 @@ public class ItemSet implements ItemSetBase {
 			case ItemEncoding.ENCODING_WAND_8: return loadWand8(input);
 			case ItemEncoding.ENCODING_WAND_9: return loadWand9(input);
 			case ItemEncoding.ENCODING_HELMET3D_9: return loadHelmet3d9(input, checkCustomModel);
+			case ItemEncoding.ENCODING_POCKET_CONTAINER_9: return loadPocketContainer9(input, checkCustomModel);
+			case ItemEncoding.ENCODING_CROSSBOW_9: return loadCrossbow9(input, checkCustomModel);
+			case ItemEncoding.ENCODING_GUN_9: return loadGun9(input, checkCustomModel);
+			case ItemEncoding.ENCODING_FOOD_9: return loadFood9(input, checkCustomModel);
+			case ItemEncoding.ENCODING_BLOCK_ITEM_9: return loadBlockItem9(input, checkCustomModel);
 			default : throw new UnknownEncodingException("Item", encoding);
 		}
 	}
@@ -554,7 +536,7 @@ public class ItemSet implements ItemSetBase {
 		int durability = input.readInt();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		String imageName = input.readJavaString();
 		NamedImage texture = getTextureByName(imageName);
 		if (texture == null)
@@ -591,7 +573,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		String imageName = input.readJavaString();
 		NamedImage texture = getTextureByName(imageName);
 		if (texture == null)
@@ -628,7 +610,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -669,7 +651,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -734,7 +716,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -802,7 +784,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -844,7 +826,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -910,7 +892,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -980,7 +962,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -1022,7 +1004,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -1087,7 +1069,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -1157,7 +1139,7 @@ public class ItemSet implements ItemSetBase {
 		boolean gravity = input.readBoolean();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		String imageName = input.readJavaString();
 		NamedImage texture = getTextureByName(imageName);
 		if (texture == null)
@@ -1196,7 +1178,7 @@ public class ItemSet implements ItemSetBase {
 		boolean gravity = input.readBoolean();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		String imageName = input.readJavaString();
 		NamedImage texture = getTextureByName(imageName);
 		if (texture == null)
@@ -1235,7 +1217,7 @@ public class ItemSet implements ItemSetBase {
 		boolean gravity = input.readBoolean();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -1281,7 +1263,7 @@ public class ItemSet implements ItemSetBase {
 		boolean gravity = input.readBoolean();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -1349,7 +1331,7 @@ public class ItemSet implements ItemSetBase {
 		boolean gravity = input.readBoolean();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -1421,7 +1403,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		int red;
 		int green;
 		int blue;
@@ -1468,7 +1450,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		int red;
 		int green;
 		int blue;
@@ -1522,7 +1504,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		int red;
 		int green;
 		int blue;
@@ -1577,7 +1559,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		int red;
 		int green;
 		int blue;
@@ -1633,7 +1615,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		int red;
 		int green;
 		int blue;
@@ -1710,7 +1692,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		int red;
 		int green;
 		int blue;
@@ -1801,7 +1783,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Don't use ItemFlag.values().length because it only had 6 flags during the version it was saved
 		boolean[] itemFlags = input.readBooleans(6);
@@ -1875,7 +1857,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -1918,7 +1900,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -1982,7 +1964,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -2053,7 +2035,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -2100,7 +2082,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -2168,7 +2150,7 @@ public class ItemSet implements ItemSetBase {
 		long durability = input.readLong();
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
-		Ingredient repairItem = Recipe.loadIngredient(input, this);
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
 		
 		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
 		boolean[] itemFlags = input.readBooleans(6);
@@ -2364,6 +2346,387 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 
+	private CustomItem loadPocketContainer9(
+			BitInput input, boolean checkCustomModel
+	) throws UnknownEncodingException {
+		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
+		input.readShort();
+		String name = input.readJavaString();
+		String alias = input.readString();
+		String displayName = input.readJavaString();
+		String[] lore = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < lore.length; index++) {
+			lore[index] = input.readJavaString();
+		}
+		AttributeModifier[] attributes = new AttributeModifier[input.readByte() & 0xFF];
+		for (int index = 0; index < attributes.length; index++)
+			attributes[index] = loadAttribute2(input);
+		Enchantment[] defaultEnchantments = new Enchantment[input.readByte() & 0xFF];
+		for (int index = 0; index < defaultEnchantments.length; index++)
+			defaultEnchantments[index] = new Enchantment(EnchantmentType.valueOf(input.readString()), input.readInt());
+
+		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
+		boolean[] itemFlags = input.readBooleans(6);
+
+		List<PotionEffect> playerEffects = new ArrayList<PotionEffect>();
+		int peLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < peLength; index++) {
+			playerEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		List<PotionEffect> targetEffects = new ArrayList<PotionEffect>();
+		int teLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < teLength; index++) {
+			targetEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		Collection<EquippedPotionEffect> equippedEffects = CustomItem.readEquippedEffects(input);
+		String[] commands = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < commands.length; index++) {
+			commands[index] = input.readJavaString();
+		}
+
+		ReplaceCondition[] conditions = new ReplaceCondition[input.readByte() & 0xFF];
+		for (int index = 0; index < conditions.length; index++) {
+			conditions[index] = loadReplaceCondition(input);
+		}
+		ConditionOperation op = ConditionOperation.valueOf(input.readJavaString());
+		ExtraItemNbt extraNbt = ExtraItemNbt.load(input);
+		float attackRange = input.readFloat();
+
+		int numContainers = input.readInt();
+		Collection<String> containerNames = new ArrayList<>(numContainers);
+		for (int counter = 0; counter < numContainers; counter++) {
+			containerNames.add(input.readString());
+		}
+
+		String imageName = input.readJavaString();
+		NamedImage texture = null;
+		for (NamedImage current : textures) {
+			if (current.getName().equals(imageName)) {
+				texture = current;
+				break;
+			}
+		}
+		if (texture == null)
+			throw new IllegalArgumentException("Can't find texture " + imageName);
+		byte[] customModel = loadCustomModel(input, checkCustomModel);
+		return new CustomPocketContainer(
+				itemType, name, alias, displayName, lore, attributes,
+				defaultEnchantments, texture, itemFlags, customModel,
+				playerEffects, targetEffects, equippedEffects,
+				commands, conditions, op, extraNbt, attackRange,
+				containerNames, null
+		);
+	}
+
+	private CustomItem loadCrossbow9(
+			BitInput input, boolean checkCustomModel
+	) throws UnknownEncodingException {
+		input.readShort();
+		String name = input.readJavaString();
+		String alias = input.readString();
+		String displayName = input.readJavaString();
+		String[] lore = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < lore.length; index++) {
+			lore[index] = input.readJavaString();
+		}
+		AttributeModifier[] attributes = new AttributeModifier[input.readByte() & 0xFF];
+		for (int index = 0; index < attributes.length; index++)
+			attributes[index] = loadAttribute2(input);
+		Enchantment[] defaultEnchantments = new Enchantment[input.readByte() & 0xFF];
+		for (int index = 0; index < defaultEnchantments.length; index++)
+			defaultEnchantments[index] = new Enchantment(EnchantmentType.valueOf(input.readString()), input.readInt());
+		long durability = input.readLong();
+		boolean allowEnchanting = input.readBoolean();
+		boolean allowAnvil = input.readBoolean();
+		Ingredient repairItem = Ingredient.loadIngredient(input, this);
+
+		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
+		boolean[] itemFlags = input.readBooleans(6);
+		int entityHitDurabilityLoss = input.readInt();
+		int blockBreakDurabilityLoss = input.readInt();
+
+		List<PotionEffect> playerEffects = new ArrayList<PotionEffect>();
+		int peLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < peLength; index++) {
+			playerEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		List<PotionEffect> targetEffects = new ArrayList<PotionEffect>();
+		int teLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < teLength; index++) {
+			targetEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		Collection<EquippedPotionEffect> equippedEffects = CustomItem.readEquippedEffects(input);
+		String[] commands = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < commands.length; index++) {
+			commands[index] = input.readJavaString();
+		}
+		ReplaceCondition[] conditions = new ReplaceCondition[input.readByte() & 0xFF];
+		for (int index = 0; index < conditions.length; index++) {
+			conditions[index] = loadReplaceCondition(input);
+		}
+		ConditionOperation op = ConditionOperation.valueOf(input.readJavaString());
+		ExtraItemNbt extraNbt = ExtraItemNbt.load(input);
+		float attackRange = input.readFloat();
+
+		int arrowDurabilityLoss = input.readInt();
+		int fireworkDurabilityLoss = input.readInt();
+
+		float arrowDamageMultiplier = input.readFloat();
+		float fireworkDamageMultiplier = input.readFloat();
+
+		float arrowSpeedMultiplier = input.readFloat();
+		float fireworkSpeedMultiplier = input.readFloat();
+
+		int arrowKnockbackStrength = input.readInt();
+		boolean arrowGravity = input.readBoolean();
+
+		String imageName = input.readJavaString();
+		NamedImage texture = null;
+		for (NamedImage current : textures) {
+			if (current.getName().equals(imageName)) {
+				texture = current;
+				break;
+			}
+		}
+		if (texture == null)
+			throw new IllegalArgumentException("Can't find texture " + imageName);
+		byte[] customModel = loadCustomModel(input, checkCustomModel);
+		return new CustomCrossbow(
+				name, alias, displayName, lore, attributes,
+				defaultEnchantments, durability, allowEnchanting, allowAnvil,
+				repairItem, (CrossbowTextures) texture, itemFlags, entityHitDurabilityLoss,
+				blockBreakDurabilityLoss, customModel, playerEffects, targetEffects,
+				equippedEffects, commands, conditions, op, extraNbt, attackRange,
+				arrowDurabilityLoss, fireworkDurabilityLoss, arrowDamageMultiplier,
+				fireworkDamageMultiplier, arrowSpeedMultiplier, fireworkSpeedMultiplier,
+				arrowKnockbackStrength, arrowGravity
+		);
+	}
+
+	private CustomItem loadGun9(
+			BitInput input, boolean checkCustomModel
+	) throws UnknownEncodingException {
+		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
+		input.readShort();
+		String name = input.readJavaString();
+		String alias = input.readString();
+		String displayName = input.readJavaString();
+		String[] lore = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < lore.length; index++) {
+			lore[index] = input.readJavaString();
+		}
+		AttributeModifier[] attributes = new AttributeModifier[input.readByte() & 0xFF];
+		for (int index = 0; index < attributes.length; index++)
+			attributes[index] = loadAttribute2(input);
+		Enchantment[] defaultEnchantments = new Enchantment[input.readByte() & 0xFF];
+		for (int index = 0; index < defaultEnchantments.length; index++)
+			defaultEnchantments[index] = new Enchantment(EnchantmentType.valueOf(input.readString()), input.readInt());
+
+		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
+		boolean[] itemFlags = input.readBooleans(6);
+
+		List<PotionEffect> playerEffects = new ArrayList<PotionEffect>();
+		int peLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < peLength; index++) {
+			playerEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		List<PotionEffect> targetEffects = new ArrayList<PotionEffect>();
+		int teLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < teLength; index++) {
+			targetEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		Collection<EquippedPotionEffect> equippedEffects = CustomItem.readEquippedEffects(input);
+		String[] commands = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < commands.length; index++) {
+			commands[index] = input.readJavaString();
+		}
+
+		ReplaceCondition[] conditions = new ReplaceCondition[input.readByte() & 0xFF];
+		for (int index = 0; index < conditions.length; index++) {
+			conditions[index] = loadReplaceCondition(input);
+		}
+		ConditionOperation op = ConditionOperation.valueOf(input.readJavaString());
+		ExtraItemNbt extraNbt = ExtraItemNbt.load(input);
+		float attackRange = input.readFloat();
+
+		String projectileName = input.readString();
+		CIProjectile projectile = getProjectileByName(projectileName);
+		GunAmmo ammo = GunAmmo.load(input, () -> Ingredient.loadIngredient(input, this));
+		int amountPerShot = input.readInt();
+
+		String imageName = input.readJavaString();
+		NamedImage texture = null;
+		for (NamedImage current : textures) {
+			if (current.getName().equals(imageName)) {
+				texture = current;
+				break;
+			}
+		}
+		if (texture == null)
+			throw new IllegalArgumentException("Can't find texture " + imageName);
+		byte[] customModel = loadCustomModel(input, checkCustomModel);
+
+		return new CustomGun(
+				itemType, name, alias, displayName, lore, attributes,
+				defaultEnchantments, texture, itemFlags, customModel,
+				playerEffects, targetEffects, equippedEffects,
+				commands, conditions, op, extraNbt, attackRange,
+				projectile, ammo, amountPerShot
+		);
+	}
+
+	private CustomItem loadFood9(
+			BitInput input, boolean checkCustomModel
+	) throws UnknownEncodingException {
+		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
+		input.readShort();
+		String name = input.readJavaString();
+		String alias = input.readString();
+		String displayName = input.readJavaString();
+		String[] lore = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < lore.length; index++) {
+			lore[index] = input.readJavaString();
+		}
+		AttributeModifier[] attributes = new AttributeModifier[input.readByte() & 0xFF];
+		for (int index = 0; index < attributes.length; index++)
+			attributes[index] = loadAttribute2(input);
+		Enchantment[] defaultEnchantments = new Enchantment[input.readByte() & 0xFF];
+		for (int index = 0; index < defaultEnchantments.length; index++)
+			defaultEnchantments[index] = new Enchantment(EnchantmentType.valueOf(input.readString()), input.readInt());
+
+		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
+		boolean[] itemFlags = input.readBooleans(6);
+
+		List<PotionEffect> playerEffects = new ArrayList<PotionEffect>();
+		int peLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < peLength; index++) {
+			playerEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		List<PotionEffect> targetEffects = new ArrayList<PotionEffect>();
+		int teLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < teLength; index++) {
+			targetEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		Collection<EquippedPotionEffect> equippedEffects = CustomItem.readEquippedEffects(input);
+		String[] commands = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < commands.length; index++) {
+			commands[index] = input.readJavaString();
+		}
+
+		ReplaceCondition[] conditions = new ReplaceCondition[input.readByte() & 0xFF];
+		for (int index = 0; index < conditions.length; index++) {
+			conditions[index] = loadReplaceCondition(input);
+		}
+		ConditionOperation op = ConditionOperation.valueOf(input.readJavaString());
+		ExtraItemNbt extraNbt = ExtraItemNbt.load(input);
+		float attackRange = input.readFloat();
+
+		int foodValue = input.readInt();
+		int numEatEffects = input.readInt();
+		Collection<PotionEffect> eatEffects = new ArrayList<>(numEatEffects);
+		for (int counter = 0; counter < numEatEffects; counter++) {
+			eatEffects.add(PotionEffect.load1(input));
+		}
+		int eatTime = input.readInt();
+
+		CISound eatSound = CISound.valueOf(input.readString());
+		float soundVolume = input.readFloat();
+		float soundPitch = input.readFloat();
+		int soundPeriod = input.readInt();
+		int maxStacksize = input.readInt();
+
+		String imageName = input.readJavaString();
+		NamedImage texture = null;
+		for (NamedImage current : textures) {
+			if (current.getName().equals(imageName)) {
+				texture = current;
+				break;
+			}
+		}
+		if (texture == null)
+			throw new IllegalArgumentException("Can't find texture " + imageName);
+		byte[] customModel = loadCustomModel(input, checkCustomModel);
+
+		return new CustomFood(
+				itemType, name, alias, displayName, lore, attributes,
+				defaultEnchantments, texture, itemFlags, customModel,
+				playerEffects, targetEffects, equippedEffects,
+				commands, conditions, op, extraNbt, attackRange,
+				foodValue, eatEffects, eatTime, eatSound, soundVolume, soundPitch,
+				soundPeriod, maxStacksize
+		);
+	}
+
+	private CustomItem loadBlockItem9(
+			BitInput input, boolean checkCustomModel
+	) throws UnknownEncodingException {
+		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
+		input.readShort();
+		String name = input.readJavaString();
+		String alias = input.readString();
+		String displayName = input.readJavaString();
+		String[] lore = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < lore.length; index++) {
+			lore[index] = input.readJavaString();
+		}
+		AttributeModifier[] attributes = new AttributeModifier[input.readByte() & 0xFF];
+		for (int index = 0; index < attributes.length; index++)
+			attributes[index] = loadAttribute2(input);
+		Enchantment[] defaultEnchantments = new Enchantment[input.readByte() & 0xFF];
+		for (int index = 0; index < defaultEnchantments.length; index++)
+			defaultEnchantments[index] = new Enchantment(EnchantmentType.valueOf(input.readString()), input.readInt());
+
+		// Use hardcoded 6 instead of variable because only 6 item flags existed in this encoding
+		boolean[] itemFlags = input.readBooleans(6);
+
+		List<PotionEffect> playerEffects = new ArrayList<PotionEffect>();
+		int peLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < peLength; index++) {
+			playerEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		List<PotionEffect> targetEffects = new ArrayList<PotionEffect>();
+		int teLength = (input.readByte() & 0xFF);
+		for (int index = 0; index < teLength; index++) {
+			targetEffects.add(new PotionEffect(EffectType.valueOf(input.readJavaString()), input.readInt(), input.readInt()));
+		}
+		Collection<EquippedPotionEffect> equippedEffects = CustomItem.readEquippedEffects(input);
+		String[] commands = new String[input.readByte() & 0xFF];
+		for (int index = 0; index < commands.length; index++) {
+			commands[index] = input.readJavaString();
+		}
+
+		ReplaceCondition[] conditions = new ReplaceCondition[input.readByte() & 0xFF];
+		for (int index = 0; index < conditions.length; index++) {
+			conditions[index] = loadReplaceCondition(input);
+		}
+		ConditionOperation op = ConditionOperation.valueOf(input.readJavaString());
+		ExtraItemNbt extraNbt = ExtraItemNbt.load(input);
+		float attackRange = input.readFloat();
+		int blockID = input.readInt();
+		int stackSize = input.readInt();
+
+		String imageName = input.readJavaString();
+		NamedImage texture = null;
+		for (NamedImage current : textures) {
+			if (current.getName().equals(imageName)) {
+				texture = current;
+				break;
+			}
+		}
+		if (texture == null)
+			throw new IllegalArgumentException("Can't find texture " + imageName);
+		// Block items don't have their own custom model, but we keep this line for the sake of consistency
+		loadCustomModel(input, checkCustomModel);
+		return new CustomBlockItem(
+				itemType, name, alias, displayName, lore, attributes,
+				defaultEnchantments, itemFlags,
+				playerEffects, targetEffects, equippedEffects,
+				commands, conditions, op, extraNbt, attackRange,
+				// The blocks will load *after* the items, so we can't get a block instance yet
+				null, blockID, stackSize
+		);
+	}
+
 	private AttributeModifier loadAttribute2(BitInput input) {
 		return new AttributeModifier(Attribute.valueOf(input.readJavaString()), Slot.valueOf(input.readJavaString()),
 				Operation.values()[(int) input.readNumber((byte) 2, false)], input.readDouble());
@@ -2383,6 +2746,7 @@ public class ItemSet implements ItemSetBase {
 
 	private Collection<NamedImage> textures;
 	private Collection<CustomItem> items;
+	private Collection<CustomBlock> blocks;
 	private Collection<Recipe> recipes;
 	private Collection<BlockDrop> blockDrops;
 	private Collection<EntityDrop> mobDrops;
@@ -2397,6 +2761,7 @@ public class ItemSet implements ItemSetBase {
 		this.fileName = fileName;
 		textures = new ArrayList<>();
 		items = new ArrayList<>();
+		blocks = new ArrayList<>();
 		recipes = new ArrayList<>();
 		blockDrops = new ArrayList<>();
 		mobDrops = new ArrayList<>();
@@ -2411,6 +2776,7 @@ public class ItemSet implements ItemSetBase {
 	public ItemSet(String fileName, BitInput input) 
 			throws UnknownEncodingException, IntegrityException, IOException {
 		this.fileName = fileName;
+		blocks = new ArrayList<>();
 		byte encoding = input.readByte();
 		if (encoding == ENCODING_1)
 			load1(input);
@@ -2428,6 +2794,8 @@ public class ItemSet implements ItemSetBase {
 			load7(input);
 		else if (encoding == ENCODING_8)
 			load8(input);
+		else if (encoding == ENCODING_9)
+			load9(input);
 		else
 			throw new UnknownEncodingException("ItemSet", encoding);
 	}
@@ -2931,6 +3299,8 @@ public class ItemSet implements ItemSetBase {
 			byte textureType = input.readByte();
 			if (textureType == NamedImage.ENCODING_BOW)
 				textures.add(new BowTextures(input, true));
+			else if (textureType == NamedImage.ENCODING_CROSSBOW)
+				textures.add(new CrossbowTextures(input));
 			else if (textureType == NamedImage.ENCODING_SIMPLE)
 				textures.add(new NamedImage(input, true));
 			else
@@ -3003,7 +3373,147 @@ public class ItemSet implements ItemSetBase {
 		for (int counter = 0; counter < numContainers; counter++) {
 			containers.add(loadContainer(input));
 		}
+
+		// Match the pocket containers with their containers (this had to be postponed until containers were loaded)
+		for (CustomItem item : items) {
+			if (item instanceof CustomPocketContainer) {
+				((CustomPocketContainer) item).findContainers(this);
+			}
+		}
 		
+		// Deleted item names
+		int numDeletedItems = input.readInt();
+		deletedItems = new ArrayList<>(numDeletedItems);
+		for (int counter = 0; counter < numDeletedItems; counter++) {
+			deletedItems.add(input.readString());
+		}
+	}
+
+	private void load9(BitInput rawInput)
+			throws UnknownEncodingException, IntegrityException, IOException {
+		// Check integrity
+		long expectedHash = rawInput.readLong();
+		byte[] remaining;
+		try {
+			// Catch undefined behavior when the remaining size is wrong
+			remaining = rawInput.readByteArray();
+		} catch (Throwable t) {
+			throw new IntegrityException(t);
+		}
+		long actualHash = hash(remaining);
+		if (expectedHash != actualHash)
+			throw new IntegrityException(expectedHash, actualHash);
+
+		BitInput input = new ByteArrayBitInput(remaining);
+
+		// Textures
+		int textureAmount = input.readInt();
+		textures = new ArrayList<NamedImage>(textureAmount);
+		for (int counter = 0; counter < textureAmount; counter++) {
+			byte textureType = input.readByte();
+			if (textureType == NamedImage.ENCODING_BOW)
+				textures.add(new BowTextures(input, true));
+			else if (textureType == NamedImage.ENCODING_CROSSBOW)
+				textures.add(new CrossbowTextures(input));
+			else if (textureType == NamedImage.ENCODING_SIMPLE)
+				textures.add(new NamedImage(input, true));
+			else
+				throw new UnknownEncodingException("Texture", textureType);
+		}
+
+		// Armor textures
+		int numArmorTextures = input.readInt();
+		armorTextures = new ArrayList<>(numArmorTextures);
+		for (int counter = 0; counter < numArmorTextures; counter++) {
+			armorTextures.add(new Reference<>(ArmorTextures.load(input)));
+		}
+
+		// Projectile covers
+		int numProjectileCovers = input.readInt();
+		projectileCovers = new ArrayList<>(numProjectileCovers);
+		for (int counter = 0; counter < numProjectileCovers; counter++)
+			projectileCovers.add(EditorProjectileCover.fromBits(input, this));
+
+		// Projectiles
+		int numProjectiles = input.readInt();
+		projectiles = new ArrayList<>(numProjectiles);
+		for (int counter = 0; counter < numProjectiles; counter++)
+			projectiles.add(CIProjectile.fromBits(input, this));
+
+		// Notify the projectile effects that all projectiles have been loaded
+		for (CIProjectile projectile : projectiles)
+			projectile.afterProjectilesAreLoaded(this);
+
+		// Items
+		int itemAmount = input.readInt();
+		items = new ArrayList<>(itemAmount);
+		for (int counter = 0; counter < itemAmount; counter++)
+			items.add(loadItem(input, true));
+
+		// Blocks
+		int numBlocks = input.readInt();
+		blocks = new ArrayList<>(numBlocks);
+		for (int counter = 0; counter < numBlocks; counter++) {
+		    int blockId = input.readInt();
+			CustomBlockValues blockValues = CustomBlockValues.load(
+					input, this::getCustomItemByName,
+					() -> Recipe.loadResult(input, this),
+					this::getTextureByName, false
+			);
+
+			blocks.add(new CustomBlock(blockId, blockValues));
+		}
+
+		// Notify the (block) items that all blocks are loaded
+		for (CustomItem item : items) {
+			item.afterBlocksAreLoaded(this);
+		}
+
+		// Recipes
+		int recipeAmount = input.readInt();
+		recipes = new ArrayList<Recipe>(recipeAmount);
+		for (int counter = 0; counter < recipeAmount; counter++)
+			recipes.add(loadRecipe(input));
+
+		// Drops
+		int numBlockDrops = input.readInt();
+		blockDrops = new ArrayList<>(numBlockDrops);
+		for (int counter = 0; counter < numBlockDrops; counter++) {
+			blockDrops.add(BlockDrop.load(
+					input, this::createCustomItemResult,
+					() -> Recipe.loadResult(input, this), this::getCustomItemByName
+			));
+		}
+
+		int numMobDrops = input.readInt();
+		mobDrops = new ArrayList<>(numMobDrops);
+		for (int counter = 0; counter < numMobDrops; counter++) {
+			mobDrops.add(EntityDrop.load(
+					input, this::createCustomItemResult,
+					() -> Recipe.loadResult(input, this), this::getCustomItemByName
+			));
+		}
+
+		// Custom containers and fuel registries
+		int numFuelRegistries = input.readInt();
+		fuelRegistries = new ArrayList<>(numFuelRegistries);
+		for (int counter = 0; counter < numFuelRegistries; counter++) {
+			fuelRegistries.add(loadFuelRegistry(input));
+		}
+
+		int numContainers = input.readInt();
+		containers = new ArrayList<>(numContainers);
+		for (int counter = 0; counter < numContainers; counter++) {
+			containers.add(loadContainer(input));
+		}
+
+		// Match the pocket containers with their containers (this had to be postponed until containers were loaded)
+		for (CustomItem item : items) {
+			if (item instanceof CustomPocketContainer) {
+				((CustomPocketContainer) item).findContainers(this);
+			}
+		}
+
 		// Deleted item names
 		int numDeletedItems = input.readInt();
 		deletedItems = new ArrayList<>(numDeletedItems);
@@ -3019,11 +3529,22 @@ public class ItemSet implements ItemSetBase {
 	private static final String Q = "" + '"';
 	
 	public static String[] getDefaultModel(CustomItem item) {
+		if (item instanceof CustomBlockItem) {
+			return createModelBlockItem(((CustomBlockItem) item).getBlock());
+		}
 		return getDefaultModel(
 				item.getItemType(), item.getTexture().getName(), 
-				item.getItemType().isLeatherArmor(), 
+				item.getItemType().isLeatherArmor(),
 				!(item instanceof CustomHelmet3D)
 		);
+	}
+
+	private static String[] createModelBlockItem(CustomBlockView block) {
+		return new String[] {
+				"{",
+				"    \"parent\": \"customblocks/" + block.getValues().getName() + "\"",
+				"}"
+		};
 	}
 	
 	public static String[] getDefaultModel(CustomItemType type, String textureName, boolean isLeather, boolean hasDefault) {
@@ -3036,6 +3557,8 @@ public class ItemSet implements ItemSetBase {
 			};
 		} else if (type == CustomItemType.BOW) {
 			return getDefaultModelBow(textureName);
+		} else if (type == CustomItemType.CROSSBOW) {
+			return getDefaultModelCrossbow(textureName);
 		} else if (type == CustomItemType.SHIELD) {
 			return getDefaultModelShield(textureName);
 		} else if (type == CustomItemType.TRIDENT) {
@@ -3074,7 +3597,18 @@ public class ItemSet implements ItemSetBase {
 			"}"
 		};
 	}
-	
+
+	public static String[] getDefaultModelCrossbow(String textureName) {
+		return new String[] {
+				"{",
+				"    \"parent\": \"item/crossbow\",",
+				"    \"textures\": {",
+				"        \"layer0\": \"customitems/" + textureName + "_standby\"",
+				"    }",
+				"}"
+		};
+	}
+
 	public static String[] getDefaultModelShield(String textureName) {
 		return new String[] {
 				"{",
@@ -3140,7 +3674,7 @@ public class ItemSet implements ItemSetBase {
 				"}"
 		};
 	}
-	
+
 	public static String[] getDefaultModelTrident(String textureName) {
 		return new String[] {
 				"{",
@@ -3308,21 +3842,132 @@ public class ItemSet implements ItemSetBase {
 	 * @param mcVersion The minecraft version to export for, after the 1.
 	 * @return The error message if exporting failed, or null if the item set was exported successfully
 	 */
-	public String exportFor13Or14(int mcVersion) {
-		return exportFor13Or14(mcVersion, 4);
+	public String exportFor13OrLater(int mcVersion) {
+		return exportFor13OrLater(mcVersion, 4);
 	}
 	
 	public String exportFor15() {
 		
 		// It seems like nothing relevant for this plug-in changed in the resourcepack format
-		return exportFor13Or14(MCVersions.VERSION1_15, 5);
+		return exportFor13OrLater(MCVersions.VERSION1_15, 5);
 	}
 	
 	public String exportFor16() {
 		
 		// They raised the resourcepack format from 5 to 6
 		// But for some reason, they made that switch between 1.16.1 and 1.16.2
-		return exportFor13Or14(MCVersions.VERSION1_16, 6);
+		return exportFor13OrLater(MCVersions.VERSION1_16, 6);
+	}
+
+	private void exportCustomBlocks(ZipOutputStream zipOutput) throws IOException {
+		for (MushroomBlockMapping.Type mushroomType : MushroomBlockMapping.Type.values()) {
+		    boolean hasSuchBlock = false;
+			for (CustomBlock block : blocks) {
+				if (MushroomBlockMapping.getType(block.getInternalID()) == mushroomType) {
+				    hasSuchBlock = true;
+				    break;
+				}
+			}
+
+			if (hasSuchBlock) {
+				ZipEntry blockStateEntry = new ZipEntry("assets/minecraft/blockstates/" + mushroomType.getResourceName() + ".json");
+				zipOutput.putNextEntry(blockStateEntry);
+
+				PrintWriter jsonWriter = new PrintWriter(zipOutput);
+				jsonWriter.println("{");
+				jsonWriter.println("    \"multipart\": [");
+
+				// First write the vanilla entries
+				for (MushroomBlockMapping.VanillaMushroomEntry vanillaEntry : MushroomBlockMapping.getVanillaEntries(mushroomType)) {
+					boolean[] directions = vanillaEntry.getDirections();
+					jsonWriter.println("        {");
+					jsonWriter.println("            \"when\": { \"down\": " + directions[0] + ", \"east\": " + directions[1] +
+							", \"north\": " + directions[2] + ", \"south\": " + directions[3] + ", \"up\": " +
+							directions[4] + ", \"west\": " + directions[5] + " },");
+					jsonWriter.println("            \"apply\": { \"model\": \"block/lapisdemon/" +
+							mushroomType.getResourceName() + "/default_" + vanillaEntry.getFileName() + "\" }");
+					jsonWriter.println("        },");
+				}
+
+				// Then an empty line for the sake of readability
+				jsonWriter.println();
+
+				// And finally write the custom block entries
+				for (int id = MIN_BLOCK_ID; id <= MAX_BLOCK_ID; id++) {
+					if (MushroomBlockMapping.getType(id) == mushroomType) {
+
+						boolean[] directions = MushroomBlockMapping.getDirections(id);
+						jsonWriter.println("        {");
+						jsonWriter.println("            \"when\": { \"down\": " + directions[0] + ", \"east\": " + directions[1] +
+								", \"north\": " + directions[2] + ", \"south\": " + directions[3] + ", \"up\": " +
+								directions[4] + ", \"west\": " + directions[5] + " },");
+
+						CustomBlockView block = getBlockByID(id);
+						String blockResource;
+						if (block == null) {
+							blockResource = "block/lapisdemon/" + mushroomType.getResourceName() + "/default_true";
+						} else {
+							blockResource = "customblocks/" + block.getValues().getName();
+						}
+						jsonWriter.println("            \"apply\": { \"model\": \"" + blockResource + "\" }");
+
+						boolean isLast = true;
+						for (int testId = id + 1; testId <= MAX_BLOCK_ID; testId++) {
+							if (MushroomBlockMapping.getType(testId) == mushroomType) {
+								isLast = false;
+								break;
+							}
+						}
+
+						if (isLast) {
+							jsonWriter.println("        }");
+						} else {
+							jsonWriter.println("        },");
+						}
+					}
+				}
+
+				// The finishing touch
+                jsonWriter.println("    ]");
+				jsonWriter.println("}");
+				jsonWriter.flush();
+
+				for (MushroomBlockMapping.VanillaMushroomEntry vanillaEntry : MushroomBlockMapping.getVanillaEntries(mushroomType)) {
+				    ZipEntry vanillaModelEntry = new ZipEntry(
+				    		"assets/minecraft/models/block/lapisdemon/" + mushroomType.getResourceName() +
+									"/default_" + vanillaEntry.getFileName() + ".json"
+					);
+				    zipOutput.putNextEntry(vanillaModelEntry);
+				    PrintWriter vanillaModelWriter = new PrintWriter(zipOutput);
+
+				    InputStream defaultInput = ItemSet.class.getClassLoader().getResourceAsStream(
+				    		"lapisdemon/bonusblocks/defaultblocks/" + mushroomType.getResourceName() + "/" + vanillaEntry.getFileName() + ".json"
+					);
+					assert defaultInput != null;
+					Scanner defaultScanner = new Scanner(defaultInput);
+				    while (defaultScanner.hasNextLine()) {
+				    	vanillaModelWriter.println(defaultScanner.nextLine());
+					}
+				    vanillaModelWriter.flush();
+				    defaultScanner.close();
+                }
+			}
+		}
+
+		// Write the models of all custom blocks
+		for (CustomBlock block : blocks) {
+			ZipEntry blockModelEntry = new ZipEntry("assets/minecraft/models/customblocks/" + block.getValues().getName() + ".json");
+			zipOutput.putNextEntry(blockModelEntry);
+
+			PrintWriter modelWriter = new PrintWriter(zipOutput);
+			modelWriter.println("{");
+			modelWriter.println("    \"parent\": \"block/cube_all\",");
+			modelWriter.println("    \"textures\": {");
+			modelWriter.println("        \"all\": \"customitems/" + block.getValues().getTexture().getName() + "\"");
+			modelWriter.println("    }");
+			modelWriter.println("}");
+			modelWriter.flush();
+		}
 	}
 	
 	private void exportOptifineArmor(ZipOutputStream zipOutput, int mcVersion) throws IOException {
@@ -3387,7 +4032,7 @@ public class ItemSet implements ItemSetBase {
 		}
 	}
 	
-	private String exportFor13Or14(int mcVersion, int packFormat) {
+	private String exportFor13OrLater(int mcVersion, int packFormat) {
 		String versionError = validateExportVersion(mcVersion);
 		if (versionError != null) {
 			return versionError;
@@ -3407,7 +4052,7 @@ public class ItemSet implements ItemSetBase {
 			File file = new File(Editor.getFolder() + "/" + fileName + ".cis");// cis stands for Custom Item Set
 			OutputStream fileOutput = Files.newOutputStream(file.toPath());
 			ByteArrayBitOutput output = new ByteArrayBitOutput();
-			export8(output);
+			export9(output);
 			output.terminate();
 			
 			byte[] bytes = output.getBytes();
@@ -3415,7 +4060,7 @@ public class ItemSet implements ItemSetBase {
 			fileOutput.flush();
 			fileOutput.close();
 			
-			byte[] textyBytes = createTextyBytes(bytes);
+			byte[] textyBytes = StringEncoder.encodeTextyBytes(bytes, true);
 			fileOutput = Files.newOutputStream(new File(Editor.getFolder() + "/" + fileName + ".txt").toPath());
 			fileOutput.write(textyBytes);
 			fileOutput.flush();
@@ -3427,6 +4072,8 @@ public class ItemSet implements ItemSetBase {
 			// Custom textures
 			for (NamedImage texture : textures) {
 				String textureName = texture.getName();
+
+				// Pull textures for bow textures
 				if (texture instanceof BowTextures) {
 					textureName += "_standby";
 					BowTextures bt = (BowTextures) texture;
@@ -3440,6 +4087,35 @@ public class ItemSet implements ItemSetBase {
 						zipOutput.closeEntry();
 					}
 				}
+
+				// Pull textures, arrow texture, and firework texture for crossbow textures
+				if (texture instanceof CrossbowTextures) {
+					textureName += "_standby";
+					CrossbowTextures cbt = (CrossbowTextures) texture;
+
+					List<CrossbowTextures.PullTexture> pullTextures = cbt.getPullTextures();
+					int index = 0;
+					for (CrossbowTextures.PullTexture pullTexture : pullTextures) {
+						ZipEntry entry = new ZipEntry("assets/minecraft/textures/customitems/" + cbt.getName()
+								+ "_pulling_" + index++ + ".png");
+						zipOutput.putNextEntry(entry);
+						ImageIO.write(pullTexture.getImage(), "PNG", new MemoryCacheImageOutputStream(zipOutput));
+						zipOutput.closeEntry();
+					}
+
+					ZipEntry arrowEntry = new ZipEntry("assets/minecraft/textures/customitems/" + cbt.getName()
+							+ "_arrow.png");
+					zipOutput.putNextEntry(arrowEntry);
+					ImageIO.write(cbt.getArrowImage(), "PNG", new MemoryCacheImageOutputStream(zipOutput));
+					zipOutput.closeEntry();
+
+					ZipEntry fireworkEntry = new ZipEntry("assets/minecraft/textures/customitems/" + cbt.getName()
+							+ "_firework.png");
+					zipOutput.putNextEntry(fireworkEntry);
+					ImageIO.write(cbt.getFireworkImage(), "PNG", new MemoryCacheImageOutputStream(zipOutput));
+					zipOutput.closeEntry();
+				}
+
 				ZipEntry entry = new ZipEntry("assets/minecraft/textures/customitems/" + textureName + ".png");
 				zipOutput.putNextEntry(entry);
 				ImageIO.write(texture.getImage(), "PNG", new MemoryCacheImageOutputStream(zipOutput));
@@ -3448,8 +4124,12 @@ public class ItemSet implements ItemSetBase {
 			
 			exportOptifineArmor(zipOutput, mcVersion);
 
+			exportCustomBlocks(zipOutput);
+
 			// Custom item models
 			for (CustomItem item : items) {
+
+				// Core item model
 				ZipEntry entry = new ZipEntry("assets/minecraft/models/customitems/" + item.getName() + ".json");
 				zipOutput.putNextEntry(entry);
 				PrintWriter jsonWriter = new PrintWriter(zipOutput);
@@ -3465,6 +4145,8 @@ public class ItemSet implements ItemSetBase {
 					jsonWriter.flush();
 				}
 				zipOutput.closeEntry();
+
+				// Some kinds of items need more models
 				if (item instanceof CustomBow) {
 					CustomBow bow = (CustomBow) item;
 					List<BowTextures.Entry> pullTextures = bow.getTexture().getPullTextures();
@@ -3484,6 +4166,51 @@ public class ItemSet implements ItemSetBase {
 						jsonWriter.flush();
 						zipOutput.closeEntry();
 					}
+				} else if (item instanceof CustomCrossbow) {
+					CustomCrossbow crossbow = (CustomCrossbow) item;
+
+					// Add the models for the pull textures
+					List<CrossbowTextures.PullTexture> pullTextures = crossbow.getTexture().getPullTextures();
+					String textureName = crossbow.getTexture().getName() + "_pulling_";
+					for (int index = 0; index < pullTextures.size(); index++) {
+						entry = new ZipEntry("assets/minecraft/models/customitems/" + item.getName() + "_pulling_"
+								+ index + ".json");
+						zipOutput.putNextEntry(entry);
+						jsonWriter = new PrintWriter(zipOutput);
+						jsonWriter.println("{");
+						jsonWriter.println("    \"parent\": \"item/crossbow\",");
+						jsonWriter.println("    \"textures\": {");
+						jsonWriter.println("        \"layer0\": \"customitems/" + textureName + index + Q);
+						jsonWriter.println("    }");
+						jsonWriter.println("}");
+						jsonWriter.flush();
+						zipOutput.closeEntry();
+					}
+
+					// Add the models for the arrow texture and firework texture
+					entry = new ZipEntry("assets/minecraft/models/customitems/" + item.getName() + "_arrow.json");
+					zipOutput.putNextEntry(entry);
+					jsonWriter = new PrintWriter(zipOutput);
+					jsonWriter.println("{");
+					jsonWriter.println("    \"parent\": \"item/crossbow\",");
+					jsonWriter.println("    \"textures\": {");
+					jsonWriter.println("        \"layer0\": \"customitems/" + item.getTexture().getName() + "_arrow\"");
+					jsonWriter.println("    }");
+					jsonWriter.println("}");
+					jsonWriter.flush();
+					zipOutput.closeEntry();
+
+					entry = new ZipEntry("assets/minecraft/models/customitems/" + item.getName() + "_firework.json");
+					zipOutput.putNextEntry(entry);
+					jsonWriter = new PrintWriter(zipOutput);
+					jsonWriter.println("{");
+					jsonWriter.println("    \"parent\": \"item/crossbow\",");
+					jsonWriter.println("    \"textures\": {");
+					jsonWriter.println("        \"layer0\": \"customitems/" + item.getTexture().getName() + "_firework\"");
+					jsonWriter.println("    }");
+					jsonWriter.println("}");
+					jsonWriter.flush();
+					zipOutput.closeEntry();
 				} else if (item instanceof CustomShield) {
 					CustomShield shield = (CustomShield) item;
 					byte[] blockingModel = shield.getBlockingModel();
@@ -3556,6 +4283,7 @@ public class ItemSet implements ItemSetBase {
 					zipOutput.putNextEntry(zipEntry);
 					final PrintWriter jsonWriter = new PrintWriter(zipOutput);
 
+					// Some kinds of items need special treatment
 					if (itemType == CustomItemType.BOW) {
 						// Begin of the json file
 						jsonWriter.println("{");
@@ -3619,6 +4347,75 @@ public class ItemSet implements ItemSetBase {
 						jsonWriter.println("        { \"predicate\": {\"damaged\": 1, \"damage\": 0, \"pulling\": 1 }, \"model\": \"item/" + modelName + "_pulling_0\"},");
 						jsonWriter.println("        { \"predicate\": {\"damaged\": 1, \"damage\": 0, \"pulling\": 1, \"pull\": 0.65 }, \"model\": \"item/" + modelName + "_pulling_1\"},");
 						jsonWriter.println("        { \"predicate\": {\"damaged\": 1, \"damage\": 0, \"pulling\": 1, \"pull\": 0.9 }, \"model\": \"item/" + modelName + "_pulling_2\"}");
+						jsonWriter.println("    ]");
+						jsonWriter.println("}");
+					} else if (itemType == CustomItemType.CROSSBOW) {
+
+						// The crossbow model should always start with these lines:
+						jsonWriter.println("{");
+						jsonWriter.println("    \"parent\": \"item/generated\",");
+						jsonWriter.println("    \"textures\": {");
+						jsonWriter.println("        \"layer0\": \"item/crossbow_standby\"");
+						jsonWriter.println("    },");
+						jsonWriter.println("    \"display\": {");
+						jsonWriter.println("        \"thirdperson_righthand\": {");
+						jsonWriter.println("            \"rotation\": [-90, 0, -60],");
+						jsonWriter.println("            \"translation\": [2, 0.1, -3],");
+						jsonWriter.println("            \"scale\": [0.9, 0.9, 0.9]");
+						jsonWriter.println("        },");
+						jsonWriter.println("        \"thirdperson_lefthand\": {");
+						jsonWriter.println("            \"rotation\": [-90, 0, 30],");
+						jsonWriter.println("            \"translation\": [2, 0.1, -3],");
+						jsonWriter.println("            \"scale\": [0.9, 0.9, 0.9]");
+						jsonWriter.println("        },");
+						jsonWriter.println("        \"firstperson_righthand\": {");
+						jsonWriter.println("            \"rotation\": [-90, 0, -55],");
+						jsonWriter.println("            \"translation\": [1.13, 3.2, 1.13],");
+						jsonWriter.println("            \"scale\": [0.68, 0.68, 0.68]");
+						jsonWriter.println("        },");
+						jsonWriter.println("        \"firstperson_lefthand\": {");
+						jsonWriter.println("            \"rotation\": [-90, 0, 35],");
+						jsonWriter.println("            \"translation\": [1.13, 3.2, 1.13],");
+						jsonWriter.println("            \"scale\": [0.68, 0.68, 0.68]");
+						jsonWriter.println("        }");
+						jsonWriter.println("    },");
+						jsonWriter.println("    \"overrides\": [");
+						jsonWriter.println("        { \"predicate\": { \"pulling\": 1 }, \"model\": \"item/crossbow_pulling_0\" },");
+						jsonWriter.println("        { \"predicate\": { \"pulling\": 1, \"pull\": 0.58 }, \"model\": \"item/crossbow_pulling_1\" },");
+						jsonWriter.println("        { \"predicate\": { \"pulling\": 1, \"pull\": 1.0 }, \"model\": \"item/crossbow_pulling_2\" },");
+						jsonWriter.println("        { \"predicate\": { \"charged\": 1 }, \"model\": \"item/crossbow_arrow\" },");
+						jsonWriter.println("        { \"predicate\": { \"charged\": 1, \"firework\": 1 }, \"model\": \"item/crossbow_firework\" },");
+
+						// This is where things get interesting...
+						for (DurabilityClaim claim : claims) {
+
+						    double damageFraction = (double) claim.itemDamage / itemType.getMaxDurability();
+							jsonWriter.println("        { \"predicate\": { \"damaged\": 0, \"damage\": "
+									+ damageFraction + " }, \"model\": \"" + claim.resourcePath + "\" },");
+
+							List<CrossbowTextures.PullTexture> pullTextures = claim.crossbowTextures.getPullTextures();
+							int counter = 0;
+							for (CrossbowTextures.PullTexture pullTexture : pullTextures) {
+								jsonWriter.println("        { \"predicate\": { \"damaged\": 0, \"damage\": "
+										+ damageFraction + ", \"pulling\": 1, \"pull\": " + pullTexture.getPull()
+										+ " }, \"model\": \"" + claim.resourcePath + "_pulling_" + counter++ + "\" },");
+							}
+
+							jsonWriter.println("        { \"predicate\": { \"damaged\": 0, \"damage\": "
+										+ damageFraction + ", \"charged\": 1 }, \"model\": \"" + claim.resourcePath
+										+ "_arrow\" },");
+							jsonWriter.println("        { \"predicate\": { \"damaged\": 0, \"damage\": "
+									+ damageFraction + ", \"charged\": 1, \"firework\": 1 }, \"model\": \""
+									+ claim.resourcePath + "_firework\" },");
+						}
+
+						// The crossbow model should always end with these lines:
+						jsonWriter.println("        { \"predicate\": { \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/crossbow\" },");
+						jsonWriter.println("        { \"predicate\": { \"pulling\": 1, \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/crossbow_pulling_0\" },");
+						jsonWriter.println("        { \"predicate\": { \"pulling\": 1, \"pull\": 0.58, \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/crossbow_pulling_1\" },");
+						jsonWriter.println("        { \"predicate\": { \"pulling\": 1, \"pull\": 1.0, \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/crossbow_pulling_2\" },");
+						jsonWriter.println("        { \"predicate\": { \"charged\": 1, \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/crossbow_arrow\" },");
+						jsonWriter.println("        { \"predicate\": { \"charged\": 1, \"firework\": 1, \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/crossbow_firework\" }");
 						jsonWriter.println("    ]");
 						jsonWriter.println("}");
 					} else if (itemType == CustomItemType.SHIELD) {
@@ -3849,6 +4646,9 @@ public class ItemSet implements ItemSetBase {
 					return "The item " + item.getName() + " is a " + item.getItemType() + ", which is not available in minecraft " + versionName(version);
 				}
 			}
+			if (version < VERSION1_13 && item instanceof CustomBlockItem) {
+				return "The block item " + item.getName() + " is a block item, which is not available in minecraft " + versionName(version);
+			}
 		}
 		
 		for (Recipe recipe : recipes) {
@@ -3964,32 +4764,56 @@ public class ItemSet implements ItemSetBase {
 				}
 			}
 		}
+
+		for (CIProjectile projectile : projectiles) {
+			for (ProjectileEffect impactEffect : projectile.impactEffects) {
+				String versionError = validateProjectileEffectVersion(projectile.name, impactEffect, version);
+				if (versionError != null) return versionError;
+			}
+
+			for (ProjectileEffects flightEffects : projectile.inFlightEffects) {
+				for (ProjectileEffect flightEffect : flightEffects.effects) {
+					String versionError = validateProjectileEffectVersion(projectile.name, flightEffect, version);
+					if (versionError != null) return versionError;
+				}
+			}
+		}
 		
 		return null;
 	}
-	
-	private byte[] createTextyBytes(byte[] bytes) {
-		byte[] textBytes = new byte[2 * bytes.length + 2 * (bytes.length / 50)];
-		int textIndex = 0;
-		int textCounter = 0;
-		byte charCodeA = (byte) 'a';
-		byte charCodeSR = (byte) '\r';
-		byte charCodeSN = (byte) '\n';
-		for (byte data : bytes) {
-			int value = data & 0xFF;
-			textBytes[textIndex++] = (byte) (charCodeA + value % 16);
-			textBytes[textIndex++] = (byte) (charCodeA + value / 16);
-					
-			textCounter++;
-			if (textCounter == 50) {
-				textCounter = 0;
-				textBytes[textIndex++] = charCodeSR;
-				textBytes[textIndex++] = charCodeSN;
+
+	private String validateProjectileEffectVersion(String projectileName, ProjectileEffect effect, int version) {
+		if (effect instanceof PlaySound) {
+			PlaySound playSound = (PlaySound) effect;
+			if (playSound.sound.firstVersion > version) {
+				return projectileName + " has an effect that plays sound " + playSound.sound + ", which is not yet available in this mc version";
+			}
+			if (playSound.sound.lastVersion < version) {
+				return projectileName + " has an effect that plays sound " + playSound.sound + ", which is no longer available in this mc version";
+			}
+		} else if (effect instanceof PotionAura) {
+			PotionAura aura = (PotionAura) effect;
+			for (PotionEffect potionEffect : aura.effects) {
+				if (potionEffect.getEffect().firstVersion > version) {
+					return projectileName + " has a potion aura for effect " + potionEffect.getEffect() + ", which is not yet available in this mc version";
+				}
+				if (potionEffect.getEffect().lastVersion < version) {
+					return projectileName + " has a potion aura for effect " + potionEffect.getEffect() + ", which is no longer available in this mc version";
+				}
+			}
+		} else if (effect instanceof SimpleParticles) {
+			SimpleParticles particles = (SimpleParticles) effect;
+			if (particles.particle.firstVersion > version) {
+				return projectileName + " spawns particle " + particles.particle + ", which is not yet available in this mc version";
+			}
+			if (particles.particle.lastVersion < version) {
+				return projectileName + " spawns particle " + particles.particle + ", which is no longer available in this mc version";
 			}
 		}
-		return textBytes;
+
+		return null;
 	}
-	
+
 	private static class DurabilityClaim {
 		
 		final short itemDamage;
@@ -3997,11 +4821,14 @@ public class ItemSet implements ItemSetBase {
 		final String resourcePath;
 		
 		final BowTextures bowTextures;
+		final CrossbowTextures crossbowTextures;
 		
-		DurabilityClaim(short itemDamage, String resourcePath, BowTextures bowTextures) {
+		DurabilityClaim(short itemDamage, String resourcePath,
+						BowTextures bowTextures, CrossbowTextures crossbowTextures) {
 			this.itemDamage = itemDamage;
 			this.resourcePath = resourcePath;
 			this.bowTextures = bowTextures;
+			this.crossbowTextures = crossbowTextures;
 		}
 	}
 	
@@ -4035,7 +4862,8 @@ public class ItemSet implements ItemSetBase {
 						item.setItemDamage(nextItemDamage);
 						claims.add(new DurabilityClaim(
 								nextItemDamage, item.getResourcePath(),
-								itemType == CustomItemType.BOW ? (BowTextures) item.getTexture() : null
+								itemType == CustomItemType.BOW ? (BowTextures) item.getTexture() : null,
+								itemType == CustomItemType.CROSSBOW ? (CrossbowTextures) item.getTexture() : null
 						));
 						
 						if (item.getCustomModel() == null) {
@@ -4050,7 +4878,7 @@ public class ItemSet implements ItemSetBase {
 			for (EditorProjectileCover cover : projectileCovers) {
 				if (cover.itemType == itemType) {
 					cover.itemDamage = nextItemDamage;
-					claims.add(new DurabilityClaim(nextItemDamage, cover.getResourcePath(), null));
+					claims.add(new DurabilityClaim(nextItemDamage, cover.getResourcePath(), null, null));
 					nextItemDamage++;
 				}
 			}
@@ -4088,7 +4916,7 @@ public class ItemSet implements ItemSetBase {
 		
 		try {
 			ByteArrayBitOutput output = new ByteArrayBitOutput();
-			export8(output);
+			export9(output);
 			output.terminate();
 			
 			byte[] bytes = output.getBytes();
@@ -4108,7 +4936,7 @@ public class ItemSet implements ItemSetBase {
 			 * It will only use alphabetic characters, which makes it possible to copy the data
 			 * as text (although it still won't be readable by humans).
 			 */
-			byte[] textBytes = createTextyBytes(bytes);
+			byte[] textBytes = StringEncoder.encodeTextyBytes(bytes, true);
 			File textFile = new File(Editor.getFolder() + "/" + fileName + ".txt");
 			fileOutput = Files.newOutputStream(textFile.toPath());
 			fileOutput.write(textBytes);
@@ -4122,6 +4950,7 @@ public class ItemSet implements ItemSetBase {
 			// Custom textures
 			for (NamedImage texture : textures) {
 				String textureName = texture.getName();
+
 				if (texture instanceof BowTextures) {
 					textureName += "_standby";
 					BowTextures bt = (BowTextures) texture;
@@ -4135,6 +4964,8 @@ public class ItemSet implements ItemSetBase {
 						zipOutput.closeEntry();
 					}
 				}
+
+				// Minecraft 1.12 doesn't have crossbow (textures)
 				ZipEntry entry = new ZipEntry("assets/minecraft/textures/customitems/" + textureName + ".png");
 				zipOutput.putNextEntry(entry);
 				ImageIO.write(texture.getImage(), "PNG", new MemoryCacheImageOutputStream(zipOutput));
@@ -4617,12 +5448,13 @@ public class ItemSet implements ItemSetBase {
 
 		// Tools can have non-tools as repair item, so the non-tools must be exported first.
 		// This way, that all repair items are available once the tools are being loaded.
+		// Guns can have simple custom items as ammo, so must be saved later for similar reasons
 		for (CustomItem noTool : items)
-			if (!(noTool instanceof CustomTool))
+			if (!(noTool instanceof CustomTool || noTool instanceof CustomGun))
 				noTool.export(output);
 
 		for (CustomItem tool : items)
-			if (tool instanceof CustomTool)
+			if (tool instanceof CustomTool || tool instanceof CustomGun)
 				tool.export(output);
 
 		// Recipes
@@ -4665,6 +5497,85 @@ public class ItemSet implements ItemSetBase {
 		outerOutput.addByteArray(contentBytes);
 	}
 
+	// Add custom blocks
+	private void export9(BitOutput outerOutput) {
+		outerOutput.addByte(ENCODING_9);
+
+		ByteArrayBitOutput output = new ByteArrayBitOutput();
+
+		// Export time
+		output.addLong(System.currentTimeMillis());
+
+		// Projectiles
+		output.addInt(projectileCovers.size());
+		for (EditorProjectileCover cover : projectileCovers)
+			cover.export(output);
+
+		output.addInt(projectiles.size());
+		for (CIProjectile projectile : projectiles)
+			projectile.toBits(output);
+
+		// Items
+		output.addInt(items.size());
+
+		// Tools can have non-tools as repair item, so the non-tools must be exported first.
+		// This way, that all repair items are available once the tools are being loaded.
+		// Guns can have simple custom items as ammo, so must be saved later for similar reasons
+		for (CustomItem noTool : items)
+			if (!(noTool instanceof CustomTool || noTool instanceof CustomGun))
+				noTool.export(output);
+
+		for (CustomItem tool : items)
+			if (tool instanceof CustomTool || tool instanceof CustomGun)
+				tool.export(output);
+
+		// Blocks
+        output.addInt(blocks.size());
+        for (CustomBlock block : blocks) {
+     		output.addInt(block.getInternalID());
+     		block.getValues().save(output, result -> ((Result) result).save(output));
+		}
+
+		// Recipes
+		output.addInt(recipes.size());
+		for (Recipe recipe : recipes)
+			recipe.save(output);
+
+		// Drops
+		output.addInt(blockDrops.size());
+		for (BlockDrop drop : blockDrops)
+			drop.save(output, result -> ((Result) result).save(output));
+
+		output.addInt(mobDrops.size());
+		for (EntityDrop drop : mobDrops)
+			drop.save(output, result -> ((Result) result).save(output));
+
+		// Fuel registries
+		output.addInt(fuelRegistries.size());
+		for (CustomFuelRegistry registry : fuelRegistries)
+			registry.save(output, scIngredient -> ((Ingredient)scIngredient).save(output));
+
+		// Custom containers
+		output.addInt(containers.size());
+		for (CustomContainer container : containers) {
+			container.save(output,
+					ingredient -> ((Ingredient)ingredient).save(output),
+					result -> ((Result)result).save(output)
+			);
+		}
+
+		// Deleted item names
+		output.addInt(deletedItems.size());
+		for (String deletedItem : deletedItems) {
+			output.addString(deletedItem);
+		}
+
+		// Finish the integrity stuff
+		byte[] contentBytes = output.getBytes();
+		outerOutput.addLong(hash(contentBytes));
+		outerOutput.addByteArray(contentBytes);
+	}
+
 	public String save() {
 		try {
 			Editor.getFolder().mkdir();
@@ -4672,7 +5583,7 @@ public class ItemSet implements ItemSetBase {
 			File file = new File(Editor.getFolder() + "/" + fileName + ".cisb");// cisb stands for Custom Item Set
 																				// Builder
 			ByteArrayBitOutput output = new ByteArrayBitOutput();
-			save8(output);
+			save9(output);
 			output.terminate();
 			byte[] bytes = output.getBytes();
 			OutputStream mainOutput = Files.newOutputStream(file.toPath());
@@ -5038,6 +5949,8 @@ public class ItemSet implements ItemSetBase {
 		for (NamedImage texture : textures) {
 			if (texture instanceof BowTextures)
 				output.addByte(NamedImage.ENCODING_BOW);
+			else if (texture instanceof CrossbowTextures)
+				output.addByte(NamedImage.ENCODING_CROSSBOW);
 			else
 				output.addByte(NamedImage.ENCODING_SIMPLE);
 			texture.save(output, true);
@@ -5059,15 +5972,15 @@ public class ItemSet implements ItemSetBase {
 		output.addInt(items.size());
 
 		// Save the normal items before the tools so that tools can use normal items as
-		// repair item
+		// repair item. For the same reason, normal items should be saved before the guns
 		List<CustomItem> sorted = new ArrayList<CustomItem>(items.size());
 		for (CustomItem item : items) {
-			if (!(item instanceof CustomTool)) {
+			if (!(item instanceof CustomTool || item instanceof CustomGun)) {
 				sorted.add(item);
 			}
 		}
 		for (CustomItem item : items) {
-			if (item instanceof CustomTool) {
+			if (item instanceof CustomTool || item instanceof CustomGun) {
 				sorted.add(item);
 			}
 		}
@@ -5103,6 +6016,98 @@ public class ItemSet implements ItemSetBase {
 			output.addString(deletedItem);
 		}
 		
+		// Finish the integrity work
+		byte[] contentBytes = output.getBytes();
+		outerOutput.addLong(hash(contentBytes));
+		outerOutput.addByteArray(contentBytes);
+	}
+
+	// Add custom blocks
+	private void save9(BitOutput outerOutput) throws IOException {
+		outerOutput.addByte(ENCODING_9);
+
+		// BooleanArrayBitOutput requires more memory, but is also much faster
+		// than ByteArrayBitOutput
+		BooleanArrayBitOutput output = new BooleanArrayBitOutput();
+
+		output.addInt(textures.size());
+		for (NamedImage texture : textures) {
+			if (texture instanceof BowTextures)
+				output.addByte(NamedImage.ENCODING_BOW);
+			else if (texture instanceof CrossbowTextures)
+				output.addByte(NamedImage.ENCODING_CROSSBOW);
+			else
+				output.addByte(NamedImage.ENCODING_SIMPLE);
+			texture.save(output, true);
+		}
+
+		output.addInt(armorTextures.size());
+		for (Reference<ArmorTextures> textureRef : armorTextures) {
+			textureRef.get().save(output);
+		}
+
+		output.addInt(projectileCovers.size());
+		for (EditorProjectileCover cover : projectileCovers)
+			cover.toBits(output);
+
+		output.addInt(projectiles.size());
+		for (CIProjectile projectile : projectiles)
+			projectile.toBits(output);
+
+		output.addInt(items.size());
+
+		// Save the normal items before the tools so that tools can use normal items as
+		// repair item. For the same reason, normal items should be saved before the guns
+		List<CustomItem> sorted = new ArrayList<CustomItem>(items.size());
+		for (CustomItem item : items) {
+			if (!(item instanceof CustomTool || item instanceof CustomGun)) {
+				sorted.add(item);
+			}
+		}
+		for (CustomItem item : items) {
+			if (item instanceof CustomTool || item instanceof CustomGun) {
+				sorted.add(item);
+			}
+		}
+		for (CustomItem item : sorted)
+			item.save2(output);
+
+		// Save the blocks
+		output.addInt(blocks.size());
+		for (CustomBlock block : blocks) {
+			output.addInt(block.getInternalID());
+			block.getValues().save(output, result -> ((Result) result).save(output));
+		}
+
+		output.addInt(recipes.size());
+		for (Recipe recipe : recipes)
+			recipe.save(output);
+
+		output.addInt(blockDrops.size());
+		for (BlockDrop drop : blockDrops)
+			drop.save(output, result -> ((Result) result).save(output));
+
+		output.addInt(mobDrops.size());
+		for (EntityDrop drop : mobDrops)
+			drop.save(output, result -> ((Result) result).save(output));
+
+		output.addInt(fuelRegistries.size());
+		for (CustomFuelRegistry registry : fuelRegistries)
+			registry.save(output, scIngredient -> ((Ingredient)scIngredient).save(output));
+
+		output.addInt(containers.size());
+		for (CustomContainer container : containers) {
+			container.save(output,
+					ingredient -> ((Ingredient)ingredient).save(output),
+					result -> ((Result)result).save(output)
+			);
+		}
+
+		output.addInt(deletedItems.size());
+		for (String deletedItem : deletedItems) {
+			output.addString(deletedItem);
+		}
+
 		// Finish the integrity work
 		byte[] contentBytes = output.getBytes();
 		outerOutput.addLong(hash(contentBytes));
@@ -5231,6 +6236,50 @@ public class ItemSet implements ItemSetBase {
 		return addTexture(texture, false);
 	}
 
+	/**
+	 * Attempts to add the given crossbow texture to this item set. If there are no validation errors, it
+	 * will be added to the item set and this method will return null. If there are validation errors, this
+	 * method will return 1 validation error as string.
+	 * @param texture The crossbow texture to be added
+	 * @param checkClass Whether a validation error should be raised if the class of the texture is not
+	 *                      CrossbowTextures.class (but a subclass).
+	 * @return A validation error if adding failed, or null if adding succeeded
+	 */
+	public String addCrossbowTexture(CrossbowTextures texture, boolean checkClass) {
+		if (!bypassChecks()) {
+			if (texture == null) return "Can't add null textures";
+			if (checkClass && texture.getClass() != CrossbowTextures.class)
+				return "Use the right method for this class";
+
+			String nameError = checkName(texture.getName());
+			if (nameError != null) return nameError;
+
+			for (NamedImage existingTexture : textures) {
+				if (existingTexture.getName().equals(texture.getName()))
+					return "There is an existing texture with name " + texture.getName();
+			}
+
+			double prevPull = -1.0;
+			for (CrossbowTextures.PullTexture pullTexture : texture.getPullTextures()) {
+				if (pullTexture.getImage() == null)
+					return "One of the pulls is missing a texture";
+				if (pullTexture.getPull() < 0.0 || pullTexture.getPull() > 1.0)
+					return "All pulls must be between 0.0 and 1.0";
+				if (pullTexture.getPull() <= prevPull) {
+					return "The pull values must be sorted in ascending order from top to bottom";
+				}
+				prevPull = pullTexture.getPull();
+			}
+
+			if (texture.getArrowImage() == null)
+				return "You need to select an arrow image";
+			if (texture.getFireworkImage() == null)
+				return "You need to select a firework image";
+		}
+
+		return addTexture(texture, false);
+	}
+
 	public String changeBowTexture(BowTextures current, String newName, BufferedImage newTexture,
 			List<BowTextures.Entry> newPullTextures, boolean checkClass) {
 		if (!bypassChecks()) {
@@ -5251,6 +6300,52 @@ public class ItemSet implements ItemSetBase {
 		if (error == null) {
 			current.setEntries(newPullTextures);
 		}
+		return error;
+	}
+
+	public String changeCrossbowTexture(
+			CrossbowTextures current, String newName, BufferedImage newStandbyTexture,
+			List<CrossbowTextures.PullTexture> newPullTextures,
+			BufferedImage newArrowImage, BufferedImage newFireworkImage, boolean checkClass
+	) {
+		if (!bypassChecks()) {
+			if (current == null) return "Can't change null crossbows";
+			if (checkClass && current.getClass() != CrossbowTextures.class)
+				return "Use the right method for that class";
+
+			String nameError = checkName(newName);
+			if (nameError != null) return nameError;
+
+			for (NamedImage existingTexture : textures) {
+				if (existingTexture != current && existingTexture.getName().equals(newName))
+					return "There is another texture with name " + newName;
+			}
+
+			double prevPull = -1.0;
+			for (CrossbowTextures.PullTexture pullTexture : newPullTextures) {
+				if (pullTexture.getImage() == null)
+					return "One of the pulls is missing a texture";
+				if (pullTexture.getPull() < 0.0 || pullTexture.getPull() > 1.0)
+					return "All pulls must be between 0.0 and 1.0";
+				if (pullTexture.getPull() <= prevPull) {
+					return "All pull values must be in ascending order from top to bottom";
+				}
+				prevPull = pullTexture.getPull();
+			}
+
+			if (newArrowImage == null)
+				return "You need to select an arrow image";
+			if (newFireworkImage == null)
+				return "You need to select a firework image";
+		}
+
+		String error = changeTexture(current, newName, newStandbyTexture, false);
+		if (error == null) {
+			current.setPullTextures(newPullTextures);
+			current.setArrowImage(newArrowImage);
+			current.setFireworkImage(newFireworkImage);
+		}
+
 		return error;
 	}
 	
@@ -5405,17 +6500,30 @@ public class ItemSet implements ItemSetBase {
 				return "Can't add null items";
 			if (checkClass && item.getClass() != CustomBow.class)
 				return "Use the appropriate method for that class";
-			if (item.getTexture() == null)
-				return "Every item needs a texture";
-			List<BowTextures.Entry> pullTextures = item.getTexture().getPullTextures();
-			for (BowTextures.Entry pullTexture : pullTextures) {
-				if (pullTexture == null)
-					return "One of the pull textures is undefined";
-				if (pullTexture.getTexture() == null)
-					return "The texture for pull " + pullTexture.getPull() + " is undefined.";
-			}
+			if (item.getShootDurabilityLoss() < 0)
+				return "The shoot durability loss can't be negative";
+			if (item.getDamageMultiplier() < 0f)
+				return "The damage multiplier can't be negative";
 		}
 		return addTool(item, false);
+	}
+
+	public String addCrossbow(CustomCrossbow toAdd, boolean checkClass) {
+		if (!bypassChecks()) {
+			if (toAdd == null) return "Can't add null crossbows";
+			if (checkClass && toAdd.getClass() != CustomCrossbow.class)
+				return "Use the appropriate method for that class of crossbow";
+			if (toAdd.getArrowDurabilityLoss() < 0)
+				return "The arrow durability loss can't be negative";
+			if (toAdd.getFireworkDurabilityLoss() < 0)
+				return "The firework durability loss can't be negative";
+			if (toAdd.getArrowDamageMultiplier() < 0f)
+				return "The arrow damage multiplier can't be negative";
+			if (toAdd.getFireworkDamageMultiplier() < 0f)
+				return "The firework damage multiplier can't be negative";
+		}
+
+		return addTool(toAdd, false);
 	}
 
 	public String changeBow(
@@ -5461,6 +6569,60 @@ public class ItemSet implements ItemSetBase {
 			bow.setKnockbackStrength(newKnockbackStrength);
 			bow.setGravity(useGravity);
 			bow.setShootDurabilityLoss(shootDurabilityLoss);
+			return null;
+		} else {
+			return error;
+		}
+	}
+
+	public String changeCrossbow(
+			CustomCrossbow toChange, String newAlias, String newDisplayName, String[] newLore,
+			AttributeModifier[] newAttributes, Enchantment[] newEnchantments,
+			boolean allowEnchanting, boolean allowAnvil, Ingredient repairItem, long newDurability,
+			CrossbowTextures newTextures, boolean[] itemFlags,
+			int entityHitDurabilityLoss, int blockBreakDurabilityLoss, byte[] newCustomModel,
+			List<PotionEffect> playerEffects, List<PotionEffect> targetEffects,
+			Collection<EquippedPotionEffect> newEquippedEffects, String[] commands,
+			ReplaceCondition[] conditions, ConditionOperation op,
+			ExtraItemNbt newExtraNbt, float newAttackRange,
+			int newArrowDurabilityLoss, int newFireworkDurabilityLoss, float newArrowDamageMultiplier,
+			float newFireworkDamageMultiplier, float newArrowSpeedMultiplier,
+			float newFireworkSpeedMultiplier, int newArrowKnockbackStrength,
+			boolean newArrowGravity, boolean checkClass
+	) {
+		if (!bypassChecks()) {
+			if (toChange == null)
+				return "Can't change bows that do not exist";
+			if (checkClass && toChange.getClass() != CustomCrossbow.class)
+				return "Use the appropriate method for the class";
+			if (newArrowDurabilityLoss < 0)
+				return "The arrow shoot durability loss can't be negative";
+			if (newFireworkDurabilityLoss < 0)
+				return "The firework shoot durability loss can't be negative";
+			if (newArrowDamageMultiplier < 0f)
+				return "The arrow damage multiplier can't be negative";
+			if (newFireworkDamageMultiplier < 0f)
+				return "The firework damage multiplier can't be negative";
+		}
+
+		String error = changeTool(
+				toChange, CustomItemType.CROSSBOW, newAlias, newDisplayName, newLore,
+				newAttributes, newEnchantments, allowEnchanting, allowAnvil,
+				repairItem, newDurability, newTextures, itemFlags,
+				entityHitDurabilityLoss, blockBreakDurabilityLoss, newCustomModel,
+				playerEffects, targetEffects, newEquippedEffects,
+				commands, conditions, op, newExtraNbt, newAttackRange, false
+		);
+
+		if (error == null) {
+			toChange.setArrowDurabilityLoss(newArrowDurabilityLoss);
+			toChange.setFireworkDurabilityLoss(newFireworkDurabilityLoss);
+			toChange.setArrowDamageMultiplier(newArrowDamageMultiplier);
+			toChange.setFireworkDamageMultiplier(newFireworkDamageMultiplier);
+			toChange.setArrowSpeedMultiplier(newArrowSpeedMultiplier);
+			toChange.setFireworkSpeedMultiplier(newFireworkSpeedMultiplier);
+			toChange.setArrowKnockbackStrength(newArrowKnockbackStrength);
+			toChange.setArrowGravity(newArrowGravity);
 			return null;
 		} else {
 			return error;
@@ -5541,6 +6703,12 @@ public class ItemSet implements ItemSetBase {
 			if (item.getRepairItem() instanceof CustomItemIngredient
 					&& !(((CustomItemIngredient) item.getRepairItem()).getItem().getClass() == SimpleCustomItem.class))
 				return "Only vanilla items and simple custom items are allowed as repair item.";
+			if (item.getRepairItem() != null && item.getRepairItem().getRemainingItem() instanceof CustomItemResult) {
+				CustomItemResult remainingCustomItem = (CustomItemResult) item.getRepairItem().getRemainingItem();
+				if (remainingCustomItem.getItem().getClass() != SimpleCustomItem.class) {
+					return "Only vanilla items and simple custom items are allowed as remaining repair item";
+				}
+			}
 			if (item.allowAnvilActions() && item.getDisplayName().contains("§"))
 				return "Items with color codes in their display name can not allow anvil actions";
 			if (item.allowEnchanting() && item.getDefaultEnchantments().length > 0)
@@ -5618,6 +6786,12 @@ public class ItemSet implements ItemSetBase {
 			if (repairItem instanceof CustomItemIngredient
 					&& !(((CustomItemIngredient) repairItem).getItem().getClass() == SimpleCustomItem.class))
 				return "Only vanilla items and simple custom items are allowed as repair item.";
+			if (repairItem != null && repairItem.getRemainingItem() instanceof CustomItemResult) {
+				CustomItemResult remainingCustomItem = (CustomItemResult) repairItem.getRemainingItem();
+				if (remainingCustomItem.getItem().getClass() != SimpleCustomItem.class) {
+					return "Only vanilla items and simple custom items are allowed as remaining repair item";
+				}
+			}
 			if (allowEnchanting && newEnchantments.length > 0)
 				return "You can't allow enchanting on items that have default enchantments";
 			if (entityHitDurabilityLoss < 0)
@@ -5790,6 +6964,63 @@ public class ItemSet implements ItemSetBase {
 		}
 		return addItem(wand);
 	}
+
+	public String addGun(CustomGun toAdd) {
+		if (!bypassChecks()) {
+			if (toAdd == null) return "Can't add null guns";
+			if (toAdd.projectile == null) return "You need to select a projectile";
+			if (!projectiles.contains(toAdd.projectile))
+				return "The selected projectile is not in the list of projectiles";
+			String ammoError = toAdd.ammo.validate(
+					scIngredient -> !(scIngredient instanceof CustomItemIngredient) || ((CustomItemIngredient) scIngredient).getItem() instanceof SimpleCustomItem
+			);
+			if (ammoError != null) return ammoError;
+			if (toAdd.amountPerShot <= 0) return "The amount per shot must be a positive integer";
+		}
+
+		return addItem(toAdd);
+	}
+
+	public String addBlockItem(CustomBlockItem toAdd) {
+		if (!bypassChecks()) {
+			if (toAdd == null) return "Can't add null block items";
+			if (toAdd.getBlock() == null) return "You need to select a block";
+			if (toAdd.getStackSize() < 1) return "The stacksize must be positive";
+			if (toAdd.getStackSize() > 64) return "The stacksize can be at most 64";
+		}
+
+		return addItem(toAdd);
+	}
+
+	public String addFood(CustomFood toAdd) {
+		if (!bypassChecks()) {
+			if (toAdd == null) return "Can't add null food";
+			if (toAdd.eatEffects == null) return "The eat effects can't be null";
+			if (toAdd.eatTime <= 0) return "The eat time must be a positive integer";
+			if (toAdd.eatSound == null) return "You must choose an eat sound";
+			if (toAdd.soundVolume <= 0f) return "The sound volume must be a positive number";
+			if (toAdd.soundPitch <= 0f) return "The sound pitch must be a positive number";
+			if (toAdd.soundPeriod <= 0) return "The sound period must be a positive integer";
+			if (toAdd.maxStacksize <= 0) return "The max stacksize must be a positive integer";
+			if (toAdd.maxStacksize > 64) return "The max stacksize can be at most 64";
+		}
+
+		return addItem(toAdd);
+	}
+
+	public String addPocketContainer(CustomPocketContainer toAdd) {
+		if (!bypassChecks()) {
+			if (toAdd == null)
+				return "Can't add null pocket containers";
+			if (toAdd.getContainers() == null)
+				return "The container collection can't be null";
+			if (toAdd.getContainers().isEmpty())
+				return "You need to select at least 1 container";
+			if (!containers.containsAll(toAdd.getContainers()))
+				return "Not all selected containers are in the list of containers";
+		}
+		return addItem(toAdd);
+	}
 	
 	/**
 	 * Attempts to change the properties of the given wand to the given values.
@@ -5832,6 +7063,152 @@ public class ItemSet implements ItemSetBase {
 			original.cooldown = newCooldown;
 			original.charges = newCharges;
 			original.amountPerShot = newAmountPerShot;
+		}
+		return error;
+	}
+
+	public String changeGun(
+			CustomGun original, CustomItemType newType, String newAlias,
+			String newDisplayName, String[] newLore,
+			AttributeModifier[] newAttributes, Enchantment[] newEnchantments,
+			NamedImage newImage, boolean[] itemFlags, byte[] newCustomModel,
+			List<PotionEffect> playerEffects, List<PotionEffect> targetEffects,
+			Collection<EquippedPotionEffect> newEquippedEffects, String[] commands,
+			ReplaceCondition[] conditions, ConditionOperation op,
+			ExtraItemNbt newExtraNbt, float newAttackRange,
+			CIProjectile newProjectile, GunAmmo newAmmo, int newAmountPerShot
+	) {
+		if (!bypassChecks()) {
+			if (original == null) return "Can't change null guns";
+			if (newProjectile == null) return "You need to select a projectile";
+			if (!projectiles.contains(newProjectile))
+				return "The selected projectile is not in the list of projectiles";
+
+			String ammoError = newAmmo.validate(
+					scIngredient -> !(scIngredient instanceof CustomItemIngredient) || ((CustomItemIngredient) scIngredient).getItem() instanceof SimpleCustomItem
+			);
+			if (ammoError != null) return ammoError;
+			if (newAmountPerShot <= 0) return "The amount per shot must be a positive integer";
+		}
+
+		String error = changeItem(
+				original, newType, newAlias, newDisplayName, newLore, newAttributes,
+				newEnchantments, newImage, itemFlags, newCustomModel, playerEffects,
+				targetEffects, newEquippedEffects, commands, conditions, op,
+				newExtraNbt, newAttackRange
+		);
+		if (error == null) {
+			original.projectile = newProjectile;
+			original.ammo = newAmmo;
+			original.amountPerShot = newAmountPerShot;
+		}
+
+		return error;
+	}
+
+	public String changeFood(
+			CustomFood original, CustomItemType newType, String newAlias,
+			String newDisplayName, String[] newLore,
+			AttributeModifier[] newAttributes, Enchantment[] newEnchantments,
+			NamedImage newImage, boolean[] itemFlags, byte[] newCustomModel,
+			List<PotionEffect> playerEffects, List<PotionEffect> targetEffects,
+			Collection<EquippedPotionEffect> newEquippedEffects, String[] commands,
+			ReplaceCondition[] conditions, ConditionOperation op,
+			ExtraItemNbt newExtraNbt, float newAttackRange, int newFoodValue,
+			Collection<PotionEffect> newEatEffects, int newEatTime,
+			CISound newEatSound, float newSoundVolume, float newSoundPitch, int newSoundPeriod,
+			int newStacksize
+	) {
+		if (!bypassChecks()) {
+			if (original == null) return "Can't change null food";
+			if (newEatEffects == null) return "Can't change the eat effects to null";
+			if (newEatTime <= 0) return "The eat time must be a positive integer";
+			if (newEatSound == null) return "You must select an eat sound";
+			if (newSoundVolume <= 0f) return "The sound volume must be a positive number";
+			if (newSoundPitch <= 0f) return "The sound pitch must be a positive number";
+			if (newSoundPeriod <= 0) return "The sound period must be a positive integer";
+			if (newStacksize <= 0) return "The max stacksize must be a positive integer";
+			if (newStacksize > 64) return "The max stacksize can be at most 64";
+		}
+
+		String error = changeItem(
+				original, newType, newAlias, newDisplayName, newLore, newAttributes,
+				newEnchantments, newImage, itemFlags, newCustomModel, playerEffects,
+				targetEffects, newEquippedEffects, commands, conditions, op,
+				newExtraNbt, newAttackRange
+		);
+		if (error == null) {
+			original.foodValue = newFoodValue;
+			original.eatEffects = newEatEffects;
+			original.eatTime = newEatTime;
+			original.eatSound = newEatSound;
+			original.soundVolume = newSoundVolume;
+			original.soundPitch = newSoundPitch;
+			original.soundPeriod = newSoundPeriod;
+			original.maxStacksize = newStacksize;
+		}
+
+		return error;
+	}
+
+	public String changeBlockItem(
+			CustomBlockItem original, CustomItemType newType, String newAlias,
+			String newDisplayName, String[] newLore,
+			AttributeModifier[] newAttributes, Enchantment[] newEnchantments,
+			boolean[] itemFlags, List<PotionEffect> playerEffects, List<PotionEffect> targetEffects,
+			Collection<EquippedPotionEffect> newEquippedEffects, String[] commands,
+			ReplaceCondition[] conditions, ConditionOperation op,
+			ExtraItemNbt newExtraNbt, float newAttackRange, CustomBlockView newBlock,
+			int newStacksize
+	) {
+		if (!bypassChecks()) {
+			if (original == null) return "Can't change null block items";
+			if (newBlock == null) return "You need to select a block";
+			if (newStacksize <= 0) return "The max stacksize must be a positive integer";
+			if (newStacksize > 64) return "The max stacksize can be at most 64";
+		}
+
+		String error = changeItem(
+				original, newType, newAlias, newDisplayName, newLore, newAttributes,
+				newEnchantments, newBlock.getValues().getTexture(), itemFlags,
+				null, playerEffects, targetEffects, newEquippedEffects, commands,
+				conditions, op, newExtraNbt, newAttackRange
+		);
+		if (error == null) {
+			original.setBlock(newBlock);
+			original.setStackSize(newStacksize);
+		}
+
+		return error;
+	}
+
+	public String changePocketContainer(
+		CustomPocketContainer original, CustomItemType newType, String newAlias,
+		String newDisplayName, String[] newLore,
+		AttributeModifier[] newAttributes, Enchantment[] newEnchantments,
+		NamedImage newImage, boolean[] itemFlags, byte[] newCustomModel,
+		List<PotionEffect> playerEffects, List<PotionEffect> targetEffects,
+		Collection<EquippedPotionEffect> newEquippedEffects, String[] commands,
+		ReplaceCondition[] conditions, ConditionOperation op,
+		ExtraItemNbt newExtraNbt, float newAttackRange, Collection<CustomContainer> newContainers
+	) {
+		if (!bypassChecks()) {
+			if (original == null)
+				return "Can't change null items";
+			if (newContainers == null)
+				return "The collection of containers can't be null";
+			if (newContainers.isEmpty())
+				return "You need to select at least 1 container";
+			if (!containers.containsAll(newContainers))
+				return "The selected container is not in the list of containers";
+		}
+		String error = changeItem(
+				original, newType, newAlias, newDisplayName, newLore, newAttributes, newEnchantments,
+				newImage, itemFlags, newCustomModel, playerEffects, targetEffects, newEquippedEffects,
+				commands, conditions, op, newExtraNbt, newAttackRange
+		);
+		if (error == null) {
+			original.setContainers(newContainers);
 		}
 		return error;
 	}
@@ -5897,6 +7274,35 @@ public class ItemSet implements ItemSetBase {
 		
 		return null;
 	}
+
+	private String validateSlotDisplay(SlotDisplay display, String slotType, String displayType, boolean allowNull) {
+		if (display == null) {
+		    if (allowNull) {
+		    	return null;
+			} else {
+				return "There is a " + slotType + " slot without " + displayType;
+			}
+		}
+		if (display.getAmount() < 1) {
+			return "There is a " + slotType + " " + displayType + " slot with an amount smaller than 1";
+		}
+		if (display.getAmount() > 64) {
+			return "There is a " + slotType + " " + displayType + " slot with an amount greater than 64";
+		}
+		if (display.getDisplayName() == null) {
+			return "There is a " + slotType + " " + displayType + " with a null display name";
+		}
+		if (display.getLore() == null) {
+			return "There is a " + slotType + " " + displayType + " with a null lore";
+		}
+		for (String line : display.getLore()) {
+			if (line == null) {
+				return "There is a " + slotType + " " + displayType + " with a null line in its lore";
+			}
+		}
+
+		return null;
+	}
 	
 	private String validateSlot(CustomSlot slot, 
 			Iterable<CustomSlot> allSlots) {
@@ -5907,28 +7313,28 @@ public class ItemSet implements ItemSetBase {
 		if (slot instanceof DecorationCustomSlot) {
 			DecorationCustomSlot decorationSlot = (DecorationCustomSlot) slot;
 			SlotDisplay display = decorationSlot.getDisplay();
-			if (display == null) {
-				return "There is a decoration slot without display";
-			}
-			if (display.getAmount() < 1) {
-				return "There is a decoration slot with an amount smaller than 1";
-			}
-			if (display.getAmount() > 64) {
-				return "There is a decoration slot with an amount greater than 64";
-			}
-			if (display.getDisplayName() == null) {
-				return "There is a display with a null display name";
-			}
-			if (display.getLore() == null) {
-				return "There is a display with a null lore";
-			}
-			for (String line : display.getLore()) {
-				if (line == null) {
-					return "There is a display with a null line in its lore";
-				}
+			String displayError = validateSlotDisplay(
+					display,
+					"decoration",
+					"display",
+					false
+			);
+			if (displayError != null) {
+				return displayError;
 			}
 		} else if (slot instanceof FuelCustomSlot) {
 			FuelCustomSlot fuelSlot = (FuelCustomSlot) slot;
+
+			String placeholderError = validateSlotDisplay(
+					fuelSlot.getPlaceholder(),
+					"fuel",
+					"placeholder",
+					true
+			);
+			if (placeholderError != null) {
+				return placeholderError;
+			}
+
 			for (CustomSlot otherSlot : allSlots) {
 				if (otherSlot != fuelSlot && otherSlot instanceof FuelCustomSlot) {
 					FuelCustomSlot otherFuelSlot = (FuelCustomSlot) otherSlot;
@@ -5939,6 +7345,26 @@ public class ItemSet implements ItemSetBase {
 			}
 		} else if (slot instanceof FuelIndicatorCustomSlot) {
 			FuelIndicatorCustomSlot indicator = (FuelIndicatorCustomSlot) slot;
+			String displayError = validateSlotDisplay(
+					indicator.getDisplay(),
+					"fuel indicator",
+					"display",
+					false
+			);
+			if (displayError != null) {
+				return displayError;
+			}
+
+			String placeholderError = validateSlotDisplay(
+					indicator.getPlaceholder(),
+					"fuel indicator",
+					"place holder",
+					false
+			);
+			if (placeholderError != null) {
+				return placeholderError;
+			}
+
 			if (indicator.getDomain().getBegin() < 0) {
 				return "The indicator " + indicator.getFuelSlotName() + " starts before 0%";
 			} else if (indicator.getDomain().getEnd() > 100) {
@@ -5960,6 +7386,16 @@ public class ItemSet implements ItemSetBase {
 			}
 		} else if (slot instanceof InputCustomSlot) {
 			InputCustomSlot inputSlot = (InputCustomSlot) slot;
+			String placeholderError = validateSlotDisplay(
+					inputSlot.getPlaceholder(),
+					"input",
+					"place holder",
+					true
+			);
+			if (placeholderError != null) {
+				return placeholderError;
+			}
+
 			for (CustomSlot otherSlot : allSlots) {
 				if (otherSlot != slot && otherSlot instanceof InputCustomSlot) {
 					InputCustomSlot otherInputSlot = (InputCustomSlot) otherSlot;
@@ -5970,6 +7406,16 @@ public class ItemSet implements ItemSetBase {
 			}
 		} else if (slot instanceof OutputCustomSlot) {
 			OutputCustomSlot outputSlot = (OutputCustomSlot) slot;
+			String placeHolderError = validateSlotDisplay(
+					outputSlot.getPlaceholder(),
+					"output",
+					"place holder",
+					true
+			);
+			if (placeHolderError != null) {
+				return placeHolderError;
+			}
+
 			for (CustomSlot otherSlot : allSlots) {
 				if (otherSlot != slot && otherSlot instanceof OutputCustomSlot) {
 					OutputCustomSlot otherOutputSlot = (OutputCustomSlot) otherSlot;
@@ -5980,11 +7426,44 @@ public class ItemSet implements ItemSetBase {
 			}
 		} else if (slot instanceof ProgressIndicatorCustomSlot) {
 			ProgressIndicatorCustomSlot indicator = (ProgressIndicatorCustomSlot) slot;
+
+			String displayError = validateSlotDisplay(
+					indicator.getDisplay(),
+					"progress indicator",
+					"display",
+					false
+			);
+			if (displayError != null) {
+				return displayError;
+			}
+
+			String placeHolderError = validateSlotDisplay(
+					indicator.getPlaceHolder(),
+					"progress indicator",
+					"place holder",
+					false
+			);
+			if (placeHolderError != null) {
+				return placeHolderError;
+			}
+
 			if (indicator.getDomain().getBegin() < 0) {
 				return "There is a crafting progress indicator that starts before 0%";
 			} else if (indicator.getDomain().getEnd() > 100) {
 				return "There is a crafting progress indicator that ends after 100%";
 			}
+		} else if (slot instanceof StorageCustomSlot) {
+			StorageCustomSlot storageSlot = (StorageCustomSlot) slot;
+			String placeHolderError = validateSlotDisplay(
+			        storageSlot.getPlaceHolder(),
+					"storage",
+					"place holder",
+					true
+			);
+			if (placeHolderError != null) {
+				return placeHolderError;
+			}
+
 		} else if (!(slot instanceof EmptyCustomSlot)){
 			return "Unknown custom slot class: " + slot.getClass();
 		}
@@ -6279,6 +7758,19 @@ public class ItemSet implements ItemSetBase {
 		}
 	}
 
+	public static boolean hasRemainingCustomItem(SCIngredient ingredient, CustomItem toCheck) {
+		if (ingredient == null || ingredient instanceof NoIngredient) {
+			return false;
+		}
+
+		Result result = ((Ingredient) ingredient).getRemainingItem();
+		if (result instanceof CustomItemResult) {
+			return ((CustomItemResult) result).getItem() == toCheck;
+		} else {
+			return false;
+		}
+	}
+
 	/**
 	 * Attempts to remove the specified item from this set. If the item could not be
 	 * removed, the reason is returned. If the item can be removed, it will be
@@ -6295,7 +7787,22 @@ public class ItemSet implements ItemSetBase {
 						&& ((CustomItemResult) recipe.getResult()).getItem() == item)
 					return "At least one of your recipes has this item as result.";
 				if (recipe.requires(item))
-					return "At least one of your recipes has this item as an ingredient.";
+					return "At least one of your recipes has this item as an ingredient or remaining ingredient.";
+			}
+			for (CustomBlock block : blocks) {
+				for (CustomBlockDrop blockDrop : block.getValues().getDrops()) {
+					for (OutputTable.Entry entry : blockDrop.getItemsToDrop().getEntries()) {
+						if (entry.getResult() instanceof CustomItemResult) {
+							if (((CustomItemResult) entry.getResult()).getItem() == item) {
+								return "The block " + block.getValues().getName() + " uses this item as block drop";
+							}
+						}
+					}
+
+					if (blockDrop.getRequiredItems().getCustomItems().contains(item)) {
+						return "The block " + block.getValues().getName() + " uses this item as required item in a block drop";
+					}
+				}
 			}
 			for (CustomItem current : items) {
 				if (current instanceof CustomTool) {
@@ -6305,6 +7812,33 @@ public class ItemSet implements ItemSetBase {
 						if (ingredient.getItem() == item) {
 							return "The tool " + tool.getName() + " has this item as repair item.";
 						}
+					}
+					if (hasRemainingCustomItem(tool.getRepairItem(), item)) {
+						return "The tool " + tool.getName() + " has this item as remaining repair item";
+					}
+				} else if (current instanceof CustomGun) {
+					CustomGun gun = (CustomGun) current;
+					SCIngredient ammoItem;
+					if (gun.ammo instanceof DirectGunAmmo) {
+
+						DirectGunAmmo directAmmo = (DirectGunAmmo) gun.ammo;
+						ammoItem = directAmmo.ammoItem;
+
+					} else if (gun.ammo instanceof IndirectGunAmmo) {
+						IndirectGunAmmo indirectAmmo = (IndirectGunAmmo) gun.ammo;
+						ammoItem = indirectAmmo.reloadItem;
+					} else {
+						return "ProgrammingError: the gun " + gun.getName() + " has an unsupported ammo system";
+					}
+
+					if (ammoItem instanceof CustomItemIngredient) {
+						CustomItemIngredient customAmmo = (CustomItemIngredient) ammoItem;
+						if (customAmmo.getItem() == item) {
+							return "The gun " + gun.getName() + " uses this item as ammo";
+						}
+					}
+					if (hasRemainingCustomItem(ammoItem, item)) {
+						return "The gun " + gun.getName() + " has this item as remaining ammo item";
 					}
 				}
 			}
@@ -6336,6 +7870,9 @@ public class ItemSet implements ItemSetBase {
 						if (ingredient.getItem() == item) {
 							return "The fuel registry " + registry.getName() + " uses this item as fuel";
 						}
+					}
+					if (hasRemainingCustomItem(entry.getFuel(), item)) {
+						return "The fuel registry " + registry.getName() + " uses this item as remaining fuel";
 					}
 				}
 			}
@@ -6385,6 +7922,11 @@ public class ItemSet implements ItemSetBase {
 							if (responsibleItem(indicatorSlot.getDisplay()) == item) {
 								return "This item is used as progress indicator display in container " + container.getName();
 							}
+						} else if (slot instanceof StorageCustomSlot) {
+							StorageCustomSlot storageSlot = (StorageCustomSlot) slot;
+							if (responsibleItem(storageSlot.getPlaceHolder()) == item) {
+								return "This item is used as storage placeholder in container " + container.getName();
+							}
 						}
 					}
 				}
@@ -6397,6 +7939,10 @@ public class ItemSet implements ItemSetBase {
 							if (customIngredient.getItem() == item) {
 								return "The container " + container.getName() + " has this item as input of a recipe";
 							}
+						}
+
+						if (hasRemainingCustomItem(input.getIngredient(), item)) {
+							return "The container " + container.getName() + " has this item as a remaining input of a recipe";
 						}
 					}
 					for (OutputEntry output : recipe.getOutputs()) {
@@ -6558,7 +8104,7 @@ public class ItemSet implements ItemSetBase {
 		return null;
 	}
 	
-	public String changeBlockDrop(BlockDrop old, BlockType newBlock, Drop newDrop) {
+	public String changeBlockDrop(BlockDrop old, BlockType newBlock, Drop newDrop, boolean newAllowSilk) {
 		if (!bypassChecks()) {
 			if (old == null)
 				return "The old blockDrop is null";
@@ -6573,6 +8119,7 @@ public class ItemSet implements ItemSetBase {
 		}
 		old.setBlock(newBlock);
 		old.setDrop(newDrop);
+		old.setAllowSilkTouch(newAllowSilk);
 		return null;
 	}
 	
@@ -6824,15 +8371,21 @@ public class ItemSet implements ItemSetBase {
 	 * it won't be changed and a human-readable error message will be returned.
 	 * @return null if the projectile changed successfully, or the reason it couldn't be changed
 	 */
-	public String changeProjectile(CIProjectile original, String newName, float newDamage,
+	public String changeProjectile(
+			CIProjectile original, String newName, float newDamage,
 			float newMinLaunchAngle, float newMaxLaunchAngle, 
-			float newMinLaunchSpeed, float newMaxLaunchSpeed, float newGravity, int newMaxLifeTime, 
+			float newMinLaunchSpeed, float newMaxLaunchSpeed, float newGravity,
+			float newLaunchKnockback, float newImpactKnockback,
+			Collection<PotionEffect> newImpactPotionEffects, int newMaxLifeTime,
 			Collection<ProjectileEffects> newFlightEffects, Collection<ProjectileEffect> newImpactEffects,
 			ProjectileCover newCover) {
 		if (!bypassChecks()) {
-			String error = validateProjectile(new CIProjectile(newName, newDamage, 
-					newMinLaunchAngle, newMaxLaunchAngle, newMinLaunchSpeed, newMaxLaunchSpeed, newGravity, newMaxLifeTime,
-					newFlightEffects, newImpactEffects, newCover));
+			String error = validateProjectile(new CIProjectile(
+					newName, newDamage,
+					newMinLaunchAngle, newMaxLaunchAngle, newMinLaunchSpeed, newMaxLaunchSpeed, newGravity,
+					newLaunchKnockback, newImpactKnockback, newImpactPotionEffects,
+					newMaxLifeTime, newFlightEffects, newImpactEffects, newCover
+			));
 			if (error != null)
 				return error;
 			if (!projectiles.contains(original))
@@ -6848,6 +8401,9 @@ public class ItemSet implements ItemSetBase {
 		original.minLaunchSpeed = newMinLaunchSpeed;
 		original.maxLaunchSpeed = newMaxLaunchSpeed;
 		original.gravity = newGravity;
+		original.launchKnockback = newLaunchKnockback;
+		original.impactKnockback = newImpactKnockback;
+		original.impactPotionEffects = newImpactPotionEffects;
 		original.maxLifeTime = newMaxLifeTime;
 		original.inFlightEffects = newFlightEffects;
 		original.impactEffects = newImpactEffects;
@@ -6867,7 +8423,8 @@ public class ItemSet implements ItemSetBase {
 			for (CustomItem item : items) {
 				if (item instanceof CustomWand && ((CustomWand) item).projectile == toRemove)
 					return "The wand " + item.getName() + " is still using this projectile";
-				// TODO Also check for guns once they are added
+				if (item instanceof CustomGun && ((CustomGun) item).projectile == toRemove)
+					return "The gun " + item.getName() + " is still using this projectile";
 			}
 		}
 		if (!projectiles.remove(toRemove) && !bypassChecks())
@@ -7077,15 +8634,21 @@ public class ItemSet implements ItemSetBase {
 	}
 	
 	/**
-	 * Removes the given container from the list of containers. Currently, this
-	 * operation can't really fail because no other objects depend on containers.
+	 * Removes the given container from the list of containers.
 	 * @param toRemove The container to be removed
 	 * @return null if the container was removed successfully, or a string
 	 * indicating that the given container wasn't in the list of containers
 	 */
 	public String removeContainer(CustomContainer toRemove) {
-		// Since nothing depends on the presence of custom containers,
-		// almost no checks are needed
+	    for (CustomItem item : items) {
+	    	if (item instanceof CustomPocketContainer) {
+	    		for (CustomContainer container : ((CustomPocketContainer) item).getContainers()) {
+	    			if (container == toRemove) {
+						return "This container is still used by the pocket container " + item.getName();
+					}
+				}
+			}
+		}
 		if (containers.remove(toRemove)) {
 			return null;
 		} else {
@@ -7138,6 +8701,54 @@ public class ItemSet implements ItemSetBase {
 		}
 	}
 
+	public String addBlock(CustomBlockValues blockValues) {
+		return Validation.toErrorString(() -> {
+			if (blockValues == null) {
+				throw new ProgrammingValidationException("blockValues is null");
+			}
+
+			blockValues.validateComplete(
+					items, getBlocks(), -1, textures
+			);
+
+			int newBlockID = MIN_BLOCK_ID;
+			while (getBlockByID(newBlockID) != null) {
+				newBlockID++;
+			}
+
+			if (newBlockID > MAX_BLOCK_ID) {
+				throw new ValidationException("You reached the maximum number of blocks");
+			}
+
+			blocks.add(new CustomBlock(newBlockID, blockValues));
+		});
+	}
+
+	public String changeBlock(CustomBlockView toChange, CustomBlockValues newValues) {
+		return Validation.toErrorString(() -> {
+			if (toChange == null) {
+				throw new ProgrammingValidationException("toChange is null");
+			}
+			CustomBlock blockToChange = null;
+			for (CustomBlock candidate : blocks) {
+				if (candidate.getInternalID() == toChange.getInternalID()) {
+					blockToChange = candidate;
+					break;
+				}
+			}
+
+			if (blockToChange == null) {
+				throw new ProgrammingValidationException("No block with id " + toChange.getInternalID() + " exists");
+			}
+
+			newValues.validateComplete(
+					items, getBlocks(), toChange.getInternalID(), textures
+			);
+
+			blockToChange.setValues(newValues);
+		});
+	}
+
 	/**
 	 * Do not modify this collection directly!
 	 * 
@@ -7145,6 +8756,10 @@ public class ItemSet implements ItemSetBase {
 	 */
 	public Collection<CustomItem> getBackingItems() {
 		return items;
+	}
+
+	public CustomBlocksView getBlocks() {
+		return new CustomBlocksView(blocks);
 	}
 
 	/**
@@ -7287,5 +8902,15 @@ public class ItemSet implements ItemSetBase {
 	private CustomItemResult createCustomItemResult(String itemName, byte amount) {
 		CustomItem item = getCustomItemByName(itemName);
 		return new CustomItemResult(item, amount);
+	}
+
+	public CustomBlockView getBlockByID(int internalID) {
+		for (CustomBlockView block : getBlocks()) {
+			if (block.getInternalID() == internalID) {
+				return block;
+			}
+		}
+
+		return null;
 	}
 }

@@ -6,25 +6,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collection;
 
+import nl.knokko.customitems.block.CustomBlockView;
 import nl.knokko.customitems.container.CustomContainer;
 import nl.knokko.customitems.container.fuel.CustomFuelRegistry;
 import nl.knokko.customitems.editor.Editor;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.set.ItemSet;
-import nl.knokko.customitems.editor.set.item.CustomArmor;
-import nl.knokko.customitems.editor.set.item.CustomBow;
-import nl.knokko.customitems.editor.set.item.CustomHelmet3D;
-import nl.knokko.customitems.editor.set.item.CustomHoe;
-import nl.knokko.customitems.editor.set.item.CustomItem;
-import nl.knokko.customitems.editor.set.item.CustomShears;
-import nl.knokko.customitems.editor.set.item.CustomShield;
-import nl.knokko.customitems.editor.set.item.CustomTool;
-import nl.knokko.customitems.editor.set.item.CustomTrident;
-import nl.knokko.customitems.editor.set.item.CustomWand;
-import nl.knokko.customitems.editor.set.item.NamedImage;
-import nl.knokko.customitems.editor.set.item.SimpleCustomItem;
+import nl.knokko.customitems.editor.set.item.*;
+import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.customitems.editor.set.item.texture.ArmorTextures;
 import nl.knokko.customitems.editor.set.item.texture.BowTextures;
+import nl.knokko.customitems.editor.set.item.texture.CrossbowTextures;
 import nl.knokko.customitems.editor.set.projectile.cover.CustomProjectileCover;
 import nl.knokko.customitems.editor.set.projectile.cover.EditorProjectileCover;
 import nl.knokko.customitems.editor.set.projectile.cover.SphereProjectileCover;
@@ -73,9 +65,9 @@ public class CombineMenu extends GuiMenu {
 				"You will need to select a primary item set and a secundary item set.", 
 				EditProps.LABEL), 0f, 0.6f, 0.65f, 0.7f);
 		addComponent(new DynamicTextComponent(
-				"It is no longer important which one is the primary set and which "
-				+ "one is the secundary set.", EditProps.LABEL), 
-				0f, 0.5f, 0.9f, 0.6f);
+				"If you use custom blocks and have used any of the item sets on your server, you " +
+						"must use that item set as your primary.", EditProps.LABEL),
+				0f, 0.5f, 1f, 0.6f);
 	}
 	
 	@Override
@@ -186,6 +178,8 @@ public class CombineMenu extends GuiMenu {
 						error = primarySet.addTexture(texture, true);
 					} else if (texture.getClass() == BowTextures.class) {
 						error = primarySet.addBowTexture((BowTextures) texture, true);
+					} else if (texture.getClass() == CrossbowTextures.class) {
+						error = primarySet.addCrossbowTexture((CrossbowTextures) texture, true);
 					} else {
 						error = "Don't know how to deal with this texture, please report on discord or BukkitDev";
 					}
@@ -216,6 +210,8 @@ public class CombineMenu extends GuiMenu {
 						error = primarySet.addBow((CustomBow) item, true);
 					} else if (item instanceof CustomTrident) {
 						error = primarySet.addTrident((CustomTrident) item, true);
+					} else if (item instanceof CustomCrossbow) {
+						error = primarySet.addCrossbow((CustomCrossbow) item, true);
 					} else if (item instanceof CustomHelmet3D) {
 						error = primarySet.addHelmet3D((CustomHelmet3D) item, true);
 					} else if (item instanceof CustomWand) {
@@ -232,10 +228,19 @@ public class CombineMenu extends GuiMenu {
 						error = primarySet.addTool((CustomTool) item, true);
 					} else if (item instanceof SimpleCustomItem) {
 						error = primarySet.addSimpleItem((SimpleCustomItem) item);
-					} else {
+					} else if (item instanceof CustomBlockItem) {
+						error = primarySet.addBlockItem((CustomBlockItem) item);
+					} else if (item instanceof CustomFood) {
+						error = primarySet.addFood((CustomFood) item);
+					} else if (item instanceof CustomGun) {
+						error = primarySet.addGun((CustomGun) item);
+					} else if (item instanceof CustomPocketContainer) {
+						error = primarySet.addPocketContainer((CustomPocketContainer) item);
+					}
+					else {
 						error = "Don't know item class " + item.getClass().getSimpleName() + ": Please report on discord or BukkitDev";
 					}
-					
+
 					if (error != null) {
 						errorComponent.setText(error);
 						return;
@@ -308,6 +313,14 @@ public class CombineMenu extends GuiMenu {
 						return;
 					}
 					primarySet.addContainer(secContainer);
+				}
+
+				for (CustomBlockView secondaryBlock : secundarySet.getBlocks()) {
+					String error = primarySet.addBlock(secondaryBlock.getValues());
+					if (error != null) {
+						errorComponent.setText("Error with block " + secondaryBlock.getValues().getName() + ": " + error);
+						return;
+					}
 				}
 				
 				// When we created the instance of primarySet, we already gave it the new name

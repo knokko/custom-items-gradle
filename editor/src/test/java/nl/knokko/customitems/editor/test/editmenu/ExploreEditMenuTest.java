@@ -87,7 +87,7 @@ public class ExploreEditMenuTest {
 		
 		// Look into simple ingredient modification
 		test.click("empty");
-		test.assertComponentsWithTexts("Back", "Change to", "empty", "Custom Item", 
+		test.assertComponentsWithTexts("Cancel", "Change...", "Clear", "Custom Item",
 				"Simple vanilla item", "Vanilla item with datavalue", "Empty");
 		test.click("Custom Item");
 		

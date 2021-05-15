@@ -74,7 +74,7 @@ public class SelectDrop extends GuiMenu {
 		addComponent(new DynamicTextButton("Choose...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new ChooseRequiredHeldItems(set.getBackingItems(), requiredHeldItems, newRequiredHeldItems -> {
 				requiredHeldItems = newRequiredHeldItems;
-			}, this));
+			}, this, "Players can use any item"));
 		}), 0.7f, 0.55f, 0.85f, 0.65f);
 		
 		addComponent(new DynamicTextComponent("Prevent normal drops", EditProps.LABEL), 0.3f, 0.225f, 0.55f, 0.325f);

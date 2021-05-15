@@ -6,11 +6,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
+import nl.knokko.customitems.plugin.container.ContainerInstance;
 import nl.knokko.customitems.plugin.set.ItemSet;
+import nl.knokko.customitems.plugin.set.item.CustomFood;
+import nl.knokko.customitems.plugin.set.item.CustomGun;
 import nl.knokko.customitems.plugin.set.item.CustomItem;
 import nl.knokko.customitems.plugin.set.item.CustomWand;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
+import org.bukkit.inventory.ItemStack;
 
 class PlayerData {
 
@@ -19,6 +23,8 @@ class PlayerData {
 	 * Right clicking again will 'reset' the timer to this number of ticks again.
 	 */
 	static final int SHOOT_TIME = 10;
+
+	static final int EAT_TIME = 10;
 	
 	public static PlayerData load1(BitInput input, ItemSet set, Logger logger) {
 		int numWandsData = input.readInt();
@@ -46,15 +52,31 @@ class PlayerData {
 	 * If an entry for a given wand is missing, it indicates that the wand is currently not on
 	 * cooldown and has all charges available (if the wand uses charges).
 	 */
-	private final Map<CustomWand,PlayerWandData> wandsData;
-	
-	// TODO Also handle guns
+	final Map<CustomWand,PlayerWandData> wandsData;
 	
 	// Non-persisting data
-	
+
+	ContainerInstance openPocketContainer;
+	boolean pocketContainerInMainHand;
 	private long lastShootTick;
+	private long lastEatTick;
 	
 	PassiveLocation containerSelectionLocation;
+	boolean pocketContainerSelection;
+
+	long nextMainhandGunShootTick;
+	long nextOffhandGunShootTick;
+
+    long finishMainhandGunReloadTick;
+    CustomGun mainhandGunToReload;
+    long finishOffhandGunReloadTick;
+    CustomGun offhandGunToReload;
+
+    long startMainhandEatTime;
+    CustomFood mainhandFood;
+
+    long startOffhandEatTime;
+    CustomFood offhandFood;
 	
 	public PlayerData() {
 		wandsData = new HashMap<>();
@@ -70,6 +92,15 @@ class PlayerData {
 	
 	private void init() {
 		lastShootTick = -1;
+		lastEatTick = -1;
+		nextMainhandGunShootTick = -1;
+		nextOffhandGunShootTick = -1;
+		mainhandGunToReload = null;
+		offhandGunToReload = null;
+		mainhandFood = null;
+		offhandFood = null;
+		startMainhandEatTime = -1;
+		startOffhandEatTime = -1;
 	}
 	
 	public void save1(BitOutput output, long currentTick) {
@@ -83,6 +114,10 @@ class PlayerData {
 	public void setShooting(long currentTick) {
 		lastShootTick = currentTick;
 	}
+
+	public void setEating(long currentTick) {
+		lastEatTick = currentTick;
+	}
 	
 	/**
 	 * Checks if the player is allowed to fire projectiles with the given weapon at this moment. 
@@ -95,11 +130,13 @@ class PlayerData {
 	 * @param weapon The weapon the player is trying to fire projectiles with
 	 * @param currentTick The value that would be returned by 
 	 * {@code CustomItemsPlugin.getData().getCurrentTick()}.
+	 * @param isMainhand true if {@code weapon} is in the mainhand of the player. false if it is in
+	 *                   the offhand of the player.
 	 * @return true if the player was allowed to fire projectiles and the cooldown has been set, false
 	 * if the player wasn't allowed to fire projectiles
 	 */
-	public boolean shootIfAllowed(CustomItem weapon, long currentTick) {
-		if (weapon instanceof CustomWand) { // TODO Add similar check for CustomGun, once it's added
+	public boolean shootIfAllowed(CustomItem weapon, long currentTick, boolean isMainhand) {
+		if (weapon instanceof CustomWand) {
 			CustomWand wand = (CustomWand) weapon;
 			PlayerWandData data = wandsData.get(wand);
 			
@@ -116,17 +153,56 @@ class PlayerData {
 				data.onShoot(wand, currentTick);
 				return true;
 			}
+		} else if (weapon instanceof CustomGun) {
+
+			CustomGun gun = (CustomGun) weapon;
+			if (isMainhand) {
+				if ((nextMainhandGunShootTick == -1 || currentTick >= nextMainhandGunShootTick) && !isReloadingMainhand(currentTick)) {
+					nextMainhandGunShootTick = currentTick + gun.ammo.getCooldown();
+					return true;
+				} else {
+					return false;
+				}
+			} else {
+				if ((nextOffhandGunShootTick == -1 || currentTick >= nextOffhandGunShootTick) && !isReloadingOffhand(currentTick)) {
+					nextOffhandGunShootTick = currentTick + gun.ammo.getCooldown();
+					return true;
+				} else {
+					return false;
+				}
+			}
 		} else {
 			return false;
 		}
 	}
-	
+
+	boolean isReloadingMainhand(long currentTick) {
+		return mainhandGunToReload != null && finishMainhandGunReloadTick > currentTick;
+	}
+
+	boolean isReloadingOffhand(long currentTick) {
+		return offhandGunToReload != null && finishOffhandGunReloadTick > currentTick;
+	}
+
 	public boolean isShooting(long currentTick) {
 		if (lastShootTick != -1) {
 			if (currentTick <= lastShootTick + SHOOT_TIME) {
 				return true;
 			} else {
 				lastShootTick = -1;
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
+
+	public boolean isEating(long currentTick) {
+		if (lastEatTick != -1) {
+			if (currentTick <= lastEatTick + EAT_TIME) {
+				return true;
+			} else {
+				lastEatTick = -1;
 				return false;
 			}
 		} else {
@@ -154,12 +230,27 @@ class PlayerData {
 				iterator.remove();
 			}
 		}
-		
+
+		 // Don't remove the player data if it still has container data
+		if (openPocketContainer != null || containerSelectionLocation != null || pocketContainerSelection) {
+			return false;
+		}
+
+		// Check if the player data has an active gun cooldown
+		if (nextMainhandGunShootTick != -1 && nextMainhandGunShootTick > currentTick) return false;
+		if (nextOffhandGunShootTick != -1 && nextOffhandGunShootTick > currentTick) return false;
+
+		// Check if the player is currently reloading a gun
+		if (isReloadingMainhand(currentTick) || isReloadingOffhand(currentTick)) return false;
+
+		// Check if the player is currently eating
+		if (lastEatTick != -1 || mainhandFood != null || offhandFood != null) return false;
+
 		/*
 		 * If the player is not shooting and doesn't have any remaining cooldowns or missing wand
 		 * charges, there is no reason to keep data about this player because the absence of a player
 		 * entry also indicates this.
 		 */
-		return !isShooting(currentTick) && wandsData.isEmpty() && containerSelectionLocation == null;
+		return !isShooting(currentTick) && wandsData.isEmpty();
 	}
 }

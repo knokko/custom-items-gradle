@@ -23,10 +23,7 @@
  *******************************************************************************/
 package nl.knokko.gui.window;
 
-import java.awt.Frame;
-import java.awt.Insets;
-import java.awt.Point;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -34,6 +31,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.JFrame;
@@ -159,11 +157,14 @@ public class AWTGuiWindow extends GuiWindow {
 	}
 	
 	@Override
-	protected void directOpen(String title, int width, int height, boolean border) {
+	protected void directOpen(String title, int width, int height, boolean border, BufferedImage iconImage) {
 		invokeLater(() -> {
 			frame = new JFrame();
 			frame.add(guiRenderer.createPanel());
 			frame.setUndecorated(!border);
+			if (iconImage != null) {
+				frame.setIconImage(iconImage);
+			}
 			frame.setSize(width, height);
 			frame.setTitle(title);
 			frame.setVisible(true);
@@ -178,12 +179,15 @@ public class AWTGuiWindow extends GuiWindow {
 	}
 	
 	@Override
-	protected void directOpen(String title, boolean border) {
+	protected void directOpen(String title, boolean border, BufferedImage iconImage) {
 		invokeLater(() -> {
 			frame = new JFrame();
 			frame.add(guiRenderer.createPanel());
 			frame.setUndecorated(!border);
 			frame.setExtendedState(Frame.MAXIMIZED_BOTH);
+			if (iconImage != null) {
+				frame.setIconImage(iconImage);
+			}
 			
 			/* 
 			 * When a user starts moving or resizing the window, it will resize to the 'size' of the window,

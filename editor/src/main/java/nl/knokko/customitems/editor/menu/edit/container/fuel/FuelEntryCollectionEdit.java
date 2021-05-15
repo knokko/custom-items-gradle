@@ -44,8 +44,8 @@ public class FuelEntryCollectionEdit extends QuickCollectionEdit<FuelEntry> {
 		});
 		addComponent(pFuelButton[0], 0.5f, minY, 0.7f, maxY);
 		addComponent(new EagerIntEditField(entry.getBurnTime(), 1, 
-				EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE, 
-				newBurnTime -> entry.setBurnTime(newBurnTime)),
+				EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE,
+						entry::setBurnTime),
 		0.75f, minY, 0.85f, maxY);
 		addComponent(new DynamicTextButton("X", EditProps.QUIT_BASE, EditProps.QUIT_HOVER, () -> {
 			removeItem(itemIndex);
@@ -54,7 +54,7 @@ public class FuelEntryCollectionEdit extends QuickCollectionEdit<FuelEntry> {
 
 	@Override
 	protected FuelEntry addNew() {
-		return new FuelEntry(new SimpleVanillaIngredient(CIMaterial.COAL), 100);
+		return new FuelEntry(new SimpleVanillaIngredient(CIMaterial.COAL, (byte) 1, null), 100);
 	}
 
 	@Override

@@ -4,11 +4,16 @@ import static org.bukkit.enchantments.Enchantment.getByName;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
 import org.bukkit.Bukkit;
+import org.bukkit.World;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -55,6 +60,12 @@ public class ItemUpdater {
 			for (Player player : Bukkit.getOnlinePlayers()) {
 				updateInventory(player.getInventory());
 			}
+
+			for (World world : Bukkit.getWorlds()) {
+				for (LivingEntity entity : world.getLivingEntities()) {
+					updateEquipment(entity.getEquipment());
+				}
+			}
 		}, 100, 100);
 	}
 	
@@ -66,6 +77,22 @@ public class ItemUpdater {
 			if (newStack != currentStack) {
 				inventory.setItem(index, newStack);
 			}
+		}
+	}
+
+	public void updateEquipment(EntityEquipment equipment) {
+		updateEquipmentPiece(equipment.getItemInMainHand(), equipment::setItemInMainHand);
+		updateEquipmentPiece(equipment.getItemInOffHand(), equipment::setItemInOffHand);
+		updateEquipmentPiece(equipment.getHelmet(), equipment::setHelmet);
+		updateEquipmentPiece(equipment.getChestplate(), equipment::setChestplate);
+		updateEquipmentPiece(equipment.getLeggings(), equipment::setLeggings);
+		updateEquipmentPiece(equipment.getBoots(), equipment::setBoots);
+	}
+
+	private void updateEquipmentPiece(ItemStack original, Consumer<ItemStack> replace) {
+		ItemStack upgraded = maybeUpdate(original);
+		if (upgraded != original) {
+			replace.accept(upgraded);
 		}
 	}
 	
@@ -255,11 +282,13 @@ public class ItemUpdater {
 		ItemStack newStack = ItemAttributes.replaceAttributes(oldStack, newStackAttributes);
 
 		ItemStack[] pNewStack = {null};
+		Long[] pOldDurability = {null};
 		Long[] pNewDurability = {null};
 		CustomItemNBT.readWrite(newStack, nbt -> {
 			nbt.setLastExportTime(setExportTime);
 			nbt.setBooleanRepresentation(newItem.getBooleanRepresentation());
 			Long currentDurability = nbt.getDurability();
+			pOldDurability[0] = currentDurability;
 			if (currentDurability != null) {
 				if (newItem.getMaxDurabilityNew() != null) {
 					/*
@@ -342,7 +371,7 @@ public class ItemUpdater {
 		ItemMeta meta = newStack.getItemMeta();
 		
 		upgradeDisplayName(meta, oldItem, newItem);
-		upgradeLore(meta, oldItem, newItem, pNewDurability[0]);
+		upgradeLore(meta, oldItem, newItem, pOldDurability[0], pNewDurability[0]);
 		upgradeItemFlags(meta, oldItem, newItem);
 		
 		meta.setUnbreakable(true);
@@ -375,13 +404,15 @@ public class ItemUpdater {
 		}
 	}
 	
-	private void upgradeLore(ItemMeta toUpgrade, CustomItem oldItem, CustomItem newItem, Long newDurability) {
-		/*
-		 * I will do no attempt to 'upgrade' the lore rather than replacing it,
-		 * because tools will overwrite lore each time they take durability
-		 * anyway.
-		 */
-		toUpgrade.setLore(newItem.createLore(newDurability));
+	private void upgradeLore(ItemMeta toUpgrade, CustomItem oldItem, CustomItem newItem, Long oldDurability, Long newDurability) {
+		if (!Objects.equals(oldDurability, newDurability) || !Objects.deepEquals(oldItem.getLore(), newItem.getLore())) {
+			/*
+			 * I will do no attempt to 'upgrade' the lore rather than replacing it,
+			 * because tools will overwrite lore each time they take durability
+			 * anyway.
+			 */
+			toUpgrade.setLore(newItem.createLore(newDurability));
+		}
 	}
 	
 	private void upgradeItemFlags(ItemMeta toUpgrade, CustomItem oldItem, CustomItem newItem) {

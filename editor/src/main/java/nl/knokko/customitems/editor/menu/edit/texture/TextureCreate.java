@@ -44,12 +44,15 @@ public class TextureCreate extends GuiMenu {
 			state.getWindow().setMainComponent(menu.getTextureOverview());
 		}), 0.1f, 0.7f, 0.25f, 0.8f);
 		addComponent(new DynamicTextButton("Load simple texture", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new TextureEdit(menu, texture -> {}, null, null));
+			state.getWindow().setMainComponent(new TextureEdit(menu, created -> {}, null, null));
 		}), 0.5f, 0.6f, 0.75f, 0.7f);
 		addComponent(new DynamicTextButton("Load bow texture", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new BowTextureEdit(menu, texture -> {}, null, null));
 		}), 0.5f, 0.45f, 0.75f, 0.55f);
-		
+		addComponent(new DynamicTextButton("Load crossbow texture", EditProps.BUTTON, EditProps.HOVER, () -> {
+		    state.getWindow().setMainComponent(new CrossbowTextureEdit(menu, created -> {}, null, null));
+		}), 0.5f, 0.3f, 0.8f, 0.4f);
+
 		HelpButtons.addHelpLink(this, "edit%20menu/textures/type%20selection.html");
 	}
 	

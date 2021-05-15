@@ -22,6 +22,7 @@ public class ChooseRequiredHeldItems extends GuiMenu {
 	
 	private final Consumer<Collection<CustomItem>> onSelect;
 	private final GuiComponent returnMenu;
+	private final String noSelectionString;
 	
 	private final SelectableItemsList selectableItemsView;
 	private final SelectedItemsList selectedItemsView;
@@ -33,7 +34,7 @@ public class ChooseRequiredHeldItems extends GuiMenu {
 			Collection<nl.knokko.customitems.editor.set.item.CustomItem> allItems, 
 			Collection<CustomItem> selectedItems,
 			Consumer<Collection<CustomItem>> onSelect,
-			GuiComponent returnMenu
+			GuiComponent returnMenu, String noSelectionString
 	) {
 		this.selectedItems = new ArrayList<>(selectedItems);
 		this.selectableItems = new ArrayList<>(allItems);
@@ -41,6 +42,7 @@ public class ChooseRequiredHeldItems extends GuiMenu {
 		
 		this.onSelect = onSelect;
 		this.returnMenu = returnMenu;
+		this.noSelectionString = noSelectionString;
 		
 		this.selectableItemsView = new SelectableItemsList();
 		this.selectedItemsView = new SelectedItemsList();
@@ -141,7 +143,7 @@ public class ChooseRequiredHeldItems extends GuiMenu {
 			}
 			
 			if (selectedItems.isEmpty()) {
-				addComponent(new DynamicTextComponent("Players can use any item", EditProps.LABEL), 0f, 0.9f, 1f, 1f);
+				addComponent(new DynamicTextComponent(noSelectionString, EditProps.LABEL), 0f, 0.9f, 1f, 1f);
 			} else {
 				addComponent(new DynamicTextComponent("Players must use one of these items:", EditProps.LABEL), 0f, 0.9f, 1f, 1f);
 			}

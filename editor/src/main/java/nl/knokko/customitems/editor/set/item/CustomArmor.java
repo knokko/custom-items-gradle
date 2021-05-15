@@ -39,6 +39,7 @@ import nl.knokko.customitems.item.Enchantment;
 import nl.knokko.customitems.item.ReplaceCondition;
 import nl.knokko.customitems.item.ReplaceCondition.ConditionOperation;
 import nl.knokko.customitems.item.nbt.ExtraItemNbt;
+import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.util.bits.BitOutput;
 
 public class CustomArmor extends CustomTool {
@@ -51,18 +52,18 @@ public class CustomArmor extends CustomTool {
 	private ReadOnlyReference<ArmorTextures> wornTexture;
 	
 	public CustomArmor(
-			CustomItemType itemType, String name, String alias, String displayName, 
-			String[] lore, AttributeModifier[] attributes, 
-			Enchantment[] defaultEnchantments, long durability, 
-			boolean allowEnchanting, boolean allowAnvil, Ingredient repairItem, 
-			NamedImage texture, int red, int green, int blue, boolean[] itemFlags, 
-			int entityHitDurabilityLoss, int blockBreakDurabilityLoss, 
-			DamageResistances damageResistances, byte[] customModel, 
-			List<PotionEffect> playerEffects, List<PotionEffect> targetEffects, 
-			Collection<EquippedPotionEffect> equippedEffects, String[] commands, 
-			ReplaceCondition[] conditions, ConditionOperation op,
-			ExtraItemNbt extraNbt, ReadOnlyReference<ArmorTextures> wornTexture,
-			float attackRange
+            CustomItemType itemType, String name, String alias, String displayName,
+            String[] lore, AttributeModifier[] attributes,
+            Enchantment[] defaultEnchantments, long durability,
+            boolean allowEnchanting, boolean allowAnvil, Ingredient repairItem,
+            NamedImage texture, int red, int green, int blue, boolean[] itemFlags,
+            int entityHitDurabilityLoss, int blockBreakDurabilityLoss,
+            DamageResistances damageResistances, byte[] customModel,
+            List<PotionEffect> playerEffects, List<PotionEffect> targetEffects,
+            Collection<EquippedPotionEffect> equippedEffects, String[] commands,
+            ReplaceCondition[] conditions, ConditionOperation op,
+            ExtraItemNbt extraNbt, ReadOnlyReference<ArmorTextures> wornTexture,
+            float attackRange
 	) {
 		super(
 				itemType, name, alias, displayName, lore, attributes, 

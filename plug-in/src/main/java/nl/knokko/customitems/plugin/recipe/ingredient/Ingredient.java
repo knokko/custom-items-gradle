@@ -27,7 +27,51 @@ import org.bukkit.inventory.ItemStack;
 
 import nl.knokko.customitems.recipe.SCIngredient;
 
-public interface Ingredient extends SCIngredient {
-    
-    boolean accept(ItemStack item);
+public abstract class Ingredient implements SCIngredient {
+
+    protected final byte amount;
+    protected final ItemStack remainingItem;
+
+    Ingredient(byte amount, ItemStack remainingItem) {
+        this.amount = amount;
+        this.remainingItem = remainingItem;
+    }
+
+    public final boolean accept(ItemStack item) {
+        if (remainingItem == null) {
+
+            // If there is no remaining item, we can accept if the amount is large enough
+            if (item == null || item.getAmount() >= amount) {
+                return acceptSpecific(item);
+            } else {
+                return false;
+            }
+        } else {
+
+            // If there is a remaining item, it must be consumed ENTIRELY to make space for the remaining item
+            if (item == null || item.getAmount() == amount) {
+                return acceptSpecific(item);
+            } else {
+                return false;
+            }
+        }
+    }
+
+    public abstract boolean acceptSpecific(ItemStack item);
+
+    public byte getAmount() {
+        return amount;
+    }
+
+    public ItemStack getRemainingItem() {
+        return remainingItem;
+    }
+
+    public ItemStack cloneRemainingItem() {
+        if (remainingItem == null) {
+            return null;
+        } else {
+            return remainingItem.clone();
+        }
+    }
 }

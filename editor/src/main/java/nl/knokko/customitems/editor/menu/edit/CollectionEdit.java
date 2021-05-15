@@ -19,13 +19,13 @@ import java.awt.image.BufferedImage;
 public class CollectionEdit<T> extends GuiMenu {
 	
 	private final ActionHandler<T> handler;
-	private final Collection<T> changingCollection;
+	private final Iterable<T> changingCollection;
 	
 	private final List itemList;
 	protected final TextEditField searchField;
 	protected final DynamicTextComponent errorComponent;
 
-	public CollectionEdit(ActionHandler<T> handler, Collection<T> collectionToModify) {
+	public CollectionEdit(ActionHandler<T> handler, Iterable<T> collectionToModify) {
 		this.handler = handler;
 		this.changingCollection = collectionToModify;
 		this.itemList = new List();
@@ -35,9 +35,7 @@ public class CollectionEdit<T> extends GuiMenu {
 
 	@Override
 	protected void addComponents() {
-		addComponent(new DynamicTextButton("Back", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
-			handler.goBack();
-		}), 0.025f, 0.7f, 0.175f, 0.8f);
+		addComponent(new DynamicTextButton("Back", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, handler::goBack), 0.025f, 0.7f, 0.175f, 0.8f);
 		
 		addComponent(new DynamicTextComponent("Search:", EditProps.LABEL), 0.025f, 0.6f, 0.15f, 0.7f);
 		addComponent(searchField, 0.025f, 0.5f, 0.28f, 0.6f);
@@ -119,14 +117,16 @@ public class CollectionEdit<T> extends GuiMenu {
 					addComponent(new DynamicTextButton("Copy", EditProps.BUTTON, EditProps.HOVER, () -> {
 						state.getWindow().setMainComponent(handler.createCopyMenu(item, CollectionEdit.this));
 					}), 0.64f, minY, 0.76f, maxY);
-					addComponent(new DynamicTextButton("Delete", EditProps.QUIT_BASE, EditProps.QUIT_HOVER, () -> {
-						String error = handler.deleteItem(item);
-						if (error == null) {
-							refresh();
-						} else {
-							errorComponent.setText(error);
-						}
-					}), 0.775f, minY, 0.975f, maxY);
+					if (handler.allowDeletion()) {
+						addComponent(new DynamicTextButton("Delete", EditProps.QUIT_BASE, EditProps.QUIT_HOVER, () -> {
+							String error = handler.deleteItem(item);
+							if (error == null) {
+								refresh();
+							} else {
+								errorComponent.setText(error);
+							}
+						}), 0.775f, minY, 0.975f, maxY);
+					}
 					index++;
 				}
 			}
@@ -143,7 +143,7 @@ public class CollectionEdit<T> extends GuiMenu {
 		}
 	}
 	
-	public static interface ActionHandler<T> {
+	public interface ActionHandler<T> {
 		
 		void goBack();
 		
@@ -156,5 +156,9 @@ public class CollectionEdit<T> extends GuiMenu {
 		GuiComponent createCopyMenu(T itemToCopy, GuiComponent returnMenu);
 		
 		String deleteItem(T itemToDelete);
+
+		default boolean allowDeletion() {
+			return true;
+		}
 	}
 }

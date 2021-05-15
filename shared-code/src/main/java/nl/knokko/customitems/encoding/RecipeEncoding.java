@@ -36,6 +36,11 @@ public class RecipeEncoding {
 		// This one was planned for later, but then forgotten
 		//public static final byte VANILLA_ADVANCED_1 = 3;
 		public static final byte CUSTOM = 4;
+
+		// The next encodings also have amounts and remaining ingredients
+		public static final byte VANILLA_SIMPLE_2 = 5;
+		public static final byte VANILLA_DATA_2 = 6;
+		public static final byte CUSTOM_2 = 7;
 	}
 	
 	public static class Result {

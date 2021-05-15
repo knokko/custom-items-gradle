@@ -72,6 +72,11 @@ public class CreateSlot extends GuiMenu {
 					returnMenu, changeSlot, set.getBackingItems()
 			));
 		}), 0.6f, 0.15f, 0.9f, 0.2f);
+		addComponent(new DynamicTextButton("Storage", EditProps.BUTTON, EditProps.HOVER, () -> {
+			state.getWindow().setMainComponent(new CreateStorageSlot(
+					returnMenu, changeSlot, set.getBackingItems()
+			));
+		}), 0.6f, 0.075f, 0.75f, 0.125f);
 		HelpButtons.addHelpLink(this, "edit menu/containers/slots/create.html");
 	}
 

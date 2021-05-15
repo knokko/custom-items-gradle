@@ -24,47 +24,38 @@
 package nl.knokko.customitems.editor.set.recipe.ingredient;
 
 import nl.knokko.customitems.NameHelper;
+import nl.knokko.customitems.editor.set.recipe.result.Result;
 import nl.knokko.customitems.encoding.RecipeEncoding;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
-public class SimpleVanillaIngredient implements Ingredient {
+public class SimpleVanillaIngredient extends Ingredient {
 	
 	private final CIMaterial type;
 	
-	private String[] info;
-
-	public SimpleVanillaIngredient(CIMaterial material) {
+	public SimpleVanillaIngredient(CIMaterial material, byte amount, Result remaining) {
+		super(amount, remaining);
 		this.type = material;
-		determineInfo();
 	}
 	
-	public SimpleVanillaIngredient(BitInput input) {
+	SimpleVanillaIngredient(BitInput input, byte amount, Result remaining) {
+		super(amount, remaining);
 		type = CIMaterial.valueOf(input.readJavaString());
-		determineInfo();
 	}
-	
-	private void determineInfo() {
-		info = new String[] {
-				"Vanilla ingredient:",
-				"Type: " + NameHelper.getNiceEnumName(type.name())
-		};
-	}
-	
+
 	public CIMaterial getType() {
 		return type;
 	}
 
 	@Override
-	public void save(BitOutput output) {
-		output.addByte(getID());
+	public void saveSpecifics(BitOutput output) {
 		output.addJavaString(type.name());
 	}
 
 	@Override
 	public byte getID() {
-		return RecipeEncoding.Ingredient.VANILLA_SIMPLE;
+		return RecipeEncoding.Ingredient.VANILLA_SIMPLE_2;
 	}
 
 	@Override
@@ -78,16 +69,11 @@ public class SimpleVanillaIngredient implements Ingredient {
 	
 	@Override
 	public String toString(String emptyString) {
-		return NameHelper.getNiceEnumName(type.name());
+		return NameHelper.getNiceEnumName(type.name()) + " x" + amount + remainingToString();
 	}
 	
 	@Override
 	public String toString() {
 		return toString(null);
-	}
-
-	@Override
-	public String[] getInfo(String emptyString) {
-		return info;
 	}
 }

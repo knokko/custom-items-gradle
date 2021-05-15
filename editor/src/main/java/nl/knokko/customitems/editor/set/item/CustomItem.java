@@ -26,6 +26,7 @@ package nl.knokko.customitems.editor.set.item;
 import java.util.Collection;
 import java.util.List;
 
+import nl.knokko.customitems.editor.set.ItemSet;
 import nl.knokko.customitems.effect.EquippedPotionEffect;
 import nl.knokko.customitems.effect.PotionEffect;
 import nl.knokko.customitems.item.AttributeModifier;
@@ -34,6 +35,7 @@ import nl.knokko.customitems.item.Enchantment;
 import nl.knokko.customitems.item.ReplaceCondition;
 import nl.knokko.customitems.item.ReplaceCondition.ConditionOperation;
 import nl.knokko.customitems.item.nbt.ExtraItemNbt;
+import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.util.bits.BitOutput;
 
 public abstract class CustomItem extends nl.knokko.customitems.item.CustomItem {
@@ -155,6 +157,10 @@ public abstract class CustomItem extends nl.knokko.customitems.item.CustomItem {
 	
 	public void setAttackRange(float attackRange) {
 		this.attackRange = attackRange;
+	}
+
+	public void afterBlocksAreLoaded(ItemSet set) {
+		// Only block items need to use this, so the default implementation does nothing
 	}
 
 	public final void save1(BitOutput output) {

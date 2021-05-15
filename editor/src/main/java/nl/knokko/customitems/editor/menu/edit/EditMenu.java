@@ -23,6 +23,7 @@
  *******************************************************************************/
 package nl.knokko.customitems.editor.menu.edit;
 
+import nl.knokko.customitems.editor.menu.edit.block.BlockCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.container.ContainerPortal;
 import nl.knokko.customitems.editor.menu.edit.drops.DropsMenu;
 import nl.knokko.customitems.editor.menu.edit.item.ItemCollectionEdit;
@@ -113,13 +114,13 @@ public class EditMenu extends GuiMenu {
 
 	@Override
 	protected void addComponents() {
-		addComponent((GuiComponent) this.errorComponent, 0.305F, 0.9F, 0.95F, 1.0F);
+		addComponent(this.errorComponent, 0.305F, 0.9F, 0.95F, 1.0F);
 		addComponent(
-				(GuiComponent) new DynamicTextButton("Quit", EditProps.QUIT_BASE, EditProps.QUIT_HOVER,
-						() -> this.state.getWindow().setMainComponent((GuiComponent) MainMenu.INSTANCE)),
+				new DynamicTextButton("Quit", EditProps.QUIT_BASE, EditProps.QUIT_HOVER,
+						() -> this.state.getWindow().setMainComponent(MainMenu.INSTANCE)),
 
 				0.1F, 0.88F, 0.3F, 0.98F);
-		addComponent((GuiComponent) new DynamicTextButton("Save", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
+		addComponent(new DynamicTextButton("Save", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
 			String error = this.set.save();
 			if (error != null) {
 				setError(error);
@@ -129,15 +130,15 @@ public class EditMenu extends GuiMenu {
 
 		}), 0.1F, 0.7F, 0.25F, 0.8F);
 		addComponent(
-				(GuiComponent) new DynamicTextButton("Save and quit", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
+				new DynamicTextButton("Save and quit", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
 					String error = this.set.save();
 					if (error != null) {
 						setError(error);
 					} else {
-						this.state.getWindow().setMainComponent((GuiComponent) MainMenu.INSTANCE);
+						this.state.getWindow().setMainComponent(MainMenu.INSTANCE);
 					}
 				}), 0.1F, 0.59F, 0.35F, 0.69F);
-		addComponent((GuiComponent) new DynamicTextButton("Export for 1.12", EditProps.SAVE_BASE, EditProps.SAVE_HOVER,
+		addComponent(new DynamicTextButton("Export for 1.12", EditProps.SAVE_BASE, EditProps.SAVE_HOVER,
 				() -> {
 					String error = this.set.save();
 					if (error != null) {
@@ -147,39 +148,39 @@ public class EditMenu extends GuiMenu {
 						if (error != null) {
 							setError(error);
 						} else {
-							this.state.getWindow().setMainComponent((GuiComponent) new AfterExportMenu(this));
+							this.state.getWindow().setMainComponent(new AfterExportMenu(this));
 						}
 					}
 				}), 0.1F, 0.48F, 0.35F, 0.58F);
-		addComponent((GuiComponent) new DynamicTextButton("Export for 1.13", EditProps.SAVE_BASE, EditProps.SAVE_HOVER,
+		addComponent(new DynamicTextButton("Export for 1.13", EditProps.SAVE_BASE, EditProps.SAVE_HOVER,
 				() -> {
 					String error = this.set.save();
 					if (error != null) {
 						setError(error);
 					} else {
-						error = this.set.exportFor13Or14(13);
+						error = this.set.exportFor13OrLater(13);
 						if (error != null) {
 							setError(error);
 						} else {
-							this.state.getWindow().setMainComponent((GuiComponent) new AfterExportMenu(this));
+							this.state.getWindow().setMainComponent(new AfterExportMenu(this));
 						}
 					}
 				}), 0.1F, 0.37F, 0.35F, 0.47F);
-		addComponent((GuiComponent) new DynamicTextButton("Export for 1.14", EditProps.SAVE_BASE, EditProps.SAVE_HOVER,
+		addComponent(new DynamicTextButton("Export for 1.14", EditProps.SAVE_BASE, EditProps.SAVE_HOVER,
 				() -> {
 					String error = this.set.save();
 					if (error != null) {
 						setError(error);
 					} else {
-						error = this.set.exportFor13Or14(14);
+						error = this.set.exportFor13OrLater(14);
 						if (error != null) {
 							setError(error);
 						} else {
-							this.state.getWindow().setMainComponent((GuiComponent) new AfterExportMenu(this));
+							this.state.getWindow().setMainComponent(new AfterExportMenu(this));
 						}
 					}
 				}), 0.1F, 0.26F, 0.35F, 0.36F);
-		addComponent((GuiComponent) new DynamicTextButton("Export for 1.15", EditProps.SAVE_BASE, EditProps.SAVE_HOVER,
+		addComponent(new DynamicTextButton("Export for 1.15", EditProps.SAVE_BASE, EditProps.SAVE_HOVER,
 				() -> {
 					String error = this.set.save();
 					if (error != null) {
@@ -189,11 +190,11 @@ public class EditMenu extends GuiMenu {
 						if (error != null) {
 							setError(error);
 						} else {
-							this.state.getWindow().setMainComponent((GuiComponent) new AfterExportMenu(this));
+							this.state.getWindow().setMainComponent(new AfterExportMenu(this));
 						}
 					}
 				}), 0.1F, 0.15F, 0.35F, 0.25F);
-		addComponent((GuiComponent) new DynamicTextButton("Export for 1.16", EditProps.SAVE_BASE, EditProps.SAVE_HOVER,
+		addComponent(new DynamicTextButton("Export for 1.16", EditProps.SAVE_BASE, EditProps.SAVE_HOVER,
 				() -> {
 					String error = this.set.save();
 					if (error != null) {
@@ -203,38 +204,42 @@ public class EditMenu extends GuiMenu {
 						if (error != null) {
 							setError(error);
 						} else {
-							this.state.getWindow().setMainComponent((GuiComponent) new AfterExportMenu(this));
+							this.state.getWindow().setMainComponent(new AfterExportMenu(this));
 						}
 					}
 				}), 0.1F, 0.04F, 0.35F, 0.14F);
 		addComponent(
-				(GuiComponent) new DynamicTextButton("Textures", EditProps.BUTTON, EditProps.HOVER,
+				new DynamicTextButton("Textures", EditProps.BUTTON, EditProps.HOVER,
 						() -> this.state.getWindow().setMainComponent(this.textureOverview)),
 
-				0.6F, 0.75F, 0.8F, 0.85F);
+				0.6F, 0.8F, 0.8F, 0.9F);
 		addComponent(
-				(GuiComponent) new DynamicTextButton("Items", EditProps.BUTTON, EditProps.HOVER,
+				new DynamicTextButton("Items", EditProps.BUTTON, EditProps.HOVER,
 						() -> this.state.getWindow().setMainComponent(this.itemOverview)),
 
-				0.6F, 0.6F, 0.8F, 0.7F);
+				0.6F, 0.68F, 0.8F, 0.78F);
 		addComponent(
-				(GuiComponent) new DynamicTextButton("Recipes", EditProps.BUTTON, EditProps.HOVER,
+				new DynamicTextButton("Recipes", EditProps.BUTTON, EditProps.HOVER,
 						() -> this.state.getWindow().setMainComponent(this.recipeOverview)),
 
-				0.6F, 0.45F, 0.8F, 0.55F);
+				0.6F, 0.56F, 0.8F, 0.66F);
 		addComponent(
-				(GuiComponent) new DynamicTextButton("Drops", EditProps.BUTTON, EditProps.HOVER,
+				new DynamicTextButton("Drops", EditProps.BUTTON, EditProps.HOVER,
 						() -> this.state.getWindow().setMainComponent(this.dropsMenu)),
 
-				0.6F, 0.3F, 0.8F, 0.4F);
+				0.6F, 0.44F, 0.8F, 0.54F);
 		addComponent(
-				(GuiComponent) new DynamicTextButton("Projectiles", EditProps.BUTTON, EditProps.HOVER,
-						() -> this.state.getWindow().setMainComponent((GuiComponent) this.projectileMenu)),
+				new DynamicTextButton("Projectiles", EditProps.BUTTON, EditProps.HOVER,
+						() -> this.state.getWindow().setMainComponent(this.projectileMenu)),
 
-				0.6F, 0.15F, 0.875F, 0.25F);
+				0.6F, 0.32F, 0.875F, 0.42F);
 		addComponent(new DynamicTextButton("Containers", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(containerPortal);
-		}), 0.6f, 0f, 0.875f, 0.1f);
+		}), 0.6f, 0.2f, 0.875f, 0.3f);
+		addComponent(new DynamicTextButton("Blocks (1.13+)", EditProps.BUTTON, EditProps.HOVER, () ->
+				state.getWindow().setMainComponent(new BlockCollectionEdit(set, this))
+		), 0.6f, 0.08f, 0.9f, 0.18f);
+
 		HelpButtons.addHelpLink(this, "edit%20menu/index.html");
 	}
 }

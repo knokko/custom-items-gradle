@@ -65,48 +65,36 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Level;
 
+import nl.knokko.core.plugin.block.MushroomBlocks;
 import nl.knokko.core.plugin.item.GeneralItemNBT;
+import nl.knokko.customitems.block.CustomBlockView;
+import nl.knokko.customitems.block.MushroomBlockMapping;
+import nl.knokko.customitems.block.drop.CustomBlockDrop;
+import nl.knokko.customitems.block.drop.RequiredItems;
+import nl.knokko.customitems.block.drop.SilkTouchRequirement;
 import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Sound;
+import nl.knokko.customitems.plugin.recipe.IngredientEntry;
+import nl.knokko.customitems.plugin.recipe.ingredient.Ingredient;
+import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
+import nl.knokko.customitems.plugin.set.item.*;
+import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Arrow;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
+import org.bukkit.entity.*;
 import org.bukkit.event.Event;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
-import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityPickupItemEvent;
-import org.bukkit.event.entity.EntityShootBowEvent;
-import org.bukkit.event.entity.ProjectileHitEvent;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.inventory.InventoryType.SlotType;
-import org.bukkit.event.player.PlayerExpChangeEvent;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerShearEntityEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -132,25 +120,16 @@ import nl.knokko.customitems.plugin.recipe.CustomRecipe;
 import nl.knokko.customitems.plugin.recipe.ShapedCustomRecipe;
 import nl.knokko.customitems.plugin.recipe.ShapelessCustomRecipe;
 import nl.knokko.customitems.plugin.set.ItemSet;
-import nl.knokko.customitems.plugin.set.item.CustomArmor;
-import nl.knokko.customitems.plugin.set.item.CustomBow;
-import nl.knokko.customitems.plugin.set.item.CustomHelmet3D;
-import nl.knokko.customitems.plugin.set.item.CustomHoe;
-import nl.knokko.customitems.plugin.set.item.CustomItem;
-import nl.knokko.customitems.plugin.set.item.CustomShears;
-import nl.knokko.customitems.plugin.set.item.CustomShield;
-import nl.knokko.customitems.plugin.set.item.CustomTool;
 import nl.knokko.customitems.plugin.set.item.CustomTool.IncreaseDurabilityResult;
-import nl.knokko.customitems.plugin.set.item.CustomTrident;
-import nl.knokko.customitems.plugin.set.item.CustomWand;
 import nl.knokko.customitems.plugin.set.item.update.ItemUpdater;
 import nl.knokko.customitems.plugin.util.ItemUtils;
+import org.bukkit.projectiles.ProjectileSource;
 
 @SuppressWarnings("deprecation")
 public class CustomItemsEventHandler implements Listener {
 
-	private Map<UUID, Boolean> shouldInterfere = new HashMap<UUID, Boolean>();
-	
+	private Map<UUID, List<IngredientEntry>> shouldInterfere = new HashMap<>();
+
 	private static CustomItemsPlugin plugin() {
 		return CustomItemsPlugin.getInstance();
 	}
@@ -546,13 +525,26 @@ public class CustomItemsEventHandler implements Listener {
 		}
 	}
 	
-	@EventHandler(ignoreCancelled = false)
+	@EventHandler
 	public void updateGunsAndWands(PlayerInteractEvent event) {
 		if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 			ItemSet set = set();
-			
-			if (set.getItem(event.getItem()) instanceof CustomWand) {
+
+			CustomItem usedItem = set.getItem(event.getItem());
+			if (usedItem instanceof CustomWand || usedItem instanceof CustomGun) {
 				CustomItemsPlugin.getInstance().getData().setShooting(event.getPlayer());
+			}
+		}
+	}
+
+	@EventHandler
+	public void startEating(PlayerInteractEvent event) {
+		if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+			ItemSet set = set();
+
+			CustomItem usedItem = set.getItem(event.getItem());
+			if (usedItem instanceof CustomFood) {
+				CustomItemsPlugin.getInstance().getData().setEating(event.getPlayer());
 			}
 		}
 	}
@@ -572,38 +564,66 @@ public class CustomItemsEventHandler implements Listener {
 
 	@EventHandler(ignoreCancelled = true)
 	public void processCustomBowAndTridentDamage(EntityDamageByEntityEvent event) {
+
 		CustomItemsPlugin plugin = plugin();
-		if (event.getDamager() instanceof Arrow) {
-			List<MetadataValue> metas = event.getDamager().getMetadata("CustomBowName");
+		if (event.getDamager() instanceof Arrow || event.getDamager() instanceof Firework) {
+
+			List<MetadataValue> metas = event.getDamager().getMetadata("CustomBowOrCrossbowName");
 			for (MetadataValue meta : metas) {
 				if (meta.getOwningPlugin() == plugin) {
-					CustomItem shouldBeCustomBow = plugin.getSet().getCustomItemByName(meta.asString());
-					if (shouldBeCustomBow instanceof CustomBow) {
-						CustomBow customBow = (CustomBow) shouldBeCustomBow;
-						event.setDamage(event.getDamage() * customBow.getDamageMultiplier());
+
+					CustomItem customBowOrCrossbow = plugin.getSet().getCustomItemByName(meta.asString());
+					if (customBowOrCrossbow instanceof CustomBow || customBowOrCrossbow instanceof CustomCrossbow) {
+
+					    double damageMultiplier;
+					    if (customBowOrCrossbow instanceof CustomBow) {
+					    	damageMultiplier = ((CustomBow) customBowOrCrossbow).getDamageMultiplier();
+						} else {
+					    	if (event.getDamager() instanceof Arrow) {
+					    		damageMultiplier = ((CustomCrossbow) customBowOrCrossbow).getArrowDamageMultiplier();
+							} else {
+					    		damageMultiplier = ((CustomCrossbow) customBowOrCrossbow).getFireworkDamageMultiplier();
+							}
+						}
+
+						event.setDamage(event.getDamage() * damageMultiplier);
 						LivingEntity target = (LivingEntity) event.getEntity();
-						if (target instanceof LivingEntity) {
+						if (target != null) {
+
 							Collection<org.bukkit.potion.PotionEffect> effects = new ArrayList<org.bukkit.potion.PotionEffect> ();
-							for (PotionEffect effect : customBow.getTargetEffects()) {
-								effects.add(new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.getByName(effect.getEffect().name()), effect.getDuration() * 20, effect.getLevel() - 1));
+							for (PotionEffect effect : customBowOrCrossbow.getTargetEffects()) {
+								effects.add(new org.bukkit.potion.PotionEffect(
+										org.bukkit.potion.PotionEffectType.getByName(effect.getEffect().name()),
+										effect.getDuration() * 20,
+										effect.getLevel() - 1
+								));
 							}
 							target.addPotionEffects(effects);
 						}
-						Arrow arrow = (Arrow) event.getDamager();
-						if (arrow.getShooter() instanceof LivingEntity) {
-							LivingEntity shooter = (LivingEntity) arrow.getShooter();
-							Collection<org.bukkit.potion.PotionEffect> effects = new ArrayList<org.bukkit.potion.PotionEffect> ();
-							for (PotionEffect effect : customBow.getPlayerEffects()) {
-								effects.add(new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.getByName(effect.getEffect().name()), effect.getDuration() * 20, effect.getLevel() - 1));
-							}
-							shooter.addPotionEffects(effects);
+
+						ProjectileSource shooter = null;
+						if (event.getDamager() instanceof Arrow) {
+							shooter = ((Arrow) event.getDamager()).getShooter();
 						}
-					} else {
-						Bukkit.getLogger().log(Level.WARNING, "An arrow was shot with the custom bow '" + meta.asString() + "', but no such custom bow exists");
+						// Hm... it looks like Firework doesn't have a nice getShooter() method...
+
+						if (shooter instanceof LivingEntity) {
+							Collection<org.bukkit.potion.PotionEffect> effects = new ArrayList<org.bukkit.potion.PotionEffect> ();
+							for (PotionEffect effect : customBowOrCrossbow.getPlayerEffects()) {
+								effects.add(new org.bukkit.potion.PotionEffect(
+										org.bukkit.potion.PotionEffectType.getByName(effect.getEffect().name()),
+										effect.getDuration() * 20,
+										effect.getLevel() - 1
+								));
+							}
+
+							((LivingEntity) shooter).addPotionEffects(effects);
+						}
 					}
 				}
 			}
 		}
+
 		if (isTrident(event.getDamager())) {
 			List<MetadataValue> metas = event.getDamager().getMetadata("CustomTridentName");
 			for (MetadataValue meta : metas) {
@@ -812,38 +832,92 @@ public class CustomItemsEventHandler implements Listener {
 
 	@EventHandler(ignoreCancelled = true)
 	public void onBowShoot(EntityShootBowEvent event) {
-		ItemStack oldBow = event.getBow();
-		CustomItem customItem = set().getItem(oldBow);
-		if (customItem instanceof CustomBow) {
-			CustomBow bow = (CustomBow) customItem;
+
+		CustomItem customItem = set().getItem(event.getBow());
+
+		if (customItem instanceof CustomBow || customItem instanceof CustomCrossbow) {
 			Entity projectile = event.getProjectile();
-			if (projectile instanceof Arrow) {
+			if (projectile instanceof Arrow || projectile instanceof Firework) {
+
+				// Only decrease durability when shot by a player
 				if (event.getEntity() instanceof Player) {
+
 					Player player = (Player) event.getEntity();
-					ItemStack newBow = bow.decreaseDurability(oldBow, bow.getShootDurabilityLoss());
-					if (newBow == null) {
-						String newItemName = checkBrokenCondition(bow.getReplaceConditions());
-						if (newItemName != null) {
-							newBow = set().getItem(newItemName).create(1);
-						}
-						playBreakSound(player);
-					}
-					if (newBow != oldBow) {
-						ItemStack mainHand = player.getInventory().getItemInMainHand();
-						if (mainHand != null && set().getItem(mainHand) == bow) {
-							player.getInventory().setItemInMainHand(newBow);
+					boolean isMainHand = set().getItem(player.getInventory().getItemInMainHand()) == customItem;
+
+					// Delay updating durability to prevent messing around with the crossbow state
+					Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () -> {
+
+					    ItemStack oldBowOrCrossbow = isMainHand ?
+								player.getInventory().getItemInMainHand() :
+								player.getInventory().getItemInOffHand();
+
+						ItemStack newBowOrCrossbow;
+						if (customItem instanceof CustomBow) {
+							CustomBow bow = (CustomBow) customItem;
+							newBowOrCrossbow = bow.decreaseDurability(oldBowOrCrossbow, bow.getShootDurabilityLoss());
 						} else {
-							player.getInventory().setItemInOffHand(newBow);
+							CustomCrossbow crossbow = (CustomCrossbow) customItem;
+							if (projectile instanceof Arrow) {
+								newBowOrCrossbow = crossbow.decreaseDurability(oldBowOrCrossbow, crossbow.getArrowDurabilityLoss());
+							} else {
+								newBowOrCrossbow = crossbow.decreaseDurability(oldBowOrCrossbow, crossbow.getFireworkDurabilityLoss());
+							}
 						}
+
+						if (newBowOrCrossbow == null) {
+							String newItemName = checkBrokenCondition(customItem.getReplaceConditions());
+							if (newItemName != null) {
+								newBowOrCrossbow = set().getItem(newItemName).create(1);
+							}
+							playBreakSound(player);
+						}
+
+						if (newBowOrCrossbow != oldBowOrCrossbow) {
+							if (isMainHand) {
+								player.getInventory().setItemInMainHand(newBowOrCrossbow);
+							} else {
+								player.getInventory().setItemInOffHand(newBowOrCrossbow);
+							}
+						}
+					});
+				}
+
+				if (projectile instanceof Arrow) {
+					Arrow arrow = (Arrow) projectile;
+
+					int knockbackStrength;
+					double speedMultiplier;
+					boolean gravity;
+
+					if (customItem instanceof CustomBow) {
+						CustomBow bow = (CustomBow) customItem;
+						knockbackStrength = bow.getKnockbackStrength();
+						speedMultiplier = bow.getSpeedMultiplier();
+						gravity = bow.hasGravity();
+					} else {
+						CustomCrossbow crossbow = (CustomCrossbow) customItem;
+						knockbackStrength = crossbow.getArrowKnockbackStrength();
+						speedMultiplier = crossbow.getArrowSpeedMultiplier();
+						gravity = crossbow.hasArrowGravity();
+					}
+
+					arrow.setKnockbackStrength(arrow.getKnockbackStrength() + knockbackStrength);
+					arrow.setVelocity(arrow.getVelocity().multiply(speedMultiplier));
+					arrow.setGravity(gravity);
+				} else {
+					Firework firework = (Firework) projectile;
+
+					// The item SHOULD be a crossbow, but could hypothetically be a bow
+					// (not in normal minecraft behavior, but perhaps other plug-ins do something weird)
+					if (customItem instanceof CustomCrossbow) {
+					    CustomCrossbow crossbow = (CustomCrossbow) customItem;
+						firework.setVelocity(firework.getVelocity().multiply(crossbow.getFireworkSpeedMultiplier()));
 					}
 				}
 
-				Arrow arrow = (Arrow) projectile;
-				arrow.setKnockbackStrength(arrow.getKnockbackStrength() + bow.getKnockbackStrength());
-				arrow.setVelocity(arrow.getVelocity().multiply(bow.getSpeedMultiplier()));
-				arrow.setGravity(bow.hasGravity());
-				String customBowName = bow.getName();
-				arrow.setMetadata("CustomBowName", new MetadataValue() {
+				String customBowOrCrossbowName = customItem.getName();
+				projectile.setMetadata("CustomBowOrCrossbowName", new MetadataValue() {
 
 					@Override
 					public Object value() {
@@ -887,7 +961,7 @@ public class CustomItemsEventHandler implements Listener {
 
 					@Override
 					public String asString() {
-						return customBowName;
+						return customBowOrCrossbowName;
 					}
 
 					@Override
@@ -1540,6 +1614,7 @@ public class CustomItemsEventHandler implements Listener {
 					CustomTool tool = (CustomTool) custom1;
 					String renameText = event.getInventory().getRenameText();
 					String oldName = ItemHelper.getStackName(contents[0]);
+					boolean isRenaming = !renameText.isEmpty() && !renameText.equals(oldName);
 					if (custom1 == custom2) {
 						long durability1 = tool.getDurability(contents[0]);
 						long durability2 = tool.getDurability(contents[1]);
@@ -1549,7 +1624,7 @@ public class CustomItemsEventHandler implements Listener {
 						ItemStack result = tool.create(1, resultDurability);
 						int levelCost = 0;
 						boolean hasChange = false;
-						if (!renameText.isEmpty() && !renameText.equals(oldName)) {
+						if (isRenaming) {
 							ItemMeta meta = result.getItemMeta();
 							meta.setDisplayName(event.getInventory().getRenameText());
 							result.setItemMeta(meta);
@@ -1610,47 +1685,57 @@ public class CustomItemsEventHandler implements Listener {
 					} else if (contents[1] != null && !ItemHelper.getMaterialName(contents[1]).equals(CIMaterial.AIR.name())) {
 						if (ItemHelper.getMaterialName(contents[1]).equals(CIMaterial.ENCHANTED_BOOK.name())) {
 						    // This case is handled by minecraft automagically
-						} else if (tool.getRepairItem().accept(contents[1])) {
+						} else if (tool.getRepairItem().acceptSpecific(contents[1])) {
+							// We use acceptSpecific because we need to handle remaining items differently
 							long durability = tool.getDurability(contents[0]);
 							long maxDurability = tool.getMaxDurability();
 							long neededDurability = maxDurability - durability;
+
 							if (neededDurability > 0) {
-								int neededAmount = (int) Math.ceil(neededDurability * 4.0 / maxDurability);
-								int usedAmount = Math.min(neededAmount, contents[1].getAmount());
-								long resultDurability = Math.min(durability + tool.getMaxDurability() * usedAmount / 4,
-										tool.getMaxDurability());
-								ItemStack result = tool.create(1, resultDurability);
-								result.addUnsafeEnchantments(contents[0].getEnchantments());
-								int levelCost = usedAmount;
-								if (!renameText.isEmpty() && !renameText.equals(oldName)) {
-									levelCost++;
-									ItemMeta meta = result.getItemMeta();
-									meta.setDisplayName(event.getInventory().getRenameText());
-									result.setItemMeta(meta);
+								Ingredient repairItem = tool.getRepairItem();
+								int neededAmount = (int) Math.ceil(neededDurability * 4.0 / maxDurability) * repairItem.getAmount();
+
+								int repairValue = Math.min(neededAmount, contents[1].getAmount()) / repairItem.getAmount();
+
+								// If there is a remaining item, we can only proceed if the entire repair item stack is consumed
+								if (repairValue > 0 && (repairItem.getRemainingItem() == null || repairValue * repairItem.getAmount() == contents[1].getAmount())) {
+									long resultDurability = Math.min(durability + tool.getMaxDurability() * repairValue / 4,
+											tool.getMaxDurability());
+									ItemStack result = tool.create(1, resultDurability);
+									result.addUnsafeEnchantments(contents[0].getEnchantments());
+									int levelCost = repairValue;
+									if (isRenaming) {
+										levelCost++;
+										ItemMeta meta = result.getItemMeta();
+										meta.setDisplayName(event.getInventory().getRenameText());
+										result.setItemMeta(meta);
+									} else {
+										ItemMeta meta = result.getItemMeta();
+										meta.setDisplayName(oldName);
+										result.setItemMeta(meta);
+									}
+									int repairCost = 0;
+									ItemMeta meta1 = contents[0].getItemMeta();
+									if (meta1 instanceof Repairable) {
+										Repairable repairable = (Repairable) meta1;
+										repairCost = repairable.getRepairCost();
+										levelCost += repairCost;
+									}
+									ItemMeta resultMeta = result.getItemMeta();
+									int repairCount = (int) Math.round(Math.log(repairCost + 1) / Math.log(2));
+									// We have a minor visual anvil bug here that presumably can't be fixed
+									((Repairable) resultMeta)
+											.setRepairCost((int) Math.round(Math.pow(2, repairCount + 1) - 1));
+									result.setItemMeta(resultMeta);
+									int finalLevelCost = levelCost;
+									Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
+										// Update repair cost and result after event to avoid some glitches
+                                        event.getInventory().setItem(2, result);
+										event.getInventory().setRepairCost(finalLevelCost);
+									});
 								} else {
-									ItemMeta meta = result.getItemMeta();
-									meta.setDisplayName(oldName);
-									result.setItemMeta(meta);
+									event.setResult(null);
 								}
-								int repairCost = 0;
-								ItemMeta meta1 = contents[0].getItemMeta();
-								if (meta1 instanceof Repairable) {
-									Repairable repairable = (Repairable) meta1;
-									repairCost = repairable.getRepairCost();
-									levelCost += repairCost;
-								}
-								ItemMeta resultMeta = result.getItemMeta();
-								int repairCount = (int) Math.round(Math.log(repairCost + 1) / Math.log(2));
-								// TODO repair cost becomes invisible after no change?
-								((Repairable) resultMeta)
-								.setRepairCost((int) Math.round(Math.pow(2, repairCount + 1) - 1));
-								result.setItemMeta(resultMeta);
-								event.setResult(result);
-								int finalLevelCost = levelCost;
-								Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
-									// Apparently, settings the repair cost during the event has no effect
-									event.getInventory().setRepairCost(finalLevelCost);
-								});
 							} else {
 								event.setResult(null);
 							}
@@ -1821,109 +1906,119 @@ public class CustomItemsEventHandler implements Listener {
 				}
 			}
 			if (event.getInventory() instanceof CraftingInventory) {
-				if (shouldInterfere.getOrDefault(event.getWhoClicked().getUniqueId(), false)) {
-					if (action == InventoryAction.PICKUP_ALL) {
-						// This block deals with normal crafting
-						Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
-							/*
-							 * For every itemstack in crafting matrix when 1 item was crafted: actualAmount
-							 * = 2 * (initialAmount - 1) desiredAmount = initialAmount - 1 desiredAmount =
-							 * actualAmount / 2;
-							 */
-							ItemStack[] contents = event.getInventory().getContents();
-							for (int index = 1; index < contents.length; index++) {
-								contents[index].setAmount(contents[index].getAmount() / 2);
-							}
-						});
-					} else if (action == InventoryAction.DROP_ONE_SLOT) {
-						
-						// Some action needs to be taken when players try to drop custom items like this
-						ItemStack[] contents = event.getInventory().getContents();
-						int[] contentSizes = new int[contents.length];
-						for (int index = 1; index < contents.length; index++) {
-							contentSizes[index] = contents[index].getAmount() - 1;
-							if (contentSizes[index] < 0) {
-								contentSizes[index] = 0;
+			    List<IngredientEntry> customCrafting = shouldInterfere.get(event.getWhoClicked().getUniqueId());
+				if (customCrafting != null) {
+					if (
+							action == InventoryAction.PICKUP_ALL || action == InventoryAction.DROP_ONE_SLOT
+							|| action == InventoryAction.MOVE_TO_OTHER_INVENTORY || action == InventoryAction.NOTHING
+					) {
+
+					    ItemStack[] oldContents = event.getInventory().getContents();
+					    ItemStack[] contents = new ItemStack[oldContents.length];
+					    for (int index = 0; index < contents.length; index++) {
+					    	contents[index] = oldContents[index].clone();
+						}
+
+					    int computeAmountsToRemove = 1;
+
+					    // In case of shift-click, we need to count how many transfers we can do
+					    if (action == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
+
+					    	event.setResult(Result.DENY);
+
+					    	amountTestLoop:
+					    	while (computeAmountsToRemove < 64) {
+					    		for (IngredientEntry entry : customCrafting) {
+					    			if (contents[entry.itemIndex + 1].getAmount() >= entry.ingredient.getAmount() * (computeAmountsToRemove + 1)) {
+					    				continue;
+									}
+					    			break amountTestLoop;
+								}
+					    		computeAmountsToRemove++;
 							}
 						}
-						
-						ItemStack currentItem = event.getCurrentItem().clone();
-						
-						// Weird shit happens if I don't delay this action
-						Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () -> {
-							
-							event.getWhoClicked().getWorld().dropItem(
-									event.getWhoClicked().getLocation(), 
-									currentItem
-							);
-							
-							for (int index = 0; index < contents.length; index++) {
-								contents[index].setAmount(contentSizes[index]);
-							}
-						});
-						
-					} else if (action == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
-						// This block deals with shift clicks on the result slot
-						int amountPerCraft = event.getCurrentItem().getAmount();
-						int minAmount = 64;
-						ItemStack[] contents = event.getInventory().getContents();
-						ItemStack result = contents[0].clone();
-						for (int index = 1; index < contents.length; index++)
-							if (!ItemHelper.getMaterialName(contents[index]).equals(CIMaterial.AIR.name()) && contents[index].getAmount() < minAmount)
-								minAmount = contents[index].getAmount();
-						event.setResult(Result.DENY);
-						for (int index = 1; index < contents.length; index++)
-							contents[index].setAmount(contents[index].getAmount() - minAmount);
-						event.getInventory().setItem(0, ItemHelper.createStack(CIMaterial.AIR.name(), 1));
-						CustomItem customResult = set().getItem(result);
-						int amountToGive = amountPerCraft * minAmount;
-						if (customResult != null && !customResult.canStack()) {
-							for (int counter = 0; counter < amountToGive; counter++) {
-								event.getWhoClicked().getInventory().addItem(result);
-							}
-						} else {
-							int maxStacksize = customResult == null ? 64 : customResult.getMaxStacksize();
-							for (int counter = 0; counter < amountToGive; counter += maxStacksize) {
-								int left = amountToGive - counter;
-								if (left > maxStacksize) {
-									result.setAmount(maxStacksize);
-									event.getWhoClicked().getInventory().addItem(result);
-								} else {
-									result.setAmount(left);
-									event.getWhoClicked().getInventory().addItem(result);
-									break;
+
+					    // In case of 'nothing', we need to check if we really can't do anything
+						// This is needed for handling stackable custom items
+						if (action == InventoryAction.NOTHING) {
+
+							computeAmountsToRemove = 0;
+
+							ItemStack cursor = event.getCursor();
+							ItemStack current = event.getCurrentItem();
+
+							ItemSet set = set();
+							CustomItem customCursor = set.getItem(cursor);
+							CustomItem customCurrent = set.getItem(current);
+
+							if (customCursor != null && customCursor == customCurrent) {
+								if (customCursor.canStack() && cursor.getAmount() + current.getAmount() <= customCursor.getMaxStacksize()) {
+									computeAmountsToRemove = 1;
 								}
 							}
 						}
-					} else if (action == InventoryAction.NOTHING) {
-						// This case is possible when a custom item is on the cursor because it isn't
-						// really stackable
+
+						int baseAmountsToRemove = computeAmountsToRemove;
 						ItemStack cursor = event.getCursor();
-						ItemStack current = event.getCurrentItem();
-						
-						ItemSet set = set();
-						CustomItem customCursor = set.getItem(cursor);
-						CustomItem customCurrent = set.getItem(current);
-						
-						if (customCursor != null && customCursor == customCurrent) {
-							CustomItem custom = customCursor;
-							
-							if (custom != null && custom.canStack()
-									&& cursor.getAmount() + current.getAmount() <= custom.getMaxStacksize()) {
-								Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
-									ItemStack[] contents = event.getInventory().getContents();
-									for (int index = 1; index < contents.length; index++) {
-										if (contents[index].getAmount() > 1)
-											contents[index].setAmount(contents[index].getAmount() - 1);
-										else
-											contents[index] = null;
+						ItemStack currentItem = event.getCurrentItem();
+
+						if (computeAmountsToRemove > 0) {
+							Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () -> {
+
+								// Decrease the stack sizes of all consumed ingredients
+								for (IngredientEntry entry : customCrafting) {
+									if (entry.ingredient.getRemainingItem() == null) {
+										ItemStack slotItem = contents[entry.itemIndex + 1];
+										slotItem.setAmount(slotItem.getAmount() - entry.ingredient.getAmount() * baseAmountsToRemove);
+									} else {
+										contents[entry.itemIndex + 1] = entry.ingredient.getRemainingItem();
 									}
-									event.getInventory().setContents(contents);
-									cursor.setAmount(cursor.getAmount() + current.getAmount());
+								}
+
+								if (action == InventoryAction.NOTHING) {
+									cursor.setAmount(cursor.getAmount() + currentItem.getAmount());
 									event.getView().getPlayer().setItemOnCursor(cursor);
+								}
+
+								if (action == InventoryAction.DROP_ONE_SLOT) {
+									event.getWhoClicked().getWorld().dropItem(
+											event.getWhoClicked().getLocation(),
+											currentItem
+									);
+								}
+
+								if (action == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
+									ItemStack result = currentItem.clone();
+									event.getInventory().setItem(0, ItemHelper.createStack(CIMaterial.AIR.name(), 1));
+									CustomItem customResult = set().getItem(result);
+									int amountToGive = baseAmountsToRemove;
+
+									if (customResult != null && !customResult.canStack()) {
+										for (int counter = 0; counter < amountToGive; counter++) {
+											event.getWhoClicked().getInventory().addItem(result);
+										}
+									} else {
+										int maxStacksize = customResult == null ? 64 : customResult.getMaxStacksize();
+										for (int counter = 0; counter < amountToGive; counter += maxStacksize) {
+											int left = amountToGive - counter;
+											if (left > maxStacksize) {
+												result.setAmount(maxStacksize);
+												event.getWhoClicked().getInventory().addItem(result);
+											} else {
+												result.setAmount(left);
+												event.getWhoClicked().getInventory().addItem(result);
+												break;
+											}
+										}
+									}
+								}
+
+								event.getInventory().setContents(contents);
+
+								if (action == InventoryAction.NOTHING) {
 									beforeCraft((CraftingInventory) event.getInventory(), event.getView().getPlayer());
-								});
-							}
+								}
+							});
 						}
 					} else {
 						// Maybe, there is some edge case I don't know about, so cancel it just to be
@@ -1961,7 +2056,7 @@ public class CustomItemsEventHandler implements Listener {
 								player.setExp(player.getExp());
 							}
 						});
-					} else if (custom != null && event.getView().getPlayer() instanceof Player) {
+					} else if (event.getView().getPlayer() instanceof Player) {
 						Player player = (Player) event.getView().getPlayer();
 						int repairCost = ai.getRepairCost();
 						if (player.getLevel() >= repairCost) {
@@ -1971,16 +2066,31 @@ public class CustomItemsEventHandler implements Listener {
 							if (custom instanceof CustomTool && contents[1] != null
 									&& !ItemHelper.getMaterialName(contents[1]).equals(CIMaterial.AIR.name())) {
 								CustomTool tool = (CustomTool) custom;
-								if (tool.getRepairItem().accept(contents[1])) {
+
+								// Use acceptSpecific because we need to handle remaining item differently
+								if (tool.getRepairItem().acceptSpecific(contents[1])) {
 									long durability = tool.getDurability(contents[0]);
 									long maxDurability = tool.getMaxDurability();
 									long neededDurability = maxDurability - durability;
-									int neededAmount = (int) Math.ceil(neededDurability * 4.0 / maxDurability);
-									int usedAmount = Math.min(neededAmount, contents[1].getAmount());
-									if (usedAmount < contents[1].getAmount())
-										contents[1].setAmount(contents[1].getAmount() - usedAmount);
-									else
+									int neededAmount = (int) Math.ceil(neededDurability * 4.0 / maxDurability) * tool.getRepairItem().getAmount();
+
+									int repairValue = Math.min(neededAmount, contents[1].getAmount()) / tool.getRepairItem().getAmount();
+									int usedAmount = repairValue * tool.getRepairItem().getAmount();
+
+									// If there is a remaining item, we can only proceed if the entire repair item stack is consumed
+									Ingredient repairItem = tool.getRepairItem();
+									if (repairValue > 0 && (repairItem.getRemainingItem() == null || repairValue * repairItem.getAmount() == contents[1].getAmount())) {
+										if (usedAmount < contents[1].getAmount()) {
+											contents[1].setAmount(contents[1].getAmount() - usedAmount);
+										} else {
+											contents[1] = tool.getRepairItem().cloneRemainingItem();
+											if (tool.getRepairItem().getRemainingItem() != null) {
+												contents[1].setAmount(contents[1].getAmount() * repairValue);
+											}
+										}
+									} else {
 										contents[1] = null;
+									}
 								} else {
 									contents[1] = null;
 								}
@@ -2221,12 +2331,25 @@ public class CustomItemsEventHandler implements Listener {
 		}
 	}
 
-	@EventHandler(priority = EventPriority.HIGH)
-	public void beforeCraft(PrepareItemCraftEvent event) {
-		beforeCraft(event.getInventory(), event.getView().getPlayer());
+	@EventHandler
+	public void triggerCraftingHandler(InventoryClickEvent event) {
+		if (event.getInventory() instanceof CraftingInventory) {
+			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () -> {
+				beforeCraft((CraftingInventory) event.getInventory(), event.getView().getPlayer());
+			});
+		}
 	}
 
-	public void beforeCraft(CraftingInventory inventory, HumanEntity owner) {
+	@EventHandler
+	public void triggerCraftingHandler(InventoryDragEvent event) {
+		if (event.getInventory() instanceof CraftingInventory) {
+			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () -> {
+				beforeCraft((CraftingInventory) event.getInventory(), event.getView().getPlayer());
+			});
+		}
+	}
+
+	private void beforeCraft(CraftingInventory inventory, HumanEntity owner) {
 		ItemStack result = inventory.getResult();
 
 		// Block vanilla recipes that attempt to use custom items
@@ -2248,24 +2371,40 @@ public class CustomItemsEventHandler implements Listener {
 			ingredients = Arrays.copyOfRange(ingredients, 1, ingredients.length);
 
 			// Shaped recipes first because they have priority
-			for (int index = 0; index < recipes.length; index++) {
-				if (recipes[index] instanceof ShapedCustomRecipe && recipes[index].shouldAccept(ingredients)) {
-					inventory.setResult(recipes[index].getResult());
-					shouldInterfere.put(owner.getUniqueId(), true);
-					return;
+			for (CustomRecipe recipe : recipes) {
+				if (recipe instanceof ShapedCustomRecipe) {
+					List<IngredientEntry> ingredientMapping = recipe.shouldAccept(ingredients);
+					if (ingredientMapping != null) {
+						inventory.setResult(recipe.getResult());
+						inventory.getViewers().forEach(viewer -> {
+							if (viewer instanceof Player) {
+								((Player) viewer).updateInventory();
+							}
+						});
+						shouldInterfere.put(owner.getUniqueId(), ingredientMapping);
+						return;
+					}
 				}
 			}
 
 			// No shaped recipe fits, so try the shapeless recipes
-			for (int index = 0; index < recipes.length; index++) {
-				if (recipes[index] instanceof ShapelessCustomRecipe && recipes[index].shouldAccept(ingredients)) {
-					inventory.setResult(recipes[index].getResult());
-					shouldInterfere.put(owner.getUniqueId(), true);
-					return;
+			for (CustomRecipe recipe : recipes) {
+				if (recipe instanceof ShapelessCustomRecipe) {
+					List<IngredientEntry> ingredientMapping = recipe.shouldAccept(ingredients);
+					if (ingredientMapping != null) {
+						inventory.setResult(recipe.getResult());
+						inventory.getViewers().forEach(viewer -> {
+							if (viewer instanceof Player) {
+								((Player) viewer).updateInventory();
+							}
+						});
+						shouldInterfere.put(owner.getUniqueId(), ingredientMapping);
+						return;
+					}
 				}
 			}
 		}
-		shouldInterfere.put(owner.getUniqueId(), false);
+		shouldInterfere.remove(owner.getUniqueId());
 	}
 
 	private boolean fixCustomItemPickup(final ItemStack stack, ItemStack[] contents) {
@@ -2323,35 +2462,21 @@ public class CustomItemsEventHandler implements Listener {
 	
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled=true)
 	public void upgradeMobEquipment(CreatureSpawnEvent event) {
-		EntityEquipment equipment = event.getEntity().getEquipment();
 		ItemUpdater updater = plugin().getItemUpdater();
-		
-		ItemStack oldMainHand = equipment.getItemInMainHand();
-		ItemStack newMainHand = updater.maybeUpdate(oldMainHand);
-		if (oldMainHand != newMainHand) {
-			equipment.setItemInMainHand(newMainHand);
-		}
-		
-		ItemStack oldOffHand = equipment.getItemInOffHand();
-		ItemStack newOffHand = updater.maybeUpdate(oldOffHand);
-		if (oldOffHand != newOffHand) {
-			equipment.setItemInOffHand(newOffHand);
-		}
-		
-		ItemStack[] oldArmor = equipment.getArmorContents();
-		ItemStack[] newArmor = new ItemStack[oldArmor.length];
-		boolean updateArmor = false;
-		for (int index = 0; index < oldArmor.length; index++) {
-			ItemStack oldPiece = oldArmor[index];
-			ItemStack newPiece = updater.maybeUpdate(oldPiece);
-			if (oldPiece != newPiece) {
-				updateArmor = true;
-			}
-			newArmor[index] = newPiece;
-		}
-		
-		if (updateArmor) {
-			equipment.setArmorContents(newArmor);
+		updater.updateEquipment(event.getEntity().getEquipment());
+
+		/*
+		 * This (somewhat dirty) code improves the integration with MythicMobs. For some reason,
+		 * when a mythic mob is spawned with items, the items are given ~10 ticks after the mob
+		 * is spawned. I don't know why this is, but I had better deal with it because MythicMobs
+		 * is a very popular plug-in. I do multiple attempts because I don't want to rely on a single
+		 * magic value. Note: even if all attempts are too early, the ItemUpdater will kick in within
+		 * 5 seconds.
+		 */
+        for (int attempt = 1; attempt < 8; attempt++) {
+			Bukkit.getScheduler().scheduleSyncDelayedTask(
+					plugin(), () -> updater.updateEquipment(event.getEntity().getEquipment()), attempt * 4
+			);
 		}
 	}
 
@@ -2499,6 +2624,169 @@ public class CustomItemsEventHandler implements Listener {
 						stack.setAmount(0);
 					}
 				}
+			}
+		}
+	}
+
+	@EventHandler
+	public void maintainCustomBlocks(BlockPhysicsEvent event) {
+	    if (MushroomBlocks.areEnabled() && MushroomBlockHelper.isMushroomBlock(event.getBlock())) {
+	    	event.setCancelled(true);
+		}
+	}
+
+	@EventHandler
+	public void handleCustomBlockPlacements(PlayerInteractEvent event) {
+		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+
+			ItemSet set = set();
+			CustomItem usedItem = set.getItem(event.getItem());
+			if (usedItem instanceof CustomBlockItem) {
+				CustomBlockItem blockItem = (CustomBlockItem) usedItem;
+				CustomBlockView block = blockItem.getBlock();
+
+				Block destination = event.getClickedBlock().getRelative(event.getBlockFace());
+				Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () -> {
+					if (destination.isEmpty() || destination.isLiquid()) {
+					    if (destination.getWorld().getNearbyEntities(destination.getLocation().add(0.5, 0.5, 0.5), 0.5, 0.5, 0.5).isEmpty()) {
+
+					    	ItemStack newItemStack;
+					    	if (event.getHand() == EquipmentSlot.HAND) {
+					    		newItemStack = event.getPlayer().getInventory().getItemInMainHand();
+							} else {
+					    		newItemStack = event.getPlayer().getInventory().getItemInOffHand();
+							}
+
+					    	if (set.getItem(newItemStack) == usedItem) {
+								BlockPlaceEvent placeEvent = new BlockPlaceEvent(
+										destination, destination.getState(), event.getClickedBlock(),
+										newItemStack, event.getPlayer(), true, event.getHand()
+								);
+								Bukkit.getPluginManager().callEvent(placeEvent);
+
+								if (placeEvent.canBuild() && !placeEvent.isCancelled()) {
+									MushroomBlockHelper.place(destination, block);
+
+									if (event.getPlayer().getGameMode() != GameMode.CREATIVE) {
+										event.getItem().setAmount(event.getItem().getAmount() - 1);
+									}
+								}
+							}
+						}
+					}
+				});
+			}
+		}
+	}
+
+	@EventHandler
+	public void handleCustomBlockDrops(BlockBreakEvent event) {
+		if (MushroomBlocks.areEnabled()) {
+		    CustomBlockView customBlock = MushroomBlockHelper.getMushroomBlock(event.getBlock());
+		    if (customBlock != null) {
+				event.setDropItems(false);
+
+				Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () ->
+						dropCustomBlockDrops(
+								customBlock,
+								event.getBlock().getLocation(),
+								event.getPlayer().getInventory().getItemInMainHand()
+						)
+				);
+			}
+		}
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void handleCustomBlockDrops(BlockExplodeEvent event) {
+		handleExplosion(event.blockList(), event.getYield());
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void handleCustomBlockDrops(EntityExplodeEvent event) {
+		handleExplosion(event.blockList(), event.getYield());
+	}
+
+	private void handleExplosion(Collection<Block> blockList, float yield) {
+		if (MushroomBlocks.areEnabled()) {
+			Random rng = new Random();
+			for (Block block : blockList) {
+				CustomBlockView customBlock = MushroomBlockHelper.getMushroomBlock(block);
+				if (customBlock != null) {
+
+					// This will cause the block to be 'removed' before the explosion starts, which will
+					// prevent it from dropping mushrooms
+					block.setType(Material.AIR);
+
+					// This will cause the custom block to drop the right drops
+					if (yield > rng.nextFloat()) {
+						Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () ->
+								dropCustomBlockDrops(customBlock, block.getLocation(), null)
+						);
+					}
+				}
+			}
+		}
+	}
+
+	private void dropCustomBlockDrops(CustomBlockView block, Location location, ItemStack usedTool) {
+		Random rng = new Random();
+
+		for (CustomBlockDrop blockDrop : block.getValues().getDrops()) {
+
+		    boolean usedSilkTouch = false;
+		    CIMaterial usedMaterial = CIMaterial.AIR;
+			CustomItem usedCustomItem = null;
+
+		    if (!ItemUtils.isEmpty(usedTool)) {
+		    	usedSilkTouch = usedTool.containsEnchantment(SILK_TOUCH);
+		    	usedMaterial = CIMaterial.valueOf(ItemHelper.getMaterialName(usedTool));
+		    	usedCustomItem = set().getItem(usedTool);
+			}
+
+		    if (usedSilkTouch && blockDrop.getSilkTouchRequirement() == SilkTouchRequirement.FORBIDDEN) {
+		    	continue;
+			}
+		    if (!usedSilkTouch && blockDrop.getSilkTouchRequirement() == SilkTouchRequirement.REQUIRED) {
+		    	continue;
+			}
+
+			RequiredItems ri = blockDrop.getRequiredItems();
+		    if (ri.isEnabled()) {
+
+				boolean matchesVanillaItem = false;
+				for (RequiredItems.VanillaEntry vanillaEntry : ri.getVanillaItems()) {
+					if (vanillaEntry.material == usedMaterial) {
+						if (vanillaEntry.allowCustom || usedCustomItem == null) {
+							matchesVanillaItem = true;
+							break;
+						}
+					}
+				}
+
+				boolean matchesCustomItem = false;
+				for (Object candidateItem : ri.getCustomItems()) {
+					if (candidateItem == usedCustomItem) {
+						matchesCustomItem = true;
+						break;
+					}
+				}
+
+				boolean matchesAny = matchesVanillaItem || matchesCustomItem;
+				if (matchesAny == ri.isInverted()) {
+
+				    /*
+				     * If ri.isInverted(), we should drop items IFF there is NO match. If not ri.isInverted(),
+				     * we should drop items IFF there is a match. If we shouldn't drop an item, we should
+				     * continue with the next drop.
+				     */
+					continue;
+				}
+			}
+
+			ItemStack itemToDrop = (ItemStack) blockDrop.getItemsToDrop().pickResult(rng);
+		    if (itemToDrop != null) {
+		    	location.getWorld().dropItemNaturally(location, itemToDrop);
 			}
 		}
 	}

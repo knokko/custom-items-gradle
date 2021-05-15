@@ -48,6 +48,8 @@ public class ItemCollectionEdit extends CollectionEdit<CustomItem> {
 			CustomItem secondParam = copy ? null : item;
 			if (item instanceof CustomBow)
 				return new EditItemBow(menu, (CustomBow) item, (CustomBow) secondParam);
+			else if (item instanceof CustomCrossbow)
+				return new EditItemCrossbow(menu, (CustomCrossbow) item, (CustomCrossbow) secondParam);
 			else if (item instanceof CustomHelmet3D)
 				return new EditItemHelmet3D(menu, (CustomArmor) item, (CustomArmor) secondParam);
 			else if (item instanceof CustomArmor)
@@ -64,8 +66,16 @@ public class ItemCollectionEdit extends CollectionEdit<CustomItem> {
 				return new EditItemTool(menu, (CustomTool) item, (CustomTool) secondParam, item.getItemType().getMainCategory());
 			else if (item instanceof CustomWand)
 				return new EditItemWand(menu, (CustomWand) item, (CustomWand) secondParam);
+			else if (item instanceof CustomGun)
+				return new EditItemGun(menu, (CustomGun) item, (CustomGun) secondParam);
+			else if (item instanceof CustomPocketContainer)
+				return new EditItemPocketContainer(menu, (CustomPocketContainer) item, (CustomPocketContainer) secondParam);
 			else if (item instanceof SimpleCustomItem)
 				return new EditItemSimple(menu, (SimpleCustomItem) item, (SimpleCustomItem) secondParam);
+			else if (item instanceof CustomFood)
+				return new EditItemFood(menu, (CustomFood) item, (CustomFood) secondParam);
+			else if (item instanceof CustomBlockItem)
+				return new EditItemBlock(menu, (CustomBlockItem) item, (CustomBlockItem) secondParam);
 			else
 				throw new IllegalArgumentException("Unsupported custom item class: " + item.getClass());
 		}

@@ -29,11 +29,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.imageio.ImageIO;
 
-import nl.knokko.customitems.editor.set.item.NamedImage;
+import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
@@ -43,20 +44,10 @@ public class BowTextures extends NamedImage {
 
 	public BowTextures(String name, BufferedImage texture, Entry[] entries) {
 		super(name, texture);
-		this.entries = new ArrayList<Entry>(entries.length);
-		for (Entry entry : entries) {
-			this.entries.add(entry);
-		}
+		this.entries = new ArrayList<>(entries.length);
+		Collections.addAll(this.entries, entries);
 	}
-	
-	public BowTextures(String name, BufferedImage texture) {
-		super(name, texture);
-		entries = new ArrayList<Entry>(3);
-		entries.add(new Entry(null, 0));
-		entries.add(new Entry(null, 0.65));
-		entries.add(new Entry(null, 0.9));
-	}
-	
+
 	public BowTextures(BitInput input, boolean expectCompressed) throws IOException {
 		super(input, expectCompressed);
 		int size = input.readInt();

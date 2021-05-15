@@ -23,9 +23,13 @@
  *******************************************************************************/
 package nl.knokko.customitems.editor;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 
+import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileSystemView;
 
 import nl.knokko.customitems.editor.SystemTests.SystemTestResult;
@@ -75,8 +79,21 @@ public class Editor {
 			System.err.println("The system tests failed: " + systemTestResult);
 			window.setMainComponent(new SystemTestFailureMenu(systemTestResult, 1));
 		}
-		
-		window.open("Custom Items Editor", true);
+
+		BufferedImage icon = null;
+		try {
+			InputStream iconStream = Editor.class.getClassLoader().getResourceAsStream("nl/knokko/customitems/editor/icon.png");
+			if (iconStream != null) {
+				icon = ImageIO.read(iconStream);
+				iconStream.close();
+			} else {
+				System.err.println("Couldn't find Editor icon");
+			}
+		} catch (IOException io) {
+			System.err.println("Failed to find Editor icon:");
+			io.printStackTrace();
+		}
+		window.open("Custom Items Editor", true, icon);
 		window.run(30);
 	}
 	

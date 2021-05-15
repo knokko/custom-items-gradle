@@ -80,7 +80,7 @@ public class InputSlotComponent implements GuiComponent {
 		// Update text
 		String bottomText = newIngredient == null ? "" : newIngredient.toString("");
 		
-		int maxLength = 12;
+		int maxLength = 18;
 		if (bottomText.length() > maxLength) {
 			bottomText = bottomText.substring(0, maxLength);
 		}

@@ -40,9 +40,15 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 
+import nl.knokko.core.plugin.block.MushroomBlocks;
+import nl.knokko.customitems.block.CustomBlockView;
+import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
 import nl.knokko.customitems.plugin.set.item.CustomTool;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.block.CommandBlock;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -173,7 +179,7 @@ public class CommandCustomItems implements CommandExecutor {
 					
 					CustomItem[] items = set.getBackingItems();
 					if (items.length > 0) {
-						sender.sendMessage("All custom items:");
+						sender.sendMessage(ChatColor.AQUA + "All custom items:");
 						for (CustomItem item : items) {
 							if (item.getAlias().isEmpty()) {
 								sender.sendMessage(item.getName());
@@ -183,6 +189,15 @@ public class CommandCustomItems implements CommandExecutor {
 						}
 					} else {
 						sender.sendMessage(ChatColor.RED + "There are 0 custom items");
+					}
+
+					if (set.getBlocks().size() > 0) {
+						sender.sendMessage(ChatColor.AQUA + "All custom blocks:");
+						for (CustomBlockView block : set.getBlocks()) {
+							sender.sendMessage(block.getValues().getName());
+						}
+					} else {
+						sender.sendMessage(ChatColor.AQUA + "There are 0 custom blocks");
 					}
 					break;
 				}
@@ -307,6 +322,7 @@ public class CommandCustomItems implements CommandExecutor {
 						sender.sendMessage("There are " + set.getNumRecipes() + " custom crafting recipes");
 						sender.sendMessage("There are " + set.getNumProjectiles() + " custom projectiles");
 						sender.sendMessage("There are " + set.getNumContainers() + " custom containers");
+						sender.sendMessage("There are " + set.getBlocks().size() + " custom blocks");
 
 						File serverProperties = new File("server.properties");
 						String resourcePackUrl = "";
@@ -483,6 +499,95 @@ public class CommandCustomItems implements CommandExecutor {
 					}
 					break;
 				}
+				case "setblock": {
+					if (!sender.hasPermission("customitems.setblock")) {
+						sender.sendMessage(ChatColor.DARK_RED + "You don't have access to this command");
+						return true;
+					}
+
+					if (args.length < 2 || args.length > 6) {
+						sender.sendMessage(ChatColor.RED + "You should use /kci setblock <block> [x] [y] [z] [world]");
+						return true;
+					}
+
+                    if (!MushroomBlocks.areEnabled()) {
+                    	sender.sendMessage(ChatColor.RED + "Custom blocks are not possible in this minecraft version");
+                    	return true;
+					}
+
+					CustomBlockView block = null;
+					for (CustomBlockView candidate : CustomItemsPlugin.getInstance().getSet().getBlocks()) {
+						if (candidate.getValues().getName().equals(args[1])) {
+							block = candidate;
+							break;
+						}
+					}
+
+					if (block == null) {
+						sender.sendMessage(ChatColor.RED + "There is no custom block with name '" + args[1] + "'");
+						return true;
+					}
+
+					Location senderLocation;
+					if (sender instanceof Player) {
+						senderLocation = ((Player) sender).getLocation();
+					} else if (sender instanceof CommandBlock) {
+						senderLocation = ((CommandBlock) sender).getLocation();
+					} else {
+						senderLocation = null;
+					}
+
+					if (args.length < 6 && senderLocation == null) {
+						sender.sendMessage("You should use /kci setblock <block> <x> <y> <z> <world>");
+						return true;
+					}
+
+					int x, y, z;
+					World world;
+
+					Integer parsedX = getCoordinate(
+							senderLocation == null ? null : senderLocation.getBlockX(), args,
+							2, "x", sender
+					);
+					if (parsedX != null) {
+						x = parsedX;
+					} else {
+						return true;
+					}
+
+					Integer parsedY = getCoordinate(
+							senderLocation == null ? null : senderLocation.getBlockY(), args,
+							3, "y", sender
+					);
+					if (parsedY != null) {
+						y = parsedY;
+					} else {
+						return true;
+					}
+
+					Integer parsedZ = getCoordinate(
+							senderLocation == null ? null : senderLocation.getBlockZ(), args,
+							4, "z", sender
+					);
+					if (parsedZ != null) {
+						z = parsedZ;
+					} else {
+						return true;
+					}
+
+					if (args.length >= 6) {
+						world = Bukkit.getWorld(args[5]);
+						if (world == null) {
+							sender.sendMessage(ChatColor.RED + "There is no world with name '" + args[5] + "'");
+							return true;
+						}
+					} else {
+						world = senderLocation.getWorld();
+					}
+
+					MushroomBlockHelper.place(world.getBlockAt(x, y, z), block);
+					break;
+				}
 				case "encode":
 					if (!sender.hasPermission("customitems.encode")) {
 						sender.sendMessage(ChatColor.DARK_RED + "You don't have access to this command.");
@@ -519,5 +624,31 @@ public class CommandCustomItems implements CommandExecutor {
 			}
 		}
 		return true;
+	}
+
+	private static Integer getCoordinate(
+			Integer current, String[] arguments, int argIndex,
+			String description, CommandSender sender
+	) {
+		if (argIndex >= arguments.length) {
+			return current;
+		}
+
+		String coordinateString = arguments[argIndex];
+		int offset = 0;
+		if (coordinateString.startsWith("~") && current != null) {
+			offset = current;
+			coordinateString = coordinateString.substring(1);
+			if (coordinateString.isEmpty()) {
+				return offset;
+			}
+		}
+
+		try {
+			return Integer.parseInt(coordinateString) + offset;
+		} catch (NumberFormatException invalid) {
+			sender.sendMessage(ChatColor.RED + "The <" + description + "> (" + coordinateString + ") is not an integer");
+			return null;
+		}
 	}
 }

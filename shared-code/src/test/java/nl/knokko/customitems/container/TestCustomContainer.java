@@ -1,23 +1,14 @@
 package nl.knokko.customitems.container;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import nl.knokko.customitems.container.slot.*;
 import org.junit.Test;
 
 import nl.knokko.customitems.container.fuel.CustomFuelRegistry;
 import nl.knokko.customitems.container.fuel.FuelMode;
-import nl.knokko.customitems.container.slot.CustomSlot;
-import nl.knokko.customitems.container.slot.FuelCustomSlot;
-import nl.knokko.customitems.container.slot.FuelIndicatorCustomSlot;
-import nl.knokko.customitems.container.slot.InputCustomSlot;
-import nl.knokko.customitems.container.slot.OutputCustomSlot;
-import nl.knokko.customitems.container.slot.ProgressIndicatorCustomSlot;
 import nl.knokko.customitems.container.slot.display.CustomItemDisplayItem;
 import nl.knokko.customitems.container.slot.display.DataVanillaDisplayItem;
 import nl.knokko.customitems.container.slot.display.SimpleVanillaDisplayItem;
@@ -31,6 +22,8 @@ import nl.knokko.customitems.test.DummyIngredient;
 import nl.knokko.customitems.test.TestCustomItem;
 import nl.knokko.customitems.test.TestHelper;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
+
+import static org.junit.Assert.*;
 
 public class TestCustomContainer {
 	
@@ -52,8 +45,8 @@ public class TestCustomContainer {
 						result -> output.addInt(((DummyIngredient)result).getId())),
 				input -> {
 					try {
-						CustomContainer container = CustomContainer.load(input, 
-								name -> new TestCustomItem(name), 
+						CustomContainer container = CustomContainer.load(input,
+								TestCustomItem::new,
 								name -> new CustomFuelRegistry(name, new ArrayList<>(0)), 
 								() -> new DummyIngredient(input.readInt()), 
 								() -> new DummyIngredient(input.readInt()));
@@ -151,6 +144,21 @@ public class TestCustomContainer {
 							assertEquals(1, indicator.getDomain().getBegin());
 							assertEquals(2, indicator.getDomain().getEnd());
 						}
+
+						{
+							StorageCustomSlot simpleStorage = (StorageCustomSlot) container.getSlot(4, 1);
+							assertNull(simpleStorage.getPlaceHolder());
+						}
+
+						{
+							StorageCustomSlot displayStorage = (StorageCustomSlot) container.getSlot(0, 1);
+							SlotDisplay display = displayStorage.getPlaceHolder();
+							SimpleVanillaDisplayItem displayItem = (SimpleVanillaDisplayItem) display.getItem();
+							assertEquals(CIMaterial.BAMBOO, displayItem.getMaterial());
+							assertEquals("Bamboo store", display.getDisplayName());
+							assertArrayEquals(new String[] {"Bamboo", "Storage"}, display.getLore());
+							assertEquals(3, display.getAmount());
+						}
 					} catch (UnknownEncodingException e) {
 						throw new Error(e);
 					}
@@ -199,6 +207,11 @@ public class TestCustomContainer {
 						"ColoredWool", new String[] {
 								"This wool has some color", "But I don't know which"
 				}, 3), new IndicatorDomain(15, 25));
+		slots[4][1] = new StorageCustomSlot(null);
+		slots[0][1] = new StorageCustomSlot(new SlotDisplay(
+				new SimpleVanillaDisplayItem(CIMaterial.BAMBOO),
+				"Bamboo store", new String[] {"Bamboo", "Storage"}, 3
+		));
 		slots[5][0] = new ProgressIndicatorCustomSlot(
 				new SlotDisplay(new CustomItemDisplayItem(new TestCustomItem("test_item")), "", new String[0], 5), 
 				new SlotDisplay(new CustomItemDisplayItem(new TestCustomItem("another")), "", new String[0], 2),

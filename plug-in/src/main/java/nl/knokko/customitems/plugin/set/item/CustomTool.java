@@ -25,6 +25,7 @@ package nl.knokko.customitems.plugin.set.item;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
@@ -138,16 +139,23 @@ public class CustomTool extends CustomItem {
         	itemLore.add(createDurabilityLine(currentDurability, maxDurability));
         	itemLore.add("");
         }
-        for (String s : lore)
-    		itemLore.add(s);
+		Collections.addAll(itemLore, lore);
         
-        // Interesting item:
         return itemLore;
 	}
 	
 	public ItemStack create(int amount, long durability) {
 		if (amount != 1) throw new IllegalArgumentException("Amount must be 1, but is " + amount);
-		return super.create(amount, createLore(durability));
+		ItemStack partialResult = super.create(amount, createLore(durability));
+		ItemStack[] pResult = {partialResult};
+
+		if (!this.isUnbreakable()) {
+			CustomItemNBT.readWrite(partialResult, nbt -> {
+				nbt.setDurability(durability);
+			}, result -> pResult[0] = result);
+		}
+
+		return pResult[0];
 	}
 	
 	@Override
