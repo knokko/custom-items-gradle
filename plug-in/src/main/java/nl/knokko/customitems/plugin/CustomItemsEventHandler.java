@@ -2462,35 +2462,21 @@ public class CustomItemsEventHandler implements Listener {
 	
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled=true)
 	public void upgradeMobEquipment(CreatureSpawnEvent event) {
-		EntityEquipment equipment = event.getEntity().getEquipment();
 		ItemUpdater updater = plugin().getItemUpdater();
-		
-		ItemStack oldMainHand = equipment.getItemInMainHand();
-		ItemStack newMainHand = updater.maybeUpdate(oldMainHand);
-		if (oldMainHand != newMainHand) {
-			equipment.setItemInMainHand(newMainHand);
-		}
-		
-		ItemStack oldOffHand = equipment.getItemInOffHand();
-		ItemStack newOffHand = updater.maybeUpdate(oldOffHand);
-		if (oldOffHand != newOffHand) {
-			equipment.setItemInOffHand(newOffHand);
-		}
-		
-		ItemStack[] oldArmor = equipment.getArmorContents();
-		ItemStack[] newArmor = new ItemStack[oldArmor.length];
-		boolean updateArmor = false;
-		for (int index = 0; index < oldArmor.length; index++) {
-			ItemStack oldPiece = oldArmor[index];
-			ItemStack newPiece = updater.maybeUpdate(oldPiece);
-			if (oldPiece != newPiece) {
-				updateArmor = true;
-			}
-			newArmor[index] = newPiece;
-		}
-		
-		if (updateArmor) {
-			equipment.setArmorContents(newArmor);
+		updater.updateEquipment(event.getEntity().getEquipment());
+
+		/*
+		 * This (somewhat dirty) code improves the integration with MythicMobs. For some reason,
+		 * when a mythic mob is spawned with items, the items are given ~10 ticks after the mob
+		 * is spawned. I don't know why this is, but I had better deal with it because MythicMobs
+		 * is a very popular plug-in. I do multiple attempts because I don't want to rely on a single
+		 * magic value. Note: even if all attempts are too early, the ItemUpdater will kick in within
+		 * 5 seconds.
+		 */
+        for (int attempt = 1; attempt < 8; attempt++) {
+			Bukkit.getScheduler().scheduleSyncDelayedTask(
+					plugin(), () -> updater.updateEquipment(event.getEntity().getEquipment()), attempt * 4
+			);
 		}
 	}
 
