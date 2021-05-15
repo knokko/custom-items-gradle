@@ -2653,24 +2653,42 @@ public class CustomItemsEventHandler implements Listener {
 	public void handleCustomBlockPlacements(PlayerInteractEvent event) {
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 
-			CustomItem usedItem = set().getItem(event.getItem());
+			ItemSet set = set();
+			CustomItem usedItem = set.getItem(event.getItem());
 			if (usedItem instanceof CustomBlockItem) {
 				CustomBlockItem blockItem = (CustomBlockItem) usedItem;
 				CustomBlockView block = blockItem.getBlock();
 
 				Block destination = event.getClickedBlock().getRelative(event.getBlockFace());
-				if (destination.isEmpty() || destination.isLiquid()) {
-					BlockPlaceEvent placeEvent = new BlockPlaceEvent(
-							destination, destination.getState(), event.getClickedBlock(),
-							event.getItem(), event.getPlayer(), true, event.getHand()
-					);
-					Bukkit.getPluginManager().callEvent(placeEvent);
+				Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () -> {
+					if (destination.isEmpty() || destination.isLiquid()) {
+					    if (destination.getWorld().getNearbyEntities(destination.getLocation().add(0.5, 0.5, 0.5), 0.5, 0.5, 0.5).isEmpty()) {
 
-					if (placeEvent.canBuild() && !placeEvent.isCancelled()) {
-						event.getItem().setAmount(event.getItem().getAmount() - 1);
-						MushroomBlockHelper.place(destination, block);
+					    	ItemStack newItemStack;
+					    	if (event.getHand() == EquipmentSlot.HAND) {
+					    		newItemStack = event.getPlayer().getInventory().getItemInMainHand();
+							} else {
+					    		newItemStack = event.getPlayer().getInventory().getItemInOffHand();
+							}
+
+					    	if (set.getItem(newItemStack) == usedItem) {
+								BlockPlaceEvent placeEvent = new BlockPlaceEvent(
+										destination, destination.getState(), event.getClickedBlock(),
+										newItemStack, event.getPlayer(), true, event.getHand()
+								);
+								Bukkit.getPluginManager().callEvent(placeEvent);
+
+								if (placeEvent.canBuild() && !placeEvent.isCancelled()) {
+									MushroomBlockHelper.place(destination, block);
+
+									if (event.getPlayer().getGameMode() != GameMode.CREATIVE) {
+										event.getItem().setAmount(event.getItem().getAmount() - 1);
+									}
+								}
+							}
+						}
 					}
-				}
+				});
 			}
 		}
 	}
