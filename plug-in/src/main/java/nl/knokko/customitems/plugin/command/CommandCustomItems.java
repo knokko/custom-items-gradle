@@ -510,6 +510,11 @@ public class CommandCustomItems implements CommandExecutor {
 						return true;
 					}
 
+                    if (!MushroomBlocks.areEnabled()) {
+                    	sender.sendMessage(ChatColor.RED + "Custom blocks are not possible in this minecraft version");
+                    	return true;
+					}
+
 					CustomBlockView block = null;
 					for (CustomBlockView candidate : CustomItemsPlugin.getInstance().getSet().getBlocks()) {
 						if (candidate.getValues().getName().equals(args[1])) {

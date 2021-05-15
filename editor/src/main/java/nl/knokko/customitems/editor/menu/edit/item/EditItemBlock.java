@@ -53,8 +53,8 @@ public class EditItemBlock extends EditItemBase {
                 0.71f, 0.35f, 0.895f, 0.45f);
         addComponent(maxStacksize, 0.9f, 0.35f, 0.975f, 0.45f);
 
-        // TODO Create the help menu
-        HelpButtons.addHelpLink(this, "edit%20menu/items/edit/block.html");
+        // TODO Test this link after merging the v9 docs into master
+        HelpButtons.addHelpLink(this, "edit menu/items/edit/block.html");
     }
 
     @Override

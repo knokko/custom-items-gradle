@@ -5,6 +5,7 @@ import nl.knokko.customitems.block.CustomBlockView;
 import nl.knokko.customitems.editor.menu.edit.CollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.set.ItemSet;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
@@ -28,7 +29,8 @@ public class BlockCollectionEdit extends CollectionEdit<CustomBlockView> {
             ));
         }), 0.025f, 0.3f, 0.225f, 0.4f);
 
-        // TODO Create help menu
+        // TODO Test this help link after merging v9 docs into master
+        HelpButtons.addHelpLink(this, "edit menu/blocks/overview.html");
     }
 
     private static class BlockActionHandler implements ActionHandler<CustomBlockView> {

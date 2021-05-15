@@ -5,6 +5,7 @@ import nl.knokko.customitems.block.drop.RequiredItems;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.menu.edit.QuickCollectionEdit;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.image.CheckboxComponent;
@@ -59,7 +60,7 @@ public class EditRequiredVanillaItems extends QuickCollectionEdit<RequiredItems.
 
     @Override
     protected String getHelpPage() {
-        // TODO Create help page
-        return null;
+        // TODO Test this help link after merging v9 docs into master
+        return "edit menu/blocks/drops/required vanilla items.html";
     }
 }

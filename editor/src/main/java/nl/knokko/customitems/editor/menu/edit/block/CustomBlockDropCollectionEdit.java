@@ -7,6 +7,7 @@ import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.set.ItemSet;
 import nl.knokko.customitems.editor.set.item.CustomItem;
 import nl.knokko.customitems.editor.set.recipe.result.CustomItemResult;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.recipe.OutputTable;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
@@ -40,7 +41,8 @@ public class CustomBlockDropCollectionEdit extends CollectionEdit<CustomBlockDro
                 ))
         ), 0.025f, 0.2f, 0.2f, 0.3f);
 
-        // TODO Create help menu
+        // TODO Test this help link after merging v9 docs into master
+        HelpButtons.addHelpLink(this, "edit menu/blocks/drops/overview.html");
     }
 
     private static class BlockDropActionHandler implements ActionHandler<CustomBlockDrop> {

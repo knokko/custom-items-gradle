@@ -4,6 +4,7 @@ import nl.knokko.customitems.block.drop.RequiredItems;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.drops.ChooseRequiredHeldItems;
 import nl.knokko.customitems.editor.set.ItemSet;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -65,7 +66,8 @@ public class EditRequiredItems extends GuiMenu  {
             }
         }, 0.26f, 0f, 1f, 0.9f);
 
-        // TODO Create help menu
+        // TODO Test this help link after merging v9 docs into master
+        HelpButtons.addHelpLink(this, "edit menu/blocks/drops/required items.html");
     }
 
     @Override
@@ -82,7 +84,8 @@ public class EditRequiredItems extends GuiMenu  {
             addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () ->
                     state.getWindow().setMainComponent(new ChooseRequiredHeldItems(
                             set.getBackingItems(), requiredItems.getCustomItems(),
-                            requiredItems::setCustomItems, EditRequiredItems.this
+                            requiredItems::setCustomItems, EditRequiredItems.this,
+                            "Custom items are irrelevant"
                     ))
             ), 0.37f, 0.8f, 0.5f, 0.9f);
 

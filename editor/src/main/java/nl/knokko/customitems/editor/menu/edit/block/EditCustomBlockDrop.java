@@ -7,6 +7,7 @@ import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.menu.edit.container.recipe.EditOutputTable;
 import nl.knokko.customitems.editor.set.ItemSet;
 import nl.knokko.customitems.editor.util.Checks;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -95,7 +96,8 @@ public class EditCustomBlockDrop extends GuiMenu  {
                 ))
         ), 0.5f, 0.4f, 0.625f, 0.5f);
 
-        // TODO Create help menu
+        // TODO Test this help link after merging v9 docs into master
+        HelpButtons.addHelpLink(this, "edit menu/blocks/drops/edit.html");
     }
 
     @Override

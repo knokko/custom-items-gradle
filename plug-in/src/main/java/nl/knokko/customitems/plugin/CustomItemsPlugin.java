@@ -28,6 +28,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.logging.Level;
 
+import nl.knokko.core.plugin.block.MushroomBlocks;
 import nl.knokko.core.plugin.item.SmithingBlocker;
 import nl.knokko.customitems.plugin.command.CustomItemsTabCompletions;
 import nl.knokko.customitems.util.StringEncoder;
@@ -199,6 +200,9 @@ public class CustomItemsPlugin extends JavaPlugin {
 		try {
 			// Prevent custom items from being upgraded in a smithing table
 			SmithingBlocker.blockSmithingTableUpgrades(itemStack -> this.getSet().getItem(itemStack) != null);
+
+			// Use a method introduced in the newest KnokkoCore update to check if it is up-to-date
+			MushroomBlocks.areEnabled();
 		} catch (NoClassDefFoundError outdated) {
 			set.addError("It looks like your KnokkoCore is outdated. Please install a newer version.");
 		}

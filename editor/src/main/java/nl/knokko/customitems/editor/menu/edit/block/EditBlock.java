@@ -7,6 +7,7 @@ import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.main.MainMenu;
 import nl.knokko.customitems.editor.set.ItemSet;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -101,7 +102,8 @@ public class EditBlock extends GuiMenu  {
                 "Note: you can create at most " + BlockConstants.MAX_NUM_BLOCKS + " custom blocks",
                 EditProps.LABEL), 0.2f, 0.05f, 0.8f, 0.15f);
 
-        // TODO Add help menu
+        // TODO Test this help link after merging v9 docs into master
+        HelpButtons.addHelpLink(this, "edit menu/blocks/edit.html");
     }
 
     @Override
