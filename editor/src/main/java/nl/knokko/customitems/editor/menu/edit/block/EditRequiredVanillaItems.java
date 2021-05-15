@@ -60,7 +60,6 @@ public class EditRequiredVanillaItems extends QuickCollectionEdit<RequiredItems.
 
     @Override
     protected String getHelpPage() {
-        // TODO Test this help link after merging v9 docs into master
         return "edit menu/blocks/drops/required vanilla items.html";
     }
 }

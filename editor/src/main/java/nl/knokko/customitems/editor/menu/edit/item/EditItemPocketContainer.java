@@ -60,7 +60,6 @@ public class EditItemPocketContainer extends EditItemBase {
             ));
         }), 0.9f, 0.35f, 0.975f, 0.45f);
 
-        // TODO Test this link after merging the docs into master
         HelpButtons.addHelpLink(this, "edit%20menu/items/edit/pocket container.html");
     }
 
@@ -147,7 +146,6 @@ public class EditItemPocketContainer extends EditItemBase {
                 );
             }
 
-            // TODO Test this link after merging the docs into master
             HelpButtons.addHelpLink(this, "edit%20menu/items/edit/pocket container selection.html");
         }
 

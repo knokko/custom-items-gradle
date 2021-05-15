@@ -96,7 +96,6 @@ public class EditCustomBlockDrop extends GuiMenu  {
                 ))
         ), 0.5f, 0.4f, 0.625f, 0.5f);
 
-        // TODO Test this help link after merging v9 docs into master
         HelpButtons.addHelpLink(this, "edit menu/blocks/drops/edit.html");
     }
 

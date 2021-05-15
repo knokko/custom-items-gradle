@@ -118,7 +118,6 @@ public class EditItemFood extends EditItemBase {
                 0.71f, 0.06f, 0.895f, 0.14f);
         addComponent(maxStacksizeField, 0.9f, 0.06f, 0.975f, 0.14f);
 
-        // TODO Test this link after merging v9 docs into master
         HelpButtons.addHelpLink(this, "edit%20menu/items/edit/food.html");
     }
 

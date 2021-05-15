@@ -149,7 +149,6 @@ public class EditAmmoSystem extends GuiMenu {
         addComponent(new AmmoTypeWrapper<>(new IndirectAmmoProperties(), AmmoType.INDIRECT),
                 0.4f, 0f, 1f, 1f);
 
-        // TODO Test this link after merging v9 docs into master
         HelpButtons.addHelpLink(this, "edit%20menu/items/edit/gun%20ammo.html");
     }
 

@@ -128,7 +128,6 @@ public class ChooseIngredient extends GuiMenu {
 			}), 0.6f, 0.25f, 0.8f, 0.35f);
 		}
 
-		// TODO Test this link after merging v9 docs into master
 		HelpButtons.addHelpLink(this, "edit%20menu/recipes/choose ingredient.html");
 	}
 	

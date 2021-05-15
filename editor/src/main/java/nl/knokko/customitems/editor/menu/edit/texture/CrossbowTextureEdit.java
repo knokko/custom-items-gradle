@@ -150,7 +150,6 @@ public class CrossbowTextureEdit extends GuiMenu {
         }), errorComponent, this), 0.475f, 0.15f, 0.55f, 0.25f);
         addComponent(fireworkImageWrapper, 0.575f, 0.15f, 0.65f, 0.25f);
 
-        // TODO Test that the link works after merging the docs
         HelpButtons.addHelpLink(this, "edit%20menu/textures/crossbow%20edit.html");
     }
 

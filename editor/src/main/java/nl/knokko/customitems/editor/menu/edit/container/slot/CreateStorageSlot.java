@@ -48,7 +48,6 @@ public class CreateStorageSlot extends GuiMenu {
             state.getWindow().setMainComponent(returnMenu);
         }), 0.025f, 0.1f, 0.175f, 0.2f);
 
-        // TODO Test this link after merging the v9 docs
         HelpButtons.addHelpLink(this, "edit menu/containers/slots/storage.html");
     }
 

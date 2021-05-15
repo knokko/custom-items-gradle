@@ -29,7 +29,6 @@ public class BlockCollectionEdit extends CollectionEdit<CustomBlockView> {
             ));
         }), 0.025f, 0.3f, 0.225f, 0.4f);
 
-        // TODO Test this help link after merging v9 docs into master
         HelpButtons.addHelpLink(this, "edit menu/blocks/overview.html");
     }
 

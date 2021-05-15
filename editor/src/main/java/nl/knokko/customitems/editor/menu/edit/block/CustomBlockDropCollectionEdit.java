@@ -41,7 +41,6 @@ public class CustomBlockDropCollectionEdit extends CollectionEdit<CustomBlockDro
                 ))
         ), 0.025f, 0.2f, 0.2f, 0.3f);
 
-        // TODO Test this help link after merging v9 docs into master
         HelpButtons.addHelpLink(this, "edit menu/blocks/drops/overview.html");
     }
 

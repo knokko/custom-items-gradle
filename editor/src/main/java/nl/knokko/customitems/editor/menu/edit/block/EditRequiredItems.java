@@ -66,7 +66,6 @@ public class EditRequiredItems extends GuiMenu  {
             }
         }, 0.26f, 0f, 1f, 0.9f);
 
-        // TODO Test this help link after merging v9 docs into master
         HelpButtons.addHelpLink(this, "edit menu/blocks/drops/required items.html");
     }
 

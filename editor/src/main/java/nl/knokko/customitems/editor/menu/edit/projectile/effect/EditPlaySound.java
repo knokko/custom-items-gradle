@@ -83,7 +83,6 @@ public class EditPlaySound extends EditProjectileEffect {
             }
         }), 0.025f, 0.2f, 0.175f, 0.3f);
 
-        // TODO Test link after merging v9 docs into master
         HelpButtons.addHelpLink(this, "edit%20menu/projectiles/effects/edit/sound.html");
     }
 }

@@ -102,7 +102,6 @@ public class EditBlock extends GuiMenu  {
                 "Note: you can create at most " + BlockConstants.MAX_NUM_BLOCKS + " custom blocks",
                 EditProps.LABEL), 0.2f, 0.05f, 0.8f, 0.15f);
 
-        // TODO Test this help link after merging v9 docs into master
         HelpButtons.addHelpLink(this, "edit menu/blocks/edit.html");
     }
 
