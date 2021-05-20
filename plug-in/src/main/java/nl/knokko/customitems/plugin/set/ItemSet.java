@@ -29,8 +29,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.logging.Level;
 
 import nl.knokko.customitems.block.CustomBlock;
 import nl.knokko.customitems.block.CustomBlockValues;
@@ -144,7 +144,8 @@ public class ItemSet implements ItemSetBase {
 	public ItemSet(BitInput input) throws UnknownEncodingException, IntegrityException, UnknownMaterialException {
 		containerInfo = new HashMap<>();
 		blocks = new CustomBlocksView(new ArrayList<>(0));
-		
+		errors = new ArrayList<>(0);
+
 		byte encoding = input.readByte();
 		
 		// Note that ENCODING_2 and ENCODING_4 are editor-only
@@ -164,8 +165,6 @@ public class ItemSet implements ItemSetBase {
 			load9(input);
 		else
 			throw new UnknownEncodingException("ItemSet", encoding);
-		
-		errors = new ArrayList<>(0);
 	}
 	
 	private void addCustomContainer(CustomContainer toAdd) {
@@ -236,7 +235,7 @@ public class ItemSet implements ItemSetBase {
 		for (int counter = 0; counter < numBlockDrops; counter++) {
 			register(BlockDrop.load(
 					input, this::createCustomItemResultByName,
-					() -> loadResult(input), this::getItem
+					() -> loadResult(input, this::getItem, this.errors::add), this::getItem
 			));
 		}
 		
@@ -245,7 +244,7 @@ public class ItemSet implements ItemSetBase {
 		for (int counter = 0; counter < numMobDrops; counter++) {
 			register(EntityDrop.load(
 					input, this::createCustomItemResultByName,
-					() -> loadResult(input), this::getItem
+					() -> loadResult(input, this::getItem, this.errors::add), this::getItem
 			));
 		}
 		
@@ -297,7 +296,7 @@ public class ItemSet implements ItemSetBase {
 		for (int counter = 0; counter < numBlockDrops; counter++) {
 			register(BlockDrop.load(
 					input, this::createCustomItemResultByName,
-					() -> loadResult(input), this::getItem
+					() -> loadResult(input, this::getItem, this.errors::add), this::getItem
 			));
 		}
 		
@@ -306,7 +305,7 @@ public class ItemSet implements ItemSetBase {
 		for (int counter = 0; counter < numMobDrops; counter++) {
 			register(EntityDrop.load(
 					input, this::createCustomItemResultByName,
-					() -> loadResult(input), this::getItem
+					() -> loadResult(input, this::getItem, this.errors::add), this::getItem
 			));
 		}
 		
@@ -373,7 +372,7 @@ public class ItemSet implements ItemSetBase {
 		for (int counter = 0; counter < numBlockDrops; counter++) {
 			register(BlockDrop.load(
 					input, this::createCustomItemResultByName,
-					() -> loadResult(input), this::getItem
+					() -> loadResult(input, this::getItem, this.errors::add), this::getItem
 			));
 		}
 		
@@ -382,7 +381,7 @@ public class ItemSet implements ItemSetBase {
 		for (int counter = 0; counter < numMobDrops; counter++) {
 			register(EntityDrop.load(
 					input, this::createCustomItemResultByName,
-					() -> loadResult(input), this::getItem
+					() -> loadResult(input, this::getItem, this.errors::add), this::getItem
 			));
 		}
 		
@@ -449,7 +448,7 @@ public class ItemSet implements ItemSetBase {
 		for (int counter = 0; counter < numBlockDrops; counter++) {
 			register(BlockDrop.load(
 					input, this::createCustomItemResultByName,
-					() -> loadResult(input), this::getItem
+					() -> loadResult(input, this::getItem, this.errors::add), this::getItem
 			));
 		}
 		
@@ -458,7 +457,7 @@ public class ItemSet implements ItemSetBase {
 		for (int counter = 0; counter < numMobDrops; counter++) {
 			register(EntityDrop.load(
 					input, this::createCustomItemResultByName,
-					() -> loadResult(input), this::getItem
+					() -> loadResult(input, this::getItem, this.errors::add), this::getItem
 			));
 		}
 		
@@ -532,7 +531,7 @@ public class ItemSet implements ItemSetBase {
 		for (int counter = 0; counter < numBlockDrops; counter++) {
 			register(BlockDrop.load(
 					input, this::createCustomItemResultByName,
-					() -> loadResult(input), this::getItem
+					() -> loadResult(input, this::getItem, this.errors::add), this::getItem
 			));
 		}
 		
@@ -541,7 +540,7 @@ public class ItemSet implements ItemSetBase {
 		for (int counter = 0; counter < numMobDrops; counter++) {
 			register(EntityDrop.load(
 					input, this::createCustomItemResultByName,
-					() -> loadResult(input), this::getItem
+					() -> loadResult(input, this::getItem, this.errors::add), this::getItem
 			));
 		}
 		
@@ -621,7 +620,7 @@ public class ItemSet implements ItemSetBase {
 		for (int counter = 0; counter < numBlocks; counter++) {
 			int internalID = input.readInt();
 			CustomBlockValues blockValues = CustomBlockValues.load(
-					input, this::getCustomItemByName, () -> loadResult(input), name -> null, false
+					input, this::getCustomItemByName, () -> loadResult(input, this::getItem, this.errors::add), name -> null, false
 			);
 			loadedBlocks.add(new CustomBlock(internalID, blockValues));
 		}
@@ -643,7 +642,7 @@ public class ItemSet implements ItemSetBase {
 		for (int counter = 0; counter < numBlockDrops; counter++) {
 			register(BlockDrop.load(
 					input, this::createCustomItemResultByName,
-					() -> loadResult(input), this::getItem
+					() -> loadResult(input, this::getItem, this.errors::add), this::getItem
 			));
 		}
 
@@ -652,7 +651,7 @@ public class ItemSet implements ItemSetBase {
 		for (int counter = 0; counter < numMobDrops; counter++) {
 			register(EntityDrop.load(
 					input, this::createCustomItemResultByName,
-					() -> loadResult(input), this::getItem
+					() -> loadResult(input, this::getItem, this.errors::add), this::getItem
 			));
 		}
 
@@ -692,7 +691,7 @@ public class ItemSet implements ItemSetBase {
 		return CustomContainer.load(input, 
 				this::getCustomItemByName, this::getFuelRegistryByName, 
 				() -> loadIngredient(input),
-				() -> loadResult(input)
+				() -> loadResult(input, this::getItem, this.errors::add)
 		);
 	}
 	
@@ -743,35 +742,46 @@ public class ItemSet implements ItemSetBase {
 		return result;
 	}
 	
-	public static CustomItem loadOldItem(BooleanRepresentation representation) {
+	public static CustomItem loadOldItem(
+			BooleanRepresentation representation, CustomItem someItem
+	) throws UnknownEncodingException {
 		BitInput input = new ByteArrayBitInput(representation.getAsBytes());
-		try {
-			return loadItemInternal(input, bitInput -> {
-				byte encoding = input.readByte();
-				if (encoding == RecipeEncoding.Ingredient.NONE) {
-					// No more data to skip
-				} else if (encoding == RecipeEncoding.Ingredient.VANILLA_SIMPLE) {
-					// Skip material name
-					input.readJavaString();
-				} else if (encoding == RecipeEncoding.Ingredient.VANILLA_DATA) {
-					// Skip material name and data value
-					input.readJavaString();
-					input.readNumber((byte) 4, false);
-				} else if (encoding == RecipeEncoding.Ingredient.CUSTOM) {
-					// Skip custom item name
-					input.readJavaString();
-				} else {
-					throw new UnknownEncodingException("BRIngredient", encoding);
+		return loadItemInternal(input, bitInput -> {
+			byte encoding = input.readByte();
+
+			// The amount and remaining items will be stored *before* the rest of the data in new encodings
+			if (
+					encoding == RecipeEncoding.Ingredient.VANILLA_SIMPLE_2 ||
+							encoding == RecipeEncoding.Ingredient.VANILLA_DATA_2 ||
+							encoding == RecipeEncoding.Ingredient.CUSTOM_2
+			) {
+				// Discard the amount
+				input.readByte();
+
+				// Discard the remaining item
+				if (input.readBoolean()) {
+				    // This is quite dirty, but the result won't be used anyway
+					loadResult(input, name -> someItem, error -> {});
 				}
-				return null;
-			}, name -> null);
-		} catch (UnknownEncodingException unknownEncoding) {
-			Bukkit.getLogger().log(Level.SEVERE, 
-					"Encountered an unknown encoding while deserializing the" +
-					"boolean representation stored in the nbt of an item stack"
-			);
+			}
+			if (encoding == RecipeEncoding.Ingredient.NONE) {
+				// No more data to skip
+			} else if (encoding == RecipeEncoding.Ingredient.VANILLA_SIMPLE || encoding == RecipeEncoding.Ingredient.VANILLA_SIMPLE_2) {
+				// Skip material name
+				input.readJavaString();
+			} else if (encoding == RecipeEncoding.Ingredient.VANILLA_DATA || encoding == RecipeEncoding.Ingredient.VANILLA_DATA_2) {
+				// Skip material name and data value
+				input.readJavaString();
+				input.readNumber((byte) 4, false);
+			} else if (encoding == RecipeEncoding.Ingredient.CUSTOM || encoding == RecipeEncoding.Ingredient.CUSTOM_2) {
+				// Skip custom item name
+				input.readJavaString();
+			}
+			else {
+				throw new UnknownEncodingException("BRIngredient", encoding);
+			}
 			return null;
-		}
+		}, name -> null);
 	}
 
 	private static CustomItem loadItemInternal(
@@ -2827,7 +2837,7 @@ public class ItemSet implements ItemSetBase {
 
 	private CustomRecipe loadRecipe(BitInput input) throws UnknownEncodingException, UnknownMaterialException {
 		byte encoding = input.readByte();
-		ItemStack result = loadResult(input);
+		ItemStack result = loadResult(input, this::getItem, this.errors::add);
 		if (encoding == RecipeEncoding.SHAPED_RECIPE)
 			return loadShapedRecipe(input, result);
 		if (encoding == RecipeEncoding.SHAPELESS_RECIPE)
@@ -2850,7 +2860,9 @@ public class ItemSet implements ItemSetBase {
 	}
 
 	@SuppressWarnings("deprecation")
-	private ItemStack loadResult(BitInput input) throws UnknownEncodingException, UnknownMaterialException {
+	private static ItemStack loadResult(
+			BitInput input, Function<String, CustomItem> loadItem, Consumer<String> addError
+	) throws UnknownEncodingException, UnknownMaterialException {
 		byte encoding = input.readByte();
 		byte amount = (byte) (1 + input.readNumber((byte) 6, false));
 		if (encoding == RecipeEncoding.Result.VANILLA_SIMPLE)
@@ -2864,7 +2876,7 @@ public class ItemSet implements ItemSetBase {
 			return stack;
 		}
 		if (encoding == RecipeEncoding.Result.CUSTOM)
-			return getItem(input.readJavaString()).create(amount);
+			return loadItem.apply(input.readJavaString()).create(amount);
 		if (encoding == RecipeEncoding.Result.COPIED) {
 			String encoded = input.readString();
 			String serialized = StringEncoder.decode(encoded);
@@ -2874,12 +2886,12 @@ public class ItemSet implements ItemSetBase {
 				helperConfig.loadFromString(serialized);
 				ItemStack result = helperConfig.getItemStack("TheItemStack");
 				if (result == null) {
-					this.addError("A copied item stack result is invalid");
+					addError.accept("A copied item stack result is invalid");
 				} else {
 					return result;
 				}
 			} catch (InvalidConfigurationException invalidConfig) {
-				this.addError("A copied item stack result is invalid");
+				addError.accept("A copied item stack result is invalid");
 			}
 			
 			// I'm not sure how to handle this...
@@ -2890,7 +2902,7 @@ public class ItemSet implements ItemSetBase {
 
 	private ItemStack loadRemainingItem(BitInput input) throws UnknownEncodingException {
 		if (input.readBoolean()) {
-			return loadResult(input);
+			return loadResult(input, this::getItem, this.errors::add);
 		} else {
 			return null;
 		}

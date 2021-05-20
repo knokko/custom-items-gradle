@@ -7,8 +7,10 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.logging.Level;
 
 import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
+import nl.knokko.customitems.trouble.UnknownEncodingException;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
@@ -182,29 +184,34 @@ public class ItemUpdater {
 							 * completely recreate the item stack (that would for
 							 * instance erase the enchantments and durability).
 							 */
-							CustomItem oldItem = ItemSet.loadOldItem(oldBoolRepresentation);
-							if (oldItem != null) {
+							try {
+								CustomItem oldItem = ItemSet.loadOldItem(oldBoolRepresentation, currentItem);
 								pOldItem[0] = oldItem;
 								pNewItem[0] = currentItem;
 								pAction[0] = UpdateAction.UPGRADE;
-							} else {
+
+							} catch (UnknownEncodingException bigProblem) {
+
 								/*
-								 * oldItem will be null if the deserizaliation of the
-								 * boolean representation failed (due to an unknown
-								 * encoding). There are 2 possible causes for this
+								 * There are 2 possible causes for this
 								 * situation:
-								 * 
+								 *
 								 * 1) This item stack was created by a newer version
 								 *    of this plug-in. This must mean that someone
 								 *    downgraded to an older version of the plug-in.
 								 * 2) The nbt of the item got corrupted somehow.
-								 * 
+								 *
 								 * I don't think there is a good solution for this
-								 * situation, but I think doing nothing is best. 
-								 * (Note that the loadOldItem method already
-								 * logged an error, so no need to do it twice.)
+								 * situation, but I think doing nothing is best.
 								 */
 								pAction[0] = UpdateAction.DO_NOTHING;
+
+								Bukkit.getLogger().log(Level.SEVERE,
+										"Encountered an unknown encoding while deserializing the" +
+												"boolean representation stored in the nbt of the " +
+												"following itemstack: " + originalStack
+								);
+								Bukkit.getLogger().log(Level.SEVERE, "The bad encoding was " + bigProblem.domain + "." + bigProblem.encoding);
 							}
 						}
 					} else {
