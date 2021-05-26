@@ -324,7 +324,7 @@ public class ContainerEventHandler implements Listener {
 							event.getWhoClicked()::closeInventory
 					);
 					event.getWhoClicked().closeInventory();
-				} else if (slotIndex <= containerSelection.size()) {
+				} else if (slotIndex <= containerSelection.size() && slotIndex >= 0) {
 					CustomContainer toOpen = containerSelection.get(slotIndex - 1);
 					Bukkit.getScheduler().scheduleSyncDelayedTask(
 							CustomItemsPlugin.getInstance(), 

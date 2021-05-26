@@ -52,23 +52,13 @@ import static org.bukkit.enchantments.Enchantment.WATER_WORKER;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Random;
-import java.util.Set;
-import java.util.UUID;
 import java.util.logging.Level;
 
 import nl.knokko.core.plugin.block.MushroomBlocks;
 import nl.knokko.core.plugin.item.GeneralItemNBT;
 import nl.knokko.customitems.block.CustomBlockView;
-import nl.knokko.customitems.block.MushroomBlockMapping;
 import nl.knokko.customitems.block.drop.CustomBlockDrop;
 import nl.knokko.customitems.block.drop.RequiredItems;
 import nl.knokko.customitems.block.drop.SilkTouchRequirement;
@@ -83,11 +73,8 @@ import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
-import org.bukkit.event.Event;
+import org.bukkit.event.*;
 import org.bukkit.event.Event.Result;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.*;
@@ -128,7 +115,7 @@ import org.bukkit.projectiles.ProjectileSource;
 @SuppressWarnings("deprecation")
 public class CustomItemsEventHandler implements Listener {
 
-	private Map<UUID, List<IngredientEntry>> shouldInterfere = new HashMap<>();
+	private final Map<UUID, List<IngredientEntry>> shouldInterfere = new HashMap<>();
 
 	private static CustomItemsPlugin plugin() {
 		return CustomItemsPlugin.getInstance();
@@ -348,7 +335,7 @@ public class CustomItemsEventHandler implements Listener {
 		}
 	}
 
-	@EventHandler(ignoreCancelled = false) 
+	@EventHandler
 	public void handleCommands (PlayerInteractEvent event) {
 		if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 			ItemStack item = event.getItem();
@@ -363,7 +350,7 @@ public class CustomItemsEventHandler implements Listener {
 		}
 	}
 	
-	@EventHandler(ignoreCancelled = false)
+	@EventHandler
 	public void handleReplacement (PlayerInteractEvent event) {
 		if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 			ItemStack item = event.getItem();
@@ -590,7 +577,7 @@ public class CustomItemsEventHandler implements Listener {
 						LivingEntity target = (LivingEntity) event.getEntity();
 						if (target != null) {
 
-							Collection<org.bukkit.potion.PotionEffect> effects = new ArrayList<org.bukkit.potion.PotionEffect> ();
+							Collection<org.bukkit.potion.PotionEffect> effects = new ArrayList<> ();
 							for (PotionEffect effect : customBowOrCrossbow.getTargetEffects()) {
 								effects.add(new org.bukkit.potion.PotionEffect(
 										org.bukkit.potion.PotionEffectType.getByName(effect.getEffect().name()),
@@ -608,7 +595,7 @@ public class CustomItemsEventHandler implements Listener {
 						// Hm... it looks like Firework doesn't have a nice getShooter() method...
 
 						if (shooter instanceof LivingEntity) {
-							Collection<org.bukkit.potion.PotionEffect> effects = new ArrayList<org.bukkit.potion.PotionEffect> ();
+							Collection<org.bukkit.potion.PotionEffect> effects = new ArrayList<> ();
 							for (PotionEffect effect : customBowOrCrossbow.getPlayerEffects()) {
 								effects.add(new org.bukkit.potion.PotionEffect(
 										org.bukkit.potion.PotionEffectType.getByName(effect.getEffect().name()),
@@ -633,8 +620,8 @@ public class CustomItemsEventHandler implements Listener {
 						CustomTrident customTrident = (CustomTrident) shouldBeCustomTrident;
 						event.setDamage(event.getDamage() * customTrident.throwDamageMultiplier);
 						LivingEntity target = (LivingEntity) event.getEntity();
-						if (target instanceof LivingEntity) {
-							Collection<org.bukkit.potion.PotionEffect> effects = new ArrayList<org.bukkit.potion.PotionEffect> ();
+						if (target != null) {
+							Collection<org.bukkit.potion.PotionEffect> effects = new ArrayList<> ();
 							for (PotionEffect effect : customTrident.getTargetEffects()) {
 								effects.add(new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.getByName(effect.getEffect().name()), effect.getDuration() * 20, effect.getLevel() - 1));
 							}
@@ -644,7 +631,7 @@ public class CustomItemsEventHandler implements Listener {
 							Projectile projectile = (Projectile) event.getDamager();
 							if (projectile.getShooter() instanceof LivingEntity) {
 								LivingEntity shooter = (LivingEntity) projectile.getShooter();
-								Collection<org.bukkit.potion.PotionEffect> effects = new ArrayList<org.bukkit.potion.PotionEffect> ();
+								Collection<org.bukkit.potion.PotionEffect> effects = new ArrayList<> ();
 								for (PotionEffect effect : customTrident.getPlayerEffects()) {
 									effects.add(new org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.getByName(effect.getEffect().name()), effect.getDuration() * 20, effect.getLevel() - 1));
 								}
@@ -1117,9 +1104,9 @@ public class CustomItemsEventHandler implements Listener {
 			boolean wasFakeMainHand = DualWieldSupport.isFakeMainHand(event);
 			
 			// Delay this to avoid messing around with other plug-ins
-			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () -> {
-				custom.onBlockBreak(event.getPlayer(), mainItem, wasSolid, wasFakeMainHand);
-			});
+			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () ->
+				custom.onBlockBreak(event.getPlayer(), mainItem, wasSolid, wasFakeMainHand)
+			);
 		}
 		
 		Location dropLocation = event.getBlock().getLocation().add(0.5, 0.5, 0.5);
@@ -1150,6 +1137,24 @@ public class CustomItemsEventHandler implements Listener {
 			event.setDropItems(false);
 		}
 	}
+
+	@EventHandler(priority = EventPriority.HIGHEST)
+    public void handleCustomMobDrops(EntityDeathEvent event) {
+		ItemUpdater itemUpdater = plugin().getItemUpdater();
+
+		// Remove corrupted or deleted custom items
+		event.getDrops().removeIf(itemStack -> itemUpdater.maybeUpdate(itemStack) == null);
+
+		// Upgrade/initialize potential custom items
+	    for (int index = 0; index < event.getDrops().size(); index++) {
+
+	    	ItemStack original = event.getDrops().get(index);
+	    	ItemStack replacement = itemUpdater.maybeUpdate(original);
+	    	if (replacement != original) {
+	    	    event.getDrops().set(index, replacement);
+			}
+		}
+    }
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onEntityDeath(EntityDeathEvent event) {
@@ -2117,6 +2122,7 @@ public class CustomItemsEventHandler implements Listener {
 			if (customCursor != null && customCursor == customCurrent && customCursor.canStack()) {
 				
 				event.setResult(Result.DENY);
+				// TODO Why is this denied, but not cancelled?
 				if (event.isLeftClick()) {
 					int amount = current.getAmount() + cursor.getAmount();
 					if (amount <= customCursor.getMaxStacksize()) {
@@ -2133,9 +2139,9 @@ public class CustomItemsEventHandler implements Listener {
 						current.setAmount(newAmount);
 					}
 				}
-				Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
-					event.getView().getPlayer().setItemOnCursor(cursor);
-				});
+				Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () ->
+					event.getView().getPlayer().setItemOnCursor(cursor)
+				);
 			}
 		} else if (action == InventoryAction.COLLECT_TO_CURSOR) {
 			ItemSet set = set();
@@ -2185,9 +2191,9 @@ public class CustomItemsEventHandler implements Listener {
 				if (currentStacksize != event.getCursor().getAmount()) {
 				    ItemStack newCursor = event.getCursor().clone();
 				    newCursor.setAmount(currentStacksize);
-					Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () -> {
-						event.getWhoClicked().setItemOnCursor(newCursor);
-					});
+					Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () ->
+						event.getWhoClicked().setItemOnCursor(newCursor)
+					);
 				}
 			}
 		} else if (action == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
@@ -2293,10 +2299,39 @@ public class CustomItemsEventHandler implements Listener {
 		}
 		// Force a PrepareAnvilEvent
 		if (event.getInventory() instanceof AnvilInventory) {
-			Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
-				event.getInventory().setItem(0, event.getInventory().getItem(0));
-			});
+			Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () ->
+				event.getInventory().setItem(0, event.getInventory().getItem(0))
+			);
 		}
+	}
+
+	private final HashMap<UUID, Long> lastInventoryEvents = new HashMap<>();
+
+	/**
+	 * If this method is called for each inventory event, it will prevent players from triggering more than
+	 * 1 inventory event per tick. This is necessary to prevent a duplicate/vanish glitch that can occur
+	 * when this plug-in processes more than 1 inventory event for the same item stack during the same
+	 * tick.
+	 */
+	private void guardInventoryEvents(Cancellable event, UUID playerId) {
+		Long previousInvEvent = lastInventoryEvents.get(playerId);
+
+		long currentTime = plugin().getData().getCurrentTick();
+		if (previousInvEvent != null && previousInvEvent == currentTime) {
+			event.setCancelled(true);
+		} else {
+			lastInventoryEvents.put(playerId, currentTime);
+		}
+	}
+
+	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+	public void guardInventoryEvents(InventoryClickEvent event) {
+		guardInventoryEvents(event, event.getWhoClicked().getUniqueId());
+	}
+
+	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+	public void guardInventoryEvents(InventoryDragEvent event) {
+		guardInventoryEvents(event, event.getWhoClicked().getUniqueId());
 	}
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -2317,9 +2352,9 @@ public class CustomItemsEventHandler implements Listener {
 							remainingSize -= newSize - oldSize;
 							ItemStack replacement = toIncrease.clone();
 							replacement.setAmount(newSize);
-							Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () -> {
-								event.getView().setItem(entry.getKey(), replacement);
-							});
+							Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () ->
+								event.getView().setItem(entry.getKey(), replacement)
+							);
 						}
 					}
 				}
@@ -2334,18 +2369,18 @@ public class CustomItemsEventHandler implements Listener {
 	@EventHandler
 	public void triggerCraftingHandler(InventoryClickEvent event) {
 		if (event.getInventory() instanceof CraftingInventory) {
-			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () -> {
-				beforeCraft((CraftingInventory) event.getInventory(), event.getView().getPlayer());
-			});
+			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () ->
+				beforeCraft((CraftingInventory) event.getInventory(), event.getView().getPlayer())
+			);
 		}
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.MONITOR)
 	public void triggerCraftingHandler(InventoryDragEvent event) {
 		if (event.getInventory() instanceof CraftingInventory) {
-			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () -> {
-				beforeCraft((CraftingInventory) event.getInventory(), event.getView().getPlayer());
-			});
+			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () ->
+				beforeCraft((CraftingInventory) event.getInventory(), event.getView().getPlayer())
+			);
 		}
 	}
 
