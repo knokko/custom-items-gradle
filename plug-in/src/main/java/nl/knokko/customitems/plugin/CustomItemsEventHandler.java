@@ -1154,6 +1154,21 @@ public class CustomItemsEventHandler implements Listener {
 	    	    event.getDrops().set(index, replacement);
 			}
 		}
+
+	    // The following work-around is needed to support mob drops when Libs Disguises is active
+		// I don't know how or why, but the code above doesn't work if Libs Disguises is active
+		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin(), () -> {
+			for (Entity nearbyEntity : event.getEntity().getNearbyEntities(2.0, 2.0, 2.0)) {
+				if (nearbyEntity instanceof Item) {
+					Item nearbyItem = (Item) nearbyEntity;
+					ItemStack oldStack = nearbyItem.getItemStack();
+					ItemStack newStack = itemUpdater.maybeUpdate(oldStack);
+					if (oldStack != newStack) {
+						nearbyItem.setItemStack(newStack);
+					}
+				}
+			}
+		});
     }
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
