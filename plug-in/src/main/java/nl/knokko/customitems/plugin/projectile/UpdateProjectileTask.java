@@ -36,61 +36,64 @@ public class UpdateProjectileTask implements Runnable {
 		
 		World world = projectile.world;
 		long currentTick = CustomItemsPlugin.getInstance().getData().getCurrentTick();
-		
-		RaytraceResult ray = Raytracer.raytrace(projectile.currentPosition.toLocation(world), 
-				projectile.currentVelocity, projectile.directShooter == null 
-				|| currentTick - projectile.launchTick > 20 ? null : projectile.directShooter);
-		
-		if (ray == null) {
 
-			projectile.currentVelocity.setY(projectile.currentVelocity.getY() - projectile.prototype.gravity);
-			
-			if (coverItem != null) {
-				if (coverItem.isValid()) {
-					if (coverItem.getLocation().toVector().distanceSquared(projectile.currentPosition) > 1.0) {
-						coverItem.teleport(projectile.currentPosition.toLocation(world));
+		if (projectile.currentVelocity.length() > 0.0001) {
+			RaytraceResult ray = Raytracer.raytrace(projectile.currentPosition.toLocation(world),
+					projectile.currentVelocity, projectile.directShooter == null
+							|| currentTick - projectile.launchTick > 20 ? null : projectile.directShooter);
+
+			if (ray == null) {
+
+				projectile.currentVelocity.setY(projectile.currentVelocity.getY() - projectile.prototype.gravity);
+
+				if (coverItem != null) {
+					if (coverItem.isValid()) {
+						if (coverItem.getLocation().toVector().distanceSquared(projectile.currentPosition) > 1.0) {
+							coverItem.teleport(projectile.currentPosition.toLocation(world));
+						}
+						fixItemMotion();
+					} else {
+						coverItem = null;
 					}
-					fixItemMotion();
-				} else {
-					coverItem = null;
 				}
-			}
-			
-			projectile.currentPosition.add(projectile.currentVelocity);
-		} else {
-			
-			// Move the projectile to the precise impact location before applying its effects
-			projectile.currentPosition.multiply(0).add(ray.getImpactLocation().toVector());
-			projectile.applyEffects(projectile.prototype.impactEffects);
-			
-			// If we hit an entity, damage it
-			if (ray.getHitEntity() != null && projectile.prototype.damage > 0) {
-				EntityDamageHelper.causeFakeProjectileDamage(ray.getHitEntity(), 
-						projectile.responsibleShooter, projectile.prototype.damage, 
-						projectile.currentPosition.getX(), projectile.currentPosition.getY(), 
-						projectile.currentPosition.getZ(), 
-						projectile.currentVelocity.getX(), projectile.currentVelocity.getY(), 
-						projectile.currentVelocity.getZ());
-			}
 
-			if (ray.getHitEntity() != null && projectile.currentVelocity.lengthSquared() > 0.0001) {
-				Vector direction = projectile.currentVelocity.normalize();
-				ray.getHitEntity().setVelocity(ray.getHitEntity().getVelocity().add(direction.multiply(projectile.prototype.impactKnockback)));
-			}
+				projectile.currentPosition.add(projectile.currentVelocity);
+			} else {
 
-			if (ray.getHitEntity() instanceof LivingEntity) {
-				LivingEntity living = (LivingEntity) ray.getHitEntity();
-				projectile.prototype.impactPotionEffects.forEach(
-						effect -> living.addPotionEffect(new PotionEffect(
-							PotionEffectType.getByName(effect.getEffect().name()),
-							effect.getDuration(),
-							effect.getLevel() - 1
-						))
-				);
+				// Move the projectile to the precise impact location before applying its effects
+				projectile.currentPosition.multiply(0).add(ray.getImpactLocation().toVector());
+				projectile.applyEffects(projectile.prototype.impactEffects);
+
+				// If we hit an entity, damage it
+				if (ray.getHitEntity() != null && projectile.prototype.damage > 0) {
+					EntityDamageHelper.causeFakeProjectileDamage(ray.getHitEntity(),
+							projectile.responsibleShooter, projectile.prototype.damage,
+							projectile.currentPosition.getX(), projectile.currentPosition.getY(),
+							projectile.currentPosition.getZ(),
+							projectile.currentVelocity.getX(), projectile.currentVelocity.getY(),
+							projectile.currentVelocity.getZ());
+				}
+
+				if (ray.getHitEntity() != null && projectile.currentVelocity.lengthSquared() > 0.0001) {
+					Vector direction = projectile.currentVelocity.normalize();
+					ray.getHitEntity().setVelocity(ray.getHitEntity().getVelocity().add(direction.multiply(projectile.prototype.impactKnockback)));
+				}
+
+				if (ray.getHitEntity() instanceof LivingEntity) {
+					LivingEntity living = (LivingEntity) ray.getHitEntity();
+					projectile.prototype.impactPotionEffects.forEach(
+							effect -> living.addPotionEffect(new PotionEffect(
+									PotionEffectType.getByName(effect.getEffect().name()),
+									effect.getDuration(),
+									effect.getLevel() - 1
+							))
+					);
+				}
+
+				projectile.destroy();
 			}
-			
-			projectile.destroy();
 		}
+
 	}
 	
 	void fixItemMotion() {
