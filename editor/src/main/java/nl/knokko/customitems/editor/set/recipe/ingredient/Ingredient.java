@@ -102,6 +102,14 @@ public abstract class Ingredient implements SCIngredient {
 		}
 	}
 
+	protected String amountToString() {
+		if (amount == 1) {
+			return "";
+		} else {
+			return " x " + amount;
+		}
+	}
+
 	public byte getAmount() {
 		return amount;
 	}
