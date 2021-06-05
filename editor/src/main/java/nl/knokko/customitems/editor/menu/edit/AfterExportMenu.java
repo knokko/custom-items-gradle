@@ -8,6 +8,9 @@ import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
+import java.awt.*;
+import java.io.IOException;
+
 public class AfterExportMenu extends GuiMenu {
 	
 	private final EditMenu editMenu;
@@ -21,8 +24,14 @@ public class AfterExportMenu extends GuiMenu {
 		addComponent(new DynamicTextComponent(
 				"Your item set has been exported to:", EditProps.LABEL), 
 				0.05f, 0.8f, 0.5f, 0.9f);
-		addComponent(new DynamicTextComponent(Editor.getFolder().getAbsolutePath(), 
-				EditProps.LABEL), 0.05f, 0.7f, 0.95f, 0.8f);
+		addComponent(new DynamicTextButton(Editor.getFolder().getAbsolutePath(),
+				EditProps.LINK_BASE, EditProps.LINK_HOVER, () -> {
+			try {
+				Desktop.getDesktop().open(Editor.getFolder());
+			} catch (IOException e) {
+				System.err.println("Couldn't open export destination folder: " + e.getLocalizedMessage());
+			}
+		}), 0.05f, 0.7f, 0.95f, 0.8f);
 		addComponent(new DynamicTextComponent(
 				"If you know what to do next, click one of the buttons below", 
 				EditProps.LABEL), 0.05f, 0.6f, 0.8f, 0.7f);
