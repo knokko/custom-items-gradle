@@ -99,7 +99,7 @@ public class ShapedCustomRecipe implements CustomRecipe {
 					result.add(new IngredientEntry(this.ingredients[3], 2));
 				}
 				if (this.ingredients[4].getAmount() > 0) {
-					result.add(new IngredientEntry(this.ingredients[3], 3));
+					result.add(new IngredientEntry(this.ingredients[4], 3));
 				}
 
 				return result;
