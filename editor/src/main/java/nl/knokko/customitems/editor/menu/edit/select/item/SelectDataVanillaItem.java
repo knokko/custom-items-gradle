@@ -159,7 +159,7 @@ public class SelectDataVanillaItem extends GuiMenu {
 
 		@Override
 		protected void addComponents() {
-			setScrollSpeed(13f);
+			setBaseScrollSpeed(13f);
 			addMaterials();
 		}
 		

@@ -64,19 +64,23 @@ implements TextShowingComponent, ImageShowingComponent, CheckableComponent, Edit
 	protected float maxCenterX;
 	protected float maxCenterY;
 	
-	protected float scrollSpeed;
+	protected float baseScrollSpeed;
+	protected float currentScrollSpeed;
+	protected long lastScrollTime;
 	
 	protected boolean directRefresh;
 	protected boolean didInit;
 	
 	public GuiMenu(){
 		super();
-		components = new ArrayList<SubComponent>();
-		scrollSpeed = 1f;
+		components = new ArrayList<>();
+		baseScrollSpeed = 1f;
+		currentScrollSpeed = 1f;
 	}
 	
-	protected void setScrollSpeed(float factor) {
-		scrollSpeed = factor;
+	protected void setBaseScrollSpeed(float factor) {
+		baseScrollSpeed = factor;
+		currentScrollSpeed = factor;
 	}
 	
     @Override
@@ -111,6 +115,14 @@ implements TextShowingComponent, ImageShowingComponent, CheckableComponent, Edit
 
     @Override
 	public void update() {
+
+    	long currentTime = System.currentTimeMillis();
+    	if ((currentTime - lastScrollTime) < 1000) {
+    		currentScrollSpeed += baseScrollSpeed / 10f;
+		} else {
+    		currentScrollSpeed = baseScrollSpeed;
+		}
+
     	List<SubComponent> componentsToUpdate = new ArrayList<>(components);
 		for(SubComponent component : componentsToUpdate)
 			if(component.isActive())
@@ -118,19 +130,23 @@ implements TextShowingComponent, ImageShowingComponent, CheckableComponent, Edit
 		if(allowArrowMoving()){
 			WindowInput input = state.getWindow().getInput();
 			if(input.isKeyDown(KeyCode.KEY_LEFT)) {
-				screenCenterX -= 0.005f;
+				screenCenterX -= 0.005f * currentScrollSpeed;
+				lastScrollTime = System.currentTimeMillis();
 				state.getWindow().markChange();
 			}
 			if(input.isKeyDown(KeyCode.KEY_RIGHT)) {
-				screenCenterX += 0.005f;
+				screenCenterX += 0.005f * currentScrollSpeed;
+				lastScrollTime = System.currentTimeMillis();
 				state.getWindow().markChange();
 			}
 			if(input.isKeyDown(KeyCode.KEY_UP)) {
-				screenCenterY += 0.005f;
+				screenCenterY += 0.005f * currentScrollSpeed;
+				lastScrollTime = System.currentTimeMillis();
 				state.getWindow().markChange();
 			}
 			if(input.isKeyDown(KeyCode.KEY_DOWN)) {
-				screenCenterY -= 0.005f;
+				screenCenterY -= 0.005f * currentScrollSpeed;
+				lastScrollTime = System.currentTimeMillis();
 				state.getWindow().markChange();
 			}
 			if(screenCenterX < minCenterX)
@@ -179,8 +195,12 @@ implements TextShowingComponent, ImageShowingComponent, CheckableComponent, Edit
 			return true;
 		if(!allowScrolling())
 			return false;
+
+		lastScrollTime = System.currentTimeMillis();
+
 		float prevCenterY = screenCenterY;
-		screenCenterY += 2 * amount * scrollSpeed;
+
+		screenCenterY += amount * currentScrollSpeed;
 		if(screenCenterY < minCenterY)
 			screenCenterY = minCenterY;
 		if(screenCenterY > maxCenterY)

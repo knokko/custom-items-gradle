@@ -47,7 +47,11 @@ import nl.knokko.gui.util.TextBuilder.Properties;
 public class TextEditField extends TextComponent implements EditableComponent {
 	
 	protected GuiTexture activeTexture;
+	protected GuiTexture activeCaretTexture;
 	protected Properties activeProperties;
+
+	protected GuiTexture caretTexture;
+	private boolean didShowCaret;
 	
 	protected Point2D.Float tabSwitchPoint;
 	
@@ -67,14 +71,28 @@ public class TextEditField extends TextComponent implements EditableComponent {
 			);
 			tabSwitchPoint = null;
 		}
+		if (didShowCaret != shouldShowCaret()) {
+			state.getWindow().markChange();
+		}
+	}
+
+	private boolean shouldShowCaret() {
+		return System.currentTimeMillis() % 1000 >= 500;
 	}
 	
 	@Override
 	public void render(GuiRenderer renderer){
-		if(active)
-			renderer.renderTexture(activeTexture, 0, 0, 1, 1);
-		else
+		if(active) {
+			if (shouldShowCaret()) {
+				renderer.renderTexture(activeCaretTexture, 0, 0, 1, 1);
+				didShowCaret = true;
+			} else {
+				renderer.renderTexture(activeTexture, 0, 0, 1, 1);
+				didShowCaret = false;
+			}
+		} else {
 			super.render(renderer);
+		}
 	}
 	
 	@Override
@@ -94,7 +112,8 @@ public class TextEditField extends TextComponent implements EditableComponent {
 	}
 	
 	protected void updateActiveTexture(){
-		activeTexture = state.getWindow().getTextureLoader().loadTexture(TextBuilder.createTexture(text, activeProperties));
+		activeTexture = state.getWindow().getTextureLoader().loadTexture(TextBuilder.createTexture(text + ' ', activeProperties));
+		activeCaretTexture = state.getWindow().getTextureLoader().loadTexture(TextBuilder.createTexture(text + '|', activeProperties));
 		state.getWindow().markChange();
 	}
 	
