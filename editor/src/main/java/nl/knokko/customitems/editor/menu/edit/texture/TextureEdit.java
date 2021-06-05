@@ -139,23 +139,20 @@ public class TextureEdit extends GuiMenu {
 			if(loaded != null) {
 				int width = loaded.getWidth();
 				if(width == loaded.getHeight()) {
-					if(width >= 16) {
-						if(width <= 512) {
-							if(width == 16 || width == 32 || width == 64 || width == 128 || width == 256 || width == 512) {
-								int indexDot = file.getName().indexOf('.');
-								String imageName;
-								if (indexDot == -1)
-									imageName = file.getName();
-								else
-									imageName = file.getName().substring(0, indexDot);
+					if(width <= 512) {
+						if(width == 1 || width == 2 || width == 4 || width == 8 || width == 16 || width == 32 || width == 64 || width == 128 || width == 256 || width == 512) {
+							int indexDot = file.getName().indexOf('.');
+							String imageName;
+							if (indexDot == -1)
+								imageName = file.getName();
+							else
+								imageName = file.getName().substring(0, indexDot);
 
-								return new NamedImage(imageName, loaded);
-							} else
-								throw new IllegalArgumentException("The width and height (" + width + ") should be a power of 2");
+							return new NamedImage(imageName, loaded);
 						} else
-							throw new IllegalArgumentException("The image should be at most 512 x 512 pixels.");
+							throw new IllegalArgumentException("The width and height (" + width + ") should be a power of 2");
 					} else
-						throw new IllegalArgumentException("The image should be at least 16 x 16 pixels.");
+						throw new IllegalArgumentException("The image should be at most 512 x 512 pixels.");
 				} else
 					throw new IllegalArgumentException("The width (" + loaded.getWidth() + ") of this image should be equal to the height (" + loaded.getHeight() + ")");
 			} else
