@@ -149,8 +149,23 @@ class FlyingProjectile {
 				
 				Explosion explosion = (Explosion) effect;
 				Location loc = currentPosition.toLocation(world);
-				world.createExplosion(loc.getX(), loc.getY(), loc.getZ(), explosion.power, 
-						explosion.setFire, explosion.destroyBlocks);
+
+				try {
+				    // Newer versions of Bukkit have a variant of createExplosion that allows me to pass the
+					// responsible entity. This is needed for proper WorldGuard protection tracking.
+					world.getClass().getMethod("createExplosion",
+							double.class, double.class, double.class, float.class,
+							boolean.class, boolean.class, Entity.class
+					).invoke(world,
+							loc.getX(), loc.getY(), loc.getZ(), explosion.power,
+							explosion.setFire, explosion.destroyBlocks, responsibleShooter
+					);
+				} catch (Exception ex) {
+
+					// In earlier versions... well... there is not much I can do about it :(
+					world.createExplosion(loc.getX(), loc.getY(), loc.getZ(), explosion.power,
+							explosion.setFire, explosion.destroyBlocks);
+				}
 			} else if (effect instanceof RandomAccelleration) {
 				
 				RandomAccelleration ra = (RandomAccelleration) effect;

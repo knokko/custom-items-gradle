@@ -4,6 +4,7 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 import java.util.Collection;
 
+import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.projectile.effects.Explosion;
 import nl.knokko.customitems.projectile.effects.ProjectileEffect;
@@ -42,6 +43,10 @@ public class EditExplosion extends EditProjectileEffect {
 		addComponent(destroyBlocksBox, BUTTON_X, 0.63f, BUTTON_X + 0.05f, 0.67f);
 		addComponent(new DynamicTextComponent("Sets fire?", LABEL), LABEL_X - 0.15f, 0.5f, LABEL_X, 0.6f);
 		addComponent(fireBox, BUTTON_X, 0.53f, BUTTON_X + 0.05f, 0.57f);
+
+		addComponent(new DynamicTextComponent(
+				"Warning: in minecraft 1.13 and earlier, explosions can cause damage to protected (WorldGuard) regions"
+				, LABEL), 0f, 0.4f, 1f, 0.45f);
 		
 		addComponent(new DynamicTextButton(toModify == null ? "Create" : "Apply", SAVE_BASE, SAVE_HOVER, () -> {
 			Option.Float power = powerField.getFloat();
