@@ -2678,14 +2678,14 @@ public class CustomItemsEventHandler implements Listener {
 		}
 	}
 
-	@EventHandler
+	@EventHandler(ignoreCancelled = true)
 	public void maintainCustomBlocks(BlockPhysicsEvent event) {
 	    if (MushroomBlocks.areEnabled() && MushroomBlockHelper.isMushroomBlock(event.getBlock())) {
 	    	event.setCancelled(true);
 		}
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void handleCustomBlockPlacements(PlayerInteractEvent event) {
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 
@@ -2729,7 +2729,7 @@ public class CustomItemsEventHandler implements Listener {
 		}
 	}
 
-	@EventHandler
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void handleCustomBlockDrops(BlockBreakEvent event) {
 		if (MushroomBlocks.areEnabled()) {
 		    CustomBlockView customBlock = MushroomBlockHelper.getMushroomBlock(event.getBlock());
