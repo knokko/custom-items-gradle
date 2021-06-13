@@ -7,7 +7,8 @@ public class MCVersions {
 	public static final int VERSION1_14 = 14;
 	public static final int VERSION1_15 = 15;
 	public static final int VERSION1_16 = 16;
+	public static final int VERSION1_17 = 17;
 	
 	public static final int FIRST_VERSION = VERSION1_12;
-	public static final int LAST_VERSION = VERSION1_16;
+	public static final int LAST_VERSION = VERSION1_17;
 }

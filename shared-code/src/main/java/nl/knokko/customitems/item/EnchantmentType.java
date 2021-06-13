@@ -92,7 +92,7 @@ public enum EnchantmentType {
 	@Override
 	public String toString() {
 		// It looks like no enchantments have been renamed or removed
-		return NameHelper.getNiceEnumName(name(), version, VERSION1_16);
+		return NameHelper.getNiceEnumName(name(), version, VERSION1_17);
 	}
 	
 	public String getName() {
