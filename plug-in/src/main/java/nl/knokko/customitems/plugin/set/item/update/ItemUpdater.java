@@ -13,6 +13,7 @@ import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
@@ -66,6 +67,15 @@ public class ItemUpdater {
 			for (World world : Bukkit.getWorlds()) {
 				for (LivingEntity entity : world.getLivingEntities()) {
 					updateEquipment(entity.getEquipment());
+				}
+
+				for (ItemFrame itemFrame : world.getEntitiesByClass(ItemFrame.class)) {
+					ItemStack item = itemFrame.getItem();
+					ItemStack upgradedItem = maybeUpdate(item);
+
+					if (item != upgradedItem) {
+						itemFrame.setItem(upgradedItem);
+					}
 				}
 			}
 		}, 100, 100);
