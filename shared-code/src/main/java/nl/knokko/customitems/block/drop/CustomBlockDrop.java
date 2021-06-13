@@ -1,7 +1,7 @@
 package nl.knokko.customitems.block.drop;
 
-import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.item.CustomItem;
+import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.recipe.OutputTable;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ExceptionSupplier;
@@ -13,7 +13,7 @@ import nl.knokko.util.bits.BitOutput;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class CustomBlockDrop {
+public class CustomBlockDrop extends ModelValues {
 
     private static final byte ENCODING_1 = 1;
 
@@ -37,10 +37,8 @@ public class CustomBlockDrop {
     private SilkTouchRequirement silkTouch;
     private OutputTable itemsToDrop;
 
-    private final boolean mutable;
-
     public CustomBlockDrop(boolean mutable) {
-        this.mutable = mutable;
+        super(mutable);
 
         this.requiredItems = new RequiredItems(false);
         this.silkTouch = SilkTouchRequirement.OPTIONAL;
@@ -48,22 +46,15 @@ public class CustomBlockDrop {
     }
 
     public CustomBlockDrop(CustomBlockDrop toCopy, boolean mutable) {
-        this.mutable = mutable;
-        copyFrom(toCopy, false);
-    }
-
-    private void copyFrom(CustomBlockDrop toCopy, boolean checkMutability) {
-        if (checkMutability) {
-            assertMutable();
-        }
+        super(mutable);
 
         this.requiredItems = toCopy.getRequiredItems();
         this.silkTouch = toCopy.getSilkTouchRequirement();
         this.itemsToDrop = toCopy.getItemsToDrop();
     }
-
-    public void copyFrom(CustomBlockDrop toCopy) {
-        copyFrom(toCopy, true);
+    
+    public CustomBlockDrop copy(boolean mutable) {
+        return new CustomBlockDrop(this, mutable);
     }
 
     @Override
@@ -109,10 +100,6 @@ public class CustomBlockDrop {
 
     public OutputTable getItemsToDrop() {
         return itemsToDrop.copy();
-    }
-
-    private void assertMutable() {
-        if (!mutable) throw new UnsupportedOperationException("This CustomBlockDrop is immutable");
     }
 
     public void setRequiredItems(RequiredItems newRequiredItems) {

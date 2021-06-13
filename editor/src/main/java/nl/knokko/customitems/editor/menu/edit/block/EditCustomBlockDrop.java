@@ -15,39 +15,24 @@ import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
-import java.util.Collection;
+import java.util.function.Consumer;
 
 public class EditCustomBlockDrop extends GuiMenu  {
 
-    private final CustomBlockDrop toModify;
-    private final Collection<CustomBlockDrop> backingCollection;
     private final CustomBlockDrop currentDrop;
 
     private final ItemSet set;
     private final GuiComponent returnMenu;
+    private final Consumer<CustomBlockDrop> onDone;
 
     public EditCustomBlockDrop(
-            CustomBlockDrop toModify, CustomBlockDrop startValues,
-            ItemSet set, GuiComponent returnMenu
+            CustomBlockDrop startValues, ItemSet set, GuiComponent returnMenu, Consumer<CustomBlockDrop> onDone
     ) {
-        Checks.nonNull(toModify, startValues, set, returnMenu);
-        this.toModify = toModify;
-        this.backingCollection = null;
+        Checks.nonNull(startValues, set, returnMenu);
         this.currentDrop = new CustomBlockDrop(startValues, true);
         this.set = set;
         this.returnMenu = returnMenu;
-    }
-
-    public EditCustomBlockDrop(
-            Collection<CustomBlockDrop> backingCollection, CustomBlockDrop startValues,
-            ItemSet set, GuiComponent returnMenu
-    ) {
-        Checks.nonNull(backingCollection, startValues, set, returnMenu);
-        this.toModify = null;
-        this.backingCollection = backingCollection;
-        this.currentDrop = new CustomBlockDrop(startValues, true);
-        this.set = set;
-        this.returnMenu = returnMenu;
+        this.onDone = onDone;
     }
 
     @Override
@@ -59,14 +44,10 @@ public class EditCustomBlockDrop extends GuiMenu  {
         DynamicTextComponent errorComponent = new DynamicTextComponent("", EditProps.ERROR);
         addComponent(errorComponent, 0.025f, 0.9f, 0.975f, 1f);
 
-        addComponent(new DynamicTextButton(toModify == null ? "Create" : "Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
+        addComponent(new DynamicTextButton("Done", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
             String error = Validation.toErrorString(() -> currentDrop.validateComplete(set.getBackingItems()));
             if (error == null) {
-                if (toModify == null) {
-                    backingCollection.add(currentDrop);
-                } else {
-                    toModify.copyFrom(currentDrop);
-                }
+                onDone.accept(currentDrop);
                 state.getWindow().setMainComponent(returnMenu);
             } else {
                 errorComponent.setText(error);

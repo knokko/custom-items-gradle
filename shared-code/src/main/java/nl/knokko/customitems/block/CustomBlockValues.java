@@ -2,6 +2,8 @@ package nl.knokko.customitems.block;
 
 import nl.knokko.customitems.block.drop.CustomBlockDrop;
 import nl.knokko.customitems.item.CustomItem;
+import nl.knokko.customitems.model.ModelValues;
+import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ExceptionSupplier;
@@ -15,7 +17,7 @@ import java.util.Collection;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class CustomBlockValues {
+public class CustomBlockValues extends ModelValues {
 
     private static final byte ENCODING_1 = 1;
 
@@ -44,10 +46,8 @@ public class CustomBlockValues {
     // Only use this in the Editor; Keep it null on the plug-in
     private NamedImage texture;
 
-    private final boolean mutable;
-
     public CustomBlockValues(boolean mutable) {
-        this.mutable = mutable;
+        super(mutable);
 
         this.name = "";
         this.drops = new ArrayList<>(0);
@@ -55,11 +55,16 @@ public class CustomBlockValues {
     }
 
     public CustomBlockValues(CustomBlockValues toCopy, boolean mutable) {
-        this.mutable = mutable;
+        super(mutable);
 
         this.name = toCopy.getName();
         this.drops = toCopy.getDrops();
         this.texture = toCopy.getTexture();
+    }
+
+    @Override
+    public CustomBlockValues copy(boolean mutable) {
+        return new CustomBlockValues(this, mutable);
     }
 
     @Override
@@ -120,10 +125,6 @@ public class CustomBlockValues {
         saveTexture1(output);
     }
 
-    public boolean isMutable() {
-        return mutable;
-    }
-
     public String getName() {
         return name;
     }
@@ -136,12 +137,6 @@ public class CustomBlockValues {
         return texture;
     }
 
-    private void assertMutable() {
-        if (!mutable) {
-            throw new UnsupportedOperationException("Attempting to mutate immutable custom block values");
-        }
-    }
-
     public void setName(String newName) {
         assertMutable();
         this.name = newName;
@@ -149,10 +144,7 @@ public class CustomBlockValues {
 
     public void setDrops(Collection<CustomBlockDrop> newDrops) {
         assertMutable();
-        this.drops = new ArrayList<>(newDrops.size());
-        for (CustomBlockDrop newDrop : newDrops) {
-            this.drops.add(new CustomBlockDrop(newDrop, false));
-        }
+        this.drops = Mutability.createDeepCopy(newDrops, false);
     }
 
     public void setTexture(NamedImage newTexture) {
