@@ -501,6 +501,11 @@ public class PluginData {
 	private void updateContainers() {
 		persistentContainers.values().forEach(ContainerInstance::update);
 		tempContainers.forEach(temp -> temp.instance.update());
+		playerData.values().forEach(pd -> {
+			if (pd.openPocketContainer != null) {
+				pd.openPocketContainer.update();
+			}
+		});
 	}
 	
 	private void quickClean() {
