@@ -151,7 +151,7 @@ public class EditMenu extends GuiMenu {
 							this.state.getWindow().setMainComponent(new AfterExportMenu(this));
 						}
 					}
-				}), 0.1F, 0.48F, 0.35F, 0.58F);
+				}), 0.1F, 0.50F, 0.3F, 0.58F);
 		addComponent(new DynamicTextButton("Export for 1.13", EditProps.SAVE_BASE, EditProps.SAVE_HOVER,
 				() -> {
 					String error = this.set.save();
@@ -165,7 +165,7 @@ public class EditMenu extends GuiMenu {
 							this.state.getWindow().setMainComponent(new AfterExportMenu(this));
 						}
 					}
-				}), 0.1F, 0.37F, 0.35F, 0.47F);
+				}), 0.1F, 0.41F, 0.3F, 0.49F);
 		addComponent(new DynamicTextButton("Export for 1.14", EditProps.SAVE_BASE, EditProps.SAVE_HOVER,
 				() -> {
 					String error = this.set.save();
@@ -179,7 +179,7 @@ public class EditMenu extends GuiMenu {
 							this.state.getWindow().setMainComponent(new AfterExportMenu(this));
 						}
 					}
-				}), 0.1F, 0.26F, 0.35F, 0.36F);
+				}), 0.1F, 0.32F, 0.3F, 0.40F);
 		addComponent(new DynamicTextButton("Export for 1.15", EditProps.SAVE_BASE, EditProps.SAVE_HOVER,
 				() -> {
 					String error = this.set.save();
@@ -193,7 +193,7 @@ public class EditMenu extends GuiMenu {
 							this.state.getWindow().setMainComponent(new AfterExportMenu(this));
 						}
 					}
-				}), 0.1F, 0.15F, 0.35F, 0.25F);
+				}), 0.1F, 0.23F, 0.3F, 0.31F);
 		addComponent(new DynamicTextButton("Export for 1.16", EditProps.SAVE_BASE, EditProps.SAVE_HOVER,
 				() -> {
 					String error = this.set.save();
@@ -207,7 +207,21 @@ public class EditMenu extends GuiMenu {
 							this.state.getWindow().setMainComponent(new AfterExportMenu(this));
 						}
 					}
-				}), 0.1F, 0.04F, 0.35F, 0.14F);
+				}), 0.1F, 0.14F, 0.3F, 0.22F);
+		addComponent(new DynamicTextButton("Export for 1.17", EditProps.SAVE_BASE, EditProps.SAVE_HOVER,
+				() -> {
+					String error = this.set.save();
+					if (error != null) {
+						setError(error);
+					} else {
+						error = this.set.exportFor17();
+						if (error != null) {
+							setError(error);
+						} else {
+							this.state.getWindow().setMainComponent(new AfterExportMenu(this));
+						}
+					}
+				}), 0.1F, 0.05F, 0.3F, 0.13F);
 		addComponent(
 				new DynamicTextButton("Textures", EditProps.BUTTON, EditProps.HOVER,
 						() -> this.state.getWindow().setMainComponent(this.textureOverview)),

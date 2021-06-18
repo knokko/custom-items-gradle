@@ -38,10 +38,12 @@ public enum DamageSource {
 	
 	public static final int AMOUNT_12;
 	public static final int AMOUNT_14;
+	public static final int AMOUNT_17;
 	
 	static {
 		int amount12 = 0;
 		int amount14 = 0;
+		int amount17 = 0;
 		for (DamageSource source : values()) {
 			if (source.firstVersion <= VERSION1_12) {
 				amount12++;
@@ -49,10 +51,14 @@ public enum DamageSource {
 			if (source.firstVersion <= VERSION1_14) {
 				amount14++;
 			}
+			if (source.firstVersion <= VERSION1_17) {
+				amount17++;
+			}
 		}
 		
 		AMOUNT_12 = amount12;
 		AMOUNT_14 = amount14;
+		AMOUNT_17 = amount17;
 	}
 	
 	public final int firstVersion;

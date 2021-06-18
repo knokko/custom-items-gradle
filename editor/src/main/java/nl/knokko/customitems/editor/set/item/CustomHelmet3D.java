@@ -43,7 +43,7 @@ public class CustomHelmet3D extends CustomArmor {
 	}
 	
 	@Override
-	protected byte getEncoding9() {
-		return ItemEncoding.ENCODING_HELMET3D_9;
+	protected byte getEncoding10() {
+		return ItemEncoding.ENCODING_HELMET3D_10;
 	}
 }

@@ -155,5 +155,14 @@ public class ItemEncoding {
 	 */
 	public static final byte ENCODING_FOOD_9 = 42;
 
+	/**
+	 * The first encoding of block items
+	 */
 	public static final byte ENCODING_BLOCK_ITEM_9 = 43;
+
+	/**
+	 * In minecraft 1.17, a new damage source was added, which requires a new armor encoding...
+	 */
+	public static final byte ENCODING_ARMOR_10 = 44;
+	public static final byte ENCODING_HELMET3D_10 = 45;
 }
