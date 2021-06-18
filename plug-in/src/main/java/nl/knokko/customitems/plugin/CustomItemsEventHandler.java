@@ -2011,22 +2011,23 @@ public class CustomItemsEventHandler implements Listener {
 									ItemStack result = currentItem.clone();
 									event.getInventory().setItem(0, ItemHelper.createStack(CIMaterial.AIR.name(), 1));
 									CustomItem customResult = set().getItem(result);
-									int amountToGive = baseAmountsToRemove;
+									int amountToGive = baseAmountsToRemove * result.getAmount();
 
 									if (customResult != null && !customResult.canStack()) {
 										for (int counter = 0; counter < amountToGive; counter++) {
-											event.getWhoClicked().getInventory().addItem(result);
+											event.getWhoClicked().getInventory().addItem(result.clone());
 										}
 									} else {
 										int maxStacksize = customResult == null ? 64 : customResult.getMaxStacksize();
 										for (int counter = 0; counter < amountToGive; counter += maxStacksize) {
 											int left = amountToGive - counter;
+											ItemStack clonedResult = result.clone();
 											if (left > maxStacksize) {
-												result.setAmount(maxStacksize);
-												event.getWhoClicked().getInventory().addItem(result);
+												clonedResult.setAmount(maxStacksize);
+												event.getWhoClicked().getInventory().addItem(clonedResult);
 											} else {
-												result.setAmount(left);
-												event.getWhoClicked().getInventory().addItem(result);
+												clonedResult.setAmount(left);
+												event.getWhoClicked().getInventory().addItem(clonedResult);
 												break;
 											}
 										}
