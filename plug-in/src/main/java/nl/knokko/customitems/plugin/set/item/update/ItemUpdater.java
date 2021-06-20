@@ -10,6 +10,7 @@ import java.util.function.Function;
 import java.util.logging.Level;
 
 import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
+import nl.knokko.customitems.plugin.util.ItemUtils;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -61,7 +62,7 @@ public class ItemUpdater {
 	public void start() {
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(CustomItemsPlugin.getInstance(), () -> {
 			for (Player player : Bukkit.getOnlinePlayers()) {
-				updateInventory(player.getInventory());
+				updateInventory(player.getInventory(), true);
 			}
 
 			for (World world : Bukkit.getWorlds()) {
@@ -81,13 +82,18 @@ public class ItemUpdater {
 		}, 100, 100);
 	}
 	
-	public void updateInventory(Inventory inventory) {
+	public void updateInventory(Inventory inventory, boolean clearPlaceholders) {
 		int invSize = inventory.getSize();
 		for (int index = 0; index < invSize; index++) {
 			ItemStack currentStack = inventory.getItem(index);
-			ItemStack newStack = maybeUpdate(currentStack);
-			if (newStack != currentStack) {
-				inventory.setItem(index, newStack);
+
+			// ItemUtils.isEmpty will return true if currentStack is a placeholder item. If clearPlaceholder
+			// is false, we shouldn't destroy it (upgrading a placeholder item will result in destroying it).
+			if (clearPlaceholders || !ItemUtils.isEmpty(currentStack)) {
+				ItemStack newStack = maybeUpdate(currentStack);
+				if (newStack != currentStack) {
+					inventory.setItem(index, newStack);
+				}
 			}
 		}
 	}

@@ -2841,4 +2841,12 @@ public class CustomItemsEventHandler implements Listener {
 			}
 		}
 	}
+
+	@EventHandler
+	public void upgradeItemsInOtherInventories(InventoryOpenEvent event) {
+		CustomItemsPlugin plugin = plugin();
+		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () ->
+				plugin.getItemUpdater().updateInventory(event.getInventory(), false)
+				, 5); // Use some delay to reduce the risk of interference with other plug-ins
+	}
 }
