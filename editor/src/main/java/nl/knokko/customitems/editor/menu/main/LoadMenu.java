@@ -24,7 +24,6 @@
 package nl.knokko.customitems.editor.menu.main;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Calendar;
 
@@ -46,12 +45,15 @@ public class LoadMenu extends GuiMenu {
 	
 	public static final LoadMenu INSTANCE = new LoadMenu();
 	
-	private SetList setList;
+	private final SetList setList;
 	private final DynamicTextComponent errorComponent = new DynamicTextComponent("", EditProps.ERROR);
+
+	public LoadMenu() {
+		setList = new SetList();
+	}
 
 	@Override
 	protected void addComponents() {
-		setList = new SetList();
 		addComponent(errorComponent, 0.05f, 0.9f, 0.95f, 1f);
 		addComponent(setList, 0.3f, 0f, 1f, 0.7f);
 		addComponent(new DynamicTextButton("Cancel", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
@@ -60,9 +62,7 @@ public class LoadMenu extends GuiMenu {
 		addComponent(new DynamicTextButton("Load back-up", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(BackupMenu.INSTANCE);
 		}), 0.05f, 0.6f, 0.25f, 0.7f);
-		addComponent(new DynamicTextButton("Refresh", EditProps.BUTTON, EditProps.HOVER, () -> {
-			setList.refresh();
-		}), 0.35f, 0.75f, 0.55f, 0.85f);
+		addComponent(new DynamicTextButton("Refresh", EditProps.BUTTON, EditProps.HOVER, setList::refresh), 0.35f, 0.75f, 0.55f, 0.85f);
 		
 		HelpButtons.addHelpLink(this, "main%20menu/edit/selection.html");
 	}
@@ -86,11 +86,12 @@ public class LoadMenu extends GuiMenu {
 		
 		private static final BackupMenu INSTANCE = new BackupMenu();
 		
-		private BackupSetList setList;
+		private final BackupSetList setList;
 		private final DynamicTextComponent errorComponent;
 		
 		BackupMenu() {
 			this.errorComponent = new DynamicTextComponent("", EditProps.ERROR);
+			setList = new BackupSetList(errorComponent);
 		}
 		
 		@Override
@@ -102,14 +103,11 @@ public class LoadMenu extends GuiMenu {
 		@Override
 		protected void addComponents() {
 			addComponent(errorComponent, 0.05f, 0.9f, 0.95f, 1f);
-			setList = new BackupSetList(errorComponent);
 			addComponent(setList, 0.3f, 0f, 1f, 0.8f);
 			addComponent(new DynamicTextButton("Back", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
 				state.getWindow().setMainComponent(LoadMenu.INSTANCE);
 			}), 0.05f, 0.8f, 0.25f, 0.9f);
-			addComponent(new DynamicTextButton("Refresh", EditProps.BUTTON, EditProps.HOVER, () -> {
-				setList.refresh();
-			}), 0.05f, 0.6f, 0.25f, 0.7f);
+			addComponent(new DynamicTextButton("Refresh", EditProps.BUTTON, EditProps.HOVER, setList::refresh), 0.05f, 0.6f, 0.25f, 0.7f);
 			
 			HelpButtons.addHelpLink(this, "main%20menu/edit/backup.html");
 		}
@@ -149,13 +147,7 @@ public class LoadMenu extends GuiMenu {
 		private void refresh() {
 			clearComponents();
 			File folder = Editor.getBackupFolder();
-			File[] files = folder.listFiles(new FilenameFilter(){
-
-				@Override
-				public boolean accept(File dir, String name) {
-					return name.endsWith(".cisb");
-				}
-			});
+			File[] files = folder.listFiles((dir, name) -> name.endsWith(".cisb"));
 			if(files != null) {
 				for(int index = 0; index < files.length; index++) {
 					final File file = files[index];
@@ -213,13 +205,7 @@ public class LoadMenu extends GuiMenu {
 		private void refresh() {
 			clearComponents();
 			File folder = Editor.getFolder();
-			File[] files = folder.listFiles(new FilenameFilter(){
-
-				@Override
-				public boolean accept(File dir, String name) {
-					return name.endsWith(".cisb");
-				}
-			});
+			File[] files = folder.listFiles((dir, name) -> name.endsWith(".cisb"));
 			if(files != null) {
 				for(int index = 0; index < files.length; index++) {
 					final File file = files[index];
