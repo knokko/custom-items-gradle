@@ -1821,6 +1821,13 @@ public class CustomItemsEventHandler implements Listener {
 	public void onInventoryClick(InventoryClickEvent event) {
 		SlotType type = event.getSlotType();
 		InventoryAction action = event.getAction();
+
+		// The CREATIVE ClickType can't be handled properly because it is unknown whether the player pressed
+		// shift, which button was used, and a lot of other stuff. Return early to prevent weird reactions.
+		if (event.getClick() == ClickType.CREATIVE) {
+			return;
+		}
+
 		if (type == SlotType.RESULT) {
 			if (event.getInventory() instanceof MerchantInventory) {
 				MerchantInventory inv = (MerchantInventory) event.getInventory();
@@ -2333,6 +2340,7 @@ public class CustomItemsEventHandler implements Listener {
 		Long previousInvEvent = lastInventoryEvents.get(playerId);
 
 		long currentTime = plugin().getData().getCurrentTick();
+
 		if (previousInvEvent != null && previousInvEvent == currentTime) {
 			event.setCancelled(true);
 		} else {
@@ -2342,7 +2350,10 @@ public class CustomItemsEventHandler implements Listener {
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
 	public void guardInventoryEvents(InventoryClickEvent event) {
-		guardInventoryEvents(event, event.getWhoClicked().getUniqueId());
+	    // Don't mess with creative clicks
+	    if (event.getClick() != ClickType.CREATIVE) {
+			guardInventoryEvents(event, event.getWhoClicked().getUniqueId());
+		}
 	}
 
 	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
