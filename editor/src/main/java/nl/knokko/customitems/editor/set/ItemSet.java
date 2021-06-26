@@ -6364,9 +6364,17 @@ public class ItemSet implements ItemSetBase {
 			}
 			if (!has)
 				return "That texture is not in this item set.";
-			for (CustomItem item : items)
-				if (item.getTexture() == texture)
-					return "That texture is used by " + item.getName();
+			for (CustomItem item : items) {
+				if (item.getTexture() == texture) {
+					return "That texture is used by item " + item.getName();
+				}
+			}
+
+			for (CustomBlockView block : getBlocks()) {
+				if (block.getValues().getTexture() == texture) {
+					return "That texture is used by block " + block.getValues().getName();
+				}
+			}
 		}
 		textures.remove(texture);
 		return null;
