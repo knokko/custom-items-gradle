@@ -89,18 +89,18 @@ public class CreateToolTest {
 			// Exclude the version suffix, if there is one (for instance 1.12 to 1.16)
 			int indexBracket = repairItem.indexOf(" (");
 			if (indexBracket != -1) {
-				test.assertComponentWithText(repairItem.substring(0, indexBracket) + "(0) x1");
+				test.assertComponentWithText(repairItem.substring(0, indexBracket) + "(0)");
 			} else {
-				test.assertComponentWithText(repairItem + "(0) x1");
+				test.assertComponentWithText(repairItem + "(0)");
 			}
 		} else if (repairItem != null){
 			
 			// Exclude the version suffix, if there is one (for instance 1.12 to 1.16)
 			int indexBracket = repairItem.indexOf(" (");
 			if (indexBracket != -1)
-				test.assertComponentWithText(repairItem.substring(0, indexBracket) + " x1");
+				test.assertComponentWithText(repairItem.substring(0, indexBracket));
 			else
-				test.assertComponentWithText(repairItem + " x1");
+				test.assertComponentWithText(repairItem);
 		} else {
 			test.assertComponentWithText("None");
 		}
