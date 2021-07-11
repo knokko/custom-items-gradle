@@ -1,6 +1,10 @@
 # Knokko's Custom Items
 
-This is the source code for the Knokko's Custom Items minecraft plug-in: https://dev.bukkit.org/projects/custom-items-and-textures and https://www.spigotmc.org/resources/knokkos-custom-items.88182/ . Unofficial Chinese page: https://www.mcbbs.net/forum.php?mod=viewthread&tid=1177493&extra=page%3D1%26filter%3Dsortid%26sortid%3D7%26searchoption%5B61%5D%5Bvalue%5D%3Dknokko%26searchoption%5B61%5D%5Btype%5D%3D
+This is the source code for the Knokko's Custom Items minecraft plug-in: 
+ - https://dev.bukkit.org/projects/custom-items-and-textures (BukkitDev)
+ - https://www.spigotmc.org/resources/knokkos-custom-items.88182/ (Spigot)
+ - https://www.mcbbs.net/forum.php?mod=viewthread&tid=1177493&extra=page%3D1%26filter%3Dsortid%26sortid%3D7%26searchoption%5B61%5D%5Bvalue%5D%3Dknokko%26searchoption%5B61%5D%5Btype%5D%3D (MCBBS) [Chinese] [This page is not made by me]
+ - https://polymart.org/resource/knokko-x27-s-custom-items.1190 (Polymart)
 
 This plug-in makes it possible to add custom items with their own textures, without sacrificing existing minecraft items. 
 (At least, if the (server) resourcepack is used.)
