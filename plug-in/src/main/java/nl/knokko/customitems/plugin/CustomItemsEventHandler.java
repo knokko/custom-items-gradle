@@ -2416,11 +2416,15 @@ public class CustomItemsEventHandler implements Listener {
 
 		// Block vanilla recipes that attempt to use custom items
 		if (result != null && !ItemHelper.getMaterialName(result).equals(CIMaterial.AIR.name())) {
-			ItemStack[] ingredients = inventory.getStorageContents();
-			for (ItemStack ingredient : ingredients) {
-				if (ItemUtils.isCustom(ingredient)) {
-					inventory.setResult(ItemHelper.createStack(CIMaterial.AIR.name(), 1));
-					break;
+			// When the result is a custom item, the recipe can't be an accident, so we can proceed safely
+			// This improves cooperation with other crafting plug-ins
+		    if (!ItemUtils.isCustom(result)) {
+				ItemStack[] ingredients = inventory.getStorageContents();
+				for (ItemStack ingredient : ingredients) {
+					if (ItemUtils.isCustom(ingredient)) {
+						inventory.setResult(ItemHelper.createStack(CIMaterial.AIR.name(), 1));
+						break;
+					}
 				}
 			}
 		}
