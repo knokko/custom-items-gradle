@@ -53,6 +53,7 @@ public class UpdateProjectileTask implements Runnable {
 						}
 						fixItemMotion();
 					} else {
+						coverItem.remove();
 						coverItem = null;
 					}
 				}
@@ -123,5 +124,8 @@ public class UpdateProjectileTask implements Runnable {
 		coverItem = projectile.world.dropItem(position.toLocation(projectile.world), coverStack);
 		coverItem.setGravity(false);
 		coverItem.setInvulnerable(true);
+		if (!coverItem.isValid()) {
+			coverItem.remove();
+		}
 	}
 }
