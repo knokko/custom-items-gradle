@@ -67,7 +67,7 @@ public class ProjectileManager implements Listener {
 			Bukkit.getLogger().warning("Reached maximum number of flying projectiles");
 			return;
 		}
-		
+
 		// For the next computations, I need a unit vector that is not (almost) parallel to `look`
 		Vector notParallel;
 		
@@ -97,7 +97,7 @@ public class ProjectileManager implements Listener {
 		Vector launchVelocity = launchDirection.multiply(launchSpeed);
 		
 		flyingProjectiles.add(new FlyingProjectile(projectile, directShooter, responsibleShooter, launchPosition.toVector(), launchVelocity, lifetime));
-		if (directShooter != null) {
+		if (directShooter != null && projectile.launchKnockback != 0f) {
 			directShooter.setVelocity(directShooter.getVelocity().add(launchDirection.multiply(-projectile.launchKnockback)));
 		}
 	}
