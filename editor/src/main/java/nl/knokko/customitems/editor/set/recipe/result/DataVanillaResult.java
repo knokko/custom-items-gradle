@@ -81,4 +81,8 @@ public class DataVanillaResult extends Result {
 	public CIMaterial getType() {
 		return type;
 	}
+
+	public byte getData() {
+		return data;
+	}
 }

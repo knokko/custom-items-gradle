@@ -49,4 +49,8 @@ public class CustomIngredient extends Ingredient {
     public String toString() {
     	return item.getName();
     }
+
+    public CustomItem getItem() {
+        return item;
+    }
 }

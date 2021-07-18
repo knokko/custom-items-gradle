@@ -53,4 +53,8 @@ public class SimpleVanillaIngredient extends Ingredient {
     public String toString() {
     	return type.name();
     }
+
+    public CIMaterial getType() {
+        return type;
+    }
 }

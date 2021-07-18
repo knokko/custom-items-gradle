@@ -109,4 +109,8 @@ public class ShapedCustomRecipe implements CustomRecipe {
 		}
 		return null;
 	}
+
+	public Ingredient[] getIngredients() {
+    	return ingredients;
+	}
 }

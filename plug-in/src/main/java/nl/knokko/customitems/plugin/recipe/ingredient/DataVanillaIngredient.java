@@ -58,4 +58,12 @@ public class DataVanillaIngredient extends Ingredient {
 	public String toString() {
 		return type.name() + "[" + data + "]";
 	}
+
+	public CIMaterial getType() {
+		return type;
+	}
+
+	public byte getData() {
+		return data;
+	}
 }

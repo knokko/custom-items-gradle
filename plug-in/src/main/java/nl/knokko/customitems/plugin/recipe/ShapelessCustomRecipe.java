@@ -77,4 +77,8 @@ public class ShapelessCustomRecipe implements CustomRecipe {
 		// We have exactly what we need
 		return result;
 	}
+
+	public Ingredient[] getIngredients() {
+		return ingredients;
+	}
 }
