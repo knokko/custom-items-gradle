@@ -1,0 +1,4 @@
+name: CustomItemsTester
+main: nl.knokko.test.plugin.TestPlugin
+version: 1.0
+depend: [CustomItems, KnokkoCore]

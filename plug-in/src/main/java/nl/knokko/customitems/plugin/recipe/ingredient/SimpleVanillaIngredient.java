@@ -39,6 +39,11 @@ public class SimpleVanillaIngredient extends Ingredient {
         this.type = CIMaterial.valueOf(input.readJavaString());
     }
 
+    public SimpleVanillaIngredient(CIMaterial type, byte amount, ItemStack remaining) {
+        super(amount, remaining);
+        this.type = type;
+    }
+
     @Override
     public boolean acceptSpecific(ItemStack item) {
     	if (type == CIMaterial.AIR) {

@@ -40,6 +40,11 @@ public class CustomIngredient extends Ingredient {
         this.item = item;
     }
 
+    public CustomIngredient(CustomItem item, byte amount, ItemStack remainingItem) {
+        super(amount, remainingItem);
+        this.item = item;
+    }
+
     @Override
     public boolean acceptSpecific(ItemStack item) {
         return this.item.is(item);

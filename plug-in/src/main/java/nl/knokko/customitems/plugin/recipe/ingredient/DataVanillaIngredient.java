@@ -32,15 +32,21 @@ import nl.knokko.customitems.plugin.util.ItemUtils;
 
 public class DataVanillaIngredient extends Ingredient {
 	
+	private final CIMaterial type;
+	private final byte data;
+
 	public DataVanillaIngredient(BitInput input, byte amount, ItemStack remainingItem) {
 		super(amount, remainingItem);
 		this.type = CIMaterial.valueOf(input.readJavaString());
 		this.data = (byte) input.readNumber((byte) 4, false);
 	}
-	
-	private final CIMaterial type;
-	private final byte data;
-	
+
+	public DataVanillaIngredient(CIMaterial type, byte data, byte amount, ItemStack remainingItem) {
+		super(amount, remainingItem);
+		this.type = type;
+		this.data = data;
+	}
+
 	@Override
 	@SuppressWarnings("deprecation")
 	public boolean acceptSpecific(ItemStack item) {

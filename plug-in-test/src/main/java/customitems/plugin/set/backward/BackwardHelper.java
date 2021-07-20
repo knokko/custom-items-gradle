@@ -1,4 +1,4 @@
-package nl.knokko.customitems.plugin.set.backward;
+package customitems.plugin.set.backward;
 
 import nl.knokko.customitems.plugin.recipe.CustomRecipe;
 import nl.knokko.customitems.plugin.recipe.ShapedCustomRecipe;
