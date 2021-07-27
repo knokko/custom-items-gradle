@@ -21,7 +21,7 @@ public class Backward1 {
     public void testBackwardCompatibility1() {
         ItemSet set1 = BackwardHelper.loadItemSet("backward1");
         testTextures1(set1);
-        testItems1(set1);
+        testItems1(set1, 1);
         testRecipes1(set1);
     }
 
@@ -32,8 +32,8 @@ public class Backward1 {
         checkTexture(itemSet, "gun1");
     }
 
-    static void testItems1(ItemSet itemSet) {
-        assertEquals(1, itemSet.getBackingItems().size());
+    static void testItems1(ItemSet itemSet, int numItems) {
+        assertEquals(numItems, itemSet.getBackingItems().size());
 
         SimpleCustomItem simple1 = (SimpleCustomItem) itemSet.getCustomItemByName("simple1");
         assertEquals(CustomItemType.DIAMOND_HOE, simple1.getItemType());

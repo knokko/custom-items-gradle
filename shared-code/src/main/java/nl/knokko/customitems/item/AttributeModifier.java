@@ -40,6 +40,16 @@ public class AttributeModifier {
 		this.operation = operation;
 		this.value = value;
 	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof AttributeModifier) {
+			AttributeModifier am = (AttributeModifier) other;
+			return am.attribute == attribute && am.operation == operation && am.slot == slot && am.value == value;
+		} else {
+			return false;
+		}
+	}
 	
 	public Attribute getAttribute() {
 		return attribute;

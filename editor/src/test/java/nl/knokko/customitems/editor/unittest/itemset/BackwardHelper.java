@@ -23,9 +23,13 @@ import static org.junit.Assert.assertEquals;
 public class BackwardHelper {
 
     public static ItemSet loadItemSet(String name) {
-        InputStream rawInput = BackwardHelper.class.getClassLoader().getResourceAsStream(
-                "backward/itemset/" + name + ".cisb"
-        );
+        String resourceName = "backward/itemset/" + name + ".cisb";
+        InputStream rawInput = BackwardHelper.class.getClassLoader().getResourceAsStream(resourceName);
+
+        if (rawInput == null) {
+            throw new IllegalArgumentException("Can't find resource '" + resourceName + "'");
+        }
+
         BitInputStream bitInput = new BitInputStream(new BufferedInputStream(rawInput));
         ItemSet result;
         try {
