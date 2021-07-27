@@ -17,9 +17,13 @@ import java.io.InputStream;
 public class BackwardHelper {
 
     public static ItemSet loadItemSet(String name) {
-        InputStream rawInput = BackwardHelper.class.getClassLoader().getResourceAsStream(
-                "backward/itemset/" + name + ".cis"
-        );
+        String resourceName = "backward/itemset/" + name + ".cis";
+        InputStream rawInput = BackwardHelper.class.getClassLoader().getResourceAsStream(resourceName);
+
+        if (rawInput == null) {
+            throw new IllegalArgumentException("Can't find resource '" + resourceName + "'");
+        }
+
         BitInputStream bitInput = new BitInputStream(new BufferedInputStream(rawInput));
         ItemSet result;
         try {
@@ -29,19 +33,6 @@ public class BackwardHelper {
         }
         bitInput.terminate();
         return result;
-    }
-
-    public static BufferedImage loadImage(String name) {
-        try {
-            InputStream input = BackwardHelper.class.getClassLoader().getResourceAsStream(
-                    "backward/itemset/texture/" + name + ".png"
-            );
-            BufferedImage result = ImageIO.read(input);
-            input.close();
-            return result;
-        } catch (IOException io) {
-            throw new RuntimeException("Let the test fail", io);
-        }
     }
 
     public static String[] stringArray(String...strings) {

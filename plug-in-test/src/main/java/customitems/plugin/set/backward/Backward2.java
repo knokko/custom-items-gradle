@@ -1,22 +1,21 @@
-package nl.knokko.customitems.editor.unittest.itemset;
+package customitems.plugin.set.backward;
 
-import nl.knokko.customitems.editor.set.ItemSet;
-import nl.knokko.customitems.editor.set.item.CustomItem;
-import nl.knokko.customitems.editor.set.item.CustomTool;
-import nl.knokko.customitems.editor.set.item.SimpleCustomItem;
 import nl.knokko.customitems.item.AttributeModifier;
 import nl.knokko.customitems.item.CustomItemType;
-import org.junit.Test;
+import nl.knokko.customitems.plugin.set.ItemSet;
+import nl.knokko.customitems.plugin.set.item.CustomItem;
+import nl.knokko.customitems.plugin.set.item.CustomTool;
+import nl.knokko.customitems.plugin.set.item.SimpleCustomItem;
 
-import static nl.knokko.customitems.editor.unittest.itemset.Backward1.*;
+import static customitems.plugin.set.backward.Backward1.testItems1;
+import static customitems.plugin.set.backward.Backward1.testRecipes1;
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class Backward2 {
 
-    @Test
-    public void testBackwardCompatibility2() {
+    public static void testBackwardCompatibility2() {
         ItemSet set2 = BackwardHelper.loadItemSet("backward2");
-        testTextures1(set2);
         testItems2(set2, 6);
         testRecipes1(set2);
     }
@@ -50,7 +49,6 @@ public class Backward2 {
                         1.0
                 )
         }, item.getAttributes());
-        assertEquals("gun1", item.getTexture().getName());
     }
 
     private static void testSword1(CustomTool item) {
@@ -69,23 +67,21 @@ public class Backward2 {
                         3.0
                 )
         }, item.getAttributes());
-        assertEquals("test1", item.getTexture().getName());
-        assertFalse(item.allowEnchanting());
-        assertEquals(53, item.getDurability());
+        assertFalse(item.allowVanillaEnchanting());
+        assertEquals(53, item.getMaxDurability());
     }
 
     private static void testPickaxe1(CustomTool item) {
         assertEquals("pickaxe1", item.getName());
-        // It looks like a bug in Editor 2.0 somehow turned the type from GOLD to IRON
+        // Was turned back from GOLD to IRON due to a bug in Editor 2.0 (which I won't fix because its outdated)
         assertEquals(CustomItemType.IRON_PICKAXE, item.getItemType());
         assertEquals("Gold Pick", item.getDisplayName());
         assertArrayEquals(new String[] {
                 "A pickaxe... but made of gold!"
         }, item.getLore());
         assertEquals(0, item.getAttributes().length);
-        assertEquals("gun1", item.getTexture().getName());
-        assertTrue(item.allowEnchanting());
-        assertEquals(-1, item.getDurability());
+        assertTrue(item.allowVanillaEnchanting());
+        assertNull(item.getMaxDurabilityNew());
     }
 
     private static void testAxe1(CustomTool item) {
@@ -101,9 +97,8 @@ public class Backward2 {
                         7.0
                 )
         }, item.getAttributes());
-        assertEquals("test1", item.getTexture().getName());
-        assertTrue(item.allowEnchanting());
-        assertEquals(500, item.getDurability());
+        assertTrue(item.allowVanillaEnchanting());
+        assertEquals(500, item.getMaxDurability());
     }
 
     private static void testShovel1(CustomTool item) {
@@ -112,9 +107,8 @@ public class Backward2 {
         assertEquals("Crystal Shovel", item.getDisplayName());
         assertEquals(0, item.getLore().length);
         assertEquals(0, item.getAttributes().length);
-        assertEquals("gun1", item.getTexture().getName());
-        assertFalse(item.allowEnchanting());
-        assertEquals(5000, item.getDurability());
+        assertFalse(item.allowVanillaEnchanting());
+        assertEquals(5000, item.getMaxDurability());
     }
 
     static void testBaseDefault2(CustomItem item) {

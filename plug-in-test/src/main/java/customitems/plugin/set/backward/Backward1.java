@@ -19,12 +19,12 @@ public class Backward1 {
 
     public static void testBackwardCompatibility1() {
         ItemSet set1 = loadItemSet("backward1");
-        testItems1(set1);
+        testItems1(set1, 1);
         testRecipes1(set1);
     }
 
-    static void testItems1(ItemSet itemSet) {
-        assertEquals(1, itemSet.getBackingItems().length);
+    static void testItems1(ItemSet itemSet, int numItems) {
+        assertEquals(numItems, itemSet.getBackingItems().length);
 
         SimpleCustomItem simple1 = (SimpleCustomItem) itemSet.getItem("simple1");
         assertEquals(CustomItemType.DIAMOND_HOE, simple1.getItemType());
