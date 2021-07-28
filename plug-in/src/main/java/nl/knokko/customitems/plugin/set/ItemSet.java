@@ -1083,16 +1083,41 @@ public class ItemSet implements ItemSetBase {
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
 		Ingredient repairItem = loadIngredient.apply(input);
-		return new CustomTool(
-				itemType, damage, name, "", displayName, lore, attributes, 
-				new Enchantment[0], durability, allowEnchanting, allowAnvil, 
-				repairItem, ItemFlag.getDefaultValues(),
-				CustomToolDurability.defaultEntityHitDurabilityLoss(itemType),
-				CustomToolDurability.defaultBlockBreakDurabilityLoss(itemType), 
-				new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
-				new String[] {}, new ReplaceCondition[] {}, ConditionOperation.NONE,
-				new ExtraItemNbt(), 1f
-		);
+
+		if (itemType.canServe(CustomItemType.Category.HOE)) {
+			return new CustomHoe(
+					itemType, damage, name, "", displayName, lore, attributes,
+					new Enchantment[0], durability, allowEnchanting, allowAnvil,
+					repairItem, ItemFlag.getDefaultValues(),
+					CustomToolDurability.defaultEntityHitDurabilityLoss(itemType),
+					CustomToolDurability.defaultBlockBreakDurabilityLoss(itemType),
+					1, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+					new String[] {}, new ReplaceCondition[] {}, ConditionOperation.NONE,
+					new ExtraItemNbt(), 1f
+			);
+		} else if (itemType.canServe(CustomItemType.Category.SHEAR)) {
+			return new CustomShears(
+					damage, name, "", displayName, lore, attributes,
+					new Enchantment[0], durability, allowEnchanting, allowAnvil,
+					repairItem, ItemFlag.getDefaultValues(),
+					CustomToolDurability.defaultEntityHitDurabilityLoss(itemType),
+					CustomToolDurability.defaultBlockBreakDurabilityLoss(itemType),
+					1, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+					new String[] {}, new ReplaceCondition[] {}, ConditionOperation.NONE,
+					new ExtraItemNbt(), 1f
+			);
+		} else {
+			return new CustomTool(
+					itemType, damage, name, "", displayName, lore, attributes,
+					new Enchantment[0], durability, allowEnchanting, allowAnvil,
+					repairItem, ItemFlag.getDefaultValues(),
+					CustomToolDurability.defaultEntityHitDurabilityLoss(itemType),
+					CustomToolDurability.defaultBlockBreakDurabilityLoss(itemType),
+					new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+					new String[] {}, new ReplaceCondition[] {}, ConditionOperation.NONE,
+					new ExtraItemNbt(), 1f
+			);
+		}
 	}
 
 	private static CustomItem loadTool4(
@@ -1115,16 +1140,40 @@ public class ItemSet implements ItemSetBase {
 		boolean allowEnchanting = input.readBoolean();
 		boolean allowAnvil = input.readBoolean();
 		Ingredient repairItem = loadIngredient.apply(input);
-		return new CustomTool(
-				itemType, damage, name, "", displayName, lore, attributes, 
-				defaultEnchantments, durability, allowEnchanting, allowAnvil, 
-				repairItem, ItemFlag.getDefaultValues(),
-				CustomToolDurability.defaultEntityHitDurabilityLoss(itemType),
-				CustomToolDurability.defaultBlockBreakDurabilityLoss(itemType), 
-				new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), 
-				new String[] {}, new ReplaceCondition[] {}, ConditionOperation.NONE,
-				new ExtraItemNbt(), 1f
-		);
+		if (itemType.canServe(CustomItemType.Category.HOE)) {
+			return new CustomHoe(
+					itemType, damage, name, "", displayName, lore, attributes,
+					defaultEnchantments, durability, allowEnchanting, allowAnvil,
+					repairItem, ItemFlag.getDefaultValues(),
+					CustomToolDurability.defaultEntityHitDurabilityLoss(itemType),
+					CustomToolDurability.defaultBlockBreakDurabilityLoss(itemType),
+					1, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+					new String[] {}, new ReplaceCondition[] {}, ConditionOperation.NONE,
+					new ExtraItemNbt(), 1f
+			);
+		} else if (itemType.canServe(CustomItemType.Category.SHEAR)) {
+			return new CustomShears(
+					damage, name, "", displayName, lore, attributes,
+					defaultEnchantments, durability, allowEnchanting, allowAnvil,
+					repairItem, ItemFlag.getDefaultValues(),
+					CustomToolDurability.defaultEntityHitDurabilityLoss(itemType),
+					CustomToolDurability.defaultBlockBreakDurabilityLoss(itemType),
+					1, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+					new String[] {}, new ReplaceCondition[] {}, ConditionOperation.NONE,
+					new ExtraItemNbt(), 1f
+			);
+		} else {
+			return new CustomTool(
+					itemType, damage, name, "", displayName, lore, attributes,
+					defaultEnchantments, durability, allowEnchanting, allowAnvil,
+					repairItem, ItemFlag.getDefaultValues(),
+					CustomToolDurability.defaultEntityHitDurabilityLoss(itemType),
+					CustomToolDurability.defaultBlockBreakDurabilityLoss(itemType),
+					new ArrayList<>(), new ArrayList<>(), new ArrayList<>(),
+					new String[] {}, new ReplaceCondition[] {}, ConditionOperation.NONE,
+					new ExtraItemNbt(), 1f
+			);
+		}
 	}
 
 	private static CustomItem loadTool5(

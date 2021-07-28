@@ -544,17 +544,46 @@ public class ItemSet implements ItemSetBase {
 		if (texture == null)
 			throw new IllegalArgumentException("Can't find texture " + imageName);
 		byte[] customModel = loadCustomModel(input, checkCustomModel);
-		return new CustomTool(
-				itemType, name, "", displayName, lore, attributes, 
-				new Enchantment[0], durability, allowEnchanting, allowAnvil, 
-				repairItem, texture, ItemFlag.getDefaultValues(), 
-				CustomToolDurability.defaultEntityHitDurabilityLoss(itemType), 
-				CustomToolDurability.defaultBlockBreakDurabilityLoss(itemType), 
-				customModel, new ArrayList<>(), new ArrayList<>(), 
-				new ArrayList<>(), new String[] {}, 
-				new ReplaceCondition[0], ConditionOperation.NONE,
-				new ExtraItemNbt(), 1f
-		);
+
+		if (itemType.canServe(Category.HOE)) {
+			return new CustomHoe(
+					itemType, name, "", displayName, lore, attributes,
+					new Enchantment[0], durability, allowEnchanting, allowAnvil,
+					repairItem, texture, ItemFlag.getDefaultValues(),
+					CustomToolDurability.defaultEntityHitDurabilityLoss(itemType),
+					CustomToolDurability.defaultBlockBreakDurabilityLoss(itemType),
+					1,
+					customModel, new ArrayList<>(), new ArrayList<>(),
+					new ArrayList<>(), new String[] {},
+					new ReplaceCondition[0], ConditionOperation.NONE,
+					new ExtraItemNbt(), 1f
+			);
+		} else if (itemType.canServe(Category.SHEAR)) {
+			return new CustomShears(
+					name, "", displayName, lore, attributes,
+					new Enchantment[0], durability, allowEnchanting, allowAnvil,
+					repairItem, texture, ItemFlag.getDefaultValues(),
+					CustomToolDurability.defaultEntityHitDurabilityLoss(itemType),
+					CustomToolDurability.defaultBlockBreakDurabilityLoss(itemType),
+					1,
+					customModel, new ArrayList<>(), new ArrayList<>(),
+					new ArrayList<>(), new String[] {},
+					new ReplaceCondition[0], ConditionOperation.NONE,
+					new ExtraItemNbt(), 1f
+			);
+		} else {
+			return new CustomTool(
+					itemType, name, "", displayName, lore, attributes,
+					new Enchantment[0], durability, allowEnchanting, allowAnvil,
+					repairItem, texture, ItemFlag.getDefaultValues(),
+					CustomToolDurability.defaultEntityHitDurabilityLoss(itemType),
+					CustomToolDurability.defaultBlockBreakDurabilityLoss(itemType),
+					customModel, new ArrayList<>(), new ArrayList<>(),
+					new ArrayList<>(), new String[]{},
+					new ReplaceCondition[0], ConditionOperation.NONE,
+					new ExtraItemNbt(), 1f
+			);
+		}
 	}
 	
 	private CustomItem loadTool4(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
