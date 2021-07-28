@@ -32,6 +32,16 @@ public class Enchantment {
 		this.type = type;
 		this.level = level;
 	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof Enchantment) {
+			Enchantment enchantment = (Enchantment) other;
+			return enchantment.type == type && enchantment.level == level;
+		} else {
+			return false;
+		}
+	}
 	
 	public EnchantmentType getType() {
 		return type;

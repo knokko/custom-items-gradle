@@ -13,6 +13,7 @@ import org.junit.Test;
 import static nl.knokko.customitems.editor.unittest.itemset.Backward1.testRecipes1;
 import static nl.knokko.customitems.editor.unittest.itemset.Backward1.testTextures1;
 import static nl.knokko.customitems.editor.unittest.itemset.Backward2.testItems2;
+import static nl.knokko.customitems.editor.unittest.itemset.Backward4.*;
 import static nl.knokko.customitems.editor.unittest.itemset.BackwardHelper.*;
 import static org.junit.Assert.*;
 
@@ -112,12 +113,12 @@ public class Backward3 {
     }
 
     static void testBaseDefault3(CustomItem item) {
-        // TODO Use testBaseDefault4 when it's finished
+        testBaseDefault4(item);
     }
 
     static void testSimpleDefault3(SimpleCustomItem item) {
         testBaseDefault3(item);
-        // TODO Use testSimpleDefault4 when it's finished
+        testSimpleDefault4(item);
     }
 
     static void testToolDefault3(CustomTool item) {
@@ -126,6 +127,6 @@ public class Backward3 {
         assertFalse(item.allowAnvilActions());
         assertTrue(item.getRepairItem() instanceof NoIngredient);
 
-        // TODO use testToolDefault4 when it's finished
+        testToolDefault4(item);
     }
 }
