@@ -59,6 +59,10 @@ public class BackwardHelper {
         BufferedImage expectedImage = loadImage(texture.getName());
         BufferedImage actualImage = texture.getImage();
 
+        assertImageEqual(expectedImage, actualImage);
+    }
+
+    public static void assertImageEqual(BufferedImage expectedImage, BufferedImage actualImage) {
         assertEquals(expectedImage.getWidth(), actualImage.getWidth());
         assertEquals(expectedImage.getHeight(), actualImage.getHeight());
         for (int x = 0; x < expectedImage.getWidth(); x++) {

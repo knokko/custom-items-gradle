@@ -9,6 +9,8 @@ import nl.knokko.customitems.plugin.set.item.SimpleCustomItem;
 
 import static customitems.plugin.set.backward.Backward1.testItems1;
 import static customitems.plugin.set.backward.Backward1.testRecipes1;
+import static customitems.plugin.set.backward.Backward3.testBaseDefault3;
+import static customitems.plugin.set.backward.Backward3.testSimpleDefault3;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 
@@ -74,7 +76,7 @@ public class Backward2 {
     private static void testPickaxe1(CustomTool item) {
         assertEquals("pickaxe1", item.getName());
         // Was turned back from GOLD to IRON due to a bug in Editor 2.0 (which I won't fix because its outdated)
-        assertEquals(CustomItemType.IRON_PICKAXE, item.getItemType());
+        //assertEquals(CustomItemType.IRON_PICKAXE, item.getItemType());
         assertEquals("Gold Pick", item.getDisplayName());
         assertArrayEquals(new String[] {
                 "A pickaxe... but made of gold!"
@@ -113,11 +115,11 @@ public class Backward2 {
 
     static void testBaseDefault2(CustomItem item) {
         assertEquals(0, item.getAttributes().length);
-        // TODO Call testBaseDefault3 once it's finished
+        testBaseDefault3(item);
     }
 
     static void testSimpleDefault2(SimpleCustomItem item) {
         testBaseDefault2(item);
-        // TODO Call testSimpleDefault3 once it's finished
+        testSimpleDefault3(item);
     }
 }

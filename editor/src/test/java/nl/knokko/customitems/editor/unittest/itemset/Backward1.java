@@ -20,13 +20,13 @@ public class Backward1 {
     @Test
     public void testBackwardCompatibility1() {
         ItemSet set1 = BackwardHelper.loadItemSet("backward1");
-        testTextures1(set1);
+        testTextures1(set1, 2);
         testItems1(set1, 1);
         testRecipes1(set1);
     }
 
-    static void testTextures1(ItemSet itemSet) {
-        assertEquals(2, itemSet.getBackingTextures().size());
+    static void testTextures1(ItemSet itemSet, int numTextures) {
+        assertEquals(numTextures, itemSet.getBackingTextures().size());
 
         checkTexture(itemSet, "test1");
         checkTexture(itemSet, "gun1");
