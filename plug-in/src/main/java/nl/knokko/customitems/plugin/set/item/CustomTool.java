@@ -123,6 +123,14 @@ public class CustomTool extends CustomItem {
 			return maxDurability;
 		}
 	}
+
+	public int getEntityHitDurabilityLoss() {
+		return entityHitDurabilityLoss;
+	}
+
+	public int getBlockBreakDurabilityLoss() {
+		return blockBreakDurabilityLoss;
+	}
 	
 	@Override
 	protected List<String> createLore(){

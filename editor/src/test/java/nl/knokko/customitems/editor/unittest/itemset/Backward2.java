@@ -18,7 +18,7 @@ public class Backward2 {
     @Test
     public void testBackwardCompatibility2() {
         ItemSet set2 = BackwardHelper.loadItemSet("backward2");
-        testTextures1(set2, 1);
+        testTextures1(set2, 2);
         testItems2(set2, 6);
         testRecipes1(set2);
     }

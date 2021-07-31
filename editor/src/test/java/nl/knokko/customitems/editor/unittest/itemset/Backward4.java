@@ -12,6 +12,7 @@ import org.junit.Test;
 import static nl.knokko.customitems.editor.unittest.itemset.Backward1.testRecipes1;
 import static nl.knokko.customitems.editor.unittest.itemset.Backward3.testItems3;
 import static nl.knokko.customitems.editor.unittest.itemset.Backward3.testTextures3;
+import static nl.knokko.customitems.editor.unittest.itemset.Backward5.*;
 import static nl.knokko.customitems.editor.unittest.itemset.BackwardHelper.compareIngredient;
 import static nl.knokko.customitems.editor.unittest.itemset.BackwardHelper.loadItemSet;
 import static org.junit.Assert.*;
@@ -132,32 +133,32 @@ public class Backward4 {
 
     static void testBaseDefault4(CustomItem item) {
         assertEquals(0, item.getDefaultEnchantments().length);
-        // TODO Call testBaseDefault5 when it's finished
+        testBaseDefault5(item);
     }
 
     static void testSimpleDefault4(SimpleCustomItem item) {
         assertEquals(64, item.getMaxStacksize());
         testBaseDefault4(item);
-        // TODO Call testSimpleDefault5 when it's finished
+        testSimpleDefault5(item);
     }
 
     static void testToolDefault4(CustomTool item) {
         testBaseDefault4(item);
-        // TODO Call testToolDefault5 when it's finished
+        testToolDefault5(item);
     }
 
     static void testHoeDefault4(CustomHoe item) {
         testToolDefault4(item);
-        // TODO Call testHoeDefault5 when it's finished
+        testHoeDefault5(item);
     }
 
     static void testShearsDefault4(CustomShears item) {
         testToolDefault4(item);
-        // TODO Call testShearsDefault5 when it's finished
+        testShearsDefault5(item);
     }
 
     static void testBowDefault4(CustomBow item) {
         testToolDefault4(item);
-        // TODO Call testBowDefault5 when it's finished
+        testBowDefault5(item);
     }
 }
