@@ -24,7 +24,7 @@ public class Backward3 {
         ItemSet set3 = loadItemSet("backward3");
         testTextures3(set3, 3);
         testItems3(set3, 9);
-        testRecipes1(set3);
+        testRecipes1(set3, 2);
     }
 
     static void testTextures3(ItemSet set, int numTextures) {
@@ -73,7 +73,7 @@ public class Backward3 {
         assertTrue(item.allowEnchanting());
         assertTrue(item.allowAnvilActions());
         assertEquals(100, item.getDurability());
-        assertTrue(compareIngredient(new SimpleVanillaIngredient(CIMaterial.STICK, (byte) 1, null), item.getRepairItem()));
+        assertEquals(new SimpleVanillaIngredient(CIMaterial.STICK, (byte) 1, null), item.getRepairItem());
     }
 
     static void testShears1(CustomShears item) {
@@ -105,7 +105,7 @@ public class Backward3 {
         assertFalse(item.allowEnchanting());
         assertTrue(item.allowAnvilActions());
         assertEquals(123, item.getDurability());
-        assertTrue(compareIngredient(new CustomItemIngredient(simple1, (byte) 1, null), item.getRepairItem()));
+        assertEquals(new CustomItemIngredient(simple1, (byte) 1, null), item.getRepairItem());
         assertEquals(0.8, item.getDamageMultiplier(), 0.0);
         assertEquals(1.5, item.getSpeedMultiplier(), 0.0);
         assertEquals(1, item.getKnockbackStrength());

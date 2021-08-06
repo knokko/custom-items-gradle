@@ -22,7 +22,7 @@ public class Backward1 {
         ItemSet set1 = BackwardHelper.loadItemSet("backward1");
         testTextures1(set1, 2);
         testItems1(set1, 1);
-        testRecipes1(set1);
+        testRecipes1(set1, 2);
     }
 
     static void testTextures1(ItemSet itemSet, int numTextures) {
@@ -43,10 +43,10 @@ public class Backward1 {
         assertEquals(itemSet.getTextureByName("test1"), simple1.getTexture());
     }
 
-    static void testRecipes1(ItemSet set) {
-        assertEquals(2, set.getBackingRecipes().size());
-        assertTrue(set.getBackingRecipes().stream().anyMatch(recipe -> compareRecipes(recipe, getShapedRecipe1(set))));
-        assertTrue(set.getBackingRecipes().stream().anyMatch(recipe -> compareRecipes(recipe, getShapelessRecipe1(set))));
+    static void testRecipes1(ItemSet set, int numRecipes) {
+        assertEquals(numRecipes, set.getBackingRecipes().size());
+        assertTrue(set.getBackingRecipes().contains(getShapedRecipe1(set)));
+        assertTrue(set.getBackingRecipes().contains(getShapelessRecipe1(set)));
     }
 
     static ShapedRecipe getShapedRecipe1(ItemSet itemSet) {

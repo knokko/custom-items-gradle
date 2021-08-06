@@ -1,26 +1,25 @@
 package nl.knokko.customitems.editor.unittest.itemset;
 
 import nl.knokko.customitems.editor.set.ItemSet;
-import nl.knokko.customitems.editor.set.recipe.Recipe;
-import nl.knokko.customitems.editor.set.recipe.ShapedRecipe;
-import nl.knokko.customitems.editor.set.recipe.ShapelessRecipe;
-import nl.knokko.customitems.editor.set.recipe.ingredient.*;
-import nl.knokko.customitems.editor.set.recipe.result.CustomItemResult;
-import nl.knokko.customitems.editor.set.recipe.result.DataVanillaResult;
-import nl.knokko.customitems.editor.set.recipe.result.Result;
-import nl.knokko.customitems.editor.set.recipe.result.SimpleVanillaResult;
 import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.util.bits.BitInputStream;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 public class BackwardHelper {
+
+    public static final float DELTA = 0.0001f;
 
     public static ItemSet loadItemSet(String name) {
         String resourceName = "backward/itemset/" + name + ".cisb";
@@ -39,6 +38,22 @@ public class BackwardHelper {
         }
         bitInput.terminate();
         return result;
+    }
+
+    public static void assertResourceEquals(String path, byte[] actual) {
+        try {
+            byte[] expected = new byte[actual.length];
+            DataInputStream input = new DataInputStream(
+                    BackwardHelper.class.getClassLoader().getResourceAsStream(path)
+            );
+            input.readFully(expected);
+
+            assertEquals(-1, input.read());
+            input.close();
+            assertArrayEquals(expected, actual);
+        } catch (IOException io) {
+            throw new RuntimeException("Let the test fail", io);
+        }
     }
 
     public static BufferedImage loadImage(String name) {
@@ -76,82 +91,10 @@ public class BackwardHelper {
         return strings;
     }
 
-    public static boolean compareRecipes(Recipe a, Recipe b) {
-        if (a.getClass() != b.getClass()) return false;
-        if (a instanceof ShapedRecipe) {
-            ShapedRecipe shapedA = (ShapedRecipe) a;
-            ShapedRecipe shapedB = (ShapedRecipe) b;
-
-            if (shapedA.getIngredients().length != shapedB.getIngredients().length) return false;
-            for (int index = 0; index < shapedA.getIngredients().length; index++) {
-                if (!compareIngredient(shapedA.getIngredients()[index], shapedB.getIngredients()[index])) {
-                    return false;
-                }
-            }
-
-            return compareResult(shapedA.getResult(), shapedB.getResult());
-        } else if (a instanceof ShapelessRecipe) {
-            ShapelessRecipe shapelessA = (ShapelessRecipe) a;
-            ShapelessRecipe shapelessB = (ShapelessRecipe) b;
-
-            if (shapelessA.getIngredients().length != shapelessB.getIngredients().length) return false;
-            for (int index = 0; index < shapelessA.getIngredients().length; index++) {
-                if (!compareIngredient(shapelessA.getIngredients()[index], shapelessB.getIngredients()[index])) {
-                    return false;
-                }
-            }
-
-            return compareResult(shapelessA.getResult(), shapelessB.getResult());
-        } else {
-            throw new Error("Unknown recipe type: " + a);
-        }
-    }
-
-    public static boolean compareResult(Result a, Result b) {
-        if (a == null && b == null) return true;
-        if (a == null || b == null) return false;
-        if (a.getClass() != b.getClass() || a.getAmount() != b.getAmount()) return false;
-        if (a instanceof CustomItemResult) {
-            CustomItemResult customA = (CustomItemResult) a;
-            CustomItemResult customB = (CustomItemResult) b;
-            return customA.getItem() == customB.getItem();
-        } else if (a instanceof SimpleVanillaResult) {
-            SimpleVanillaResult simpleA = (SimpleVanillaResult) a;
-            SimpleVanillaResult simpleB = (SimpleVanillaResult) b;
-            return simpleA.getType() == simpleB.getType();
-        } else if (a instanceof DataVanillaResult) {
-            DataVanillaResult dataA = (DataVanillaResult) a;
-            DataVanillaResult dataB = (DataVanillaResult) b;
-            return dataA.getData() == dataB.getData() && dataA.getType() == dataB.getType();
-        } else {
-            throw new IllegalArgumentException("Unexpected type a: " + a);
-        }
-    }
-
-    public static boolean compareIngredient(Ingredient a, Ingredient b) {
-        if (a == null && b == null) return true;
-        if (a == null || b == null) return false;
-        if (
-                a.getClass() != b.getClass() ||
-                        a.getAmount() != b.getAmount() ||
-                        !compareResult(a.getRemainingItem(), b.getRemainingItem())
-        ) return false;
-
-        if (a instanceof NoIngredient) return true;
-        else if (a instanceof CustomItemIngredient) {
-            CustomItemIngredient customA = (CustomItemIngredient) a;
-            CustomItemIngredient customB = (CustomItemIngredient) b;
-            return customA.getItem() == customB.getItem();
-        } else if (a instanceof SimpleVanillaIngredient) {
-            SimpleVanillaIngredient simpleA = (SimpleVanillaIngredient) a;
-            SimpleVanillaIngredient simpleB = (SimpleVanillaIngredient) b;
-            return simpleA.getType() == simpleB.getType();
-        } else if (a instanceof DataVanillaIngredient) {
-            DataVanillaIngredient dataA = (DataVanillaIngredient) a;
-            DataVanillaIngredient dataB = (DataVanillaIngredient) b;
-            return dataA.getData() == dataB.getData() && dataA.getType() == dataB.getType();
-        } else {
-            throw new IllegalArgumentException("Unknown type a: " + a);
-        }
+    @SafeVarargs
+    public static <T> List<T> listOf(T... elements) {
+        List<T> result = new ArrayList<>(elements.length);
+        Collections.addAll(result, elements);
+        return result;
     }
 }

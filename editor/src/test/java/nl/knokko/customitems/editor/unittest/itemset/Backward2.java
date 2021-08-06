@@ -20,7 +20,7 @@ public class Backward2 {
         ItemSet set2 = BackwardHelper.loadItemSet("backward2");
         testTextures1(set2, 2);
         testItems2(set2, 6);
-        testRecipes1(set2);
+        testRecipes1(set2, 2);
     }
 
     static void testItems2(ItemSet set, int numItems) {
