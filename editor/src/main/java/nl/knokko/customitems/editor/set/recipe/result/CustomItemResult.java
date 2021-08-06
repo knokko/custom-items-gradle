@@ -49,6 +49,16 @@ public class CustomItemResult extends Result {
 		
 		this.initInfo();
 	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof CustomItemResult) {
+			CustomItemResult result = (CustomItemResult) other;
+			return item == result.item && getAmount() == result.getAmount();
+		} else {
+			return false;
+		}
+	}
 	
 	public CustomItem getItem() {
 		return item;

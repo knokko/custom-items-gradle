@@ -35,6 +35,16 @@ public class ShowFirework extends ProjectileEffect {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (other instanceof ShowFirework) {
+            ShowFirework firework = (ShowFirework) other;
+            return effects.equals(firework.effects);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public String validate() {
         if (effects.isEmpty()) return "You need to select at least 1 effect";
 
@@ -112,6 +122,17 @@ public class ShowFirework extends ProjectileEffect {
             this.type = toClone.type;
             this.colors = new ArrayList<>(toClone.colors);
             this.fadeColors = new ArrayList<>(toClone.fadeColors);
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (other instanceof Effect) {
+                Effect effect = (Effect) other;
+                return flicker == effect.flicker && trail == effect.trail && type == effect.type
+                        && colors.equals(effect.colors) && fadeColors.equals(effect.fadeColors);
+            } else {
+                return false;
+            }
         }
 
         public void save1(BitOutput output) {

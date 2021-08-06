@@ -38,6 +38,18 @@ public class ColoredRedstone extends ProjectileEffect {
 	}
 
 	@Override
+	public boolean equals(Object other) {
+		if (other instanceof ColoredRedstone) {
+			ColoredRedstone cr = (ColoredRedstone) other;
+			return minRed == cr.minRed && minGreen == cr.minGreen && minBlue == cr.minBlue
+					&& maxRed == cr.maxRed && maxGreen == cr.maxGreen && maxBlue == cr.maxBlue
+					&& minRadius == cr.minRadius && maxRadius == cr.maxRadius && amount == cr.amount;
+		} else {
+			return false;
+		}
+	}
+
+	@Override
 	public void toBits(BitOutput output) {
 		output.addByte(ENCODING_COLORED_REDSTONE_1);
 		output.addBytes((byte) minRed, (byte) minGreen, (byte) minBlue, (byte) maxRed, (byte) maxGreen, (byte) maxBlue);

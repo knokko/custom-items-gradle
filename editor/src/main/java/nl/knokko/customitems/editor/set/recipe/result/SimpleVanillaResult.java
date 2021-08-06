@@ -46,6 +46,16 @@ public class SimpleVanillaResult extends Result {
 	}
 
 	@Override
+	public boolean equals(Object other) {
+		if (other instanceof SimpleVanillaResult) {
+			SimpleVanillaResult result = (SimpleVanillaResult) other;
+			return type == result.type && getAmount() == result.getAmount();
+		} else {
+			return false;
+		}
+	}
+
+	@Override
 	protected void saveOwn(BitOutput output) {
 		output.addJavaString(type.name());
 	}

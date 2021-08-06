@@ -33,6 +33,8 @@ import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
+import java.util.Arrays;
+
 public class ShapedRecipe extends Recipe {
 	
 	private final Ingredient[] ingredients;
@@ -47,6 +49,16 @@ public class ShapedRecipe extends Recipe {
 		ingredients = new Ingredient[9];
 		for (int index = 0; index < ingredients.length; index++)
 			ingredients[index] = Ingredient.loadIngredient(input, set);
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof ShapedRecipe) {
+			ShapedRecipe recipe = (ShapedRecipe) other;
+			return result.equals(recipe.result) && Arrays.equals(ingredients, recipe.ingredients);
+		} else {
+			return false;
+		}
 	}
 
 	@Override

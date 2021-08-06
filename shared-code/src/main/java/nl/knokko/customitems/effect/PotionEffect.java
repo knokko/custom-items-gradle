@@ -18,6 +18,16 @@ public class PotionEffect {
 		this.duration = duration;
 		this.level = level;
 	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof PotionEffect) {
+			PotionEffect potion = (PotionEffect) other;
+			return duration == potion.duration && level == potion.level && effect == potion.effect;
+		} else {
+			return false;
+		}
+	}
 	
 	public EffectType getEffect () {
 		return this.effect;

@@ -33,6 +33,11 @@ public class NoIngredient extends Ingredient {
 	}
 
 	@Override
+	public boolean equals(Object other) {
+		return other instanceof NoIngredient;
+	}
+
+	@Override
 	public void saveSpecifics(BitOutput output) {}
 
 	@Override

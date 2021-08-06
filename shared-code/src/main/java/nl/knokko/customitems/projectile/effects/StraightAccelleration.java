@@ -11,6 +11,16 @@ public class StraightAccelleration extends ProjectileAccelleration {
 	public StraightAccelleration(float minAccelleration, float maxAccelleration) {
 		super(minAccelleration, maxAccelleration);
 	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof StraightAccelleration) {
+			StraightAccelleration sa = (StraightAccelleration) other;
+			return minAccelleration == sa.minAccelleration && maxAccelleration == sa.maxAccelleration;
+		} else {
+			return false;
+		}
+	}
 	
 	@Override
 	public String toString() {

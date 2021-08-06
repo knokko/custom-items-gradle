@@ -22,6 +22,16 @@ public class CopiedResult extends Result {
 	}
 
 	@Override
+	public boolean equals(Object other) {
+		if (other instanceof CopiedResult) {
+			CopiedResult result = (CopiedResult) other;
+			return encoded.equals(result.encoded);
+		} else {
+			return false;
+		}
+	}
+
+	@Override
 	protected void saveOwn(BitOutput output) {
 		output.addString(encoded);
 	}

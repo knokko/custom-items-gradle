@@ -23,6 +23,17 @@ public class SimpleParticles extends ProjectileEffect {
 		this.maxRadius = maxRadius;
 		this.amount = amount;
 	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof SimpleParticles) {
+			SimpleParticles particles = (SimpleParticles) other;
+			return particle == particles.particle && minRadius == particles.minRadius
+					&& maxRadius == particles.maxRadius && amount == particles.amount;
+		} else {
+			return false;
+		}
+	}
 	
 	@Override
 	public String toString() {

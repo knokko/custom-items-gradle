@@ -19,6 +19,16 @@ public class Explosion extends ProjectileEffect {
 		this.destroyBlocks = destroyBlocks;
 		this.setFire = setFire;
 	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof Explosion) {
+			Explosion explosion = (Explosion) other;
+			return power == explosion.power && destroyBlocks == explosion.destroyBlocks && setFire == explosion.setFire;
+		} else {
+			return false;
+		}
+	}
 	
 	@Override
 	public String toString() {

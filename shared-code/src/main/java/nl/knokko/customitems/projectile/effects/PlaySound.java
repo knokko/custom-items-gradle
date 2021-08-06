@@ -21,6 +21,16 @@ public class PlaySound extends ProjectileEffect {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (other instanceof PlaySound) {
+            PlaySound ps = (PlaySound) other;
+            return sound == ps.sound && volume == ps.volume && pitch == ps.pitch;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public void toBits(BitOutput output) {
         output.addByte(ENCODING_PLAY_SOUND_1);
         output.addString(sound.name());

@@ -18,6 +18,16 @@ public class PushOrPull extends ProjectileEffect {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (other instanceof PushOrPull) {
+            PushOrPull pop = (PushOrPull) other;
+            return strength == pop.strength && radius == pop.radius;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public String toString() {
         if (strength >= 0) {
             return "Push " + strength;

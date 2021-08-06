@@ -17,6 +17,16 @@ public class ExecuteCommand extends ProjectileEffect {
 		this.command = command;
 		this.executor = executor;
 	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof ExecuteCommand) {
+			ExecuteCommand exCommand = (ExecuteCommand) other;
+			return command.equals(exCommand.command) && executor == exCommand.executor;
+		} else {
+			return false;
+		}
+	}
 	
 	@Override
 	public String toString() {

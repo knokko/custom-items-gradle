@@ -49,6 +49,16 @@ public class DataVanillaResult extends Result {
 	}
 
 	@Override
+	public boolean equals(Object other) {
+		if (other instanceof DataVanillaResult) {
+			DataVanillaResult result = (DataVanillaResult) other;
+			return type == result.type && data == result.data && getAmount() == result.getAmount();
+		} else {
+			return false;
+		}
+	}
+
+	@Override
 	protected void saveOwn(BitOutput output) {
 		output.addJavaString(type.name());
 		output.addNumber(data, (byte) 4, false);

@@ -32,6 +32,16 @@ public class PotionAura extends ProjectileEffect {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (other instanceof PotionAura) {
+            PotionAura aura = (PotionAura) other;
+            return radius == aura.radius && effects.equals(aura.effects);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public void toBits(BitOutput output) {
         output.addByte(ENCODING_POTION_AURA_1);
         output.addFloat(radius);

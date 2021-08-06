@@ -30,6 +30,8 @@ import nl.knokko.customitems.encoding.RecipeEncoding;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
+import java.util.Objects;
+
 public class CustomItemIngredient extends Ingredient {
 	
 	private final CustomItem item;
@@ -46,6 +48,16 @@ public class CustomItemIngredient extends Ingredient {
 		this.item = set.getCustomItemByName(name);
 		if (this.item == null)
 			throw new IllegalArgumentException("There is no custom item with name " + name);
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof CustomItemIngredient) {
+			CustomItemIngredient ingredient = (CustomItemIngredient) other;
+			return item == ingredient.item && amount == ingredient.amount && Objects.equals(remaining, ingredient.remaining);
+		} else {
+			return false;
+		}
 	}
 	
 	public CustomItem getItem() {

@@ -11,6 +11,16 @@ public class RandomAccelleration extends ProjectileAccelleration {
 	public RandomAccelleration(float minAccelleration, float maxAccelleration) {
 		super(minAccelleration, maxAccelleration);
 	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof RandomAccelleration) {
+			RandomAccelleration ra = (RandomAccelleration) other;
+			return minAccelleration == ra.minAccelleration && maxAccelleration == ra.maxAccelleration;
+		} else {
+			return false;
+		}
+	}
 	
 	@Override
 	public String toString() {

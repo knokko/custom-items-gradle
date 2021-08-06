@@ -37,6 +37,17 @@ public class SubProjectiles extends ProjectileEffect {
 		this.maxAmount = maxAmount;
 		this.angleToParent = angleToParent;
 	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof SubProjectiles) {
+			SubProjectiles sub = (SubProjectiles) other;
+			return child == sub.child && useParentLifeTime == sub.useParentLifeTime && minAmount == sub.minAmount
+					&& maxAmount == sub.maxAmount && angleToParent == sub.angleToParent;
+		} else {
+			return false;
+		}
+	}
 	
 	@Override
 	public String toString() {
