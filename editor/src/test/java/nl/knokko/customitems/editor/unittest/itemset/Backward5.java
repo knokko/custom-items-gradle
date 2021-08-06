@@ -12,7 +12,7 @@ import org.junit.Test;
 import static nl.knokko.customitems.editor.unittest.itemset.Backward1.testRecipes1;
 import static nl.knokko.customitems.editor.unittest.itemset.Backward3.testTextures3;
 import static nl.knokko.customitems.editor.unittest.itemset.Backward4.testItems4;
-import static nl.knokko.customitems.editor.unittest.itemset.BackwardHelper.compareIngredient;
+import static nl.knokko.customitems.editor.unittest.itemset.Backward6.*;
 import static nl.knokko.customitems.editor.unittest.itemset.BackwardHelper.loadItemSet;
 import static org.junit.Assert.*;
 
@@ -23,7 +23,7 @@ public class Backward5 {
         ItemSet set5 = loadItemSet("backward5");
         testTextures3(set5, 3);
         testItems5(set5, 19);
-        testRecipes1(set5);
+        testRecipes1(set5, 2);
     }
 
     static void testItems5(ItemSet set, int numItems) {
@@ -83,7 +83,7 @@ public class Backward5 {
         assertFalse(item.allowEnchanting());
         assertFalse(item.allowAnvilActions());
         assertEquals(500, item.getDurability());
-        assertTrue(compareIngredient(new SimpleVanillaIngredient(CIMaterial.IRON_INGOT, (byte) 1, null), item.getRepairItem()));
+        assertEquals(new SimpleVanillaIngredient(CIMaterial.IRON_INGOT, (byte) 1, null), item.getRepairItem());
         assertEquals(0, item.getEntityHitDurabilityLoss());
         assertEquals(1, item.getBlockBreakDurabilityLoss());
         assertEquals(2, item.getShearDurabilityLoss());
@@ -153,12 +153,12 @@ public class Backward5 {
         assertArrayEquals(new boolean[] {
                false, false, true, false, false, false
         }, item.getItemFlags());
-        // TODO Call testBaseDefault6
+        testBaseDefault6(item);
     }
 
     static void testSimpleDefault5(SimpleCustomItem item) {
         testBaseDefault5(item);
-        // TODO Call testSimpleDefault6
+        testSimpleDefault6(item);
     }
 
     static void testToolDefault5(CustomTool item) {
@@ -167,7 +167,7 @@ public class Backward5 {
         assertTrue(item.getEntityHitDurabilityLoss() >= 0);
         assertTrue(item.getBlockBreakDurabilityLoss() >= 0);
 
-        // TODO Call testToolDefault6
+        testToolDefault6(item);
     }
 
     static void testArmorDefault5(CustomArmor item) {
@@ -179,7 +179,7 @@ public class Backward5 {
             assertEquals(0, item.getDamageResistances().getResistance(damageSource));
         }
 
-        // TODO Call testArmorDefault6
+        testArmorDefault6(item);
     }
 
     static void testHoeDefault5(CustomHoe item) {
@@ -189,7 +189,7 @@ public class Backward5 {
         assertEquals(0, item.getBlockBreakDurabilityLoss());
         assertEquals(1, item.getTillDurabilityLoss());
 
-        // TODO Call testHoeDefault6
+        testHoeDefault6(item);
     }
 
     static void testShearsDefault5(CustomShears item) {
@@ -199,7 +199,7 @@ public class Backward5 {
         assertEquals(1, item.getBlockBreakDurabilityLoss());
         assertEquals(1, item.getShearDurabilityLoss());
 
-        // TODO Call testShearsDefault6
+        testShearsDefault6(item);
     }
 
     static void testBowDefault5(CustomBow item) {
@@ -209,6 +209,6 @@ public class Backward5 {
         assertEquals(0, item.getBlockBreakDurabilityLoss());
         assertEquals(1, item.getShootDurabilityLoss());
 
-        // TODO Call testBowDefault6
+        testBowDefault6(item);
     }
 }
