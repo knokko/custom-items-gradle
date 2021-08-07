@@ -3164,7 +3164,11 @@ public class ItemSet implements ItemSetBase {
 		newDrops[old.length] = drop;
 		mobDropMap[drop.getEntityType().ordinal()] = newDrops;
 	}
-	
+
+	public EntityDrop[][] getBackingMobDrops() {
+		return mobDropMap;
+	}
+
 	public Drop[] getDrops(Entity entity) {
 		CIEntityType entityType;
 		if (entity instanceof Player) {
@@ -3256,7 +3260,7 @@ public class ItemSet implements ItemSetBase {
 	public CustomItem[] getBackingItems() {
 		return items;
 	}
-	
+
 	public int getNumItems() {
 		return getBackingItems().length;
 	}

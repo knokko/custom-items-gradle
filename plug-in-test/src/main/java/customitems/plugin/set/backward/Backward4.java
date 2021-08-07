@@ -19,7 +19,7 @@ public class Backward4 {
     public static void testBackwardCompatibility4() {
         ItemSet set4 = loadItemSet("backward4");
         testItems4(set4, 14);
-        testRecipes1(set4);
+        testRecipes1(set4, 2);
     }
 
     static void testItems4(ItemSet set, int numItems) {

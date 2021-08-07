@@ -18,7 +18,7 @@ public class Backward3 {
     public static void testBackwardCompatibility3() {
         ItemSet set3 = BackwardHelper.loadItemSet("backward3");
         testItems3(set3, 9);
-        testRecipes1(set3);
+        testRecipes1(set3, 2);
     }
 
     static void testItems3(ItemSet set, int numItems) {

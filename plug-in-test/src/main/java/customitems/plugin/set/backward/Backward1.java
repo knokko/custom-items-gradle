@@ -20,7 +20,7 @@ public class Backward1 {
     public static void testBackwardCompatibility1() {
         ItemSet set1 = loadItemSet("backward1");
         testItems1(set1, 1);
-        testRecipes1(set1);
+        testRecipes1(set1, 2);
     }
 
     static void testItems1(ItemSet itemSet, int numItems) {
@@ -33,8 +33,8 @@ public class Backward1 {
         assertArrayEquals(stringArray("line1", "Second line"), simple1.getLore());
     }
 
-    static void testRecipes1(ItemSet itemSet) {
-        assertEquals(2, itemSet.getNumRecipes());
+    static void testRecipes1(ItemSet itemSet, int numRecipes) {
+        assertEquals(numRecipes, itemSet.getNumRecipes());
         assertTrue(Arrays.stream(itemSet.getRecipes()).anyMatch(recipe -> recipe.equals(getShapedRecipe1(itemSet))));
         assertTrue(Arrays.stream(itemSet.getRecipes()).anyMatch(recipe -> recipe.equals(getShapelessRecipe1(itemSet))));
     }
