@@ -11,7 +11,6 @@ import nl.knokko.customitems.plugin.set.item.*;
 import static customitems.plugin.set.backward.Backward1.testRecipes1;
 import static customitems.plugin.set.backward.Backward2.testItems2;
 import static customitems.plugin.set.backward.Backward4.*;
-import static customitems.plugin.set.backward.BackwardHelper.compareIngredient;
 import static org.junit.Assert.*;
 
 public class Backward3 {
@@ -46,7 +45,7 @@ public class Backward3 {
         assertTrue(item.allowVanillaEnchanting());
         assertTrue(item.allowAnvilActions());
         assertEquals(100, item.getMaxDurability());
-        assertTrue(compareIngredient(new SimpleVanillaIngredient(CIMaterial.STICK, (byte) 1, null), item.getRepairItem()));
+        assertEquals(new SimpleVanillaIngredient(CIMaterial.STICK, (byte) 1, null), item.getRepairItem());
     }
 
     static void testShears1(CustomShears item) {
@@ -76,7 +75,7 @@ public class Backward3 {
         assertFalse(item.allowVanillaEnchanting());
         assertTrue(item.allowAnvilActions());
         assertEquals(123, item.getMaxDurability());
-        assertTrue(compareIngredient(new CustomIngredient(simple1, (byte) 1, null), item.getRepairItem()));
+        assertEquals(new CustomIngredient(simple1, (byte) 1, null), item.getRepairItem());
         assertEquals(0.8, item.getDamageMultiplier(), 0.0);
         assertEquals(1.5, item.getSpeedMultiplier(), 0.0);
         assertEquals(1, item.getKnockbackStrength());

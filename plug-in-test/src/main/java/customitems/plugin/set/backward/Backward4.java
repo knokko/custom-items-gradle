@@ -10,7 +10,6 @@ import nl.knokko.customitems.plugin.set.item.*;
 
 import static customitems.plugin.set.backward.Backward1.testRecipes1;
 import static customitems.plugin.set.backward.Backward3.testItems3;
-import static customitems.plugin.set.backward.BackwardHelper.compareIngredient;
 import static customitems.plugin.set.backward.BackwardHelper.loadItemSet;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
@@ -79,7 +78,7 @@ public class Backward4 {
         assertTrue(chestplate.allowVanillaEnchanting());
         assertFalse(chestplate.allowAnvilActions());
         assertEquals(500, chestplate.getMaxDurability());
-        assertTrue(compareIngredient(new SimpleVanillaIngredient(CIMaterial.DIAMOND, (byte) 1, null), chestplate.getRepairItem()));
+        assertEquals(new SimpleVanillaIngredient(CIMaterial.DIAMOND, (byte) 1, null), chestplate.getRepairItem());
     }
 
     static void testLeggings1(CustomArmor leggings) {
@@ -94,7 +93,7 @@ public class Backward4 {
         assertFalse(leggings.allowVanillaEnchanting());
         assertTrue(leggings.allowAnvilActions());
         assertEquals(500, leggings.getMaxDurability());
-        assertTrue(compareIngredient(new DataVanillaIngredient(CIMaterial.WOOL, (byte) 5, (byte) 1, null), leggings.getRepairItem()));
+        assertEquals(new DataVanillaIngredient(CIMaterial.WOOL, (byte) 5, (byte) 1, null), leggings.getRepairItem());
     }
 
     static void testBoots1(CustomArmor boots) {

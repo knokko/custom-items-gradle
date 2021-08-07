@@ -35,8 +35,8 @@ public class Backward1 {
 
     static void testRecipes1(ItemSet itemSet) {
         assertEquals(2, itemSet.getNumRecipes());
-        assertTrue(Arrays.stream(itemSet.getRecipes()).anyMatch(recipe -> compareRecipes(recipe, getShapedRecipe1(itemSet))));
-        assertTrue(Arrays.stream(itemSet.getRecipes()).anyMatch(recipe -> compareRecipes(recipe, getShapelessRecipe1(itemSet))));
+        assertTrue(Arrays.stream(itemSet.getRecipes()).anyMatch(recipe -> recipe.equals(getShapedRecipe1(itemSet))));
+        assertTrue(Arrays.stream(itemSet.getRecipes()).anyMatch(recipe -> recipe.equals(getShapelessRecipe1(itemSet))));
     }
 
     static ShapedCustomRecipe getShapedRecipe1(ItemSet itemSet) {

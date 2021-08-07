@@ -37,4 +37,9 @@ public class NoIngredient extends Ingredient {
 	public boolean acceptSpecific(ItemStack item) {
 		return ItemUtils.isEmpty(item);
 	}
+
+	@Override
+	public boolean equals(Object other) {
+		return other instanceof NoIngredient;
+	}
 }

@@ -30,6 +30,8 @@ import nl.knokko.core.plugin.item.ItemHelper;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 
+import java.util.Objects;
+
 public class SimpleVanillaIngredient extends Ingredient {
     
     private final CIMaterial type;
@@ -42,6 +44,16 @@ public class SimpleVanillaIngredient extends Ingredient {
     public SimpleVanillaIngredient(CIMaterial type, byte amount, ItemStack remaining) {
         super(amount, remaining);
         this.type = type;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof SimpleVanillaIngredient) {
+            SimpleVanillaIngredient ingredient = (SimpleVanillaIngredient) other;
+            return type == ingredient.type && amount == ingredient.amount && Objects.equals(remainingItem, ingredient.remainingItem);
+        } else {
+            return false;
+        }
     }
 
     @Override

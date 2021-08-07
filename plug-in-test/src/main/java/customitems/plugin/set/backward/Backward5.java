@@ -10,7 +10,6 @@ import nl.knokko.customitems.plugin.set.item.*;
 
 import static customitems.plugin.set.backward.Backward1.testRecipes1;
 import static customitems.plugin.set.backward.Backward4.testItems4;
-import static customitems.plugin.set.backward.BackwardHelper.compareIngredient;
 import static customitems.plugin.set.backward.BackwardHelper.loadItemSet;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
@@ -79,7 +78,7 @@ public class Backward5 {
         assertFalse(item.allowVanillaEnchanting());
         assertFalse(item.allowAnvilActions());
         assertEquals(500, item.getMaxDurability());
-        assertTrue(compareIngredient(new SimpleVanillaIngredient(CIMaterial.IRON_INGOT, (byte) 1, null), item.getRepairItem()));
+        assertEquals(new SimpleVanillaIngredient(CIMaterial.IRON_INGOT, (byte) 1, null), item.getRepairItem());
         assertEquals(0, item.getEntityHitDurabilityLoss());
         assertEquals(1, item.getBlockBreakDurabilityLoss());
         assertEquals(2, item.getShearDurabilityLoss());

@@ -28,6 +28,7 @@ import nl.knokko.customitems.plugin.recipe.ingredient.Ingredient;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ShapedCustomRecipe implements CustomRecipe {
@@ -39,6 +40,16 @@ public class ShapedCustomRecipe implements CustomRecipe {
         this.ingredients = ingredients;
         this.result = result;
     }
+
+    @Override
+	public boolean equals(Object other) {
+    	if (other instanceof ShapedCustomRecipe) {
+    		ShapedCustomRecipe recipe = (ShapedCustomRecipe) other;
+    		return Arrays.equals(ingredients, recipe.ingredients) && result.equals(recipe.result);
+		} else {
+    		return false;
+		}
+	}
 
 	@Override
 	public ItemStack getResult() {

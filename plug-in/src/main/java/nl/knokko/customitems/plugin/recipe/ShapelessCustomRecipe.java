@@ -30,6 +30,7 @@ import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.plugin.recipe.ingredient.Ingredient;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ShapelessCustomRecipe implements CustomRecipe {
@@ -40,6 +41,16 @@ public class ShapelessCustomRecipe implements CustomRecipe {
 	public ShapelessCustomRecipe(Ingredient[] ingredients, ItemStack result) {
 		this.ingredients = ingredients;
 		this.result = result;
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof ShapelessCustomRecipe) {
+			ShapelessCustomRecipe recipe = (ShapelessCustomRecipe) other;
+			return Arrays.equals(ingredients, recipe.ingredients) && result.equals(recipe.result);
+		} else {
+			return false;
+		}
 	}
 
 	@Override

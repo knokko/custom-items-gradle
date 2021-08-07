@@ -29,6 +29,8 @@ import org.bukkit.inventory.ItemStack;
 
 import nl.knokko.customitems.plugin.set.item.CustomItem;
 
+import java.util.Objects;
+
 public class CustomIngredient extends Ingredient {
     
     private final CustomItem item;
@@ -43,6 +45,16 @@ public class CustomIngredient extends Ingredient {
     public CustomIngredient(CustomItem item, byte amount, ItemStack remainingItem) {
         super(amount, remainingItem);
         this.item = item;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof CustomIngredient) {
+            CustomIngredient ingredient = (CustomIngredient) other;
+            return item == ingredient.item && amount == ingredient.amount && Objects.equals(remainingItem, ingredient.remainingItem);
+        } else {
+            return false;
+        }
     }
 
     @Override
