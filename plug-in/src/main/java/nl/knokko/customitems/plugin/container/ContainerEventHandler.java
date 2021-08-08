@@ -388,7 +388,9 @@ public class ContainerEventHandler implements Listener {
 			CustomItem customItem = set.getItem(event.getItem());
 			if (customItem instanceof CustomPocketContainer) {
 				CustomPocketContainer pocketContainer = (CustomPocketContainer) customItem;
-				pluginData().openPocketContainerMenu(event.getPlayer(), pocketContainer);
+				Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(),
+						() -> pluginData().openPocketContainerMenu(event.getPlayer(), pocketContainer)
+				);
 			}
 		}
 	}
