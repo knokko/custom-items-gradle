@@ -4887,7 +4887,28 @@ public class ItemSet implements ItemSetBase {
 			) {
 				return "The vanilla type of container " + container.getName() + " isn't available in this mc version";
 			}
-			
+
+			{
+				CIMaterial material = null;
+				SlotDisplay display = container.getSelectionIcon();
+				if (display.getItem() instanceof SimpleVanillaDisplayItem) {
+					material = ((SimpleVanillaDisplayItem) display.getItem()).getMaterial();
+				} else if (display.getItem() instanceof DataVanillaDisplayItem) {
+					if (version > VERSION1_12) {
+						return "The selection icon of " + container.getName() + " is a vanilla item with data value, which is not available after mc 1.12";
+					}
+					material = ((DataVanillaDisplayItem) display.getItem()).getMaterial();
+				}
+
+				if (material != null) {
+					if (material.firstVersion > version) {
+						return "The selection icon of " + container.getName() + " uses " + material + ", which is not yet available in this mc version";
+					} else if (material.lastVersion < version) {
+						return "The selection icon of " + container.getName() + " uses " + material + ", which is no longer available in this mc version";
+					}
+				}
+			}
+
 			for (CustomSlot slot : container.getSlots()) {
 				SlotDisplay[] displays = {};
 				if (slot instanceof DecorationCustomSlot) {
@@ -4911,9 +4932,9 @@ public class ItemSet implements ItemSetBase {
 				
 				for (SlotDisplay display : displays) {
 					if (display.getAmount() <= 0) {
-						return "One of the slot displays an item with a stacksize of 0 or lower";
+						return "One of the slots of " + container.getName() + " displays an item with a stacksize of 0 or lower";
 					} else if (display.getAmount() > 64) {
-						return "One of the slot displays an item with a stacksize larger than 64";
+						return "One of the slots of " + container.getName() + " displays an item with a stacksize larger than 64";
 					}
 					
 					CIMaterial material = null;
@@ -4921,16 +4942,16 @@ public class ItemSet implements ItemSetBase {
 						material = ((SimpleVanillaDisplayItem) display.getItem()).getMaterial();
 					} else if (display.getItem() instanceof DataVanillaDisplayItem) {
 						if (version > VERSION1_12) {
-							return "One of the slots uses an item with a datavalue, but those aren't used after mc 1.12 anymore";
+							return "One of the slots of " + container.getName() + " uses an item with a datavalue, but those aren't used after mc 1.12 anymore";
 						}
 						material = ((DataVanillaDisplayItem) display.getItem()).getMaterial();
 					}
 					
 					if (material != null) {
 						if (material.firstVersion > version) {
-							return "One of the slots uses " + material + ", which is not yet available in this mc version";
+							return "One of the slots of " + container.getName() + " uses " + material + ", which is not yet available in this mc version";
 						} else if (material.lastVersion < version) {
-							return "One of the slots uses " + material + ", which is no longer available in this mc version";
+							return "One of the slots of " + container.getName() + " uses " + material + ", which is no longer available in this mc version";
 						}
 					}
 				}
