@@ -2864,4 +2864,41 @@ public class CustomItemsEventHandler implements Listener {
 				plugin.getItemUpdater().updateInventory(event.getInventory(), false)
 				, 5); // Use some delay to reduce the risk of interference with other plug-ins
 	}
+
+	@EventHandler
+	public void fixCraftingCloseStacking(InventoryCloseEvent event) {
+	    if (event.getInventory() instanceof CraftingInventory) {
+
+	    	ItemSet set = set();
+	    	ItemStack[] craftingContents = event.getInventory().getStorageContents();
+	    	ItemStack[] inventoryContents = event.getPlayer().getInventory().getStorageContents();
+
+	    	for (int craftingIndex = 0; craftingIndex < craftingContents.length; craftingIndex++) {
+	    		CustomItem customItem = set.getItem(craftingContents[craftingIndex]);
+	    		if (customItem != null) {
+
+					for (ItemStack currentStack : inventoryContents) {
+						if (set.getItem(currentStack) == customItem) {
+							if (customItem.getMaxStacksize() - currentStack.getAmount() >= craftingContents[craftingIndex].getAmount()) {
+								currentStack.setAmount(currentStack.getAmount() + craftingContents[craftingIndex].getAmount());
+								craftingContents[craftingIndex] = null;
+							}
+						}
+					}
+
+	    			if (craftingContents[craftingIndex] != null) {
+						for (int invIndex = 0; invIndex < inventoryContents.length; invIndex++) {
+							if (ItemUtils.isEmpty(inventoryContents[invIndex])) {
+								inventoryContents[invIndex] = craftingContents[craftingIndex];
+								craftingContents[craftingIndex] = null;
+							}
+						}
+					}
+				}
+			}
+
+	    	event.getInventory().setStorageContents(craftingContents);
+	    	event.getPlayer().getInventory().setStorageContents(inventoryContents);
+		}
+	}
 }
