@@ -100,14 +100,20 @@ public class EditContainer extends GuiMenu {
 		} else {
 			addComponent(new DynamicTextComponent(toModify.getName(), EditProps.LABEL), 0.175f, 0.6f, 0.3f, 0.65f);
 		}
-		addComponent(new DynamicTextComponent("Selection icon:", EditProps.LABEL), 0.05f, 0.525f, 0.2f, 0.575f);
+		addComponent(new DynamicTextComponent("Selection icon:", EditProps.LABEL), 0.01f, 0.525f, 0.16f, 0.575f);
+		DynamicTextComponent selectionIconInfo = new DynamicTextComponent(
+				selectionIcon == null ? "None" : selectionIcon.toString(), EditProps.LABEL
+		);
+		addComponent(selectionIconInfo, 0.16f, 0.525f, 0.285f, 0.575f);
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new CreateDisplay(
 					this, 
-					newSelectionIcon -> this.selectionIcon = newSelectionIcon, 
-					true, menu.getSet().getBackingItems()
+					newSelectionIcon -> {
+						this.selectionIcon = newSelectionIcon;
+						selectionIconInfo.setText(newSelectionIcon.toString());
+					}, true, menu.getSet().getBackingItems()
 			));
-		}), 0.225f, 0.525f, 0.3f, 0.575f);
+		}), 0.285f, 0.525f, 0.36f, 0.575f);
 		addComponent(new DynamicTextComponent("Fuel mode:", EditProps.LABEL), 0.05f, 0.45f, 0.175f, 0.5f);
 		addComponent(EnumSelect.createSelectButton(FuelMode.class, newFuelMode -> {
 			this.fuelMode = newFuelMode;
