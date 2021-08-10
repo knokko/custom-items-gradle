@@ -3282,6 +3282,15 @@ public class ItemSet implements ItemSetBase {
 		
 		return false;
 	}
+
+	public boolean hasCustomTridents() {
+		for (CustomItem item : items) {
+			if (item instanceof CustomTrident) {
+				return true;
+			}
+		}
+		return false;
+	}
 	
 	@FunctionalInterface
 	private static interface ThrowingFunction<Input,Output,Failure extends Exception> {

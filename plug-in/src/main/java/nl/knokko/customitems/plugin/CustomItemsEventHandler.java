@@ -711,6 +711,17 @@ public class CustomItemsEventHandler implements Listener {
 
 			ItemSet set = set();
 
+			/*
+			 * This works around a bug that causes console spam in minecraft 1.17 each time a trident is thrown. The bug
+			 * occurs because the reflection hack below no longer works in 1.17 (probably due to some internal
+			 * reorganization in Bukkit). We could try to find a way to do this in minecraft 1.17, but that would not
+			 * be useful because custom tridents aren't supported in 1.17 anyway. (And thus we can't even test it even
+			 * if we would try to fix it.)
+			 */
+			if (!set.hasCustomTridents()) {
+				return;
+			}
+
 			// Not my cleanest piece of code, but it was necessary...
 			try {
 				Object handle = trident.getClass().getMethod("getHandle").invoke(trident);
