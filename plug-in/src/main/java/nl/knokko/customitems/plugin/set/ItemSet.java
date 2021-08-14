@@ -3272,7 +3272,11 @@ public class ItemSet implements ItemSetBase {
 	public int getNumProjectiles() {
 		return projectiles.length;
 	}
-	
+
+	public int getNumFuelRegistries() {
+		return fuelRegistries.size();
+	}
+
 	public int getNumContainers() {
 		return containers.size();
 	}

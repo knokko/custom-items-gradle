@@ -13,6 +13,7 @@ public class TestPlugin extends JavaPlugin {
         Backward4.testBackwardCompatibility4();
         Backward5.testBackwardCompatibility5();
         Backward6.testBackwardCompatibility6();
+        Backward7.testBackwardCompatibility7();
         System.out.println("All unit tests succeeded");
     }
 }
