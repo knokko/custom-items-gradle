@@ -31,6 +31,21 @@ public class ProgressIndicatorCustomSlot implements CustomSlot {
 		this.placeholder = placeholder;
 		this.domain = domain;
 	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof ProgressIndicatorCustomSlot) {
+			ProgressIndicatorCustomSlot slot = (ProgressIndicatorCustomSlot) other;
+			return display.equals(slot.display) && placeholder.equals(slot.placeholder) && domain.equals(slot.domain);
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public String toString() {
+		return "ProgressIndicatorSlot display=" + display + " placeholder=" + placeholder + " domain=" + domain;
+	}
 	
 	@Override
 	public void save(BitOutput output) {

@@ -1,5 +1,6 @@
 package nl.knokko.customitems.container.slot;
 
+import java.util.Objects;
 import java.util.function.Function;
 
 import nl.knokko.customitems.container.fuel.CustomFuelRegistry;
@@ -53,6 +54,21 @@ public class FuelCustomSlot implements CustomSlot {
 		this.name = name;
 		this.fuelRegistry = fuelRegistry;
 		this.placeholder = placeholder;
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof FuelCustomSlot) {
+			FuelCustomSlot slot = (FuelCustomSlot) other;
+			return name.equals(slot.name) && fuelRegistry == slot.fuelRegistry && Objects.equals(placeholder, slot.placeholder);
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public String toString() {
+		return "FuelSlot " + name + " registry " + fuelRegistry + " placeholder " + placeholder;
 	}
 	
 	@Override

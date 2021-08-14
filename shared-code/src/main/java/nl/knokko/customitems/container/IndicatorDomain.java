@@ -24,6 +24,21 @@ public class IndicatorDomain {
 		this.begin = begin;
 		this.end = end;
 	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof IndicatorDomain) {
+			IndicatorDomain domain = (IndicatorDomain) other;
+			return begin == domain.begin && end == domain.end;
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public String toString() {
+		return "[" + begin + "; " + end + "]";
+	}
 	
 	public void save(BitOutput output) {
 		output.addInt(begin);

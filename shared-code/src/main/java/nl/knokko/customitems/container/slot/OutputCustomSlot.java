@@ -1,5 +1,6 @@
 package nl.knokko.customitems.container.slot;
 
+import java.util.Objects;
 import java.util.function.Function;
 
 import nl.knokko.customitems.container.slot.display.SlotDisplay;
@@ -41,7 +42,22 @@ public class OutputCustomSlot implements CustomSlot {
 		this.name = name;
 		this.placeholder = placeholder;
 	}
-	
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof OutputCustomSlot) {
+			OutputCustomSlot slot = (OutputCustomSlot) other;
+			return name.equals(slot.name) && Objects.equals(placeholder, slot.placeholder);
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public String toString() {
+		return name + " with placeholder " + placeholder;
+	}
+
 	@Override
 	public void save(BitOutput output) {
 		save2(output);

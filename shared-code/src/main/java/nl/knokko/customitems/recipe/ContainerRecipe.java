@@ -213,6 +213,16 @@ public class ContainerRecipe {
 			this.inputSlotName = inputSlotName;
 			this.ingredient = ingredient;
 		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (other instanceof InputEntry) {
+				InputEntry entry = (InputEntry) other;
+				return inputSlotName.equals(entry.inputSlotName) && ingredient.equals(entry.ingredient);
+			} else {
+				return false;
+			}
+		}
 		
 		@Override
 		public String toString() {
@@ -237,6 +247,16 @@ public class ContainerRecipe {
 		public OutputEntry(String outputSlotName, OutputTable outputTable) {
 			this.outputSlotName = outputSlotName;
 			this.outputTable = outputTable;
+		}
+
+		@Override
+		public boolean equals(Object other) {
+			if (other instanceof OutputEntry) {
+				OutputEntry entry = (OutputEntry) other;
+				return outputSlotName.equals(entry.outputSlotName) && outputTable.equals(entry.outputTable);
+			} else {
+				return false;
+			}
 		}
 		
 		@Override

@@ -25,7 +25,22 @@ public class DecorationCustomSlot implements CustomSlot {
 	public SlotDisplay getDisplay() {
 		return display;
 	}
-	
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof DecorationCustomSlot) {
+			DecorationCustomSlot slot = (DecorationCustomSlot) other;
+			return display.equals(slot.display);
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public String toString() {
+		return "Decoration " + display;
+	}
+
 	@Override
 	public void save(BitOutput output) {
 		output.addByte(CustomSlot.Encodings.DECORATION1);

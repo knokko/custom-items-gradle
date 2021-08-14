@@ -36,6 +36,23 @@ public class FuelIndicatorCustomSlot implements CustomSlot {
 		this.placeholder = placeholder;
 		this.domain = domain;
 	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof FuelIndicatorCustomSlot) {
+			FuelIndicatorCustomSlot slot = (FuelIndicatorCustomSlot) other;
+			return fuelSlotName.equals(slot.fuelSlotName) && display.equals(slot.display)
+					&& placeholder.equals(slot.placeholder) && domain.equals(slot.domain);
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public String toString() {
+		return "FuelIndicatorSlot fuelslot=" + fuelSlotName + " display=" + display +
+				" placeholder=" + placeholder + " domain=" + domain;
+	}
 	
 	@Override
 	public void save(BitOutput output) {
