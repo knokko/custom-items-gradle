@@ -22,6 +22,7 @@ import java.util.Arrays;
 
 import static customitems.plugin.set.backward.Backward1.testRecipes1;
 import static customitems.plugin.set.backward.Backward5.testItems5;
+import static customitems.plugin.set.backward.Backward7.*;
 import static customitems.plugin.set.backward.BackwardHelper.*;
 import static nl.knokko.core.plugin.CorePlugin.useNewCommands;
 import static org.junit.Assert.*;
@@ -283,41 +284,36 @@ public class Backward6 {
         assertEquals(0, item.getTargetEffects().size());
         assertEquals(0, item.getCommands().length);
 
-        // TODO Call testBaseDefault7
+        testBaseDefault7(item);
     }
 
     static void testSimpleDefault6(SimpleCustomItem item) {
         testBaseDefault6(item);
-        // TODO Call testSimpleDefault7
+        testSimpleDefault7(item);
     }
 
     static void testToolDefault6(CustomTool item) {
         testBaseDefault6(item);
-
-        // TODO Call testToolDefault7
+        testToolDefault7(item);
     }
 
     static void testArmorDefault6(CustomArmor item) {
         testToolDefault6(item);
-
-        // TODO Call testArmorDefault7
+        testArmorDefault7(item);
     }
 
     static void testHoeDefault6(CustomHoe item) {
         testToolDefault6(item);
-
-        // TODO Call testHoeDefault7
+        testHoeDefault7(item);
     }
 
     static void testShearsDefault6(CustomShears item) {
         testToolDefault6(item);
-
-        // TODO Call testShearsDefault7
+        testShearsDefault7(item);
     }
 
     static void testBowDefault6(CustomBow item) {
         testToolDefault6(item);
-
-        // TODO Call testBowDefault7
+        testBowDefault7(item);
     }
 }

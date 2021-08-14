@@ -1,15 +1,16 @@
 package customitems.plugin.set.backward;
 
 import nl.knokko.customitems.item.*;
-import nl.knokko.customitems.item.CustomItem;
 import nl.knokko.customitems.plugin.recipe.ingredient.DataVanillaIngredient;
 import nl.knokko.customitems.plugin.recipe.ingredient.NoIngredient;
 import nl.knokko.customitems.plugin.recipe.ingredient.SimpleVanillaIngredient;
 import nl.knokko.customitems.plugin.set.ItemSet;
 import nl.knokko.customitems.plugin.set.item.*;
+import nl.knokko.customitems.plugin.set.item.CustomItem;
 
 import static customitems.plugin.set.backward.Backward1.testRecipes1;
 import static customitems.plugin.set.backward.Backward3.testItems3;
+import static customitems.plugin.set.backward.Backward5.*;
 import static customitems.plugin.set.backward.BackwardHelper.loadItemSet;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
@@ -120,32 +121,32 @@ public class Backward4 {
 
     static void testBaseDefault4(CustomItem item) {
         assertEquals(0, item.getDefaultEnchantments().length);
-        // TODO Call testBaseDefault5 when it's finished
+        testBaseDefault5(item);
     }
 
     static void testSimpleDefault4(SimpleCustomItem item) {
         assertEquals(64, item.getMaxStacksize());
         testBaseDefault4(item);
-        // TODO Call testSimpleDefault5 when it's finished
+        testSimpleDefault5(item);
     }
 
     static void testToolDefault4(CustomTool item) {
         testBaseDefault4(item);
-        // TODO Call testToolDefault5 when it's finished
+        testToolDefault5(item);
     }
 
     static void testHoeDefault4(CustomHoe item) {
         testToolDefault4(item);
-        // TODO Call testHoeDefault5 when it's finished
+        testHoeDefault5(item);
     }
 
     static void testShearsDefault4(CustomShears item) {
         testToolDefault4(item);
-        // TODO Call testShearsDefault5 when it's finished
+        testShearsDefault5(item);
     }
 
     static void testBowDefault4(CustomBow item) {
         testToolDefault4(item);
-        // TODO Call testBowDefault5 when it's finished
+        testBowDefault5(item);
     }
 }
