@@ -179,7 +179,7 @@ public class Backward8 {
     }
 
     static void testMobDropsOld8(ItemSet set, int numBlockDrops) {
-        testBlockDropsOld6(set, numBlockDrops);
+        testMobDropsOld6(set, numBlockDrops);
 
         Iterator<EntityDrop> mobDropIterator = set.getBackingMobDrops().iterator();
         testDefaultMobDrop8(mobDropIterator.next());
