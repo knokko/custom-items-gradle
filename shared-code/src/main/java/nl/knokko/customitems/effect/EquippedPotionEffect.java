@@ -11,6 +11,21 @@ public class EquippedPotionEffect {
 		this.potionEffect = potionEffect;
 		this.requiredSlot = requiredSlot;
 	}
+
+	@Override
+	public String toString() {
+		return potionEffect + " on " + requiredSlot;
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof EquippedPotionEffect) {
+			EquippedPotionEffect effect = (EquippedPotionEffect) other;
+			return potionEffect.equals(effect.potionEffect) && requiredSlot == effect.requiredSlot;
+		} else {
+			return false;
+		}
+	}
 	
 	public PassivePotionEffect getPotionEffect() {
 		return potionEffect;

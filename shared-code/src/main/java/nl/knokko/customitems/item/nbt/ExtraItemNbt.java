@@ -49,6 +49,11 @@ public class ExtraItemNbt {
 		this.pairs = Collections.emptyList();
 	}
 
+	@Override
+	public String toString() {
+		return "ExtraNbt: " + pairs;
+	}
+
 	private void validate() throws ValidationException {
 		Set<NbtKey> keySet = new HashSet<>(pairs.size());
 		for (NbtPair pair : pairs) {

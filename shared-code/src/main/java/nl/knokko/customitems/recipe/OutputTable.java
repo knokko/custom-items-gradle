@@ -161,6 +161,11 @@ public class OutputTable {
 				return false;
 			}
 		}
+
+		@Override
+		public String toString() {
+			return chance + "% to get " + result;
+		}
 		
 		/**
 		 * Gets the result of this entry. In the editor, this should be of type

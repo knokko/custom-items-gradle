@@ -41,6 +41,11 @@ public class NbtValue {
 			return false;
 		}
 	}
+
+	@Override
+	public String toString() {
+		return value.toString();
+	}
 	
 	public NbtValueType getType() {
 		return type;

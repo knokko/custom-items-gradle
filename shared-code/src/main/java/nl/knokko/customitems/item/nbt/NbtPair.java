@@ -20,6 +20,11 @@ public class NbtPair {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return key + " = " + value;
+	}
+
 	public NbtKey getKey() {
 		return key;
 	}

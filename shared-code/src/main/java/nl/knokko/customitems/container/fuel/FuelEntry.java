@@ -12,6 +12,21 @@ public class FuelEntry {
 		this.burnTime = burnTime;
 	}
 
+	@Override
+	public String toString() {
+		return fuel + " burns " + burnTime + " ticks";
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof FuelEntry) {
+			FuelEntry otherEntry = (FuelEntry) other;
+			return fuel.equals(otherEntry.fuel) && burnTime == otherEntry.burnTime;
+		} else {
+			return false;
+		}
+	}
+
 	public void setFuel(SCIngredient fuel) {
 		this.fuel = fuel;
 	}
