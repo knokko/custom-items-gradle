@@ -22,6 +22,7 @@ import nl.knokko.customitems.projectile.effects.*;
 import nl.knokko.customitems.recipe.OutputTable;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import static nl.knokko.customitems.editor.unittest.itemset.Backward1.testRecipes1;
@@ -87,7 +88,7 @@ public class Backward6 {
                 new PotionEffect(EffectType.SLOW, 40, 3)
         ), trident1.getTargetEffects());
         assertEquals(0, trident1.getCommands().length);
-        assertResourceEquals("backward/itemset/model/blue_crossbow.json", trident1.customInHandModel);
+        assertStringResourceEquals("backward/itemset/model/blue_crossbow.json", trident1.customInHandModel);
         assertNull(trident1.customThrowingModel);
         assertFalse(trident1.allowEnchanting());
         assertFalse(trident1.allowAnvilActions());
@@ -281,7 +282,7 @@ public class Backward6 {
         assertArrayEquals(new String[] {
                 "summon bat"
         }, item.getCommands());
-        assertResourceEquals("backward/itemset/model/blue_crossbow.json", item.getBlockingModel());
+        assertStringResourceEquals("backward/itemset/model/blue_crossbow.json", item.getBlockingModel());
         assertFalse(item.allowEnchanting());
         assertTrue(item.allowAnvilActions());
         assertEquals(234, item.getDurability());

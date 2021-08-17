@@ -10,7 +10,9 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -51,6 +53,32 @@ public class BackwardHelper {
             assertEquals(-1, input.read());
             input.close();
             assertArrayEquals(expected, actual);
+        } catch (IOException io) {
+            throw new RuntimeException("Let the test fail", io);
+        }
+    }
+
+    public static void assertStringResourceEquals(String path, byte[] stringBytes) {
+        try {
+            InputStream input = BackwardHelper.class.getClassLoader().getResourceAsStream(path);
+            List<Byte> actualByteList = new ArrayList<>(input.available());
+            int next = input.read();
+            while (next != -1) {
+                // Don't count line separators
+                if (next != 10 && next != 13) {
+                    actualByteList.add((byte) next);
+                }
+                next = input.read();
+            }
+
+            List<Byte> expectedByteList = new ArrayList<>(stringBytes.length);
+            for (byte stringByte : stringBytes) {
+                if (stringByte != 10 && stringByte != 13) {
+                    expectedByteList.add(stringByte);
+                }
+            }
+
+            assertEquals(expectedByteList, actualByteList);
         } catch (IOException io) {
             throw new RuntimeException("Let the test fail", io);
         }
