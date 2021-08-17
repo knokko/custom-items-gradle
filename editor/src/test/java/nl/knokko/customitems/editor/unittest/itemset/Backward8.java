@@ -3,6 +3,13 @@ package nl.knokko.customitems.editor.unittest.itemset;
 import nl.knokko.customitems.container.CustomContainer;
 import nl.knokko.customitems.container.fuel.CustomFuelRegistry;
 import nl.knokko.customitems.container.fuel.FuelEntry;
+import nl.knokko.customitems.container.slot.FuelCustomSlot;
+import nl.knokko.customitems.container.slot.InputCustomSlot;
+import nl.knokko.customitems.container.slot.OutputCustomSlot;
+import nl.knokko.customitems.container.slot.display.CustomItemDisplayItem;
+import nl.knokko.customitems.container.slot.display.DataVanillaDisplayItem;
+import nl.knokko.customitems.container.slot.display.SimpleVanillaDisplayItem;
+import nl.knokko.customitems.container.slot.display.SlotDisplay;
 import nl.knokko.customitems.damage.DamageSource;
 import nl.knokko.customitems.drops.BlockDrop;
 import nl.knokko.customitems.drops.BlockType;
@@ -58,7 +65,7 @@ public class Backward8 {
         testProjectileCoversOld6(oldSet, 2);
         testProjectilesOld6(oldSet, 1);
         testFuelRegistriesOld8(oldSet, 1);
-        testContainersOld8(oldSet, 1);
+        testContainersOld8(oldSet, 2);
 
         ItemSet newSet = loadItemSet("backward8new");
         testTexturesNew6(newSet, 1);
@@ -114,7 +121,7 @@ public class Backward8 {
         assertTrue(item.allowAnvilActions());
         assertTrue(item.allowEnchanting());
         assertEquals(500, item.getDurability());
-        assertNull(item.getRepairItem());
+        assertEquals(new NoIngredient(), item.getRepairItem());
         assertEquals(1, item.getEntityHitDurabilityLoss());
         assertEquals(2, item.getBlockBreakDurabilityLoss());
         assertEquals(1, item.throwDurabilityLoss);
@@ -127,7 +134,6 @@ public class Backward8 {
     static void testContainersOld8(ItemSet set, int numContainers) {
         testContainers7(set, numContainers);
 
-        // TODO Also test for placeholders for input, output, and fuel slots
         CustomContainer container2 = set.getContainerByName("container2");
         ContainerRecipe recipe = container2.getRecipes().stream().findFirst().get();
 
@@ -136,6 +142,29 @@ public class Backward8 {
                 new OutputTable.Entry(new CustomItemResult(set.getCustomItemByName("simple1"), (byte) 1), 40),
                 new OutputTable.Entry(new SimpleVanillaResult(CIMaterial.DIAMOND, (byte) 2), 50)
         ), output.getEntries());
+
+        OutputCustomSlot outputSlot = (OutputCustomSlot) container2.getSlot(0, 0);
+        SlotDisplay outputPlaceholder = outputSlot.getPlaceholder();
+        assertEquals("Simple Test", outputPlaceholder.getDisplayName());
+        assertEquals(2, outputPlaceholder.getAmount());
+        assertEquals(new CustomItemDisplayItem(set.getCustomItemByName("simple1")), outputPlaceholder.getItem());
+        assertEquals(0, outputPlaceholder.getLore().length);
+
+        InputCustomSlot inputSlot = (InputCustomSlot) container2.getSlot(1, 0);
+        SlotDisplay inputPlaceholder = inputSlot.getPlaceholder();
+        assertEquals("", inputPlaceholder.getDisplayName());
+        assertArrayEquals(new String[] {
+                "test the lore"
+        }, inputPlaceholder.getLore());
+        assertEquals(1, inputPlaceholder.getAmount());
+        assertEquals(new SimpleVanillaDisplayItem(CIMaterial.ACACIA_FENCE), inputPlaceholder.getItem());
+
+        FuelCustomSlot fuelSlot = (FuelCustomSlot) container2.getSlot(0, 1);
+        SlotDisplay fuelPlaceholder = fuelSlot.getPlaceholder();
+        assertEquals("", fuelPlaceholder.getDisplayName());
+        assertEquals(0, fuelPlaceholder.getLore().length);
+        assertEquals(10, fuelPlaceholder.getAmount());
+        assertEquals(new DataVanillaDisplayItem(CIMaterial.WOOL, (byte) 8), fuelPlaceholder.getItem());
     }
 
     static void testFuelRegistriesOld8(ItemSet set, int numFuelRegistries) {
@@ -178,7 +207,7 @@ public class Backward8 {
         assertEquals(35, dropTable.getNothingChance());
         assertEquals(listOf(
                 new OutputTable.Entry(new CustomItemResult(set.getCustomItemByName("simple1"), (byte) 1), 30),
-                new OutputTable.Entry(new SimpleVanillaResult(CIMaterial.ACACIA_DOOR, (byte) 1), 20),
+                new OutputTable.Entry(new SimpleVanillaResult(CIMaterial.ACACIA_DOOR, (byte) 2), 20),
                 new OutputTable.Entry(new DataVanillaResult(CIMaterial.WOOL, (byte) 3, (byte) 3), 10),
                 new OutputTable.Entry(new CopiedResult(copiedFromServerString()), 5)
         ), dropTable.getEntries());
@@ -258,7 +287,7 @@ public class Backward8 {
         assertEquals(0, item.getPlayerEffects().size());
         assertEquals(0, item.getTargetEffects().size());
         assertEquals(0, item.getCommands().length);
-        assertEquals(ReplaceCondition.ConditionOperation.NONE, item.getConditionOperator());
+        assertEquals(ReplaceCondition.ConditionOperation.AND, item.getConditionOperator());
         assertArrayEquals(new ReplaceCondition[] {
                 new ReplaceCondition(
                         ReplaceCondition.ReplacementCondition.HASITEM,
@@ -273,11 +302,11 @@ public class Backward8 {
         ), item.getEquippedEffects());
         assertEquals(new ExtraItemNbt(listOf(
                 new NbtPair(new NbtKey("test_int"), new NbtValue(1)),
-                new NbtPair(new NbtKey("parent", "child"), new NbtValue("test_string"))
+                new NbtPair(new NbtKey("parent", "child", "test_string"), new NbtValue("2"))
         )), item.getExtraNbt());
         assertEquals(1.5f, item.getAttackRange(), 0f);
         assertEquals("crazy1", item.projectile.name);
-        assertEquals(1, item.charges.maxCharges);
+        assertNull(item.charges);
         assertEquals(1, item.amountPerShot);
         assertEquals(40, item.cooldown);
     }
@@ -334,7 +363,7 @@ public class Backward8 {
         assertEquals(0, item.getPlayerEffects().size());
         assertEquals(0, item.getTargetEffects().size());
         assertEquals(0, item.getCommands().length);
-        assertEquals(ReplaceCondition.ConditionOperation.NONE, item.getConditionOperator());
+        assertEquals(ReplaceCondition.ConditionOperation.OR, item.getConditionOperator());
         assertArrayEquals(new ReplaceCondition[] {
                 new ReplaceCondition(
                         ReplaceCondition.ReplacementCondition.ISBROKEN,
@@ -354,7 +383,7 @@ public class Backward8 {
         assertTrue(item.allowAnvilActions());
         assertTrue(item.allowEnchanting());
         assertEquals(500, item.getDurability());
-        assertNull(item.getRepairItem());
+        assertEquals(new NoIngredient(), item.getRepairItem());
         assertEquals(2, item.getEntityHitDurabilityLoss());
         assertEquals(1, item.getBlockBreakDurabilityLoss());
     }
@@ -363,7 +392,7 @@ public class Backward8 {
         assertEquals("hoe3", item.getName());
         assertEquals(CustomItemType.IRON_HOE, item.getItemType());
         assertEquals("h3", item.getAlias());
-        assertEquals("First Hoe", item.getDisplayName());
+        assertEquals("Third Hoe", item.getDisplayName());
         assertEquals(0, item.getLore().length);
         assertEquals(0, item.getAttributes().length);
         assertEquals(0, item.getDefaultEnchantments().length);
@@ -395,7 +424,7 @@ public class Backward8 {
         assertTrue(item.allowAnvilActions());
         assertTrue(item.allowEnchanting());
         assertEquals(500, item.getDurability());
-        assertNull(item.getRepairItem());
+        assertEquals(new NoIngredient(), item.getRepairItem());
         assertEquals(0, item.getEntityHitDurabilityLoss());
         assertEquals(0, item.getBlockBreakDurabilityLoss());
         assertEquals(1, item.getTillDurabilityLoss());
@@ -403,7 +432,7 @@ public class Backward8 {
 
     static void testShears3(CustomShears item) throws ValidationException {
         assertEquals("shears3", item.getName());
-        assertEquals(CustomItemType.IRON_HOE, item.getItemType());
+        assertEquals(CustomItemType.SHEARS, item.getItemType());
         assertEquals("sh3", item.getAlias());
         assertEquals("Third Shears", item.getDisplayName());
         assertEquals(0, item.getLore().length);
@@ -428,7 +457,7 @@ public class Backward8 {
                 )
         }, item.getReplaceConditions());
         assertEquals(listOf(
-                new EquippedPotionEffect(new PassivePotionEffect(EffectType.INVISIBILITY, 3), AttributeModifier.Slot.MAINHAND)
+                new EquippedPotionEffect(new PassivePotionEffect(EffectType.INVISIBILITY, 1), AttributeModifier.Slot.MAINHAND)
         ), item.getEquippedEffects());
         assertEquals(new ExtraItemNbt(listOf(
                 new NbtPair(new NbtKey("int_type"), new NbtValue(9))
@@ -437,7 +466,7 @@ public class Backward8 {
         assertTrue(item.allowAnvilActions());
         assertTrue(item.allowEnchanting());
         assertEquals(500, item.getDurability());
-        assertNull(item.getRepairItem());
+        assertEquals(new NoIngredient(), item.getRepairItem());
         assertEquals(0, item.getEntityHitDurabilityLoss());
         assertEquals(1, item.getBlockBreakDurabilityLoss());
         assertEquals(1, item.getShearDurabilityLoss());
@@ -497,7 +526,7 @@ public class Backward8 {
         assertTrue(item.allowAnvilActions());
         assertFalse(item.allowEnchanting());
         assertEquals(123, item.getDurability());
-        assertNull(item.getRepairItem());
+        assertEquals(new NoIngredient(), item.getRepairItem());
         assertEquals(3, item.getEntityHitDurabilityLoss());
         assertEquals(4, item.getBlockBreakDurabilityLoss());
         for (DamageSource source : DamageSource.values()) {
@@ -522,8 +551,12 @@ public class Backward8 {
         }, item.getItemFlags());
         assertEquals("bow_one", item.getTexture().getName());
         assertNull(item.getCustomModel());
-        assertEquals(0, item.getPlayerEffects().size());
-        assertEquals(0, item.getTargetEffects().size());
+        assertEquals(listOf(
+                new PotionEffect(EffectType.NIGHT_VISION, 1000, 1)
+        ), item.getPlayerEffects());
+        assertEquals(listOf(
+                new PotionEffect(EffectType.WITHER, 100, 2)
+        ), item.getTargetEffects());
         assertEquals(0, item.getCommands().length);
         assertEquals(ReplaceCondition.ConditionOperation.NONE, item.getConditionOperator());
         assertArrayEquals(new ReplaceCondition[] {
@@ -545,7 +578,7 @@ public class Backward8 {
         assertTrue(item.allowAnvilActions());
         assertTrue(item.allowEnchanting());
         assertEquals(500, item.getDurability());
-        assertNull(item.getRepairItem());
+        assertEquals(new NoIngredient(), item.getRepairItem());
         assertEquals(0, item.getEntityHitDurabilityLoss());
         assertEquals(0, item.getBlockBreakDurabilityLoss());
         assertEquals(1, item.getShootDurabilityLoss());
@@ -591,7 +624,7 @@ public class Backward8 {
         assertTrue(item.allowAnvilActions());
         assertTrue(item.allowEnchanting());
         assertEquals(500, item.getDurability());
-        assertNull(item.getRepairItem());
+        assertEquals(new NoIngredient(), item.getRepairItem());
         assertEquals(0, item.getEntityHitDurabilityLoss());
         assertEquals(0, item.getBlockBreakDurabilityLoss());
         for (DamageSource source : DamageSource.values()) {
@@ -616,7 +649,7 @@ public class Backward8 {
         assertEquals(0, item.getPlayerEffects().size());
         assertEquals(0, item.getTargetEffects().size());
         assertEquals(0, item.getCommands().length);
-        assertEquals(ReplaceCondition.ConditionOperation.NONE, item.getConditionOperator());
+        assertEquals(ReplaceCondition.ConditionOperation.AND, item.getConditionOperator());
         assertArrayEquals(new ReplaceCondition[] {
                 new ReplaceCondition(
                         ReplaceCondition.ReplacementCondition.ISBROKEN,
@@ -634,7 +667,7 @@ public class Backward8 {
         assertTrue(item.allowAnvilActions());
         assertTrue(item.allowEnchanting());
         assertEquals(500, item.getDurability());
-        assertNull(item.getRepairItem());
+        assertEquals(new NoIngredient(), item.getRepairItem());
         assertEquals(0, item.getEntityHitDurabilityLoss());
         assertEquals(0, item.getBlockBreakDurabilityLoss());
         assertEquals(4.0, item.getThresholdDamage(), 0.0);
@@ -642,7 +675,10 @@ public class Backward8 {
     }
 
     static void testBaseDefault8(CustomItem item) {
-        assertEquals("", item.getAlias());
+        // Wands don't have empty string as default alias due to issue #124
+        if (!(item instanceof CustomWand)) {
+            assertEquals("", item.getAlias());
+        }
         assertEquals(0, item.getReplaceConditions().length);
         assertEquals(0, item.getEquippedEffects().size());
         assertEquals(0, item.getExtraNbt().getPairs().size());
