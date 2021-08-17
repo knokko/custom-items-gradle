@@ -25,6 +25,7 @@ import java.util.Iterator;
 
 import static nl.knokko.customitems.editor.unittest.itemset.Backward3.testTextures3;
 import static nl.knokko.customitems.editor.unittest.itemset.Backward6.*;
+import static nl.knokko.customitems.editor.unittest.itemset.Backward8.*;
 import static nl.knokko.customitems.editor.unittest.itemset.BackwardHelper.loadItemSet;
 import static org.junit.Assert.*;
 
@@ -140,36 +141,36 @@ public class Backward7 {
     }
 
     static void testBaseDefault7(CustomItem item) {
-        // TODO Call testBaseDefault8
+        testBaseDefault8(item);
     }
 
     static void testSimpleDefault7(SimpleCustomItem item) {
         testBaseDefault7(item);
-        // TODO Call testSimpleDefault8
+        testSimpleDefault8(item);
     }
 
     static void testToolDefault7(CustomTool item) {
         testBaseDefault7(item);
-        // TODO Call testToolDefault8
+        testToolDefault8(item);
     }
 
     static void testArmorDefault7(CustomArmor item) {
         testToolDefault7(item);
-        // TODO Call testArmorDefault8
+        testArmorDefault8(item);
     }
 
     static void testHoeDefault7(CustomHoe item) {
         testToolDefault7(item);
-        // TODO Call testHoeDefault8
+        testHoeDefault8(item);
     }
 
     static void testShearsDefault7(CustomShears item) {
         testToolDefault7(item);
-        // TODO Call testShearsDefault8
+        testShearsDefault8(item);
     }
 
     static void testBowDefault7(CustomBow item) {
         testToolDefault7(item);
-        // TODO Call testBowDefault8
+        testBowDefault8(item);
     }
 }

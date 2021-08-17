@@ -32,6 +32,17 @@ public class ReplaceCondition {
 		output += replacingItem;
 		return output;
 	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof ReplaceCondition) {
+			ReplaceCondition rc = (ReplaceCondition) other;
+			return condition == rc.condition && item.equals(rc.item) && op == rc.op
+					&& value == rc.value && replacingItem.equals(rc.replacingItem);
+		} else {
+			return false;
+		}
+	}
 	
 	public ReplacementCondition getCondition() {
 		return condition;
