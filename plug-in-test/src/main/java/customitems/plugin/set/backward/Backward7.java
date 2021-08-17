@@ -25,20 +25,23 @@ import java.util.Iterator;
 
 import static customitems.plugin.set.backward.Backward6.*;
 import static customitems.plugin.set.backward.BackwardHelper.loadItemSet;
+import static nl.knokko.core.plugin.CorePlugin.useNewCommands;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertTrue;
 
 public class Backward7 {
 
     public static void testBackwardCompatibility7() {
-        ItemSet set7 = loadItemSet("backward7");
-        testItemsOld6(set7, 21);
-        testRecipesOld6(set7, 3);
-        testBlockDropsOld6(set7, 1);
-        testMobDropsOld6(set7, 2);
-        testProjectilesOld6(set7, 1);
-        testFuelRegistries7(set7, 1);
-        testContainers7(set7, 1);
+        if (!useNewCommands()) {
+            ItemSet set7 = loadItemSet("backward7");
+            testItemsOld6(set7, 21);
+            testRecipesOld6(set7, 3);
+            testBlockDropsOld6(set7, 1);
+            testMobDropsOld6(set7, 2);
+            testProjectilesOld6(set7, 1);
+            testFuelRegistries7(set7, 1);
+            testContainers7(set7, 1);
+        }
     }
 
     static void testFuelRegistries7(ItemSet set, int numFuelRegistries) {
