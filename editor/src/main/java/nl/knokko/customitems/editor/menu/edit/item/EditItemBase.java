@@ -33,6 +33,7 @@ import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.menu.edit.item.SelectTexture.CreateMenuFactory;
 import nl.knokko.customitems.editor.menu.edit.texture.BowTextureEdit;
+import nl.knokko.customitems.editor.menu.edit.texture.CrossbowTextureEdit;
 import nl.knokko.customitems.editor.menu.edit.texture.TextureEdit;
 import nl.knokko.customitems.editor.set.ItemSet;
 import nl.knokko.customitems.editor.set.item.CustomItem;
@@ -96,11 +97,15 @@ public abstract class EditItemBase extends GuiMenu {
 		this.menu = menu;
 		this.toModify = toModify;
 		CreateMenuFactory textureCreateFactory = (set, returnMenu, afterSave) -> {
-			if (this instanceof EditItemBow)
-				return new BowTextureEdit(set, returnMenu, 
-						bowTextures -> afterSave.accept(bowTextures), null, null);
-			else
+			if (this instanceof EditItemBow) {
+				return new BowTextureEdit(set, returnMenu,
+						afterSave::accept, null, null);
+			} else if (this instanceof EditItemCrossbow) {
+				return new CrossbowTextureEdit(set, returnMenu,
+						afterSave::accept, null, null);
+			} else {
 				return new TextureEdit(set, returnMenu, afterSave, null, null);
+			}
 		};
 		if (oldValues != null) {
 			if (toModify == null) {
