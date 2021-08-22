@@ -6,6 +6,7 @@ import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
+import java.util.Objects;
 import java.util.function.Function;
 
 public class StorageCustomSlot implements CustomSlot {
@@ -30,6 +31,20 @@ public class StorageCustomSlot implements CustomSlot {
 
     public SlotDisplay getPlaceHolder() {
         return placeHolder;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof StorageCustomSlot) {
+            return Objects.equals(placeHolder, ((StorageCustomSlot) other).placeHolder);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Storage placeholder=" + placeHolder;
     }
 
     @Override

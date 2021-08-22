@@ -48,6 +48,7 @@ import java.util.Scanner;
 import static nl.knokko.customitems.editor.unittest.itemset.Backward3.testTextures3;
 import static nl.knokko.customitems.editor.unittest.itemset.Backward6.*;
 import static nl.knokko.customitems.editor.unittest.itemset.Backward7.testContainers7;
+import static nl.knokko.customitems.editor.unittest.itemset.Backward9.*;
 import static nl.knokko.customitems.editor.unittest.itemset.BackwardHelper.*;
 import static org.junit.Assert.*;
 
@@ -684,46 +685,46 @@ public class Backward8 {
         assertEquals(0, item.getExtraNbt().getPairs().size());
         assertEquals(1f, item.getAttackRange(), 0f);
         // TODO Call testBaseDefault9
+        testBaseDefault9(item);
     }
 
     static void testSimpleDefault8(SimpleCustomItem item) {
         testBaseDefault8(item);
-        // TODO Call testSimpleDefault9
+        testSimpleDefault9(item);
     }
 
     static void testToolDefault8(CustomTool item) {
         testBaseDefault8(item);
-        // TODO Call testToolDefault9
+        testToolDefault9(item);
     }
 
     static void testArmorDefault8(CustomArmor item) {
         testToolDefault8(item);
-        // TODO Call testArmorDefault9
+        testArmorDefault9(item);
     }
 
     static void testHoeDefault8(CustomHoe item) {
         testToolDefault8(item);
-        // TODO Call testHoeDefault9
+        testHoeDefault9(item);
     }
 
     static void testShearsDefault8(CustomShears item) {
         testToolDefault8(item);
-        // TODO Call testShearsDefault9
+        testShearsDefault9(item);
     }
 
     static void testBowDefault8(CustomBow item) {
         testToolDefault8(item);
-
-        // TODO Call testBowDefault9
+        testBowDefault9(item);
     }
 
     static void testShieldDefault8(CustomShield item) {
         testToolDefault8(item);
-        // TODO Call testShieldDefault9
+        testShieldDefault9(item);
     }
 
     static void testWandDefault8(CustomWand item) {
         testBaseDefault8(item);
-        // TODO Call testWandDefault9
+        testWandDefault9(item);
     }
 }
