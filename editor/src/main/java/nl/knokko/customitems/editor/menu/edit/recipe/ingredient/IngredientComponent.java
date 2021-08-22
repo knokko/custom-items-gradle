@@ -86,6 +86,8 @@ public class IngredientComponent extends DynamicTextButton {
 				state.getWindow().setMainComponent(new SelectDataVanillaItem(getMenu(), (CIMaterial material, byte data) -> {
 					IngredientComponent.this.setIngredient(new DataVanillaIngredient(material, data, (byte) 1, null));
 				}));
+			} else if (character == 'e') {
+				IngredientComponent.this.setIngredient(new NoIngredient());
 			}
 		}
 	}
