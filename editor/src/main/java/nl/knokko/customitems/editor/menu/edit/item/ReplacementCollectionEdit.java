@@ -22,15 +22,19 @@ public class ReplacementCollectionEdit extends QuickCollectionEdit<ReplaceCondit
 	private final ReplaceCondition exampleCondition;
 	private final Collection<CustomItem> backingItems;
 	private ConditionOperation op;
-	private Consumer<ConditionOperation> operation;
+	private Consumer<ConditionOperation> onApplyOp;
 	private final int MAX_DEFAULT_SPACE = 2368; // 37 slots of 64 items at most
 	
-	public ReplacementCollectionEdit(Collection<ReplaceCondition> currentCollection, Consumer<Collection<ReplaceCondition>> onApply, GuiComponent returnMenu, 
-			ReplaceCondition exampleCondition, Collection<CustomItem> backingItems, Consumer<ConditionOperation> operation) {
+	public ReplacementCollectionEdit(
+			Collection<ReplaceCondition> currentCollection, ConditionOperation currentOp,
+			Consumer<Collection<ReplaceCondition>> onApply, GuiComponent returnMenu,
+			ReplaceCondition exampleCondition, Collection<CustomItem> backingItems, Consumer<ConditionOperation> onApplyOp
+	) {
 		super(currentCollection, onApply, returnMenu);
 		this.exampleCondition = exampleCondition;
 		this.backingItems = backingItems;
-		this.operation = operation;
+		this.op = currentOp;
+		this.onApplyOp = onApplyOp;
 	}
 	
 	@Override
@@ -75,7 +79,7 @@ public class ReplacementCollectionEdit extends QuickCollectionEdit<ReplaceCondit
 			}
 
 			onApply.accept(ownCollection);
-			operation.accept(op);
+			onApplyOp.accept(op);
 			state.getWindow().setMainComponent(returnMenu);
 		}), 0.025f, 0.1f, 0.175f, 0.2f);
 	}

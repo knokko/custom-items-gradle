@@ -422,7 +422,7 @@ public abstract class EditItemBase extends GuiMenu {
 	private void addReplaceComponent() {
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			if (menu.getSet().getBackingItems().size() > 0) {
-				state.getWindow().setMainComponent(new ReplacementCollectionEdit(Arrays.asList(conditions), 
+				state.getWindow().setMainComponent(new ReplacementCollectionEdit(Arrays.asList(conditions), op,
 						newConditions -> {
 							Checks.nonNullArray(conditions);
 							this.conditions = newConditions.toArray(new ReplaceCondition[newConditions.size()]);
