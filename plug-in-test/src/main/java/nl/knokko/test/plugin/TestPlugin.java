@@ -17,7 +17,8 @@ public class TestPlugin extends JavaPlugin {
             Backward6.testBackwardCompatibility6();
             Backward7.testBackwardCompatibility7();
             Backward8.testBackwardCompatibility8();
-            System.out.println("All unit tests succeeded");
+            Backward9.testBackwardCompatibility9();
+            System.out.println("All 9 unit tests succeeded");
         } catch (ValidationException failed) {
             throw new RuntimeException(failed);
         }

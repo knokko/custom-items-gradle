@@ -2,6 +2,7 @@ package nl.knokko.customitems.block;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.stream.Stream;
 
 public class CustomBlocksView implements Iterable<CustomBlockView> {
 
@@ -18,6 +19,10 @@ public class CustomBlocksView implements Iterable<CustomBlockView> {
 
     public int size() {
         return liveBlockList.size();
+    }
+
+    public Stream<CustomBlock> stream() {
+        return liveBlockList.stream();
     }
 
     private static class CustomBlockViewIterator implements Iterator<CustomBlockView> {

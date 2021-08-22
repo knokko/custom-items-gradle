@@ -40,11 +40,11 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Scanner;
 
 import static customitems.plugin.set.backward.Backward6.*;
 import static customitems.plugin.set.backward.Backward7.testContainers7;
+import static customitems.plugin.set.backward.Backward9.*;
 import static customitems.plugin.set.backward.BackwardHelper.listOf;
 import static customitems.plugin.set.backward.BackwardHelper.loadItemSet;
 import static nl.knokko.core.plugin.CorePlugin.useNewCommands;
@@ -81,6 +81,8 @@ public class Backward8 {
 
     static void testItemsNew8(ItemSet set, int numItems) throws ValidationException {
         testItemsNew6(set, numItems);
+
+        testTridentDefault8((CustomTrident) set.getCustomItemByName("trident_one"));
 
         CustomTrident item = (CustomTrident) set.getCustomItemByName("trident2");
         assertEquals("trident2", item.getName());
@@ -666,47 +668,52 @@ public class Backward8 {
         assertEquals(0, item.getEquippedEffects().size());
         assertEquals(0, item.getExtraNbt().getPairs().size());
         assertEquals(1f, item.getAttackRange(), 0f);
-        // TODO Call testBaseDefault9
+
+        testBaseDefault9(item);
     }
 
     static void testSimpleDefault8(SimpleCustomItem item) {
         testBaseDefault8(item);
-        // TODO Call testSimpleDefault9
+        testSimpleDefault9(item);
     }
 
     static void testToolDefault8(CustomTool item) {
         testBaseDefault8(item);
-        // TODO Call testToolDefault9
+        testToolDefault9(item);
     }
 
     static void testArmorDefault8(CustomArmor item) {
         testToolDefault8(item);
-        // TODO Call testArmorDefault9
+        testArmorDefault9(item);
     }
 
     static void testHoeDefault8(CustomHoe item) {
         testToolDefault8(item);
-        // TODO Call testHoeDefault9
+        testHoeDefault9(item);
     }
 
     static void testShearsDefault8(CustomShears item) {
         testToolDefault8(item);
-        // TODO Call testShearsDefault9
+        testShearsDefault9(item);
     }
 
     static void testBowDefault8(CustomBow item) {
         testToolDefault8(item);
-
-        // TODO Call testBowDefault9
+        testBowDefault9(item);
     }
 
     static void testShieldDefault8(CustomShield item) {
         testToolDefault8(item);
-        // TODO Call testShieldDefault9
+        testShieldDefault9(item);
     }
 
     static void testWandDefault8(CustomWand item) {
         testBaseDefault8(item);
-        // TODO Call testWandDefault9
+        testWandDefault9(item);
+    }
+
+    static void testTridentDefault8(CustomTrident item) {
+        testToolDefault8(item);
+        testTridentDefault9(item);
     }
 }
