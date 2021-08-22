@@ -8042,6 +8042,13 @@ public class ItemSet implements ItemSetBase {
 						return "The gun " + gun.getName() + " has this item as remaining ammo item";
 					}
 				}
+				if (item != current) {
+					for (ReplaceCondition rc : current.getReplaceConditions()) {
+						if (rc.getItemName().equals(item.getName()) || rc.getReplacingItemName().equals(item.getName())) {
+							return "The item " + current.getName() + " uses this item in a replacement condition";
+						}
+					}
+				}
 			}
 			for (EntityDrop drop : mobDrops) {
 				for (OutputTable.Entry entry : drop.getDrop().getDropTable().getEntries()) {
