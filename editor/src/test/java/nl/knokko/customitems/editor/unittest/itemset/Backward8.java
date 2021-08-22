@@ -86,6 +86,8 @@ public class Backward8 {
     static void testItemsNew8(ItemSet set, int numItems) throws ValidationException {
         testItemsNew6(set, numItems);
 
+        testTridentDefault8((CustomTrident) set.getCustomItemByName("trident_one"));
+
         CustomTrident item = (CustomTrident) set.getCustomItemByName("trident2");
         assertEquals("trident2", item.getName());
         assertEquals(CustomItemType.TRIDENT, item.getItemType());
@@ -726,5 +728,10 @@ public class Backward8 {
     static void testWandDefault8(CustomWand item) {
         testBaseDefault8(item);
         testWandDefault9(item);
+    }
+
+    static void testTridentDefault8(CustomTrident item) {
+        testToolDefault8(item);
+        testTridentDefault9(item);
     }
 }

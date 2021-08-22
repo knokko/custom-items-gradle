@@ -1,5 +1,9 @@
 package nl.knokko.customitems.editor.unittest.itemset;
 
+import nl.knokko.customitems.block.CustomBlockValues;
+import nl.knokko.customitems.block.drop.CustomBlockDrop;
+import nl.knokko.customitems.block.drop.RequiredItems;
+import nl.knokko.customitems.block.drop.SilkTouchRequirement;
 import nl.knokko.customitems.container.CustomContainer;
 import nl.knokko.customitems.container.slot.StorageCustomSlot;
 import nl.knokko.customitems.container.slot.display.SimpleVanillaDisplayItem;
@@ -7,6 +11,7 @@ import nl.knokko.customitems.container.slot.display.SlotDisplay;
 import nl.knokko.customitems.editor.set.ItemSet;
 import nl.knokko.customitems.editor.set.item.*;
 import nl.knokko.customitems.editor.set.item.CustomItem;
+import nl.knokko.customitems.editor.set.item.texture.CrossbowTextures;
 import nl.knokko.customitems.editor.set.recipe.ShapelessRecipe;
 import nl.knokko.customitems.editor.set.recipe.ingredient.CustomItemIngredient;
 import nl.knokko.customitems.editor.set.recipe.ingredient.Ingredient;
@@ -25,6 +30,7 @@ import nl.knokko.customitems.item.nbt.NbtPair;
 import nl.knokko.customitems.item.nbt.NbtValue;
 import nl.knokko.customitems.projectile.CIProjectile;
 import nl.knokko.customitems.projectile.effects.*;
+import nl.knokko.customitems.recipe.OutputTable;
 import nl.knokko.customitems.sound.CISound;
 import nl.knokko.customitems.util.ValidationException;
 import org.junit.Test;
@@ -32,8 +38,7 @@ import org.junit.Test;
 import java.awt.*;
 
 import static nl.knokko.customitems.editor.unittest.itemset.Backward3.testTextures3;
-import static nl.knokko.customitems.editor.unittest.itemset.Backward6.testProjectileCoversOld6;
-import static nl.knokko.customitems.editor.unittest.itemset.Backward6.testProjectilesOld6;
+import static nl.knokko.customitems.editor.unittest.itemset.Backward6.*;
 import static nl.knokko.customitems.editor.unittest.itemset.Backward8.*;
 import static nl.knokko.customitems.editor.unittest.itemset.BackwardHelper.*;
 import static org.junit.Assert.*;
@@ -54,7 +59,187 @@ public class Backward9 {
         testFuelRegistriesOld8(old9, 1);
         testContainersOld9(old9, 3);
 
-        // TODO Test new9
+        ItemSet new9 = loadItemSet("backward9new");
+        testTexturesNew9(new9, 2);
+        testItemsNew9(new9, 4);
+        testRecipesNew6(new9, 1);
+        testBlocksNew9(new9, 1);
+    }
+
+    static void testBlocksNew9(ItemSet set, int numBlocks) {
+        assertEquals(numBlocks, set.getBlocks().size());
+
+        CustomBlockValues block1 = set.getBlockByID(1).getValues();
+        assertEquals("block1", block1.getName());
+        assertEquals(1, block1.getDrops().size());
+
+        CustomBlockDrop drop = block1.getDrops().iterator().next();
+        assertEquals(new OutputTable(listOf(
+                new OutputTable.Entry(new SimpleVanillaResult(CIMaterial.COBBLESTONE, (byte) 2), 50)
+        )), drop.getItemsToDrop());
+        assertEquals(SilkTouchRequirement.FORBIDDEN, drop.getSilkTouchRequirement());
+
+        RequiredItems requiredItems = drop.getRequiredItems();
+        assertTrue(requiredItems.isEnabled());
+        assertFalse(requiredItems.isInverted());
+        assertEquals(listOf(
+                set.getCustomItemByName("trident_one")
+        ), requiredItems.getCustomItems());
+        assertEquals(listOf(
+                new RequiredItems.VanillaEntry(CIMaterial.STONE_PICKAXE, false)
+        ), requiredItems.getVanillaItems());
+
+        assertEquals("quick_wand", block1.getTexture().getName());
+    }
+
+    static void testTexturesNew9(ItemSet set, int numTextures) {
+        testTexturesNew6(set, numTextures);
+
+        CrossbowTextures crossbowTextures = (CrossbowTextures) set.getTextureByName("crossbow_texture");
+        assertEquals("crossbow_texture", crossbowTextures.getName());
+        assertImageEqual(loadImage("gun1"), crossbowTextures.getImage());
+        assertImageEqual(loadImage("test1"), crossbowTextures.getArrowImage());
+        assertImageEqual(loadImage("test1"), crossbowTextures.getFireworkImage());
+
+        assertEquals(3, crossbowTextures.getPullTextures().size());
+        CrossbowTextures.PullTexture pull1 = crossbowTextures.getPullTextures().get(0);
+        assertEquals(0.0, pull1.getPull(), 0.0);
+        assertImageEqual(loadImage("gun1"), pull1.getImage());
+        CrossbowTextures.PullTexture pull2 = crossbowTextures.getPullTextures().get(1);
+        assertEquals(0.5, pull2.getPull(), 0.0);
+        assertImageEqual(loadImage("gun1"), pull2.getImage());
+        CrossbowTextures.PullTexture pull3 = crossbowTextures.getPullTextures().get(2);
+        assertEquals(0.75, pull3.getPull(), 0.0);
+        assertImageEqual(loadImage("test1"), pull3.getImage());
+    }
+
+    static void testItemsNew9(ItemSet set, int numItems) throws ValidationException {
+        testItemsNew8(set, numItems);
+
+        testTridentDefault9((CustomTrident) set.getCustomItemByName("trident2"));
+
+        testCrossbow1((CustomCrossbow) set.getCustomItemByName("crossbow1"));
+        testBlockItem1((CustomBlockItem) set.getCustomItemByName("block_item1"));
+    }
+
+    static void testBlockItem1(CustomBlockItem item) throws ValidationException {
+        assertEquals("block_item1", item.getName());
+        assertEquals(CustomItemType.DIAMOND_HOE, item.getItemType());
+        assertEquals("bi1", item.getAlias());
+        assertEquals("Block 1", item.getDisplayName());
+        assertArrayEquals(new String[] {
+                "This is not an actual block",
+                "Just the item that places it!"
+        }, item.getLore());
+        assertArrayEquals(new AttributeModifier[] {
+                new AttributeModifier(
+                        AttributeModifier.Attribute.ATTACK_SPEED,
+                        AttributeModifier.Slot.MAINHAND,
+                        AttributeModifier.Operation.ADD,
+                        5.0
+                )
+        }, item.getAttributes());
+        assertArrayEquals(new Enchantment[] {
+                new Enchantment(EnchantmentType.DURABILITY, 2)
+        }, item.getDefaultEnchantments());
+        assertArrayEquals(new boolean[] {
+                false, false, true, true, false, false
+        }, item.getItemFlags());
+        assertEquals(listOf(
+                new PotionEffect(EffectType.REGENERATION, 100, 1)
+        ), item.getPlayerEffects());
+        assertEquals(listOf(
+                new PotionEffect(EffectType.POISON, 100, 2)
+        ), item.getTargetEffects());
+        assertArrayEquals(new String[] {
+                "kill @a"
+        }, item.getCommands());
+        assertEquals(ReplaceCondition.ConditionOperation.NONE, item.getConditionOperator());
+        assertArrayEquals(new ReplaceCondition[] {
+                new ReplaceCondition(
+                        ReplaceCondition.ReplacementCondition.ISBROKEN,
+                        "trident2",
+                        ReplaceCondition.ReplacementOperation.EXACTLY,
+                        1,
+                        "crossbow1"
+                )
+        }, item.getReplaceConditions());
+        assertEquals(listOf(
+                new EquippedPotionEffect(new PassivePotionEffect(EffectType.FAST_DIGGING, 3), AttributeModifier.Slot.MAINHAND)
+        ), item.getEquippedEffects());
+        assertEquals(new ExtraItemNbt(listOf(
+                new NbtPair(new NbtKey("block"), new NbtValue(1))
+        )), item.getExtraNbt());
+        assertEquals(0.25, item.getAttackRange(), 0.0);
+        assertEquals("block1", item.getBlock().getValues().getName());
+        assertEquals(15, item.getStackSize());
+    }
+
+    static void testCrossbow1(CustomCrossbow item) throws ValidationException {
+        assertEquals("crossbow1", item.getName());
+        assertEquals(CustomItemType.CROSSBOW, item.getItemType());
+        assertEquals("cb1", item.getAlias());
+        assertEquals("Test Crossbow", item.getDisplayName());
+        assertArrayEquals(new String[] {
+                "We finally have crossbows"
+        }, item.getLore());
+        assertArrayEquals(new AttributeModifier[] {
+                new AttributeModifier(
+                        AttributeModifier.Attribute.MOVEMENT_SPEED,
+                        AttributeModifier.Slot.OFFHAND,
+                        AttributeModifier.Operation.MULTIPLY,
+                        0.8
+                )
+        }, item.getAttributes());
+        assertArrayEquals(new Enchantment[] {
+                new Enchantment(EnchantmentType.PIERCING, 2)
+        }, item.getDefaultEnchantments());
+        assertArrayEquals(new boolean[] {
+                true, true, true, true, true, true
+        }, item.getItemFlags());
+        assertEquals("crossbow_texture", item.getTexture().getName());
+        assertEquals(listOf(
+                new PotionEffect(EffectType.SPEED, 20, 1)
+        ), item.getPlayerEffects());
+        assertEquals(listOf(
+                new PotionEffect(EffectType.WITHER, 50, 2)
+        ), item.getTargetEffects());
+        assertArrayEquals(new String[] {
+                "effect @p night_vision 5"
+        }, item.getCommands());
+        assertEquals(ReplaceCondition.ConditionOperation.OR, item.getConditionOperator());
+        assertArrayEquals(new ReplaceCondition[] {
+                new ReplaceCondition(
+                        ReplaceCondition.ReplacementCondition.HASITEM,
+                        "trident2",
+                        ReplaceCondition.ReplacementOperation.EXACTLY,
+                        1,
+                        "trident_one"
+                )
+        }, item.getReplaceConditions());
+        assertEquals(listOf(
+                new EquippedPotionEffect(new PassivePotionEffect(EffectType.INVISIBILITY, 1), AttributeModifier.Slot.MAINHAND)
+        ), item.getEquippedEffects());
+        assertEquals(new ExtraItemNbt(listOf(
+                new NbtPair(new NbtKey("cross"), new NbtValue("bow"))
+        )), item.getExtraNbt());
+        assertEquals(0.5, item.getAttackRange(), 0.0);
+        assertFalse(item.allowEnchanting());
+        assertTrue(item.allowAnvilActions());
+        assertEquals(567, item.getDurability());
+        assertEquals(new SimpleVanillaIngredient(
+                CIMaterial.WHITE_WOOL, (byte) 2, new SimpleVanillaResult(CIMaterial.BLACK_WOOL, (byte) 5)
+        ), item.getRepairItem());
+        assertEquals(1, item.getEntityHitDurabilityLoss());
+        assertEquals(2, item.getBlockBreakDurabilityLoss());
+        assertEquals(0, item.getArrowDurabilityLoss());
+        assertEquals(4, item.getFireworkDurabilityLoss());
+        assertEquals(1.25, item.getArrowDamageMultiplier(), 0.0);
+        assertEquals(0.75, item.getFireworkDamageMultiplier(), 0.0);
+        assertEquals(1.5, item.getArrowSpeedMultiplier(), 0.0);
+        assertEquals(1.75, item.getFireworkSpeedMultiplier(), 0.0);
+        assertEquals(1, item.getArrowKnockbackStrength());
+        assertFalse(item.hasArrowGravity());
     }
 
     static void testContainersOld9(ItemSet set, int numContainers) {
