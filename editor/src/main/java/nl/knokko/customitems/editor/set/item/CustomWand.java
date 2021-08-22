@@ -103,7 +103,7 @@ public class CustomWand extends CustomItem {
 		output.addJavaString(itemType.name());
 		output.addShort(itemDamage);
 		output.addJavaString(name);
-		output.addString(name);
+		output.addString(alias);
 		output.addJavaString(displayName);
 		output.addByte((byte) lore.length);
 		for(String line : lore)
