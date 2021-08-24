@@ -204,7 +204,7 @@ public class SimpleCustomItem extends CustomItem {
 			output.addJavaString(command);
 		} */
 		
-		output.addByte(ItemEncoding.ENCODING_SIMPLE_9);
+		output.addByte(ItemEncoding.ENCODING_SIMPLE_10);
 		output.addJavaString(itemType.name());
 		output.addShort(itemDamage);
 		output.addJavaString(name);

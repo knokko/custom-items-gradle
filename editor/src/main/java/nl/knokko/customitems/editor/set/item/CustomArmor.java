@@ -388,7 +388,7 @@ public class CustomArmor extends CustomTool {
 	}
 	
 	protected byte getEncoding10() {
-		return ItemEncoding.ENCODING_ARMOR_10;
+		return ItemEncoding.ENCODING_ARMOR_11;
 	}
 	
 	private boolean isLeather() {

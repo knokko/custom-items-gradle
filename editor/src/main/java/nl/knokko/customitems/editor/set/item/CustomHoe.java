@@ -117,7 +117,7 @@ public class CustomHoe extends CustomTool {
 			output.addJavaString(command);
 		} */
 		
-		output.addByte(ItemEncoding.ENCODING_HOE_9);
+		output.addByte(ItemEncoding.ENCODING_HOE_10);
 		output.addJavaString(itemType.name());
 		output.addShort(itemDamage);
 		output.addJavaString(name);

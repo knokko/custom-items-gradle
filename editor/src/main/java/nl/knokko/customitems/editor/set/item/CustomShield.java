@@ -121,7 +121,7 @@ public class CustomShield extends CustomTool {
 			output.addJavaString(command);
 		} */
 		
-		output.addByte(ItemEncoding.ENCODING_SHIELD_9);
+		output.addByte(ItemEncoding.ENCODING_SHIELD_10);
 		output.addShort(itemDamage);
 		output.addJavaString(name);
 		output.addString(alias);

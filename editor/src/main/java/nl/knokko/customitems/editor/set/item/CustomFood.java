@@ -56,7 +56,7 @@ public class CustomFood extends CustomItem {
 
     @Override
     public void export(BitOutput output) {
-        output.addByte(ItemEncoding.ENCODING_FOOD_9);
+        output.addByte(ItemEncoding.ENCODING_FOOD_10);
         output.addJavaString(itemType.name());
         output.addShort(itemDamage);
         output.addJavaString(name);

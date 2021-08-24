@@ -222,7 +222,7 @@ public class CustomTool extends CustomItem {
 			output.addJavaString(command);
 		} */
 		
-		output.addByte(ItemEncoding.ENCODING_TOOL_9);
+		output.addByte(ItemEncoding.ENCODING_TOOL_10);
 		output.addJavaString(itemType.name());
 		output.addShort(itemDamage);
 		output.addJavaString(name);

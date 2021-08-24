@@ -9,13 +9,12 @@ import nl.knokko.customitems.item.CustomItemType;
 import nl.knokko.customitems.item.Enchantment;
 import nl.knokko.customitems.item.ReplaceCondition;
 import nl.knokko.customitems.item.nbt.ExtraItemNbt;
-import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.util.bits.BitOutput;
 
 import java.util.Collection;
 import java.util.List;
 
-import static nl.knokko.customitems.encoding.ItemEncoding.ENCODING_BLOCK_ITEM_9;
+import static nl.knokko.customitems.encoding.ItemEncoding.ENCODING_BLOCK_ITEM_10;
 
 public class CustomBlockItem extends CustomItem {
 
@@ -69,7 +68,7 @@ public class CustomBlockItem extends CustomItem {
 
     @Override
     public void export(BitOutput output) {
-        output.addByte(ENCODING_BLOCK_ITEM_9);
+        output.addByte(ENCODING_BLOCK_ITEM_10);
         output.addJavaString(itemType.name());
         output.addShort(itemDamage);
         output.addJavaString(name);

@@ -215,7 +215,7 @@ public class CustomBow extends CustomTool {
 			output.addJavaString(command);
 		} */
 		
-		output.addByte(ItemEncoding.ENCODING_BOW_9);
+		output.addByte(ItemEncoding.ENCODING_BOW_10);
 		output.addShort(itemDamage);
 		output.addJavaString(name);
 		output.addString(alias);

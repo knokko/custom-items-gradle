@@ -49,7 +49,7 @@ public class CustomPocketContainer extends CustomItem {
 
     @Override
     public void export(BitOutput output) {
-        output.addByte(ItemEncoding.ENCODING_POCKET_CONTAINER_9);
+        output.addByte(ItemEncoding.ENCODING_POCKET_CONTAINER_10);
         output.addJavaString(itemType.name());
         output.addShort(itemDamage);
         output.addJavaString(name);

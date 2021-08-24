@@ -128,7 +128,7 @@ public class CustomTrident extends CustomTool {
 			output.addJavaString(command);
 		} */
 		
-		output.addByte(ItemEncoding.ENCODING_TRIDENT_9);
+		output.addByte(ItemEncoding.ENCODING_TRIDENT_10);
 		output.addShort(itemDamage);
 		output.addJavaString(name);
 		output.addString(alias);

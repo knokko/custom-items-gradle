@@ -99,7 +99,7 @@ public class CustomWand extends CustomItem {
 		}
 		output.addInt(amountPerShot);
 		*/
-		output.addByte(ItemEncoding.ENCODING_WAND_9);
+		output.addByte(ItemEncoding.ENCODING_WAND_10);
 		output.addJavaString(itemType.name());
 		output.addShort(itemDamage);
 		output.addJavaString(name);

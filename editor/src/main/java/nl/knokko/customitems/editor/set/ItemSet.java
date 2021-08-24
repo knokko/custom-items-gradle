@@ -161,50 +161,50 @@ public class ItemSet implements ItemSetBase {
 		switch (encoding) {
 			case ItemEncoding.ENCODING_SIMPLE_1 : return loadSimpleItem1(input, checkCustomModel);
 			case ItemEncoding.ENCODING_SIMPLE_2 : return loadSimpleItem2(input, checkCustomModel);
-			case ItemEncoding.ENCODING_SIMPLE_3 : return loadSimpleItem3(input, checkCustomModel);
-			case ItemEncoding.ENCODING_SIMPLE_4 : return loadSimpleItem4(input, checkCustomModel);
-			case ItemEncoding.ENCODING_SIMPLE_5 : return loadSimpleItem5(input, checkCustomModel);
-			case ItemEncoding.ENCODING_SIMPLE_6 : return loadSimpleItem6(input, checkCustomModel);
-			case ItemEncoding.ENCODING_SIMPLE_9 : return loadSimpleItem9(input, checkCustomModel);
+			case ItemEncoding.ENCODING_SIMPLE_4: return loadSimpleItem4(input, checkCustomModel);
+			case ItemEncoding.ENCODING_SIMPLE_5: return loadSimpleItem5(input, checkCustomModel);
+			case ItemEncoding.ENCODING_SIMPLE_6: return loadSimpleItem6(input, checkCustomModel);
+			case ItemEncoding.ENCODING_SIMPLE_9: return loadSimpleItem9(input, checkCustomModel);
+			case ItemEncoding.ENCODING_SIMPLE_10: return loadSimpleItem10(input, checkCustomModel);
 			case ItemEncoding.ENCODING_TOOL_2 : return loadTool2(input, checkCustomModel);
 			case ItemEncoding.ENCODING_TOOL_3 : return loadTool3(input, checkCustomModel);
 			case ItemEncoding.ENCODING_TOOL_4 : return loadTool4(input, checkCustomModel);
-			case ItemEncoding.ENCODING_TOOL_5 : return loadTool5(input, checkCustomModel);
-			case ItemEncoding.ENCODING_TOOL_6 : return loadTool6(input, checkCustomModel);
-			case ItemEncoding.ENCODING_TOOL_9 : return loadTool9(input, checkCustomModel);
-			case ItemEncoding.ENCODING_SHEAR_5 : return loadShear5(input, checkCustomModel);
-			case ItemEncoding.ENCODING_SHEAR_6 : return loadShear6(input, checkCustomModel);
-			case ItemEncoding.ENCODING_SHEAR_9 : return loadShear9(input, checkCustomModel);
+			case ItemEncoding.ENCODING_TOOL_6: return loadTool6(input, checkCustomModel);
+			case ItemEncoding.ENCODING_TOOL_9: return loadTool9(input, checkCustomModel);
+			case ItemEncoding.ENCODING_TOOL_10: return loadTool10(input, checkCustomModel);
+			case ItemEncoding.ENCODING_SHEAR_6: return loadShear6(input, checkCustomModel);
+			case ItemEncoding.ENCODING_SHEAR_9: return loadShear9(input, checkCustomModel);
+			case ItemEncoding.ENCODING_SHEAR_10: return loadShear10(input, checkCustomModel);
 			case ItemEncoding.ENCODING_BOW_3 : return loadBow3(input, checkCustomModel);
 			case ItemEncoding.ENCODING_BOW_4 : return loadBow4(input, checkCustomModel);
-			case ItemEncoding.ENCODING_BOW_5 : return loadBow5(input, checkCustomModel);
-			case ItemEncoding.ENCODING_BOW_6 : return loadBow6(input, checkCustomModel);
-			case ItemEncoding.ENCODING_BOW_9 : return loadBow9(input, checkCustomModel);
+			case ItemEncoding.ENCODING_BOW_6: return loadBow6(input, checkCustomModel);
+			case ItemEncoding.ENCODING_BOW_9: return loadBow9(input, checkCustomModel);
+			case ItemEncoding.ENCODING_BOW_10: return loadBow10(input, checkCustomModel);
 			case ItemEncoding.ENCODING_ARMOR_4 : return loadArmor4(input, checkCustomModel);
-			case ItemEncoding.ENCODING_ARMOR_5 : return loadArmor5(input, checkCustomModel);
-			case ItemEncoding.ENCODING_ARMOR_6 : return loadArmor6(input, checkCustomModel);
-			case ItemEncoding.ENCODING_ARMOR_7 : return loadArmor7(input, checkCustomModel);
-			case ItemEncoding.ENCODING_ARMOR_8 : return loadArmor8(input, checkCustomModel);
-			case ItemEncoding.ENCODING_ARMOR_9 : return loadArmor9(input, checkCustomModel);
-			case ItemEncoding.ENCODING_SHIELD_6 : return loadShield6(input, checkCustomModel);
-			case ItemEncoding.ENCODING_SHIELD_7 : return loadShield7(input, checkCustomModel);
-			case ItemEncoding.ENCODING_SHIELD_9 : return loadShield9(input, checkCustomModel);
-			case ItemEncoding.ENCODING_TRIDENT_7 : return loadTrident7(input, checkCustomModel);
-			case ItemEncoding.ENCODING_TRIDENT_8 : return loadTrident8(input, checkCustomModel);
-			case ItemEncoding.ENCODING_TRIDENT_9 : return loadTrident9(input, checkCustomModel);
-			case ItemEncoding.ENCODING_HOE_5 : return loadHoe5(input, checkCustomModel);
-			case ItemEncoding.ENCODING_HOE_6 : return loadHoe6(input, checkCustomModel);
-			case ItemEncoding.ENCODING_HOE_9 : return loadHoe9(input, checkCustomModel);
-			case ItemEncoding.ENCODING_WAND_8: return loadWand8(input);
-			case ItemEncoding.ENCODING_WAND_9: return loadWand9(input);
-			case ItemEncoding.ENCODING_HELMET3D_9: return loadHelmet3d9(input, checkCustomModel);
-			case ItemEncoding.ENCODING_POCKET_CONTAINER_9: return loadPocketContainer9(input, checkCustomModel);
-			case ItemEncoding.ENCODING_CROSSBOW_9: return loadCrossbow9(input, checkCustomModel);
-			case ItemEncoding.ENCODING_GUN_9: return loadGun9(input, checkCustomModel);
-			case ItemEncoding.ENCODING_FOOD_9: return loadFood9(input, checkCustomModel);
-			case ItemEncoding.ENCODING_BLOCK_ITEM_9: return loadBlockItem9(input, checkCustomModel);
+			case ItemEncoding.ENCODING_ARMOR_6: return loadArmor6(input, checkCustomModel);
+			case ItemEncoding.ENCODING_ARMOR_7: return loadArmor7(input, checkCustomModel);
+			case ItemEncoding.ENCODING_ARMOR_8: return loadArmor8(input, checkCustomModel);
+			case ItemEncoding.ENCODING_ARMOR_9: return loadArmor9(input, checkCustomModel);
 			case ItemEncoding.ENCODING_ARMOR_10: return loadArmor10(input, checkCustomModel);
+			case ItemEncoding.ENCODING_ARMOR_11: return loadArmor11(input, checkCustomModel);
+			case ItemEncoding.ENCODING_SHIELD_7: return loadShield7(input, checkCustomModel);
+			case ItemEncoding.ENCODING_SHIELD_9: return loadShield9(input, checkCustomModel);
+			case ItemEncoding.ENCODING_SHIELD_10: return loadShield10(input, checkCustomModel);
+			case ItemEncoding.ENCODING_TRIDENT_8: return loadTrident8(input, checkCustomModel);
+			case ItemEncoding.ENCODING_TRIDENT_9: return loadTrident9(input, checkCustomModel);
+			case ItemEncoding.ENCODING_TRIDENT_10: return loadTrident10(input, checkCustomModel);
+			case ItemEncoding.ENCODING_HOE_6: return loadHoe6(input, checkCustomModel);
+			case ItemEncoding.ENCODING_HOE_9: return loadHoe9(input, checkCustomModel);
+			case ItemEncoding.ENCODING_HOE_10: return loadHoe10(input, checkCustomModel);
+			case ItemEncoding.ENCODING_WAND_9: return loadWand9(input);
+			case ItemEncoding.ENCODING_WAND_10: return loadWand10(input);
 			case ItemEncoding.ENCODING_HELMET3D_10: return loadHelmet3d10(input, checkCustomModel);
+			case ItemEncoding.ENCODING_HELMET3D_11: return loadHelmet3d11(input, checkCustomModel);
+			case ItemEncoding.ENCODING_POCKET_CONTAINER_10: return loadPocketContainer10(input, checkCustomModel);
+			case ItemEncoding.ENCODING_CROSSBOW_10: return loadCrossbow10(input, checkCustomModel);
+			case ItemEncoding.ENCODING_GUN_10: return loadGun10(input, checkCustomModel);
+			case ItemEncoding.ENCODING_FOOD_10: return loadFood10(input, checkCustomModel);
+			case ItemEncoding.ENCODING_BLOCK_ITEM_10: return loadBlockItem10(input, checkCustomModel);
 			default : throw new UnknownEncodingException("Item", encoding);
 		}
 	}
@@ -274,7 +274,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomItem loadSimpleItem3(BitInput input, boolean checkCustomModel) {
+	private CustomItem loadSimpleItem4(BitInput input, boolean checkCustomModel) {
 		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
 		input.readShort();
 		String name = input.readJavaString();
@@ -304,7 +304,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomItem loadSimpleItem4(BitInput input, boolean checkCustomModel) {
+	private CustomItem loadSimpleItem5(BitInput input, boolean checkCustomModel) {
 		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
 		input.readShort();
 		String name = input.readJavaString();
@@ -335,7 +335,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomItem loadSimpleItem5(BitInput input, boolean checkCustomModel) {
+	private CustomItem loadSimpleItem6(BitInput input, boolean checkCustomModel) {
 		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
 		input.readShort();
 		String name = input.readJavaString();
@@ -369,7 +369,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomItem loadSimpleItem6(BitInput input, boolean checkCustomModel) {
+	private CustomItem loadSimpleItem9(BitInput input, boolean checkCustomModel) {
 		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
 		input.readShort();
 		String name = input.readJavaString();
@@ -424,7 +424,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomItem loadSimpleItem9(
+	private CustomItem loadSimpleItem10(
 			BitInput input, boolean checkCustomModel
 	) throws UnknownEncodingException {
 		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
@@ -650,7 +650,7 @@ public class ItemSet implements ItemSetBase {
 		}
 	}
 	
-	private CustomItem loadTool5(BitInput input, boolean checkCustomModel) throws UnknownEncodingException{
+	private CustomItem loadTool6(BitInput input, boolean checkCustomModel) throws UnknownEncodingException{
 		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
 		input.readShort();
 		String name = input.readJavaString();
@@ -691,7 +691,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomItem loadTool6(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
+	private CustomItem loadTool9(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
 		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
 		input.readShort();
 		String name = input.readJavaString();
@@ -753,7 +753,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomItem loadTool9(
+	private CustomItem loadTool10(
 			BitInput input, boolean checkCustomModel
 	) throws UnknownEncodingException {
 		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
@@ -824,7 +824,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomItem loadHoe5(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
+	private CustomItem loadHoe6(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
 		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
 		input.readShort();
 		String name = input.readJavaString();
@@ -866,7 +866,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomItem loadHoe6(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
+	private CustomItem loadHoe9(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
 		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
 		input.readShort();
 		String name = input.readJavaString();
@@ -929,7 +929,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomItem loadHoe9(
+	private CustomItem loadHoe10(
 			BitInput input, boolean checkCustomModel
 	) throws UnknownEncodingException {
 		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
@@ -1002,7 +1002,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomItem loadShear5(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
+	private CustomItem loadShear6(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
 		CustomItemType.valueOf(input.readJavaString());
 		input.readShort();
 		String name = input.readJavaString();
@@ -1044,7 +1044,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomItem loadShear6(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
+	private CustomItem loadShear9(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
 		CustomItemType.valueOf(input.readJavaString());
 		input.readShort();
 		String name = input.readJavaString();
@@ -1107,7 +1107,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomItem loadShear9(
+	private CustomItem loadShear10(
 			BitInput input, boolean checkCustomModel
 	) throws UnknownEncodingException {
 		input.readShort();
@@ -1254,7 +1254,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomBow loadBow5(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
+	private CustomBow loadBow6(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
 		input.readShort();
 		String name = input.readJavaString();
 		String displayName = input.readJavaString();
@@ -1300,7 +1300,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomBow loadBow6(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
+	private CustomBow loadBow9(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
 		input.readShort();
 		String name = input.readJavaString();
 		String displayName = input.readJavaString();
@@ -1367,7 +1367,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomBow loadBow9(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
+	private CustomBow loadBow10(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
 		input.readShort();
 		String name = input.readJavaString();
 		String alias = input.readString();
@@ -1490,7 +1490,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomItem loadArmor5(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
+	private CustomItem loadArmor6(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
 		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
 		input.readShort();
 		String name = input.readJavaString();
@@ -1544,7 +1544,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomItem loadArmor6(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
+	private CustomItem loadArmor7(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
 		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
 		input.readShort();
 		String name = input.readJavaString();
@@ -1599,7 +1599,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomItem loadArmor7(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
+	private CustomItem loadArmor8(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
 		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
 		input.readShort();
 		String name = input.readJavaString();
@@ -1655,7 +1655,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomItem loadArmor8(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
+	private CustomItem loadArmor9(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
 		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
 		input.readShort();
 		String name = input.readJavaString();
@@ -1731,7 +1731,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomItem loadArmor9(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
+	private CustomItem loadArmor10(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
 		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
 		input.readShort();
 		String name = input.readJavaString();
@@ -1822,7 +1822,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomItem loadHelmet3d9(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
+	private CustomItem loadHelmet3d10(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
 		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
 		input.readShort();
 		String name = input.readJavaString();
@@ -1897,7 +1897,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomItem loadShield6(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
+	private CustomItem loadShield7(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
 		CustomItemType.valueOf(input.readJavaString());
 		input.readShort();
 		String name = input.readJavaString();
@@ -1940,7 +1940,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomItem loadShield7(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
+	private CustomItem loadShield9(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
 		CustomItemType.valueOf(input.readJavaString());
 		input.readShort();
 		String name = input.readJavaString();
@@ -2004,7 +2004,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomItem loadShield9(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
+	private CustomItem loadShield10(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
 		input.readShort();
 		String name = input.readJavaString();
 		String alias = input.readString();
@@ -2076,7 +2076,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomItem loadTrident7(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
+	private CustomItem loadTrident8(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
 		input.readShort();
 		String name = input.readJavaString();
 		String displayName = input.readJavaString();
@@ -2123,7 +2123,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomItem loadTrident8(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
+	private CustomItem loadTrident9(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
 		input.readShort();
 		String name = input.readJavaString();
 		String displayName = input.readJavaString();
@@ -2190,7 +2190,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomItem loadTrident9(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
+	private CustomItem loadTrident10(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
 		input.readShort();
 		String name = input.readJavaString();
 		String alias = input.readString();
@@ -2266,7 +2266,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomItem loadWand8(BitInput input) {
+	private CustomItem loadWand9(BitInput input) {
 		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
 		input.readShort();
 		String name = input.readJavaString();
@@ -2330,7 +2330,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 	
-	private CustomItem loadWand9(BitInput input) throws UnknownEncodingException {
+	private CustomItem loadWand10(BitInput input) throws UnknownEncodingException {
 		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
 		input.readShort();
 		String name = input.readJavaString();
@@ -2404,7 +2404,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 
-	private CustomItem loadPocketContainer9(
+	private CustomItem loadPocketContainer10(
 			BitInput input, boolean checkCustomModel
 	) throws UnknownEncodingException {
 		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
@@ -2476,7 +2476,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 
-	private CustomItem loadCrossbow9(
+	private CustomItem loadCrossbow10(
 			BitInput input, boolean checkCustomModel
 	) throws UnknownEncodingException {
 		input.readShort();
@@ -2561,7 +2561,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 
-	private CustomItem loadGun9(
+	private CustomItem loadGun10(
 			BitInput input, boolean checkCustomModel
 	) throws UnknownEncodingException {
 		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
@@ -2633,7 +2633,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 
-	private CustomItem loadFood9(
+	private CustomItem loadFood10(
 			BitInput input, boolean checkCustomModel
 	) throws UnknownEncodingException {
 		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
@@ -2715,7 +2715,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 
-	private CustomItem loadBlockItem9(
+	private CustomItem loadBlockItem10(
 			BitInput input, boolean checkCustomModel
 	) throws UnknownEncodingException {
 		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
@@ -2785,7 +2785,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 
-	private CustomItem loadArmor10(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
+	private CustomItem loadArmor11(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
 		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
 		input.readShort();
 		String name = input.readJavaString();
@@ -2876,7 +2876,7 @@ public class ItemSet implements ItemSetBase {
 		);
 	}
 
-	private CustomItem loadHelmet3d10(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
+	private CustomItem loadHelmet3d11(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
 		CustomItemType itemType = CustomItemType.valueOf(input.readJavaString());
 		input.readShort();
 		String name = input.readJavaString();

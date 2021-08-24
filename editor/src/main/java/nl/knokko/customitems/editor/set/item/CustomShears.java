@@ -116,7 +116,7 @@ public class CustomShears extends CustomTool {
 			output.addJavaString(command);
 		} */
 		
-		output.addByte(ItemEncoding.ENCODING_SHEAR_9);
+		output.addByte(ItemEncoding.ENCODING_SHEAR_10);
 		output.addShort(itemDamage);
 		output.addJavaString(name);
 		output.addString(alias);

@@ -45,7 +45,7 @@ public class CustomGun extends CustomItem {
 
     @Override
     public void export(BitOutput output) {
-        output.addByte(ItemEncoding.ENCODING_GUN_9);
+        output.addByte(ItemEncoding.ENCODING_GUN_10);
         output.addJavaString(itemType.name());
         output.addShort(itemDamage);
         output.addJavaString(name);
