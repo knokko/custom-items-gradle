@@ -2880,13 +2880,15 @@ public class CustomItemsEventHandler implements Listener {
 	public void fixCraftingCloseStacking(InventoryCloseEvent event) {
 	    if (event.getInventory() instanceof CraftingInventory) {
 
+	    	ItemStack result = ((CraftingInventory) event.getInventory()).getResult();
+
 	    	ItemSet set = set();
 	    	ItemStack[] craftingContents = event.getInventory().getStorageContents();
 	    	ItemStack[] inventoryContents = event.getPlayer().getInventory().getStorageContents();
 
 	    	for (int craftingIndex = 0; craftingIndex < craftingContents.length; craftingIndex++) {
 	    		CustomItem customItem = set.getItem(craftingContents[craftingIndex]);
-	    		if (customItem != null) {
+	    		if (customItem != null && !craftingContents[craftingIndex].equals(result)) {
 
 					for (ItemStack currentStack : inventoryContents) {
 						if (set.getItem(currentStack) == customItem) {
