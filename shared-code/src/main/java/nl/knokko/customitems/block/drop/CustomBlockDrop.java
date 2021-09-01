@@ -1,6 +1,7 @@
 package nl.knokko.customitems.block.drop;
 
 import nl.knokko.customitems.item.CustomItem;
+import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.recipe.OutputTable;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -133,10 +134,10 @@ public class CustomBlockDrop extends ModelValues {
     }
 
     public void validateComplete(
-            Iterable<? extends CustomItem> customItems
+            SItemSet itemSet
     ) throws ValidationException, ProgrammingValidationException {
         validateIndependent();
 
-        requiredItems.validateComplete(customItems);
+        requiredItems.validateComplete(itemSet);
     }
 }

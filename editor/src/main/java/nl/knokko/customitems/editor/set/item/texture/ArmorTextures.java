@@ -7,7 +7,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import nl.knokko.customitems.editor.util.Checks;
+import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;

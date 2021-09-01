@@ -3682,7 +3682,7 @@ public class ItemSet implements ItemSetBase {
 			CustomBlockValues blockValues = CustomBlockValues.load(
 					input, this::getCustomItemByName,
 					() -> Recipe.loadResult(input, this),
-					this::getTextureByName, false
+					this::getTextureByName, false, blockId
 			);
 
 			blocks.add(new CustomBlock(blockId, blockValues));

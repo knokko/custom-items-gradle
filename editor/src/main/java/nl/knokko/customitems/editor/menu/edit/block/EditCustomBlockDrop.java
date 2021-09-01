@@ -6,7 +6,7 @@ import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.menu.edit.container.recipe.EditOutputTable;
 import nl.knokko.customitems.editor.set.ItemSet;
-import nl.knokko.customitems.editor.util.Checks;
+import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.gui.color.GuiColor;

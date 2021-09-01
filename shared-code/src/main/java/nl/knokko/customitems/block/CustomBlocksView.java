@@ -1,46 +1,12 @@
 package nl.knokko.customitems.block;
 
+import nl.knokko.customitems.model.CollectionView;
+
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.stream.Stream;
 
-public class CustomBlocksView implements Iterable<CustomBlockView> {
+public class CustomBlocksView extends CollectionView<CustomBlock, CustomBlockValues> {
 
-    private final Collection<CustomBlock> liveBlockList;
-
-    public CustomBlocksView(Collection<CustomBlock> liveBlockList) {
-        this.liveBlockList = liveBlockList;
-    }
-
-    @Override
-    public Iterator<CustomBlockView> iterator() {
-        return new CustomBlockViewIterator(liveBlockList.iterator());
-    }
-
-    public int size() {
-        return liveBlockList.size();
-    }
-
-    public Stream<CustomBlock> stream() {
-        return liveBlockList.stream();
-    }
-
-    private static class CustomBlockViewIterator implements Iterator<CustomBlockView> {
-
-        private final Iterator<CustomBlock> blockIterator;
-
-        CustomBlockViewIterator(Iterator<CustomBlock> blockIterator) {
-            this.blockIterator = blockIterator;
-        }
-
-        @Override
-        public boolean hasNext() {
-            return blockIterator.hasNext();
-        }
-
-        @Override
-        public CustomBlockView next() {
-            return new CustomBlockView(blockIterator.next());
-        }
+    public CustomBlocksView(Collection<CustomBlock> liveCollection) {
+        super(liveCollection);
     }
 }

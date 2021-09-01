@@ -8,6 +8,7 @@ import nl.knokko.customitems.item.nbt.ExtraItemNbt;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
+import nl.knokko.customitems.util.EagerSupplier;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Supplier;
 
 public abstract class CustomItemValues extends ModelValues {
 
@@ -52,7 +54,7 @@ public abstract class CustomItemValues extends ModelValues {
     protected float attackRange;
 
     // Editor-only properties
-    protected NamedImage texture;
+    protected Supplier<NamedImage> texture;
     protected byte[] customModel;
 
     public CustomItemValues(boolean mutable) {
@@ -83,7 +85,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.conditionOp = source.getConditionOp();
         this.extraItemNbt = source.getExtraNbt();
         this.attackRange = source.getAttackRange();
-        this.texture = source.getTexture();
+        this.texture = new EagerSupplier<>(source.getTexture());
         this.customModel = source.getCustomModel();
     }
 
@@ -320,7 +322,7 @@ public abstract class CustomItemValues extends ModelValues {
     }
 
     public NamedImage getTexture() {
-        return texture;
+        return texture.get();
     }
 
     public byte[] getCustomModel() {

@@ -2,6 +2,8 @@ package nl.knokko.customitems.block;
 
 import nl.knokko.customitems.block.drop.CustomBlockDrop;
 import nl.knokko.customitems.item.CustomItem;
+import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.texture.NamedImage;
@@ -25,11 +27,12 @@ public class CustomBlockValues extends ModelValues {
             BitInput input, Function<String, CustomItem> getItemByName,
             ExceptionSupplier<Object, UnknownEncodingException> loadResult,
             // loadTexture will simply return null on the plug-in side
-            Function<String, NamedImage> loadTexture, boolean mutable
+            Function<String, NamedImage> loadTexture, boolean mutable, int internalId
     ) throws UnknownEncodingException {
         byte encoding = input.readByte();
 
         CustomBlockValues result = new CustomBlockValues(mutable);
+        result.internalId = internalId;
         if (encoding == ENCODING_1) {
             result.load1(input, getItemByName, loadResult, loadTexture);
         } else {
@@ -39,12 +42,14 @@ public class CustomBlockValues extends ModelValues {
         return result;
     }
 
+    private int internalId;
+
     private String name;
 
     private Collection<CustomBlockDrop> drops;
 
     // Only use this in the Editor; Keep it null on the plug-in
-    private NamedImage texture;
+    private TextureReference texture;
 
     public CustomBlockValues(boolean mutable) {
         super(mutable);
@@ -72,7 +77,7 @@ public class CustomBlockValues extends ModelValues {
         if (other instanceof CustomBlockValues) {
             CustomBlockValues otherBlock = (CustomBlockValues) other;
             return otherBlock.name.equals(this.name) && otherBlock.drops.equals(this.drops) &&
-                    otherBlock.texture.getName().equals(this.texture.getName());
+                    otherBlock.texture.get().getName().equals(this.texture.get().getName());
         } else {
             return false;
         }
@@ -115,7 +120,7 @@ public class CustomBlockValues extends ModelValues {
         if (texture == null) {
             output.addString(null);
         } else {
-            output.addString(texture.getName());
+            output.addString(texture.get().getName());
         }
     }
 
@@ -123,6 +128,10 @@ public class CustomBlockValues extends ModelValues {
         output.addString(name);
         saveDrops1(output, saveResult);
         saveTexture1(output);
+    }
+
+    public int getInternalID() {
+        return internalId;
     }
 
     public String getName() {
@@ -168,21 +177,16 @@ public class CustomBlockValues extends ModelValues {
     }
 
     public void validateComplete(
-            Iterable<? extends CustomItem> customItems,
-            Iterable<CustomBlockView> blocks,
-            int blockIdToIgnore,
-            Iterable<NamedImage> textures
+            SItemSet itemSet
     ) throws ValidationException, ProgrammingValidationException {
         validateIndependent();
 
-        for (CustomBlockView block : blocks) {
-            if (block.getInternalID() != blockIdToIgnore && block.getValues().getName().equals(this.name)) {
-                throw new ValidationException("There exists another block with the same name");
-            }
+        if (itemSet.getBlocks().stream().anyMatch(block -> block.getInternalID() != internalId && block.getName().equals(name))) {
+            throw new ValidationException("There exists another block with the same name");
         }
 
         for (CustomBlockDrop drop : drops) {
-            drop.validateComplete(customItems);
+            drop.validateComplete(itemSet);
         }
 
         boolean containsTexture = false;

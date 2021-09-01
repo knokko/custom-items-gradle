@@ -2,6 +2,8 @@ package nl.knokko.customitems.block.drop;
 
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.item.CustomItem;
+import nl.knokko.customitems.item.CustomItemView;
+import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.util.bits.BitInput;
@@ -175,20 +177,13 @@ public class RequiredItems {
     }
 
     public void validateComplete(
-            Iterable<? extends CustomItem> customItems
+            SItemSet itemSet
     ) throws ProgrammingValidationException {
         validateIndependent();
         for (CustomItem ownItem : this.customItems) {
-
-            boolean containsIt = false;
-            for (CustomItem existingItem : customItems) {
-                if (ownItem == existingItem) {
-                    containsIt = true;
-                    break;
-                }
+            if (itemSet.getItems().stream().noneMatch(existingItem -> existingItem.getName().equals(ownItem.getName()))) {
+                throw new ProgrammingValidationException("A custom item is not registered");
             }
-
-            if (!containsIt) throw new ProgrammingValidationException("A custom item is not registered");
         }
     }
 
