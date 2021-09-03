@@ -2363,6 +2363,21 @@ public class CustomItemsEventHandler implements Listener {
 	public void guardInventoryEvents(InventoryClickEvent event) {
 	    // Don't mess with creative clicks
 	    if (event.getClick() != ClickType.CREATIVE) {
+
+	    	/*
+	    	 * There is 1 minecraft action that can legitimately do more than 1 inventory transaction per tick:
+	    	 * the shift + double-click while having an item on your cursor and holding the cursor over another item.
+	    	 * This can cause many move-to-other-inventory actions.
+	    	 *
+	    	 * This check gives that specific action a free pass to avoid the inventory guard, provided that the
+	    	 * clicked item and cursor item are not custom items.
+	    	 */
+	    	if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
+	    		ItemSet set = set();
+	    		if (set.getItem(event.getCurrentItem()) == null && set.getItem(event.getCursor()) == null) {
+	    			return;
+				}
+			}
 			guardInventoryEvents(event, event.getWhoClicked().getUniqueId());
 		}
 	}
