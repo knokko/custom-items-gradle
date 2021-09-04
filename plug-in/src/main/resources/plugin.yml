@@ -1,6 +1,6 @@
 name: CustomItems
 main: nl.knokko.customitems.plugin.CustomItemsPlugin
-version: 9.11
+version: 9.12
 depend: [KnokkoCore]
 softdepend: [CrazyEnchantments, ActionBarAPI]
 loadbefore: [UltraChest]
