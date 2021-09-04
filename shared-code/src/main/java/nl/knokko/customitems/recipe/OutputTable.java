@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
 
+import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ExceptionSupplier;
 import nl.knokko.util.bits.BitInput;
@@ -13,8 +14,7 @@ import nl.knokko.util.bits.BitOutput;
 public class OutputTable {
 	
 	public static OutputTable load1(
-			BitInput input, 
-			ExceptionSupplier<Object, UnknownEncodingException> loadResult
+			BitInput input, SItemSet itemSet
 	) throws UnknownEncodingException {
 		int numEntries = input.readByte();
 		List<Entry> entries = new ArrayList<>(numEntries);

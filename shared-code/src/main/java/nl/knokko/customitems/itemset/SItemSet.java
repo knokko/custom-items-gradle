@@ -5,6 +5,7 @@ import nl.knokko.customitems.block.CustomBlocksView;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomItemsView;
 import nl.knokko.customitems.item.SCustomItem;
+import nl.knokko.customitems.texture.BaseTextureValues;
 import nl.knokko.customitems.texture.CustomTexture;
 import nl.knokko.customitems.texture.CustomTexturesView;
 import nl.knokko.customitems.util.CollectionHelper;
@@ -59,5 +60,26 @@ public class SItemSet {
         } else {
             return new ItemReference(itemName, this);
         }
+    }
+
+    public Optional<BaseTextureValues> getTexture(String textureName) {
+        return CollectionHelper.find(textures, texture -> texture.getValues().getName(), textureName).map(CustomTexture::getValues);
+    }
+
+    public Optional<CustomItemValues> getItem(String itemName) {
+        return CollectionHelper.find(items, item -> item.getValues().getName(), itemName).map(SCustomItem::getValues);
+    }
+
+    private <T> boolean isReferenceValid(Collection<T> collection, T model) {
+        if (model == null) throw new IllegalStateException("Too early for validity checks");
+        return collection.contains(model);
+    }
+
+    public boolean isReferenceValid(TextureReference reference) {
+        return isReferenceValid(textures, reference.model);
+    }
+
+    public boolean isReferenceValid(ItemReference reference) {
+        return isReferenceValid(items, reference.model);
     }
 }

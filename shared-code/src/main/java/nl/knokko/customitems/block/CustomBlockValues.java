@@ -1,14 +1,12 @@
 package nl.knokko.customitems.block;
 
 import nl.knokko.customitems.block.drop.CustomBlockDrop;
-import nl.knokko.customitems.item.CustomItem;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.model.Mutability;
-import nl.knokko.customitems.texture.NamedImage;
+import nl.knokko.customitems.texture.BaseTextureValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
-import nl.knokko.customitems.util.ExceptionSupplier;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
@@ -17,24 +15,20 @@ import nl.knokko.util.bits.BitOutput;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class CustomBlockValues extends ModelValues {
 
     private static final byte ENCODING_1 = 1;
 
     public static CustomBlockValues load(
-            BitInput input, Function<String, CustomItem> getItemByName,
-            ExceptionSupplier<Object, UnknownEncodingException> loadResult,
-            // loadTexture will simply return null on the plug-in side
-            Function<String, NamedImage> loadTexture, boolean mutable, int internalId
+            BitInput input, SItemSet itemSet, boolean mutable, int internalId
     ) throws UnknownEncodingException {
         byte encoding = input.readByte();
 
         CustomBlockValues result = new CustomBlockValues(mutable);
         result.internalId = internalId;
         if (encoding == ENCODING_1) {
-            result.load1(input, getItemByName, loadResult, loadTexture);
+            result.load1(input, itemSet);
         } else {
             throw new UnknownEncodingException("CustomBlockValues", encoding);
         }
@@ -64,7 +58,7 @@ public class CustomBlockValues extends ModelValues {
 
         this.name = toCopy.getName();
         this.drops = toCopy.getDrops();
-        this.texture = toCopy.getTexture();
+        this.texture = toCopy.getTextureReference();
     }
 
     @Override
@@ -84,24 +78,21 @@ public class CustomBlockValues extends ModelValues {
     }
 
     private void loadDrops1(
-            BitInput input, Function<String, CustomItem> getItemByName,
-            ExceptionSupplier<Object, UnknownEncodingException> loadResult
+            BitInput input, SItemSet itemSet
     ) throws UnknownEncodingException {
         int numDrops = input.readInt();
         this.drops = new ArrayList<>(numDrops);
         for (int counter = 0; counter < numDrops; counter++) {
-            this.drops.add(CustomBlockDrop.load(input, getItemByName, loadResult, false));
+            this.drops.add(CustomBlockDrop.load(input, itemSet, false));
         }
     }
 
     private void load1(
-            BitInput input, Function<String, CustomItem> getItemByName,
-            ExceptionSupplier<Object, UnknownEncodingException> loadResult,
-            Function<String, NamedImage> loadTexture
+            BitInput input, SItemSet itemSet
     ) throws UnknownEncodingException {
         this.name = input.readString();
-        this.loadDrops1(input, getItemByName, loadResult);
-        this.texture = loadTexture.apply(input.readString());
+        this.loadDrops1(input, itemSet);
+        this.texture = itemSet.getTextureReference(input.readString());
     }
 
     public void save(BitOutput output, Consumer<Object> saveResult) {
@@ -142,7 +133,11 @@ public class CustomBlockValues extends ModelValues {
         return new ArrayList<>(drops);
     }
 
-    public NamedImage getTexture() {
+    public BaseTextureValues getTexture() {
+        return texture.get();
+    }
+
+    public TextureReference getTextureReference() {
         return texture;
     }
 
@@ -156,7 +151,7 @@ public class CustomBlockValues extends ModelValues {
         this.drops = Mutability.createDeepCopy(newDrops, false);
     }
 
-    public void setTexture(NamedImage newTexture) {
+    public void setTexture(TextureReference newTexture) {
         assertMutable();
         this.texture = newTexture;
     }
@@ -189,16 +184,8 @@ public class CustomBlockValues extends ModelValues {
             drop.validateComplete(itemSet);
         }
 
-        boolean containsTexture = false;
-        for (NamedImage texture : textures) {
-            if (texture == this.texture) {
-                containsTexture = true;
-                break;
-            }
-        }
-
-        if (!containsTexture) {
-            throw new ProgrammingValidationException("The chosen texture is not registered");
+        if (!itemSet.isReferenceValid(texture)) {
+            throw new ProgrammingValidationException("The chosen texture is not (or no longer) valid");
         }
     }
 }

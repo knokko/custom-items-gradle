@@ -1,0 +1,5 @@
+- Check the positive compatibility page to see if any third-party plug-ins will break due to this refactoring.
+- Get rid of all the == checks between custom item values (and between other model values) since they don't have an
+identity.
+- Create a backward compatibility test for ENCODING_ARMOR_11 and ENCODING_HELMET3D_11
+- Check that there are no more TODOs in the backward compatibility test that can already be done

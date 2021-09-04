@@ -1,11 +1,12 @@
 package nl.knokko.customitems.item;
 
-import nl.knokko.customitems.effect.EffectType;
-import nl.knokko.customitems.effect.EquippedPotionEffect;
-import nl.knokko.customitems.effect.PassivePotionEffect;
-import nl.knokko.customitems.effect.PotionEffect;
+import nl.knokko.customitems.effect.*;
 import nl.knokko.customitems.item.nbt.ExtraItemNbt;
+import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.model.ModelValues;
+import nl.knokko.customitems.texture.BaseTextureValues;
 import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.EagerSupplier;
@@ -36,25 +37,25 @@ public abstract class CustomItemValues extends ModelValues {
     protected List<Boolean> itemFlags;
 
     // Vanilla based power properties
-    protected Collection<AttributeModifier> attributeModifiers;
-    protected Collection<Enchantment> defaultEnchantments;
+    protected Collection<CIAttributeModifier> attributeModifiers;
+    protected Collection<CIEnchantment> defaultEnchantments;
 
     // Potion properties
-    protected Collection<PotionEffect> playerEffects;
-    protected Collection<PotionEffect> targetEffects;
+    protected Collection<CIPotionEffect> playerEffects;
+    protected Collection<CIPotionEffect> targetEffects;
     protected Collection<EquippedPotionEffect> equippedEffects;
 
     // Right-click properties
     protected List<String> commands;
-    protected ReplaceCondition.ConditionOperation conditionOp;
-    protected List<ReplaceCondition> replaceConditions;
+    protected SReplaceCondition.ConditionOperation conditionOp;
+    protected List<SReplaceCondition> replaceConditions;
 
     // Other properties
     protected ExtraItemNbt extraItemNbt;
     protected float attackRange;
 
     // Editor-only properties
-    protected Supplier<NamedImage> texture;
+    protected TextureReference texture;
     protected byte[] customModel;
 
     public CustomItemValues(boolean mutable) {
@@ -85,7 +86,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.conditionOp = source.getConditionOp();
         this.extraItemNbt = source.getExtraNbt();
         this.attackRange = source.getAttackRange();
-        this.texture = new EagerSupplier<>(source.getTexture());
+        this.texture = source.getTextureReference();
         this.customModel = source.getCustomModel();
     }
 
@@ -131,16 +132,7 @@ public abstract class CustomItemValues extends ModelValues {
         int numAttributeModifiers = input.readByte() & 0xFF;
         this.attributeModifiers = new ArrayList<>(numAttributeModifiers);
         for (int counter = 0; counter < numAttributeModifiers; counter++) {
-            String attributeName = input.readJavaString();
-            String slotName = input.readJavaString();
-            int operationOrdinal = (int) input.readNumber((byte) 2, false);
-            double attributeValue = input.readDouble();
-            this.attributeModifiers.add(new AttributeModifier(
-                    AttributeModifier.Attribute.valueOf(attributeName),
-                    AttributeModifier.Slot.valueOf(slotName),
-                    AttributeModifier.Operation.values()[operationOrdinal],
-                    attributeValue
-            ));
+            this.attributeModifiers.add(CIAttributeModifier.load1(input, false));
         }
     }
 
@@ -148,9 +140,7 @@ public abstract class CustomItemValues extends ModelValues {
         int numDefaultEnchantments = input.readByte() & 0xFF;
         this.defaultEnchantments = new ArrayList<>(numDefaultEnchantments);
         for (int counter = 0; counter < numDefaultEnchantments; counter++) {
-            String enchantmentName = input.readString();
-            int enchantmentLevel = input.readInt();
-            this.defaultEnchantments.add(new Enchantment(EnchantmentType.valueOf(enchantmentName), enchantmentLevel));
+            this.defaultEnchantments.add(CIEnchantment.load1(input, false));
         }
     }
 
@@ -167,14 +157,11 @@ public abstract class CustomItemValues extends ModelValues {
         this.targetEffects = loadPotionEffectList(input);
     }
 
-    protected Collection<PotionEffect> loadPotionEffectList(BitInput input) {
+    protected Collection<CIPotionEffect> loadPotionEffectList(BitInput input) {
         int numEffects = input.readByte() & 0xFF;
-        Collection<PotionEffect> effects = new ArrayList<>(numEffects);
+        Collection<CIPotionEffect> effects = new ArrayList<>(numEffects);
         for (int counter = 0; counter < numEffects; counter++) {
-            String effectName = input.readJavaString();
-            int effectDuration = input.readInt();
-            int effectLevel = input.readInt();
-            effects.add(new PotionEffect(EffectType.valueOf(effectName), effectDuration, effectLevel));
+            effects.add(CIPotionEffect.load1(input, false));
         }
         return effects;
     }
@@ -210,28 +197,18 @@ public abstract class CustomItemValues extends ModelValues {
         }
     }
 
-    protected void loadRightClickProperties10(BitInput input) {
+    protected void loadRightClickProperties10(BitInput input, SItemSet itemSet) {
         loadRightClickProperties9(input);
-        loadReplacementConditions10(input);
+        loadReplacementConditions10(input, itemSet);
     }
 
-    protected void loadReplacementConditions10(BitInput input) {
+    protected void loadReplacementConditions10(BitInput input, SItemSet itemSet) {
         int numReplacementConditions = input.readByte() & 0xFF;
         this.replaceConditions = new ArrayList<>(numReplacementConditions);
         for (int counter = 0; counter < numReplacementConditions; counter++) {
-            String conditionName = input.readJavaString();
-            String itemName = input.readJavaString();
-            String operationName = input.readJavaString();
-            int conditionValue = input.readInt();
-            String replacementItemName = input.readJavaString();
-            this.replaceConditions.add(new ReplaceCondition(
-                    ReplaceCondition.ReplacementCondition.valueOf(conditionName),
-                    itemName,
-                    ReplaceCondition.ReplacementOperation.valueOf(operationName),
-                    conditionValue, replacementItemName
-            ));
+            this.replaceConditions.add(SReplaceCondition.load1(input, itemSet, false));
         }
-        this.conditionOp = ReplaceCondition.ConditionOperation.valueOf(input.readJavaString());
+        this.conditionOp = SReplaceCondition.ConditionOperation.valueOf(input.readJavaString());
     }
 
     protected void loadExtraProperties10(BitInput input) throws UnknownEncodingException {
@@ -281,19 +258,19 @@ public abstract class CustomItemValues extends ModelValues {
         return new ArrayList<>(itemFlags);
     }
 
-    public Collection<AttributeModifier> getAttributeModifiers() {
+    public Collection<CIAttributeModifier> getAttributeModifiers() {
         return new ArrayList<>(attributeModifiers);
     }
 
-    public Collection<Enchantment> getDefaultEnchantments() {
+    public Collection<CIEnchantment> getDefaultEnchantments() {
         return new ArrayList<>(defaultEnchantments);
     }
 
-    public Collection<PotionEffect> getOnHitPlayerEffects() {
+    public Collection<CIPotionEffect> getOnHitPlayerEffects() {
         return new ArrayList<>(playerEffects);
     }
 
-    public Collection<PotionEffect> getOnHitTargetEffects() {
+    public Collection<CIPotionEffect> getOnHitTargetEffects() {
         return new ArrayList<>(targetEffects);
     }
 
@@ -305,11 +282,11 @@ public abstract class CustomItemValues extends ModelValues {
         return new ArrayList<>(commands);
     }
 
-    public List<ReplaceCondition> getReplacementConditions() {
+    public List<SReplaceCondition> getReplacementConditions() {
         return new ArrayList<>(replaceConditions);
     }
 
-    public ReplaceCondition.ConditionOperation getConditionOp() {
+    public SReplaceCondition.ConditionOperation getConditionOp() {
         return conditionOp;
     }
 
@@ -321,8 +298,12 @@ public abstract class CustomItemValues extends ModelValues {
         return attackRange;
     }
 
-    public NamedImage getTexture() {
+    public BaseTextureValues getTexture() {
         return texture.get();
+    }
+
+    public TextureReference getTextureReference() {
+        return texture;
     }
 
     public byte[] getCustomModel() {
@@ -340,11 +321,80 @@ public abstract class CustomItemValues extends ModelValues {
     }
 
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {
+        // TODO Finish this
         if (itemType == null) throw new ProgrammingValidationException("No item type");
         if (itemDamage < 0) throw new ValidationException("Internal item damage is negative");
+        if (name == null) throw new ProgrammingValidationException("No name");
+        if (name.isEmpty()) throw new ValidationException("Name is empty");
+        // TODO Name filter
+        if (alias == null) throw new ProgrammingValidationException("No alias");
+
+        if (displayName == null) throw new ProgrammingValidationException("No display name");
+        if (lore == null) throw new ProgrammingValidationException("No lore");
+        for (String loreLine : lore) {
+            if (loreLine == null) throw new ProgrammingValidationException("Missing a lore line");
+        }
+
+        if (itemFlags == null) throw new ProgrammingValidationException("No item flags");
+        if (itemFlags.size() != 6) throw new ProgrammingValidationException("Number of item flags is not 6");
+
+        if (attributeModifiers == null) throw new ProgrammingValidationException("No attribute modifiers");
+        for (CIAttributeModifier attributeModifier : attributeModifiers) {
+            if (attributeModifier == null) throw new ProgrammingValidationException("Missing an attribute modifier");
+            attributeModifier.validate();
+        }
+
+        if (defaultEnchantments == null) throw new ProgrammingValidationException("No default enchantments");
+        for (CIEnchantment enchantment : defaultEnchantments) {
+            if (enchantment == null) throw new ProgrammingValidationException("Missing a default enchantment");
+            enchantment.validate();
+        }
+
+        // equipped effects, commands
+        if (playerEffects == null) throw new ProgrammingValidationException("No on-hit player effects");
+        for (CIPotionEffect effect : playerEffects) {
+            if (effect == null) throw new ProgrammingValidationException("Missing an on-hit player effect");
+            effect.validate();
+        }
+
+        if (targetEffects == null) throw new ProgrammingValidationException("No on-hit target effects");
+        for (CIPotionEffect effect : targetEffects) {
+            if (effect == null) throw new ProgrammingValidationException("Missing an on-hit target effect");
+            effect.validate();
+        }
+
+        // TODO Replacement conditions: check editor/ItemSet.addItem as well as ReplacementCollectionedit!
+
+        // TODO Check that some collection sizes are not larger than Byte.MAX_VALUE
+
+        // TODO Scope validation errors (to make them easier to understand for users)
     }
 
-    public void validateComplete() throws ValidationException, ProgrammingValidationException {
+    public void validateComplete(
+            SItemSet itemSet, String oldName
+    ) throws ValidationException, ProgrammingValidationException {
         validateIndependent();
+
+        if (oldName != null && !oldName.equals(name)) {
+            throw new ProgrammingValidationException("Changing the name of a custom item should not be possible");
+        }
+        if (oldName == null && itemSet.getItem(name).isPresent()) {
+            throw new ValidationException("A custom item with name " + name + " already exists");
+        }
+
+        // TODO Check deleted custom items
+
+        if (!itemSet.isReferenceValid(texture)) {
+            throw new ProgrammingValidationException("The chosen texture is not (or no longer) valid");
+        }
+
+        for (SReplaceCondition condition : replaceConditions) {
+            if (!itemSet.isReferenceValid(condition.getItemReference())) {
+                throw new ProgrammingValidationException("The item of a replace condition is not (or no longer) valid");
+            }
+            if (!itemSet.isReferenceValid(condition.getReplaceItemReference())) {
+                throw new ProgrammingValidationException("The replace item of a replacement condition is not (or no longer) valid");
+            }
+        }
     }
 }

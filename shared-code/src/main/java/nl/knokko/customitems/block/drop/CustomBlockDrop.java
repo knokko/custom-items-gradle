@@ -19,14 +19,13 @@ public class CustomBlockDrop extends ModelValues {
     private static final byte ENCODING_1 = 1;
 
     public static CustomBlockDrop load(
-            BitInput input, Function<String, CustomItem> getItemByName,
-            ExceptionSupplier<Object, UnknownEncodingException> loadResult, boolean mutable
+            BitInput input, SItemSet itemSet, boolean mutable
     ) throws UnknownEncodingException {
         byte encoding = input.readByte();
 
         CustomBlockDrop result = new CustomBlockDrop(mutable);
         if (encoding == ENCODING_1) {
-            result.load1(input, getItemByName, loadResult);
+            result.load1(input, itemSet);
         } else {
             throw new UnknownEncodingException("CustomBlockDrop", encoding);
         }
@@ -72,12 +71,11 @@ public class CustomBlockDrop extends ModelValues {
     }
 
     private void load1(
-            BitInput input, Function<String, CustomItem> getItemByName,
-            ExceptionSupplier<Object, UnknownEncodingException> loadResult
+            BitInput input, SItemSet itemSet
     ) throws UnknownEncodingException {
-        this.requiredItems = RequiredItems.load(input, getItemByName, false);
+        this.requiredItems = RequiredItems.load(input, itemSet, false);
         this.silkTouch = SilkTouchRequirement.valueOf(input.readString());
-        this.itemsToDrop = OutputTable.load1(input, loadResult);
+        this.itemsToDrop = OutputTable.load1(input, itemSet);
     }
 
     public void save(BitOutput output, Consumer<Object> saveResult) {

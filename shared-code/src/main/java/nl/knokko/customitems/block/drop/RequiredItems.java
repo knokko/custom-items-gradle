@@ -2,7 +2,7 @@ package nl.knokko.customitems.block.drop;
 
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.item.CustomItem;
-import nl.knokko.customitems.item.CustomItemView;
+import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -11,20 +11,19 @@ import nl.knokko.util.bits.BitOutput;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.function.Function;
 
 public class RequiredItems {
 
     private static final byte ENCODING_1 = 1;
 
     public static RequiredItems load(
-            BitInput input, Function<String, CustomItem> getItemByName, boolean mutable
+            BitInput input, SItemSet itemSet, boolean mutable
     ) throws UnknownEncodingException {
         byte encoding = input.readByte();
 
         RequiredItems result = new RequiredItems(mutable);
         if (encoding == ENCODING_1) {
-            result.load1(input, getItemByName);
+            result.load1(input, itemSet);
         } else {
             throw new UnknownEncodingException("RequiredItems", encoding);
         }
@@ -34,7 +33,7 @@ public class RequiredItems {
 
     private boolean enabled;
     private Collection<VanillaEntry> vanillaItems;
-    private Collection<CustomItem> customItems;
+    private Collection<ItemReference> customItems;
     private boolean invert;
 
     private final boolean mutable;
@@ -79,18 +78,18 @@ public class RequiredItems {
         }
     }
 
-    private void loadCustomItems1(BitInput input, Function<String, CustomItem> getItemByName) {
+    private void loadCustomItems1(BitInput input, SItemSet itemSet) {
         int numItems = input.readInt();
         this.customItems = new ArrayList<>(numItems);
         for (int counter = 0; counter < numItems; counter++) {
-            this.customItems.add(getItemByName.apply(input.readString()));
+            this.customItems.add(itemSet.getItemReference(input.readString()));
         }
     }
 
-    private void load1(BitInput input, Function<String, CustomItem> getItemByName) {
+    private void load1(BitInput input, SItemSet itemSet) {
         this.enabled = input.readBoolean();
         this.loadVanillaItems1(input);
-        this.loadCustomItems1(input, getItemByName);
+        this.loadCustomItems1(input, itemSet);
         this.invert = input.readBoolean();
     }
 
@@ -109,8 +108,8 @@ public class RequiredItems {
 
     private void saveCustomItems1(BitOutput output) {
         output.addInt(customItems.size());
-        for (CustomItem item : customItems) {
-            output.addString(item.getName());
+        for (ItemReference item : customItems) {
+            output.addString(item.get().getName());
         }
     }
 
@@ -129,7 +128,7 @@ public class RequiredItems {
         return new ArrayList<>(vanillaItems);
     }
 
-    public Collection<CustomItem> getCustomItems() {
+    public Collection<ItemReference> getCustomItems() {
         return new ArrayList<>(customItems);
     }
 
@@ -153,7 +152,7 @@ public class RequiredItems {
         this.vanillaItems = new ArrayList<>(newVanillaItems);
     }
 
-    public void setCustomItems(Collection<CustomItem> newCustomItems) {
+    public void setCustomItems(Collection<ItemReference> newCustomItems) {
         assertMutable();
         this.customItems = new ArrayList<>(newCustomItems);
     }
@@ -171,7 +170,7 @@ public class RequiredItems {
         }
 
         if (this.customItems == null) throw new ProgrammingValidationException("The custom items are null");
-        for (CustomItem customItem : customItems) {
+        for (ItemReference customItem : customItems) {
             if (customItem == null) throw new ProgrammingValidationException("A custom item is null");
         }
     }
@@ -180,9 +179,9 @@ public class RequiredItems {
             SItemSet itemSet
     ) throws ProgrammingValidationException {
         validateIndependent();
-        for (CustomItem ownItem : this.customItems) {
-            if (itemSet.getItems().stream().noneMatch(existingItem -> existingItem.getName().equals(ownItem.getName()))) {
-                throw new ProgrammingValidationException("A custom item is not registered");
+        for (ItemReference ownItem : this.customItems) {
+            if (!itemSet.isReferenceValid(ownItem)) {
+                throw new ProgrammingValidationException("A custom item is not (or no longer) valid");
             }
         }
     }
