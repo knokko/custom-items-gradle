@@ -280,7 +280,7 @@ public class CustomTool extends CustomItem {
 		}
 	}
 	
-	public IncreaseDurabilityResult increaseDurability(ItemStack stack, int amount) {
+	public IncreaseDurabilityResult increaseDurability(ItemStack stack, long amount) {
 		if (isUnbreakable() || !stack.hasItemMeta()) {
 			return new IncreaseDurabilityResult(stack, 0);
 		}

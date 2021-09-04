@@ -2947,4 +2947,37 @@ public class CustomItemsEventHandler implements Listener {
 	    	event.getPlayer().getInventory().setStorageContents(inventoryContents);
 		}
 	}
+
+	@EventHandler
+	public void blockSlashFix(PlayerCommandPreprocessEvent event) {
+		String command = event.getMessage();
+		if (command.startsWith("/repair") || command.startsWith("/fix") ||
+						command.startsWith("/efix") || command.startsWith("/erepair")) {
+			if (command.endsWith("all")) {
+				ItemStack[] contents = event.getPlayer().getInventory().getContents();
+				for (ItemStack candidate : contents) {
+					if (ItemUtils.isCustom(candidate)) {
+						event.getPlayer().sendMessage(ChatColor.RED + "You can't repair custom items with this command");
+						event.setCancelled(true);
+						return;
+					}
+				}
+			} else {
+				ItemStack mainItem = event.getPlayer().getInventory().getItemInMainHand();
+				CustomItem customMainItem = set().getItem(mainItem);
+				if (customMainItem != null) {
+					event.setCancelled(true);
+					if (customMainItem instanceof CustomTool) {
+						CustomTool toRepair = (CustomTool) customMainItem;
+						Long maxDurability = toRepair.getMaxDurabilityNew();
+						if (maxDurability != null) {
+							event.getPlayer().getInventory().setItemInMainHand(
+									toRepair.increaseDurability(mainItem, maxDurability).stack
+							);
+						}
+					}
+				}
+			}
+		}
+	}
 }
