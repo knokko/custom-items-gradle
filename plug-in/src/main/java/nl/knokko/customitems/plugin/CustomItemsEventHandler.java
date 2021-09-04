@@ -1840,6 +1840,24 @@ public class CustomItemsEventHandler implements Listener {
 		}
 
 		if (type == SlotType.RESULT) {
+			if (event.getInventory().getType().name().equals("GRINDSTONE")) {
+				ItemStack[] ingredients = event.getInventory().getStorageContents();
+				ItemSet itemSet = set();
+				boolean custom1 = itemSet.getItem(ingredients[0]) != null;
+				boolean custom2 = itemSet.getItem(ingredients[1]) != null;
+
+				/*
+				 * Without this check, it is possible to use an enchanted custom item with in one slot of a grindstone
+				 * and a vanilla item with the same internal item type in the other slot. We clearly don't want to
+				 * allow this.
+				 */
+				if (custom1 && !custom2 && !ItemUtils.isEmpty(ingredients[1])) {
+					event.setCancelled(true);
+				}
+				if (!custom1 && custom2 && !ItemUtils.isEmpty(ingredients[0])) {
+					event.setCancelled(true);
+				}
+			}
 			if (event.getInventory() instanceof MerchantInventory) {
 				MerchantInventory inv = (MerchantInventory) event.getInventory();
 				MerchantRecipe recipe = null;
