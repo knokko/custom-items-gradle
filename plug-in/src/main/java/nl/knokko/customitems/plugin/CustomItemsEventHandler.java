@@ -2962,7 +2962,7 @@ public class CustomItemsEventHandler implements Listener {
 						return;
 					}
 				}
-			} else {
+			} else if (event.getPlayer().hasPermission("essentials.repair")) {
 				ItemStack mainItem = event.getPlayer().getInventory().getItemInMainHand();
 				CustomItem customMainItem = set().getItem(mainItem);
 				if (customMainItem != null) {
