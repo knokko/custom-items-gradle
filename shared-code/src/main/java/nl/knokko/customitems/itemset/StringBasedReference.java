@@ -28,6 +28,19 @@ abstract class StringBasedReference<M extends Model<V>, V extends ModelValues> {
         this.model = model;
     }
 
+    @Override
+    @SuppressWarnings("unchecked")
+    public boolean equals(Object other) {
+        if (other.getClass() == this.getClass()) {
+            String ownName = name != null ? name : extractIdentity(model.getValues());
+            StringBasedReference<M, V> otherRef = (StringBasedReference<M, V>) other;
+            String otherName = otherRef.name != null ? otherRef.name : otherRef.extractIdentity(otherRef.model.getValues());
+            return ownName.equals(otherName);
+        } else {
+            return false;
+        }
+    }
+
     abstract String getDescription();
 
     abstract Collection<M> getCollection();

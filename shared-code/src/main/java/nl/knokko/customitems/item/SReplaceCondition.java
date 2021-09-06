@@ -118,6 +118,10 @@ public class SReplaceCondition extends ModelValues {
     }
 
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {
+        if (condition == null) throw new ProgrammingValidationException("No condition");
+        if (item == null) throw new ProgrammingValidationException("No item");
+        if (operation == null) throw new ProgrammingValidationException("No operation");
+        if (replaceItem == null) throw new ProgrammingValidationException("No replace item");
         if (condition == ReplacementCondition.HASITEM) {
             if (operation == ReplacementOperation.ATMOST && value >= MAX_DEFAULT_SPACE) {
                 throw new ValidationException("ATMOST " + value + " is always true");
@@ -128,6 +132,16 @@ public class SReplaceCondition extends ModelValues {
             if (operation == ReplacementOperation.EXACTLY && (value < 0 || value > MAX_DEFAULT_SPACE)) {
                 throw new ValidationException("EXACTLY " + value + " is always false");
             }
+        }
+    }
+
+    public void validateComplete(SItemSet itemSet) throws ValidationException, ProgrammingValidationException {
+        validateIndependent();
+        if (!itemSet.isReferenceValid(item)) {
+            throw new ValidationException("The item is not/no longer valid");
+        }
+        if (!itemSet.isReferenceValid(replaceItem)) {
+            throw new ValidationException("The replace item is not/no longer valid");
         }
     }
 

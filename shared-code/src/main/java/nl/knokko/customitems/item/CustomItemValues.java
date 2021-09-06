@@ -43,7 +43,7 @@ public abstract class CustomItemValues extends ModelValues {
     // Potion properties
     protected Collection<CIPotionEffect> playerEffects;
     protected Collection<CIPotionEffect> targetEffects;
-    protected Collection<EquippedPotionEffect> equippedEffects;
+    protected Collection<SEquippedPotionEffect> equippedEffects;
 
     // Right-click properties
     protected List<String> commands;
@@ -51,7 +51,7 @@ public abstract class CustomItemValues extends ModelValues {
     protected List<SReplaceCondition> replaceConditions;
 
     // Other properties
-    protected ExtraItemNbt extraItemNbt;
+    protected SExtraItemNbt extraItemNbt;
     protected float attackRange;
 
     // Editor-only properties
@@ -175,13 +175,7 @@ public abstract class CustomItemValues extends ModelValues {
         int numEquippedEffects = input.readInt();
         this.equippedEffects = new ArrayList<>(numEquippedEffects);
         for (int counter = 0; counter < numEquippedEffects; counter++) {
-            String effectName = input.readString();
-            int effectLevel = input.readInt();
-            String slotName = input.readString();
-            this.equippedEffects.add(new EquippedPotionEffect(
-                    new PassivePotionEffect(EffectType.valueOf(effectName), effectLevel),
-                    AttributeModifier.Slot.valueOf(slotName)
-            ));
+            this.equippedEffects.add(SEquippedPotionEffect.load1(input, false));
         }
     }
 
@@ -212,7 +206,7 @@ public abstract class CustomItemValues extends ModelValues {
     }
 
     protected void loadExtraProperties10(BitInput input) throws UnknownEncodingException {
-        this.extraItemNbt = ExtraItemNbt.load(input);
+        this.extraItemNbt = SExtraItemNbt.load(input, false);
         this.attackRange = input.readFloat();
     }
 
@@ -274,7 +268,7 @@ public abstract class CustomItemValues extends ModelValues {
         return new ArrayList<>(targetEffects);
     }
 
-    public Collection<EquippedPotionEffect> getEquippedEffects() {
+    public Collection<SEquippedPotionEffect> getEquippedEffects() {
         return new ArrayList<>(equippedEffects);
     }
 
@@ -290,7 +284,7 @@ public abstract class CustomItemValues extends ModelValues {
         return conditionOp;
     }
 
-    public ExtraItemNbt getExtraNbt() {
+    public SExtraItemNbt getExtraNbt() {
         return extraItemNbt;
     }
 
@@ -331,6 +325,7 @@ public abstract class CustomItemValues extends ModelValues {
 
         if (displayName == null) throw new ProgrammingValidationException("No display name");
         if (lore == null) throw new ProgrammingValidationException("No lore");
+        if (lore.size() > Byte.MAX_VALUE) throw new ValidationException("Too many lines of lore");
         for (String loreLine : lore) {
             if (loreLine == null) throw new ProgrammingValidationException("Missing a lore line");
         }
@@ -339,33 +334,73 @@ public abstract class CustomItemValues extends ModelValues {
         if (itemFlags.size() != 6) throw new ProgrammingValidationException("Number of item flags is not 6");
 
         if (attributeModifiers == null) throw new ProgrammingValidationException("No attribute modifiers");
+        if (attributeModifiers.size() > Byte.MAX_VALUE) throw new ValidationException("Too many attribute modifiers");
         for (CIAttributeModifier attributeModifier : attributeModifiers) {
             if (attributeModifier == null) throw new ProgrammingValidationException("Missing an attribute modifier");
             attributeModifier.validate();
         }
 
         if (defaultEnchantments == null) throw new ProgrammingValidationException("No default enchantments");
+        if (defaultEnchantments.size() > Byte.MAX_VALUE) throw new ValidationException("Too many default enchantments");
         for (CIEnchantment enchantment : defaultEnchantments) {
             if (enchantment == null) throw new ProgrammingValidationException("Missing a default enchantment");
             enchantment.validate();
         }
 
-        // equipped effects, commands
         if (playerEffects == null) throw new ProgrammingValidationException("No on-hit player effects");
+        if (playerEffects.size() > Byte.MAX_VALUE) throw new ValidationException("Too many on-hit player effects");
         for (CIPotionEffect effect : playerEffects) {
             if (effect == null) throw new ProgrammingValidationException("Missing an on-hit player effect");
             effect.validate();
         }
 
         if (targetEffects == null) throw new ProgrammingValidationException("No on-hit target effects");
+        if (targetEffects.size() > Byte.MAX_VALUE) throw new ValidationException("Too many on-hit target effects");
         for (CIPotionEffect effect : targetEffects) {
             if (effect == null) throw new ProgrammingValidationException("Missing an on-hit target effect");
             effect.validate();
         }
 
-        // TODO Replacement conditions: check editor/ItemSet.addItem as well as ReplacementCollectionedit!
+        if (equippedEffects == null) throw new ProgrammingValidationException("No equipped effects");
+        for (SEquippedPotionEffect effect : equippedEffects) {
+            if (effect == null) throw new ProgrammingValidationException("Missing an equipped effect");
+            effect.validate();
+        }
 
-        // TODO Check that some collection sizes are not larger than Byte.MAX_VALUE
+        if (commands == null) throw new ProgrammingValidationException("No commands");
+        if (commands.size() > Byte.MAX_VALUE) throw new ValidationException("Too many commands");
+        for (String command : commands) {
+            if (command == null) throw new ProgrammingValidationException("Missing a command");
+        }
+
+        if (conditionOp == null) throw new ProgrammingValidationException("No condition OP");
+        if (replaceConditions == null) throw new ProgrammingValidationException("No replace conditions");
+        if (replaceConditions.size() > Byte.MAX_VALUE) throw new ValidationException("Too many replace conditions");
+        for (SReplaceCondition condition : replaceConditions) {
+            if (condition == null) throw new ProgrammingValidationException("Missing a replacement condition");
+            condition.validateIndependent();
+        }
+        if (conditionOp == SReplaceCondition.ConditionOperation.NONE && replaceConditions.size() > 1) {
+            throw new ValidationException("There are multiple replace conditions but no operator has been specified");
+        }
+        if (conditionOp == SReplaceCondition.ConditionOperation.AND || conditionOp == SReplaceCondition.ConditionOperation.OR) {
+            for (SReplaceCondition conditionA : replaceConditions) {
+                for (SReplaceCondition conditionB : replaceConditions) {
+                    if (!conditionA.getReplaceItemReference().equals(conditionB.getReplaceItemReference())) {
+                        throw new ValidationException("With the OR and AND operators, all replacement items must be the same");
+                    }
+                }
+            }
+        }
+
+        if (extraItemNbt == null) throw new ProgrammingValidationException("No extra item NBT");
+        extraItemNbt.validate();
+
+        if (attackRange < 0f) throw new ValidationException("Attack range can't be negative");
+        if (attackRange != attackRange) throw new ValidationException("Attack range can't be NaN");
+
+        if (texture == null) throw new ProgrammingValidationException("No texture");
+        // customModel doesn't have any invalid values
 
         // TODO Scope validation errors (to make them easier to understand for users)
     }
@@ -389,12 +424,7 @@ public abstract class CustomItemValues extends ModelValues {
         }
 
         for (SReplaceCondition condition : replaceConditions) {
-            if (!itemSet.isReferenceValid(condition.getItemReference())) {
-                throw new ProgrammingValidationException("The item of a replace condition is not (or no longer) valid");
-            }
-            if (!itemSet.isReferenceValid(condition.getReplaceItemReference())) {
-                throw new ProgrammingValidationException("The replace item of a replacement condition is not (or no longer) valid");
-            }
+            condition.validateComplete(itemSet);
         }
     }
 }
