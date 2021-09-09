@@ -8,6 +8,7 @@ import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.texture.BaseTextureValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
+import nl.knokko.customitems.util.Validation;
 import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
@@ -48,6 +49,7 @@ public class CustomBlockValues extends ModelValues {
     public CustomBlockValues(boolean mutable) {
         super(mutable);
 
+        this.internalId = 0;
         this.name = "";
         this.drops = new ArrayList<>(0);
         this.texture = null;
@@ -56,6 +58,7 @@ public class CustomBlockValues extends ModelValues {
     public CustomBlockValues(CustomBlockValues toCopy, boolean mutable) {
         super(mutable);
 
+        this.internalId = toCopy.getInternalID();
         this.name = toCopy.getName();
         this.drops = toCopy.getDrops();
         this.texture = toCopy.getTextureReference();
@@ -141,6 +144,11 @@ public class CustomBlockValues extends ModelValues {
         return texture;
     }
 
+    public void setInternalId(int newId) {
+        assertMutable();
+        this.internalId = newId;
+    }
+
     public void setName(String newName) {
         assertMutable();
         this.name = newName;
@@ -157,31 +165,39 @@ public class CustomBlockValues extends ModelValues {
     }
 
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {
+        if (!MushroomBlockMapping.isValidId(internalId)) throw new ProgrammingValidationException("Invalid id " + internalId);
+
         if (name == null) throw new ProgrammingValidationException("No name");
         if (name.isEmpty()) throw new ValidationException("The name is empty");
         if (name.contains(" ")) throw new ValidationException("The name contains spaces");
 
         if (drops == null) throw new ProgrammingValidationException("No drops");
         for (CustomBlockDrop drop : drops) {
-            if (drop == null)
-                throw new ProgrammingValidationException("A drop is null");
-            drop.validateIndependent();
+            if (drop == null) throw new ProgrammingValidationException("Missing a drop");
+            Validation.scope("Drop", drop::validateIndependent);
         }
 
         if (texture == null) throw new ValidationException("You haven't chosen a texture");
     }
 
     public void validateComplete(
-            SItemSet itemSet
+            SItemSet itemSet, Integer oldInternalId
     ) throws ValidationException, ProgrammingValidationException {
         validateIndependent();
 
+        if (oldInternalId != null && internalId != oldInternalId) {
+            throw new ProgrammingValidationException("Can't change internal id");
+        }
+        if (oldInternalId == null && itemSet.getBlock(internalId).isPresent()) {
+            throw new ProgrammingValidationException("Block with id " + internalId + " already exists");
+        }
         if (itemSet.getBlocks().stream().anyMatch(block -> block.getInternalID() != internalId && block.getName().equals(name))) {
-            throw new ValidationException("There exists another block with the same name");
+            throw new ValidationException("Block with name " + name + " already exists");
         }
 
         for (CustomBlockDrop drop : drops) {
-            drop.validateComplete(itemSet);
+            if (drop == null) throw new ProgrammingValidationException("Missing a drop");
+            Validation.scope("Drop", () -> drop.validateComplete(itemSet));
         }
 
         if (!itemSet.isReferenceValid(texture)) {
