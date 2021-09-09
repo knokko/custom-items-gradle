@@ -7,10 +7,7 @@ import nl.knokko.customitems.item.SCustomItem;
 import nl.knokko.customitems.texture.BaseTextureValues;
 import nl.knokko.customitems.texture.CustomTexture;
 import nl.knokko.customitems.texture.CustomTexturesView;
-import nl.knokko.customitems.util.CollectionHelper;
-import nl.knokko.customitems.util.ProgrammingValidationException;
-import nl.knokko.customitems.util.Validation;
-import nl.knokko.customitems.util.ValidationException;
+import nl.knokko.customitems.util.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,8 +23,11 @@ public class SItemSet {
     Collection<String> removedItemNames;
 
     boolean finishedLoading;
+    final Side side;
 
-    public SItemSet() {
+    public SItemSet(Side side) {
+        Checks.notNull(side);
+        this.side = side;
     }
 
     public void initialize() {
@@ -38,6 +38,10 @@ public class SItemSet {
         removedItemNames = new ArrayList<>();
 
         finishedLoading = true;
+    }
+
+    public Side getSide() {
+        return side;
     }
 
     public CustomTexturesView getTextures() {
@@ -197,5 +201,10 @@ public class SItemSet {
 
     public void removeBlock(BlockReference blockToRemove) throws ValidationException, ProgrammingValidationException {
         removeModel(this.blocks, blockToRemove.model);
+    }
+
+    public enum Side {
+        EDITOR,
+        PLUGIN
     }
 }

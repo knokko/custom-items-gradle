@@ -89,9 +89,10 @@ public abstract class CustomItemValues extends ModelValues {
         this.customModel = source.getCustomModel();
     }
 
-    protected void loadEditorOnlyProperties1(BitInput input, boolean checkCustomModel) {
+    protected void loadEditorOnlyProperties1(BitInput input, SItemSet itemSet, boolean checkCustomModel) {
         String textureName = input.readJavaString();
-        // TODO Retrieve texture
+        this.texture = itemSet.getTextureReference(textureName);
+
         if (checkCustomModel && input.readBoolean()) {
             this.customModel = input.readByteArray();
         } else {
@@ -105,7 +106,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.name = input.readJavaString();
     }
 
-    protected void loadIdentityProperties9(BitInput input) {
+    protected void loadIdentityProperties10(BitInput input) {
         loadIdentityProperties1(input);
         this.alias = input.readString();
     }

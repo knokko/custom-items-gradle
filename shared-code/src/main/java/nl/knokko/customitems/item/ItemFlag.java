@@ -25,6 +25,9 @@ package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.NameHelper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * A ItemFlag can hide some Attributes from ItemStacks.
  * Copied straight from Bukkit, but separated from the Bukkit API to ensure that the order
@@ -61,6 +64,14 @@ public enum ItemFlag {
 	public static boolean[] getDefaultValues() {
 		return new boolean[]{false, false, true, false, false, false};
 	}
+
+	public static List<Boolean> getDefaultValuesList() {
+	    List<Boolean> result = new ArrayList<>(6);
+	    for (boolean defaultValue : getDefaultValues()) {
+	        result.add(defaultValue);
+        }
+	    return result;
+    }
 	
 	@Override
 	public String toString() {
