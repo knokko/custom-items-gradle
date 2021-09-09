@@ -1,7 +1,5 @@
 package nl.knokko.customitems.itemset;
 
-import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.item.SCustomItem;
 import nl.knokko.customitems.model.Model;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.util.Checks;
