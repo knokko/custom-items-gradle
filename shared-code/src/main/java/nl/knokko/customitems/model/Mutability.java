@@ -20,6 +20,16 @@ public class Mutability {
         return result;
     }
 
+    public static <T extends ModelValues> List<T> createDeepCopy(List<T> original, boolean mutable) {
+        List<T> result = new ArrayList<>(original.size());
+
+        for (T originalItem : original) {
+            result.add(copy(originalItem, mutable));
+        }
+
+        return result;
+    }
+
     @SuppressWarnings("unchecked")
     public static <T extends ModelValues> T copy(T originalItem, boolean mutable) {
         ModelValues copiedValue = originalItem.copy(mutable);
