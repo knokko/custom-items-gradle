@@ -1,7 +1,12 @@
 package nl.knokko.customitems.texture;
 
+import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
+import nl.knokko.customitems.util.Checks;
+import nl.knokko.customitems.util.ProgrammingValidationException;
+import nl.knokko.customitems.util.Validation;
+import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
@@ -124,11 +129,44 @@ public class BaseTextureValues extends ModelValues {
 
     public void setName(String newName) {
         assertMutable();
+        Checks.notNull(newName);
         this.name = newName;
     }
 
     public void setImage(BufferedImage newImage) {
         assertMutable();
+        Checks.notNull(newImage);
         this.image = newImage;
+    }
+
+    private void validateSize(int size) throws ValidationException {
+        if (size < 1) throw new ValidationException("must be positive");
+        if (size > 512) throw new ValidationException("can be at most 512");
+        if (Integer.bitCount(size) != 1) throw new ValidationException("must be a power of 2");
+    }
+
+    protected void validateImage(BufferedImage image) throws ValidationException, ProgrammingValidationException {
+        if (image == null) throw new ValidationException("Not selected");
+        Validation.scope("width (" + image.getWidth() + ")", () -> validateSize(image.getWidth()));
+        Validation.scope("height (" + image.getHeight() + ")", () -> validateSize(image.getHeight()));
+        if (image.getWidth() != image.getHeight()) {
+            throw new ValidationException("width (" + image.getWidth() + ") must be equal to height (" + image.getHeight() + ")");
+        }
+    }
+
+    public void validateIndependent() throws ValidationException, ProgrammingValidationException {
+        Validation.safeName(name);
+        Validation.scope("Image", () -> validateImage(this.image));
+    }
+
+    public void validateComplete(SItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
+        this.validateIndependent();
+
+        boolean nameConflict = false;
+        if (oldName == null && itemSet.getTexture(this.name).isPresent()) nameConflict = true;
+        if (oldName != null && !oldName.equals(this.name) && itemSet.getTexture(this.name).isPresent()) nameConflict = true;
+        if (nameConflict) {
+            throw new ValidationException("A texture with name " + this.name + " already exists");
+        }
     }
 }
