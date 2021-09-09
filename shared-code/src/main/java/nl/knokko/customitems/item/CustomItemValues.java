@@ -6,12 +6,11 @@ import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.model.ModelValues;
+import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.texture.BaseTextureValues;
 import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
-import nl.knokko.customitems.util.EagerSupplier;
-import nl.knokko.customitems.util.ProgrammingValidationException;
-import nl.knokko.customitems.util.ValidationException;
+import nl.knokko.customitems.util.*;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
@@ -306,6 +305,7 @@ public abstract class CustomItemValues extends ModelValues {
 
     public void setItemType(CustomItemType newItemType) {
         assertMutable();
+        Checks.nonNull(newItemType);
         this.itemType = newItemType;
     }
 
@@ -314,13 +314,112 @@ public abstract class CustomItemValues extends ModelValues {
         this.itemDamage = newItemDamage;
     }
 
+    public void setName(String newName) {
+        assertMutable();
+        Checks.notNull(newName);
+        this.name = newName;
+    }
+
+    public void setAlias(String newAlias) {
+        assertMutable();
+        Checks.notNull(newAlias);
+        this.alias = newAlias;
+    }
+
+    public void setDisplayName(String newDisplayName) {
+        assertMutable();
+        Checks.notNull(newDisplayName);
+        this.displayName = newDisplayName;
+    }
+
+    public void setLore(List<String> newLore) {
+        assertMutable();
+        Checks.nonNull(newLore);
+        this.lore = new ArrayList<>(newLore);
+    }
+
+    public void setItemFlags(List<Boolean> newItemFlags) {
+        assertMutable();
+        Checks.nonNull(newItemFlags);
+        this.itemFlags = new ArrayList<>(newItemFlags);
+    }
+
+    public void setAttributeModifiers(List<CIAttributeModifier> newAttributeModifiers) {
+        assertMutable();
+        Checks.nonNull(newAttributeModifiers);
+        this.attributeModifiers = Mutability.createDeepCopy(newAttributeModifiers, false);
+    }
+
+    public void setDefaultEnchantments(List<CIEnchantment> newDefaultEnchantments) {
+        assertMutable();
+        Checks.nonNull(newDefaultEnchantments);
+        this.defaultEnchantments = Mutability.createDeepCopy(newDefaultEnchantments, false);
+    }
+
+    public void setPlayerEffects(List<CIPotionEffect> newPlayerEffects) {
+        assertMutable();
+        Checks.nonNull(newPlayerEffects);
+        this.playerEffects = Mutability.createDeepCopy(newPlayerEffects, false);
+    }
+
+    public void setTargetEffects(List<CIPotionEffect> newTargetEffects) {
+        assertMutable();
+        Checks.nonNull(newTargetEffects);
+        this.targetEffects = Mutability.createDeepCopy(newTargetEffects, false);
+    }
+
+    public void setEquippedEffects(List<SEquippedPotionEffect> newEquippedEffects) {
+        assertMutable();
+        Checks.nonNull(newEquippedEffects);
+        this.equippedEffects = Mutability.createDeepCopy(equippedEffects, false);
+    }
+
+    public void setCommands(List<String> newCommands) {
+        assertMutable();
+        Checks.nonNull(newCommands);
+        this.commands = new ArrayList<>(newCommands);
+    }
+
+    public void setConditionOp(SReplaceCondition.ConditionOperation newConditionOp) {
+        assertMutable();
+        Checks.notNull(newConditionOp);
+        this.conditionOp = newConditionOp;
+    }
+
+    public void setReplaceConditions(List<SReplaceCondition> newReplaceConditions) {
+        assertMutable();
+        Checks.nonNull(newReplaceConditions);
+        this.replaceConditions = Mutability.createDeepCopy(newReplaceConditions, false);
+    }
+
+    public void setExtraItemNbt(SExtraItemNbt newExtraNbt) {
+        assertMutable();
+        Checks.notNull(newExtraNbt);
+        this.extraItemNbt = newExtraNbt.copy(false);
+    }
+
+    public void setAttackRange(float newAttackRange) {
+        assertMutable();
+        this.attackRange = newAttackRange;
+    }
+
+    public void setTexture(TextureReference newTexture) {
+        assertMutable();
+        Checks.notNull(newTexture);
+        this.texture = newTexture;
+    }
+
+    public void setCustomModel(byte[] newModel) {
+        assertMutable();
+        this.customModel = newModel;
+    }
+
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {
-        // TODO Finish this
         if (itemType == null) throw new ProgrammingValidationException("No item type");
         if (itemDamage < 0) throw new ValidationException("Internal item damage is negative");
-        if (name == null) throw new ProgrammingValidationException("No name");
-        if (name.isEmpty()) throw new ValidationException("Name is empty");
-        // TODO Name filter
+
+        Validation.safeName(name);
+        
         if (alias == null) throw new ProgrammingValidationException("No alias");
 
         if (displayName == null) throw new ProgrammingValidationException("No display name");
@@ -337,34 +436,34 @@ public abstract class CustomItemValues extends ModelValues {
         if (attributeModifiers.size() > Byte.MAX_VALUE) throw new ValidationException("Too many attribute modifiers");
         for (CIAttributeModifier attributeModifier : attributeModifiers) {
             if (attributeModifier == null) throw new ProgrammingValidationException("Missing an attribute modifier");
-            attributeModifier.validate();
+            Validation.scope("Attribute modifier", attributeModifier::validate);
         }
 
         if (defaultEnchantments == null) throw new ProgrammingValidationException("No default enchantments");
         if (defaultEnchantments.size() > Byte.MAX_VALUE) throw new ValidationException("Too many default enchantments");
         for (CIEnchantment enchantment : defaultEnchantments) {
             if (enchantment == null) throw new ProgrammingValidationException("Missing a default enchantment");
-            enchantment.validate();
+            Validation.scope("Default enchantment", enchantment::validate);
         }
 
         if (playerEffects == null) throw new ProgrammingValidationException("No on-hit player effects");
         if (playerEffects.size() > Byte.MAX_VALUE) throw new ValidationException("Too many on-hit player effects");
         for (CIPotionEffect effect : playerEffects) {
             if (effect == null) throw new ProgrammingValidationException("Missing an on-hit player effect");
-            effect.validate();
+            Validation.scope("On-hit player effect", effect::validate);
         }
 
         if (targetEffects == null) throw new ProgrammingValidationException("No on-hit target effects");
         if (targetEffects.size() > Byte.MAX_VALUE) throw new ValidationException("Too many on-hit target effects");
         for (CIPotionEffect effect : targetEffects) {
             if (effect == null) throw new ProgrammingValidationException("Missing an on-hit target effect");
-            effect.validate();
+            Validation.scope("On-hit target effect", effect::validate);
         }
 
         if (equippedEffects == null) throw new ProgrammingValidationException("No equipped effects");
         for (SEquippedPotionEffect effect : equippedEffects) {
             if (effect == null) throw new ProgrammingValidationException("Missing an equipped effect");
-            effect.validate();
+            Validation.scope("Equipped effect", effect::validate);
         }
 
         if (commands == null) throw new ProgrammingValidationException("No commands");
@@ -378,7 +477,7 @@ public abstract class CustomItemValues extends ModelValues {
         if (replaceConditions.size() > Byte.MAX_VALUE) throw new ValidationException("Too many replace conditions");
         for (SReplaceCondition condition : replaceConditions) {
             if (condition == null) throw new ProgrammingValidationException("Missing a replacement condition");
-            condition.validateIndependent();
+            Validation.scope("Replace condition", condition::validateIndependent);
         }
         if (conditionOp == SReplaceCondition.ConditionOperation.NONE && replaceConditions.size() > 1) {
             throw new ValidationException("There are multiple replace conditions but no operator has been specified");
@@ -394,15 +493,13 @@ public abstract class CustomItemValues extends ModelValues {
         }
 
         if (extraItemNbt == null) throw new ProgrammingValidationException("No extra item NBT");
-        extraItemNbt.validate();
+        Validation.scope("NBT", extraItemNbt::validate);
 
         if (attackRange < 0f) throw new ValidationException("Attack range can't be negative");
         if (attackRange != attackRange) throw new ValidationException("Attack range can't be NaN");
 
         if (texture == null) throw new ProgrammingValidationException("No texture");
         // customModel doesn't have any invalid values
-
-        // TODO Scope validation errors (to make them easier to understand for users)
     }
 
     public void validateComplete(
@@ -417,14 +514,16 @@ public abstract class CustomItemValues extends ModelValues {
             throw new ValidationException("A custom item with name " + name + " already exists");
         }
 
-        // TODO Check deleted custom items
+        if (oldName == null && itemSet.hasItemBeenDeleted(name)) {
+            throw new ValidationException("A custom item with name " + name + " was once deleted");
+        }
 
         if (!itemSet.isReferenceValid(texture)) {
             throw new ProgrammingValidationException("The chosen texture is not (or no longer) valid");
         }
 
         for (SReplaceCondition condition : replaceConditions) {
-            condition.validateComplete(itemSet);
+            Validation.scope("Replace condition", () -> condition.validateComplete(itemSet));
         }
     }
 }
