@@ -215,7 +215,8 @@ public class CombineMenu extends GuiMenu {
 					} else if (item instanceof CustomHelmet3D) {
 						error = primarySet.addHelmet3D((CustomHelmet3D) item, true);
 					} else if (item instanceof CustomWand) {
-						error = primarySet.addWand((CustomWand) item);
+						// Wait with this until the projectiles have been combined
+						error = null;
 					} else if (item instanceof CustomShield) {
 						error = primarySet.addShield((CustomShield) item, true);
 					} else if (item instanceof CustomArmor) {
@@ -229,13 +230,16 @@ public class CombineMenu extends GuiMenu {
 					} else if (item instanceof SimpleCustomItem) {
 						error = primarySet.addSimpleItem((SimpleCustomItem) item);
 					} else if (item instanceof CustomBlockItem) {
-						error = primarySet.addBlockItem((CustomBlockItem) item);
+						// Skip this until the blocks have been combined
+						error = null;
 					} else if (item instanceof CustomFood) {
 						error = primarySet.addFood((CustomFood) item);
 					} else if (item instanceof CustomGun) {
-						error = primarySet.addGun((CustomGun) item);
+						// Skip this until the projectiles have been combined
+						error = null;
 					} else if (item instanceof CustomPocketContainer) {
-						error = primarySet.addPocketContainer((CustomPocketContainer) item);
+						// Skip this until the containers have been combined
+						error = null;
 					}
 					else {
 						error = "Don't know item class " + item.getClass().getSimpleName() + ": Please report on discord or BukkitDev";
@@ -295,6 +299,19 @@ public class CombineMenu extends GuiMenu {
 						return;
 					}
 				}
+
+				for (CustomItem item : secundaryItems) {
+					String error = null;
+					if (item instanceof CustomWand) {
+						error = primarySet.addWand((CustomWand) item);
+					} else if (item instanceof CustomGun) {
+						error = primarySet.addGun((CustomGun) item);
+					}
+					if (error != null) {
+						errorComponent.setText(error);
+						return;
+					}
+				}
 				
 				for (CustomFuelRegistry secRegistry : secundarySet.getBackingFuelRegistries()) {
 					
@@ -315,11 +332,31 @@ public class CombineMenu extends GuiMenu {
 					primarySet.addContainer(secContainer);
 				}
 
+				for (CustomItem item : secundaryItems) {
+					if (item instanceof CustomPocketContainer) {
+						String error = primarySet.addPocketContainer((CustomPocketContainer) item);
+						if (error != null) {
+							errorComponent.setText(error);
+							return;
+						}
+					}
+				}
+
 				for (CustomBlockView secondaryBlock : secundarySet.getBlocks()) {
 					String error = primarySet.addBlock(secondaryBlock.getValues());
 					if (error != null) {
 						errorComponent.setText("Error with block " + secondaryBlock.getValues().getName() + ": " + error);
 						return;
+					}
+				}
+
+				for (CustomItem item : secundaryItems) {
+					if (item instanceof CustomBlockItem) {
+						String error = primarySet.addBlockItem((CustomBlockItem) item);
+						if (error != null) {
+							errorComponent.setText(error);
+							return;
+						}
 					}
 				}
 				
