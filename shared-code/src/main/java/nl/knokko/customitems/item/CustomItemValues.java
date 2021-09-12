@@ -89,6 +89,8 @@ public abstract class CustomItemValues extends ModelValues {
         this.customModel = source.getCustomModel();
     }
 
+    public abstract void save(BitOutput output);
+
     protected void loadEditorOnlyProperties1(BitInput input, SItemSet itemSet, boolean checkCustomModel) {
         String textureName = input.readJavaString();
         this.texture = itemSet.getTextureReference(textureName);
@@ -100,15 +102,34 @@ public abstract class CustomItemValues extends ModelValues {
         }
     }
 
+    protected void saveEditorOnlyProperties1(BitOutput output) {
+        output.addJavaString(texture.get().getName());
+        output.addBoolean(customModel != null);
+        if (customModel != null) {
+            output.addByteArray(customModel);
+        }
+    }
+
     protected void loadIdentityProperties1(BitInput input) {
         this.itemType = CustomItemType.valueOf(input.readJavaString());
         this.itemDamage = input.readShort();
         this.name = input.readJavaString();
     }
 
+    protected void saveIdentityProperties1(BitOutput output) {
+        output.addJavaString(itemType.name());
+        output.addShort(itemDamage);
+        output.addJavaString(name);
+    }
+
     protected void loadIdentityProperties10(BitInput input) {
         loadIdentityProperties1(input);
         this.alias = input.readString();
+    }
+
+    protected void saveIdentityProperties10(BitOutput output) {
+        saveIdentityProperties1(output);
+        output.addString(alias);
     }
 
     protected void loadItemFlags6(BitInput input) {
@@ -119,8 +140,18 @@ public abstract class CustomItemValues extends ModelValues {
         }
     }
 
+    protected void saveItemFlags6(BitOutput output) {
+        for (boolean itemFlag : itemFlags) {
+            output.addBooleans(itemFlag);
+        }
+    }
+
     protected void loadVanillaBasedPowers2(BitInput input) {
         loadAttributeModifiers2(input);
+    }
+
+    protected void saveVanillaBasedPowers2(BitOutput output) {
+        saveAttributeModifiers2(output);
     }
 
     protected void loadVanillaBasedPowers4(BitInput input) {
@@ -128,11 +159,23 @@ public abstract class CustomItemValues extends ModelValues {
         loadDefaultEnchantments4(input);
     }
 
+    protected void saveVanillaBasedPowers4(BitOutput output) {
+        saveVanillaBasedPowers2(output);
+        saveDefaultEnchantments4(output);
+    }
+
     protected void loadAttributeModifiers2(BitInput input) {
         int numAttributeModifiers = input.readByte() & 0xFF;
         this.attributeModifiers = new ArrayList<>(numAttributeModifiers);
         for (int counter = 0; counter < numAttributeModifiers; counter++) {
             this.attributeModifiers.add(CIAttributeModifier.load1(input, false));
+        }
+    }
+
+    protected void saveAttributeModifiers2(BitOutput output) {
+        output.addByte((byte) attributeModifiers.size());
+        for (CIAttributeModifier attributeModifier : attributeModifiers) {
+            attributeModifier.save1(output);
         }
     }
 
@@ -144,17 +187,37 @@ public abstract class CustomItemValues extends ModelValues {
         }
     }
 
+    protected void saveDefaultEnchantments4(BitOutput output) {
+        output.addByte((byte) defaultEnchantments.size());
+        for (CIEnchantment defaultEnchantment : defaultEnchantments) {
+            defaultEnchantment.save1(output);
+        }
+    }
+
     protected void loadPotionProperties9(BitInput input) {
         loadOnHitPlayerEffects9(input);
         loadOnHitTargetEffects9(input);
+    }
+
+    protected void savePotionProperties9(BitOutput output) {
+        saveOnHitPlayerEffects9(output);
+        saveOnHitTargetEffects9(output);
     }
 
     protected void loadOnHitPlayerEffects9(BitInput input) {
         this.playerEffects = loadPotionEffectList(input);
     }
 
+    protected void saveOnHitPlayerEffects9(BitOutput output) {
+        savePotionEffectList(playerEffects, output);
+    }
+
     protected void loadOnHitTargetEffects9(BitInput input) {
         this.targetEffects = loadPotionEffectList(input);
+    }
+
+    protected void saveOnHitTargetEffects9(BitOutput output) {
+        savePotionEffectList(targetEffects, output);
     }
 
     protected Collection<CIPotionEffect> loadPotionEffectList(BitInput input) {
@@ -166,9 +229,21 @@ public abstract class CustomItemValues extends ModelValues {
         return effects;
     }
 
+    protected void savePotionEffectList(Collection<CIPotionEffect> effects, BitOutput output) {
+        output.addByte((byte) effects.size());
+        for (CIPotionEffect effect : effects) {
+            effect.save1(output);
+        }
+    }
+
     protected void loadPotionProperties10(BitInput input) {
         loadPotionProperties9(input);
         loadEquippedPotionEffects10(input);
+    }
+
+    protected void savePotionProperties10(BitOutput output) {
+        savePotionProperties9(output);
+        saveEquippedPotionEffects10(output);
     }
 
     protected void loadEquippedPotionEffects10(BitInput input) {
@@ -179,8 +254,19 @@ public abstract class CustomItemValues extends ModelValues {
         }
     }
 
+    protected void saveEquippedPotionEffects10(BitOutput output) {
+        output.addInt(equippedEffects.size());
+        for (SEquippedPotionEffect effect : equippedEffects) {
+            effect.save1(output);
+        }
+    }
+
     protected void loadRightClickProperties9(BitInput input) {
         loadCommands9(input);
+    }
+
+    protected void saveRightClickProperties9(BitOutput output) {
+        saveCommands9(output);
     }
 
     protected void loadCommands9(BitInput input) {
@@ -191,9 +277,21 @@ public abstract class CustomItemValues extends ModelValues {
         }
     }
 
+    protected void saveCommands9(BitOutput output) {
+        output.addByte((byte) commands.size());
+        for (String command : commands) {
+            output.addJavaString(command);
+        }
+    }
+
     protected void loadRightClickProperties10(BitInput input, SItemSet itemSet) {
         loadRightClickProperties9(input);
         loadReplacementConditions10(input, itemSet);
+    }
+
+    protected void saveRightClickProperties10(BitOutput output) {
+        saveRightClickProperties9(output);
+        saveReplacementConditions10(output);
     }
 
     protected void loadReplacementConditions10(BitInput input, SItemSet itemSet) {
@@ -205,9 +303,22 @@ public abstract class CustomItemValues extends ModelValues {
         this.conditionOp = SReplaceCondition.ConditionOperation.valueOf(input.readJavaString());
     }
 
+    protected void saveReplacementConditions10(BitOutput output) {
+        output.addByte((byte) replaceConditions.size());
+        for (SReplaceCondition replaceCondition : replaceConditions) {
+            replaceCondition.save1(output);
+        }
+        output.addJavaString(conditionOp.name());
+    }
+
     protected void loadExtraProperties10(BitInput input) throws UnknownEncodingException {
         this.extraItemNbt = SExtraItemNbt.load(input, false);
         this.attackRange = input.readFloat();
+    }
+
+    protected void saveExtraProperties10(BitOutput output) {
+        extraItemNbt.save(output);
+        output.addFloat(attackRange);
     }
 
     protected void loadTextDisplayProperties1(BitInput input) {
@@ -216,6 +327,14 @@ public abstract class CustomItemValues extends ModelValues {
         this.lore = new ArrayList<>(numLoreLines);
         for (int counter = 0; counter < numLoreLines; counter++) {
             this.lore.add(input.readJavaString());
+        }
+    }
+
+    protected void saveTextDisplayProperties1(BitOutput output) {
+        output.addJavaString(displayName);
+        output.addByte((byte) lore.size());
+        for (String loreLine : lore) {
+            output.addJavaString(loreLine);
         }
     }
 
@@ -527,4 +646,6 @@ public abstract class CustomItemValues extends ModelValues {
             Validation.scope("Replace condition", () -> condition.validateComplete(itemSet));
         }
     }
+
+    // TODO Add a unit test that checks if item set remains equal after saving and loading
 }

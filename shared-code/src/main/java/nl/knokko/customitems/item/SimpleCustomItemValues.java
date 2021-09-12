@@ -106,6 +106,23 @@ public class SimpleCustomItemValues extends CustomItemValues {
         loadExtraProperties10(input);
     }
 
+    @Override
+    public void save(BitOutput output) {
+        output.addByte(ItemEncoding.ENCODING_SIMPLE_10);
+        save10(output);
+    }
+
+    private void save10(BitOutput output) {
+        saveIdentityProperties10(output);
+        saveTextDisplayProperties1(output);
+        saveVanillaBasedPowers4(output);
+        output.addByte((byte) maxStacksize);
+        saveItemFlags6(output);
+        savePotionProperties10(output);
+        saveRightClickProperties10(output);
+        saveExtraProperties10(output);
+    }
+
     private void initDefaults10() {
         // Nothing to be done until the next encoding is made
     }
