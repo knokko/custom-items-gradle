@@ -2646,6 +2646,9 @@ public class CustomItemsEventHandler implements Listener {
 				ItemMeta meta = stackToDrop.getItemMeta();
 				BlockStateMeta bms = (BlockStateMeta) meta;
 				bms.setBlockState(shulker);
+				if (shulker.getCustomName() != null) {
+					bms.setDisplayName(shulker.getCustomName());
+				}
 				stackToDrop.setItemMeta(bms);
 				event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), stackToDrop);
 			}
