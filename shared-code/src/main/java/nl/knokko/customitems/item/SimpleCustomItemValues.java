@@ -1,7 +1,6 @@
 package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.encoding.ItemEncoding;
-import nl.knokko.customitems.encoding.SetEncoding;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -50,10 +49,10 @@ public class SimpleCustomItemValues extends CustomItemValues {
         return simpleItem;
     }
 
-    private int maxStacksize;
+    private byte maxStacksize;
 
     public SimpleCustomItemValues(boolean mutable) {
-        super(mutable);
+        super(mutable, CustomItemType.DIAMOND_HOE);
 
         this.maxStacksize = 64;
     }
@@ -107,16 +106,20 @@ public class SimpleCustomItemValues extends CustomItemValues {
     }
 
     @Override
-    public void save(BitOutput output) {
+    public void save(BitOutput output, SItemSet.Side side) {
         output.addByte(ItemEncoding.ENCODING_SIMPLE_10);
         save10(output);
+
+        if (side == SItemSet.Side.EDITOR) {
+            saveEditorOnlyProperties1(output);
+        }
     }
 
     private void save10(BitOutput output) {
         saveIdentityProperties10(output);
         saveTextDisplayProperties1(output);
         saveVanillaBasedPowers4(output);
-        output.addByte((byte) maxStacksize);
+        output.addByte(maxStacksize);
         saveItemFlags6(output);
         savePotionProperties10(output);
         saveRightClickProperties10(output);
@@ -179,11 +182,12 @@ public class SimpleCustomItemValues extends CustomItemValues {
         return new SimpleCustomItemValues(this, mutable);
     }
 
-    public int getMaxStacksize() {
+    @Override
+    public byte getMaxStacksize() {
         return maxStacksize;
     }
 
-    public void setMaxStacksize(int newStacksize) {
+    public void setMaxStacksize(byte newStacksize) {
         assertMutable();
         this.maxStacksize = newStacksize;
     }

@@ -1,14 +1,11 @@
 package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.effect.*;
-import nl.knokko.customitems.item.nbt.ExtraItemNbt;
-import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.texture.BaseTextureValues;
-import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.*;
 import nl.knokko.util.bits.BitInput;
@@ -18,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Supplier;
 
 public abstract class CustomItemValues extends ModelValues {
 
@@ -57,26 +53,49 @@ public abstract class CustomItemValues extends ModelValues {
     protected TextureReference texture;
     protected byte[] customModel;
 
-    public CustomItemValues(boolean mutable) {
-        super(mutable);
-    }
-
-    public CustomItemValues(CustomItemValues toCopy, boolean mutable) {
+    public CustomItemValues(boolean mutable, CustomItemType initialItemType) {
         super(mutable);
 
-        copyProperties(toCopy);
+        this.itemType = initialItemType;
+        this.itemDamage = 0; // This will be taken care of later
+        this.name = "";
+        this.alias = "";
+
+        this.displayName = "";
+        this.lore = new ArrayList<>(0);
+
+        this.itemFlags = ItemFlag.getDefaultValuesList();
+
+        this.attributeModifiers = new ArrayList<>(0);
+        this.defaultEnchantments = new ArrayList<>(0);
+
+        this.playerEffects = new ArrayList<>(0);
+        this.targetEffects = new ArrayList<>(0);
+        this.equippedEffects = new ArrayList<>(0);
+
+        this.commands = new ArrayList<>(0);
+        this.conditionOp = SReplaceCondition.ConditionOperation.NONE;
+        this.replaceConditions = new ArrayList<>(0);
+
+        this.extraItemNbt = new SExtraItemNbt(false);
+        this.attackRange = 1f;
+
+        this.texture = null;
+        this.customModel = null;
     }
 
-    protected void copyProperties(CustomItemValues source) {
+    public CustomItemValues(CustomItemValues source, boolean mutable) {
+        super(mutable);
+
         this.itemType = source.getItemType();
         this.itemDamage = source.getItemDamage();
         this.name = source.getName();
         this.alias = source.getAlias();
         this.displayName = source.getDisplayName();
         this.lore = source.getLore();
+        this.itemFlags = source.getItemFlags();
         this.attributeModifiers = source.getAttributeModifiers();
         this.defaultEnchantments = source.getDefaultEnchantments();
-        this.itemFlags = source.getItemFlags();
         this.playerEffects = source.getOnHitPlayerEffects();
         this.targetEffects = source.getOnHitTargetEffects();
         this.equippedEffects = source.getEquippedEffects();
@@ -89,7 +108,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.customModel = source.getCustomModel();
     }
 
-    public abstract void save(BitOutput output);
+    public abstract void save(BitOutput output, SItemSet.Side side);
 
     protected void loadEditorOnlyProperties1(BitInput input, SItemSet itemSet, boolean checkCustomModel) {
         String textureName = input.readJavaString();
@@ -338,11 +357,6 @@ public abstract class CustomItemValues extends ModelValues {
         }
     }
 
-    protected void save1(BitOutput output) {
-        output.addJavaString(itemType.name());
-        output.addShort(itemDamage);
-    }
-
     public CustomItemType getItemType() {
         return itemType;
     }
@@ -358,6 +372,8 @@ public abstract class CustomItemValues extends ModelValues {
     public String getAlias() {
         return alias;
     }
+
+    public abstract byte getMaxStacksize();
 
     public String getDisplayName() {
         return displayName;
