@@ -6,17 +6,17 @@ import nl.knokko.util.bits.BitOutput;
 
 public class SNoIngredient extends SIngredient {
 
-    SNoIngredient(boolean mutable) {
-        super(mutable);
+    public SNoIngredient() {
+        super(false);
     }
 
-    SNoIngredient(SNoIngredient toCopy, boolean mutable) {
-        super(toCopy, mutable);
+    SNoIngredient(SNoIngredient toCopy) {
+        super(toCopy, false);
     }
 
     @Override
     public SNoIngredient copy(boolean mutable) {
-        return new SNoIngredient(this, mutable);
+        return new SNoIngredient(this);
     }
 
     @Override

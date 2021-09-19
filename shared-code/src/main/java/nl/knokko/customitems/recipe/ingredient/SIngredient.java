@@ -25,7 +25,7 @@ public abstract class SIngredient extends ModelValues {
         } else if (encoding == CUSTOM || encoding == CUSTOM_2) {
             return SCustomItemIngredient.load(input, encoding, itemSet);
         } else if (encoding == NONE) {
-            return new SNoIngredient(false);
+            return new SNoIngredient();
         } else {
             throw new UnknownEncodingException("Ingredient", encoding);
         }
@@ -44,6 +44,9 @@ public abstract class SIngredient extends ModelValues {
 
         this.remainingItem = toCopy.getRemainingItem();
     }
+
+    @Override
+    public abstract SIngredient copy(boolean mutable);
 
     protected void loadRemainingItem(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
         if (input.readBoolean()) {
