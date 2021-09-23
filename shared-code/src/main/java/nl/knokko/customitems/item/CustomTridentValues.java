@@ -129,7 +129,7 @@ public class CustomTridentValues extends CustomToolValues {
     }
 
     private void initTridentDefaults8() {
-        initToolDefaults6();
+        initToolDefaults8();
         initTridentOnlyDefaults8();
     }
 

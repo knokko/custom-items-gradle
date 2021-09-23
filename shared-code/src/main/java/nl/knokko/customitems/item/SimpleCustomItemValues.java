@@ -8,8 +8,6 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
-import java.util.ArrayList;
-
 public class SimpleCustomItemValues extends CustomItemValues {
 
     public static SimpleCustomItemValues load(
@@ -126,55 +124,79 @@ public class SimpleCustomItemValues extends CustomItemValues {
         saveExtraProperties10(output);
     }
 
-    private void initDefaults10() {
+    private void initSimpleOnlyDefaults10() {
         // Nothing to be done until the next encoding is made
     }
 
+    private void initDefaults10() {
+        initBaseDefaults10();
+        initSimpleOnlyDefaults10();
+    }
+
+    private void initSimpleOnlyDefaults9() {
+        initSimpleOnlyDefaults10();
+
+        // No simple-only properties were introduced in encoding 10
+    }
+
     private void initDefaults9() {
-        initDefaults10();
+        initBaseDefaults9();
+        initSimpleOnlyDefaults9();
+    }
 
-        this.alias = "";
+    private void initSimpleOnlyDefaults6() {
+        initSimpleOnlyDefaults9();
 
-        this.equippedEffects = new ArrayList<>();
-
-        this.replaceConditions = new ArrayList<>();
-        this.conditionOp = SReplaceCondition.ConditionOperation.NONE;
-
-        this.extraItemNbt = new SExtraItemNbt(false);
-        this.attackRange = 1f;
+        // No simple-only properties were introduced in encoding 9
     }
 
     private void initDefaults6() {
-        initDefaults9();
+        initBaseDefaults6();
+        initSimpleOnlyDefaults6();
+    }
 
-        this.playerEffects = new ArrayList<>();
-        this.targetEffects = new ArrayList<>();
+    private void initSimpleOnlyDefaults5() {
+        initSimpleOnlyDefaults6();
 
-        this.commands = new ArrayList<>();
+        // No simple-only properties were introduced in encoding 6
     }
 
     private void initDefaults5() {
-        initDefaults6();
-
-        this.itemFlags = ItemFlag.getDefaultValuesList();
+        initBaseDefaults5();
+        initSimpleOnlyDefaults5();
     }
 
-    private void initDefaults4() {
-        initDefaults5();
+    private void initSimpleOnlyDefaults4() {
+        initSimpleOnlyDefaults5();
 
         this.maxStacksize = 64;
     }
 
-    private void initDefaults2() {
-        initDefaults4();
+    private void initDefaults4() {
+        initBaseDefaults4();
+        initSimpleOnlyDefaults4();
+    }
 
-        this.defaultEnchantments = new ArrayList<>();
+    private void initSimpleOnlyDefaults2() {
+        initSimpleOnlyDefaults4();
+
+        // No simple-only properties were added in encoding 3
+    }
+
+    private void initDefaults2() {
+        initBaseDefaults2();
+        initSimpleOnlyDefaults2();
+    }
+
+    private void initSimpleOnlyDefaults1() {
+        initSimpleOnlyDefaults2();
+
+        // No simple-only properties were added in encoding 2
     }
 
     private void initDefaults1() {
-        initDefaults2();
-
-        this.attributeModifiers = new ArrayList<>();
+        initBaseDefaults1();
+        initSimpleOnlyDefaults1();
     }
 
     @Override

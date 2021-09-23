@@ -357,6 +357,75 @@ public abstract class CustomItemValues extends ModelValues {
         }
     }
 
+    protected void initBaseDefaults10() {
+        // Nothing to be done until the next encoding is known
+    }
+
+    protected void initBaseDefaults9() {
+        initBaseDefaults10();
+
+        this.alias = "";
+
+        this.equippedEffects = new ArrayList<>(0);
+
+        this.conditionOp = SReplaceCondition.ConditionOperation.NONE;
+        this.replaceConditions = new ArrayList<>(0);
+
+        this.extraItemNbt = new SExtraItemNbt(false);
+        this.attackRange = 1f;
+    }
+
+    protected void initBaseDefaults8() {
+        initBaseDefaults9();
+
+        this.playerEffects = new ArrayList<>(0);
+        this.targetEffects = new ArrayList<>(0);
+
+        this.commands = new ArrayList<>(0);
+    }
+
+    protected void initBaseDefaults7() {
+        initBaseDefaults8();
+
+        // No shared item properties were introduced in encoding 8
+    }
+
+    protected void initBaseDefaults6() {
+        initBaseDefaults7();
+
+        // No shared item properties were introduced in encoding 7
+    }
+
+    protected void initBaseDefaults5() {
+        initBaseDefaults6();
+
+        this.itemFlags = ItemFlag.getDefaultValuesList();
+    }
+
+    protected void initBaseDefaults4() {
+        initBaseDefaults5();
+
+        // No shared item properties were introduced in encoding 5
+    }
+
+    protected void initBaseDefaults3() {
+        initBaseDefaults4();
+
+        this.defaultEnchantments = new ArrayList<>(0);
+    }
+
+    protected void initBaseDefaults2() {
+        initBaseDefaults3();
+
+        // No shared item properties were introduced in encoding 3
+    }
+
+    protected void initBaseDefaults1() {
+        initBaseDefaults2();
+
+        this.attributeModifiers = new ArrayList<>();
+    }
+
     public CustomItemType getItemType() {
         return itemType;
     }

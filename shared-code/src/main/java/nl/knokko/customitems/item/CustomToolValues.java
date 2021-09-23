@@ -185,49 +185,77 @@ public class CustomToolValues extends CustomItemValues {
         saveExtraProperties10(output);
     }
 
-    protected void initToolDefaults10() {
+    protected void initToolOnlyDefaults10() {
         // Nothing to be done until the next encoding is made
     }
 
+    protected void initToolDefaults10() {
+        initBaseDefaults10();
+        initToolOnlyDefaults10();
+    }
+
+    protected void initToolOnlyDefaults9() {
+        initToolOnlyDefaults10();
+
+        // No tool-only properties were introduced in encoding 10
+    }
+
     protected void initToolDefaults9() {
-        initToolDefaults10();
+        initToolOnlyDefaults9();
+        initBaseDefaults9();
+    }
 
-        this.alias = "";
+    protected void initToolOnlyDefaults8() {
+        initToolOnlyDefaults9();
 
-        this.equippedEffects = new ArrayList<>(0);
+        // No tool-only properties were introduced in encoding 9
+    }
 
-        this.conditionOp = SReplaceCondition.ConditionOperation.NONE;
-        this.replaceConditions = new ArrayList<>(0);
+    protected void initToolDefaults8() {
+        initBaseDefaults8();
+        initToolOnlyDefaults8();
+    }
+
+    protected void initToolOnlyDefaults6() {
+        initToolDefaults8();
+
+        // No tool-only properties were introduced in encoding 8
     }
 
     protected void initToolDefaults6() {
-        initToolDefaults9();
-
-        this.playerEffects = new ArrayList<>(0);
-        this.targetEffects = new ArrayList<>(0);
-
-        this.commands = new ArrayList<>(0);
+        initBaseDefaults6();
+        initToolOnlyDefaults6();
     }
 
-    protected void initToolDefaults4() {
-        initToolDefaults6();
-
-        this.itemFlags = ItemFlag.getDefaultValuesList();
-
+    protected void initToolOnlyDefaults4() {
+        initToolOnlyDefaults6();
         this.entityHitDurabilityLoss = CustomToolDurability.defaultEntityHitDurabilityLoss(this.itemType);
         this.blockBreakDurabilityLoss = CustomToolDurability.defaultBlockBreakDurabilityLoss(this.itemType);
     }
 
-    protected void initToolDefaults3() {
-        initToolDefaults4();
+    protected void initToolDefaults4() {
+        initBaseDefaults4();
+        initToolOnlyDefaults4();
+    }
 
-        this.defaultEnchantments = new ArrayList<>(0);
+    protected void initToolOnlyDefaults3() {
+        initToolOnlyDefaults4();
+
+        // No tool-only properties were introduced in encoding 4
+    }
+
+    protected void initToolDefaults3() {
+        initBaseDefaults3();
+        initToolOnlyDefaults3();
+    }
+
+    protected void initToolOnlyDefaults2() {
+        this.repairItem = new SNoIngredient();
     }
 
     protected void initToolDefaults2() {
-        initToolDefaults3();
-
-        this.repairItem = new SNoIngredient();
+        initBaseDefaults2();
+        initToolOnlyDefaults2();
     }
 
     protected void saveToolOnlyPropertiesA4(BitOutput output) {
