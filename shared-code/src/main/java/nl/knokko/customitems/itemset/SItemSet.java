@@ -72,6 +72,14 @@ public class SItemSet {
         }
     }
 
+    public BlockReference getBlockReference(int blockID) throws NoSuchElementException {
+        if (finishedLoading) {
+            return new BlockReference(CollectionHelper.find(blocks, block -> block.getValues().getInternalID(), blockID).get());
+        } else {
+            return new BlockReference(blockID, this);
+        }
+    }
+
     public Optional<BaseTextureValues> getTexture(String textureName) {
         return CollectionHelper.find(textures, texture -> texture.getValues().getName(), textureName).map(CustomTexture::getValues);
     }
