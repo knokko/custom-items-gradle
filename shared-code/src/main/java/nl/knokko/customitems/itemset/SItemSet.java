@@ -4,6 +4,8 @@ import nl.knokko.customitems.block.*;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomItemsView;
 import nl.knokko.customitems.item.SCustomItem;
+import nl.knokko.customitems.projectile.CustomProjectileValues;
+import nl.knokko.customitems.projectile.SCustomProjectile;
 import nl.knokko.customitems.texture.BaseTextureValues;
 import nl.knokko.customitems.texture.CustomTexture;
 import nl.knokko.customitems.texture.CustomTexturesView;
@@ -19,6 +21,7 @@ public class SItemSet {
     Collection<CustomTexture> textures;
     Collection<SCustomItem> items;
     Collection<CustomBlock> blocks;
+    Collection<SCustomProjectile> projectiles;
 
     Collection<String> removedItemNames;
 
@@ -34,6 +37,7 @@ public class SItemSet {
         textures = new ArrayList<>();
         items = new ArrayList<>();
         blocks = new ArrayList<>();
+        projectiles = new ArrayList<>();
 
         removedItemNames = new ArrayList<>();
 
@@ -80,6 +84,14 @@ public class SItemSet {
         }
     }
 
+    public ProjectileReference getProjectileReference(String projectileName) throws NoSuchElementException {
+        if (finishedLoading) {
+            return new ProjectileReference(CollectionHelper.find(projectiles, projectile -> projectile.getValues().getName(), projectileName).get());
+        } else {
+            return new ProjectileReference(projectileName, this);
+        }
+    }
+
     public Optional<BaseTextureValues> getTexture(String textureName) {
         return CollectionHelper.find(textures, texture -> texture.getValues().getName(), textureName).map(CustomTexture::getValues);
     }
@@ -94,6 +106,10 @@ public class SItemSet {
 
     public Optional<CustomBlockValues> getBlock(String blockName) {
         return CollectionHelper.find(blocks, block -> block.getValues().getName(), blockName).map(CustomBlock::getValues);
+    }
+
+    public Optional<CustomProjectileValues> getProjectile(String projectileName) {
+        return CollectionHelper.find(projectiles, projectile -> projectile.getValues().getName(), projectileName).map(SCustomProjectile::getValues);
     }
 
     private <T> boolean isReferenceValid(Collection<T> collection, T model) {
@@ -111,6 +127,10 @@ public class SItemSet {
 
     public boolean isReferenceValid(BlockReference reference) {
         return isReferenceValid(blocks, reference.model);
+    }
+
+    public boolean isReferenceValid(ProjectileReference reference) {
+        return isReferenceValid(projectiles, reference.model);
     }
 
     public boolean hasItemBeenDeleted(String itemName) {
