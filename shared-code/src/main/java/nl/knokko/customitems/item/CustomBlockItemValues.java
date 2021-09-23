@@ -21,6 +21,7 @@ public class CustomBlockItemValues extends CustomItemValues {
 
         if (encoding == ItemEncoding.ENCODING_BLOCK_ITEM_10) {
             result.load10(input, itemSet);
+            result.initDefaults10();
         } else {
             throw new UnknownEncodingException("CustomBlockItem", encoding);
         }
@@ -63,6 +64,15 @@ public class CustomBlockItemValues extends CustomItemValues {
     private void loadBlockOnlyProperties10(BitInput input, SItemSet itemSet) {
         this.block = itemSet.getBlockReference(input.readInt());
         this.maxStacksize = (byte) input.readInt();
+    }
+
+    private void initDefaults10() {
+        initBaseDefaults10();
+        initBlockItemOnlyDefaults10();
+    }
+
+    private void initBlockItemOnlyDefaults10() {
+        // Nothing to be done until the next encoding is out
     }
 
     @Override
