@@ -189,7 +189,7 @@ public class CustomWandValues extends CustomItemValues {
 
     public void setCharges(WandChargeValues newCharges) {
         assertMutable();
-        this.charges = newCharges;
+        this.charges = newCharges.copy(false);
     }
 
     public void setAmountPerShot(int newAmountPerShot) {
