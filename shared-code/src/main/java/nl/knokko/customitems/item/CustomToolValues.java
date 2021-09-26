@@ -21,25 +21,25 @@ public class CustomToolValues extends CustomItemValues {
         // Note: it doesn't really matter which CustomItemType is used since it will be overwritten anyway
         CustomToolValues result = new CustomToolValues(false, CustomItemType.IRON_PICKAXE);
 
-        // TODO Handle the custom hoe/shears case that are 'upgraded to another encoding'
+        // TODO Handle the custom shears case that are 'upgraded to another encoding'
 
         if (encoding == ItemEncoding.ENCODING_TOOL_2) {
-            result.load2(input);
+            result.loadTool2(input);
             result.initToolDefaults2();
         } else if (encoding == ItemEncoding.ENCODING_TOOL_3) {
-            result.load3(input, itemSet);
+            result.loadTool3(input, itemSet);
             result.initToolDefaults3();
         } else if (encoding == ItemEncoding.ENCODING_TOOL_4) {
-            result.load4(input, itemSet);
+            result.loadTool4(input, itemSet);
             result.initToolDefaults4();
         } else if (encoding == ItemEncoding.ENCODING_TOOL_6) {
-            result.load6(input, itemSet);
+            result.loadTool6(input, itemSet);
             result.initToolDefaults6();
         } else if (encoding == ItemEncoding.ENCODING_TOOL_9) {
-            result.load9(input, itemSet);
+            result.loadTool9(input, itemSet);
             result.initToolDefaults9();
         } else if (encoding == ItemEncoding.ENCODING_TOOL_10) {
-            result.load10(input, itemSet);
+            result.loadTool10(input, itemSet);
             result.initToolDefaults10();
         } else {
             throw new UnknownEncodingException("CustomTool", encoding);
@@ -47,6 +47,11 @@ public class CustomToolValues extends CustomItemValues {
 
         if (itemSet.getSide() == SItemSet.Side.EDITOR) {
             result.loadEditorOnlyProperties1(input, itemSet, checkModel);
+        }
+
+        // Handle the case where a custom hoe was created before custom hoes had their own class
+        if (result.itemType.canServe(CustomItemType.Category.HOE)) {
+            return new CustomHoeValues(result, 1, false);
         }
 
         return result;
@@ -85,40 +90,40 @@ public class CustomToolValues extends CustomItemValues {
         this.blockBreakDurabilityLoss = toCopy.getBlockBreakDurabilityLoss();
     }
 
-    private void load2(BitInput input) {
+    protected void loadTool2(BitInput input) {
         loadIdentityProperties1(input);
         loadTextDisplayProperties1(input);
         loadVanillaBasedPowers2(input);
         loadToolOnlyPropertiesA2(input);
     }
 
-    private void load3(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    protected void loadTool3(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
         loadIdentityProperties1(input);
         loadTextDisplayProperties1(input);
         loadVanillaBasedPowers2(input);
         loadToolOnlyPropertiesA3(input, itemSet);
     }
 
-    private void load4(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    protected void loadTool4(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
         loadIdentityProperties1(input);
         loadTextDisplayProperties1(input);
         loadVanillaBasedPowers4(input);
         loadToolOnlyPropertiesA4(input, itemSet);
     }
 
-    private void load6(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
-        load4(input, itemSet);
+    protected void loadTool6(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+        loadTool4(input, itemSet);
         loadItemFlags6(input);
         loadToolOnlyPropertiesB6(input);
     }
 
-    private void load9(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
-        load6(input, itemSet);
+    protected void loadTool9(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+        loadTool6(input, itemSet);
         loadPotionProperties9(input);
         loadRightClickProperties9(input);
     }
 
-    private void load10(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    protected void loadTool10(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
         loadIdentityProperties10(input);
         loadTextDisplayProperties1(input);
         loadVanillaBasedPowers4(input);
