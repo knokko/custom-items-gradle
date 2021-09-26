@@ -357,6 +357,16 @@ public abstract class CustomItemValues extends ModelValues {
         }
     }
 
+    protected void loadBase10(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+        loadIdentityProperties10(input);
+        loadTextDisplayProperties1(input);
+        loadVanillaBasedPowers4(input);
+        loadItemFlags6(input);
+        loadPotionProperties10(input);
+        loadRightClickProperties10(input, itemSet);
+        loadExtraProperties10(input);
+    }
+
     protected void saveBase10(BitOutput output) {
         saveIdentityProperties10(output);
         saveTextDisplayProperties1(output);

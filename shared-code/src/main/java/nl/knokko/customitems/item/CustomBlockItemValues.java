@@ -51,13 +51,7 @@ public class CustomBlockItemValues extends CustomItemValues {
     }
 
     private void load10(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
-        loadIdentityProperties10(input);
-        loadTextDisplayProperties1(input);
-        loadVanillaBasedPowers4(input);
-        loadItemFlags6(input);
-        loadPotionProperties10(input);
-        loadRightClickProperties10(input, itemSet);
-        loadExtraProperties10(input);
+        loadBase10(input, itemSet);
         loadBlockOnlyProperties10(input, itemSet);
     }
 
