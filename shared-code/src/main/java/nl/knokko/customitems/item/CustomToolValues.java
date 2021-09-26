@@ -54,6 +54,11 @@ public class CustomToolValues extends CustomItemValues {
             return new CustomHoeValues(result, 1, false);
         }
 
+        // Handle the case where a custom shears was created before custom shears had their own class
+        if (result.itemType == CustomItemType.SHEARS) {
+            return new CustomShearsValues(result, 1, false);
+        }
+
         return result;
     }
 
