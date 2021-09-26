@@ -505,7 +505,7 @@ public abstract class CustomItemValues extends ModelValues {
     }
 
     public byte[] getCustomModel() {
-        return Arrays.copyOf(customModel, customModel.length);
+        return CollectionHelper.arrayCopy(customModel);
     }
 
     public void setItemType(CustomItemType newItemType) {
@@ -616,7 +616,7 @@ public abstract class CustomItemValues extends ModelValues {
 
     public void setCustomModel(byte[] newModel) {
         assertMutable();
-        this.customModel = newModel;
+        this.customModel = CollectionHelper.arrayCopy(newModel);
     }
 
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {

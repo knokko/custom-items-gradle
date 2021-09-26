@@ -3,10 +3,13 @@ package nl.knokko.customitems.item;
 import nl.knokko.customitems.encoding.ItemEncoding;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
+import nl.knokko.customitems.util.CollectionHelper;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
+
+import java.util.Arrays;
 
 public class CustomTridentValues extends CustomToolValues {
 
@@ -217,11 +220,11 @@ public class CustomTridentValues extends CustomToolValues {
     }
 
     public byte[] getCustomInHandModel() {
-        return customInHandModel;
+        return CollectionHelper.arrayCopy(customInHandModel);
     }
 
     public byte[] getCustomThrowingModel() {
-        return customThrowingModel;
+        return CollectionHelper.arrayCopy(customThrowingModel);
     }
 
     public void setThrowDurabilityLoss(int newThrowDurabilityLoss) {
@@ -241,12 +244,12 @@ public class CustomTridentValues extends CustomToolValues {
 
     public void setCustomInHandModel(byte[] newInHandModel) {
         assertMutable();
-        this.customInHandModel = newInHandModel;
+        this.customInHandModel = CollectionHelper.arrayCopy(newInHandModel);
     }
 
     public void setCustomThrowingModel(byte[] newThrowingModel) {
         assertMutable();
-        this.customThrowingModel = newThrowingModel;
+        this.customThrowingModel = CollectionHelper.arrayCopy(newThrowingModel);
     }
 
     @Override
