@@ -1,6 +1,8 @@
 package nl.knokko.customitems.itemset;
 
 import nl.knokko.customitems.block.*;
+import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.container.SCustomContainer;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomItemsView;
 import nl.knokko.customitems.item.SCustomItem;
@@ -21,6 +23,7 @@ public class SItemSet {
     Collection<CustomTexture> textures;
     Collection<SCustomItem> items;
     Collection<CustomBlock> blocks;
+    Collection<SCustomContainer> containers;
     Collection<SCustomProjectile> projectiles;
 
     Collection<String> removedItemNames;
@@ -37,6 +40,7 @@ public class SItemSet {
         textures = new ArrayList<>();
         items = new ArrayList<>();
         blocks = new ArrayList<>();
+        containers = new ArrayList<>();
         projectiles = new ArrayList<>();
 
         removedItemNames = new ArrayList<>();
@@ -84,6 +88,14 @@ public class SItemSet {
         }
     }
 
+    public ContainerReference getContainerReference(String containerName) throws NoSuchElementException {
+        if (finishedLoading) {
+            return new ContainerReference(CollectionHelper.find(containers, container -> container.getValues().getName(), containerName).get());
+        } else {
+            return new ContainerReference(containerName, this);
+        }
+    }
+
     public ProjectileReference getProjectileReference(String projectileName) throws NoSuchElementException {
         if (finishedLoading) {
             return new ProjectileReference(CollectionHelper.find(projectiles, projectile -> projectile.getValues().getName(), projectileName).get());
@@ -108,6 +120,10 @@ public class SItemSet {
         return CollectionHelper.find(blocks, block -> block.getValues().getName(), blockName).map(CustomBlock::getValues);
     }
 
+    public Optional<CustomContainerValues> getContainer(String containerName) {
+        return CollectionHelper.find(containers, container -> container.getValues().getName(), containerName).map(SCustomContainer::getValues);
+    }
+
     public Optional<CustomProjectileValues> getProjectile(String projectileName) {
         return CollectionHelper.find(projectiles, projectile -> projectile.getValues().getName(), projectileName).map(SCustomProjectile::getValues);
     }
@@ -127,6 +143,10 @@ public class SItemSet {
 
     public boolean isReferenceValid(BlockReference reference) {
         return isReferenceValid(blocks, reference.model);
+    }
+
+    public boolean isReferenceValid(ContainerReference reference) {
+        return isReferenceValid(containers, reference.model);
     }
 
     public boolean isReferenceValid(ProjectileReference reference) {
