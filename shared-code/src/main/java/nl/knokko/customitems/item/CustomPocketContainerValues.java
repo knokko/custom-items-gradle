@@ -72,13 +72,7 @@ public class CustomPocketContainerValues extends CustomItemValues {
     }
 
     private void save10(BitOutput output) {
-        saveIdentityProperties10(output);
-        saveTextDisplayProperties1(output);
-        saveVanillaBasedPowers4(output);
-        saveItemFlags6(output);
-        savePotionProperties10(output);
-        saveRightClickProperties10(output);
-        saveExtraProperties10(output);
+        saveBase10(output);
         savePocketContainerOnlyProperties10(output);
     }
 

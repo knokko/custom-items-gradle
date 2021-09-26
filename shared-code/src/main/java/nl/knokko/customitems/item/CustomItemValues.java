@@ -357,6 +357,16 @@ public abstract class CustomItemValues extends ModelValues {
         }
     }
 
+    protected void saveBase10(BitOutput output) {
+        saveIdentityProperties10(output);
+        saveTextDisplayProperties1(output);
+        saveVanillaBasedPowers4(output);
+        saveItemFlags6(output);
+        savePotionProperties10(output);
+        saveRightClickProperties10(output);
+        saveExtraProperties10(output);
+    }
+
     protected void initBaseDefaults10() {
         // Nothing to be done until the next encoding is known
     }
