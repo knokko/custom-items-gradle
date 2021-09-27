@@ -8,9 +8,7 @@ import nl.knokko.customitems.item.CustomItemsView;
 import nl.knokko.customitems.item.SCustomItem;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 import nl.knokko.customitems.projectile.SCustomProjectile;
-import nl.knokko.customitems.texture.BaseTextureValues;
-import nl.knokko.customitems.texture.CustomTexture;
-import nl.knokko.customitems.texture.CustomTexturesView;
+import nl.knokko.customitems.texture.*;
 import nl.knokko.customitems.util.*;
 
 import java.util.ArrayList;
@@ -21,6 +19,7 @@ import java.util.Optional;
 public class SItemSet {
 
     Collection<CustomTexture> textures;
+    Collection<ArmorTexture> armorTextures;
     Collection<SCustomItem> items;
     Collection<CustomBlock> blocks;
     Collection<SCustomContainer> containers;
@@ -38,6 +37,7 @@ public class SItemSet {
 
     public void initialize() {
         textures = new ArrayList<>();
+        armorTextures = new ArrayList<>();
         items = new ArrayList<>();
         blocks = new ArrayList<>();
         containers = new ArrayList<>();
@@ -69,6 +69,14 @@ public class SItemSet {
             return new TextureReference(CollectionHelper.find(textures, texture -> texture.getValues().getName(), textureName).get());
         } else {
             return new TextureReference(textureName, this);
+        }
+    }
+
+    public ArmorTextureReference getArmorTextureReference(String textureName) throws NoSuchElementException {
+        if (finishedLoading) {
+            return new ArmorTextureReference(CollectionHelper.find(armorTextures, texture -> texture.getValues().getName(), textureName).get());
+        } else {
+            return new ArmorTextureReference(textureName, this);
         }
     }
 
@@ -108,6 +116,10 @@ public class SItemSet {
         return CollectionHelper.find(textures, texture -> texture.getValues().getName(), textureName).map(CustomTexture::getValues);
     }
 
+    public Optional<ArmorTextureValues> getArmorTexture(String textureName) {
+        return CollectionHelper.find(armorTextures, texture -> texture.getValues().getName(), textureName).map(ArmorTexture::getValues);
+    }
+
     public Optional<CustomItemValues> getItem(String itemName) {
         return CollectionHelper.find(items, item -> item.getValues().getName(), itemName).map(SCustomItem::getValues);
     }
@@ -135,6 +147,10 @@ public class SItemSet {
 
     public boolean isReferenceValid(TextureReference reference) {
         return isReferenceValid(textures, reference.model);
+    }
+
+    public boolean isReferenceValid(ArmorTextureReference reference) {
+        return isReferenceValid(armorTextures, reference.model);
     }
 
     public boolean isReferenceValid(ItemReference reference) {

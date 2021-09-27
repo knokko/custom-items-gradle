@@ -77,7 +77,7 @@ public class ItemEncoding {
 	public static final byte ENCODING_BOW_6 = 12;
 	
 	/**
-	 * Add support for item flags and durability loss for entity attacking, block breaking and getting attacked
+	 * Add support for item flags and durability loss for entity attacking and block breaking
 	 */
 	public static final byte ENCODING_ARMOR_6 = 13;
 	
