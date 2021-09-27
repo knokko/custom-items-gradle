@@ -136,13 +136,13 @@ public class CustomArmorValues extends CustomToolValues {
         this.attackRange = input.readFloat();
     }
 
-    private void load10(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    protected void load10(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
         loadPre10(input, itemSet);
         this.damageResistances = SDamageResistances.load14(input);
         loadPost10(input, itemSet);
     }
 
-    private void load11(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    protected void load11(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
         loadPre10(input, itemSet);
         this.damageResistances = SDamageResistances.load17(input);
         loadPost10(input, itemSet);
@@ -229,7 +229,7 @@ public class CustomArmorValues extends CustomToolValues {
         // No new armor-only properties were introduced in encoding 10
     }
 
-    private void initDefaults10() {
+    protected void initDefaults10() {
         initToolDefaults10();
         initArmorOnlyDefaults10();
     }
@@ -239,7 +239,7 @@ public class CustomArmorValues extends CustomToolValues {
         // Minecraft 1.17 damage sources were added, but this is already taken care off in (S)DamageResistances
     }
 
-    private void initDefaults11() {
+    protected void initDefaults11() {
         // Call initToolDefaultsXX once it is made
         initArmorOnlyDefaults11();
     }
