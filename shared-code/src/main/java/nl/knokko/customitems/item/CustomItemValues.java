@@ -12,11 +12,66 @@ import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import static nl.knokko.customitems.encoding.ItemEncoding.*;
+
 public abstract class CustomItemValues extends ModelValues {
+
+    public static CustomItemValues load(
+            BitInput input, SItemSet itemSet, boolean checkCustomModel
+    ) throws UnknownEncodingException {
+        byte encoding = input.readByte();
+
+        if (
+                encoding == ENCODING_ARMOR_4 || encoding == ENCODING_ARMOR_6 || encoding == ENCODING_ARMOR_7
+                || encoding == ENCODING_ARMOR_8 || encoding == ENCODING_ARMOR_9 || encoding == ENCODING_ARMOR_10
+                || encoding == ENCODING_ARMOR_11
+        ) {
+            return CustomArmorValues.load(input, encoding, itemSet, checkCustomModel);
+        } else if (encoding == ENCODING_BLOCK_ITEM_10) {
+            return CustomBlockItemValues.load(input, encoding, itemSet);
+        } else if (
+                encoding == ENCODING_BOW_3 || encoding == ENCODING_BOW_4 || encoding == ENCODING_BOW_6
+                || encoding == ENCODING_BOW_9 || encoding == ENCODING_BOW_10
+        ) {
+            return CustomBowValues.load(input, encoding, itemSet, checkCustomModel);
+        } else if (encoding == ENCODING_CROSSBOW_10) {
+            return CustomCrossbowValues.load(input, encoding, itemSet);
+        } else if (encoding == ENCODING_FOOD_10) {
+            return CustomFoodValues.load(input, encoding, itemSet);
+        } else if (encoding == ENCODING_GUN_10) {
+            return CustomGunValues.load(input, encoding, itemSet);
+        } else if (encoding == ENCODING_HELMET3D_10 || encoding == ENCODING_HELMET3D_11) {
+            return CustomGunValues.load(input, encoding, itemSet);
+        } else if (encoding == ENCODING_HOE_6 || encoding == ENCODING_HOE_9 || encoding == ENCODING_HOE_10) {
+            return CustomHoeValues.load(input, encoding, itemSet, checkCustomModel);
+        } else if (encoding == ENCODING_POCKET_CONTAINER_10) {
+            return CustomPocketContainerValues.load(input, encoding, itemSet);
+        } else if (encoding == ENCODING_SHEAR_6 || encoding == ENCODING_SHEAR_9 || encoding == ENCODING_SHEAR_10) {
+            return CustomShearsValues.load(input, encoding, itemSet, checkCustomModel);
+        } else if (encoding == ENCODING_SHIELD_7 || encoding == ENCODING_SHIELD_9 || encoding == ENCODING_SHIELD_10) {
+            return CustomShieldValues.load(input, encoding, itemSet);
+        } else if (
+                encoding == ENCODING_TOOL_2 || encoding == ENCODING_TOOL_3 || encoding == ENCODING_TOOL_4
+                || encoding == ENCODING_TOOL_6 || encoding == ENCODING_TOOL_9 || encoding == ENCODING_TOOL_10
+        ) {
+            return CustomToolValues.load(input, encoding, itemSet, checkCustomModel);
+        } else if (encoding == ENCODING_TRIDENT_8 || encoding == ENCODING_TRIDENT_9 || encoding == ENCODING_TRIDENT_10) {
+            return CustomTridentValues.load(input, encoding, itemSet);
+        } else if (encoding == ENCODING_WAND_9 || encoding == ENCODING_WAND_10) {
+            return CustomWandValues.load(input, encoding, itemSet);
+        } else if (
+                encoding == ENCODING_SIMPLE_1 || encoding == ENCODING_SIMPLE_2 || encoding == ENCODING_SIMPLE_4
+                || encoding == ENCODING_SIMPLE_5 || encoding == ENCODING_SIMPLE_6 || encoding == ENCODING_SIMPLE_9
+                || encoding == ENCODING_SIMPLE_10
+        ) {
+            return SimpleCustomItemValues.load(input, encoding, itemSet, checkCustomModel);
+        } else {
+            throw new UnknownEncodingException("CustomItem", encoding);
+        }
+    }
 
     // Identity properties
     protected CustomItemType itemType;
