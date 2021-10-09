@@ -33,6 +33,9 @@ public abstract class SResult extends ModelValues  {
 
     public abstract SResult copy(boolean mutable);
 
+    @Override
+    public abstract String toString();
+
     protected byte loadAmount(BitInput input) {
         return (byte) (1 + input.readNumber((byte) 6, false));
     }

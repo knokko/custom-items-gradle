@@ -48,6 +48,8 @@ public abstract class SIngredient extends ModelValues {
     @Override
     public abstract SIngredient copy(boolean mutable);
 
+    public abstract boolean conflictsWith(SIngredient other);
+
     protected void loadRemainingItem(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
         if (input.readBoolean()) {
             this.remainingItem = SResult.load(input, itemSet);

@@ -53,6 +53,12 @@ public class SCustomItemResult extends SResult {
     }
 
     @Override
+    public String toString() {
+        String amountString = amount == 1 ? "" : (" x " + amount);
+        return item.get().getName() + amountString;
+    }
+
+    @Override
     public void save(BitOutput output) {
         output.addByte(RecipeEncoding.Result.CUSTOM);
         save1(output);

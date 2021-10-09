@@ -15,6 +15,11 @@ public class SNoIngredient extends SIngredient {
     }
 
     @Override
+    public boolean conflictsWith(SIngredient other) {
+        return other instanceof SNoIngredient;
+    }
+
+    @Override
     public SNoIngredient copy(boolean mutable) {
         return new SNoIngredient(this);
     }

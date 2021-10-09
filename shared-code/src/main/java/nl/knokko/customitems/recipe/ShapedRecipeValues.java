@@ -1,17 +1,38 @@
 package nl.knokko.customitems.recipe;
 
+import nl.knokko.customitems.encoding.RecipeEncoding;
+import nl.knokko.customitems.itemset.CraftingRecipeReference;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.recipe.ingredient.SIngredient;
 import nl.knokko.customitems.recipe.ingredient.SNoIngredient;
+import nl.knokko.customitems.recipe.result.SResult;
+import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.Validation;
 import nl.knokko.customitems.util.ValidationException;
+import nl.knokko.util.bits.BitInput;
+import nl.knokko.util.bits.BitOutput;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 public class ShapedRecipeValues extends CraftingRecipeValues {
 
-    private SIngredient[] ingredients;
+    static ShapedRecipeValues load(
+            BitInput input, byte encoding, SItemSet itemSet
+    ) throws UnknownEncodingException {
+        ShapedRecipeValues result = new ShapedRecipeValues(false);
+
+        if (encoding == RecipeEncoding.SHAPED_RECIPE) {
+            result.load1(input, itemSet);
+        } else {
+            throw new UnknownEncodingException("ShapedCraftingRecipe", encoding);
+        }
+
+        return result;
+    }
+
+    private final SIngredient[] ingredients;
 
     public ShapedRecipeValues(boolean mutable) {
         super(mutable);
@@ -26,6 +47,22 @@ public class ShapedRecipeValues extends CraftingRecipeValues {
         this.ingredients = new SIngredient[9];
         for (int index = 0; index < 9; index++) {
             this.ingredients[index] = toCopy.ingredients[index].copy(false);
+        }
+    }
+
+    private void load1(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+        this.result = SResult.load(input, itemSet);
+        for (int index = 0; index < 9; index++) {
+            this.ingredients[index] = SIngredient.load(input, itemSet);
+        }
+    }
+
+    @Override
+    public void save(BitOutput output) {
+        output.addByte(RecipeEncoding.SHAPED_RECIPE);
+        result.save(output);
+        for (SIngredient ingredient : ingredients) {
+            ingredient.save(output);
         }
     }
 
@@ -51,7 +88,7 @@ public class ShapedRecipeValues extends CraftingRecipeValues {
     }
 
     @Override
-    public void validate(SItemSet itemSet, RecipeReference selfReference) throws ValidationException, ProgrammingValidationException {
+    public void validate(SItemSet itemSet, CraftingRecipeReference selfReference) throws ValidationException, ProgrammingValidationException {
         super.validate(itemSet, selfReference);
 
         if (ingredients == null) throw new ProgrammingValidationException("No ingredients");
@@ -63,6 +100,36 @@ public class ShapedRecipeValues extends CraftingRecipeValues {
             }
         }
 
-        // TODO Check for conflicts
+        boolean isEmpty = true;
+        for (SIngredient ingredient : ingredients) {
+            if (!(ingredient instanceof SNoIngredient)) {
+                isEmpty = false;
+                break;
+            }
+        }
+        if (isEmpty) {
+            throw new ValidationException("You need at least 1 ingredient");
+        }
+
+        for (CraftingRecipeReference otherReference : itemSet.getCraftingRecipeReferences().collect(Collectors.toList())) {
+            if (selfReference == null || !selfReference.equals(otherReference)) {
+                CraftingRecipeValues otherRecipe = otherReference.get();
+                if (otherRecipe instanceof ShapedRecipeValues) {
+
+                    SIngredient[] otherIngredients = ((ShapedRecipeValues) otherRecipe).ingredients;
+                    boolean conflicts = true;
+                    for (int index = 0; index < 9; index++) {
+                        if (!this.ingredients[index].conflictsWith(otherIngredients[index])) {
+                            conflicts = false;
+                            break;
+                        }
+                    }
+
+                    if (conflicts) {
+                        throw new ValidationException("Conflict with recipe for " + otherRecipe.getResult());
+                    }
+                }
+            }
+        }
     }
 }

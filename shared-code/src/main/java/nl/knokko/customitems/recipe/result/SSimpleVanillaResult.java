@@ -42,6 +42,11 @@ public class SSimpleVanillaResult extends SResult {
     }
 
     @Override
+    public String toString() {
+        return material + (amount == 1 ? "" : " x " + amount);
+    }
+
+    @Override
     public SSimpleVanillaResult copy(boolean mutable) {
         return new SSimpleVanillaResult(this, mutable);
     }

@@ -47,6 +47,18 @@ public class SDataVanillaIngredient extends SIngredient {
     }
 
     @Override
+    public boolean conflictsWith(SIngredient other) {
+        if (other instanceof SDataVanillaIngredient) {
+            SDataVanillaIngredient otherIngredient = (SDataVanillaIngredient) other;
+            return this.material == otherIngredient.material && this.dataValue == otherIngredient.dataValue;
+        } else if (other instanceof SSimpleVanillaIngredient) {
+            return this.material == ((SSimpleVanillaIngredient) other).getMaterial();
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public SDataVanillaIngredient copy(boolean mutable) {
         return new SDataVanillaIngredient(this, mutable);
     }
@@ -114,6 +126,7 @@ public class SDataVanillaIngredient extends SIngredient {
         if (amount > 64) throw new ValidationException("Amount can be at most 64");
 
         if (material == null) throw new ValidationException("You must choose a material");
+        if (material == CIMaterial.AIR) throw new ValidationException("Air is not allowed");
 
         if (dataValue < 0) throw new ValidationException("Data value can't be negative");
         if (dataValue > 15) throw new ValidationException("Data value can be at most 15");

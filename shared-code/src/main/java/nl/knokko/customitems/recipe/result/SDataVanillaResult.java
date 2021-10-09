@@ -45,6 +45,12 @@ public class SDataVanillaResult extends SResult {
     }
 
     @Override
+    public String toString() {
+        String amountString = amount == 1 ? "" : (" x " + amount);
+        return material + "[" + data + "]" + amountString;
+    }
+
+    @Override
     public SDataVanillaResult copy(boolean mutable) {
         return new SDataVanillaResult(this, mutable);
     }

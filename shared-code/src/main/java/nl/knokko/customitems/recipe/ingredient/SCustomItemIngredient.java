@@ -62,6 +62,15 @@ public class SCustomItemIngredient extends SIngredient {
         save2(output);
     }
 
+    @Override
+    public boolean conflictsWith(SIngredient other) {
+        if (other instanceof SCustomItemIngredient) {
+            return this.item.equals(((SCustomItemIngredient) other).item);
+        } else {
+            return false;
+        }
+    }
+
     private void save2(BitOutput output) {
         output.addByte(amount);
         saveRemainingItem(output);

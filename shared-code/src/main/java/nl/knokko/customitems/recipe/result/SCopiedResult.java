@@ -39,6 +39,11 @@ public class SCopiedResult extends SResult {
     }
 
     @Override
+    public String toString() {
+        return "copied item";
+    }
+
+    @Override
     public SCopiedResult copy(boolean mutable) {
         return new SCopiedResult(this, mutable);
     }

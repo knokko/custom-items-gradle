@@ -8,6 +8,8 @@ import nl.knokko.customitems.item.CustomItemsView;
 import nl.knokko.customitems.item.SCustomItem;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 import nl.knokko.customitems.projectile.SCustomProjectile;
+import nl.knokko.customitems.recipe.CustomCraftingRecipe;
+import nl.knokko.customitems.recipe.CustomRecipesView;
 import nl.knokko.customitems.texture.*;
 import nl.knokko.customitems.util.*;
 
@@ -15,12 +17,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public class SItemSet {
 
     Collection<CustomTexture> textures;
     Collection<ArmorTexture> armorTextures;
     Collection<SCustomItem> items;
+    Collection<CustomCraftingRecipe> craftingRecipes;
     Collection<CustomBlock> blocks;
     Collection<SCustomContainer> containers;
     Collection<SCustomProjectile> projectiles;
@@ -39,6 +43,7 @@ public class SItemSet {
         textures = new ArrayList<>();
         armorTextures = new ArrayList<>();
         items = new ArrayList<>();
+        craftingRecipes = new ArrayList<>();
         blocks = new ArrayList<>();
         containers = new ArrayList<>();
         projectiles = new ArrayList<>();
@@ -58,6 +63,14 @@ public class SItemSet {
 
     public CustomItemsView getItems() {
         return new CustomItemsView(items);
+    }
+
+    public CustomRecipesView getCraftingRecipes() {
+        return new CustomRecipesView(craftingRecipes);
+    }
+
+    public Stream<CraftingRecipeReference> getCraftingRecipeReferences() {
+        return craftingRecipes.stream().map(CraftingRecipeReference::new);
     }
 
     public CustomBlocksView getBlocks() {
@@ -184,6 +197,12 @@ public class SItemSet {
             Validation.scope(
                     "Item " + item.getValues().getName(),
                     () -> item.getValues().validateComplete(this, item.getValues().getName())
+            );
+        }
+        for (CustomCraftingRecipe recipe : craftingRecipes) {
+            Validation.scope(
+                    "Recipe for " + recipe.getValues().getResult().toString(),
+                    () -> recipe.getValues().validate(this, new CraftingRecipeReference(recipe))
             );
         }
         for (CustomBlock block : blocks) {
