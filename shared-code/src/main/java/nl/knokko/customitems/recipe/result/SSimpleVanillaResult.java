@@ -27,14 +27,14 @@ public class SSimpleVanillaResult extends SResult {
     private byte amount;
     private CIMaterial material;
 
-    SSimpleVanillaResult(boolean mutable) {
+    public SSimpleVanillaResult(boolean mutable) {
         super(mutable);
 
         this.amount = 1;
         this.material = null;
     }
 
-    SSimpleVanillaResult(SSimpleVanillaResult toCopy, boolean mutable) {
+    public SSimpleVanillaResult(SSimpleVanillaResult toCopy, boolean mutable) {
         super(mutable);
 
         this.amount = toCopy.getAmount();
