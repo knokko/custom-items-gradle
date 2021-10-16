@@ -28,14 +28,14 @@ public class SCustomItemResult extends SResult {
     private byte amount;
     private ItemReference item;
 
-    SCustomItemResult(boolean mutable) {
+    public SCustomItemResult(boolean mutable) {
         super(mutable);
 
         this.amount = 1;
         this.item = null;
     }
 
-    SCustomItemResult(SCustomItemResult toCopy, boolean mutable) {
+    public SCustomItemResult(SCustomItemResult toCopy, boolean mutable) {
         super(mutable);
 
         this.amount = toCopy.getAmount();

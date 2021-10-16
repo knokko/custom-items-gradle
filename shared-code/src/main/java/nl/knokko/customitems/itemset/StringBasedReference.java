@@ -52,6 +52,14 @@ abstract class StringBasedReference<M extends Model<V>, V extends ModelValues> {
     abstract String extractIdentity(V values);
 
     public V get() {
+        M foundModel = getModel();
+        if (foundModel == null) {
+            throw new RuntimeException("Can't find " + getDescription() + " with name " + name);
+        }
+        return foundModel.getValues();
+    }
+
+    M getModel() {
         if (model == null) {
             if (!itemSet.finishedLoading) {
                 throw new IllegalStateException("Attempted to load " + getDescription() + name + " before the item set finished loading");
@@ -62,11 +70,11 @@ abstract class StringBasedReference<M extends Model<V>, V extends ModelValues> {
             if (foundModel.isPresent()) {
                 model = foundModel.get();
             } else {
-                throw new RuntimeException("Can't find " + getDescription() + " with name " + name);
+                return null;
             }
             name = null;
             itemSet = null;
         }
-        return model.getValues();
+        return model;
     }
 }

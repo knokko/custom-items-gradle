@@ -2,12 +2,14 @@ package nl.knokko.customitems.itemset;
 
 import nl.knokko.customitems.model.Model;
 import nl.knokko.customitems.model.ModelValues;
+import nl.knokko.customitems.util.Checks;
 
 abstract class UnstableReference<M extends Model<V>, V extends ModelValues> {
 
     final M model;
 
     UnstableReference(M model) {
+        Checks.notNull(model);
         this.model = model;
     }
 
@@ -27,5 +29,9 @@ abstract class UnstableReference<M extends Model<V>, V extends ModelValues> {
 
     public V get() {
         return model.getValues();
+    }
+
+    M getModel() {
+        return model;
     }
 }

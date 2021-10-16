@@ -1,5 +1,6 @@
 package nl.knokko.customitems.texture;
 
+import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
@@ -121,9 +122,17 @@ public class ArmorTextureValues extends ModelValues {
         this.layer2 = newLayer2;
     }
 
-    public void validate() throws ValidationException, ProgrammingValidationException {
+    public void validate(SItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         if (name == null) throw new ProgrammingValidationException("No name");
         if (name.isEmpty()) throw new ValidationException("Name can't be empty");
+
+        if (oldName == null || !oldName.equals(name)) {
+            for (ArmorTextureValues otherArmorTexture : itemSet.getArmorTextures()) {
+                if (otherArmorTexture.getName().equals(name)) {
+                    throw new ValidationException("Another armor texture has the same name");
+                }
+            }
+        }
 
         if (layer1 == null) throw new ValidationException("You must choose a layer1 texture");
         if (layer1.getWidth() != 2 * layer1.getHeight()) {

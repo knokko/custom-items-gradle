@@ -46,6 +46,12 @@ abstract class IntBasedReference<M extends Model<V>, V extends ModelValues> {
     abstract int extractIdentity(V values);
 
     public V get() {
+        M model = getModel();
+        if (model == null) throw new RuntimeException("Can't find " + getDescription() + " with id " + id);
+        return model.getValues();
+    }
+
+    M getModel() {
         if (model == null) {
             if (!itemSet.finishedLoading) {
                 throw new IllegalStateException("Attempted to load " + getDescription() + id + " before the item set finished loading");
@@ -56,11 +62,11 @@ abstract class IntBasedReference<M extends Model<V>, V extends ModelValues> {
             if (foundModel.isPresent()) {
                 model = foundModel.get();
             } else {
-                throw new RuntimeException("Can't find " + getDescription() + " with id " + id);
+                return null;
             }
             id = -1;
             itemSet = null;
         }
-        return model.getValues();
+        return model;
     }
 }
