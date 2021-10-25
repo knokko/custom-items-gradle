@@ -7,11 +7,19 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
+import java.util.Locale;
+
 public class CIPotionEffect extends ModelValues {
 
     public static CIPotionEffect load1(BitInput input, boolean mutable) {
         CIPotionEffect result = new CIPotionEffect(mutable);
         result.load1(input);
+        return result;
+    }
+
+    public static CIPotionEffect load2(BitInput input, boolean mutable) {
+        CIPotionEffect result = new CIPotionEffect(mutable);
+        result.load2(input);
         return result;
     }
 
@@ -35,8 +43,19 @@ public class CIPotionEffect extends ModelValues {
         this.level = toCopy.getLevel();
     }
 
+    @Override
+    public String toString() {
+        return "Effect(" + type.name().toLowerCase(Locale.ROOT) + ",duration=" + duration + ",level=" + level + ")";
+    }
+
     private void load1(BitInput input) {
         this.type = EffectType.valueOf(input.readJavaString());
+        this.duration = input.readInt();
+        this.level = input.readInt();
+    }
+
+    private void load2(BitInput input) {
+        this.type = EffectType.valueOf(input.readString());
         this.duration = input.readInt();
         this.level = input.readInt();
     }
@@ -50,6 +69,11 @@ public class CIPotionEffect extends ModelValues {
         output.addJavaString(type.name());
         output.addInt(duration);
         output.addInt(level);
+    }
+
+    public void save2(BitOutput output) {
+        output.addString(type.name());
+        output.addInts(duration, level);
     }
 
     public EffectType getType() {
