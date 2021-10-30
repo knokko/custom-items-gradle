@@ -3,12 +3,18 @@ package nl.knokko.customitems.itemset;
 import nl.knokko.customitems.block.*;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.SCustomContainer;
+import nl.knokko.customitems.container.fuel.FuelRegistryValues;
+import nl.knokko.customitems.container.fuel.SFuelRegistry;
 import nl.knokko.customitems.drops.*;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomItemsView;
 import nl.knokko.customitems.item.SCustomItem;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
+import nl.knokko.customitems.projectile.CustomProjectilesView;
 import nl.knokko.customitems.projectile.SCustomProjectile;
+import nl.knokko.customitems.projectile.cover.ProjectileCoverValues;
+import nl.knokko.customitems.projectile.cover.ProjectileCoversView;
+import nl.knokko.customitems.projectile.cover.SProjectileCover;
 import nl.knokko.customitems.recipe.CraftingRecipeValues;
 import nl.knokko.customitems.recipe.CustomCraftingRecipe;
 import nl.knokko.customitems.recipe.CustomRecipesView;
@@ -31,7 +37,9 @@ public class SItemSet {
     Collection<SBlockDrop> blockDrops;
     Collection<MobDrop> mobDrops;
     Collection<SCustomContainer> containers;
+    Collection<SFuelRegistry> fuelRegistries;
     Collection<SCustomProjectile> projectiles;
+    Collection<SProjectileCover> projectileCovers;
     Collection<CustomBlock> blocks;
 
     Collection<String> removedItemNames;
@@ -53,7 +61,9 @@ public class SItemSet {
         mobDrops = new ArrayList<>();
         blocks = new ArrayList<>();
         containers = new ArrayList<>();
+        fuelRegistries = new ArrayList<>();
         projectiles = new ArrayList<>();
+        projectileCovers = new ArrayList<>();
 
         removedItemNames = new ArrayList<>();
 
@@ -106,6 +116,14 @@ public class SItemSet {
         return mobDrops.stream().map(MobDropReference::new);
     }
 
+    public CustomProjectilesView getProjectiles() {
+        return new CustomProjectilesView(projectiles);
+    }
+
+    public ProjectileCoversView getProjectileCovers() {
+        return new ProjectileCoversView(projectileCovers);
+    }
+
     public CustomBlocksView getBlocks() {
         return new CustomBlocksView(blocks);
     }
@@ -150,11 +168,27 @@ public class SItemSet {
         }
     }
 
+    public FuelRegistryReference getFuelRegistryReference(String registryName) throws NoSuchElementException {
+        if (finishedLoading) {
+            return new FuelRegistryReference(CollectionHelper.find(fuelRegistries, registry -> registry.getValues().getName(), registryName).get());
+        } else {
+            return new FuelRegistryReference(registryName, this);
+        }
+    }
+
     public ProjectileReference getProjectileReference(String projectileName) throws NoSuchElementException {
         if (finishedLoading) {
             return new ProjectileReference(CollectionHelper.find(projectiles, projectile -> projectile.getValues().getName(), projectileName).get());
         } else {
             return new ProjectileReference(projectileName, this);
+        }
+    }
+
+    public ProjectileCoverReference getProjectileCoverReference(String coverName) throws NoSuchElementException {
+        if (finishedLoading) {
+            return new ProjectileCoverReference(CollectionHelper.find(projectileCovers, cover -> cover.getValues().getName(), coverName).get());
+        } else {
+            return new ProjectileCoverReference(coverName, this);
         }
     }
 
@@ -182,8 +216,16 @@ public class SItemSet {
         return CollectionHelper.find(containers, container -> container.getValues().getName(), containerName).map(SCustomContainer::getValues);
     }
 
+    public Optional<FuelRegistryValues> getFuelRegistry(String registryName) {
+        return CollectionHelper.find(fuelRegistries, registry -> registry.getValues().getName(), registryName).map(SFuelRegistry::getValues);
+    }
+
     public Optional<CustomProjectileValues> getProjectile(String projectileName) {
         return CollectionHelper.find(projectiles, projectile -> projectile.getValues().getName(), projectileName).map(SCustomProjectile::getValues);
+    }
+
+    public Optional<ProjectileCoverValues> getProjectileCover(String coverName) {
+        return CollectionHelper.find(projectileCovers, cover -> cover.getValues().getName(), coverName).map(SProjectileCover::getValues);
     }
 
     private <T> boolean isReferenceValid(Collection<T> collection, T model) {
@@ -223,8 +265,16 @@ public class SItemSet {
         return isReferenceValid(containers, reference.getModel());
     }
 
+    public boolean isReferenceValid(FuelRegistryReference reference) {
+        return isReferenceValid(fuelRegistries, reference.getModel());
+    }
+
     public boolean isReferenceValid(ProjectileReference reference) {
         return isReferenceValid(projectiles, reference.getModel());
+    }
+
+    public boolean isReferenceValid(ProjectileCoverReference reference) {
+        return isReferenceValid(projectileCovers, reference.getModel());
     }
 
     public boolean hasItemBeenDeleted(String itemName) {
@@ -266,6 +316,18 @@ public class SItemSet {
             Validation.scope(
                     "Mob drop for " + mobDrop.getValues().getEntityType(),
                     () -> mobDrop.getValues().validate(this)
+            );
+        }
+        for (SCustomProjectile projectile : projectiles) {
+            Validation.scope(
+                    "Projectile " + projectile.getValues().getName(),
+                    () -> projectile.getValues().validate(this, projectile.getValues().getName())
+            );
+        }
+        for (SProjectileCover projectileCover : projectileCovers) {
+            Validation.scope(
+                    "Projectile cover " + projectileCover.getValues().getName(),
+                    () -> projectileCover.getValues().validate(this, projectileCover.getValues().getName())
             );
         }
         for (CustomBlock block : blocks) {
@@ -350,6 +412,30 @@ public class SItemSet {
         dropToChange.getModel().setValues(newValues);
     }
 
+    public void addProjectile(CustomProjectileValues projectileToAdd) throws ValidationException, ProgrammingValidationException {
+        projectileToAdd.validate(this, null);
+        this.projectiles.add(new SCustomProjectile(projectileToAdd));
+    }
+
+    public void changeProjectile(ProjectileReference projectileToChange, CustomProjectileValues newValues) throws ValidationException, ProgrammingValidationException {
+        if (!isReferenceValid(projectileToChange)) throw new ProgrammingValidationException("Projectile to be changed is invalid");
+        newValues.validate(this, projectileToChange.get().getName());
+        projectileToChange.getModel().setValues(newValues);
+    }
+
+    public void addProjectileCover(ProjectileCoverValues coverToAdd) throws ValidationException, ProgrammingValidationException {
+        coverToAdd.validate(this, null);
+        this.projectileCovers.add(new SProjectileCover(coverToAdd));
+    }
+
+    public void changeProjectileCover(
+            ProjectileCoverReference coverToChange, ProjectileCoverValues newValues
+    ) throws ValidationException, ProgrammingValidationException {
+        if (!isReferenceValid(coverToChange)) throw new ProgrammingValidationException("Projectile cover to change is invalid");
+        newValues.validate(this, coverToChange.get().getName());
+        coverToChange.getModel().setValues(newValues);
+    }
+
     private int findFreeBlockId() throws ValidationException {
         for (int candidateId = BlockConstants.MIN_BLOCK_ID; candidateId <= BlockConstants.MAX_BLOCK_ID; candidateId++) {
             if (!this.getBlock(candidateId).isPresent()) return candidateId;
@@ -409,6 +495,14 @@ public class SItemSet {
 
     public void removeMobDrop(MobDropReference mobDropToRemove) throws ValidationException, ProgrammingValidationException {
         removeModel(this.mobDrops, mobDropToRemove.getModel());
+    }
+
+    public void removeProjectile(ProjectileReference projectileToRemove) throws ValidationException, ProgrammingValidationException {
+        removeModel(this.projectiles, projectileToRemove.getModel());
+    }
+
+    public void removeProjectileCover(ProjectileCoverReference coverToRemove) throws ValidationException, ProgrammingValidationException {
+        removeModel(this.projectileCovers, coverToRemove.getModel());
     }
 
     public void removeBlock(BlockReference blockToRemove) throws ValidationException, ProgrammingValidationException {

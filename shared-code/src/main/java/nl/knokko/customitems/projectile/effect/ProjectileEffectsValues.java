@@ -61,7 +61,7 @@ public class ProjectileEffectsValues extends ModelValues {
     public void save(BitOutput output) {
         output.addByte(ENCODING_1);
         output.addInts(delay, period);
-        output.addByte((byte) effects.size()); // TODO Enforce maximum number of effects
+        output.addByte((byte) effects.size());
         for (ProjectileEffectValues effect : effects) {
             effect.save(output);
         }
