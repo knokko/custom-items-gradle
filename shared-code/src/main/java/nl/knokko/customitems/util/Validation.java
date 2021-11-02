@@ -1,5 +1,7 @@
 package nl.knokko.customitems.util;
 
+import nl.knokko.customitems.itemset.SItemSet;
+
 public class Validation {
 
     public static void scope(
@@ -14,9 +16,20 @@ public class Validation {
         }
     }
 
+    public static void scope(
+            String scopeName, ValidationFunction2 validationFunction, SItemSet itemSet
+    ) throws ValidationException, ProgrammingValidationException {
+        scope(scopeName, () -> validationFunction.validate(itemSet));
+    }
+
     @FunctionalInterface
     public interface ValidationFunction {
         void validate() throws ValidationException, ProgrammingValidationException;
+    }
+
+    @FunctionalInterface
+    public interface ValidationFunction2 {
+        void validate(SItemSet itemSet) throws ValidationException, ProgrammingValidationException;
     }
 
     public static void safeName(String safeName) throws ValidationException, ProgrammingValidationException {

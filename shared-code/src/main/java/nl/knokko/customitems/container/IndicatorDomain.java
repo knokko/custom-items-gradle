@@ -5,7 +5,7 @@ import nl.knokko.util.bits.BitOutput;
 
 public class IndicatorDomain {
 
-	private static final int MAX = 100;
+	public static final int MAX = 100;
 	
 	public static IndicatorDomain load(BitInput input) {
 		int begin = input.readInt();
