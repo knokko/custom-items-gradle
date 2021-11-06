@@ -11,10 +11,10 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
-public class SCustomItemIngredient extends IngredientValues {
+public class CustomItemIngredientValues extends IngredientValues {
 
-    static SCustomItemIngredient load(BitInput input, byte encoding, SItemSet itemSet) throws UnknownEncodingException {
-        SCustomItemIngredient ingredient = new SCustomItemIngredient(false);
+    static CustomItemIngredientValues load(BitInput input, byte encoding, SItemSet itemSet) throws UnknownEncodingException {
+        CustomItemIngredientValues ingredient = new CustomItemIngredientValues(false);
 
         if (encoding == RecipeEncoding.Ingredient.CUSTOM) {
             ingredient.load1(input, itemSet);
@@ -30,14 +30,14 @@ public class SCustomItemIngredient extends IngredientValues {
     private byte amount;
     private ItemReference item;
 
-    public SCustomItemIngredient(boolean mutable) {
+    public CustomItemIngredientValues(boolean mutable) {
         super(mutable);
 
         this.amount = 1;
         this.item = null;
     }
 
-    public SCustomItemIngredient(SCustomItemIngredient toCopy, boolean mutable) {
+    public CustomItemIngredientValues(CustomItemIngredientValues toCopy, boolean mutable) {
         super(toCopy, mutable);
 
         this.amount = toCopy.getAmount();
@@ -64,8 +64,8 @@ public class SCustomItemIngredient extends IngredientValues {
 
     @Override
     public boolean conflictsWith(IngredientValues other) {
-        if (other instanceof SCustomItemIngredient) {
-            return this.item.equals(((SCustomItemIngredient) other).item);
+        if (other instanceof CustomItemIngredientValues) {
+            return this.item.equals(((CustomItemIngredientValues) other).item);
         } else {
             return false;
         }
@@ -78,8 +78,8 @@ public class SCustomItemIngredient extends IngredientValues {
     }
 
     @Override
-    public SCustomItemIngredient copy(boolean mutable) {
-        return new SCustomItemIngredient(this, mutable);
+    public CustomItemIngredientValues copy(boolean mutable) {
+        return new CustomItemIngredientValues(this, mutable);
     }
 
     public byte getAmount() {

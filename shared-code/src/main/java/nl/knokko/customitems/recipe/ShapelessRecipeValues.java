@@ -5,7 +5,7 @@ import nl.knokko.customitems.itemset.CraftingRecipeReference;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
-import nl.knokko.customitems.recipe.ingredient.SNoIngredient;
+import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
@@ -95,7 +95,7 @@ public class ShapelessRecipeValues extends CraftingRecipeValues {
             ingredientIndex++;
 
             if (ingredient == null) throw new ProgrammingValidationException("Missing ingredient " + ingredientIndex);
-            if (ingredient instanceof SNoIngredient) throw new ProgrammingValidationException("Ingredient " + ingredientIndex + " is empty");
+            if (ingredient instanceof NoIngredientValues) throw new ProgrammingValidationException("Ingredient " + ingredientIndex + " is empty");
             Validation.scope("Ingredient " + ingredientIndex, () -> ingredient.validateComplete(itemSet));
         }
 

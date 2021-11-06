@@ -5,7 +5,7 @@ import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.recipe.result.ResultValues;
-import nl.knokko.customitems.recipe.result.SSimpleVanillaResult;
+import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -93,7 +93,7 @@ public class OutputTableValues extends ModelValues {
     public static class Entry extends ModelValues {
 
         private static ResultValues createDefaultResult() {
-            SSimpleVanillaResult mutableResult = new SSimpleVanillaResult(true);
+            SimpleVanillaResultValues mutableResult = new SimpleVanillaResultValues(true);
             mutableResult.setMaterial(CIMaterial.GOLD_INGOT);
             return mutableResult.copy(false);
         }

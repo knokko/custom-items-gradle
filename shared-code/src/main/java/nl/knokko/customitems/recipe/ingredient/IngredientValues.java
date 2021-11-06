@@ -18,13 +18,13 @@ public abstract class IngredientValues extends ModelValues {
         byte encoding = input.readByte();
 
         if (encoding == VANILLA_SIMPLE || encoding == VANILLA_SIMPLE_2) {
-            return SSimpleVanillaIngredient.load(input, encoding, itemSet);
+            return SimpleVanillaIngredientValues.load(input, encoding, itemSet);
         } else if (encoding == VANILLA_DATA || encoding == VANILLA_DATA_2) {
-            return SDataVanillaIngredient.load(input, encoding, itemSet);
+            return DataVanillaIngredientValues.load(input, encoding, itemSet);
         } else if (encoding == CUSTOM || encoding == CUSTOM_2) {
-            return SCustomItemIngredient.load(input, encoding, itemSet);
+            return CustomItemIngredientValues.load(input, encoding, itemSet);
         } else if (encoding == NONE) {
-            return new SNoIngredient();
+            return new NoIngredientValues();
         } else {
             throw new UnknownEncodingException("Ingredient", encoding);
         }

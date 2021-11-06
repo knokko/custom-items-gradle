@@ -15,13 +15,13 @@ public abstract class ResultValues extends ModelValues  {
         byte encoding = input.readByte();
 
         if (encoding == RecipeEncoding.Result.VANILLA_SIMPLE) {
-            return SSimpleVanillaResult.load(input, encoding);
+            return SimpleVanillaResultValues.load(input, encoding);
         } else if (encoding == RecipeEncoding.Result.VANILLA_DATA) {
-            return SDataVanillaResult.load(input, encoding);
+            return DataVanillaResultValues.load(input, encoding);
         } else if (encoding == RecipeEncoding.Result.CUSTOM) {
-            return SCustomItemResult.load(input, encoding, itemSet);
+            return CustomItemResultValues.load(input, encoding, itemSet);
         } else if (encoding == RecipeEncoding.Result.COPIED) {
-            return SCopiedResult.load(input, encoding);
+            return CopiedResultValues.load(input, encoding);
         } else {
             throw new UnknownEncodingException("Result", encoding);
         }

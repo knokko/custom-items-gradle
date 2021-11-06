@@ -4,7 +4,7 @@ import nl.knokko.customitems.encoding.RecipeEncoding;
 import nl.knokko.customitems.itemset.CraftingRecipeReference;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
-import nl.knokko.customitems.recipe.ingredient.SNoIngredient;
+import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -38,7 +38,7 @@ public class ShapedRecipeValues extends CraftingRecipeValues {
         super(mutable);
 
         this.ingredients = new IngredientValues[9];
-        Arrays.fill(this.ingredients, new SNoIngredient());
+        Arrays.fill(this.ingredients, new NoIngredientValues());
     }
 
     public ShapedRecipeValues(ShapedRecipeValues toCopy, boolean mutable) {
@@ -102,7 +102,7 @@ public class ShapedRecipeValues extends CraftingRecipeValues {
 
         boolean isEmpty = true;
         for (IngredientValues ingredient : ingredients) {
-            if (!(ingredient instanceof SNoIngredient)) {
+            if (!(ingredient instanceof NoIngredientValues)) {
                 isEmpty = false;
                 break;
             }

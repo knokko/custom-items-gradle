@@ -6,7 +6,7 @@ import nl.knokko.customitems.itemset.CraftingRecipeReference;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
-import nl.knokko.customitems.recipe.result.SSimpleVanillaResult;
+import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -36,7 +36,7 @@ public abstract class CraftingRecipeValues extends ModelValues {
     CraftingRecipeValues(boolean mutable) {
         super(mutable);
 
-        SSimpleVanillaResult mutableResult = new SSimpleVanillaResult(true);
+        SimpleVanillaResultValues mutableResult = new SimpleVanillaResultValues(true);
         mutableResult.setAmount((byte) 1);
         mutableResult.setMaterial(CIMaterial.IRON_INGOT);
         this.result = mutableResult.copy(false);

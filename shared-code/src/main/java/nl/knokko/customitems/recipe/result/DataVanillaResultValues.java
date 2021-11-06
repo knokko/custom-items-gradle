@@ -10,15 +10,15 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
-public class SSimpleVanillaResult extends ResultValues {
+public class DataVanillaResultValues extends ResultValues {
 
-    static SSimpleVanillaResult load(BitInput input, byte encoding) throws UnknownEncodingException {
-        SSimpleVanillaResult result = new SSimpleVanillaResult(false);
+    static DataVanillaResultValues load(BitInput input, byte encoding) throws UnknownEncodingException {
+        DataVanillaResultValues result = new DataVanillaResultValues(false);
 
-        if (encoding == RecipeEncoding.Result.VANILLA_SIMPLE) {
+        if (encoding == RecipeEncoding.Result.VANILLA_DATA) {
             result.load1(input);
         } else {
-            throw new UnknownEncodingException("SimpleVanillaResult", encoding);
+            throw new UnknownEncodingException("DataVanillaResult", encoding);
         }
 
         return result;
@@ -26,45 +26,51 @@ public class SSimpleVanillaResult extends ResultValues {
 
     private byte amount;
     private CIMaterial material;
+    private byte data;
 
-    public SSimpleVanillaResult(boolean mutable) {
+    DataVanillaResultValues(boolean mutable) {
         super(mutable);
 
         this.amount = 1;
         this.material = null;
+        this.data = 0;
     }
 
-    public SSimpleVanillaResult(SSimpleVanillaResult toCopy, boolean mutable) {
+    DataVanillaResultValues(DataVanillaResultValues toCopy, boolean mutable) {
         super(mutable);
 
         this.amount = toCopy.getAmount();
         this.material = toCopy.getMaterial();
+        this.data = toCopy.getDataValue();
     }
 
     @Override
     public String toString() {
-        return material + (amount == 1 ? "" : " x " + amount);
+        String amountString = amount == 1 ? "" : (" x " + amount);
+        return material + "[" + data + "]" + amountString;
     }
 
     @Override
-    public SSimpleVanillaResult copy(boolean mutable) {
-        return new SSimpleVanillaResult(this, mutable);
+    public DataVanillaResultValues copy(boolean mutable) {
+        return new DataVanillaResultValues(this, mutable);
     }
 
     private void load1(BitInput input) {
         this.amount = loadAmount(input);
-        this.material = CIMaterial.valueOf(this.material.name());
+        this.material = CIMaterial.valueOf(input.readJavaString());
+        this.data = (byte) input.readNumber((byte) 4, false);
     }
 
     @Override
     public void save(BitOutput output) {
-        output.addByte(RecipeEncoding.Result.VANILLA_SIMPLE);
+        output.addByte(RecipeEncoding.Result.VANILLA_DATA);
         save1(output);
     }
 
     private void save1(BitOutput output) {
         saveAmount(output, this.amount);
         output.addJavaString(this.material.name());
+        output.addNumber(this.data, (byte) 4, false);
     }
 
     public byte getAmount() {
@@ -73,6 +79,10 @@ public class SSimpleVanillaResult extends ResultValues {
 
     public CIMaterial getMaterial() {
         return material;
+    }
+
+    public byte getDataValue() {
+        return data;
     }
 
     public void setAmount(byte newAmount) {
@@ -86,12 +96,20 @@ public class SSimpleVanillaResult extends ResultValues {
         this.material = newMaterial;
     }
 
+    public void setDataValue(byte newDataValue) {
+        assertMutable();
+        this.data = newDataValue;
+    }
+
     @Override
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {
         if (amount < 1) throw new ValidationException("Amount must be positive");
         if (amount > 64) throw new ValidationException("Amount can be at most 64");
 
-        if (material == null) throw new ValidationException("You need to choose a material");
+        if (material == null) throw new ValidationException("You must choose a material");
+
+        if (data < 0) throw new ValidationException("Data value can't be negative");
+        if (data > 15) throw new ValidationException("Data value can be at most 15");
     }
 
     @Override

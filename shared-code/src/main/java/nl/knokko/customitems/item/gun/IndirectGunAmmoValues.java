@@ -2,7 +2,7 @@ package nl.knokko.customitems.item.gun;
 
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
-import nl.knokko.customitems.recipe.ingredient.SNoIngredient;
+import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.customitems.sound.CISound;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
@@ -39,7 +39,7 @@ public class IndirectGunAmmoValues extends GunAmmoValues {
     public IndirectGunAmmoValues(boolean mutable) {
         super(mutable);
 
-        this.reloadItem = new SNoIngredient();
+        this.reloadItem = new NoIngredientValues();
         this.cooldown = 20;
         this.storedAmmo = 10;
         this.reloadTime = 40;

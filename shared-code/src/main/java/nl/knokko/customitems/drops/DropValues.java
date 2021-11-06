@@ -4,7 +4,7 @@ import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.recipe.OutputTableValues;
-import nl.knokko.customitems.recipe.result.SCustomItemResult;
+import nl.knokko.customitems.recipe.result.CustomItemResultValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -65,7 +65,7 @@ public class DropValues extends ModelValues {
         OutputTableValues mutableOutputTable = new OutputTableValues(true);
         Collection<OutputTableValues.Entry> tableEntries = new ArrayList<>(numAmounts);
         for (byte amount = (byte) minDropAmount; amount < maxDropAmount; amount++) {
-            SCustomItemResult mutableResult = new SCustomItemResult(true);
+            CustomItemResultValues mutableResult = new CustomItemResultValues(true);
             mutableResult.setItem(itemSet.getItemReference(itemName));
             mutableResult.setAmount(amount);
 
@@ -77,7 +77,7 @@ public class DropValues extends ModelValues {
         }
 
         {
-            SCustomItemResult mutableResult = new SCustomItemResult(true);
+            CustomItemResultValues mutableResult = new CustomItemResultValues(true);
             mutableResult.setItem(itemSet.getItemReference(itemName));
             mutableResult.setAmount((byte) maxDropAmount);
 

@@ -3,7 +3,7 @@ package nl.knokko.customitems.item;
 import nl.knokko.customitems.encoding.ItemEncoding;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
-import nl.knokko.customitems.recipe.ingredient.SNoIngredient;
+import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -77,7 +77,7 @@ public class CustomToolValues extends CustomItemValues {
         this.maxDurability = 500L;
         this.allowEnchanting = true;
         this.allowAnvilActions = true;
-        this.repairItem = new SNoIngredient();
+        this.repairItem = new NoIngredientValues();
         this.entityHitDurabilityLoss = CustomToolDurability.defaultEntityHitDurabilityLoss(initialItemType);
         this.blockBreakDurabilityLoss = CustomToolDurability.defaultBlockBreakDurabilityLoss(initialItemType);
     }
@@ -258,7 +258,7 @@ public class CustomToolValues extends CustomItemValues {
     }
 
     protected void initToolOnlyDefaults2() {
-        this.repairItem = new SNoIngredient();
+        this.repairItem = new NoIngredientValues();
     }
 
     protected void initToolDefaults2() {

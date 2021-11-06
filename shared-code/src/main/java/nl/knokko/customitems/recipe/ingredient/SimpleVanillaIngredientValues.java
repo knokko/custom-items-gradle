@@ -1,6 +1,5 @@
 package nl.knokko.customitems.recipe.ingredient;
 
-import nl.knokko.customitems.encoding.RecipeEncoding;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -10,76 +9,72 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
-public class SDataVanillaIngredient extends IngredientValues {
+import static nl.knokko.customitems.encoding.RecipeEncoding.Ingredient.*;
 
-    static SDataVanillaIngredient load(BitInput input, byte encoding, SItemSet itemSet) throws UnknownEncodingException {
-        SDataVanillaIngredient ingredient = new SDataVanillaIngredient(false);
+public class SimpleVanillaIngredientValues extends IngredientValues {
 
-        if (encoding == RecipeEncoding.Ingredient.VANILLA_DATA) {
-            ingredient.load1(input);
-        } else if (encoding == RecipeEncoding.Ingredient.VANILLA_DATA_2) {
-            ingredient.load2(input, itemSet);
+    static SimpleVanillaIngredientValues load(BitInput input, byte encoding, SItemSet itemSet) throws UnknownEncodingException {
+        SimpleVanillaIngredientValues result = new SimpleVanillaIngredientValues(false);
+
+        if (encoding == VANILLA_SIMPLE) {
+            result.load1(input);
+        } else if (encoding == VANILLA_SIMPLE_2) {
+            result.load2(input, itemSet);
         } else {
-            throw new UnknownEncodingException("DataVanillaIngredient", encoding);
+            throw new UnknownEncodingException("SimpleVanillaIngredient", encoding);
         }
 
-        return ingredient;
+        return result;
     }
 
     private byte amount;
     private CIMaterial material;
-    private byte dataValue;
 
-    SDataVanillaIngredient(boolean mutable) {
+    public SimpleVanillaIngredientValues(boolean mutable) {
         super(mutable);
 
         this.amount = 1;
         this.material = null;
-        this.dataValue = 0;
     }
 
-    SDataVanillaIngredient(SDataVanillaIngredient toCopy, boolean mutable) {
-        super(toCopy, mutable);
+    public SimpleVanillaIngredientValues(SimpleVanillaIngredientValues toCopy, boolean mutable) {
+        super(mutable);
 
         this.amount = toCopy.getAmount();
         this.material = toCopy.getMaterial();
-        this.dataValue = toCopy.getDataValue();
     }
 
     @Override
     public boolean conflictsWith(IngredientValues other) {
-        if (other instanceof SDataVanillaIngredient) {
-            SDataVanillaIngredient otherIngredient = (SDataVanillaIngredient) other;
-            return this.material == otherIngredient.material && this.dataValue == otherIngredient.dataValue;
-        } else if (other instanceof SSimpleVanillaIngredient) {
-            return this.material == ((SSimpleVanillaIngredient) other).getMaterial();
+        if (other instanceof SimpleVanillaIngredientValues) {
+            return this.material == ((SimpleVanillaIngredientValues) other).material;
+        } else if (other instanceof DataVanillaIngredientValues) {
+            return this.material == ((DataVanillaIngredientValues) other).getMaterial();
         } else {
             return false;
         }
     }
 
     @Override
-    public SDataVanillaIngredient copy(boolean mutable) {
-        return new SDataVanillaIngredient(this, mutable);
+    public SimpleVanillaIngredientValues copy(boolean mutable) {
+        return new SimpleVanillaIngredientValues(this, mutable);
     }
 
     private void load1(BitInput input) {
         this.amount = 1;
         this.remainingItem = null;
         this.material = CIMaterial.valueOf(input.readJavaString());
-        this.dataValue = (byte) input.readNumber((byte) 4, false);
     }
 
     private void load2(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
         this.amount = input.readByte();
         loadRemainingItem(input, itemSet);
         this.material = CIMaterial.valueOf(input.readJavaString());
-        this.dataValue = (byte) input.readNumber((byte) 4, false);
     }
 
     @Override
     public void save(BitOutput output) {
-        output.addByte(RecipeEncoding.Ingredient.VANILLA_DATA_2);
+        output.addByte(VANILLA_SIMPLE_2);
         save2(output);
     }
 
@@ -87,7 +82,6 @@ public class SDataVanillaIngredient extends IngredientValues {
         output.addByte(amount);
         saveRemainingItem(output);
         output.addJavaString(material.name());
-        output.addNumber(dataValue, (byte) 4, false);
     }
 
     public byte getAmount() {
@@ -96,10 +90,6 @@ public class SDataVanillaIngredient extends IngredientValues {
 
     public CIMaterial getMaterial() {
         return material;
-    }
-
-    public byte getDataValue() {
-        return dataValue;
     }
 
     public void setAmount(byte newAmount) {
@@ -113,22 +103,13 @@ public class SDataVanillaIngredient extends IngredientValues {
         this.material = newMaterial;
     }
 
-    public void setDataValue(byte newDataValue) {
-        assertMutable();
-        this.dataValue = newDataValue;
-    }
-
     @Override
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {
         super.validateIndependent();
 
         if (amount < 1) throw new ValidationException("Amount must be positive");
         if (amount > 64) throw new ValidationException("Amount can be at most 64");
-
-        if (material == null) throw new ValidationException("You must choose a material");
+        if (material == null) throw new ValidationException("You need to choose a material");
         if (material == CIMaterial.AIR) throw new ValidationException("Air is not allowed");
-
-        if (dataValue < 0) throw new ValidationException("Data value can't be negative");
-        if (dataValue > 15) throw new ValidationException("Data value can be at most 15");
     }
 }

@@ -10,10 +10,10 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
-public class SCopiedResult extends ResultValues {
+public class CopiedResultValues extends ResultValues {
 
-    static SCopiedResult load(BitInput input, byte encoding) throws UnknownEncodingException {
-        SCopiedResult result = new SCopiedResult(false);
+    static CopiedResultValues load(BitInput input, byte encoding) throws UnknownEncodingException {
+        CopiedResultValues result = new CopiedResultValues(false);
 
         if (encoding == RecipeEncoding.Result.COPIED) {
             result.load1(input);
@@ -26,13 +26,13 @@ public class SCopiedResult extends ResultValues {
 
     private String encoded;
 
-    SCopiedResult(boolean mutable) {
+    CopiedResultValues(boolean mutable) {
         super(mutable);
 
         this.encoded = null;
     }
 
-    SCopiedResult(SCopiedResult toCopy, boolean mutable) {
+    CopiedResultValues(CopiedResultValues toCopy, boolean mutable) {
         super(mutable);
 
         this.encoded = toCopy.getEncodedItem();
@@ -44,8 +44,8 @@ public class SCopiedResult extends ResultValues {
     }
 
     @Override
-    public SCopiedResult copy(boolean mutable) {
-        return new SCopiedResult(this, mutable);
+    public CopiedResultValues copy(boolean mutable) {
+        return new CopiedResultValues(this, mutable);
     }
 
     private void load1(BitInput input) {

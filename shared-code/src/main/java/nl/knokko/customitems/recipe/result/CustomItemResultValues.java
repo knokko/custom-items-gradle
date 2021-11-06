@@ -11,10 +11,10 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
-public class SCustomItemResult extends ResultValues {
+public class CustomItemResultValues extends ResultValues {
 
-    static SCustomItemResult load(BitInput input, byte encoding, SItemSet itemSet) throws UnknownEncodingException {
-        SCustomItemResult result = new SCustomItemResult(false);
+    static CustomItemResultValues load(BitInput input, byte encoding, SItemSet itemSet) throws UnknownEncodingException {
+        CustomItemResultValues result = new CustomItemResultValues(false);
 
         if (encoding == RecipeEncoding.Result.CUSTOM) {
             result.load1(input, itemSet);
@@ -28,14 +28,14 @@ public class SCustomItemResult extends ResultValues {
     private byte amount;
     private ItemReference item;
 
-    public SCustomItemResult(boolean mutable) {
+    public CustomItemResultValues(boolean mutable) {
         super(mutable);
 
         this.amount = 1;
         this.item = null;
     }
 
-    public SCustomItemResult(SCustomItemResult toCopy, boolean mutable) {
+    public CustomItemResultValues(CustomItemResultValues toCopy, boolean mutable) {
         super(mutable);
 
         this.amount = toCopy.getAmount();
@@ -43,8 +43,8 @@ public class SCustomItemResult extends ResultValues {
     }
 
     @Override
-    public SCustomItemResult copy(boolean mutable) {
-        return new SCustomItemResult(this, mutable);
+    public CustomItemResultValues copy(boolean mutable) {
+        return new CustomItemResultValues(this, mutable);
     }
 
     private void load1(BitInput input, SItemSet itemSet) {

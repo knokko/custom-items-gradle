@@ -2,7 +2,7 @@ package nl.knokko.customitems.item.gun;
 
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
-import nl.knokko.customitems.recipe.ingredient.SNoIngredient;
+import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -30,7 +30,7 @@ public class DirectGunAmmoValues extends GunAmmoValues {
     public DirectGunAmmoValues(boolean mutable) {
         super(mutable);
 
-        this.ammoItem = new SNoIngredient();
+        this.ammoItem = new NoIngredientValues();
         this.cooldown = 20;
     }
 
@@ -69,7 +69,7 @@ public class DirectGunAmmoValues extends GunAmmoValues {
     @Override
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {
         if (ammoItem == null) throw new ProgrammingValidationException("No ammo item");
-        if (ammoItem instanceof SNoIngredient) throw new ValidationException("You must pick an ammo item");
+        if (ammoItem instanceof NoIngredientValues) throw new ValidationException("You must pick an ammo item");
 
         if (cooldown < 1) throw new ValidationException("Cooldown must be positive");
     }

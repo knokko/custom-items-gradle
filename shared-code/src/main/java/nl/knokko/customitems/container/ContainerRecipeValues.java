@@ -7,7 +7,7 @@ import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
-import nl.knokko.customitems.recipe.ingredient.SNoIngredient;
+import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
@@ -76,7 +76,7 @@ public class ContainerRecipeValues extends ModelValues {
 
             // A bug in the past made it possible that NoIngredient instances are
             // encoded ;( This seems like the easiest way to nullify the damage.
-            if (!(ingredient instanceof SNoIngredient)) {
+            if (!(ingredient instanceof NoIngredientValues)) {
                 this.inputs.put(inputSlotName, ingredient);
             }
         }
