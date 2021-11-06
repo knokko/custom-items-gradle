@@ -4,6 +4,7 @@ import nl.knokko.customitems.block.*;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.CustomContainerView;
 import nl.knokko.customitems.container.SCustomContainer;
+import nl.knokko.customitems.container.fuel.FuelRegistriesView;
 import nl.knokko.customitems.container.fuel.FuelRegistryValues;
 import nl.knokko.customitems.container.fuel.SFuelRegistry;
 import nl.knokko.customitems.drops.*;
@@ -127,6 +128,10 @@ public class SItemSet {
 
     public CustomContainerView getContainers() {
         return new CustomContainerView(containers);
+    }
+
+    public FuelRegistriesView getFuelRegistries() {
+        return new FuelRegistriesView(fuelRegistries);
     }
 
     public CustomBlocksView getBlocks() {
@@ -341,14 +346,18 @@ public class SItemSet {
                     () -> container.getValues().validate(this, container.getValues().getName())
             );
         }
+        for (SFuelRegistry fuelRegistry : fuelRegistries) {
+            Validation.scope(
+                    "Fuel registry " + fuelRegistry.getValues().getName(),
+                    () -> fuelRegistry.getValues().validate(this, fuelRegistry.getValues().getName())
+            );
+        }
         for (CustomBlock block : blocks) {
             Validation.scope(
                     "Block " + block.getValues().getName(),
                     () -> block.getValues().validateComplete(this, block.getValues().getInternalID())
             );
         }
-
-        // TODO Validate the rest of the models after I add them
     }
 
     public void addTexture(BaseTextureValues newTexture) throws ValidationException, ProgrammingValidationException {
@@ -460,6 +469,19 @@ public class SItemSet {
         containerToChange.getModel().setValues(newValues);
     }
 
+    public void addFuelRegistry(FuelRegistryValues registryToAdd) throws ValidationException, ProgrammingValidationException {
+        registryToAdd.validate(this, null);
+        this.fuelRegistries.add(new SFuelRegistry(registryToAdd));
+    }
+
+    public void changeFuelRegistry(
+            FuelRegistryReference registryToChange, FuelRegistryValues newValues
+    ) throws ValidationException, ProgrammingValidationException {
+        if (!isReferenceValid(registryToChange)) throw new ProgrammingValidationException("Fuel registry to change is invalid");
+        newValues.validate(this, registryToChange.get().getName());
+        registryToChange.getModel().setValues(newValues);
+    }
+
     private int findFreeBlockId() throws ValidationException {
         for (int candidateId = BlockConstants.MIN_BLOCK_ID; candidateId <= BlockConstants.MAX_BLOCK_ID; candidateId++) {
             if (!this.getBlock(candidateId).isPresent()) return candidateId;
@@ -531,6 +553,10 @@ public class SItemSet {
 
     public void removeContainer(ContainerReference containerToRemove) throws ValidationException, ProgrammingValidationException {
         removeModel(this.containers, containerToRemove.getModel());
+    }
+
+    public void removeFuelRegistry(FuelRegistryReference registryToRemove) throws ValidationException, ProgrammingValidationException {
+        removeModel(this.fuelRegistries, registryToRemove.getModel());
     }
 
     public void removeBlock(BlockReference blockToRemove) throws ValidationException, ProgrammingValidationException {
