@@ -4,7 +4,7 @@ import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.model.Mutability;
-import nl.knokko.customitems.recipe.result.SResult;
+import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.customitems.recipe.result.SSimpleVanillaResult;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
@@ -92,13 +92,13 @@ public class OutputTableValues extends ModelValues {
 
     public static class Entry extends ModelValues {
 
-        private static SResult createDefaultResult() {
+        private static ResultValues createDefaultResult() {
             SSimpleVanillaResult mutableResult = new SSimpleVanillaResult(true);
             mutableResult.setMaterial(CIMaterial.GOLD_INGOT);
             return mutableResult.copy(false);
         }
 
-        private SResult result;
+        private ResultValues result;
         private int chance;
 
         public Entry(boolean mutable) {
@@ -115,7 +115,7 @@ public class OutputTableValues extends ModelValues {
 
         private void load1(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
             this.chance = input.readByte();
-            this.result = SResult.load(input, itemSet);
+            this.result = ResultValues.load(input, itemSet);
         }
 
         public void save1(BitOutput output) {
@@ -133,7 +133,7 @@ public class OutputTableValues extends ModelValues {
             return new Entry(this, mutable);
         }
 
-        public SResult getResult() {
+        public ResultValues getResult() {
             return result;
         }
 
@@ -141,7 +141,7 @@ public class OutputTableValues extends ModelValues {
             return chance;
         }
 
-        public void setResult(SResult newResult) {
+        public void setResult(ResultValues newResult) {
             assertMutable();
             Checks.notNull(newResult);
             this.result = newResult.copy(false);

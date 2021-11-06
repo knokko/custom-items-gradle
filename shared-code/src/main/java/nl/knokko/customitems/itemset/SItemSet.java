@@ -2,6 +2,7 @@ package nl.knokko.customitems.itemset;
 
 import nl.knokko.customitems.block.*;
 import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.container.CustomContainerView;
 import nl.knokko.customitems.container.SCustomContainer;
 import nl.knokko.customitems.container.fuel.FuelRegistryValues;
 import nl.knokko.customitems.container.fuel.SFuelRegistry;
@@ -122,6 +123,10 @@ public class SItemSet {
 
     public ProjectileCoversView getProjectileCovers() {
         return new ProjectileCoversView(projectileCovers);
+    }
+
+    public CustomContainerView getContainers() {
+        return new CustomContainerView(containers);
     }
 
     public CustomBlocksView getBlocks() {
@@ -330,6 +335,12 @@ public class SItemSet {
                     () -> projectileCover.getValues().validate(this, projectileCover.getValues().getName())
             );
         }
+        for (SCustomContainer container : containers) {
+            Validation.scope(
+                    "Container " + container.getValues().getName(),
+                    () -> container.getValues().validate(this, container.getValues().getName())
+            );
+        }
         for (CustomBlock block : blocks) {
             Validation.scope(
                     "Block " + block.getValues().getName(),
@@ -436,6 +447,19 @@ public class SItemSet {
         coverToChange.getModel().setValues(newValues);
     }
 
+    public void addContainer(CustomContainerValues containerToAdd) throws ValidationException, ProgrammingValidationException {
+        containerToAdd.validate(this, null);
+        this.containers.add(new SCustomContainer(containerToAdd));
+    }
+
+    public void changeContainer(
+            ContainerReference containerToChange, CustomContainerValues newValues
+    ) throws ValidationException, ProgrammingValidationException {
+        if (!isReferenceValid(containerToChange)) throw new ProgrammingValidationException("Container to change is invalid");
+        newValues.validate(this, containerToChange.get().getName());
+        containerToChange.getModel().setValues(newValues);
+    }
+
     private int findFreeBlockId() throws ValidationException {
         for (int candidateId = BlockConstants.MIN_BLOCK_ID; candidateId <= BlockConstants.MAX_BLOCK_ID; candidateId++) {
             if (!this.getBlock(candidateId).isPresent()) return candidateId;
@@ -503,6 +527,10 @@ public class SItemSet {
 
     public void removeProjectileCover(ProjectileCoverReference coverToRemove) throws ValidationException, ProgrammingValidationException {
         removeModel(this.projectileCovers, coverToRemove.getModel());
+    }
+
+    public void removeContainer(ContainerReference containerToRemove) throws ValidationException, ProgrammingValidationException {
+        removeModel(this.containers, containerToRemove.getModel());
     }
 
     public void removeBlock(BlockReference blockToRemove) throws ValidationException, ProgrammingValidationException {

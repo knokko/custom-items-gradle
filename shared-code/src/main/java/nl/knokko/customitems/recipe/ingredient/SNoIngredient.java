@@ -1,10 +1,9 @@
 package nl.knokko.customitems.recipe.ingredient;
 
 import nl.knokko.customitems.encoding.RecipeEncoding;
-import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.util.bits.BitOutput;
 
-public class SNoIngredient extends SIngredient {
+public class SNoIngredient extends IngredientValues {
 
     public SNoIngredient() {
         super(false);
@@ -15,7 +14,7 @@ public class SNoIngredient extends SIngredient {
     }
 
     @Override
-    public boolean conflictsWith(SIngredient other) {
+    public boolean conflictsWith(IngredientValues other) {
         return other instanceof SNoIngredient;
     }
 

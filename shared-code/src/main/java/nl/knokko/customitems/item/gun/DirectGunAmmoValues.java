@@ -1,7 +1,7 @@
 package nl.knokko.customitems.item.gun;
 
 import nl.knokko.customitems.itemset.SItemSet;
-import nl.knokko.customitems.recipe.ingredient.SIngredient;
+import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.SNoIngredient;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
@@ -24,7 +24,7 @@ public class DirectGunAmmoValues extends GunAmmoValues {
         return result;
     }
 
-    private SIngredient ammoItem;
+    private IngredientValues ammoItem;
     private int cooldown;
 
     public DirectGunAmmoValues(boolean mutable) {
@@ -53,11 +53,11 @@ public class DirectGunAmmoValues extends GunAmmoValues {
     }
 
     private void load1(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
-        this.ammoItem = SIngredient.load(input, itemSet);
+        this.ammoItem = IngredientValues.load(input, itemSet);
         this.cooldown = input.readInt();
     }
 
-    public SIngredient getAmmoItem() {
+    public IngredientValues getAmmoItem() {
         return ammoItem;
     }
 
@@ -81,7 +81,7 @@ public class DirectGunAmmoValues extends GunAmmoValues {
         ammoItem.validateComplete(itemSet);
     }
 
-    public void setAmmoItem(SIngredient newAmmoItem) {
+    public void setAmmoItem(IngredientValues newAmmoItem) {
         assertMutable();
         Checks.notNull(newAmmoItem);
         this.ammoItem = newAmmoItem.copy(false);

@@ -3,9 +3,9 @@ package nl.knokko.customitems.recipe;
 import nl.knokko.customitems.encoding.RecipeEncoding;
 import nl.knokko.customitems.itemset.CraftingRecipeReference;
 import nl.knokko.customitems.itemset.SItemSet;
-import nl.knokko.customitems.recipe.ingredient.SIngredient;
+import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.SNoIngredient;
-import nl.knokko.customitems.recipe.result.SResult;
+import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.Validation;
@@ -32,28 +32,28 @@ public class ShapedRecipeValues extends CraftingRecipeValues {
         return result;
     }
 
-    private final SIngredient[] ingredients;
+    private final IngredientValues[] ingredients;
 
     public ShapedRecipeValues(boolean mutable) {
         super(mutable);
 
-        this.ingredients = new SIngredient[9];
+        this.ingredients = new IngredientValues[9];
         Arrays.fill(this.ingredients, new SNoIngredient());
     }
 
     public ShapedRecipeValues(ShapedRecipeValues toCopy, boolean mutable) {
         super(toCopy, mutable);
 
-        this.ingredients = new SIngredient[9];
+        this.ingredients = new IngredientValues[9];
         for (int index = 0; index < 9; index++) {
             this.ingredients[index] = toCopy.ingredients[index].copy(false);
         }
     }
 
     private void load1(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
-        this.result = SResult.load(input, itemSet);
+        this.result = ResultValues.load(input, itemSet);
         for (int index = 0; index < 9; index++) {
-            this.ingredients[index] = SIngredient.load(input, itemSet);
+            this.ingredients[index] = IngredientValues.load(input, itemSet);
         }
     }
 
@@ -61,7 +61,7 @@ public class ShapedRecipeValues extends CraftingRecipeValues {
     public void save(BitOutput output) {
         output.addByte(RecipeEncoding.SHAPED_RECIPE);
         result.save(output);
-        for (SIngredient ingredient : ingredients) {
+        for (IngredientValues ingredient : ingredients) {
             ingredient.save(output);
         }
     }
@@ -76,12 +76,12 @@ public class ShapedRecipeValues extends CraftingRecipeValues {
         if (y < 0 || y >= 3) throw new IllegalArgumentException("y (" + y + ") must be 0, 1, or 2");
     }
 
-    public SIngredient getIngredientAt(int x, int y) {
+    public IngredientValues getIngredientAt(int x, int y) {
         checkBounds(x, y);
         return ingredients[x + 3 * y];
     }
 
-    public void setIngredientAt(int x, int y, SIngredient newIngredient) {
+    public void setIngredientAt(int x, int y, IngredientValues newIngredient) {
         assertMutable();
         checkBounds(x, y);
         this.ingredients[x + 3 * y] = newIngredient.copy(false);
@@ -94,14 +94,14 @@ public class ShapedRecipeValues extends CraftingRecipeValues {
         if (ingredients == null) throw new ProgrammingValidationException("No ingredients");
         for (int x = 0; x < 3; x++) {
             for (int y = 0; y < 3; y++) {
-                SIngredient ingredient = getIngredientAt(x, y);
+                IngredientValues ingredient = getIngredientAt(x, y);
                 if (ingredient == null) throw new ProgrammingValidationException("Missing ingredient at (" + x + ", " + y + ")");
                 Validation.scope("Ingredient at (" + x + ", " + y + ")", () -> ingredient.validateComplete(itemSet));
             }
         }
 
         boolean isEmpty = true;
-        for (SIngredient ingredient : ingredients) {
+        for (IngredientValues ingredient : ingredients) {
             if (!(ingredient instanceof SNoIngredient)) {
                 isEmpty = false;
                 break;
@@ -116,7 +116,7 @@ public class ShapedRecipeValues extends CraftingRecipeValues {
                 CraftingRecipeValues otherRecipe = otherReference.get();
                 if (otherRecipe instanceof ShapedRecipeValues) {
 
-                    SIngredient[] otherIngredients = ((ShapedRecipeValues) otherRecipe).ingredients;
+                    IngredientValues[] otherIngredients = ((ShapedRecipeValues) otherRecipe).ingredients;
                     boolean conflicts = true;
                     for (int index = 0; index < 9; index++) {
                         if (!this.ingredients[index].conflictsWith(otherIngredients[index])) {

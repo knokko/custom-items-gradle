@@ -11,7 +11,7 @@ import nl.knokko.util.bits.BitOutput;
 
 import static nl.knokko.customitems.encoding.RecipeEncoding.Ingredient.*;
 
-public class SSimpleVanillaIngredient extends SIngredient {
+public class SSimpleVanillaIngredient extends IngredientValues {
 
     static SSimpleVanillaIngredient load(BitInput input, byte encoding, SItemSet itemSet) throws UnknownEncodingException {
         SSimpleVanillaIngredient result = new SSimpleVanillaIngredient(false);
@@ -45,7 +45,7 @@ public class SSimpleVanillaIngredient extends SIngredient {
     }
 
     @Override
-    public boolean conflictsWith(SIngredient other) {
+    public boolean conflictsWith(IngredientValues other) {
         if (other instanceof SSimpleVanillaIngredient) {
             return this.material == ((SSimpleVanillaIngredient) other).material;
         } else if (other instanceof SDataVanillaIngredient) {

@@ -11,7 +11,7 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
-public class SCustomItemResult extends SResult {
+public class SCustomItemResult extends ResultValues {
 
     static SCustomItemResult load(BitInput input, byte encoding, SItemSet itemSet) throws UnknownEncodingException {
         SCustomItemResult result = new SCustomItemResult(false);

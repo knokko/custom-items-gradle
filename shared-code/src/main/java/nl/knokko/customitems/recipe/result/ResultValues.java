@@ -9,9 +9,9 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
-public abstract class SResult extends ModelValues  {
+public abstract class ResultValues extends ModelValues  {
 
-    public static SResult load(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    public static ResultValues load(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
 
         if (encoding == RecipeEncoding.Result.VANILLA_SIMPLE) {
@@ -27,11 +27,11 @@ public abstract class SResult extends ModelValues  {
         }
     }
 
-    SResult(boolean mutable) {
+    ResultValues(boolean mutable) {
         super(mutable);
     }
 
-    public abstract SResult copy(boolean mutable);
+    public abstract ResultValues copy(boolean mutable);
 
     @Override
     public abstract String toString();

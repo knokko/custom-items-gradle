@@ -4,9 +4,9 @@ import nl.knokko.customitems.encoding.RecipeEncoding;
 import nl.knokko.customitems.itemset.CraftingRecipeReference;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.model.Mutability;
-import nl.knokko.customitems.recipe.ingredient.SIngredient;
+import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.SNoIngredient;
-import nl.knokko.customitems.recipe.result.SResult;
+import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -36,7 +36,7 @@ public class ShapelessRecipeValues extends CraftingRecipeValues {
         return result;
     }
 
-    private Collection<SIngredient> ingredients;
+    private Collection<IngredientValues> ingredients;
 
     public ShapelessRecipeValues(boolean mutable) {
         super(mutable);
@@ -51,12 +51,12 @@ public class ShapelessRecipeValues extends CraftingRecipeValues {
     }
 
     private void load1(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
-        this.result = SResult.load(input, itemSet);
+        this.result = ResultValues.load(input, itemSet);
 
         int numIngredients = (int) input.readNumber((byte) 4, false);
         this.ingredients = new ArrayList<>(numIngredients);
         for (int counter = 0; counter < numIngredients; counter++) {
-            this.ingredients.add(SIngredient.load(input, itemSet));
+            this.ingredients.add(IngredientValues.load(input, itemSet));
         }
     }
 
@@ -65,7 +65,7 @@ public class ShapelessRecipeValues extends CraftingRecipeValues {
         output.addByte(RecipeEncoding.SHAPELESS_RECIPE);
         result.save(output);
         output.addNumber(ingredients.size(), (byte) 4, false);
-        for (SIngredient ingredient : ingredients) {
+        for (IngredientValues ingredient : ingredients) {
             ingredient.save(output);
         }
     }
@@ -75,11 +75,11 @@ public class ShapelessRecipeValues extends CraftingRecipeValues {
         return new ShapelessRecipeValues(this, mutable);
     }
 
-    public Collection<SIngredient> getIngredients() {
+    public Collection<IngredientValues> getIngredients() {
         return new ArrayList<>(ingredients);
     }
 
-    public void setIngredients(Collection<SIngredient> newIngredients) {
+    public void setIngredients(Collection<IngredientValues> newIngredients) {
         assertMutable();
         Checks.nonNull(newIngredients);
         this.ingredients = Mutability.createDeepCopy(newIngredients, false);
@@ -91,7 +91,7 @@ public class ShapelessRecipeValues extends CraftingRecipeValues {
 
         if (ingredients == null) throw new ProgrammingValidationException("No ingredients");
         int ingredientIndex = 0;
-        for (SIngredient ingredient : ingredients) {
+        for (IngredientValues ingredient : ingredients) {
             ingredientIndex++;
 
             if (ingredient == null) throw new ProgrammingValidationException("Missing ingredient " + ingredientIndex);
@@ -108,12 +108,12 @@ public class ShapelessRecipeValues extends CraftingRecipeValues {
                 CraftingRecipeValues otherRecipe = otherReference.get();
                 if (otherRecipe instanceof ShapelessRecipeValues) {
 
-                    Collection<SIngredient> otherIngredients = ((ShapelessRecipeValues) otherRecipe).ingredients;
+                    Collection<IngredientValues> otherIngredients = ((ShapelessRecipeValues) otherRecipe).ingredients;
 
                     if (otherIngredients.size() == this.ingredients.size()) {
                         int size = this.ingredients.size();
-                        List<SIngredient> ownIngredientList = new ArrayList<>(this.ingredients);
-                        List<SIngredient> otherIngredientList = new ArrayList<>(otherIngredients);
+                        List<IngredientValues> ownIngredientList = new ArrayList<>(this.ingredients);
+                        List<IngredientValues> otherIngredientList = new ArrayList<>(otherIngredients);
 
                         int[] ownConflicts = new int[size];
                         int[] otherConflicts = new int[size];

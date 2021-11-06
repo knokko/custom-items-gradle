@@ -10,7 +10,7 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
-public class SCopiedResult extends SResult {
+public class SCopiedResult extends ResultValues {
 
     static SCopiedResult load(BitInput input, byte encoding) throws UnknownEncodingException {
         SCopiedResult result = new SCopiedResult(false);

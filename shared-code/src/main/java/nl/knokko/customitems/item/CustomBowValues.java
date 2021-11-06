@@ -2,7 +2,7 @@ package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.encoding.ItemEncoding;
 import nl.knokko.customitems.itemset.SItemSet;
-import nl.knokko.customitems.recipe.ingredient.SIngredient;
+import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.texture.BowTextureValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -115,7 +115,7 @@ public class CustomBowValues extends CustomToolValues {
         this.hasGravity = input.readBoolean();
         this.allowEnchanting = input.readBoolean();
         this.allowAnvilActions = input.readBoolean();
-        this.repairItem = SIngredient.load(input, itemSet);
+        this.repairItem = IngredientValues.load(input, itemSet);
     }
 
     private void load3(BitInput input, SItemSet itemSet) throws UnknownEncodingException {

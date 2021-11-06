@@ -1,9 +1,8 @@
 package nl.knokko.customitems.recipe.ingredient;
 
-import nl.knokko.customitems.encoding.RecipeEncoding;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.model.ModelValues;
-import nl.knokko.customitems.recipe.result.SResult;
+import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.Validation;
@@ -13,9 +12,9 @@ import nl.knokko.util.bits.BitOutput;
 
 import static nl.knokko.customitems.encoding.RecipeEncoding.Ingredient.*;
 
-public abstract class SIngredient extends ModelValues {
+public abstract class IngredientValues extends ModelValues {
 
-    public static SIngredient load(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    public static IngredientValues load(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
 
         if (encoding == VANILLA_SIMPLE || encoding == VANILLA_SIMPLE_2) {
@@ -31,28 +30,28 @@ public abstract class SIngredient extends ModelValues {
         }
     }
 
-    protected SResult remainingItem;
+    protected ResultValues remainingItem;
 
-    SIngredient(boolean mutable) {
+    IngredientValues(boolean mutable) {
         super(mutable);
 
         remainingItem = null;
     }
 
-    SIngredient(SIngredient toCopy, boolean mutable) {
+    IngredientValues(IngredientValues toCopy, boolean mutable) {
         super(mutable);
 
         this.remainingItem = toCopy.getRemainingItem();
     }
 
     @Override
-    public abstract SIngredient copy(boolean mutable);
+    public abstract IngredientValues copy(boolean mutable);
 
-    public abstract boolean conflictsWith(SIngredient other);
+    public abstract boolean conflictsWith(IngredientValues other);
 
     protected void loadRemainingItem(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
         if (input.readBoolean()) {
-            this.remainingItem = SResult.load(input, itemSet);
+            this.remainingItem = ResultValues.load(input, itemSet);
         } else {
             this.remainingItem = null;
         }
@@ -67,11 +66,11 @@ public abstract class SIngredient extends ModelValues {
         }
     }
 
-    public SResult getRemainingItem() {
+    public ResultValues getRemainingItem() {
         return remainingItem;
     }
 
-    public void setRemainingItem(SResult newRemainingItem) {
+    public void setRemainingItem(ResultValues newRemainingItem) {
         assertMutable();
         if (newRemainingItem != null) {
             this.remainingItem = newRemainingItem.copy(false);

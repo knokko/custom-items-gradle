@@ -2,7 +2,7 @@ package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.encoding.ItemEncoding;
 import nl.knokko.customitems.itemset.SItemSet;
-import nl.knokko.customitems.recipe.ingredient.SIngredient;
+import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.SNoIngredient;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
@@ -10,8 +10,6 @@ import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
-
-import java.util.ArrayList;
 
 public class CustomToolValues extends CustomItemValues {
 
@@ -68,7 +66,7 @@ public class CustomToolValues extends CustomItemValues {
     protected boolean allowEnchanting;
     protected boolean allowAnvilActions;
 
-    protected SIngredient repairItem;
+    protected IngredientValues repairItem;
 
     protected int entityHitDurabilityLoss;
     protected int blockBreakDurabilityLoss;
@@ -153,7 +151,7 @@ public class CustomToolValues extends CustomItemValues {
 
     protected void loadToolOnlyPropertiesA3(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
         loadToolOnlyPropertiesA2(input);
-        this.repairItem = SIngredient.load(input, itemSet);
+        this.repairItem = IngredientValues.load(input, itemSet);
     }
 
     protected void loadToolOnlyPropertiesA4(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
@@ -165,7 +163,7 @@ public class CustomToolValues extends CustomItemValues {
         }
         this.allowEnchanting = input.readBoolean();
         this.allowAnvilActions = input.readBoolean();
-        this.repairItem = SIngredient.load(input, itemSet);
+        this.repairItem = IngredientValues.load(input, itemSet);
     }
 
     protected void loadToolOnlyPropertiesB6(BitInput input) {
@@ -305,7 +303,7 @@ public class CustomToolValues extends CustomItemValues {
         return allowAnvilActions;
     }
 
-    public SIngredient getRepairItem() {
+    public IngredientValues getRepairItem() {
         return repairItem;
     }
 
@@ -332,7 +330,7 @@ public class CustomToolValues extends CustomItemValues {
         this.allowAnvilActions = newAllowAnvilActions;
     }
 
-    public void setRepairItem(SIngredient newRepairItem) {
+    public void setRepairItem(IngredientValues newRepairItem) {
         assertMutable();
         Checks.notNull(newRepairItem);
         this.repairItem = newRepairItem.copy(false);

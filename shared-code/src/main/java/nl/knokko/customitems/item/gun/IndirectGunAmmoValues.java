@@ -1,7 +1,7 @@
 package nl.knokko.customitems.item.gun;
 
 import nl.knokko.customitems.itemset.SItemSet;
-import nl.knokko.customitems.recipe.ingredient.SIngredient;
+import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.SNoIngredient;
 import nl.knokko.customitems.sound.CISound;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -28,7 +28,7 @@ public class IndirectGunAmmoValues extends GunAmmoValues {
         return result;
     }
 
-    private SIngredient reloadItem;
+    private IngredientValues reloadItem;
     private int cooldown;
     private int storedAmmo;
     private int reloadTime;
@@ -89,7 +89,7 @@ public class IndirectGunAmmoValues extends GunAmmoValues {
     }
 
     private void load1(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
-        this.reloadItem = SIngredient.load(input, itemSet);
+        this.reloadItem = IngredientValues.load(input, itemSet);
         this.cooldown = input.readInt();
         this.storedAmmo = input.readInt();
         this.reloadTime = input.readInt();
@@ -107,7 +107,7 @@ public class IndirectGunAmmoValues extends GunAmmoValues {
         }
     }
 
-    public SIngredient getReloadItem() {
+    public IngredientValues getReloadItem() {
         return reloadItem;
     }
 
@@ -132,7 +132,7 @@ public class IndirectGunAmmoValues extends GunAmmoValues {
         return endReloadSound;
     }
 
-    public void setReloadItem(SIngredient newReloadItem) {
+    public void setReloadItem(IngredientValues newReloadItem) {
         assertMutable();
         Checks.notNull(newReloadItem);
         this.reloadItem = newReloadItem.copy(false);

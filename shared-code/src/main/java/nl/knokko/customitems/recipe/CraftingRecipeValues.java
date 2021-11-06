@@ -5,8 +5,7 @@ import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.itemset.CraftingRecipeReference;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.model.ModelValues;
-import nl.knokko.customitems.recipe.ingredient.SIngredient;
-import nl.knokko.customitems.recipe.result.SResult;
+import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.customitems.recipe.result.SSimpleVanillaResult;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
@@ -32,7 +31,7 @@ public abstract class CraftingRecipeValues extends ModelValues {
         }
     }
 
-    protected SResult result;
+    protected ResultValues result;
 
     CraftingRecipeValues(boolean mutable) {
         super(mutable);
@@ -54,11 +53,11 @@ public abstract class CraftingRecipeValues extends ModelValues {
     @Override
     public abstract CraftingRecipeValues copy(boolean mutable);
 
-    public SResult getResult() {
+    public ResultValues getResult() {
         return result;
     }
 
-    public void setResult(SResult newResult) {
+    public void setResult(ResultValues newResult) {
         assertMutable();
         Checks.notNull(newResult);
         this.result = newResult.copy(false);

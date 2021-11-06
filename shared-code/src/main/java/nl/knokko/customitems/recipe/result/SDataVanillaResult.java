@@ -10,7 +10,7 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
-public class SDataVanillaResult extends SResult {
+public class SDataVanillaResult extends ResultValues {
 
     static SDataVanillaResult load(BitInput input, byte encoding) throws UnknownEncodingException {
         SDataVanillaResult result = new SDataVanillaResult(false);

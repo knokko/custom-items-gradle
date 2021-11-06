@@ -11,7 +11,7 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
-public class SCustomItemIngredient extends SIngredient {
+public class SCustomItemIngredient extends IngredientValues {
 
     static SCustomItemIngredient load(BitInput input, byte encoding, SItemSet itemSet) throws UnknownEncodingException {
         SCustomItemIngredient ingredient = new SCustomItemIngredient(false);
@@ -63,7 +63,7 @@ public class SCustomItemIngredient extends SIngredient {
     }
 
     @Override
-    public boolean conflictsWith(SIngredient other) {
+    public boolean conflictsWith(IngredientValues other) {
         if (other instanceof SCustomItemIngredient) {
             return this.item.equals(((SCustomItemIngredient) other).item);
         } else {
