@@ -3,6 +3,7 @@ package nl.knokko.customitems.recipe.ingredient;
 import nl.knokko.customitems.encoding.RecipeEncoding;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -24,6 +25,17 @@ public class DataVanillaIngredientValues extends IngredientValues {
         }
 
         return ingredient;
+    }
+
+    public static DataVanillaIngredientValues createQuick(
+            CIMaterial material, int dataValue, int amount, ResultValues remainingItem
+    ) {
+        DataVanillaIngredientValues result = new DataVanillaIngredientValues(true);
+        result.setMaterial(material);
+        result.setAmount((byte) amount);
+        result.setDataValue((byte) dataValue);
+        result.setRemainingItem(remainingItem);
+        return result;
     }
 
     private byte amount;

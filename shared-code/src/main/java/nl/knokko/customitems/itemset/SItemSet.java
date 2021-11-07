@@ -84,9 +84,16 @@ public class SItemSet {
     public SItemSet(Side side) {
         Checks.notNull(side);
         this.side = side;
+        initialize();
     }
 
-    public void initialize() {
+    public SItemSet(BitInput input, Side side) throws IntegrityException, UnknownEncodingException {
+        Checks.notNull(side);
+        this.side = side;
+        load(input);
+    }
+
+    private void initialize() {
         textures = new ArrayList<>();
         armorTextures = new ArrayList<>();
         items = new ArrayList<>();
@@ -183,7 +190,7 @@ public class SItemSet {
         }
     }
 
-    public void load(BitInput input) throws IntegrityException, UnknownEncodingException {
+    private void load(BitInput input) throws IntegrityException, UnknownEncodingException {
         this.intReferences = new ArrayList<>();
         this.stringReferences = new ArrayList<>();
 

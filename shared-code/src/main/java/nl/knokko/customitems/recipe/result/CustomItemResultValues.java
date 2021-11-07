@@ -25,6 +25,13 @@ public class CustomItemResultValues extends ResultValues {
         return result;
     }
 
+    public static CustomItemResultValues createQuick(ItemReference item, int amount) {
+        CustomItemResultValues result = new CustomItemResultValues(true);
+        result.setItem(item);
+        result.setAmount((byte) amount);
+        return result;
+    }
+
     private byte amount;
     private ItemReference item;
 

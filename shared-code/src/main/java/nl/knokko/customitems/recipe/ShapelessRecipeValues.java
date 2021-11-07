@@ -36,6 +36,13 @@ public class ShapelessRecipeValues extends CraftingRecipeValues {
         return result;
     }
 
+    public static ShapelessRecipeValues createQuick(Collection<IngredientValues> ingredients, ResultValues recipeResult) {
+        ShapelessRecipeValues result = new ShapelessRecipeValues(false);
+        result.ingredients = ingredients;
+        result.result = recipeResult;
+        return result;
+    }
+
     private Collection<IngredientValues> ingredients;
 
     public ShapelessRecipeValues(boolean mutable) {

@@ -32,6 +32,15 @@ public class ShapedRecipeValues extends CraftingRecipeValues {
         return result;
     }
 
+    public static ShapedRecipeValues createQuick(IngredientValues[] ingredients, ResultValues recipeResult) {
+        ShapedRecipeValues result = new ShapedRecipeValues(true);
+        for (int index = 0; index < 9; index++) {
+            result.setIngredientAt(index % 3, index / 3, ingredients[index]);
+        }
+        result.setResult(recipeResult);
+        return result;
+    }
+
     private final IngredientValues[] ingredients;
 
     public ShapedRecipeValues(boolean mutable) {

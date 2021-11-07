@@ -1,16 +1,18 @@
 package nl.knokko.customitems.editor.unittest.itemset;
 
-import nl.knokko.customitems.editor.set.ItemSet;
-import nl.knokko.customitems.editor.set.item.CustomItem;
-import nl.knokko.customitems.editor.set.item.SimpleCustomItem;
-import nl.knokko.customitems.editor.set.recipe.ShapedRecipe;
-import nl.knokko.customitems.editor.set.recipe.ShapelessRecipe;
-import nl.knokko.customitems.editor.set.recipe.ingredient.*;
-import nl.knokko.customitems.editor.set.recipe.result.CustomItemResult;
-import nl.knokko.customitems.editor.set.recipe.result.SimpleVanillaResult;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.item.CustomItemType;
+import nl.knokko.customitems.item.SimpleCustomItemValues;
+import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.recipe.ShapedRecipeValues;
+import nl.knokko.customitems.recipe.ShapelessRecipeValues;
+import nl.knokko.customitems.recipe.ingredient.*;
+import nl.knokko.customitems.recipe.result.CustomItemResultValues;
+import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
 import org.junit.Test;
+
+import java.util.Collection;
 
 import static nl.knokko.customitems.editor.unittest.itemset.BackwardHelper.*;
 import static org.junit.Assert.*;
@@ -19,57 +21,57 @@ public class Backward1 {
 
     @Test
     public void testBackwardCompatibility1() {
-        ItemSet set1 = BackwardHelper.loadItemSet("backward1");
+        SItemSet set1 = BackwardHelper.loadItemSet("backward1");
         testTextures1(set1, 2);
         testItems1(set1, 1);
         testRecipes1(set1, 2);
     }
 
-    static void testTextures1(ItemSet itemSet, int numTextures) {
-        assertEquals(numTextures, itemSet.getBackingTextures().size());
+    static void testTextures1(SItemSet itemSet, int numTextures) {
+        assertEquals(numTextures, itemSet.getTextures().size());
 
         checkTexture(itemSet, "test1");
         checkTexture(itemSet, "gun1");
     }
 
-    static void testItems1(ItemSet itemSet, int numItems) {
-        assertEquals(numItems, itemSet.getBackingItems().size());
+    static void testItems1(SItemSet itemSet, int numItems) {
+        assertEquals(numItems, itemSet.getItems().size());
 
-        SimpleCustomItem simple1 = (SimpleCustomItem) itemSet.getCustomItemByName("simple1");
+        SimpleCustomItemValues simple1 = (SimpleCustomItemValues) itemSet.getItem("simple1").get();
         assertEquals(CustomItemType.DIAMOND_HOE, simple1.getItemType());
         // Internal item damage is no longer relevant
         assertEquals("Simple 1", simple1.getDisplayName());
-        assertArrayEquals(stringArray("line1", "Second line"), simple1.getLore());
-        assertEquals(itemSet.getTextureByName("test1"), simple1.getTexture());
+        assertEquals(listOf("line1", "Second line"), simple1.getLore());
+        assertEquals(itemSet.getTextureReference("test1"), simple1.getTextureReference());
     }
 
-    static void testRecipes1(ItemSet set, int numRecipes) {
-        assertEquals(numRecipes, set.getBackingRecipes().size());
-        assertTrue(set.getBackingRecipes().contains(getShapedRecipe1(set)));
-        assertTrue(set.getBackingRecipes().contains(getShapelessRecipe1(set)));
+    static void testRecipes1(SItemSet set, int numRecipes) {
+        assertEquals(numRecipes, set.getCraftingRecipes().size());
+        assertTrue(set.getCraftingRecipes().stream().anyMatch(candidate -> candidate.equals(getShapedRecipe1(set))));
+        assertTrue(set.getCraftingRecipes().stream().anyMatch(candidate -> candidate.equals(getShapelessRecipe1(set))));
     }
 
-    static ShapedRecipe getShapedRecipe1(ItemSet itemSet) {
-        CustomItem simple1 = itemSet.getCustomItemByName("simple1");
-        Ingredient[] ingredients = {
-                new NoIngredient(), new NoIngredient(), new NoIngredient(),
+    static ShapedRecipeValues getShapedRecipe1(SItemSet itemSet) {
+        ItemReference simple1 = itemSet.getItemReference("simple1");
+        IngredientValues[] ingredients = {
+                new NoIngredientValues(), new NoIngredientValues(), new NoIngredientValues(),
 
-                new SimpleVanillaIngredient(CIMaterial.IRON_INGOT, (byte) 1, null),
-                new CustomItemIngredient(simple1, (byte) 1, null),
-                new DataVanillaIngredient(CIMaterial.WOOL, (byte) 5, (byte) 1, null),
+                SimpleVanillaIngredientValues.createQuick(CIMaterial.IRON_INGOT, 1, null),
+                CustomItemIngredientValues.createQuick(simple1, 1, null),
+                DataVanillaIngredientValues.createQuick(CIMaterial.WOOL, 5, 1, null),
 
-                new NoIngredient(), new NoIngredient(), new NoIngredient()
+                new NoIngredientValues(), new NoIngredientValues(), new NoIngredientValues()
         };
-        return new ShapedRecipe(ingredients, new CustomItemResult(simple1, (byte) 1));
+        return ShapedRecipeValues.createQuick(ingredients, CustomItemResultValues.createQuick(simple1, (byte) 1));
     }
 
-    static ShapelessRecipe getShapelessRecipe1(ItemSet itemSet) {
-        CustomItem simple1 = itemSet.getCustomItemByName("simple1");
-        Ingredient[] ingredients = {
-                new CustomItemIngredient(simple1, (byte) 1, null),
-                new SimpleVanillaIngredient(CIMaterial.APPLE, (byte) 1, null),
-                new DataVanillaIngredient(CIMaterial.CARPET, (byte) 8, (byte) 1, null)
-        };
-        return new ShapelessRecipe(new SimpleVanillaResult(CIMaterial.DIAMOND, (byte) 1), ingredients);
+    static ShapelessRecipeValues getShapelessRecipe1(SItemSet itemSet) {
+        ItemReference simple1 = itemSet.getItemReference("simple1");
+        Collection<IngredientValues> ingredients = listOf(
+                CustomItemIngredientValues.createQuick(simple1, 1, null),
+                SimpleVanillaIngredientValues.createQuick(CIMaterial.APPLE, 1, null),
+                DataVanillaIngredientValues.createQuick(CIMaterial.CARPET, 8, 1, null)
+        );
+        return ShapelessRecipeValues.createQuick(ingredients, SimpleVanillaResultValues.createQuick(CIMaterial.DIAMOND, 1));
     }
 }

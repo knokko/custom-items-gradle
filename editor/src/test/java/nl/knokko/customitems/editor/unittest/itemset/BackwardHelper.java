@@ -1,6 +1,8 @@
 package nl.knokko.customitems.editor.unittest.itemset;
 
 import nl.knokko.customitems.editor.set.ItemSet;
+import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.texture.BaseTextureValues;
 import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.util.bits.BitInputStream;
 
@@ -10,9 +12,7 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,7 +23,7 @@ public class BackwardHelper {
 
     public static final float DELTA = 0.0001f;
 
-    public static ItemSet loadItemSet(String name) {
+    public static SItemSet loadItemSet(String name) {
         String resourceName = "backward/itemset/" + name + ".cisb";
         InputStream rawInput = BackwardHelper.class.getClassLoader().getResourceAsStream(resourceName);
 
@@ -32,9 +32,9 @@ public class BackwardHelper {
         }
 
         BitInputStream bitInput = new BitInputStream(new BufferedInputStream(rawInput));
-        ItemSet result;
+        SItemSet result;
         try {
-            result = new ItemSet(name, bitInput);
+            result = new SItemSet(bitInput, SItemSet.Side.EDITOR);
         } catch (Exception e) {
             throw new RuntimeException("Let the test fail", e);
         }
@@ -97,8 +97,8 @@ public class BackwardHelper {
         }
     }
 
-    public static void checkTexture(ItemSet itemSet, String expectedName) {
-        NamedImage texture = itemSet.getTextureByName(expectedName);
+    public static void checkTexture(SItemSet itemSet, String expectedName) {
+        BaseTextureValues texture = itemSet.getTexture(expectedName).get();
         BufferedImage expectedImage = loadImage(texture.getName());
         BufferedImage actualImage = texture.getImage();
 

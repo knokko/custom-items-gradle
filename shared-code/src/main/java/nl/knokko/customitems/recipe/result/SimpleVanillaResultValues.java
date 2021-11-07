@@ -24,6 +24,13 @@ public class SimpleVanillaResultValues extends ResultValues {
         return result;
     }
 
+    public static SimpleVanillaResultValues createQuick(CIMaterial material, int amount) {
+        SimpleVanillaResultValues result = new SimpleVanillaResultValues(true);
+        result.setMaterial(material);
+        result.setAmount((byte) amount);
+        return result;
+    }
+
     private byte amount;
     private CIMaterial material;
 

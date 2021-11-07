@@ -4,6 +4,7 @@ import nl.knokko.customitems.encoding.RecipeEncoding;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -25,6 +26,14 @@ public class CustomItemIngredientValues extends IngredientValues {
         }
 
         return ingredient;
+    }
+
+    public static CustomItemIngredientValues createQuick(ItemReference item, int amount, ResultValues remainingItem) {
+        CustomItemIngredientValues result = new CustomItemIngredientValues(true);
+        result.setItem(item);
+        result.setAmount((byte) amount);
+        result.setRemainingItem(remainingItem);
+        return result;
     }
 
     private byte amount;
