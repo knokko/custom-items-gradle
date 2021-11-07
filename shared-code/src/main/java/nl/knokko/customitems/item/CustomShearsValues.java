@@ -132,7 +132,7 @@ public class CustomShearsValues extends CustomToolValues {
         // There is nothing to be done until the next encoding is known
     }
 
-    private int getShearDurabilityLoss() {
+    public int getShearDurabilityLoss() {
         return shearDurabilityLoss;
     }
 
