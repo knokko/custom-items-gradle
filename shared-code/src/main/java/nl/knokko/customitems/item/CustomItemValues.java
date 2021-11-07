@@ -87,7 +87,7 @@ public abstract class CustomItemValues extends ModelValues {
     protected List<Boolean> itemFlags;
 
     // Vanilla based power properties
-    protected Collection<CIAttributeModifier> attributeModifiers;
+    protected Collection<AttributeModifierValues> attributeModifiers;
     protected Collection<CIEnchantment> defaultEnchantments;
 
     // Potion properties
@@ -242,13 +242,13 @@ public abstract class CustomItemValues extends ModelValues {
         int numAttributeModifiers = input.readByte() & 0xFF;
         this.attributeModifiers = new ArrayList<>(numAttributeModifiers);
         for (int counter = 0; counter < numAttributeModifiers; counter++) {
-            this.attributeModifiers.add(CIAttributeModifier.load1(input, false));
+            this.attributeModifiers.add(AttributeModifierValues.load1(input, false));
         }
     }
 
     protected void saveAttributeModifiers2(BitOutput output) {
         output.addByte((byte) attributeModifiers.size());
-        for (CIAttributeModifier attributeModifier : attributeModifiers) {
+        for (AttributeModifierValues attributeModifier : attributeModifiers) {
             attributeModifier.save1(output);
         }
     }
@@ -531,7 +531,7 @@ public abstract class CustomItemValues extends ModelValues {
         return new ArrayList<>(itemFlags);
     }
 
-    public Collection<CIAttributeModifier> getAttributeModifiers() {
+    public Collection<AttributeModifierValues> getAttributeModifiers() {
         return new ArrayList<>(attributeModifiers);
     }
 
@@ -624,7 +624,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.itemFlags = new ArrayList<>(newItemFlags);
     }
 
-    public void setAttributeModifiers(List<CIAttributeModifier> newAttributeModifiers) {
+    public void setAttributeModifiers(List<AttributeModifierValues> newAttributeModifiers) {
         assertMutable();
         Checks.nonNull(newAttributeModifiers);
         this.attributeModifiers = Mutability.createDeepCopy(newAttributeModifiers, false);
@@ -714,7 +714,7 @@ public abstract class CustomItemValues extends ModelValues {
 
         if (attributeModifiers == null) throw new ProgrammingValidationException("No attribute modifiers");
         if (attributeModifiers.size() > Byte.MAX_VALUE) throw new ValidationException("Too many attribute modifiers");
-        for (CIAttributeModifier attributeModifier : attributeModifiers) {
+        for (AttributeModifierValues attributeModifier : attributeModifiers) {
             if (attributeModifier == null) throw new ProgrammingValidationException("Missing an attribute modifier");
             Validation.scope("Attribute modifier", attributeModifier::validate);
         }

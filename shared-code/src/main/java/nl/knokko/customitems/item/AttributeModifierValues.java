@@ -9,11 +9,22 @@ import nl.knokko.util.bits.BitOutput;
 
 import java.util.Locale;
 
-public class CIAttributeModifier extends ModelValues  {
+public class AttributeModifierValues extends ModelValues  {
 
-    public static CIAttributeModifier load1(BitInput input, boolean mutable) {
-        CIAttributeModifier result = new CIAttributeModifier(mutable);
+    public static AttributeModifierValues load1(BitInput input, boolean mutable) {
+        AttributeModifierValues result = new AttributeModifierValues(mutable);
         result.load1(input);
+        return result;
+    }
+
+    public static AttributeModifierValues createQuick(
+            Attribute attribute, Slot slot, Operation operation, double value
+    ) {
+        AttributeModifierValues result = new AttributeModifierValues(true);
+        result.setAttribute(attribute);
+        result.setSlot(slot);
+        result.setOperation(operation);
+        result.setValue(value);
         return result;
     }
 
@@ -22,7 +33,7 @@ public class CIAttributeModifier extends ModelValues  {
     private Operation operation;
     private double value;
 
-    public CIAttributeModifier(boolean mutable) {
+    public AttributeModifierValues(boolean mutable) {
         super(mutable);
 
         this.attribute = Attribute.ATTACK_SPEED;
@@ -31,7 +42,7 @@ public class CIAttributeModifier extends ModelValues  {
         this.value = 5.0;
     }
 
-    public CIAttributeModifier(CIAttributeModifier toCopy, boolean mutable) {
+    public AttributeModifierValues(AttributeModifierValues toCopy, boolean mutable) {
         super(mutable);
 
         this.attribute = toCopy.getAttribute();
@@ -48,8 +59,8 @@ public class CIAttributeModifier extends ModelValues  {
     }
 
     @Override
-    public CIAttributeModifier copy(boolean mutable) {
-        return new CIAttributeModifier(this, mutable);
+    public AttributeModifierValues copy(boolean mutable) {
+        return new AttributeModifierValues(this, mutable);
     }
 
     public void save1(BitOutput output) {

@@ -1,6 +1,6 @@
 package nl.knokko.customitems.effect;
 
-import nl.knokko.customitems.item.CIAttributeModifier;
+import nl.knokko.customitems.item.AttributeModifierValues;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -18,14 +18,14 @@ public class SEquippedPotionEffect extends ModelValues  {
 
     private EffectType type;
     private int level;
-    private CIAttributeModifier.Slot slot;
+    private AttributeModifierValues.Slot slot;
 
     public SEquippedPotionEffect(boolean mutable) {
         super(mutable);
 
         this.type = EffectType.SPEED;
         this.level = 1;
-        this.slot = CIAttributeModifier.Slot.MAINHAND;
+        this.slot = AttributeModifierValues.Slot.MAINHAND;
     }
 
     public SEquippedPotionEffect(SEquippedPotionEffect toCopy, boolean mutable) {
@@ -39,7 +39,7 @@ public class SEquippedPotionEffect extends ModelValues  {
     private void load1(BitInput input) {
         this.type = EffectType.valueOf(input.readString());
         this.level = input.readInt();
-        this.slot = CIAttributeModifier.Slot.valueOf(input.readString());
+        this.slot = AttributeModifierValues.Slot.valueOf(input.readString());
     }
 
     @Override
@@ -61,7 +61,7 @@ public class SEquippedPotionEffect extends ModelValues  {
         return level;
     }
 
-    public CIAttributeModifier.Slot getSlot() {
+    public AttributeModifierValues.Slot getSlot() {
         return slot;
     }
 
@@ -76,7 +76,7 @@ public class SEquippedPotionEffect extends ModelValues  {
         this.level = newLevel;
     }
 
-    public void setSlot(CIAttributeModifier.Slot newSlot) {
+    public void setSlot(AttributeModifierValues.Slot newSlot) {
         assertMutable();
         Checks.notNull(newSlot);
         this.slot = newSlot;
