@@ -1,10 +1,5 @@
 package nl.knokko.customitems.editor.unittest.itemset;
 
-import nl.knokko.customitems.editor.set.item.*;
-import nl.knokko.customitems.editor.set.item.CustomItem;
-import nl.knokko.customitems.editor.set.recipe.ingredient.DataVanillaIngredient;
-import nl.knokko.customitems.editor.set.recipe.ingredient.NoIngredient;
-import nl.knokko.customitems.editor.set.recipe.ingredient.SimpleVanillaIngredient;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.recipe.ingredient.DataVanillaIngredientValues;
