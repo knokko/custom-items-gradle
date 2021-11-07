@@ -23,18 +23,25 @@ public class BaseTextureValues extends ModelValues {
     public static final byte ENCODING_BOW_1 = 1;
     public static final byte ENCODING_CROSSBOW_1 = 2;
 
-    public static BaseTextureValues load(BitInput input, boolean expectCompressed, boolean mutable) throws UnknownEncodingException {
-        byte encoding = input.readByte();
+    public static BaseTextureValues load(
+            BitInput input, boolean expectCompressed
+    ) throws UnknownEncodingException {
+        return load(input, input.readByte(), expectCompressed)    ;
+    }
+
+    public static BaseTextureValues load(
+            BitInput input, byte encoding, boolean expectCompressed
+    ) throws UnknownEncodingException {
         BaseTextureValues result;
 
         if (encoding == ENCODING_SIMPLE_1) {
-            result = new BaseTextureValues(mutable);
+            result = new BaseTextureValues(false);
             result.loadBase1(input, expectCompressed);
         } else if (encoding == ENCODING_BOW_1) {
-            result = new BowTextureValues(mutable);
+            result = new BowTextureValues(false);
             ((BowTextureValues) result).loadBow1(input, expectCompressed);
         } else if (encoding == ENCODING_CROSSBOW_1) {
-            result = new CrossbowTextureValues(mutable);
+            result = new CrossbowTextureValues(false);
             ((CrossbowTextureValues) result).loadCrossbow1(input);
         } else {
             throw new UnknownEncodingException("Texture", encoding);

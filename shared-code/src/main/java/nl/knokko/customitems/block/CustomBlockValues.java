@@ -15,18 +15,17 @@ import nl.knokko.util.bits.BitOutput;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.function.Consumer;
 
 public class CustomBlockValues extends ModelValues {
 
     private static final byte ENCODING_1 = 1;
 
     public static CustomBlockValues load(
-            BitInput input, SItemSet itemSet, boolean mutable, int internalId
+            BitInput input, SItemSet itemSet, int internalId
     ) throws UnknownEncodingException {
         byte encoding = input.readByte();
 
-        CustomBlockValues result = new CustomBlockValues(mutable);
+        CustomBlockValues result = new CustomBlockValues(false);
         result.internalId = internalId;
         if (encoding == ENCODING_1) {
             result.load1(input, itemSet);
@@ -98,15 +97,15 @@ public class CustomBlockValues extends ModelValues {
         this.texture = itemSet.getTextureReference(input.readString());
     }
 
-    public void save(BitOutput output, Consumer<Object> saveResult) {
+    public void save(BitOutput output) {
         output.addByte(ENCODING_1);
-        save1(output, saveResult);
+        save1(output);
     }
 
-    private void saveDrops1(BitOutput output, Consumer<Object> saveResult) {
+    private void saveDrops1(BitOutput output) {
         output.addInt(drops.size());
         for (CustomBlockDrop drop : drops) {
-            drop.save(output, saveResult);
+            drop.save(output);
         }
     }
 
@@ -118,9 +117,9 @@ public class CustomBlockValues extends ModelValues {
         }
     }
 
-    private void save1(BitOutput output, Consumer<Object> saveResult) {
+    private void save1(BitOutput output) {
         output.addString(name);
-        saveDrops1(output, saveResult);
+        saveDrops1(output);
         saveTexture1(output);
     }
 

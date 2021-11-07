@@ -19,6 +19,7 @@ abstract class StringBasedReference<M extends Model<V>, V extends ModelValues> {
         Checks.nonNull(name, itemSet);
         this.name = name;
         this.itemSet = itemSet;
+        itemSet.stringReferences.add(this);
     }
 
     StringBasedReference(M model) {

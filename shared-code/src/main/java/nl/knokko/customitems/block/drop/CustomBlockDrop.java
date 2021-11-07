@@ -1,18 +1,13 @@
 package nl.knokko.customitems.block.drop;
 
-import nl.knokko.customitems.item.CustomItem;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.model.ModelValues;
-import nl.knokko.customitems.recipe.OutputTable;
+import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
-import nl.knokko.customitems.util.ExceptionSupplier;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
-
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 public class CustomBlockDrop extends ModelValues {
 
@@ -35,14 +30,14 @@ public class CustomBlockDrop extends ModelValues {
 
     private RequiredItems requiredItems;
     private SilkTouchRequirement silkTouch;
-    private OutputTable itemsToDrop;
+    private OutputTableValues itemsToDrop;
 
     public CustomBlockDrop(boolean mutable) {
         super(mutable);
 
         this.requiredItems = new RequiredItems(false);
         this.silkTouch = SilkTouchRequirement.OPTIONAL;
-        this.itemsToDrop = new OutputTable();
+        this.itemsToDrop = new OutputTableValues(false);
     }
 
     public CustomBlockDrop(CustomBlockDrop toCopy, boolean mutable) {
@@ -75,18 +70,18 @@ public class CustomBlockDrop extends ModelValues {
     ) throws UnknownEncodingException {
         this.requiredItems = RequiredItems.load(input, itemSet, false);
         this.silkTouch = SilkTouchRequirement.valueOf(input.readString());
-        this.itemsToDrop = OutputTable.load1(input, itemSet);
+        this.itemsToDrop = OutputTableValues.load1(input, itemSet);
     }
 
-    public void save(BitOutput output, Consumer<Object> saveResult) {
+    public void save(BitOutput output) {
         output.addByte(ENCODING_1);
-        save1(output, saveResult);
+        save1(output);
     }
 
-    private void save1(BitOutput output, Consumer<Object> saveResult) {
+    private void save1(BitOutput output) {
         requiredItems.save(output);
         output.addString(silkTouch.name());
-        itemsToDrop.save1(output, saveResult);
+        itemsToDrop.save1(output);
     }
 
     public RequiredItems getRequiredItems() {
@@ -97,8 +92,8 @@ public class CustomBlockDrop extends ModelValues {
         return silkTouch;
     }
 
-    public OutputTable getItemsToDrop() {
-        return itemsToDrop.copy();
+    public OutputTableValues getItemsToDrop() {
+        return itemsToDrop.copy(false);
     }
 
     public void setRequiredItems(RequiredItems newRequiredItems) {
@@ -111,9 +106,9 @@ public class CustomBlockDrop extends ModelValues {
         this.silkTouch = newRequirement;
     }
 
-    public void setItemsToDrop(OutputTable newItemsToDrop) {
+    public void setItemsToDrop(OutputTableValues newItemsToDrop) {
         assertMutable();
-        this.itemsToDrop = newItemsToDrop.copy();
+        this.itemsToDrop = newItemsToDrop.copy(false);
     }
 
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {
@@ -126,9 +121,6 @@ public class CustomBlockDrop extends ModelValues {
 
         if (itemsToDrop == null)
             throw new ProgrammingValidationException("itemsToDrop is null");
-        String itemsToDropError = itemsToDrop.validate();
-        if (itemsToDropError != null)
-            throw new ValidationException(itemsToDropError);
     }
 
     public void validateComplete(
@@ -137,5 +129,6 @@ public class CustomBlockDrop extends ModelValues {
         validateIndependent();
 
         requiredItems.validateComplete(itemSet);
+        itemsToDrop.validate(itemSet);
     }
 }

@@ -19,9 +19,16 @@ import java.util.Collection;
 
 public class OutputTableValues extends ModelValues {
 
-    public static OutputTableValues load1(BitInput input, SItemSet itemSet, boolean mutable) throws UnknownEncodingException {
-        OutputTableValues result = new OutputTableValues(mutable);
-        result.load1(input, itemSet);
+    public static OutputTableValues load1(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+        OutputTableValues result = new OutputTableValues(false);
+        int numEntries = input.readByte();
+        result.entries = new ArrayList<>(numEntries);
+
+        for (int counter = 0; counter < numEntries; counter++) {
+            Entry entry = new Entry(false);
+            entry.load1(input, itemSet);
+            result.entries.add(entry);
+        }
         return result;
     }
 
@@ -35,17 +42,6 @@ public class OutputTableValues extends ModelValues {
     public OutputTableValues(OutputTableValues toCopy, boolean mutable) {
         super(mutable);
         this.entries = toCopy.getEntries();
-    }
-
-    private void load1(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
-        int numEntries = input.readByte();
-        this.entries = new ArrayList<>(numEntries);
-
-        for (int counter = 0; counter < numEntries; counter++) {
-            Entry entry = new Entry(false);
-            entry.load1(input, itemSet);
-            this.entries.add(entry);
-        }
     }
 
     public void save1(BitOutput output) {

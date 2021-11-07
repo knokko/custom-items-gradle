@@ -19,6 +19,7 @@ abstract class IntBasedReference<M extends Model<V>, V extends ModelValues> {
         Checks.notNull(itemSet);
         this.id = id;
         this.itemSet = itemSet;
+        itemSet.intReferences.add(this);
     }
 
     IntBasedReference(M model) {

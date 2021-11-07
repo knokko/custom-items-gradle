@@ -13,9 +13,9 @@ import nl.knokko.util.bits.BitOutput;
 
 public class BlockDropValues extends ModelValues {
 
-    public static BlockDropValues load(BitInput input, SItemSet itemSet, boolean mutable) throws UnknownEncodingException {
+    public static BlockDropValues load(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
-        BlockDropValues result = new BlockDropValues(mutable);
+        BlockDropValues result = new BlockDropValues(false);
 
         if (encoding == DropEncoding.Block.ENCODING1) {
             result.load1(input, itemSet);

@@ -1,6 +1,8 @@
 package nl.knokko.customitems.itemset;
 
 import nl.knokko.customitems.block.*;
+import nl.knokko.customitems.block.drop.CustomBlockDrop;
+import nl.knokko.customitems.container.CustomContainer;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.CustomContainerView;
 import nl.knokko.customitems.container.SCustomContainer;
@@ -8,6 +10,7 @@ import nl.knokko.customitems.container.fuel.FuelRegistriesView;
 import nl.knokko.customitems.container.fuel.FuelRegistryValues;
 import nl.knokko.customitems.container.fuel.SFuelRegistry;
 import nl.knokko.customitems.drops.*;
+import nl.knokko.customitems.encoding.SetEncoding;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomItemsView;
 import nl.knokko.customitems.item.SCustomItem;
@@ -21,8 +24,13 @@ import nl.knokko.customitems.recipe.CraftingRecipeValues;
 import nl.knokko.customitems.recipe.CustomCraftingRecipe;
 import nl.knokko.customitems.recipe.CustomRecipesView;
 import nl.knokko.customitems.texture.*;
+import nl.knokko.customitems.trouble.IntegrityException;
+import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.*;
 import nl.knokko.util.bits.BitInput;
+import nl.knokko.util.bits.BitOutput;
+import nl.knokko.util.bits.ByteArrayBitInput;
+import nl.knokko.util.bits.ByteArrayBitOutput;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,6 +39,31 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public class SItemSet {
+
+    private static long generateFakeExportTime() {
+        /*
+         * Unfortunately, we don't know the real export time (when an older version
+         * of the editor was used). Luckily, the export time is mostly just a
+         * unique identifier for the version of an item set.
+         *
+         * When using this method, the chance of generating the same 'id' more than
+         * once is very small.
+         *
+         * The primary drawback is that this will also differ each time the server
+         * is restarted, so it will cause some unnecessary work. Anyway, we only
+         * need this to support old versions of the editor, so users can just
+         * use a newer editor to avoid this.
+         */
+        return (long) (-1_000_000_000_000_000L * Math.random());
+    }
+
+    // <---- INTERNAL USE ONLY ---->
+    Collection<IntBasedReference<?, ?>> intReferences;
+    Collection<StringBasedReference<?, ?>> stringReferences;
+    boolean finishedLoading;
+    // <---- END OF INTERNAL USE ---->
+
+    private long exportTime;
 
     Collection<CustomTexture> textures;
     Collection<ArmorTexture> armorTextures;
@@ -46,7 +79,6 @@ public class SItemSet {
 
     Collection<String> removedItemNames;
 
-    boolean finishedLoading;
     final Side side;
 
     public SItemSet(Side side) {
@@ -72,14 +104,421 @@ public class SItemSet {
         finishedLoading = true;
     }
 
-    private void load(BitInput input) {
-        // TODO The actual loading
+    public void save(BitOutput output, Side targetSide) {
+        output.addByte(SetEncoding.ENCODING_9);
+
+        ByteArrayBitOutput checkedOutput = new ByteArrayBitOutput();
+        saveContent(checkedOutput, targetSide);
+        byte[] contentArray = checkedOutput.getBytes();
+        long hash = computeHash(contentArray);
+
+        output.addLong(hash);
+        output.addByteArray(contentArray);
+    }
+
+    private void saveContent(BitOutput output, Side targetSide) {
+        if (targetSide == Side.EDITOR) {
+            output.addInt(textures.size());
+            for (CustomTexture texture : textures) {
+                texture.getValues().save(output);
+            }
+
+            output.addInt(armorTextures.size());
+            for (ArmorTexture armorTexture : armorTextures) {
+                armorTexture.getValues().save(output);
+            }
+        } else {
+            output.addLong(System.currentTimeMillis());
+        }
+
+        output.addInt(projectileCovers.size());
+        for (SProjectileCover projectileCover : projectileCovers) {
+            projectileCover.getValues().save(output, targetSide);
+        }
+
+        output.addInt(projectiles.size());
+        for (SCustomProjectile projectile : projectiles) {
+            projectile.getValues().save(output);
+        }
+
+        output.addInt(items.size());
+        for (SCustomItem item : items) {
+            item.getValues().save(output, targetSide);
+        }
+
+        output.addInt(blocks.size());
+        for (CustomBlock block : blocks) {
+            output.addInt(block.getValues().getInternalID());
+            block.getValues().save(output);
+        }
+
+        output.addInt(craftingRecipes.size());
+        for (CustomCraftingRecipe recipe : craftingRecipes) {
+            recipe.getValues().save(output);
+        }
+
+        output.addInt(blockDrops.size());
+        for (SBlockDrop drop : blockDrops) {
+            drop.getValues().save(output);
+        }
+
+        output.addInt(mobDrops.size());
+        for (MobDrop drop : mobDrops) {
+            drop.getValues().save(output);
+        }
+
+        output.addInt(fuelRegistries.size());
+        for (SFuelRegistry fuelRegistry : fuelRegistries) {
+            fuelRegistry.getValues().save(output);
+        }
+
+        output.addInt(containers.size());
+        for (SCustomContainer container : containers) {
+            container.getValues().save(output);
+        }
+
+        output.addInt(removedItemNames.size());
+        for (String removedItemName : removedItemNames) {
+            output.addString(removedItemName);
+        }
+    }
+
+    public void load(BitInput input) throws IntegrityException, UnknownEncodingException {
+        this.intReferences = new ArrayList<>();
+        this.stringReferences = new ArrayList<>();
+
+        byte encoding = input.readByte();
+        if (encoding == SetEncoding.ENCODING_1) {
+            load1(input);
+            initDefaults1();
+        } else if (encoding == SetEncoding.ENCODING_2) {
+            load2(input);
+            initDefaults2();
+        } else if (encoding == SetEncoding.ENCODING_3) {
+            load3(input);
+            initDefaults3();
+        } else if (encoding == SetEncoding.ENCODING_4) {
+            load4(input);
+            initDefaults4();
+        } else if (encoding == SetEncoding.ENCODING_5) {
+            load5(input);
+            initDefaults5();
+        } else if (encoding == SetEncoding.ENCODING_6) {
+            load6(input);
+            initDefaults6();
+        } else if (encoding == SetEncoding.ENCODING_7) {
+            load7(input);
+            initDefaults7();
+        } else if (encoding == SetEncoding.ENCODING_8) {
+            load8(input);
+            initDefaults8();
+        } else if (encoding == SetEncoding.ENCODING_9) {
+            load9(input);
+            initDefaults9();
+        } else {
+            throw new UnknownEncodingException("ItemSet", encoding);
+        }
         finishedLoading = true;
-        // TODO Ensure that all references find their model (this must happen before the user can rename models)
+
+        // Ensure that all references find their model (this must happen before the user can rename models)
+        for (IntBasedReference<?, ?> intReference : intReferences) {
+            intReference.get();
+        }
+        for (StringBasedReference<?, ?> stringReference : stringReferences) {
+            stringReference.get();
+        }
+        intReferences = null;
+        stringReferences = null;
+    }
+
+    private void initDefaults1() {
+        initDefaults2();
+    }
+
+    private void initDefaults2() {
+        this.blockDrops = new ArrayList<>();
+        this.mobDrops = new ArrayList<>();
+        initDefaults3();
+    }
+
+    private void initDefaults3() {
+        initDefaults4();
+    }
+
+    private void initDefaults4() {
+        this.projectileCovers = new ArrayList<>();
+        this.projectiles = new ArrayList<>();
+        initDefaults5();
+    }
+
+    private void initDefaults5() {
+        this.exportTime = generateFakeExportTime();
+        initDefaults6();
+    }
+
+    private void initDefaults6() {
+        this.fuelRegistries = new ArrayList<>();
+        this.containers = new ArrayList<>();
+        this.initDefaults7();
+    }
+
+    private void initDefaults7() {
+        this.armorTextures = new ArrayList<>();
+        this.removedItemNames = new ArrayList<>();
+        initDefaults8();
+    }
+
+    private void initDefaults8() {
+        this.blocks = new ArrayList<>();
+        initDefaults9();
+    }
+
+    private void initDefaults9() {
+        // Nothing to be done until the next encoding is known
+    }
+
+    private void loadExportTime(BitInput input) {
+        if (side == Side.PLUGIN) {
+            this.exportTime = input.readLong();
+        }
+    }
+
+    private void loadTextures(BitInput input, boolean readEncoding, boolean expectCompressed) throws UnknownEncodingException {
+        if (side == Side.EDITOR) {
+            int numTextures = input.readInt();
+            this.textures = new ArrayList<>(numTextures);
+            for (int counter = 0; counter < numTextures; counter++) {
+                if (readEncoding) {
+                    this.textures.add(new CustomTexture(BaseTextureValues.load(input, expectCompressed)));
+                } else {
+                    this.textures.add(new CustomTexture(BaseTextureValues.load(input, BaseTextureValues.ENCODING_SIMPLE_1, expectCompressed)));
+                }
+            }
+        }
+    }
+
+    private void loadArmorTextures(BitInput input) throws UnknownEncodingException {
+        if (side == Side.EDITOR) {
+            int numArmorTextures = input.readInt();
+            this.armorTextures = new ArrayList<>(numArmorTextures);
+            for (int counter = 0; counter < numArmorTextures; counter++) {
+                this.armorTextures.add(new ArmorTexture(ArmorTextureValues.load(input)));
+            }
+        }
+    }
+
+    private void loadItems(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
+        int numItems = input.readInt();
+        this.items = new ArrayList<>(numItems);
+        for (int counter = 0; counter < numItems; counter++) {
+            this.items.add(new SCustomItem(CustomItemValues.load(input, this, checkCustomModel)));
+        }
+    }
+
+    private void loadBlocks(BitInput input) throws UnknownEncodingException {
+        int numBlocks = input.readInt();
+        this.blocks = new ArrayList<>(numBlocks);
+        for (int counter = 0; counter < numBlocks; counter++) {
+            int blockID = input.readInt();
+            this.blocks.add(new CustomBlock(CustomBlockValues.load(input, this, blockID)));
+        }
+    }
+
+    private void loadCraftingRecipes(BitInput input) throws UnknownEncodingException {
+        int numRecipes = input.readInt();
+        this.craftingRecipes = new ArrayList<>(numRecipes);
+        for (int counter = 0; counter < numRecipes; counter++) {
+            this.craftingRecipes.add(new CustomCraftingRecipe(CraftingRecipeValues.load(input, this)));
+        }
+    }
+
+    private void loadBlockDrops(BitInput input) throws UnknownEncodingException {
+        int numBlockDrops = input.readInt();
+        this.blockDrops = new ArrayList<>(numBlockDrops);
+        for (int counter = 0; counter < numBlockDrops; counter++) {
+            this.blockDrops.add(new SBlockDrop(BlockDropValues.load(input, this)));
+        }
+    }
+
+    private void loadMobDrops(BitInput input) throws UnknownEncodingException {
+        int numMobDrops = input.readInt();
+        this.mobDrops = new ArrayList<>(numMobDrops);
+        for (int counter = 0; counter < numMobDrops; counter++) {
+            this.mobDrops.add(new MobDrop(MobDropValues.load(input, this)));
+        }
+    }
+
+    private void loadProjectileCovers(BitInput input) throws UnknownEncodingException {
+        int numProjectileCovers = input.readInt();
+        this.projectileCovers = new ArrayList<>(numProjectileCovers);
+        for (int counter = 0; counter < numProjectileCovers; counter++) {
+            this.projectileCovers.add(new SProjectileCover(ProjectileCoverValues.load(input, this)));
+        }
+    }
+
+    private void loadProjectiles(BitInput input) throws UnknownEncodingException {
+        int numProjectiles = input.readInt();
+        this.projectiles = new ArrayList<>(numProjectiles);
+        for (int counter = 0; counter < numProjectiles; counter++) {
+            this.projectiles.add(new SCustomProjectile(CustomProjectileValues.load(input, this)));
+        }
+    }
+
+    private void loadFuelRegistries(BitInput input) throws UnknownEncodingException {
+        int numFuelRegistries = input.readInt();
+        this.fuelRegistries = new ArrayList<>(numFuelRegistries);
+        for (int counter = 0; counter < numFuelRegistries; counter++) {
+            this.fuelRegistries.add(new SFuelRegistry(FuelRegistryValues.load(input, this)));
+        }
+    }
+
+    private void loadContainers(BitInput input) throws UnknownEncodingException {
+        int numContainers = input.readInt();
+        this.containers = new ArrayList<>(numContainers);
+        for (int counter = 0; counter < numContainers; counter++) {
+            this.containers.add(new SCustomContainer(CustomContainerValues.load(input, this)));
+        }
+    }
+
+    private void loadDeletedItemNames(BitInput input) {
+        int numDeletedItems = input.readInt();
+        this.removedItemNames = new ArrayList<>(numDeletedItems);
+        for (int counter = 0; counter < numDeletedItems; counter++) {
+            this.removedItemNames.add(input.readString());
+        }
+    }
+
+    // Note: this hash is only made to check for accidental corruption; NOT malicious inputs
+    // Therefore it doesn't have to be cryptographically strong.
+    private long computeHash(byte[] content) {
+        long result = 0;
+        for (byte b : content) {
+            int i = b + 129;
+            result += i;
+            result += i * b;
+        }
+        return result;
+    }
+
+    private void load1(BitInput input) throws UnknownEncodingException {
+        loadTextures(input, false, false);
+        loadItems(input, false);
+        loadCraftingRecipes(input);
+    }
+
+    private void load2(BitInput input) throws UnknownEncodingException {
+        loadTextures(input, true, false);
+        loadItems(input, false);
+        loadCraftingRecipes(input);
+    }
+
+    private void load3(BitInput input) throws UnknownEncodingException {
+        load2(input);
+        loadBlockDrops(input);
+        loadMobDrops(input);
+    }
+
+    private void load4(BitInput input) throws UnknownEncodingException {
+        loadTextures(input, true, false);
+        loadItems(input, true);
+        loadCraftingRecipes(input);
+        loadBlockDrops(input);
+        loadMobDrops(input);
+    }
+
+    private void load5(BitInput input) throws UnknownEncodingException {
+        loadTextures(input, true, false);
+        loadProjectileCovers(input);
+        loadProjectiles(input);
+        loadItems(input, true);
+        loadCraftingRecipes(input);
+        loadBlockDrops(input);
+        loadMobDrops(input);
+    }
+
+    private interface LoadFunction {
+        void load(BitInput input, long hash) throws UnknownEncodingException;
+    }
+
+    private void loadWithIntegrityCheck(BitInput input, LoadFunction loadContent) throws IntegrityException, UnknownEncodingException {
+        long expectedHash = input.readLong();
+
+        // When the input is corrupted, reading a byte array can load to all kinds of exceptions and errors.
+        // An attempt is made to catch any such error and wrap it in an IntegrityException, which should be more clear
+        // than a weird error.
+        byte[] remaining;
+        try {
+            remaining = input.readByteArray();
+        } catch (Throwable corrupted) {
+            throw new IntegrityException(corrupted);
+        }
+
+        long actualHash = computeHash(remaining);
+        if (expectedHash != actualHash) {
+            throw new IntegrityException(expectedHash, actualHash);
+        }
+
+        BitInput actualInput = new ByteArrayBitInput(remaining);
+        loadContent.load(actualInput, actualHash);
+    }
+
+    private void load6(BitInput rawInput) throws IntegrityException, UnknownEncodingException {
+        loadWithIntegrityCheck(rawInput, (input, hash) -> {
+            this.exportTime = -Math.abs(hash);
+            load5(input);
+        });
+    }
+
+    private void load7(BitInput rawInput) throws IntegrityException, UnknownEncodingException {
+        loadWithIntegrityCheck(rawInput, (input, hash) -> {
+            this.exportTime = -Math.abs(hash);
+            load5(input);
+            loadFuelRegistries(input);
+            loadContainers(input);
+        });
+    }
+
+    private void load8(BitInput rawInput) throws IntegrityException, UnknownEncodingException {
+        loadWithIntegrityCheck(rawInput, (input, hash) -> {
+            loadExportTime(input);
+            loadTextures(input, true, true);
+            loadArmorTextures(input);
+            loadProjectileCovers(input);
+            loadProjectiles(input);
+            loadItems(input, true);
+            loadCraftingRecipes(input);
+            loadBlockDrops(input);
+            loadMobDrops(input);
+            loadFuelRegistries(input);
+            loadContainers(input);
+            loadDeletedItemNames(input);
+        });
+    }
+
+    private void load9(BitInput rawInput) throws IntegrityException, UnknownEncodingException {
+        loadWithIntegrityCheck(rawInput, (input, hash) -> {
+            loadExportTime(input);
+            loadTextures(input, true, true);
+            loadArmorTextures(input);
+            loadProjectileCovers(input);
+            loadProjectiles(input);
+            loadItems(input, true);
+            loadBlocks(input);
+            loadCraftingRecipes(input);
+            loadBlockDrops(input);
+            loadMobDrops(input);
+            loadFuelRegistries(input);
+            loadContainers(input);
+            loadDeletedItemNames(input);
+        });
     }
 
     public Side getSide() {
         return side;
+    }
+
+    public long getExportTime() {
+        return exportTime;
     }
 
     public CustomTexturesView getTextures() {
