@@ -7,25 +7,32 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
-public class CIEnchantment extends ModelValues  {
+public class EnchantmentValues extends ModelValues  {
 
-    public static CIEnchantment load1(BitInput input, boolean mutable) {
-        CIEnchantment result = new CIEnchantment(mutable);
+    public static EnchantmentValues load1(BitInput input, boolean mutable) {
+        EnchantmentValues result = new EnchantmentValues(mutable);
         result.load1(input);
+        return result;
+    }
+
+    public static EnchantmentValues createQuick(EnchantmentType type, int level) {
+        EnchantmentValues result = new EnchantmentValues(true);
+        result.setType(type);
+        result.setLevel(level);
         return result;
     }
 
     private EnchantmentType type;
     private int level;
 
-    public CIEnchantment(boolean mutable) {
+    public EnchantmentValues(boolean mutable) {
         super(mutable);
 
         this.type = EnchantmentType.DURABILITY;
         this.level = 2;
     }
 
-    public CIEnchantment(CIEnchantment toCopy, boolean mutable) {
+    public EnchantmentValues(EnchantmentValues toCopy, boolean mutable) {
         super(mutable);
 
         this.type = toCopy.getType();
@@ -38,8 +45,8 @@ public class CIEnchantment extends ModelValues  {
     }
 
     @Override
-    public CIEnchantment copy(boolean mutable) {
-        return new CIEnchantment(this, mutable);
+    public EnchantmentValues copy(boolean mutable) {
+        return new EnchantmentValues(this, mutable);
     }
 
     public void save1(BitOutput output) {

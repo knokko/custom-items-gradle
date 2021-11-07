@@ -88,7 +88,7 @@ public abstract class CustomItemValues extends ModelValues {
 
     // Vanilla based power properties
     protected Collection<AttributeModifierValues> attributeModifiers;
-    protected Collection<CIEnchantment> defaultEnchantments;
+    protected Collection<EnchantmentValues> defaultEnchantments;
 
     // Potion properties
     protected Collection<CIPotionEffect> playerEffects;
@@ -257,13 +257,13 @@ public abstract class CustomItemValues extends ModelValues {
         int numDefaultEnchantments = input.readByte() & 0xFF;
         this.defaultEnchantments = new ArrayList<>(numDefaultEnchantments);
         for (int counter = 0; counter < numDefaultEnchantments; counter++) {
-            this.defaultEnchantments.add(CIEnchantment.load1(input, false));
+            this.defaultEnchantments.add(EnchantmentValues.load1(input, false));
         }
     }
 
     protected void saveDefaultEnchantments4(BitOutput output) {
         output.addByte((byte) defaultEnchantments.size());
-        for (CIEnchantment defaultEnchantment : defaultEnchantments) {
+        for (EnchantmentValues defaultEnchantment : defaultEnchantments) {
             defaultEnchantment.save1(output);
         }
     }
@@ -535,7 +535,7 @@ public abstract class CustomItemValues extends ModelValues {
         return new ArrayList<>(attributeModifiers);
     }
 
-    public Collection<CIEnchantment> getDefaultEnchantments() {
+    public Collection<EnchantmentValues> getDefaultEnchantments() {
         return new ArrayList<>(defaultEnchantments);
     }
 
@@ -630,7 +630,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.attributeModifiers = Mutability.createDeepCopy(newAttributeModifiers, false);
     }
 
-    public void setDefaultEnchantments(List<CIEnchantment> newDefaultEnchantments) {
+    public void setDefaultEnchantments(List<EnchantmentValues> newDefaultEnchantments) {
         assertMutable();
         Checks.nonNull(newDefaultEnchantments);
         this.defaultEnchantments = Mutability.createDeepCopy(newDefaultEnchantments, false);
@@ -721,7 +721,7 @@ public abstract class CustomItemValues extends ModelValues {
 
         if (defaultEnchantments == null) throw new ProgrammingValidationException("No default enchantments");
         if (defaultEnchantments.size() > Byte.MAX_VALUE) throw new ValidationException("Too many default enchantments");
-        for (CIEnchantment enchantment : defaultEnchantments) {
+        for (EnchantmentValues enchantment : defaultEnchantments) {
             if (enchantment == null) throw new ProgrammingValidationException("Missing a default enchantment");
             Validation.scope("Default enchantment", enchantment::validate);
         }
