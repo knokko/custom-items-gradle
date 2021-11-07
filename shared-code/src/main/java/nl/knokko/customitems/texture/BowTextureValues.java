@@ -1,5 +1,10 @@
 package nl.knokko.customitems.texture;
 
+import nl.knokko.customitems.model.Mutability;
+import nl.knokko.customitems.util.Checks;
+import nl.knokko.customitems.util.ProgrammingValidationException;
+import nl.knokko.customitems.util.Validation;
+import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
@@ -51,6 +56,26 @@ public class BowTextureValues extends BaseTextureValues {
         output.addInt(pullTextures.size());
         for (BowTextureEntry pullTexture : pullTextures) {
             pullTexture.save(output);
+        }
+    }
+
+    public List<BowTextureEntry> getPullTextures() {
+        return new ArrayList<>(pullTextures);
+    }
+
+    public void setPullTextures(List<BowTextureEntry> newPullTextures) {
+        assertMutable();
+        Checks.nonNull(newPullTextures);
+        this.pullTextures = Mutability.createDeepCopy(newPullTextures, false);
+    }
+
+    @Override
+    public void validateIndependent() throws ValidationException, ProgrammingValidationException {
+        super.validateIndependent();
+        if (pullTextures == null) throw new ProgrammingValidationException("No pull textures");
+        for (BowTextureEntry entry : pullTextures) {
+            if (entry == null) throw new ProgrammingValidationException("Missing a pull texture");
+            Validation.scope("Pull texture", entry::validate);
         }
     }
 }
