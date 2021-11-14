@@ -22,6 +22,13 @@ public class ExecuteCommandValues extends ProjectileEffectValues {
         return result;
     }
 
+    public static ExecuteCommandValues createQuick(String command, Executor executor) {
+        ExecuteCommandValues result = new ExecuteCommandValues(true);
+        result.setCommand(command);
+        result.setExecutor(executor);
+        return result;
+    }
+
     private String command;
     private Executor executor;
 
@@ -58,6 +65,16 @@ public class ExecuteCommandValues extends ProjectileEffectValues {
     @Override
     public ExecuteCommandValues copy(boolean mutable) {
         return new ExecuteCommandValues(this, mutable);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other.getClass() == ExecuteCommandValues.class) {
+            ExecuteCommandValues otherEffect = (ExecuteCommandValues) other;
+            return this.command.equals(otherEffect.command) && this.executor == otherEffect.executor;
+        } else {
+            return false;
+        }
     }
 
     public String getCommand() {

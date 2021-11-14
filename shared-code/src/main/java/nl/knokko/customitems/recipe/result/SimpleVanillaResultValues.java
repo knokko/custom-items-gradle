@@ -58,6 +58,16 @@ public class SimpleVanillaResultValues extends ResultValues {
         return new SimpleVanillaResultValues(this, mutable);
     }
 
+    @Override
+    public boolean equals(Object other) {
+        if (other.getClass() == SimpleVanillaResultValues.class) {
+            SimpleVanillaResultValues otherResult = (SimpleVanillaResultValues) other;
+            return this.material == otherResult.material && this.amount == otherResult.amount;
+        } else {
+            return false;
+        }
+    }
+
     private void load1(BitInput input) {
         this.amount = loadAmount(input);
         this.material = CIMaterial.valueOf(this.material.name());

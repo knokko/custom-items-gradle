@@ -11,6 +11,8 @@ import nl.knokko.util.bits.BitOutput;
 
 import java.util.Locale;
 
+import static nl.knokko.customitems.util.Checks.isClose;
+
 public class SimpleParticleValues extends ProjectileEffectValues {
 
     static SimpleParticleValues load(BitInput input, byte encoding) throws UnknownEncodingException {
@@ -22,6 +24,15 @@ public class SimpleParticleValues extends ProjectileEffectValues {
             throw new UnknownEncodingException("SimpleParticleProjectileEffect", encoding);
         }
 
+        return result;
+    }
+
+    public static SimpleParticleValues createQuick(CIParticle particle, float minRadius, float maxRadius, int amount) {
+        SimpleParticleValues result = new SimpleParticleValues(true);
+        result.setParticle(particle);
+        result.setMinRadius(minRadius);
+        result.setMaxRadius(maxRadius);
+        result.setAmount(amount);
         return result;
     }
 
@@ -68,6 +79,17 @@ public class SimpleParticleValues extends ProjectileEffectValues {
     @Override
     public SimpleParticleValues copy(boolean mutable) {
         return new SimpleParticleValues(this, mutable);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other.getClass() == SimpleParticleValues.class) {
+            SimpleParticleValues otherEffect = (SimpleParticleValues) other;
+            return this.particle == otherEffect.particle && isClose(this.minRadius, otherEffect.minRadius)
+                    && isClose(this.maxRadius, otherEffect.maxRadius) && this.amount == otherEffect.amount;
+        } else {
+            return false;
+        }
     }
 
     public CIParticle getParticle() {

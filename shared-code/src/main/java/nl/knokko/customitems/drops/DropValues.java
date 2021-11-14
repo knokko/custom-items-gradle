@@ -30,6 +30,16 @@ public class DropValues extends ModelValues {
         return result;
     }
 
+    public static DropValues createQuick(
+            OutputTableValues outputTable, boolean cancelNormalDrops, Collection<ItemReference> requiredHeldItems
+    ) {
+        DropValues result = new DropValues(true);
+        result.setOutputTable(outputTable);
+        result.setCancelNormalDrops(cancelNormalDrops);
+        result.setRequiredHeldItems(requiredHeldItems);
+        return result;
+    }
+
     private OutputTableValues outputTable;
     private boolean cancelNormalDrops;
     private Collection<ItemReference> requiredHeldItems;
@@ -93,7 +103,7 @@ public class DropValues extends ModelValues {
     }
 
     private void load2(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
-        this.outputTable = OutputTableValues.load1(input, itemSet, false);
+        this.outputTable = OutputTableValues.load1(input, itemSet);
         this.cancelNormalDrops = input.readBoolean();
 
         int numRequiredItems = input.readInt();
@@ -115,6 +125,17 @@ public class DropValues extends ModelValues {
     @Override
     public DropValues copy(boolean mutable) {
         return new DropValues(this, mutable);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other.getClass() == DropValues.class) {
+            DropValues otherDrop = (DropValues) other;
+            return this.outputTable.equals(otherDrop.outputTable) && this.cancelNormalDrops == otherDrop.cancelNormalDrops
+                    && this.requiredHeldItems.equals(otherDrop.requiredHeldItems);
+        } else {
+            return false;
+        }
     }
 
     public OutputTableValues getOutputTable() {

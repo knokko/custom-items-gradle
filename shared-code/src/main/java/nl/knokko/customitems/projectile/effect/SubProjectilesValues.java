@@ -10,6 +10,8 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
+import static nl.knokko.customitems.util.Checks.isClose;
+
 public class SubProjectilesValues extends ProjectileEffectValues {
 
     static SubProjectilesValues load(BitInput input, byte encoding, SItemSet itemSet) throws UnknownEncodingException {
@@ -21,6 +23,18 @@ public class SubProjectilesValues extends ProjectileEffectValues {
             throw new UnknownEncodingException("SubProjectilesEffect", encoding);
         }
 
+        return result;
+    }
+
+    public static SubProjectilesValues createQuick(
+            ProjectileReference child, boolean useParentLifetime, int minAmount, int maxAmount, float angleToParent
+    ) {
+        SubProjectilesValues result = new SubProjectilesValues(true);
+        result.setChild(child);
+        result.setUseParentLifetime(useParentLifetime);
+        result.setMinAmount(minAmount);
+        result.setMaxAmount(maxAmount);
+        result.setAngleToParent(angleToParent);
         return result;
     }
 
@@ -72,6 +86,18 @@ public class SubProjectilesValues extends ProjectileEffectValues {
     @Override
     public SubProjectilesValues copy(boolean mutable) {
         return new SubProjectilesValues(this, mutable);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other.getClass() == SubProjectilesValues.class) {
+            SubProjectilesValues otherEffect = (SubProjectilesValues) other;
+            return this.child.equals(otherEffect.child) && this.useParentLifetime == otherEffect.useParentLifetime
+                    && this.minAmount == otherEffect.minAmount && this.maxAmount == otherEffect.maxAmount
+                    && isClose(this.angleToParent, otherEffect.angleToParent);
+        } else {
+            return false;
+        }
     }
 
     public CustomProjectileValues getChild() {

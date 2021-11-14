@@ -7,6 +7,8 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
+import static nl.knokko.customitems.util.Checks.isClose;
+
 public class PushOrPullValues extends ProjectileEffectValues {
 
     static PushOrPullValues load(BitInput input, byte encoding) throws UnknownEncodingException {
@@ -18,6 +20,13 @@ public class PushOrPullValues extends ProjectileEffectValues {
             throw new UnknownEncodingException("PushOrPullProjectileEffect", encoding);
         }
 
+        return result;
+    }
+
+    public static PushOrPullValues createQuick(float strength, float radius) {
+        PushOrPullValues result = new PushOrPullValues(true);
+        result.setStrength(strength);
+        result.setRadius(radius);
         return result;
     }
 
@@ -57,6 +66,15 @@ public class PushOrPullValues extends ProjectileEffectValues {
         return new PushOrPullValues(this, mutable);
     }
 
+    @Override
+    public boolean equals(Object other) {
+        if (other.getClass() == PushOrPullValues.class) {
+            PushOrPullValues otherEffect = (PushOrPullValues) other;
+            return isClose(this.strength, otherEffect.strength) && isClose(this.radius, otherEffect.radius);
+        } else {
+            return false;
+        }
+    }
     public float getStrength() {
         return strength;
     }

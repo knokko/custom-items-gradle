@@ -1,6 +1,6 @@
 package nl.knokko.customitems.projectile;
 
-import nl.knokko.customitems.effect.CIPotionEffect;
+import nl.knokko.customitems.effect.PotionEffectValues;
 import nl.knokko.customitems.itemset.ProjectileCoverReference;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.model.ModelValues;
@@ -48,7 +48,7 @@ public class CustomProjectileValues extends ModelValues {
     private float gravity;
     private float launchKnockback, impactKnockback;
 
-    private Collection<CIPotionEffect> impactPotionEffects;
+    private Collection<PotionEffectValues> impactPotionEffects;
     private int maxLifetime;
     private Collection<ProjectileEffectsValues> inFlightEffects;
     private Collection<ProjectileEffectValues> impactEffects;
@@ -135,7 +135,7 @@ public class CustomProjectileValues extends ModelValues {
         int numImpactPotionEffects = input.readInt();
         this.impactPotionEffects = new ArrayList<>(numImpactPotionEffects);
         for (int counter = 0; counter < numImpactPotionEffects; counter++) {
-            this.impactPotionEffects.add(CIPotionEffect.load2(input, false));
+            this.impactPotionEffects.add(PotionEffectValues.load2(input, false));
         }
 
         this.maxLifetime = input.readInt();
@@ -161,7 +161,7 @@ public class CustomProjectileValues extends ModelValues {
         output.addFloats(damage, minLaunchAngle, maxLaunchAngle, minLaunchSpeed, maxLaunchSpeed, gravity, launchKnockback, impactKnockback);
 
         output.addInt(impactPotionEffects.size());
-        for (CIPotionEffect effect : impactPotionEffects) {
+        for (PotionEffectValues effect : impactPotionEffects) {
             effect.save2(output);
         }
 
@@ -219,7 +219,7 @@ public class CustomProjectileValues extends ModelValues {
         return impactKnockback;
     }
 
-    public Collection<CIPotionEffect> getImpactPotionEffects() {
+    public Collection<PotionEffectValues> getImpactPotionEffects() {
         return new ArrayList<>(impactPotionEffects);
     }
 
@@ -283,7 +283,7 @@ public class CustomProjectileValues extends ModelValues {
         this.impactKnockback = newKnockback;
     }
 
-    public void setImpactPotionEffects(Collection<CIPotionEffect> newImpactPotionEffects) {
+    public void setImpactPotionEffects(Collection<PotionEffectValues> newImpactPotionEffects) {
         assertMutable();
         Checks.nonNull(newImpactPotionEffects);
         this.impactPotionEffects = Mutability.createDeepCopy(newImpactPotionEffects, false);
@@ -329,7 +329,7 @@ public class CustomProjectileValues extends ModelValues {
         if (Float.isNaN(impactKnockback)) throw new ValidationException("Impact knockback can't be NaN");
 
         if (impactPotionEffects == null) throw new ProgrammingValidationException("No impact potion effects");
-        for (CIPotionEffect impactEffect : impactPotionEffects) {
+        for (PotionEffectValues impactEffect : impactPotionEffects) {
             if (impactEffect == null) throw new ProgrammingValidationException("Missing an impact potion effect");
             Validation.scope(
                     "Impact potion effect", impactEffect::validate

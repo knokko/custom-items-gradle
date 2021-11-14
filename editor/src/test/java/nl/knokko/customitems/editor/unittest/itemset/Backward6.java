@@ -1,29 +1,27 @@
 package nl.knokko.customitems.editor.unittest.itemset;
 
 import nl.knokko.customitems.drops.*;
-import nl.knokko.customitems.editor.set.ItemSet;
-import nl.knokko.customitems.editor.set.item.*;
-import nl.knokko.customitems.editor.set.item.CustomItem;
-import nl.knokko.customitems.editor.set.projectile.cover.CustomProjectileCover;
-import nl.knokko.customitems.editor.set.projectile.cover.SphereProjectileCover;
-import nl.knokko.customitems.editor.set.recipe.ShapedRecipe;
-import nl.knokko.customitems.editor.set.recipe.ShapelessRecipe;
-import nl.knokko.customitems.editor.set.recipe.ingredient.Ingredient;
-import nl.knokko.customitems.editor.set.recipe.ingredient.NoIngredient;
-import nl.knokko.customitems.editor.set.recipe.ingredient.SimpleVanillaIngredient;
-import nl.knokko.customitems.editor.set.recipe.result.CustomItemResult;
-import nl.knokko.customitems.editor.set.recipe.result.SimpleVanillaResult;
 import nl.knokko.customitems.effect.EffectType;
-import nl.knokko.customitems.effect.PotionEffect;
+import nl.knokko.customitems.effect.PotionEffectValues;
 import nl.knokko.customitems.item.*;
+import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.particle.CIParticle;
-import nl.knokko.customitems.projectile.CIProjectile;
-import nl.knokko.customitems.projectile.effects.*;
-import nl.knokko.customitems.recipe.OutputTable;
+import nl.knokko.customitems.projectile.CustomProjectileValues;
+import nl.knokko.customitems.projectile.cover.CustomProjectileCoverValues;
+import nl.knokko.customitems.projectile.cover.SphereProjectileCoverValues;
+import nl.knokko.customitems.projectile.effect.*;
+import nl.knokko.customitems.recipe.OutputTableValues;
+import nl.knokko.customitems.recipe.ShapedRecipeValues;
+import nl.knokko.customitems.recipe.ShapelessRecipeValues;
+import nl.knokko.customitems.recipe.ingredient.IngredientValues;
+import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
+import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
+import nl.knokko.customitems.recipe.result.CustomItemResultValues;
+import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.ArrayList;
 
 import static nl.knokko.customitems.editor.unittest.itemset.Backward1.testRecipes1;
 import static nl.knokko.customitems.editor.unittest.itemset.Backward3.testTextures3;
@@ -36,7 +34,7 @@ public class Backward6 {
 
     @Test
     public void testBackwardCompatibility6() {
-        ItemSet oldSet = loadItemSet("backward6old");
+        SItemSet oldSet = loadItemSet("backward6old");
         testTextures3(oldSet, 3);
         testItemsOld6(oldSet, 21);
         testRecipesOld6(oldSet, 3);
@@ -45,314 +43,316 @@ public class Backward6 {
         testProjectileCoversOld6(oldSet, 2);
         testProjectilesOld6(oldSet, 1);
 
-        ItemSet newSet = loadItemSet("backward6new");
+        SItemSet newSet = loadItemSet("backward6new");
         testTexturesNew6(newSet, 1);
         testItemsNew6(newSet, 1);
         testRecipesNew6(newSet, 1);
     }
 
-    static void testTexturesNew6(ItemSet set, int numTextures) {
-        assertEquals(numTextures, set.getBackingTextures().size());
+    static void testTexturesNew6(SItemSet set, int numTextures) {
+        assertEquals(numTextures, set.getTextures().size());
 
-        assertImageEqual(loadImage("quick_wand"), set.getTextureByName("quick_wand").getImage());
+        assertImageEqual(loadImage("quick_wand"), set.getTexture("quick_wand").get().getImage());
     }
 
-    static void testItemsNew6(ItemSet set, int numItems) {
-        assertEquals(numItems, set.getBackingItems().size());
+    static void testItemsNew6(SItemSet set, int numItems) {
+        assertEquals(numItems, set.getItems().size());
 
-        CustomTrident trident1 = (CustomTrident) set.getCustomItemByName("trident_one");
+        CustomTridentValues trident1 = (CustomTridentValues) set.getItem("trident_one").get();
         assertEquals("trident_one", trident1.getName());
         assertEquals(CustomItemType.TRIDENT, trident1.getItemType());
         assertEquals("Cold Trident", trident1.getDisplayName());
-        assertArrayEquals(new String[] {
+        assertEquals(listOf(
                 "Slows down enemies"
-        }, trident1.getLore());
-        assertArrayEquals(new AttributeModifier[] {
-                new AttributeModifier(
-                        AttributeModifier.Attribute.ATTACK_DAMAGE,
-                        AttributeModifier.Slot.MAINHAND,
-                        AttributeModifier.Operation.ADD,
+        ), trident1.getLore());
+        assertEquals(listOf(
+                AttributeModifierValues.createQuick(
+                        AttributeModifierValues.Attribute.ATTACK_DAMAGE,
+                        AttributeModifierValues.Slot.MAINHAND,
+                        AttributeModifierValues.Operation.ADD,
                         8.0
                 )
-        }, trident1.getAttributes());
-        assertArrayEquals(new Enchantment[] {
-                new Enchantment(EnchantmentType.DAMAGE_ARTHROPODS, 2)
-        }, trident1.getDefaultEnchantments());
-        assertArrayEquals(new boolean[] {
+        ), trident1.getAttributeModifiers());
+        assertEquals(listOf(
+                EnchantmentValues.createQuick(EnchantmentType.DAMAGE_ARTHROPODS, 2)
+        ), trident1.getDefaultEnchantments());
+        assertEquals(listOf(
                 false, false, true, false, false, false
-        }, trident1.getItemFlags());
+        ), trident1.getItemFlags());
         assertEquals("quick_wand", trident1.getTexture().getName());
         assertResourceEquals("backward/itemset/model/spear_diamond.json", trident1.getCustomModel());
-        assertEquals(0, trident1.getPlayerEffects().size());
+        assertEquals(0, trident1.getOnHitPlayerEffects().size());
         assertEquals(listOf(
-                new PotionEffect(EffectType.SLOW, 40, 3)
-        ), trident1.getTargetEffects());
-        assertEquals(0, trident1.getCommands().length);
-        assertStringResourceEquals("backward/itemset/model/blue_crossbow.json", trident1.customInHandModel);
-        assertNull(trident1.customThrowingModel);
+                PotionEffectValues.createQuick(EffectType.SLOW, 40, 3)
+        ), trident1.getOnHitTargetEffects());
+        assertEquals(0, trident1.getCommands().size());
+        assertStringResourceEquals("backward/itemset/model/blue_crossbow.json", trident1.getCustomInHandModel());
+        assertNull(trident1.getCustomThrowingModel());
         assertFalse(trident1.allowEnchanting());
         assertFalse(trident1.allowAnvilActions());
-        assertEquals(432, trident1.getDurability());
-        assertEquals(new SimpleVanillaIngredient(CIMaterial.ACACIA_LOG, (byte) 1, null), trident1.getRepairItem());
+        assertEquals(432, (long) trident1.getMaxDurabilityNew());
+        assertEquals(SimpleVanillaIngredientValues.createQuick(CIMaterial.ACACIA_LOG, (byte) 1, null), trident1.getRepairItem());
         assertEquals(5, trident1.getEntityHitDurabilityLoss());
         assertEquals(6, trident1.getBlockBreakDurabilityLoss());
-        assertEquals(7, trident1.throwDurabilityLoss);
-        assertEquals(1.5, trident1.throwDamageMultiplier, DELTA);
-        assertEquals(0.5, trident1.speedMultiplier, DELTA);
+        assertEquals(7, trident1.getThrowDurabilityLoss());
+        assertEquals(1.5, trident1.getThrowDamageMultiplier(), DELTA);
+        assertEquals(0.5, trident1.getThrowSpeedMultiplier(), DELTA);
     }
 
-    static void testRecipesNew6(ItemSet set, int numRecipes) {
-        assertEquals(numRecipes, set.getBackingRecipes().size());
-
-        assertTrue(set.getBackingRecipes().contains(new ShapelessRecipe(
-                new SimpleVanillaResult(CIMaterial.BRAIN_CORAL, (byte) 3),
-                new Ingredient[] { new SimpleVanillaIngredient(CIMaterial.ACACIA_PLANKS, (byte) 1, null)}
-        )));
+    private static ShapelessRecipeValues createCoralRecipe() {
+        return ShapelessRecipeValues.createQuick(
+                listOf(SimpleVanillaIngredientValues.createQuick(CIMaterial.ACACIA_PLANKS, 1, null)),
+                SimpleVanillaResultValues.createQuick(CIMaterial.BRAIN_CORAL, 3)
+        );
     }
 
-    static void testItemsOld6(ItemSet set, int numItems) {
+    static void testRecipesNew6(SItemSet set, int numRecipes) {
+        assertEquals(numRecipes, set.getCraftingRecipes().size());
+
+        assertTrue(set.getCraftingRecipes().stream().anyMatch(recipe -> recipe.equals(createCoralRecipe())));
+    }
+
+    static void testItemsOld6(SItemSet set, int numItems) {
         testItems5(set, numItems);
 
-        testHoeDefault6((CustomHoe) set.getCustomItemByName("hoe_two"));
-        testShearsDefault6((CustomShears) set.getCustomItemByName("shears_two"));
-        testBowDefault6((CustomBow) set.getCustomItemByName("bow_two"));
-        testArmorDefault6((CustomArmor) set.getCustomItemByName("helmet_two"));
+        testHoeDefault6((CustomHoeValues) set.getItem("hoe_two").get());
+        testShearsDefault6((CustomShearsValues) set.getItem("shears_two").get());
+        testBowDefault6((CustomBowValues) set.getItem("bow_two").get());
+        testArmorDefault6((CustomArmorValues) set.getItem("helmet_two").get());
 
-        testShield1((CustomShield) set.getCustomItemByName("shield_one"));
-        testWand1((CustomWand) set.getCustomItemByName("wand_one"));
+        testShield1((CustomShieldValues) set.getItem("shield_one").get());
+        testWand1((CustomWandValues) set.getItem("wand_one").get());
     }
 
-    static void testRecipesOld6(ItemSet set, int numRecipes) {
+    static void testRecipesOld6(SItemSet set, int numRecipes) {
         testRecipes1(set, numRecipes);
 
-        assertTrue(set.getBackingRecipes().contains(createShapedRecipe2()));
+        assertTrue(set.getCraftingRecipes().stream().anyMatch(recipe -> recipe.equals(createShapedRecipe2())));
     }
 
-    static ShapedRecipe createShapedRecipe2() {
-        Ingredient[] ingredients = {
-                new NoIngredient(), new SimpleVanillaIngredient(CIMaterial.COAL, (byte) 1, null), new NoIngredient(),
-                new NoIngredient(), new NoIngredient(), new NoIngredient(),
-                new NoIngredient(), new NoIngredient(), new NoIngredient()
+    static ShapedRecipeValues createShapedRecipe2() {
+        IngredientValues[] ingredients = {
+                new NoIngredientValues(), SimpleVanillaIngredientValues.createQuick(CIMaterial.COAL, 1, null), new NoIngredientValues(),
+                new NoIngredientValues(), new NoIngredientValues(), new NoIngredientValues(),
+                new NoIngredientValues(), new NoIngredientValues(), new NoIngredientValues()
         };
-        return new ShapedRecipe(ingredients, new SimpleVanillaResult(CIMaterial.TORCH, (byte) 3));
+        return ShapedRecipeValues.createQuick(ingredients, SimpleVanillaResultValues.createQuick(CIMaterial.TORCH, 3));
     }
 
-    static void testBlockDropsOld6(ItemSet set, int numDrops) {
-        Collection<BlockDrop> drops = set.getBackingBlockDrops();
-        assertEquals(numDrops, drops.size());
-
-        BlockDrop blockDrop = drops.stream().findFirst().get();
-        assertEquals(BlockType.STONE, blockDrop.getBlock());
-        Drop drop = blockDrop.getDrop();
-        assertTrue(drop.cancelNormalDrop());
-        OutputTable dropTable = drop.getDropTable();
-        assertEquals(90, dropTable.getNothingChance());
-        assertEquals(4, dropTable.getEntries().size());
-        CustomItem simple1 = set.getCustomItemByName("simple1");
-        assertTrue(dropTable.getEntries().contains(new OutputTable.Entry(
-                new CustomItemResult(simple1, (byte) 2), 2
-        )));
-        assertTrue(dropTable.getEntries().contains(new OutputTable.Entry(
-                new CustomItemResult(simple1, (byte) 3), 2
-        )));
-        assertTrue(dropTable.getEntries().contains(new OutputTable.Entry(
-                new CustomItemResult(simple1, (byte) 4), 2
-        )));
-        assertTrue(dropTable.getEntries().contains(new OutputTable.Entry(
-                new CustomItemResult(simple1, (byte) 5), 4
-        )));
+    private static BlockDropValues createBlockDrop1(SItemSet itemSet) {
+        ItemReference simple1 = itemSet.getItemReference("simple1");
+        return BlockDropValues.createQuick(
+                BlockType.STONE, false,
+                DropValues.createQuick(
+                        OutputTableValues.createQuick(
+                                OutputTableValues.Entry.createQuick(CustomItemResultValues.createQuick(simple1, 2), 2),
+                                OutputTableValues.Entry.createQuick(CustomItemResultValues.createQuick(simple1, 3), 2),
+                                OutputTableValues.Entry.createQuick(CustomItemResultValues.createQuick(simple1, 4), 2),
+                                OutputTableValues.Entry.createQuick(CustomItemResultValues.createQuick(simple1, 5), 4)
+                        ),
+                        true, new ArrayList<>()
+                )
+        );
     }
 
-    static void testMobDropsOld6(ItemSet set, int numDrops) {
-        assertEquals(set.getBackingMobDrops().size(), numDrops);
+    static void testBlockDropsOld6(SItemSet set, int numDrops) {
+        assertEquals(numDrops, set.getBlockDrops().size());
 
-        EntityDrop swordMobDrop = set.getBackingMobDrops().stream().filter(drop -> drop.getEntityType() == CIEntityType.ZOMBIE).findFirst().get();
-        EntityDrop axeMobDrop = set.getBackingMobDrops().stream().filter(drop -> drop.getEntityType() == CIEntityType.SKELETON).findFirst().get();
-
-        assertNull(swordMobDrop.getRequiredName());
-        Drop swordDrop = swordMobDrop.getDrop();
-        assertFalse(swordDrop.cancelNormalDrop());
-        OutputTable swordTable = swordDrop.getDropTable();
-        assertEquals(1, swordTable.getEntries().size());
-        assertEquals(90, swordTable.getNothingChance());
-        OutputTable.Entry swordEntry = swordTable.getEntries().get(0);
-        assertEquals(10, swordEntry.getChance());
-        CustomItem sword1 = set.getCustomItemByName("sword1");
-        assertEquals(new CustomItemResult(sword1, (byte) 1), swordEntry.getResult());
-
-        assertEquals("skelly", axeMobDrop.getRequiredName());
-        Drop axeDrop = axeMobDrop.getDrop();
-        assertTrue(axeDrop.cancelNormalDrop());
-        OutputTable axeTable = axeDrop.getDropTable();
-        assertEquals(1, axeTable.getEntries().size());
-        assertEquals(0, axeTable.getNothingChance());
-        CustomItem axe1 = set.getCustomItemByName("axe1");
-        OutputTable.Entry axeEntry = axeTable.getEntries().get(0);
-        assertEquals(100, axeEntry.getChance());
-        assertEquals(new CustomItemResult(axe1, (byte) 1), axeEntry.getResult());
+        assertTrue(set.getBlockDrops().stream().anyMatch(blockDrop -> blockDrop.equals(createBlockDrop1(set))));
     }
 
-    static void testProjectileCoversOld6(ItemSet set, int numProjectileCovers) {
-        assertEquals(numProjectileCovers, set.getBackingProjectileCovers().size());
-
-        SphereProjectileCover sphere1 = (SphereProjectileCover) set.getProjectileCoverByName("sphere_one");
-        assertEquals("sphere_one", sphere1.name);
-        assertEquals(CustomItemType.DIAMOND_SHOVEL, sphere1.itemType);
-        assertEquals(13, sphere1.slotsPerAxis);
-        assertEquals(0.65, sphere1.scale, 0.0);
-        assertEquals("test1", sphere1.texture.getName());
-
-        CustomProjectileCover custom1 = (CustomProjectileCover) set.getProjectileCoverByName("custom_one");
-        assertEquals("custom_one", custom1.name);
-        assertEquals(CustomItemType.DIAMOND_SHOVEL, custom1.itemType);
-        assertResourceEquals("backward/itemset/model/spear_diamond.json", custom1.model);
+    private static MobDropValues createSwordMobDrop(SItemSet itemSet) {
+        ItemReference sword1 = itemSet.getItemReference("sword1");
+        return MobDropValues.createQuick(
+                CIEntityType.ZOMBIE, null,
+                DropValues.createQuick(
+                        OutputTableValues.createQuick(
+                            OutputTableValues.Entry.createQuick(CustomItemResultValues.createQuick(sword1, 1), 10)
+                        ), false, new ArrayList<>()
+                )
+        );
     }
 
-    static void testProjectilesOld6(ItemSet set, int numProjectiles) {
-        assertEquals(numProjectiles, set.getBackingProjectiles().size());
+    private static MobDropValues createAxeMobDrop(SItemSet itemSet) {
+        ItemReference axe1 = itemSet.getItemReference("axe1");
+        return MobDropValues.createQuick(
+                CIEntityType.SKELETON, "skelly",
+                DropValues.createQuick(
+                        OutputTableValues.createQuick(
+                            OutputTableValues.Entry.createQuick(CustomItemResultValues.createQuick(axe1, 1), 100)
+                        ), true, new ArrayList<>()
+                )
+        );
+    }
 
-        CIProjectile crazy1 = set.getProjectileByName("crazy1");
-        assertEquals("crazy1", crazy1.name);
-        assertEquals(3.5, crazy1.damage, DELTA);
-        assertEquals(1.6, crazy1.minLaunchAngle, DELTA);
-        assertEquals(20.5, crazy1.maxLaunchAngle, DELTA);
-        assertEquals(2.2, crazy1.minLaunchSpeed, DELTA);
-        assertEquals(4.5, crazy1.maxLaunchSpeed, DELTA);
-        assertEquals(300, crazy1.maxLifeTime);
-        assertEquals(0.01, crazy1.gravity, DELTA);
+    static void testMobDropsOld6(SItemSet set, int numDrops) {
+        assertEquals(set.getMobDrops().size(), numDrops);
 
-        assertEquals(1, crazy1.inFlightEffects.size());
-        ProjectileEffects flightEffects = crazy1.inFlightEffects.iterator().next();
-        assertEquals(3, flightEffects.delay);
-        assertEquals(10, flightEffects.period);
-        assertEquals(6, flightEffects.effects.size());
-        assertTrue(flightEffects.effects.contains(new ColoredRedstone(
+        assertTrue(set.getMobDrops().stream().anyMatch(drop -> drop.equals(createSwordMobDrop(set))));
+        assertTrue(set.getMobDrops().stream().anyMatch(drop -> drop.equals(createAxeMobDrop(set))));
+    }
+
+    static void testProjectileCoversOld6(SItemSet set, int numProjectileCovers) {
+        assertEquals(numProjectileCovers, set.getProjectileCovers().size());
+
+        SphereProjectileCoverValues sphere1 = (SphereProjectileCoverValues) set.getProjectileCover("sphere_one").get();
+        assertEquals("sphere_one", sphere1.getName());
+        assertEquals(CustomItemType.DIAMOND_SHOVEL, sphere1.getItemType());
+        assertEquals(13, sphere1.getSlotsPerAxis());
+        assertEquals(0.65, sphere1.getScale(), 0.0);
+        assertEquals("test1", sphere1.getTexture().getName());
+
+        CustomProjectileCoverValues custom1 = (CustomProjectileCoverValues) set.getProjectileCover("custom_one").get();
+        assertEquals("custom_one", custom1.getName());
+        assertEquals(CustomItemType.DIAMOND_SHOVEL, custom1.getItemType());
+        assertResourceEquals("backward/itemset/model/spear_diamond.json", custom1.getCustomModel());
+    }
+
+    static void testProjectilesOld6(SItemSet set, int numProjectiles) {
+        assertEquals(numProjectiles, set.getProjectiles().size());
+
+        CustomProjectileValues crazy1 = set.getProjectile("crazy1").get();
+        assertEquals("crazy1", crazy1.getName());
+        assertEquals(3.5, crazy1.getDamage(), DELTA);
+        assertEquals(1.6, crazy1.getMinLaunchAngle(), DELTA);
+        assertEquals(20.5, crazy1.getMaxLaunchAngle(), DELTA);
+        assertEquals(2.2, crazy1.getMinLaunchSpeed(), DELTA);
+        assertEquals(4.5, crazy1.getMaxLaunchSpeed(), DELTA);
+        assertEquals(300, crazy1.getMaxLifetime());
+        assertEquals(0.01, crazy1.getGravity(), DELTA);
+
+        assertEquals(1, crazy1.getInFlightEffects().size());
+        ProjectileEffectsValues flightEffects = crazy1.getInFlightEffects().iterator().next();
+        assertEquals(3, flightEffects.getDelay());
+        assertEquals(10, flightEffects.getPeriod());
+        assertEquals(6, flightEffects.getEffects().size());
+        assertTrue(flightEffects.getEffects().contains(ColoredRedstoneValues.createQuick(
                 150, 50, 60, 250, 100, 90,
                 0.01f, 0.25f, 30
         )));
-        assertTrue(flightEffects.effects.contains(new ExecuteCommand(
-                "summon chicken", ExecuteCommand.Executor.CONSOLE
+        assertTrue(flightEffects.getEffects().contains(ExecuteCommandValues.createQuick(
+                "summon chicken", ExecuteCommandValues.Executor.CONSOLE
         )));
-        assertTrue(flightEffects.effects.contains(new Explosion(
+        assertTrue(flightEffects.getEffects().contains(ExplosionValues.createQuick(
                 0.5f, false, true
         )));
-        assertTrue(flightEffects.effects.contains(new RandomAccelleration(0.03f, 0.2f)));
-        assertTrue(flightEffects.effects.contains(new StraightAccelleration(-0.1f, 0.3f)));
-        assertTrue(flightEffects.effects.contains(new SimpleParticles(
+        assertTrue(flightEffects.getEffects().contains(RandomAccelerationValues.createQuick(0.03f, 0.2f)));
+        assertTrue(flightEffects.getEffects().contains(StraightAccelerationValues.createQuick(-0.1f, 0.3f)));
+        assertTrue(flightEffects.getEffects().contains(SimpleParticleValues.createQuick(
                 CIParticle.WATER_BUBBLE, 0.1f, 0.7f, 6
         )));
 
-        assertEquals(1, crazy1.impactEffects.size());
-        assertTrue(crazy1.impactEffects.contains(new SubProjectiles(
-                crazy1, true, 1, 2, 30f
+        assertEquals(1, crazy1.getImpactEffects().size());
+        assertTrue(crazy1.getImpactEffects().contains(SubProjectilesValues.createQuick(
+                set.getProjectileReference("crazy1"), true, 1, 2, 30f
         )));
-        assertEquals("sphere_one", crazy1.cover.name);
+        assertEquals("sphere_one", crazy1.getCover().getName());
     }
 
-    static void testShield1(CustomShield item) {
+    static void testShield1(CustomShieldValues item) {
         assertEquals("shield_one", item.getName());
         assertEquals(CustomItemType.SHIELD, item.getItemType());
         assertEquals("Spike Shield", item.getDisplayName());
-        assertArrayEquals(new String[] {
+        assertEquals(listOf(
                 "Useful for both blocking",
                 "and hitting!"
-        }, item.getLore());
-        assertArrayEquals(new AttributeModifier[] {
-                new AttributeModifier(
-                        AttributeModifier.Attribute.ATTACK_DAMAGE,
-                        AttributeModifier.Slot.MAINHAND,
-                        AttributeModifier.Operation.ADD,
+        ), item.getLore());
+        assertEquals(listOf(
+                AttributeModifierValues.createQuick(
+                        AttributeModifierValues.Attribute.ATTACK_DAMAGE,
+                        AttributeModifierValues.Slot.MAINHAND,
+                        AttributeModifierValues.Operation.ADD,
                         6.0
                 )
-        }, item.getAttributes());
-        assertArrayEquals(new Enchantment[] {
-                new Enchantment(EnchantmentType.MENDING, 1)
-        }, item.getDefaultEnchantments());
-        assertArrayEquals(new boolean[] {
+        ), item.getAttributeModifiers());
+        assertEquals(listOf(
+                EnchantmentValues.createQuick(EnchantmentType.MENDING, 1)
+        ), item.getDefaultEnchantments());
+        assertEquals(listOf(
                 true, false, true, false, false, false
-        }, item.getItemFlags());
+        ), item.getItemFlags());
         assertEquals("gun1", item.getTexture().getName());
         assertResourceEquals("backward/itemset/model/spear_diamond.json", item.getCustomModel());
         assertEquals(listOf(
-                new PotionEffect(EffectType.SPEED, 40, 1)
-        ), item.getPlayerEffects());
+                PotionEffectValues.createQuick(EffectType.SPEED, 40, 1)
+        ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                new PotionEffect(EffectType.INVISIBILITY, 30, 1)
-        ), item.getTargetEffects());
-        assertArrayEquals(new String[] {
+                PotionEffectValues.createQuick(EffectType.INVISIBILITY, 30, 1)
+        ), item.getOnHitTargetEffects());
+        assertEquals(listOf(
                 "summon bat"
-        }, item.getCommands());
-        assertStringResourceEquals("backward/itemset/model/blue_crossbow.json", item.getBlockingModel());
+        ), item.getCommands());
+        assertStringResourceEquals("backward/itemset/model/blue_crossbow.json", item.getCustomBlockingModel());
         assertFalse(item.allowEnchanting());
         assertTrue(item.allowAnvilActions());
-        assertEquals(234, item.getDurability());
-        assertEquals(new SimpleVanillaIngredient(CIMaterial.DIAMOND, (byte) 1, null), item.getRepairItem());
+        assertEquals(234, (long) item.getMaxDurabilityNew());
+        assertEquals(SimpleVanillaIngredientValues.createQuick(CIMaterial.DIAMOND, 1, null), item.getRepairItem());
         assertEquals(1, item.getEntityHitDurabilityLoss());
         assertEquals(2, item.getBlockBreakDurabilityLoss());
         assertEquals(7.0, item.getThresholdDamage(), 0.0);
     }
 
-    static void testWand1(CustomWand item) {
+    static void testWand1(CustomWandValues item) {
         assertEquals("wand_one", item.getName());
         assertEquals(CustomItemType.DIAMOND_HOE, item.getItemType());
         assertEquals("Crazy Wand", item.getDisplayName());
-        assertArrayEquals(new String[] {
+        assertEquals(listOf(
                 "Such a weird projectile!"
-        }, item.getLore());
-        assertEquals(0, item.getAttributes().length);
-        assertEquals(0, item.getDefaultEnchantments().length);
-        assertArrayEquals(new boolean[] {
+        ), item.getLore());
+        assertEquals(0, item.getAttributeModifiers().size());
+        assertEquals(0, item.getDefaultEnchantments().size());
+        assertEquals(listOf(
                 true, true, true, false, false, false
-        }, item.getItemFlags());
+        ), item.getItemFlags());
         assertEquals("test1", item.getTexture().getName());
         assertResourceEquals("backward/itemset/model/spear_diamond.json", item.getCustomModel());
         assertEquals(listOf(
-                new PotionEffect(EffectType.REGENERATION, 100, 1)
-        ), item.getPlayerEffects());
-        assertEquals(0, item.getTargetEffects().size());
-        assertEquals(0, item.getCommands().length);
-        assertEquals("crazy1", item.projectile.name);
-        assertEquals(2, item.charges.maxCharges);
-        assertEquals(30, item.charges.rechargeTime);
-        assertEquals(2, item.amountPerShot);
-        assertEquals(70, item.cooldown);
+                PotionEffectValues.createQuick(EffectType.REGENERATION, 100, 1)
+        ), item.getOnHitPlayerEffects());
+        assertEquals(0, item.getOnHitTargetEffects().size());
+        assertEquals(0, item.getCommands().size());
+        assertEquals("crazy1", item.getProjectile().getName());
+        assertEquals(2, item.getCharges().getMaxCharges());
+        assertEquals(30, item.getCharges().getRechargeTime());
+        assertEquals(2, item.getAmountPerShot());
+        assertEquals(70, item.getCooldown());
     }
 
-    static void testBaseDefault6(CustomItem item) {
+    static void testBaseDefault6(CustomItemValues item) {
         assertNull(item.getCustomModel());
-        assertEquals(0, item.getPlayerEffects().size());
-        assertEquals(0, item.getTargetEffects().size());
-        assertEquals(0, item.getCommands().length);
+        assertEquals(0, item.getOnHitPlayerEffects().size());
+        assertEquals(0, item.getOnHitTargetEffects().size());
+        assertEquals(0, item.getCommands().size());
 
         testBaseDefault7(item);
     }
 
-    static void testSimpleDefault6(SimpleCustomItem item) {
+    static void testSimpleDefault6(SimpleCustomItemValues item) {
         testBaseDefault6(item);
         testSimpleDefault7(item);
     }
 
-    static void testToolDefault6(CustomTool item) {
+    static void testToolDefault6(CustomToolValues item) {
         testBaseDefault6(item);
         testToolDefault7(item);
     }
 
-    static void testArmorDefault6(CustomArmor item) {
+    static void testArmorDefault6(CustomArmorValues item) {
         testToolDefault6(item);
         testArmorDefault7(item);
     }
 
-    static void testHoeDefault6(CustomHoe item) {
+    static void testHoeDefault6(CustomHoeValues item) {
         testToolDefault6(item);
         testHoeDefault7(item);
     }
 
-    static void testShearsDefault6(CustomShears item) {
+    static void testShearsDefault6(CustomShearsValues item) {
         testToolDefault6(item);
         testShearsDefault7(item);
     }
 
-    static void testBowDefault6(CustomBow item) {
+    static void testBowDefault6(CustomBowValues item) {
         testToolDefault6(item);
         testBowDefault7(item);
     }

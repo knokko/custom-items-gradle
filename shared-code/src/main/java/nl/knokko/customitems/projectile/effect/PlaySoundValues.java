@@ -11,6 +11,8 @@ import nl.knokko.util.bits.BitOutput;
 
 import java.util.Locale;
 
+import static nl.knokko.customitems.util.Checks.isClose;
+
 public class PlaySoundValues extends ProjectileEffectValues {
 
     static PlaySoundValues load(BitInput input, byte encoding) throws UnknownEncodingException {
@@ -22,6 +24,14 @@ public class PlaySoundValues extends ProjectileEffectValues {
             throw new UnknownEncodingException("PlaySoundProjectileEffect", encoding);
         }
 
+        return result;
+    }
+
+    public static PlaySoundValues createQuick(CISound sound, float volume, float pitch) {
+        PlaySoundValues result = new PlaySoundValues(true);
+        result.setSound(sound);
+        result.setVolume(volume);
+        result.setPitch(pitch);
         return result;
     }
 
@@ -63,6 +73,17 @@ public class PlaySoundValues extends ProjectileEffectValues {
     @Override
     public PlaySoundValues copy(boolean mutable) {
         return new PlaySoundValues(this, mutable);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other.getClass() == PlaySoundValues.class) {
+            PlaySoundValues otherEffect = (PlaySoundValues) other;
+            return this.sound == otherEffect.sound && isClose(this.volume, otherEffect.volume)
+                    && isClose(this.pitch, otherEffect.pitch);
+        } else {
+            return false;
+        }
     }
 
     public CISound getSound() {

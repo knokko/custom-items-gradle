@@ -24,6 +24,14 @@ public class DataVanillaResultValues extends ResultValues {
         return result;
     }
 
+    public static DataVanillaResultValues createQuick(CIMaterial material, int amount, int data) {
+        DataVanillaResultValues result = new DataVanillaResultValues(true);
+        result.setMaterial(material);
+        result.setAmount((byte) amount);
+        result.setDataValue((byte) data);
+        return result;
+    }
+
     private byte amount;
     private CIMaterial material;
     private byte data;
@@ -53,6 +61,16 @@ public class DataVanillaResultValues extends ResultValues {
     @Override
     public DataVanillaResultValues copy(boolean mutable) {
         return new DataVanillaResultValues(this, mutable);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof DataVanillaResultValues) {
+            DataVanillaResultValues otherResult = (DataVanillaResultValues) other;
+            return this.material == otherResult.material && this.amount == otherResult.amount && this.data == otherResult.data;
+        } else {
+            return false;
+        }
     }
 
     private void load1(BitInput input) {

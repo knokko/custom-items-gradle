@@ -9,17 +9,25 @@ import nl.knokko.util.bits.BitOutput;
 
 import java.util.Locale;
 
-public class CIPotionEffect extends ModelValues {
+public class PotionEffectValues extends ModelValues {
 
-    public static CIPotionEffect load1(BitInput input, boolean mutable) {
-        CIPotionEffect result = new CIPotionEffect(mutable);
+    public static PotionEffectValues load1(BitInput input, boolean mutable) {
+        PotionEffectValues result = new PotionEffectValues(mutable);
         result.load1(input);
         return result;
     }
 
-    public static CIPotionEffect load2(BitInput input, boolean mutable) {
-        CIPotionEffect result = new CIPotionEffect(mutable);
+    public static PotionEffectValues load2(BitInput input, boolean mutable) {
+        PotionEffectValues result = new PotionEffectValues(mutable);
         result.load2(input);
+        return result;
+    }
+
+    public static PotionEffectValues createQuick(EffectType type, int duration, int level) {
+        PotionEffectValues result = new PotionEffectValues(true);
+        result.setType(type);
+        result.setDuration(duration);
+        result.setLevel(level);
         return result;
     }
 
@@ -27,7 +35,7 @@ public class CIPotionEffect extends ModelValues {
     private int duration;
     private int level;
 
-    public CIPotionEffect(boolean mutable) {
+    public PotionEffectValues(boolean mutable) {
         super(mutable);
 
         this.type = EffectType.SPEED;
@@ -35,7 +43,7 @@ public class CIPotionEffect extends ModelValues {
         this.level = 1;
     }
 
-    public CIPotionEffect(CIPotionEffect toCopy, boolean mutable) {
+    public PotionEffectValues(PotionEffectValues toCopy, boolean mutable) {
         super(mutable);
 
         this.type = toCopy.getType();
@@ -61,8 +69,8 @@ public class CIPotionEffect extends ModelValues {
     }
 
     @Override
-    public CIPotionEffect copy(boolean mutable) {
-        return new CIPotionEffect(this, mutable);
+    public PotionEffectValues copy(boolean mutable) {
+        return new PotionEffectValues(this, mutable);
     }
 
     public void save1(BitOutput output) {

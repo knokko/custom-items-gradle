@@ -7,6 +7,8 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
+import static nl.knokko.customitems.util.Checks.isClose;
+
 public class ColoredRedstoneValues extends ProjectileEffectValues {
 
     static ColoredRedstoneValues load(BitInput input, byte encoding) throws UnknownEncodingException {
@@ -18,6 +20,23 @@ public class ColoredRedstoneValues extends ProjectileEffectValues {
             throw new UnknownEncodingException("ColoredRedstoneProjectileEffect", encoding);
         }
 
+        return result;
+    }
+
+    public static ColoredRedstoneValues createQuick(
+            int minRed, int minGreen, int minBlue, int maxRed, int maxGreen, int maxBlue,
+            float minRadius, float maxRadius, int amount
+    ) {
+        ColoredRedstoneValues result = new ColoredRedstoneValues(true);
+        result.setMinRed(minRed);
+        result.setMinGreen(minGreen);
+        result.setMinBlue(minBlue);
+        result.setMaxRed(maxRed);
+        result.setMaxGreen(maxGreen);
+        result.setMaxBlue(maxBlue);
+        result.setMinRadius(minRadius);
+        result.setMaxRadius(maxRadius);
+        result.setAmount(amount);
         return result;
     }
 
@@ -81,6 +100,18 @@ public class ColoredRedstoneValues extends ProjectileEffectValues {
     @Override
     public ColoredRedstoneValues copy(boolean mutable) {
         return new ColoredRedstoneValues(this, mutable);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other.getClass() == ColoredRedstoneValues.class) {
+            ColoredRedstoneValues otherEffect = new ColoredRedstoneValues(true);
+            return this.minRed == otherEffect.minRed && this.minGreen == otherEffect.minGreen && this.minBlue == otherEffect.minBlue
+                    && this.maxRed == otherEffect.maxRed && this.maxGreen == otherEffect.maxGreen && this.maxBlue == otherEffect.maxBlue
+                    && isClose(this.minRadius, otherEffect.minRadius) && isClose(this.maxRadius, otherEffect.maxRadius) && this.amount == otherEffect.amount;
+        } else {
+            return false;
+        }
     }
 
     public int getMinRed() {

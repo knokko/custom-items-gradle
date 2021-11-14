@@ -24,6 +24,12 @@ public class CopiedResultValues extends ResultValues {
         return result;
     }
 
+    public static CopiedResultValues createQuick(String encodedItem) {
+        CopiedResultValues result = new CopiedResultValues(true);
+        result.setEncodedItem(encodedItem);
+        return result;
+    }
+
     private String encoded;
 
     CopiedResultValues(boolean mutable) {
@@ -46,6 +52,15 @@ public class CopiedResultValues extends ResultValues {
     @Override
     public CopiedResultValues copy(boolean mutable) {
         return new CopiedResultValues(this, mutable);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof CopiedResultValues) {
+            return this.encoded.equals(((CopiedResultValues) other).encoded);
+        } else {
+            return false;
+        }
     }
 
     private void load1(BitInput input) {

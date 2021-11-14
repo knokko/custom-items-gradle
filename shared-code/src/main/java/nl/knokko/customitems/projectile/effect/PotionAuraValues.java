@@ -1,6 +1,6 @@
 package nl.knokko.customitems.projectile.effect;
 
-import nl.knokko.customitems.effect.CIPotionEffect;
+import nl.knokko.customitems.effect.PotionEffectValues;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -13,6 +13,8 @@ import nl.knokko.util.bits.BitOutput;
 
 import java.util.ArrayList;
 import java.util.Collection;
+
+import static nl.knokko.customitems.util.Checks.isClose;
 
 public class PotionAuraValues extends ProjectileEffectValues {
 
@@ -28,14 +30,21 @@ public class PotionAuraValues extends ProjectileEffectValues {
         return result;
     }
 
+    public static PotionAuraValues createQuick(float radius, Collection<PotionEffectValues> effects) {
+        PotionAuraValues result = new PotionAuraValues(true);
+        result.setRadius(radius);
+        result.setEffects(effects);
+        return result;
+    }
+
     private float radius;
-    private Collection<CIPotionEffect> effects;
+    private Collection<PotionEffectValues> effects;
 
     public PotionAuraValues(boolean mutable) {
         super(mutable);
         this.radius = 2f;
         this.effects = new ArrayList<>(1);
-        this.effects.add(new CIPotionEffect(false));
+        this.effects.add(new PotionEffectValues(false));
     }
 
     public PotionAuraValues(PotionAuraValues toCopy, boolean mutable) {
@@ -55,7 +64,7 @@ public class PotionAuraValues extends ProjectileEffectValues {
         int numEffects = input.readInt();
         this.effects = new ArrayList<>(numEffects);
         for (int counter = 0; counter < numEffects; counter++) {
-            this.effects.add(CIPotionEffect.load2(input, false));
+            this.effects.add(PotionEffectValues.load2(input, false));
         }
     }
 
@@ -64,7 +73,7 @@ public class PotionAuraValues extends ProjectileEffectValues {
         output.addByte(ENCODING_POTION_AURA_1);
         output.addFloat(radius);
         output.addInt(effects.size());
-        for (CIPotionEffect effect : effects) {
+        for (PotionEffectValues effect : effects) {
             effect.save2(output);
         }
     }
@@ -74,11 +83,20 @@ public class PotionAuraValues extends ProjectileEffectValues {
         return new PotionAuraValues(this, mutable);
     }
 
+    @Override
+    public boolean equals(Object other) {
+        if (other.getClass() == PotionAuraValues.class) {
+            PotionAuraValues otherEffect = (PotionAuraValues) other;
+            return isClose(this.radius, otherEffect.radius) && this.effects.equals(otherEffect.effects);
+        } else {
+            return false;
+        }
+    }
     public float getRadius() {
         return radius;
     }
 
-    public Collection<CIPotionEffect> getEffects() {
+    public Collection<PotionEffectValues> getEffects() {
         return new ArrayList<>(effects);
     }
 
@@ -87,7 +105,7 @@ public class PotionAuraValues extends ProjectileEffectValues {
         this.radius = newRadius;
     }
 
-    public void setEffects(Collection<CIPotionEffect> newEffects) {
+    public void setEffects(Collection<PotionEffectValues> newEffects) {
         assertMutable();
         Checks.notNull(newEffects);
         this.effects = Mutability.createDeepCopy(newEffects, false);
@@ -97,7 +115,7 @@ public class PotionAuraValues extends ProjectileEffectValues {
     public void validate(SItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         if (radius <= 0f) throw new ValidationException("Radius must be positive");
         if (effects == null) throw new ProgrammingValidationException("No effects");
-        for (CIPotionEffect effect : effects) {
+        for (PotionEffectValues effect : effects) {
             if (effect == null) throw new ProgrammingValidationException("Missing an effect");
             Validation.scope(effect.toString(), effect::validate);
         }

@@ -28,6 +28,14 @@ public class MobDropValues extends ModelValues {
         return result;
     }
 
+    public static MobDropValues createQuick(CIEntityType entityType, String requiredName, DropValues drop) {
+        MobDropValues result = new MobDropValues(true);
+        result.setEntityType(entityType);
+        result.setRequiredName(requiredName);
+        result.setDrop(drop);
+        return result;
+    }
+
     private CIEntityType entityType;
     private String requiredName;
     private DropValues drop;
@@ -69,6 +77,17 @@ public class MobDropValues extends ModelValues {
     @Override
     public MobDropValues copy(boolean mutable) {
         return new MobDropValues(this, mutable);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other.getClass() == MobDropValues.class) {
+            MobDropValues otherDrop = (MobDropValues) other;
+            return this.entityType == otherDrop.entityType && this.requiredName.equals(otherDrop.requiredName)
+                    && this.drop.equals(otherDrop.drop);
+        } else {
+            return false;
+        }
     }
 
     public CIEntityType getEntityType() {

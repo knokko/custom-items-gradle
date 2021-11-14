@@ -16,6 +16,7 @@ import nl.knokko.util.bits.BitOutput;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 public class OutputTableValues extends ModelValues {
 
@@ -29,6 +30,18 @@ public class OutputTableValues extends ModelValues {
             entry.load1(input, itemSet);
             result.entries.add(entry);
         }
+        return result;
+    }
+
+    public static OutputTableValues createQuick(Entry... entries) {
+        Collection<Entry> entryList = new ArrayList<>(entries.length);
+        Collections.addAll(entryList, entries);
+        return createQuick(entryList);
+    }
+
+    public static OutputTableValues createQuick(Collection<Entry> entries) {
+        OutputTableValues result = new OutputTableValues(true);
+        result.setEntries(entries);
         return result;
     }
 
@@ -54,6 +67,15 @@ public class OutputTableValues extends ModelValues {
     @Override
     public OutputTableValues copy(boolean mutable) {
         return new OutputTableValues(this, mutable);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other.getClass() == OutputTableValues.class) {
+            return this.entries.equals(((OutputTableValues) other).entries);
+        } else {
+            return false;
+        }
     }
 
     public Collection<Entry> getEntries() {
@@ -94,6 +116,13 @@ public class OutputTableValues extends ModelValues {
             return mutableResult.copy(false);
         }
 
+        public static Entry createQuick(ResultValues result, int chance) {
+            Entry entry = new Entry(true);
+            entry.setResult(result);
+            entry.setChance(chance);
+            return entry;
+        }
+
         private ResultValues result;
         private int chance;
 
@@ -127,6 +156,16 @@ public class OutputTableValues extends ModelValues {
         @Override
         public Entry copy(boolean mutable) {
             return new Entry(this, mutable);
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (other.getClass() == Entry.class) {
+                Entry otherEntry = (Entry) other;
+                return this.result.equals(otherEntry.result) && this.chance == otherEntry.chance;
+            } else {
+                return false;
+            }
         }
 
         public ResultValues getResult() {

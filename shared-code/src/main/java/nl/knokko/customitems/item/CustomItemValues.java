@@ -91,9 +91,9 @@ public abstract class CustomItemValues extends ModelValues {
     protected Collection<EnchantmentValues> defaultEnchantments;
 
     // Potion properties
-    protected Collection<CIPotionEffect> playerEffects;
-    protected Collection<CIPotionEffect> targetEffects;
-    protected Collection<SEquippedPotionEffect> equippedEffects;
+    protected Collection<PotionEffectValues> playerEffects;
+    protected Collection<PotionEffectValues> targetEffects;
+    protected Collection<EquippedPotionEffectValues> equippedEffects;
 
     // Right-click properties
     protected List<String> commands;
@@ -294,18 +294,18 @@ public abstract class CustomItemValues extends ModelValues {
         savePotionEffectList(targetEffects, output);
     }
 
-    protected Collection<CIPotionEffect> loadPotionEffectList(BitInput input) {
+    protected Collection<PotionEffectValues> loadPotionEffectList(BitInput input) {
         int numEffects = input.readByte() & 0xFF;
-        Collection<CIPotionEffect> effects = new ArrayList<>(numEffects);
+        Collection<PotionEffectValues> effects = new ArrayList<>(numEffects);
         for (int counter = 0; counter < numEffects; counter++) {
-            effects.add(CIPotionEffect.load1(input, false));
+            effects.add(PotionEffectValues.load1(input, false));
         }
         return effects;
     }
 
-    protected void savePotionEffectList(Collection<CIPotionEffect> effects, BitOutput output) {
+    protected void savePotionEffectList(Collection<PotionEffectValues> effects, BitOutput output) {
         output.addByte((byte) effects.size());
-        for (CIPotionEffect effect : effects) {
+        for (PotionEffectValues effect : effects) {
             effect.save1(output);
         }
     }
@@ -324,13 +324,13 @@ public abstract class CustomItemValues extends ModelValues {
         int numEquippedEffects = input.readInt();
         this.equippedEffects = new ArrayList<>(numEquippedEffects);
         for (int counter = 0; counter < numEquippedEffects; counter++) {
-            this.equippedEffects.add(SEquippedPotionEffect.load1(input, false));
+            this.equippedEffects.add(EquippedPotionEffectValues.load1(input, false));
         }
     }
 
     protected void saveEquippedPotionEffects10(BitOutput output) {
         output.addInt(equippedEffects.size());
-        for (SEquippedPotionEffect effect : equippedEffects) {
+        for (EquippedPotionEffectValues effect : equippedEffects) {
             effect.save1(output);
         }
     }
@@ -539,15 +539,15 @@ public abstract class CustomItemValues extends ModelValues {
         return new ArrayList<>(defaultEnchantments);
     }
 
-    public Collection<CIPotionEffect> getOnHitPlayerEffects() {
+    public Collection<PotionEffectValues> getOnHitPlayerEffects() {
         return new ArrayList<>(playerEffects);
     }
 
-    public Collection<CIPotionEffect> getOnHitTargetEffects() {
+    public Collection<PotionEffectValues> getOnHitTargetEffects() {
         return new ArrayList<>(targetEffects);
     }
 
-    public Collection<SEquippedPotionEffect> getEquippedEffects() {
+    public Collection<EquippedPotionEffectValues> getEquippedEffects() {
         return new ArrayList<>(equippedEffects);
     }
 
@@ -636,19 +636,19 @@ public abstract class CustomItemValues extends ModelValues {
         this.defaultEnchantments = Mutability.createDeepCopy(newDefaultEnchantments, false);
     }
 
-    public void setPlayerEffects(List<CIPotionEffect> newPlayerEffects) {
+    public void setPlayerEffects(List<PotionEffectValues> newPlayerEffects) {
         assertMutable();
         Checks.nonNull(newPlayerEffects);
         this.playerEffects = Mutability.createDeepCopy(newPlayerEffects, false);
     }
 
-    public void setTargetEffects(List<CIPotionEffect> newTargetEffects) {
+    public void setTargetEffects(List<PotionEffectValues> newTargetEffects) {
         assertMutable();
         Checks.nonNull(newTargetEffects);
         this.targetEffects = Mutability.createDeepCopy(newTargetEffects, false);
     }
 
-    public void setEquippedEffects(List<SEquippedPotionEffect> newEquippedEffects) {
+    public void setEquippedEffects(List<EquippedPotionEffectValues> newEquippedEffects) {
         assertMutable();
         Checks.nonNull(newEquippedEffects);
         this.equippedEffects = Mutability.createDeepCopy(equippedEffects, false);
@@ -728,20 +728,20 @@ public abstract class CustomItemValues extends ModelValues {
 
         if (playerEffects == null) throw new ProgrammingValidationException("No on-hit player effects");
         if (playerEffects.size() > Byte.MAX_VALUE) throw new ValidationException("Too many on-hit player effects");
-        for (CIPotionEffect effect : playerEffects) {
+        for (PotionEffectValues effect : playerEffects) {
             if (effect == null) throw new ProgrammingValidationException("Missing an on-hit player effect");
             Validation.scope("On-hit player effect", effect::validate);
         }
 
         if (targetEffects == null) throw new ProgrammingValidationException("No on-hit target effects");
         if (targetEffects.size() > Byte.MAX_VALUE) throw new ValidationException("Too many on-hit target effects");
-        for (CIPotionEffect effect : targetEffects) {
+        for (PotionEffectValues effect : targetEffects) {
             if (effect == null) throw new ProgrammingValidationException("Missing an on-hit target effect");
             Validation.scope("On-hit target effect", effect::validate);
         }
 
         if (equippedEffects == null) throw new ProgrammingValidationException("No equipped effects");
-        for (SEquippedPotionEffect effect : equippedEffects) {
+        for (EquippedPotionEffectValues effect : equippedEffects) {
             if (effect == null) throw new ProgrammingValidationException("Missing an equipped effect");
             Validation.scope("Equipped effect", effect::validate);
         }

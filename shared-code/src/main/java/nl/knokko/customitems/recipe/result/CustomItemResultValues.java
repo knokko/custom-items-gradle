@@ -54,6 +54,16 @@ public class CustomItemResultValues extends ResultValues {
         return new CustomItemResultValues(this, mutable);
     }
 
+    @Override
+    public boolean equals(Object other) {
+        if (other.getClass() == CustomItemResultValues.class) {
+            CustomItemResultValues otherResult = (CustomItemResultValues) other;
+            return this.amount == otherResult.amount && this.item.equals(otherResult.item);
+        } else {
+            return false;
+        }
+    }
+
     private void load1(BitInput input, SItemSet itemSet) {
         this.amount = loadAmount(input);
         this.item = itemSet.getItemReference(input.readJavaString());

@@ -1,6 +1,6 @@
 package nl.knokko.customitems.item;
 
-import nl.knokko.customitems.effect.CIPotionEffect;
+import nl.knokko.customitems.effect.PotionEffectValues;
 import nl.knokko.customitems.encoding.ItemEncoding;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.model.Mutability;
@@ -39,7 +39,7 @@ public class CustomFoodValues extends CustomItemValues {
     }
 
     private int foodValue;
-    private Collection<CIPotionEffect> eatEffects;
+    private Collection<PotionEffectValues> eatEffects;
     private int eatTime;
 
     private CISound eatSound;
@@ -100,7 +100,7 @@ public class CustomFoodValues extends CustomItemValues {
         int numEatEffects = input.readInt();
         this.eatEffects = new ArrayList<>(numEatEffects);
         for (int counter = 0; counter < numEatEffects; counter++) {
-            this.eatEffects.add(CIPotionEffect.load1(input, false));
+            this.eatEffects.add(PotionEffectValues.load1(input, false));
         }
         this.eatTime = input.readInt();
         this.eatSound = CISound.valueOf(input.readString());
@@ -113,7 +113,7 @@ public class CustomFoodValues extends CustomItemValues {
     private void saveFoodOnlyProperties10(BitOutput output) {
         output.addInt(foodValue);
         output.addInt(eatEffects.size());
-        for (CIPotionEffect eatEffect : eatEffects) {
+        for (PotionEffectValues eatEffect : eatEffects) {
             eatEffect.save1(output);
         }
         output.addInt(eatTime);
@@ -146,7 +146,7 @@ public class CustomFoodValues extends CustomItemValues {
         return foodValue;
     }
 
-    public Collection<CIPotionEffect> getEatEffects() {
+    public Collection<PotionEffectValues> getEatEffects() {
         return new ArrayList<>(eatEffects);
     }
 
@@ -175,7 +175,7 @@ public class CustomFoodValues extends CustomItemValues {
         this.foodValue = newFoodValue;
     }
 
-    public void setEatEffects(Collection<CIPotionEffect> newEatEffects) {
+    public void setEatEffects(Collection<PotionEffectValues> newEatEffects) {
         assertMutable();
         Checks.nonNull(newEatEffects);
         this.eatEffects = Mutability.createDeepCopy(newEatEffects, false);
@@ -217,7 +217,7 @@ public class CustomFoodValues extends CustomItemValues {
         super.validateIndependent();
 
         if (eatEffects == null) throw new ProgrammingValidationException("No eat effects");
-        for (CIPotionEffect eatEffect : eatEffects) {
+        for (PotionEffectValues eatEffect : eatEffects) {
             if (eatEffect == null) throw new ProgrammingValidationException("Missing an eat effect");
             Validation.scope("Eat effects", eatEffect::validate);
         }

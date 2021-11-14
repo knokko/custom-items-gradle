@@ -28,6 +28,14 @@ public class BlockDropValues extends ModelValues {
         return result;
     }
 
+    public static BlockDropValues createQuick(BlockType blockType, boolean allowSilkTouch, DropValues drop) {
+        BlockDropValues result = new BlockDropValues(true);
+        result.setBlockType(blockType);
+        result.setAllowSilkTouch(allowSilkTouch);
+        result.setDrop(drop);
+        return result;
+    }
+
     private BlockType blockType;
     private boolean allowSilkTouch;
     private DropValues drop;
@@ -70,6 +78,17 @@ public class BlockDropValues extends ModelValues {
     @Override
     public BlockDropValues copy(boolean mutable) {
         return new BlockDropValues(this, mutable);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other.getClass() == BlockDropValues.class) {
+            BlockDropValues otherDrop = (BlockDropValues) other;
+            return this.blockType == otherDrop.blockType && this.allowSilkTouch == otherDrop.allowSilkTouch
+                    && this.drop.equals(otherDrop.drop);
+        } else {
+            return false;
+        }
     }
 
     public BlockType getBlockType() {

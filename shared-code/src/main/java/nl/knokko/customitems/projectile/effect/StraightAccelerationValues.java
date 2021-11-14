@@ -3,6 +3,8 @@ package nl.knokko.customitems.projectile.effect;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.util.bits.BitInput;
 
+import static nl.knokko.customitems.util.Checks.isClose;
+
 public class StraightAccelerationValues extends AccelerationValues {
 
     static StraightAccelerationValues load(BitInput input, byte encoding) throws UnknownEncodingException {
@@ -14,6 +16,13 @@ public class StraightAccelerationValues extends AccelerationValues {
             throw new UnknownEncodingException("StraightAccelerationProjectileEffect", encoding);
         }
 
+        return result;
+    }
+
+    public static StraightAccelerationValues createQuick(float minAcceleration, float maxAcceleration) {
+        StraightAccelerationValues result = new StraightAccelerationValues(true);
+        result.setMinAcceleration(minAcceleration);
+        result.setMaxAcceleration(maxAcceleration);
         return result;
     }
 
@@ -38,5 +47,15 @@ public class StraightAccelerationValues extends AccelerationValues {
     @Override
     public StraightAccelerationValues copy(boolean mutable) {
         return new StraightAccelerationValues(this, mutable);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other.getClass() == StraightAccelerationValues.class) {
+            StraightAccelerationValues otherEffect = (StraightAccelerationValues) other;
+            return isClose(this.minAcceleration, otherEffect.minAcceleration) && isClose(this.maxAcceleration, otherEffect.maxAcceleration);
+        } else {
+            return false;
+        }
     }
 }

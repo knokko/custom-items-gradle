@@ -29,6 +29,12 @@ public class ShowFireworkValues extends ProjectileEffectValues {
         return result;
     }
 
+    public static ShowFireworkValues createQuick(List<EffectValues> effects) {
+        ShowFireworkValues result = new ShowFireworkValues(true);
+        result.setEffects(effects);
+        return result;
+    }
+
     private List<EffectValues> effects;
 
     public ShowFireworkValues(boolean mutable) {
@@ -72,6 +78,16 @@ public class ShowFireworkValues extends ProjectileEffectValues {
         return new ShowFireworkValues(this, mutable);
     }
 
+    @Override
+    public boolean equals(Object other) {
+        if (other.getClass() == ShowFireworkValues.class) {
+            ShowFireworkValues otherEffect = (ShowFireworkValues) other;
+            return this.effects.equals(otherEffect.effects);
+        } else {
+            return false;
+        }
+    }
+
     public List<EffectValues> getEffects() {
         return new ArrayList<>(effects);
     }
@@ -93,6 +109,18 @@ public class ShowFireworkValues extends ProjectileEffectValues {
     }
 
     public static class EffectValues extends ModelValues {
+
+        public static EffectValues createQuick(
+                boolean flicker, boolean trail, EffectType type, List<Color> colors, List<Color> fadeColors
+        ) {
+            EffectValues result = new EffectValues(true);
+            result.setFlicker(flicker);
+            result.setTrail(trail);
+            result.setType(type);
+            result.setColors(colors);
+            result.setFadeColors(fadeColors);
+            return result;
+        }
 
         private boolean flicker, trail;
         private EffectType type;
@@ -150,6 +178,17 @@ public class ShowFireworkValues extends ProjectileEffectValues {
         @Override
         public EffectValues copy(boolean mutable) {
             return new EffectValues(this, mutable);
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (other.getClass() == EffectValues.class) {
+                EffectValues otherEffect = (EffectValues) other;
+                return this.flicker == otherEffect.flicker && this.trail == otherEffect.trail && this.type == otherEffect.type
+                        && this.colors.equals(otherEffect.colors) && this.fadeColors.equals(otherEffect.fadeColors);
+            } else {
+                return false;
+            }
         }
 
         public boolean hasFlicker() {

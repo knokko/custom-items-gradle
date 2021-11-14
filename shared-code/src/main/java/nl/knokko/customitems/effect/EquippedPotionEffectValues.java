@@ -8,10 +8,10 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
-public class SEquippedPotionEffect extends ModelValues  {
+public class EquippedPotionEffectValues extends ModelValues  {
 
-    public static SEquippedPotionEffect load1(BitInput input, boolean mutable) {
-        SEquippedPotionEffect result = new SEquippedPotionEffect(mutable);
+    public static EquippedPotionEffectValues load1(BitInput input, boolean mutable) {
+        EquippedPotionEffectValues result = new EquippedPotionEffectValues(mutable);
         result.load1(input);
         return result;
     }
@@ -20,7 +20,7 @@ public class SEquippedPotionEffect extends ModelValues  {
     private int level;
     private AttributeModifierValues.Slot slot;
 
-    public SEquippedPotionEffect(boolean mutable) {
+    public EquippedPotionEffectValues(boolean mutable) {
         super(mutable);
 
         this.type = EffectType.SPEED;
@@ -28,7 +28,7 @@ public class SEquippedPotionEffect extends ModelValues  {
         this.slot = AttributeModifierValues.Slot.MAINHAND;
     }
 
-    public SEquippedPotionEffect(SEquippedPotionEffect toCopy, boolean mutable) {
+    public EquippedPotionEffectValues(EquippedPotionEffectValues toCopy, boolean mutable) {
         super(mutable);
 
         this.type = toCopy.getType();
@@ -43,8 +43,8 @@ public class SEquippedPotionEffect extends ModelValues  {
     }
 
     @Override
-    public SEquippedPotionEffect copy(boolean mutable) {
-        return new SEquippedPotionEffect(this, mutable);
+    public EquippedPotionEffectValues copy(boolean mutable) {
+        return new EquippedPotionEffectValues(this, mutable);
     }
 
     public void save1(BitOutput output) {

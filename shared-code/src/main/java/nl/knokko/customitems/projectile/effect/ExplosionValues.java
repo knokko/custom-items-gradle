@@ -7,6 +7,8 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
+import static nl.knokko.customitems.util.Checks.isClose;
+
 public class ExplosionValues extends ProjectileEffectValues {
 
     static ExplosionValues load(BitInput input, byte encoding) throws UnknownEncodingException {
@@ -18,6 +20,14 @@ public class ExplosionValues extends ProjectileEffectValues {
             throw new UnknownEncodingException("ExplosionProjectileEffect", encoding);
         }
 
+        return result;
+    }
+
+    public static ExplosionValues createQuick(float power, boolean destroyBlocks, boolean setFire) {
+        ExplosionValues result = new ExplosionValues(true);
+        result.setPower(power);
+        result.setDestroyBlocks(destroyBlocks);
+        result.setSetFire(setFire);
         return result;
     }
 
@@ -63,6 +73,16 @@ public class ExplosionValues extends ProjectileEffectValues {
         return new ExplosionValues(this, mutable);
     }
 
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof ExplosionValues) {
+            ExplosionValues otherEffect = (ExplosionValues) other;
+            return isClose(this.power, otherEffect.power) && this.destroyBlocks == otherEffect.destroyBlocks
+                    && this.setFire == otherEffect.setFire;
+        } else {
+            return false;
+        }
+    }
     public float getPower() {
         return power;
     }
