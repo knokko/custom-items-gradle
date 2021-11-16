@@ -25,6 +25,12 @@ public class DecorationSlotValues extends ContainerSlotValues {
         return result;
     }
 
+    public static DecorationSlotValues createQuick(SlotDisplayValues display) {
+        DecorationSlotValues result = new DecorationSlotValues(true);
+        result.setDisplay(display);
+        return result;
+    }
+
     private SlotDisplayValues display;
 
     public DecorationSlotValues(boolean mutable) {

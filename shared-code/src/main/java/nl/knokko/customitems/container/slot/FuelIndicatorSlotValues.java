@@ -27,6 +27,17 @@ public class FuelIndicatorSlotValues extends ContainerSlotValues {
         return result;
     }
 
+    public static FuelIndicatorSlotValues createQuick(
+            String fuelSlotName, SlotDisplayValues display, SlotDisplayValues placeholder, IndicatorDomain indicatorDomain
+    ) {
+        FuelIndicatorSlotValues result = new FuelIndicatorSlotValues(true);
+        result.setFuelSlotName(fuelSlotName);
+        result.setDisplay(display);
+        result.setPlaceholder(placeholder);
+        result.setIndicatorDomain(indicatorDomain);
+        return result;
+    }
+
     private String fuelSlotName;
     private SlotDisplayValues display;
     private SlotDisplayValues placeholder;

@@ -27,6 +27,16 @@ public class ProgressIndicatorSlotValues extends ContainerSlotValues {
         return result;
     }
 
+    public static ProgressIndicatorSlotValues createQuick(
+            SlotDisplayValues display, SlotDisplayValues placeholder, IndicatorDomain indicatorDomain
+    ) {
+        ProgressIndicatorSlotValues result = new ProgressIndicatorSlotValues(true);
+        result.setDisplay(display);
+        result.setPlaceholder(placeholder);
+        result.setIndicatorDomain(indicatorDomain);
+        return result;
+    }
+
     private SlotDisplayValues display;
     private SlotDisplayValues placeholder;
     private IndicatorDomain indicatorDomain;

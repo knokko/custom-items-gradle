@@ -24,7 +24,7 @@ public class DataVanillaResultValues extends ResultValues {
         return result;
     }
 
-    public static DataVanillaResultValues createQuick(CIMaterial material, int amount, int data) {
+    public static DataVanillaResultValues createQuick(CIMaterial material, int data, int amount) {
         DataVanillaResultValues result = new DataVanillaResultValues(true);
         result.setMaterial(material);
         result.setAmount((byte) amount);

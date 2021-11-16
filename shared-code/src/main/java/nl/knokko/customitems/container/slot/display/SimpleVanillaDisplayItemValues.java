@@ -23,6 +23,13 @@ public class SimpleVanillaDisplayItemValues extends SlotDisplayItemValues {
         return result;
     }
 
+    public static SimpleVanillaDisplayItemValues createQuick(CIMaterial material) {
+        SimpleVanillaDisplayItemValues result = new SimpleVanillaDisplayItemValues(true);
+        result.setMaterial(material);
+        return result;
+    }
+
+
     private CIMaterial material;
 
     public SimpleVanillaDisplayItemValues(boolean mutable) {

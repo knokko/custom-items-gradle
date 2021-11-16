@@ -29,6 +29,13 @@ public class OutputSlotValues extends ContainerSlotValues {
         return result;
     }
 
+    public static OutputSlotValues createQuick(String name, SlotDisplayValues placeholder) {
+        OutputSlotValues result = new OutputSlotValues(true);
+        result.setName(name);
+        result.setPlaceholder(placeholder);
+        return result;
+    }
+
     private String name;
     private SlotDisplayValues placeholder;
 

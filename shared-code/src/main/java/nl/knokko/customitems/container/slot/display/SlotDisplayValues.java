@@ -32,6 +32,17 @@ public class SlotDisplayValues extends ModelValues {
         return result;
     }
 
+    public static SlotDisplayValues createQuick(
+            SlotDisplayItemValues displayItem, String displayName, List<String> lore, int amount
+    ) {
+        SlotDisplayValues result = new SlotDisplayValues(true);
+        result.setDisplayItem(displayItem);
+        result.setDisplayName(displayName);
+        result.setLore(lore);
+        result.setAmount(amount);
+        return result;
+    }
+
     private SlotDisplayItemValues displayItem;
 
     private String displayName;

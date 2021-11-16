@@ -31,6 +31,14 @@ public class FuelSlotValues extends ContainerSlotValues {
         return result;
     }
 
+    public static FuelSlotValues createQuick(String name, FuelRegistryReference fuelRegistry, SlotDisplayValues placeholder) {
+        FuelSlotValues result = new FuelSlotValues(true);
+        result.setName(name);
+        result.setFuelRegistry(fuelRegistry);
+        result.setPlaceholder(placeholder);
+        return result;
+    }
+
     private String name;
     private FuelRegistryReference fuelRegistry;
     private SlotDisplayValues placeholder;

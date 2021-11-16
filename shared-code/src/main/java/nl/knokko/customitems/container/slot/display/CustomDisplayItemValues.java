@@ -24,6 +24,12 @@ public class CustomDisplayItemValues extends SlotDisplayItemValues {
         return result;
     }
 
+    public static CustomDisplayItemValues createQuick(ItemReference customItem) {
+        CustomDisplayItemValues result = new CustomDisplayItemValues(true);
+        result.setItem(customItem);
+        return result;
+    }
+
     private ItemReference customItem;
 
     public CustomDisplayItemValues(boolean mutable) {

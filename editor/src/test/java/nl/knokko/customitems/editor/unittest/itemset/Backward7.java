@@ -1,31 +1,24 @@
 package nl.knokko.customitems.editor.unittest.itemset;
 
-import nl.knokko.customitems.container.CustomContainer;
-import nl.knokko.customitems.container.IndicatorDomain;
-import nl.knokko.customitems.container.VanillaContainerType;
-import nl.knokko.customitems.container.fuel.CustomFuelRegistry;
-import nl.knokko.customitems.container.fuel.FuelEntry;
-import nl.knokko.customitems.container.fuel.FuelMode;
+import nl.knokko.customitems.container.*;
+import nl.knokko.customitems.container.fuel.*;
 import nl.knokko.customitems.container.slot.*;
-import nl.knokko.customitems.container.slot.display.CustomItemDisplayItem;
-import nl.knokko.customitems.container.slot.display.SimpleVanillaDisplayItem;
-import nl.knokko.customitems.container.slot.display.SlotDisplay;
-import nl.knokko.customitems.editor.set.ItemSet;
-import nl.knokko.customitems.editor.set.item.*;
-import nl.knokko.customitems.editor.set.recipe.ingredient.CustomItemIngredient;
-import nl.knokko.customitems.editor.set.recipe.ingredient.SimpleVanillaIngredient;
-import nl.knokko.customitems.editor.set.recipe.result.CustomItemResult;
-import nl.knokko.customitems.editor.set.recipe.result.DataVanillaResult;
-import nl.knokko.customitems.item.CIMaterial;
-import nl.knokko.customitems.recipe.ContainerRecipe;
-import nl.knokko.customitems.recipe.OutputTable;
+import nl.knokko.customitems.container.slot.display.*;
+import nl.knokko.customitems.item.*;
+import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.recipe.OutputTableValues;
+import nl.knokko.customitems.recipe.ingredient.CustomItemIngredientValues;
+import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
+import nl.knokko.customitems.recipe.result.CustomItemResultValues;
+import nl.knokko.customitems.recipe.result.DataVanillaResultValues;
 import org.junit.Test;
 
-import java.util.Iterator;
+import java.util.ArrayList;
 
 import static nl.knokko.customitems.editor.unittest.itemset.Backward3.testTextures3;
 import static nl.knokko.customitems.editor.unittest.itemset.Backward6.*;
 import static nl.knokko.customitems.editor.unittest.itemset.Backward8.*;
+import static nl.knokko.customitems.editor.unittest.itemset.BackwardHelper.listOf;
 import static nl.knokko.customitems.editor.unittest.itemset.BackwardHelper.loadItemSet;
 import static org.junit.Assert.*;
 
@@ -33,7 +26,7 @@ public class Backward7 {
 
     @Test
     public void testBackwardCompatibility7() {
-        ItemSet set7 = loadItemSet("backward7");
+        SItemSet set7 = loadItemSet("backward7");
         testTextures3(set7, 3);
         testItemsOld6(set7, 21);
         testRecipesOld6(set7, 3);
@@ -45,30 +38,29 @@ public class Backward7 {
         testContainers7(set7, 1);
     }
 
-    static void testFuelRegistries7(ItemSet set, int numFuelRegistries) {
-        assertEquals(numFuelRegistries, set.getBackingFuelRegistries().size());
+    static void testFuelRegistries7(SItemSet set, int numFuelRegistries) {
+        assertEquals(numFuelRegistries, set.getFuelRegistries().size());
 
-        CustomFuelRegistry registry1 = set.getFuelRegistryByName("registry1");
+        FuelRegistryValues registry1 = set.getFuelRegistry("registry1").get();
         assertEquals("registry1", registry1.getName());
-        Iterator<FuelEntry> entryIterator = registry1.getEntries().iterator();
-        FuelEntry entry1 = entryIterator.next();
-        FuelEntry entry2 = entryIterator.next();
-        assertFalse(entryIterator.hasNext());
+        assertEquals(2, registry1.getEntries().size());
+        FuelEntryValues entry1 = registry1.getEntries().get(0);
+        FuelEntryValues entry2 = registry1.getEntries().get(1);
 
         assertEquals(100, entry1.getBurnTime());
-        assertEquals(new SimpleVanillaIngredient(CIMaterial.COAL, (byte) 1, null), entry1.getFuel());
+        assertEquals(SimpleVanillaIngredientValues.createQuick(CIMaterial.COAL, 1, null), entry1.getFuel());
         assertEquals(500, entry2.getBurnTime());
-        assertEquals(new CustomItemIngredient(set.getCustomItemByName("simple1"), (byte) 1, null), entry2.getFuel());
+        assertEquals(CustomItemIngredientValues.createQuick(set.getItemReference("simple1"), 1, null), entry2.getFuel());
     }
 
-    static void testContainers7(ItemSet set, int numContainers) {
-        assertEquals(numContainers, set.getBackingContainers().size());
+    static void testContainers7(SItemSet set, int numContainers) {
+        assertEquals(numContainers, set.getContainers().size());
 
-        CustomContainer container1 = set.getContainerByName("container1");
+        CustomContainerValues container1 = set.getContainer("container1").get();
         assertEquals("container1", container1.getName());
-        assertEquals(new SlotDisplay(
-            new CustomItemDisplayItem(set.getCustomItemByName("simple2")),
-                "First Container", new String[] { "Just", "some", "lore" }, 3
+        assertEquals(SlotDisplayValues.createQuick(
+            CustomDisplayItemValues.createQuick(set.getItemReference("simple2")),
+                "First Container", listOf("Just", "some", "lore"), 3
         ), container1.getSelectionIcon());
         assertEquals(FuelMode.ANY, container1.getFuelMode());
         assertEquals(VanillaContainerType.ENCHANTING_TABLE, container1.getVanillaType());
@@ -77,99 +69,102 @@ public class Backward7 {
         assertEquals(2, container1.getHeight());
         for (int x = 0; x < 9; x++) {
             for (int y = 0; y < 2; y++) {
-                CustomSlot slot = container1.getSlot(x, y);
+                ContainerSlotValues slot = container1.getSlot(x, y);
                 if (x == 0 && y == 0) {
-                    assertEquals("input1", ((InputCustomSlot) slot).getName());
+                    assertEquals("input1", ((InputSlotValues) slot).getName());
                 } else if (x == 1 && y == 1) {
-                    assertEquals("input2", ((InputCustomSlot) slot).getName());
+                    assertEquals("input2", ((InputSlotValues) slot).getName());
                 } else if (x == 2 && y == 0) {
-                    assertEquals(new DecorationCustomSlot(new SlotDisplay(
-                            new CustomItemDisplayItem(set.getCustomItemByName("wand_one")),
-                            "Wand Show-off", new String[0], 1
+                    assertEquals(DecorationSlotValues.createQuick(SlotDisplayValues.createQuick(
+                            CustomDisplayItemValues.createQuick(set.getItemReference("wand_one")),
+                            "Wand Show-off", new ArrayList<>(0), 1
                     )), slot);
                 } else if (x == 3 && y == 1) {
-                    assertEquals(new FuelCustomSlot(
-                            "fuel1", set.getFuelRegistryByName("registry1"), null), slot);
+                    assertEquals(FuelSlotValues.createQuick(
+                            "fuel1", set.getFuelRegistryReference("registry1"), null), slot);
                 } else if (x == 4 && y == 0) {
-                    assertEquals(new FuelIndicatorCustomSlot("fuel1", new SlotDisplay(
-                            new SimpleVanillaDisplayItem(CIMaterial.LAVA_BUCKET), "", new String[0], 1
-                    ), new SlotDisplay(
-                            new SimpleVanillaDisplayItem(CIMaterial.BUCKET), "", new String[0], 1
+                    assertEquals(FuelIndicatorSlotValues.createQuick("fuel1", SlotDisplayValues.createQuick(
+                            SimpleVanillaDisplayItemValues.createQuick(CIMaterial.LAVA_BUCKET),
+                            "", new ArrayList<>(0), 1
+                    ), SlotDisplayValues.createQuick(
+                            SimpleVanillaDisplayItemValues.createQuick(CIMaterial.BUCKET), "", new ArrayList<>(0), 1
                     ), new IndicatorDomain()), slot);
                 } else if (x == 5 && y == 1) {
-                    assertEquals(new OutputCustomSlot("output1", null), slot);
+                    assertEquals(OutputSlotValues.createQuick("output1", null), slot);
                 } else if (x == 6 && y == 1) {
-                    assertEquals(new OutputCustomSlot("output2", null), slot);
+                    assertEquals(OutputSlotValues.createQuick("output2", null), slot);
                 } else if (x == 6) {
-                    assertEquals(new ProgressIndicatorCustomSlot(new SlotDisplay(
-                            new SimpleVanillaDisplayItem(CIMaterial.GOLD_AXE), "", new String[0], 1
-                    ), new SlotDisplay(
-                            new SimpleVanillaDisplayItem(CIMaterial.WOOD_AXE), "", new String[0], 1
+                    assertEquals(ProgressIndicatorSlotValues.createQuick(SlotDisplayValues.createQuick(
+                            SimpleVanillaDisplayItemValues.createQuick(CIMaterial.GOLD_AXE), "", new ArrayList<>(0), 1
+                    ), SlotDisplayValues.createQuick(
+                            SimpleVanillaDisplayItemValues.createQuick(CIMaterial.WOOD_AXE), "", new ArrayList<>(0), 1
                     ), new IndicatorDomain()), slot);
                 } else {
-                    assertTrue(slot instanceof EmptyCustomSlot);
+                    assertTrue(slot instanceof EmptySlotValues);
                 }
             }
         }
 
         assertEquals(1, container1.getRecipes().size());
-        ContainerRecipe recipe = container1.getRecipes().iterator().next();
+        ContainerRecipeValues recipe = container1.getRecipes().get(0);
         assertEquals(60, recipe.getDuration());
         assertEquals(8, recipe.getExperience());
 
         assertEquals(2, recipe.getInputs().size());
-        assertTrue(recipe.getInputs().contains(new ContainerRecipe.InputEntry(
-                "input1", new SimpleVanillaIngredient(CIMaterial.WOOD, (byte) 1, null)
-        )));
-        assertTrue(recipe.getInputs().contains(new ContainerRecipe.InputEntry(
-                "input2", new SimpleVanillaIngredient(CIMaterial.COBBLESTONE, (byte) 1, null)
-        )));
+        assertEquals(SimpleVanillaIngredientValues.createQuick(CIMaterial.WOOD, 1, null), recipe.getInputs().get("input1"));
+        assertEquals(SimpleVanillaIngredientValues.createQuick(CIMaterial.COBBLESTONE, 1, null), recipe.getInputs().get("input2"));
 
         assertEquals(2, recipe.getOutputs().size());
 
-        OutputTable outputTable1 = new OutputTable();
-        outputTable1.getEntries().add(new OutputTable.Entry(new CustomItemResult(set.getCustomItemByName("simple1"), (byte) 2), 100));
-        assertTrue(recipe.getOutputs().contains(new ContainerRecipe.OutputEntry(
-                "output1", outputTable1
-        )));
+        assertEquals(
+                OutputTableValues.createQuick(
+                        OutputTableValues.Entry.createQuick(
+                                CustomItemResultValues.createQuick(set.getItemReference("simple1"), 2),
+                                100)
+                ),
+                recipe.getOutputs().get("output1")
+        );
 
-        OutputTable outputTable2 = new OutputTable();
-        outputTable2.getEntries().add(new OutputTable.Entry(new DataVanillaResult(CIMaterial.LOG, (byte) 3, (byte) 1), 100));
-        assertTrue(recipe.getOutputs().contains(new ContainerRecipe.OutputEntry(
-                "output2", outputTable2
-        )));
+        assertEquals(
+                OutputTableValues.createQuick(
+                        OutputTableValues.Entry.createQuick(
+                                DataVanillaResultValues.createQuick(CIMaterial.LOG, 3, 1), 100
+                        )
+                ),
+                recipe.getOutput("output2")
+        );
     }
 
-    static void testBaseDefault7(CustomItem item) {
+    static void testBaseDefault7(CustomItemValues item) {
         testBaseDefault8(item);
     }
 
-    static void testSimpleDefault7(SimpleCustomItem item) {
+    static void testSimpleDefault7(SimpleCustomItemValues item) {
         testBaseDefault7(item);
         testSimpleDefault8(item);
     }
 
-    static void testToolDefault7(CustomTool item) {
+    static void testToolDefault7(CustomToolValues item) {
         testBaseDefault7(item);
         testToolDefault8(item);
     }
 
-    static void testArmorDefault7(CustomArmor item) {
+    static void testArmorDefault7(CustomArmorValues item) {
         testToolDefault7(item);
         testArmorDefault8(item);
     }
 
-    static void testHoeDefault7(CustomHoe item) {
+    static void testHoeDefault7(CustomHoeValues item) {
         testToolDefault7(item);
         testHoeDefault8(item);
     }
 
-    static void testShearsDefault7(CustomShears item) {
+    static void testShearsDefault7(CustomShearsValues item) {
         testToolDefault7(item);
         testShearsDefault8(item);
     }
 
-    static void testBowDefault7(CustomBow item) {
+    static void testBowDefault7(CustomBowValues item) {
         testToolDefault7(item);
         testBowDefault8(item);
     }
