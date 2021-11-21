@@ -23,6 +23,13 @@ public class DataVanillaDisplayItemValues extends SlotDisplayItemValues {
         return result;
     }
 
+    public static DataVanillaDisplayItemValues createQuick(CIMaterial material, int dataValue) {
+        DataVanillaDisplayItemValues result = new DataVanillaDisplayItemValues(true);
+        result.setMaterial(material);
+        result.setDataValue((byte) dataValue);
+        return result;
+    }
+
     private CIMaterial material;
     private byte dataValue;
 

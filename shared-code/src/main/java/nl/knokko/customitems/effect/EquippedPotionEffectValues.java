@@ -16,6 +16,14 @@ public class EquippedPotionEffectValues extends ModelValues  {
         return result;
     }
 
+    public static EquippedPotionEffectValues createQuick(EffectType type, int level, AttributeModifierValues.Slot slot) {
+        EquippedPotionEffectValues result = new EquippedPotionEffectValues(true);
+        result.setType(type);
+        result.setLevel(level);
+        result.setSlot(slot);
+        return result;
+    }
+
     private EffectType type;
     private int level;
     private AttributeModifierValues.Slot slot;

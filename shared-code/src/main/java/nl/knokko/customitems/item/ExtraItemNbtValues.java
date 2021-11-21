@@ -14,13 +14,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class SExtraItemNbt extends ModelValues {
+public class ExtraItemNbtValues extends ModelValues {
 
     private static final byte ENCODING_1 = 1;
 
-    public static SExtraItemNbt load(BitInput input, boolean mutable) throws UnknownEncodingException {
+    public static ExtraItemNbtValues load(BitInput input, boolean mutable) throws UnknownEncodingException {
         byte encoding = input.readByte();
-        SExtraItemNbt nbt = new SExtraItemNbt(mutable);
+        ExtraItemNbtValues nbt = new ExtraItemNbtValues(mutable);
         if (encoding == ENCODING_1) {
             nbt.load1(input);
         } else {
@@ -29,13 +29,19 @@ public class SExtraItemNbt extends ModelValues {
         return nbt;
     }
 
+    public static ExtraItemNbtValues createQuick(Collection<Entry> entries) {
+        ExtraItemNbtValues result = new ExtraItemNbtValues(true);
+        result.setEntries(entries);
+        return result;
+    }
+
     private Collection<Entry> entries;
 
-    public SExtraItemNbt(boolean mutable) {
+    public ExtraItemNbtValues(boolean mutable) {
         super(mutable);
     }
 
-    public SExtraItemNbt(SExtraItemNbt toCopy, boolean mutable) {
+    public ExtraItemNbtValues(ExtraItemNbtValues toCopy, boolean mutable) {
         super(mutable);
 
         this.entries = toCopy.getEntries();
@@ -50,8 +56,8 @@ public class SExtraItemNbt extends ModelValues {
     }
 
     @Override
-    public SExtraItemNbt copy(boolean mutable) {
-        return new SExtraItemNbt(this, mutable);
+    public ExtraItemNbtValues copy(boolean mutable) {
+        return new ExtraItemNbtValues(this, mutable);
     }
 
     public void save(BitOutput output) {
@@ -88,6 +94,13 @@ public class SExtraItemNbt extends ModelValues {
         public static Entry load1(BitInput input, boolean mutable) throws UnknownEncodingException {
             Entry result = new Entry(mutable);
             result.load1(input);
+            return result;
+        }
+
+        public static Entry createQuick(List<String> key, Value value) {
+            Entry result = new Entry(true);
+            result.setKey(key);
+            result.setValue(value);
             return result;
         }
 

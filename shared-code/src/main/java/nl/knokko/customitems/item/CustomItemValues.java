@@ -97,11 +97,11 @@ public abstract class CustomItemValues extends ModelValues {
 
     // Right-click properties
     protected List<String> commands;
-    protected SReplaceCondition.ConditionOperation conditionOp;
-    protected List<SReplaceCondition> replaceConditions;
+    protected ReplacementConditionValues.ConditionOperation conditionOp;
+    protected List<ReplacementConditionValues> replaceConditions;
 
     // Other properties
-    protected SExtraItemNbt extraItemNbt;
+    protected ExtraItemNbtValues extraItemNbt;
     protected float attackRange;
 
     // Editor-only properties
@@ -129,10 +129,10 @@ public abstract class CustomItemValues extends ModelValues {
         this.equippedEffects = new ArrayList<>(0);
 
         this.commands = new ArrayList<>(0);
-        this.conditionOp = SReplaceCondition.ConditionOperation.NONE;
+        this.conditionOp = ReplacementConditionValues.ConditionOperation.NONE;
         this.replaceConditions = new ArrayList<>(0);
 
-        this.extraItemNbt = new SExtraItemNbt(false);
+        this.extraItemNbt = new ExtraItemNbtValues(false);
         this.attackRange = 1f;
 
         this.texture = null;
@@ -372,21 +372,21 @@ public abstract class CustomItemValues extends ModelValues {
         int numReplacementConditions = input.readByte() & 0xFF;
         this.replaceConditions = new ArrayList<>(numReplacementConditions);
         for (int counter = 0; counter < numReplacementConditions; counter++) {
-            this.replaceConditions.add(SReplaceCondition.load1(input, itemSet, false));
+            this.replaceConditions.add(ReplacementConditionValues.load1(input, itemSet, false));
         }
-        this.conditionOp = SReplaceCondition.ConditionOperation.valueOf(input.readJavaString());
+        this.conditionOp = ReplacementConditionValues.ConditionOperation.valueOf(input.readJavaString());
     }
 
     protected void saveReplacementConditions10(BitOutput output) {
         output.addByte((byte) replaceConditions.size());
-        for (SReplaceCondition replaceCondition : replaceConditions) {
+        for (ReplacementConditionValues replaceCondition : replaceConditions) {
             replaceCondition.save1(output);
         }
         output.addJavaString(conditionOp.name());
     }
 
     protected void loadExtraProperties10(BitInput input) throws UnknownEncodingException {
-        this.extraItemNbt = SExtraItemNbt.load(input, false);
+        this.extraItemNbt = ExtraItemNbtValues.load(input, false);
         this.attackRange = input.readFloat();
     }
 
@@ -443,10 +443,10 @@ public abstract class CustomItemValues extends ModelValues {
 
         this.equippedEffects = new ArrayList<>(0);
 
-        this.conditionOp = SReplaceCondition.ConditionOperation.NONE;
+        this.conditionOp = ReplacementConditionValues.ConditionOperation.NONE;
         this.replaceConditions = new ArrayList<>(0);
 
-        this.extraItemNbt = new SExtraItemNbt(false);
+        this.extraItemNbt = new ExtraItemNbtValues(false);
         this.attackRange = 1f;
     }
 
@@ -555,15 +555,15 @@ public abstract class CustomItemValues extends ModelValues {
         return new ArrayList<>(commands);
     }
 
-    public List<SReplaceCondition> getReplacementConditions() {
+    public List<ReplacementConditionValues> getReplacementConditions() {
         return new ArrayList<>(replaceConditions);
     }
 
-    public SReplaceCondition.ConditionOperation getConditionOp() {
+    public ReplacementConditionValues.ConditionOperation getConditionOp() {
         return conditionOp;
     }
 
-    public SExtraItemNbt getExtraNbt() {
+    public ExtraItemNbtValues getExtraNbt() {
         return extraItemNbt;
     }
 
@@ -660,19 +660,19 @@ public abstract class CustomItemValues extends ModelValues {
         this.commands = new ArrayList<>(newCommands);
     }
 
-    public void setConditionOp(SReplaceCondition.ConditionOperation newConditionOp) {
+    public void setConditionOp(ReplacementConditionValues.ConditionOperation newConditionOp) {
         assertMutable();
         Checks.notNull(newConditionOp);
         this.conditionOp = newConditionOp;
     }
 
-    public void setReplaceConditions(List<SReplaceCondition> newReplaceConditions) {
+    public void setReplaceConditions(List<ReplacementConditionValues> newReplaceConditions) {
         assertMutable();
         Checks.nonNull(newReplaceConditions);
         this.replaceConditions = Mutability.createDeepCopy(newReplaceConditions, false);
     }
 
-    public void setExtraItemNbt(SExtraItemNbt newExtraNbt) {
+    public void setExtraItemNbt(ExtraItemNbtValues newExtraNbt) {
         assertMutable();
         Checks.notNull(newExtraNbt);
         this.extraItemNbt = newExtraNbt.copy(false);
@@ -755,16 +755,16 @@ public abstract class CustomItemValues extends ModelValues {
         if (conditionOp == null) throw new ProgrammingValidationException("No condition OP");
         if (replaceConditions == null) throw new ProgrammingValidationException("No replace conditions");
         if (replaceConditions.size() > Byte.MAX_VALUE) throw new ValidationException("Too many replace conditions");
-        for (SReplaceCondition condition : replaceConditions) {
+        for (ReplacementConditionValues condition : replaceConditions) {
             if (condition == null) throw new ProgrammingValidationException("Missing a replacement condition");
             Validation.scope("Replace condition", condition::validateIndependent);
         }
-        if (conditionOp == SReplaceCondition.ConditionOperation.NONE && replaceConditions.size() > 1) {
+        if (conditionOp == ReplacementConditionValues.ConditionOperation.NONE && replaceConditions.size() > 1) {
             throw new ValidationException("There are multiple replace conditions but no operator has been specified");
         }
-        if (conditionOp == SReplaceCondition.ConditionOperation.AND || conditionOp == SReplaceCondition.ConditionOperation.OR) {
-            for (SReplaceCondition conditionA : replaceConditions) {
-                for (SReplaceCondition conditionB : replaceConditions) {
+        if (conditionOp == ReplacementConditionValues.ConditionOperation.AND || conditionOp == ReplacementConditionValues.ConditionOperation.OR) {
+            for (ReplacementConditionValues conditionA : replaceConditions) {
+                for (ReplacementConditionValues conditionB : replaceConditions) {
                     if (!conditionA.getReplaceItemReference().equals(conditionB.getReplaceItemReference())) {
                         throw new ValidationException("With the OR and AND operators, all replacement items must be the same");
                     }
@@ -802,7 +802,7 @@ public abstract class CustomItemValues extends ModelValues {
             throw new ProgrammingValidationException("The chosen texture is not (or no longer) valid");
         }
 
-        for (SReplaceCondition condition : replaceConditions) {
+        for (ReplacementConditionValues condition : replaceConditions) {
             Validation.scope("Replace condition", () -> condition.validateComplete(itemSet));
         }
     }

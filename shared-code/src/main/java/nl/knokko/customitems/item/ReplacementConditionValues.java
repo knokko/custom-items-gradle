@@ -9,13 +9,25 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
-public class SReplaceCondition extends ModelValues {
+public class ReplacementConditionValues extends ModelValues {
 
     private final int MAX_DEFAULT_SPACE = 37 * 64; // 37 slots of 64 items at most
 
-    public static SReplaceCondition load1(BitInput input, SItemSet itemSet, boolean mutable) {
-        SReplaceCondition result = new SReplaceCondition(mutable);
+    public static ReplacementConditionValues load1(BitInput input, SItemSet itemSet, boolean mutable) {
+        ReplacementConditionValues result = new ReplacementConditionValues(mutable);
         result.load1(input, itemSet);
+        return result;
+    }
+
+    public static ReplacementConditionValues createQuick(
+            ReplacementCondition condition, ItemReference item, ReplacementOperation operation, int value, ItemReference replaceItem
+    ) {
+        ReplacementConditionValues result = new ReplacementConditionValues(true);
+        result.setCondition(condition);
+        result.setItem(item);
+        result.setOperation(operation);
+        result.setValue(value);
+        result.setReplaceItem(replaceItem);
         return result;
     }
 
@@ -25,11 +37,11 @@ public class SReplaceCondition extends ModelValues {
     private int value;
     private ItemReference replaceItem;
 
-    public SReplaceCondition(boolean mutable) {
+    public ReplacementConditionValues(boolean mutable) {
         super(mutable);
     }
 
-    public SReplaceCondition(SReplaceCondition toCopy, boolean mutable) {
+    public ReplacementConditionValues(ReplacementConditionValues toCopy, boolean mutable) {
         super(mutable);
 
         this.condition = toCopy.getCondition();
@@ -49,7 +61,7 @@ public class SReplaceCondition extends ModelValues {
 
     @Override
     public ModelValues copy(boolean mutable) {
-        return new SReplaceCondition(this, mutable);
+        return new ReplacementConditionValues(this, mutable);
     }
 
     public void save1(BitOutput output) {

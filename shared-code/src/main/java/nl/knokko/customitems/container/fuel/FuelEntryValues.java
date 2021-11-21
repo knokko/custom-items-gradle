@@ -21,6 +21,13 @@ public class FuelEntryValues extends ModelValues {
         return result;
     }
 
+    public static FuelEntryValues createQuick(IngredientValues fuel, int burnTime) {
+        FuelEntryValues result = new FuelEntryValues(true);
+        result.setFuel(fuel);
+        result.setBurnTime(burnTime);
+        return result;
+    }
+
     private IngredientValues fuel;
     private int burnTime;
 
