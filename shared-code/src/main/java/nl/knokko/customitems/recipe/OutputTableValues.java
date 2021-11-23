@@ -17,6 +17,7 @@ import nl.knokko.util.bits.BitOutput;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Random;
 
 public class OutputTableValues extends ModelValues {
 
@@ -88,6 +89,22 @@ public class OutputTableValues extends ModelValues {
             chance -= entry.getChance();
         }
         return chance;
+    }
+
+    public ResultValues pickResult(int randomChance) {
+        int remaining = randomChance;
+        for (Entry entry : entries) {
+            if (entry.getChance() > remaining) {
+                return entry.getResult();
+            }
+            remaining -= entry.getChance();
+        }
+
+        return null;
+    }
+
+    public ResultValues pickResult(Random random) {
+        return pickResult(random.nextInt(100));
     }
 
     public void setEntries(Collection<Entry> newEntries) {

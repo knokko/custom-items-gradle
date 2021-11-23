@@ -1,8 +1,6 @@
 package nl.knokko.customitems.itemset;
 
 import nl.knokko.customitems.block.*;
-import nl.knokko.customitems.block.drop.CustomBlockDrop;
-import nl.knokko.customitems.container.CustomContainer;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.CustomContainerView;
 import nl.knokko.customitems.container.SCustomContainer;
