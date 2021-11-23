@@ -1,5 +1,10 @@
 package nl.knokko.customitems.texture;
 
+import nl.knokko.customitems.model.Mutability;
+import nl.knokko.customitems.util.Checks;
+import nl.knokko.customitems.util.ProgrammingValidationException;
+import nl.knokko.customitems.util.Validation;
+import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
@@ -60,5 +65,51 @@ public class CrossbowTextureValues extends BaseTextureValues {
         for (BowTextureEntry pullTexture : pullTextures) {
             pullTexture.save(output);
         }
+    }
+
+    public List<BowTextureEntry> getPullTextures() {
+        return new ArrayList<>(pullTextures);
+    }
+
+    // This is a bit dangerous since the caller could modify it, which would be reflected to this crossbow texture...
+    public BufferedImage getArrowImage() {
+        return arrowImage;
+    }
+
+    // This is a bit dangerous since the caller could modify it, which would be reflected to this crossbow texture...
+    public BufferedImage getFireworkImage() {
+        return fireworkImage;
+    }
+
+    public void setPullTextures(List<BowTextureEntry> newPullTextures) {
+        assertMutable();
+        Checks.nonNull(newPullTextures);
+        this.pullTextures = Mutability.createDeepCopy(newPullTextures, false);
+    }
+
+    // This is a bit dangerous since the caller can keep changing the image after this call
+    public void setArrowImage(BufferedImage newArrowImage) {
+        assertMutable();
+        Checks.notNull(newArrowImage);
+        this.arrowImage = newArrowImage;
+    }
+
+    // This is a bit dangerous since the caller can keep changing the image after this call
+    public void setFireworkImage(BufferedImage newFireworkImage) {
+        assertMutable();
+        Checks.notNull(newFireworkImage);
+        this.fireworkImage = newFireworkImage;
+    }
+
+    @Override
+    public void validateIndependent() throws ValidationException, ProgrammingValidationException {
+        super.validateIndependent();
+        if (this.pullTextures == null) throw new ProgrammingValidationException("No pull textures");
+        for (BowTextureEntry pullTexture : this.pullTextures) {
+            if (pullTexture == null) throw new ProgrammingValidationException("Missing a pull texture");
+            Validation.scope("Pull texture " + pullTexture.getPull(), pullTexture::validate);
+        }
+        Validation.scope("Arrow image", () -> validateImage(this.arrowImage));
+        Validation.scope("Firework image", () -> validateImage(this.fireworkImage));
     }
 }

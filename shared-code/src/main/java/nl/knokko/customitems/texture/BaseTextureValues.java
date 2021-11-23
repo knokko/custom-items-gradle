@@ -23,6 +23,21 @@ public class BaseTextureValues extends ModelValues {
     public static final byte ENCODING_BOW_1 = 1;
     public static final byte ENCODING_CROSSBOW_1 = 2;
 
+    private static void validateSize(int size) throws ValidationException {
+        if (size < 1) throw new ValidationException("must be positive");
+        if (size > 512) throw new ValidationException("can be at most 512");
+        if (Integer.bitCount(size) != 1) throw new ValidationException("must be a power of 2");
+    }
+
+    public static void validateImage(BufferedImage image) throws ValidationException, ProgrammingValidationException {
+        if (image == null) throw new ValidationException("Not selected");
+        Validation.scope("width (" + image.getWidth() + ")", () -> validateSize(image.getWidth()));
+        Validation.scope("height (" + image.getHeight() + ")", () -> validateSize(image.getHeight()));
+        if (image.getWidth() != image.getHeight()) {
+            throw new ValidationException("width (" + image.getWidth() + ") must be equal to height (" + image.getHeight() + ")");
+        }
+    }
+
     public static BaseTextureValues load(
             BitInput input, boolean expectCompressed
     ) throws UnknownEncodingException {
@@ -146,20 +161,7 @@ public class BaseTextureValues extends ModelValues {
         this.image = newImage;
     }
 
-    private void validateSize(int size) throws ValidationException {
-        if (size < 1) throw new ValidationException("must be positive");
-        if (size > 512) throw new ValidationException("can be at most 512");
-        if (Integer.bitCount(size) != 1) throw new ValidationException("must be a power of 2");
-    }
 
-    protected void validateImage(BufferedImage image) throws ValidationException, ProgrammingValidationException {
-        if (image == null) throw new ValidationException("Not selected");
-        Validation.scope("width (" + image.getWidth() + ")", () -> validateSize(image.getWidth()));
-        Validation.scope("height (" + image.getHeight() + ")", () -> validateSize(image.getHeight()));
-        if (image.getWidth() != image.getHeight()) {
-            throw new ValidationException("width (" + image.getWidth() + ") must be equal to height (" + image.getHeight() + ")");
-        }
-    }
 
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {
         Validation.safeName(name);

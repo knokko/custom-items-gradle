@@ -25,6 +25,12 @@ public class StorageSlotValues extends ContainerSlotValues {
         return result;
     }
 
+    public static StorageSlotValues createQuick(SlotDisplayValues placeholder) {
+        StorageSlotValues result = new StorageSlotValues(true);
+        result.setPlaceholder(placeholder);
+        return result;
+    }
+
     private SlotDisplayValues placeholder;
 
     public StorageSlotValues(boolean mutable) {

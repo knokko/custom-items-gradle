@@ -3,6 +3,7 @@ package nl.knokko.customitems.texture;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
+import nl.knokko.customitems.util.Validation;
 import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
@@ -68,6 +69,6 @@ public class BowTextureEntry extends ModelValues {
     public void validate() throws ValidationException, ProgrammingValidationException {
         if (pull < 0.0) throw new ValidationException("Pull can't be negative");
         if (pull > 1.0) throw new ValidationException("Pull can be at most 1.0");
-        if (image == null) throw new ValidationException("You need to choose a texture");
+        Validation.scope("Image", () -> BaseTextureValues.validateImage(image));
     }
 }
