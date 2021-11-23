@@ -76,6 +76,16 @@ public class ShapedRecipeValues extends CraftingRecipeValues {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (other instanceof ShapedRecipeValues) {
+            ShapedRecipeValues otherRecipe = (ShapedRecipeValues) other;
+            return result.equals(otherRecipe.result) && Arrays.equals(ingredients, otherRecipe.ingredients);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public ShapedRecipeValues copy(boolean mutable) {
         return new ShapedRecipeValues(this, mutable);
     }

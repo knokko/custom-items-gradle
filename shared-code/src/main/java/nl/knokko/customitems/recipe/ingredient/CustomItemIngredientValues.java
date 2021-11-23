@@ -12,6 +12,8 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
+import java.util.Objects;
+
 public class CustomItemIngredientValues extends IngredientValues {
 
     static CustomItemIngredientValues load(BitInput input, byte encoding, SItemSet itemSet) throws UnknownEncodingException {
@@ -84,6 +86,22 @@ public class CustomItemIngredientValues extends IngredientValues {
         output.addByte(amount);
         saveRemainingItem(output);
         output.addJavaString(item.get().getName());
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof CustomItemIngredientValues) {
+            CustomItemIngredientValues otherIngredient = (CustomItemIngredientValues) other;
+            return this.item.equals(otherIngredient.item) && this.amount == otherIngredient.amount
+                    && Objects.equals(this.remainingItem, otherIngredient.remainingItem);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return amount + 71 * item.get().getName().hashCode() + 975 * Objects.hashCode(remainingItem);
     }
 
     @Override

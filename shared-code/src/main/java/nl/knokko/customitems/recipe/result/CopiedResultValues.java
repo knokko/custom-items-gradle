@@ -63,6 +63,11 @@ public class CopiedResultValues extends ResultValues {
         }
     }
 
+    @Override
+    public int hashCode() {
+        return encoded.hashCode();
+    }
+
     private void load1(BitInput input) {
         this.encoded = input.readString();
     }

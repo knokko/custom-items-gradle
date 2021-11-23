@@ -11,6 +11,8 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
+import java.util.Objects;
+
 public class DataVanillaIngredientValues extends IngredientValues {
 
     static DataVanillaIngredientValues load(BitInput input, byte encoding, SItemSet itemSet) throws UnknownEncodingException {
@@ -68,6 +70,22 @@ public class DataVanillaIngredientValues extends IngredientValues {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof DataVanillaIngredientValues) {
+            DataVanillaIngredientValues otherIngredient = (DataVanillaIngredientValues) other;
+            return this.material == otherIngredient.material && this.dataValue == otherIngredient.dataValue
+                    && this.amount == otherIngredient.amount && Objects.equals(this.remainingItem, otherIngredient.remainingItem);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return dataValue + 17 * amount + 61 * material.ordinal() + 1731 * Objects.hashCode(remainingItem);
     }
 
     @Override

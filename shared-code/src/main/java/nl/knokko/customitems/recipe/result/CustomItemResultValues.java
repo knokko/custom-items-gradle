@@ -64,6 +64,11 @@ public class CustomItemResultValues extends ResultValues {
         }
     }
 
+    @Override
+    public int hashCode() {
+        return amount + 237 * item.get().getName().hashCode();
+    }
+
     private void load1(BitInput input, SItemSet itemSet) {
         this.amount = loadAmount(input);
         this.item = itemSet.getItemReference(input.readJavaString());

@@ -10,6 +10,8 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
+import java.util.Objects;
+
 import static nl.knokko.customitems.encoding.RecipeEncoding.Ingredient.*;
 
 public class SimpleVanillaIngredientValues extends IngredientValues {
@@ -67,6 +69,22 @@ public class SimpleVanillaIngredientValues extends IngredientValues {
     @Override
     public SimpleVanillaIngredientValues copy(boolean mutable) {
         return new SimpleVanillaIngredientValues(this, mutable);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof SimpleVanillaIngredientValues) {
+            SimpleVanillaIngredientValues otherIngredient = (SimpleVanillaIngredientValues) other;
+            return this.material == otherIngredient.material && this.amount == otherIngredient.amount
+                    && Objects.equals(this.remainingItem, otherIngredient.remainingItem);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return amount + 15 * material.ordinal() + 123 * Objects.hashCode(remainingItem);
     }
 
     private void load1(BitInput input) {

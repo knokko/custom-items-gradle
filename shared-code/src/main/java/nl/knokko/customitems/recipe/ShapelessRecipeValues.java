@@ -15,9 +15,7 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ShapelessRecipeValues extends CraftingRecipeValues {
@@ -74,6 +72,27 @@ public class ShapelessRecipeValues extends CraftingRecipeValues {
         output.addNumber(ingredients.size(), (byte) 4, false);
         for (IngredientValues ingredient : ingredients) {
             ingredient.save(output);
+        }
+    }
+
+    private Map<IngredientValues, Integer> createIngredientCountMap() {
+        Map<IngredientValues, Integer> countMap = new HashMap<>();
+        for (IngredientValues ingredient : ingredients) {
+            Integer oldValue = countMap.get(ingredient);
+            int newValue = oldValue == null ? 1 : oldValue + 1;
+            countMap.put(ingredient, newValue);
+        }
+
+        return countMap;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof ShapelessRecipeValues) {
+            ShapelessRecipeValues otherRecipe = (ShapelessRecipeValues) other;
+            return this.result.equals(otherRecipe.result) && this.createIngredientCountMap().equals(otherRecipe.createIngredientCountMap());
+        } else {
+            return false;
         }
     }
 

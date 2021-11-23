@@ -68,9 +68,14 @@ public class SimpleVanillaResultValues extends ResultValues {
         }
     }
 
+    @Override
+    public int hashCode() {
+        return amount + 123 * material.ordinal();
+    }
+
     private void load1(BitInput input) {
         this.amount = loadAmount(input);
-        this.material = CIMaterial.valueOf(this.material.name());
+        this.material = CIMaterial.valueOf(input.readJavaString());
     }
 
     @Override

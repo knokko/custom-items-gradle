@@ -73,6 +73,11 @@ public class DataVanillaResultValues extends ResultValues {
         }
     }
 
+    @Override
+    public int hashCode() {
+        return data + 17 * amount + 173 * material.ordinal();
+    }
+
     private void load1(BitInput input) {
         this.amount = loadAmount(input);
         this.material = CIMaterial.valueOf(input.readJavaString());
