@@ -39,6 +39,8 @@ public class ExtraItemNbtValues extends ModelValues {
 
     public ExtraItemNbtValues(boolean mutable) {
         super(mutable);
+
+        this.entries = new ArrayList<>(0);
     }
 
     public ExtraItemNbtValues(ExtraItemNbtValues toCopy, boolean mutable) {

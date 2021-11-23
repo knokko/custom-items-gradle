@@ -59,6 +59,18 @@ public class AttributeModifierValues extends ModelValues  {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (other instanceof AttributeModifierValues) {
+            AttributeModifierValues otherAttribute = (AttributeModifierValues) other;
+            return this.attribute == otherAttribute.attribute && this.slot == otherAttribute.slot
+                    && this.operation == otherAttribute.operation
+                    && Math.abs(this.value - otherAttribute.value) < 0.001;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public AttributeModifierValues copy(boolean mutable) {
         return new AttributeModifierValues(this, mutable);
     }
