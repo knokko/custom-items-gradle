@@ -29,7 +29,6 @@ public class SimpleVanillaDisplayItemValues extends SlotDisplayItemValues {
         return result;
     }
 
-
     private CIMaterial material;
 
     public SimpleVanillaDisplayItemValues(boolean mutable) {
@@ -50,6 +49,15 @@ public class SimpleVanillaDisplayItemValues extends SlotDisplayItemValues {
     public void save(BitOutput output) {
         output.addByte(Encodings.SIMPLE_VANILLA1);
         output.addString(material.name());
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof SimpleVanillaDisplayItemValues) {
+            return this.material == ((SimpleVanillaDisplayItemValues) other).material;
+        } else {
+            return false;
+        }
     }
 
     @Override

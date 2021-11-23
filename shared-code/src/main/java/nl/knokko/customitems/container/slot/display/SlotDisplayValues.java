@@ -88,6 +88,17 @@ public class SlotDisplayValues extends ModelValues {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (other instanceof SlotDisplayValues) {
+            SlotDisplayValues otherDisplay = (SlotDisplayValues) other;
+            return this.displayName.equals(otherDisplay.displayName) && this.lore.equals(otherDisplay.lore)
+                    && this.amount == otherDisplay.amount && this.displayItem.equals(otherDisplay.displayItem);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public SlotDisplayValues copy(boolean mutable) {
         return new SlotDisplayValues(this, mutable);
     }

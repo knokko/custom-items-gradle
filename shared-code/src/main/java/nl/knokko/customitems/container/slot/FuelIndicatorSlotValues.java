@@ -76,6 +76,17 @@ public class FuelIndicatorSlotValues extends ContainerSlotValues {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (other instanceof FuelIndicatorSlotValues) {
+            FuelIndicatorSlotValues otherSlot = (FuelIndicatorSlotValues) other;
+            return this.fuelSlotName.equals(otherSlot.fuelSlotName) && this.display.equals(otherSlot.display)
+                    && this.placeholder.equals(otherSlot.placeholder) && this.indicatorDomain.equals(otherSlot.indicatorDomain);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public FuelIndicatorSlotValues copy(boolean mutable) {
         return new FuelIndicatorSlotValues(mutable);
     }

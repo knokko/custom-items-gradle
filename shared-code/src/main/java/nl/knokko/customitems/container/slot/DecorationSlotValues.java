@@ -54,6 +54,15 @@ public class DecorationSlotValues extends ContainerSlotValues {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (other instanceof DecorationSlotValues) {
+            return this.display.equals(((DecorationSlotValues) other).display);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public DecorationSlotValues copy(boolean mutable) {
         return new DecorationSlotValues(this, mutable);
     }

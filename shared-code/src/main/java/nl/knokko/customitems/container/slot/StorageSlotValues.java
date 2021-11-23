@@ -10,6 +10,7 @@ import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
 import java.util.Collection;
+import java.util.Objects;
 
 public class StorageSlotValues extends ContainerSlotValues {
 
@@ -56,6 +57,15 @@ public class StorageSlotValues extends ContainerSlotValues {
         output.addBoolean(placeholder != null);
         if (placeholder != null) {
             placeholder.save(output);
+        }
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof StorageSlotValues) {
+            return Objects.equals(this.placeholder, ((StorageSlotValues) other).placeholder);
+        } else {
+            return false;
         }
     }
 

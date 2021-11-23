@@ -19,6 +19,11 @@ public class EmptySlotValues extends ContainerSlotValues {
     }
 
     @Override
+    public boolean equals(Object other) {
+        return other instanceof EmptySlotValues;
+    }
+
+    @Override
     public EmptySlotValues copy(boolean mutable) {
         return new EmptySlotValues();
     }

@@ -13,6 +13,7 @@ import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
 import java.util.Collection;
+import java.util.Objects;
 
 public class FuelSlotValues extends ContainerSlotValues {
 
@@ -86,6 +87,16 @@ public class FuelSlotValues extends ContainerSlotValues {
         }
     }
 
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof FuelSlotValues) {
+            FuelSlotValues otherSlot = (FuelSlotValues) other;
+            return this.name.equals(otherSlot.name) && this.fuelRegistry.equals(otherSlot.fuelRegistry)
+                    && Objects.equals(this.placeholder, otherSlot.placeholder);
+        } else {
+            return false;
+        }
+    }
     @Override
     public FuelSlotValues copy(boolean mutable) {
         return new FuelSlotValues(this, mutable);

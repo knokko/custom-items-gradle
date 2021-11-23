@@ -58,6 +58,16 @@ public class DataVanillaDisplayItemValues extends SlotDisplayItemValues {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (other instanceof DataVanillaDisplayItemValues) {
+            DataVanillaDisplayItemValues otherItem = (DataVanillaDisplayItemValues) other;
+            return this.material == otherItem.material && this.dataValue == otherItem.dataValue;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public DataVanillaDisplayItemValues copy(boolean mutable) {
         return new DataVanillaDisplayItemValues(this, mutable);
     }

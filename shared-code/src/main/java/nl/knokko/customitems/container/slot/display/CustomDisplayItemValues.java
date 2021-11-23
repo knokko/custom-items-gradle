@@ -53,6 +53,15 @@ public class CustomDisplayItemValues extends SlotDisplayItemValues {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (other instanceof CustomDisplayItemValues) {
+            return this.customItem.equals(((CustomDisplayItemValues) other).customItem);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public CustomDisplayItemValues copy(boolean mutable) {
         return new CustomDisplayItemValues(this, mutable);
     }

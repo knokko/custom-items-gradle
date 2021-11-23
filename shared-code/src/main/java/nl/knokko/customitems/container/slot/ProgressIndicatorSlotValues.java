@@ -70,6 +70,17 @@ public class ProgressIndicatorSlotValues extends ContainerSlotValues {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (other instanceof ProgressIndicatorSlotValues) {
+            ProgressIndicatorSlotValues otherSlot = (ProgressIndicatorSlotValues) other;
+            return this.display.equals(otherSlot.display) && this.placeholder.equals(otherSlot.placeholder)
+                    && this.indicatorDomain.equals(otherSlot.indicatorDomain);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public ProgressIndicatorSlotValues copy(boolean mutable) {
         return new ProgressIndicatorSlotValues(this, mutable);
     }
