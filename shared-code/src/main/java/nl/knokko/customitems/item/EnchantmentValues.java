@@ -45,6 +45,16 @@ public class EnchantmentValues extends ModelValues  {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (other instanceof EnchantmentValues) {
+            EnchantmentValues otherEnchantment = (EnchantmentValues) other;
+            return this.type == otherEnchantment.type && this.level == otherEnchantment.level;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public EnchantmentValues copy(boolean mutable) {
         return new EnchantmentValues(this, mutable);
     }
