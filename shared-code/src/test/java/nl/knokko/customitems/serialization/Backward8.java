@@ -1,4 +1,4 @@
-package nl.knokko.customitems.editor.unittest.itemset;
+package nl.knokko.customitems.serialization;
 
 import nl.knokko.customitems.container.ContainerRecipeValues;
 import nl.knokko.customitems.container.CustomContainerValues;
@@ -27,11 +27,10 @@ import org.junit.Test;
 import java.util.Iterator;
 import java.util.Scanner;
 
-import static nl.knokko.customitems.editor.unittest.itemset.Backward3.testTextures3;
-import static nl.knokko.customitems.editor.unittest.itemset.Backward6.*;
-import static nl.knokko.customitems.editor.unittest.itemset.Backward7.testContainers7;
-import static nl.knokko.customitems.editor.unittest.itemset.Backward9.*;
-import static nl.knokko.customitems.editor.unittest.itemset.BackwardHelper.*;
+import static nl.knokko.customitems.serialization.Backward3.testTextures3;
+import static nl.knokko.customitems.serialization.Backward6.*;
+import static nl.knokko.customitems.serialization.Backward7.testContainers7;
+import static nl.knokko.customitems.serialization.BackwardHelper.*;
 import static org.junit.Assert.*;
 
 public class Backward8 {
@@ -670,51 +669,51 @@ public class Backward8 {
         assertEquals(0, item.getEquippedEffects().size());
         assertEquals(0, item.getExtraNbt().getEntries().size());
         assertEquals(1f, item.getAttackRange(), 0f);
-        testBaseDefault9(item);
+        Backward9.testBaseDefault9(item);
     }
 
     static void testSimpleDefault8(SimpleCustomItemValues item) {
         testBaseDefault8(item);
-        testSimpleDefault9(item);
+        Backward9.testSimpleDefault9(item);
     }
 
     static void testToolDefault8(CustomToolValues item) {
         testBaseDefault8(item);
-        testToolDefault9(item);
+        Backward9.testToolDefault9(item);
     }
 
     static void testArmorDefault8(CustomArmorValues item) {
         testToolDefault8(item);
-        testArmorDefault9(item);
+        Backward9.testArmorDefault9(item);
     }
 
     static void testHoeDefault8(CustomHoeValues item) {
         testToolDefault8(item);
-        testHoeDefault9(item);
+        Backward9.testHoeDefault9(item);
     }
 
     static void testShearsDefault8(CustomShearsValues item) {
         testToolDefault8(item);
-        testShearsDefault9(item);
+        Backward9.testShearsDefault9(item);
     }
 
     static void testBowDefault8(CustomBowValues item) {
         testToolDefault8(item);
-        testBowDefault9(item);
+        Backward9.testBowDefault9(item);
     }
 
     static void testShieldDefault8(CustomShieldValues item) {
         testToolDefault8(item);
-        testShieldDefault9(item);
+        Backward9.testShieldDefault9(item);
     }
 
     static void testWandDefault8(CustomWandValues item) {
         testBaseDefault8(item);
-        testWandDefault9(item);
+        Backward9.testWandDefault9(item);
     }
 
     static void testTridentDefault8(CustomTridentValues item) {
         testToolDefault8(item);
-        testTridentDefault9(item);
+        Backward9.testTridentDefault9(item);
     }
 }

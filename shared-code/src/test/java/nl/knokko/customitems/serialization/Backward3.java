@@ -1,4 +1,4 @@
-package nl.knokko.customitems.editor.unittest.itemset;
+package nl.knokko.customitems.serialization;
 
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.itemset.ItemReference;
@@ -9,11 +9,10 @@ import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
 import nl.knokko.customitems.texture.BowTextureValues;
 import org.junit.Test;
 
-import static nl.knokko.customitems.editor.unittest.itemset.Backward1.testRecipes1;
-import static nl.knokko.customitems.editor.unittest.itemset.Backward1.testTextures1;
-import static nl.knokko.customitems.editor.unittest.itemset.Backward2.testItems2;
-import static nl.knokko.customitems.editor.unittest.itemset.Backward4.*;
-import static nl.knokko.customitems.editor.unittest.itemset.BackwardHelper.*;
+import static nl.knokko.customitems.serialization.Backward1.testRecipes1;
+import static nl.knokko.customitems.serialization.Backward1.testTextures1;
+import static nl.knokko.customitems.serialization.Backward2.testItems2;
+import static nl.knokko.customitems.serialization.BackwardHelper.*;
 import static org.junit.Assert.*;
 
 public class Backward3 {
@@ -112,12 +111,12 @@ public class Backward3 {
     }
 
     static void testBaseDefault3(CustomItemValues item) {
-        testBaseDefault4(item);
+        Backward4.testBaseDefault4(item);
     }
 
     static void testSimpleDefault3(SimpleCustomItemValues item) {
         testBaseDefault3(item);
-        testSimpleDefault4(item);
+        Backward4.testSimpleDefault4(item);
     }
 
     static void testToolDefault3(CustomToolValues item) {
@@ -126,6 +125,6 @@ public class Backward3 {
         assertFalse(item.allowAnvilActions());
         assertTrue(item.getRepairItem() instanceof NoIngredientValues);
 
-        testToolDefault4(item);
+        Backward4.testToolDefault4(item);
     }
 }

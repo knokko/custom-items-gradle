@@ -1,4 +1,4 @@
-package nl.knokko.customitems.editor.unittest.itemset;
+package nl.knokko.customitems.serialization;
 
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.itemset.SItemSet;
@@ -7,12 +7,11 @@ import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
 import org.junit.Test;
 
-import static nl.knokko.customitems.editor.unittest.itemset.Backward1.testRecipes1;
-import static nl.knokko.customitems.editor.unittest.itemset.Backward3.testItems3;
-import static nl.knokko.customitems.editor.unittest.itemset.Backward3.testTextures3;
-import static nl.knokko.customitems.editor.unittest.itemset.Backward5.*;
-import static nl.knokko.customitems.editor.unittest.itemset.BackwardHelper.listOf;
-import static nl.knokko.customitems.editor.unittest.itemset.BackwardHelper.loadItemSet;
+import static nl.knokko.customitems.serialization.Backward1.testRecipes1;
+import static nl.knokko.customitems.serialization.Backward3.testItems3;
+import static nl.knokko.customitems.serialization.Backward3.testTextures3;
+import static nl.knokko.customitems.serialization.BackwardHelper.listOf;
+import static nl.knokko.customitems.serialization.BackwardHelper.loadItemSet;
 import static org.junit.Assert.*;
 
 public class Backward4 {
@@ -131,32 +130,32 @@ public class Backward4 {
 
     static void testBaseDefault4(CustomItemValues item) {
         assertEquals(0, item.getDefaultEnchantments().size());
-        testBaseDefault5(item);
+        Backward5.testBaseDefault5(item);
     }
 
     static void testSimpleDefault4(SimpleCustomItemValues item) {
         assertEquals(64, item.getMaxStacksize());
         testBaseDefault4(item);
-        testSimpleDefault5(item);
+        Backward5.testSimpleDefault5(item);
     }
 
     static void testToolDefault4(CustomToolValues item) {
         testBaseDefault4(item);
-        testToolDefault5(item);
+        Backward5.testToolDefault5(item);
     }
 
     static void testHoeDefault4(CustomHoeValues item) {
         testToolDefault4(item);
-        testHoeDefault5(item);
+        Backward5.testHoeDefault5(item);
     }
 
     static void testShearsDefault4(CustomShearsValues item) {
         testToolDefault4(item);
-        testShearsDefault5(item);
+        Backward5.testShearsDefault5(item);
     }
 
     static void testBowDefault4(CustomBowValues item) {
         testToolDefault4(item);
-        testBowDefault5(item);
+        Backward5.testBowDefault5(item);
     }
 }

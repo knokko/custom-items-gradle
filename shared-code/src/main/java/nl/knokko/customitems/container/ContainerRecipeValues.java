@@ -113,7 +113,7 @@ public class ContainerRecipeValues extends ModelValues {
         this.outputs = new HashMap<>(numOutputs);
         for (int counter = 0; counter < numOutputs; counter++) {
             String outputSlotName = input.readString();
-            OutputTableValues resultTable = OutputTableValues.load1(input, itemSet, false);
+            OutputTableValues resultTable = OutputTableValues.load1(input, itemSet);
             this.outputs.put(outputSlotName, resultTable);
         }
 

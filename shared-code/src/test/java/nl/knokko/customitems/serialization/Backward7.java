@@ -1,4 +1,4 @@
-package nl.knokko.customitems.editor.unittest.itemset;
+package nl.knokko.customitems.serialization;
 
 import nl.knokko.customitems.container.*;
 import nl.knokko.customitems.container.fuel.*;
@@ -15,11 +15,10 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 
-import static nl.knokko.customitems.editor.unittest.itemset.Backward3.testTextures3;
-import static nl.knokko.customitems.editor.unittest.itemset.Backward6.*;
-import static nl.knokko.customitems.editor.unittest.itemset.Backward8.*;
-import static nl.knokko.customitems.editor.unittest.itemset.BackwardHelper.listOf;
-import static nl.knokko.customitems.editor.unittest.itemset.BackwardHelper.loadItemSet;
+import static nl.knokko.customitems.serialization.Backward3.testTextures3;
+import static nl.knokko.customitems.serialization.Backward6.*;
+import static nl.knokko.customitems.serialization.BackwardHelper.listOf;
+import static nl.knokko.customitems.serialization.BackwardHelper.loadItemSet;
 import static org.junit.Assert.*;
 
 public class Backward7 {
@@ -136,36 +135,36 @@ public class Backward7 {
     }
 
     static void testBaseDefault7(CustomItemValues item) {
-        testBaseDefault8(item);
+        Backward8.testBaseDefault8(item);
     }
 
     static void testSimpleDefault7(SimpleCustomItemValues item) {
         testBaseDefault7(item);
-        testSimpleDefault8(item);
+        Backward8.testSimpleDefault8(item);
     }
 
     static void testToolDefault7(CustomToolValues item) {
         testBaseDefault7(item);
-        testToolDefault8(item);
+        Backward8.testToolDefault8(item);
     }
 
     static void testArmorDefault7(CustomArmorValues item) {
         testToolDefault7(item);
-        testArmorDefault8(item);
+        Backward8.testArmorDefault8(item);
     }
 
     static void testHoeDefault7(CustomHoeValues item) {
         testToolDefault7(item);
-        testHoeDefault8(item);
+        Backward8.testHoeDefault8(item);
     }
 
     static void testShearsDefault7(CustomShearsValues item) {
         testToolDefault7(item);
-        testShearsDefault8(item);
+        Backward8.testShearsDefault8(item);
     }
 
     static void testBowDefault7(CustomBowValues item) {
         testToolDefault7(item);
-        testBowDefault8(item);
+        Backward8.testBowDefault8(item);
     }
 }

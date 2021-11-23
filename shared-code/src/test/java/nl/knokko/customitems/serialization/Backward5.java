@@ -1,4 +1,4 @@
-package nl.knokko.customitems.editor.unittest.itemset;
+package nl.knokko.customitems.serialization;
 
 import nl.knokko.customitems.damage.DamageSource;
 import nl.knokko.customitems.item.*;
@@ -7,12 +7,11 @@ import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
 import org.junit.Test;
 
-import static nl.knokko.customitems.editor.unittest.itemset.Backward1.testRecipes1;
-import static nl.knokko.customitems.editor.unittest.itemset.Backward3.testTextures3;
-import static nl.knokko.customitems.editor.unittest.itemset.Backward4.testItems4;
-import static nl.knokko.customitems.editor.unittest.itemset.Backward6.*;
-import static nl.knokko.customitems.editor.unittest.itemset.BackwardHelper.listOf;
-import static nl.knokko.customitems.editor.unittest.itemset.BackwardHelper.loadItemSet;
+import static nl.knokko.customitems.serialization.Backward1.testRecipes1;
+import static nl.knokko.customitems.serialization.Backward3.testTextures3;
+import static nl.knokko.customitems.serialization.Backward4.testItems4;
+import static nl.knokko.customitems.serialization.BackwardHelper.listOf;
+import static nl.knokko.customitems.serialization.BackwardHelper.loadItemSet;
 import static org.junit.Assert.*;
 
 public class Backward5 {
@@ -152,12 +151,12 @@ public class Backward5 {
         assertEquals(listOf(
                false, false, true, false, false, false
         ), item.getItemFlags());
-        testBaseDefault6(item);
+        Backward6.testBaseDefault6(item);
     }
 
     static void testSimpleDefault5(SimpleCustomItemValues item) {
         testBaseDefault5(item);
-        testSimpleDefault6(item);
+        Backward6.testSimpleDefault6(item);
     }
 
     static void testToolDefault5(CustomToolValues item) {
@@ -166,7 +165,7 @@ public class Backward5 {
         assertTrue(item.getEntityHitDurabilityLoss() >= 0);
         assertTrue(item.getBlockBreakDurabilityLoss() >= 0);
 
-        testToolDefault6(item);
+        Backward6.testToolDefault6(item);
     }
 
     static void testArmorDefault5(CustomArmorValues item) {
@@ -178,7 +177,7 @@ public class Backward5 {
             assertEquals(0, item.getDamageResistances().getResistance(damageSource));
         }
 
-        testArmorDefault6(item);
+        Backward6.testArmorDefault6(item);
     }
 
     static void testHoeDefault5(CustomHoeValues item) {
@@ -188,7 +187,7 @@ public class Backward5 {
         assertEquals(0, item.getBlockBreakDurabilityLoss());
         assertEquals(1, item.getTillDurabilityLoss());
 
-        testHoeDefault6(item);
+        Backward6.testHoeDefault6(item);
     }
 
     static void testShearsDefault5(CustomShearsValues item) {
@@ -198,7 +197,7 @@ public class Backward5 {
         assertEquals(1, item.getBlockBreakDurabilityLoss());
         assertEquals(1, item.getShearDurabilityLoss());
 
-        testShearsDefault6(item);
+        Backward6.testShearsDefault6(item);
     }
 
     static void testBowDefault5(CustomBowValues item) {
@@ -208,6 +207,6 @@ public class Backward5 {
         assertEquals(0, item.getBlockBreakDurabilityLoss());
         assertEquals(1, item.getShootDurabilityLoss());
 
-        testBowDefault6(item);
+        Backward6.testBowDefault6(item);
     }
 }

@@ -1,9 +1,7 @@
-package nl.knokko.customitems.editor.unittest.itemset;
+package nl.knokko.customitems.serialization;
 
-import nl.knokko.customitems.editor.set.ItemSet;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.texture.BaseTextureValues;
-import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.util.bits.BitInputStream;
 
 import javax.imageio.ImageIO;
@@ -15,6 +13,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -24,7 +23,7 @@ public class BackwardHelper {
     public static final float DELTA = 0.0001f;
 
     public static SItemSet loadItemSet(String name) {
-        String resourceName = "backward/itemset/" + name + ".cisb";
+        String resourceName = "nl/knokko/customitems/serialization/" + name + ".cisb";
         InputStream rawInput = BackwardHelper.class.getClassLoader().getResourceAsStream(resourceName);
 
         if (rawInput == null) {
@@ -46,7 +45,7 @@ public class BackwardHelper {
         try {
             byte[] expected = new byte[actual.length];
             DataInputStream input = new DataInputStream(
-                    BackwardHelper.class.getClassLoader().getResourceAsStream(path)
+                    Objects.requireNonNull(BackwardHelper.class.getClassLoader().getResourceAsStream(path))
             );
             input.readFully(expected);
 
@@ -61,6 +60,7 @@ public class BackwardHelper {
     public static void assertStringResourceEquals(String path, byte[] stringBytes) {
         try {
             InputStream input = BackwardHelper.class.getClassLoader().getResourceAsStream(path);
+            assert input != null;
             List<Byte> actualByteList = new ArrayList<>(input.available());
             int next = input.read();
             while (next != -1) {
@@ -87,8 +87,9 @@ public class BackwardHelper {
     public static BufferedImage loadImage(String name) {
         try {
             InputStream input = BackwardHelper.class.getClassLoader().getResourceAsStream(
-                    "backward/itemset/texture/" + name + ".png"
+                    "nl/knokko/customitems/serialization/texture/" + name + ".png"
             );
+            assert input != null;
             BufferedImage result = ImageIO.read(input);
             input.close();
             return result;
@@ -113,10 +114,6 @@ public class BackwardHelper {
                 assertEquals(expectedImage.getRGB(x, y), actualImage.getRGB(x, y));
             }
         }
-    }
-
-    public static String[] stringArray(String...strings) {
-        return strings;
     }
 
     @SafeVarargs

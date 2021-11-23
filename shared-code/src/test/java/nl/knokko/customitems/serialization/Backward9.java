@@ -1,4 +1,4 @@
-package nl.knokko.customitems.editor.unittest.itemset;
+package nl.knokko.customitems.serialization;
 
 import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.block.drop.CustomBlockDrop;
@@ -31,10 +31,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import static nl.knokko.customitems.editor.unittest.itemset.Backward3.testTextures3;
-import static nl.knokko.customitems.editor.unittest.itemset.Backward6.*;
-import static nl.knokko.customitems.editor.unittest.itemset.Backward8.*;
-import static nl.knokko.customitems.editor.unittest.itemset.BackwardHelper.*;
+import static nl.knokko.customitems.serialization.Backward3.testTextures3;
+import static nl.knokko.customitems.serialization.Backward6.*;
+import static nl.knokko.customitems.serialization.Backward8.*;
+import static nl.knokko.customitems.serialization.BackwardHelper.*;
 import static org.junit.Assert.*;
 
 public class Backward9 {

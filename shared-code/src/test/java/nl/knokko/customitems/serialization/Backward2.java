@@ -1,13 +1,11 @@
-package nl.knokko.customitems.editor.unittest.itemset;
+package nl.knokko.customitems.serialization;
 
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.itemset.SItemSet;
 import org.junit.Test;
 
-import static nl.knokko.customitems.editor.unittest.itemset.Backward1.*;
-import static nl.knokko.customitems.editor.unittest.itemset.Backward3.testBaseDefault3;
-import static nl.knokko.customitems.editor.unittest.itemset.Backward3.testSimpleDefault3;
-import static nl.knokko.customitems.editor.unittest.itemset.BackwardHelper.listOf;
+import static nl.knokko.customitems.serialization.Backward1.*;
+import static nl.knokko.customitems.serialization.BackwardHelper.listOf;
 import static org.junit.Assert.*;
 
 public class Backward2 {
@@ -118,11 +116,11 @@ public class Backward2 {
 
     static void testBaseDefault2(CustomItemValues item) {
         assertEquals(0, item.getAttributeModifiers().size());
-        testBaseDefault3(item);
+        Backward3.testBaseDefault3(item);
     }
 
     static void testSimpleDefault2(SimpleCustomItemValues item) {
         testBaseDefault2(item);
-        testSimpleDefault3(item);
+        Backward3.testSimpleDefault3(item);
     }
 }

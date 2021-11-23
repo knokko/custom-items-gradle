@@ -1,4 +1,4 @@
-package nl.knokko.customitems.editor.unittest.itemset;
+package nl.knokko.customitems.serialization;
 
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.item.CustomItemType;
@@ -14,7 +14,7 @@ import org.junit.Test;
 
 import java.util.Collection;
 
-import static nl.knokko.customitems.editor.unittest.itemset.BackwardHelper.*;
+import static nl.knokko.customitems.serialization.BackwardHelper.*;
 import static org.junit.Assert.*;
 
 public class Backward1 {
