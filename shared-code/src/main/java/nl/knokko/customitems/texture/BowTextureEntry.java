@@ -19,6 +19,13 @@ public class BowTextureEntry extends ModelValues {
         return result;
     }
 
+    public static BowTextureEntry createQuick(BufferedImage image, double pull) {
+        BowTextureEntry result = new BowTextureEntry(true);
+        if (image != null) result.setImage(image);
+        result.setPull(pull);
+        return result;
+    }
+
     private BufferedImage image;
     private double pull;
 

@@ -17,10 +17,17 @@ public class BowTextureValues extends BaseTextureValues {
 
     public BowTextureValues(boolean mutable) {
         super(mutable);
+
+        this.pullTextures = new ArrayList<>(3);
+        this.pullTextures.add(BowTextureEntry.createQuick(null, 0.0).copy(false));
+        this.pullTextures.add(BowTextureEntry.createQuick(null, 0.65).copy(false));
+        this.pullTextures.add(BowTextureEntry.createQuick(null, 0.9).copy(false));
     }
 
     public BowTextureValues(BowTextureValues toCopy, boolean mutable) {
         super(toCopy, mutable);
+
+        this.pullTextures = toCopy.getPullTextures();
     }
 
     protected void loadBow1(BitInput input, boolean expectCompressed) {

@@ -86,7 +86,7 @@ public class Backward3 {
         assertEquals("gun1", item.getTexture().getName());
         assertFalse(item.allowEnchanting());
         assertFalse(item.allowAnvilActions());
-        assertEquals(-1, (long) item.getMaxDurabilityNew());
+        assertNull(item.getMaxDurabilityNew());
         assertTrue(item.getRepairItem() instanceof NoIngredientValues);
     }
 
