@@ -84,6 +84,11 @@ public class ProjectileCoverValues extends ModelValues {
     }
 
     @Override
+    public String toString() {
+        return "ProjectileCover(" + name + ")";
+    }
+
+    @Override
     public ProjectileCoverValues copy(boolean mutable) {
         return new ProjectileCoverValues(this, mutable);
     }

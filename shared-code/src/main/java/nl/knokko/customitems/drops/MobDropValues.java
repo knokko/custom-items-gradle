@@ -11,6 +11,8 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
+import java.util.Objects;
+
 public class MobDropValues extends ModelValues {
 
     public static MobDropValues load(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
@@ -83,11 +85,16 @@ public class MobDropValues extends ModelValues {
     public boolean equals(Object other) {
         if (other.getClass() == MobDropValues.class) {
             MobDropValues otherDrop = (MobDropValues) other;
-            return this.entityType == otherDrop.entityType && this.requiredName.equals(otherDrop.requiredName)
+            return this.entityType == otherDrop.entityType && Objects.equals(this.requiredName, otherDrop.requiredName)
                     && this.drop.equals(otherDrop.drop);
         } else {
             return false;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "MobDrop(" + entityType + ", " + requiredName + ", " + drop + ")";
     }
 
     public CIEntityType getEntityType() {
@@ -113,7 +120,7 @@ public class MobDropValues extends ModelValues {
 
     public void setRequiredName(String newRequiredName) {
         assertMutable();
-        this.requiredName = requiredName;
+        this.requiredName = newRequiredName;
     }
 
     public void setDrop(DropValues newDrop) {

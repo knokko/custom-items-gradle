@@ -6,4 +6,9 @@ public class SProjectileCover extends Model<ProjectileCoverValues> {
     public SProjectileCover(ProjectileCoverValues values) {
         super(values);
     }
+
+    @Override
+    public String toString() {
+        return values.toString();
+    }
 }

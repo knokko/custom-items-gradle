@@ -87,6 +87,7 @@ public class CustomProjectileValues extends ModelValues {
         this.maxLifetime = toCopy.getMaxLifetime();
         this.inFlightEffects = toCopy.getInFlightEffects();
         this.impactEffects = toCopy.getImpactEffects();
+        this.cover = toCopy.getCoverReference();
     }
 
     private void loadProjectileEffects(BitInput input, SItemSet itemSet) throws UnknownEncodingException {

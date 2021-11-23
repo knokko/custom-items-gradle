@@ -138,6 +138,11 @@ public class DropValues extends ModelValues {
         }
     }
 
+    @Override
+    public String toString() {
+        return "Drop(" + cancelNormalDrops + ", " + requiredHeldItems + ", " + outputTable + ")";
+    }
+
     public OutputTableValues getOutputTable() {
         return outputTable;
     }

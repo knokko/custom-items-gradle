@@ -78,12 +78,12 @@ public class ColoredRedstoneValues extends ProjectileEffectValues {
     }
 
     private void load1(BitInput input) {
-        this.minRed = input.readByte();
-        this.minGreen = input.readByte();
-        this.minBlue = input.readByte();
-        this.maxRed = input.readByte();
-        this.maxGreen = input.readByte();
-        this.maxBlue = input.readByte();
+        this.minRed = input.readByte() & 0xFF;
+        this.minGreen = input.readByte() & 0xFF;
+        this.minBlue = input.readByte() & 0xFF;
+        this.maxRed = input.readByte() & 0xFF;
+        this.maxGreen = input.readByte() & 0xFF;
+        this.maxBlue = input.readByte() & 0xFF;
         this.minRadius = input.readFloat();
         this.maxRadius = input.readFloat();
         this.amount = input.readInt();
@@ -105,7 +105,7 @@ public class ColoredRedstoneValues extends ProjectileEffectValues {
     @Override
     public boolean equals(Object other) {
         if (other.getClass() == ColoredRedstoneValues.class) {
-            ColoredRedstoneValues otherEffect = new ColoredRedstoneValues(true);
+            ColoredRedstoneValues otherEffect = (ColoredRedstoneValues) other;
             return this.minRed == otherEffect.minRed && this.minGreen == otherEffect.minGreen && this.minBlue == otherEffect.minBlue
                     && this.maxRed == otherEffect.maxRed && this.maxGreen == otherEffect.maxGreen && this.maxBlue == otherEffect.maxBlue
                     && isClose(this.minRadius, otherEffect.minRadius) && isClose(this.maxRadius, otherEffect.maxRadius) && this.amount == otherEffect.amount;

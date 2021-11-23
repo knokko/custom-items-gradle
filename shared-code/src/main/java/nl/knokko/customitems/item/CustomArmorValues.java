@@ -111,7 +111,7 @@ public class CustomArmorValues extends CustomToolValues {
     private void load9(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
         load8(input, itemSet);
         loadPotionProperties9(input);
-        loadPotionProperties10(input);
+        loadRightClickProperties9(input);
     }
 
     private void loadPre10(BitInput input, SItemSet itemSet) throws UnknownEncodingException {

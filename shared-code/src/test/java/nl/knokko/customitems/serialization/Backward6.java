@@ -22,6 +22,7 @@ import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 import static nl.knokko.customitems.serialization.Backward1.testRecipes1;
 import static nl.knokko.customitems.serialization.Backward3.testTextures3;
@@ -79,13 +80,13 @@ public class Backward6 {
                 false, false, true, false, false, false
         ), trident1.getItemFlags());
         assertEquals("quick_wand", trident1.getTexture().getName());
-        assertResourceEquals("backward/itemset/model/spear_diamond.json", trident1.getCustomModel());
+        assertResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", trident1.getCustomModel());
         assertEquals(0, trident1.getOnHitPlayerEffects().size());
         assertEquals(listOf(
                 PotionEffectValues.createQuick(EffectType.SLOW, 40, 3)
         ), trident1.getOnHitTargetEffects());
         assertEquals(0, trident1.getCommands().size());
-        assertStringResourceEquals("backward/itemset/model/blue_crossbow.json", trident1.getCustomInHandModel());
+        assertStringResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", trident1.getCustomInHandModel());
         assertNull(trident1.getCustomThrowingModel());
         assertFalse(trident1.allowEnchanting());
         assertFalse(trident1.allowAnvilActions());
@@ -204,7 +205,7 @@ public class Backward6 {
         CustomProjectileCoverValues custom1 = (CustomProjectileCoverValues) set.getProjectileCover("custom_one").get();
         assertEquals("custom_one", custom1.getName());
         assertEquals(CustomItemType.DIAMOND_SHOVEL, custom1.getItemType());
-        assertResourceEquals("backward/itemset/model/spear_diamond.json", custom1.getCustomModel());
+        assertResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", custom1.getCustomModel());
     }
 
     static void testProjectilesOld6(SItemSet set, int numProjectiles) {
@@ -271,7 +272,7 @@ public class Backward6 {
                 true, false, true, false, false, false
         ), item.getItemFlags());
         assertEquals("gun1", item.getTexture().getName());
-        assertResourceEquals("backward/itemset/model/spear_diamond.json", item.getCustomModel());
+        assertResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", item.getCustomModel());
         assertEquals(listOf(
                 PotionEffectValues.createQuick(EffectType.SPEED, 40, 1)
         ), item.getOnHitPlayerEffects());
@@ -281,7 +282,7 @@ public class Backward6 {
         assertEquals(listOf(
                 "summon bat"
         ), item.getCommands());
-        assertStringResourceEquals("backward/itemset/model/blue_crossbow.json", item.getCustomBlockingModel());
+        assertStringResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", item.getCustomBlockingModel());
         assertFalse(item.allowEnchanting());
         assertTrue(item.allowAnvilActions());
         assertEquals(234, (long) item.getMaxDurabilityNew());
@@ -304,7 +305,7 @@ public class Backward6 {
                 true, true, true, false, false, false
         ), item.getItemFlags());
         assertEquals("test1", item.getTexture().getName());
-        assertResourceEquals("backward/itemset/model/spear_diamond.json", item.getCustomModel());
+        assertResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", item.getCustomModel());
         assertEquals(listOf(
                 PotionEffectValues.createQuick(EffectType.REGENERATION, 100, 1)
         ), item.getOnHitPlayerEffects());

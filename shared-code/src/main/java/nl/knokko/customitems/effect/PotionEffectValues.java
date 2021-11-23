@@ -69,6 +69,16 @@ public class PotionEffectValues extends ModelValues {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (other instanceof PotionEffectValues) {
+            PotionEffectValues otherEffect = (PotionEffectValues) other;
+            return this.type == otherEffect.type && this.duration == otherEffect.duration && this.level == otherEffect.level;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public PotionEffectValues copy(boolean mutable) {
         return new PotionEffectValues(this, mutable);
     }

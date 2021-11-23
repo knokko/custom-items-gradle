@@ -79,6 +79,11 @@ public class OutputTableValues extends ModelValues {
         }
     }
 
+    @Override
+    public String toString() {
+        return "OutputTable(" + entries + ")";
+    }
+
     public Collection<Entry> getEntries() {
         return new ArrayList<>(entries);
     }

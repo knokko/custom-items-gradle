@@ -34,7 +34,7 @@ public class CustomProjectileCoverValues extends ProjectileCoverValues {
     }
 
     public CustomProjectileCoverValues(CustomProjectileCoverValues toCopy, boolean mutable) {
-        super(mutable);
+        super(toCopy, mutable);
         this.customModel = toCopy.getCustomModel();
     }
 
