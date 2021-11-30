@@ -32,25 +32,29 @@ public class Backward4 {
         testShearsDefault4((CustomShearsValues) set.getItem("shears_one").get());
         testBowDefault4((CustomBowValues) set.getItem("bow_one").get());
 
-        testSimple3((SimpleCustomItemValues) set.getItem("simple_three").get());
-        testHelmet1((CustomArmorValues) set.getItem("helmet_one").get());
-        testChestplate1((CustomArmorValues) set.getItem("chestplate_one").get());
-        testLeggings1((CustomArmorValues) set.getItem("leggings_one").get());
-        testBoots1((CustomArmorValues) set.getItem("boots_one").get());
+        testSimple3((SimpleCustomItemValues) set.getItem("simple_three").get(), set.getSide());
+        testHelmet1((CustomArmorValues) set.getItem("helmet_one").get(), set.getSide());
+        testChestplate1((CustomArmorValues) set.getItem("chestplate_one").get(), set.getSide());
+        testLeggings1((CustomArmorValues) set.getItem("leggings_one").get(), set.getSide());
+        testBoots1((CustomArmorValues) set.getItem("boots_one").get(), set.getSide());
     }
 
-    static void testSimple3(SimpleCustomItemValues item) {
+    static void testSimple3(SimpleCustomItemValues item, SItemSet.Side side) {
         assertEquals("simple_three", item.getName());
         assertEquals(CustomItemType.DIAMOND_HOE, item.getItemType());
         assertEquals("Simple 3", item.getDisplayName());
         assertEquals(0, item.getLore().size());
         assertEquals(0, item.getAttributeModifiers().size());
         assertEquals(0, item.getDefaultEnchantments().size());
-        assertEquals("test1", item.getTexture().getName());
+        if (side == SItemSet.Side.EDITOR) {
+            assertEquals("test1", item.getTexture().getName());
+        } else {
+            assertNull(item.getTextureReference());
+        }
         assertEquals(3, item.getMaxStacksize());
     }
 
-    static void testHelmet1(CustomArmorValues helmet) {
+    static void testHelmet1(CustomArmorValues helmet, SItemSet.Side side) {
         assertEquals("helmet_one", helmet.getName());
         assertEquals(CustomItemType.CHAINMAIL_HELMET, helmet.getItemType());
         assertEquals("Chain Helmet", helmet.getDisplayName());
@@ -59,14 +63,18 @@ public class Backward4 {
         assertEquals(listOf(
                 EnchantmentValues.createQuick(EnchantmentType.PROTECTION_ENVIRONMENTAL, 1)
         ), helmet.getDefaultEnchantments());
-        assertEquals("gun1", helmet.getTexture().getName());
+        if (side == SItemSet.Side.EDITOR) {
+            assertEquals("gun1", helmet.getTexture().getName());
+        } else {
+            assertNull(helmet.getTextureReference());
+        }
         assertFalse(helmet.allowEnchanting());
         assertFalse(helmet.allowAnvilActions());
         assertEquals(123, (long) helmet.getMaxDurabilityNew());
         assertTrue(helmet.getRepairItem() instanceof NoIngredientValues);
     }
 
-    static void testChestplate1(CustomArmorValues chestplate) {
+    static void testChestplate1(CustomArmorValues chestplate, SItemSet.Side side) {
         assertEquals("chestplate_one", chestplate.getName());
         assertEquals(CustomItemType.DIAMOND_CHESTPLATE, chestplate.getItemType());
         assertEquals("Crystal Chest", chestplate.getDisplayName());
@@ -80,14 +88,18 @@ public class Backward4 {
                 )
         ), chestplate.getAttributeModifiers());
         assertEquals(0, chestplate.getDefaultEnchantments().size());
-        assertEquals("test1", chestplate.getTexture().getName());
+        if (side == SItemSet.Side.EDITOR) {
+            assertEquals("test1", chestplate.getTexture().getName());
+        } else {
+            assertNull(chestplate.getTextureReference());
+        }
         assertTrue(chestplate.allowEnchanting());
         assertFalse(chestplate.allowAnvilActions());
         assertEquals(500, (long) chestplate.getMaxDurabilityNew());
         assertEquals(SimpleVanillaIngredientValues.createQuick(CIMaterial.DIAMOND, 1, null), chestplate.getRepairItem());
     }
 
-    static void testLeggings1(CustomArmorValues leggings) {
+    static void testLeggings1(CustomArmorValues leggings, SItemSet.Side side) {
         assertEquals("leggings_one", leggings.getName());
         assertEquals(CustomItemType.LEATHER_LEGGINGS, leggings.getItemType());
         assertEquals("Stupid Leggings", leggings.getDisplayName());
@@ -96,7 +108,11 @@ public class Backward4 {
         ), leggings.getLore());
         assertEquals(0, leggings.getAttributeModifiers().size());
         assertEquals(0, leggings.getDefaultEnchantments().size());
-        assertEquals("test1", leggings.getTexture().getName());
+        if (side == SItemSet.Side.EDITOR) {
+            assertEquals("test1", leggings.getTexture().getName());
+        } else {
+            assertNull(leggings.getTextureReference());
+        }
         assertFalse(leggings.allowEnchanting());
         assertTrue(leggings.allowAnvilActions());
         assertEquals(500, (long) leggings.getMaxDurabilityNew());
@@ -106,7 +122,7 @@ public class Backward4 {
         assertEquals(64, leggings.getBlue());
     }
 
-    static void testBoots1(CustomArmorValues boots) {
+    static void testBoots1(CustomArmorValues boots, SItemSet.Side side) {
         assertEquals("boots_one", boots.getName());
         assertEquals(CustomItemType.IRON_BOOTS, boots.getItemType());
         assertEquals("Mixed Boots", boots.getDisplayName());
@@ -122,7 +138,11 @@ public class Backward4 {
                 )
         ), boots.getAttributeModifiers());
         assertEquals(0, boots.getDefaultEnchantments().size());
-        assertEquals("test1", boots.getTexture().getName());
+        if (side == SItemSet.Side.EDITOR) {
+            assertEquals("test1", boots.getTexture().getName());
+        } else {
+            assertNull(boots.getTextureReference());
+        }
         assertTrue(boots.allowEnchanting());
         assertTrue(boots.allowAnvilActions());
         assertEquals(5000, (long) boots.getMaxDurabilityNew());
