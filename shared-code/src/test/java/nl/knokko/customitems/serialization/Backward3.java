@@ -29,6 +29,8 @@ public class Backward3 {
     static void testTextures3(SItemSet set, int numTextures) {
         testTextures1(set, numTextures);
 
+        if (set.getSide() == SItemSet.Side.PLUGIN) return;
+
         BowTextureValues bow1 = (BowTextureValues) set.getTexture("bow_one").get();
         assertEquals("bow_one", bow1.getName());
         assertImageEqual(loadImage("gun2"), bow1.getImage());
@@ -57,25 +59,29 @@ public class Backward3 {
         testToolDefault3((CustomToolValues) set.getItem("axe1").get());
         testToolDefault3((CustomToolValues) set.getItem("shovel1").get());
 
-        testHoe1((CustomHoeValues) set.getItem("hoe_one").get());
-        testShears1((CustomShearsValues) set.getItem("shears_one").get());
-        testBow1((CustomBowValues) set.getItem("bow_one").get(), set.getItemReference("simple1"));
+        testHoe1((CustomHoeValues) set.getItem("hoe_one").get(), set.getSide());
+        testShears1((CustomShearsValues) set.getItem("shears_one").get(), set.getSide());
+        testBow1((CustomBowValues) set.getItem("bow_one").get(), set.getItemReference("simple1"), set.getSide());
     }
 
-    static void testHoe1(CustomHoeValues item) {
+    static void testHoe1(CustomHoeValues item, SItemSet.Side side) {
         assertEquals("hoe_one", item.getName());
         assertEquals(CustomItemType.WOOD_HOE, item.getItemType());
         assertEquals("Old Hoe", item.getDisplayName());
         assertEquals(0, item.getLore().size());
         assertEquals(0, item.getAttributeModifiers().size());
-        assertEquals("test1", item.getTexture().getName());
+        if (side == SItemSet.Side.EDITOR) {
+            assertEquals("test1", item.getTexture().getName());
+        } else {
+            assertNull(item.getTextureReference());
+        }
         assertTrue(item.allowEnchanting());
         assertTrue(item.allowAnvilActions());
         assertEquals(100, (long) item.getMaxDurabilityNew());
         assertEquals(SimpleVanillaIngredientValues.createQuick(CIMaterial.STICK, 1, null), item.getRepairItem());
     }
 
-    static void testShears1(CustomShearsValues item) {
+    static void testShears1(CustomShearsValues item, SItemSet.Side side) {
         assertEquals("shears_one", item.getName());
         assertEquals(CustomItemType.SHEARS, item.getItemType());
         assertEquals("Unbreakable shears", item.getDisplayName());
@@ -84,14 +90,18 @@ public class Backward3 {
                 "as you want!"
         ), item.getLore());
         assertEquals(0, item.getAttributeModifiers().size());
-        assertEquals("gun1", item.getTexture().getName());
+        if (side == SItemSet.Side.EDITOR) {
+            assertEquals("gun1", item.getTexture().getName());
+        } else {
+            assertNull(item.getTextureReference());
+        }
         assertFalse(item.allowEnchanting());
         assertFalse(item.allowAnvilActions());
         assertNull(item.getMaxDurabilityNew());
         assertTrue(item.getRepairItem() instanceof NoIngredientValues);
     }
 
-    static void testBow1(CustomBowValues item, ItemReference simple1) {
+    static void testBow1(CustomBowValues item, ItemReference simple1, SItemSet.Side side) {
         assertEquals("bow_one", item.getName());
         assertEquals(CustomItemType.BOW, item.getItemType());
         assertEquals("Weird Bow", item.getDisplayName());
@@ -100,7 +110,11 @@ public class Backward3 {
                 "pulling animation"
         ), item.getLore());
         assertEquals(0, item.getAttributeModifiers().size());
-        assertEquals("bow_one", item.getTexture().getName());
+        if (side == SItemSet.Side.EDITOR) {
+            assertEquals("bow_one", item.getTexture().getName());
+        } else {
+            assertNull(item.getTextureReference());
+        }
         assertFalse(item.allowEnchanting());
         assertTrue(item.allowAnvilActions());
         assertEquals(123, (long) item.getMaxDurabilityNew());
