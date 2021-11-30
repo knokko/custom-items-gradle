@@ -129,7 +129,12 @@ public class CustomArmorValues extends CustomToolValues {
         loadRightClickProperties10(input, itemSet);
         this.extraItemNbt = ExtraItemNbtValues.load(input, false);
         if (input.readBoolean()) {
-            this.armorTexture = itemSet.getArmorTextureReference(input.readString());
+            String armorTextureName = input.readString();
+            if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+                this.armorTexture = itemSet.getArmorTextureReference(armorTextureName);
+            } else {
+                this.armorTexture = null;
+            }
         } else {
             this.armorTexture = null;
         }

@@ -85,7 +85,11 @@ public class Backward8 {
         assertEquals(listOf(
                 false, false, true, false, false, false
         ), item.getItemFlags());
-        assertEquals("quick_wand", item.getTexture().getName());
+        if (set.getSide() == SItemSet.Side.EDITOR) {
+            assertEquals("quick_wand", item.getTexture().getName());
+        } else {
+            assertNull(item.getTextureReference());
+        }
         assertNull(item.getCustomModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
@@ -234,6 +238,11 @@ public class Backward8 {
     }
 
     static void testArmorTexturesOld8(SItemSet set, int numArmorTextures) {
+        if (set.getSide() == SItemSet.Side.PLUGIN) {
+            assertEquals(0, set.getArmorTextures().size());
+            return;
+        }
+
         assertEquals(numArmorTextures, set.getArmorTextures().size());
 
         ArmorTextureValues armorTexture1 = set.getArmorTexture("armor_texture1").get();
@@ -271,7 +280,11 @@ public class Backward8 {
         assertEquals(listOf(
                 false, false, true, false, false, false
         ), item.getItemFlags());
-        assertEquals("test1", item.getTexture().getName());
+        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+            assertEquals("test1", item.getTexture().getName());
+        } else {
+            assertNull(item.getTextureReference());
+        }
         assertNull(item.getCustomModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
@@ -313,7 +326,11 @@ public class Backward8 {
         assertEquals(listOf(
                 false, false, true, false, false, false
         ), item.getItemFlags());
-        assertEquals("gun1", item.getTexture().getName());
+        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+            assertEquals("gun1", item.getTexture().getName());
+        } else {
+            assertNull(item.getTextureReference());
+        }
         assertNull(item.getCustomModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
@@ -349,7 +366,11 @@ public class Backward8 {
         assertEquals(listOf(
                 false, false, true, false, false, false
         ), item.getItemFlags());
-        assertEquals("gun1", item.getTexture().getName());
+        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+            assertEquals("gun1", item.getTexture().getName());
+        } else {
+            assertNull(item.getTextureReference());
+        }
         assertNull(item.getCustomModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
@@ -390,7 +411,11 @@ public class Backward8 {
         assertEquals(listOf(
                 false, false, true, false, false, false
         ), item.getItemFlags());
-        assertEquals("test1", item.getTexture().getName());
+        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+            assertEquals("test1", item.getTexture().getName());
+        } else {
+            assertNull(item.getTextureReference());
+        }
         assertNull(item.getCustomModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
@@ -432,7 +457,11 @@ public class Backward8 {
         assertEquals(listOf(
                 false, false, true, false, false, false
         ), item.getItemFlags());
-        assertEquals("test1", item.getTexture().getName());
+        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+            assertEquals("test1", item.getTexture().getName());
+        } else {
+            assertNull(item.getTextureReference());
+        }
         assertNull(item.getCustomModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
@@ -486,8 +515,13 @@ public class Backward8 {
         assertEquals(listOf(
                 true, false, true, false, false, false
         ), item.getItemFlags());
-        assertEquals("gun1", item.getTexture().getName());
-        assertResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", item.getCustomModel());
+        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+            assertEquals("gun1", item.getTexture().getName());
+            assertResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", item.getCustomModel());
+        } else {
+            assertNull(item.getTextureReference());
+            assertNull(item.getCustomModel());
+        }
         assertEquals(listOf(
                 PotionEffectValues.createQuick(EffectType.INVISIBILITY, 30, 1)
         ), item.getOnHitPlayerEffects());
@@ -540,7 +574,11 @@ public class Backward8 {
         assertEquals(listOf(
                 false, false, true, false, false, false
         ), item.getItemFlags());
-        assertEquals("bow_one", item.getTexture().getName());
+        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+            assertEquals("bow_one", item.getTexture().getName());
+        } else {
+            assertNull(item.getTextureReference());
+        }
         assertNull(item.getCustomModel());
         assertEquals(listOf(
                 PotionEffectValues.createQuick(EffectType.NIGHT_VISION, 1000, 1)
@@ -590,7 +628,11 @@ public class Backward8 {
         assertEquals(listOf(
                 false, false, true, false, false, false
         ), item.getItemFlags());
-        assertEquals("gun1", item.getTexture().getName());
+        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+            assertEquals("gun1", item.getTexture().getName());
+        } else {
+            assertNull(item.getTextureReference());
+        }
         assertNull(item.getCustomModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
@@ -621,7 +663,11 @@ public class Backward8 {
         for (DamageSource source : DamageSource.values()) {
             assertEquals(0, item.getDamageResistances().getResistance(source));
         }
-        assertEquals("armor_texture1", item.getArmorTexture().getName());
+        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+            assertEquals("armor_texture1", item.getArmorTexture().getName());
+        } else {
+            assertNull(item.getArmorTextureReference());
+        }
     }
 
     static void testShield2(CustomShieldValues item, SItemSet itemSet) {
@@ -635,7 +681,11 @@ public class Backward8 {
         assertEquals(listOf(
                 false, false, true, false, false, false
         ), item.getItemFlags());
-        assertEquals("test1", item.getTexture().getName());
+        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+            assertEquals("test1", item.getTexture().getName());
+        } else {
+            assertNull(item.getTextureReference());
+        }
         assertNull(item.getCustomModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
