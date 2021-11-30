@@ -25,6 +25,9 @@ public class CrossbowTextureValues extends BaseTextureValues {
 
     public CrossbowTextureValues(CrossbowTextureValues toCopy, boolean mutable) {
         super(toCopy, mutable);
+        this.pullTextures = toCopy.getPullTextures();
+        this.arrowImage = toCopy.getArrowImage();
+        this.fireworkImage = toCopy.getFireworkImage();
     }
 
     protected void loadCrossbow1(BitInput input) {

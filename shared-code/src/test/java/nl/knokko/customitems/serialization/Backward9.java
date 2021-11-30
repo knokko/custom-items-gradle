@@ -400,7 +400,7 @@ public class Backward9 {
         ), item.getDefaultEnchantments());
         assertEquals(listOf(false, false, false, false, false, false), item.getItemFlags());
         assertEquals("test1", item.getTexture().getName());
-        assertStringResourceEquals("backward/itemset/model/spear_diamond.json", item.getCustomModel());
+        assertStringResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", item.getCustomModel());
         assertEquals(listOf(
                 PotionEffectValues.createQuick(EffectType.HEAL, 1, 1)
         ), item.getOnHitPlayerEffects());
@@ -456,7 +456,7 @@ public class Backward9 {
                 false, false, true, true, true, true
         ), item.getItemFlags());
         assertEquals("test1", item.getTexture().getName());
-        assertStringResourceEquals("backward/itemset/model/blue_crossbow.json", item.getCustomModel());
+        assertStringResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", item.getCustomModel());
         assertEquals(listOf(
                 PotionEffectValues.createQuick(EffectType.SATURATION, 100, 1)
         ), item.getOnHitPlayerEffects());

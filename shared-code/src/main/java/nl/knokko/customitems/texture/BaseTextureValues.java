@@ -41,7 +41,7 @@ public class BaseTextureValues extends ModelValues {
     public static BaseTextureValues load(
             BitInput input, boolean expectCompressed
     ) throws UnknownEncodingException {
-        return load(input, input.readByte(), expectCompressed)    ;
+        return load(input, input.readByte(), expectCompressed);
     }
 
     public static BaseTextureValues load(

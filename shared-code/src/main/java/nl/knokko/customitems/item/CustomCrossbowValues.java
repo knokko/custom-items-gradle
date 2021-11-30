@@ -87,7 +87,7 @@ public class CustomCrossbowValues extends CustomToolValues {
         this.arrowDamageMultiplier = input.readFloat();
         this.fireworkDamageMultiplier = input.readFloat();
         this.arrowSpeedMultiplier = input.readFloat();
-        this.arrowDamageMultiplier = input.readFloat();
+        this.fireworkSpeedMultiplier = input.readFloat();
         this.arrowKnockbackStrength = input.readInt();
         this.arrowGravity = input.readBoolean();
     }

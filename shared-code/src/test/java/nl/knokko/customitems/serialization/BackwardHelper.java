@@ -92,6 +92,7 @@ public class BackwardHelper {
             assert input != null;
             BufferedImage result = ImageIO.read(input);
             input.close();
+            if (result == null) throw new IllegalArgumentException("Can't load image " + name);
             return result;
         } catch (IOException io) {
             throw new RuntimeException("Let the test fail", io);

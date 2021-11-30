@@ -100,7 +100,7 @@ public class CustomFoodValues extends CustomItemValues {
         int numEatEffects = input.readInt();
         this.eatEffects = new ArrayList<>(numEatEffects);
         for (int counter = 0; counter < numEatEffects; counter++) {
-            this.eatEffects.add(PotionEffectValues.load1(input, false));
+            this.eatEffects.add(PotionEffectValues.load2(input, false));
         }
         this.eatTime = input.readInt();
         this.eatSound = CISound.valueOf(input.readString());
