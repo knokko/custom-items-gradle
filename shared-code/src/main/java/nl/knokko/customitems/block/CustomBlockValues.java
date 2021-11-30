@@ -94,7 +94,10 @@ public class CustomBlockValues extends ModelValues {
     ) throws UnknownEncodingException {
         this.name = input.readString();
         this.loadDrops1(input, itemSet);
-        this.texture = itemSet.getTextureReference(input.readString());
+        String textureName = input.readString();
+        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+            this.texture = itemSet.getTextureReference(textureName);
+        }
     }
 
     public void save(BitOutput output) {

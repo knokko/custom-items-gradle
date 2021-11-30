@@ -85,10 +85,19 @@ public class Backward9 {
                 new RequiredItems.VanillaEntry(CIMaterial.STONE_PICKAXE, false)
         ), requiredItems.getVanillaItems());
 
-        assertEquals("quick_wand", block1.getTexture().getName());
+        if (set.getSide() == SItemSet.Side.EDITOR) {
+            assertEquals("quick_wand", block1.getTexture().getName());
+        } else {
+            assertNull(block1.getTextureReference());
+        }
     }
 
     static void testTexturesNew9(SItemSet set, int numTextures) {
+        if (set.getSide() == SItemSet.Side.PLUGIN) {
+            assertEquals(0, set.getTextures().size());
+            return;
+        }
+
         testTexturesNew6(set, numTextures);
 
         CrossbowTextureValues crossbowTextures = (CrossbowTextureValues) set.getTexture("crossbow_texture").get();
@@ -193,7 +202,11 @@ public class Backward9 {
         assertEquals(listOf(
                 true, true, true, true, true, true
         ), item.getItemFlags());
-        assertEquals("crossbow_texture", item.getTexture().getName());
+        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+            assertEquals("crossbow_texture", item.getTexture().getName());
+        } else {
+            assertNull(item.getTextureReference());
+        }
         assertEquals(listOf(
                 PotionEffectValues.createQuick(EffectType.SPEED, 20, 1)
         ), item.getOnHitPlayerEffects());
@@ -341,7 +354,11 @@ public class Backward9 {
         assertEquals(listOf(
                 false, true, true, false, false, false
         ), item.getItemFlags());
-        assertEquals("gun1", item.getTexture().getName());
+        if (set.getSide() == SItemSet.Side.EDITOR) {
+            assertEquals("gun1", item.getTexture().getName());
+        } else {
+            assertNull(item.getTextureReference());
+        }
         assertNull(item.getCustomModel());
         assertEquals(listOf(
                 PotionEffectValues.createQuick(EffectType.SPEED, 10, 1)
@@ -401,8 +418,13 @@ public class Backward9 {
                 EnchantmentValues.createQuick(EnchantmentType.DAMAGE_ARTHROPODS, 2)
         ), item.getDefaultEnchantments());
         assertEquals(listOf(false, false, false, false, false, false), item.getItemFlags());
-        assertEquals("test1", item.getTexture().getName());
-        assertStringResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", item.getCustomModel());
+        if (set.getSide() == SItemSet.Side.EDITOR) {
+            assertEquals("test1", item.getTexture().getName());
+            assertStringResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", item.getCustomModel());
+        } else {
+            assertNull(item.getTextureReference());
+            assertNull(item.getCustomModel());
+        }
         assertEquals(listOf(
                 PotionEffectValues.createQuick(EffectType.HEAL, 1, 1)
         ), item.getOnHitPlayerEffects());
@@ -457,8 +479,13 @@ public class Backward9 {
         assertEquals(listOf(
                 false, false, true, true, true, true
         ), item.getItemFlags());
-        assertEquals("test1", item.getTexture().getName());
-        assertStringResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", item.getCustomModel());
+        if (set.getSide() == SItemSet.Side.EDITOR) {
+            assertEquals("test1", item.getTexture().getName());
+            assertStringResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", item.getCustomModel());
+        } else {
+            assertNull(item.getTextureReference());
+            assertNull(item.getCustomModel());
+        }
         assertEquals(listOf(
                 PotionEffectValues.createQuick(EffectType.SATURATION, 100, 1)
         ), item.getOnHitPlayerEffects());
