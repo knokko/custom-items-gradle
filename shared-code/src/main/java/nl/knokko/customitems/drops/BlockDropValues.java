@@ -63,7 +63,7 @@ public class BlockDropValues extends ModelValues {
 
     private void load2(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
         this.blockType = BlockType.getByOrdinal(input.readInt());
-        this.allowSilkTouch = false;
+        this.allowSilkTouch = input.readBoolean();
         this.drop = DropValues.load2(input, itemSet, false);
     }
 

@@ -44,7 +44,7 @@ public abstract class CustomItemValues extends ModelValues {
         } else if (encoding == ENCODING_GUN_10) {
             return CustomGunValues.load(input, encoding, itemSet);
         } else if (encoding == ENCODING_HELMET3D_10 || encoding == ENCODING_HELMET3D_11) {
-            return CustomGunValues.load(input, encoding, itemSet);
+            return CustomHelmet3dValues.load(input, encoding, itemSet);
         } else if (encoding == ENCODING_HOE_6 || encoding == ENCODING_HOE_9 || encoding == ENCODING_HOE_10) {
             return CustomHoeValues.load(input, encoding, itemSet, checkCustomModel);
         } else if (encoding == ENCODING_POCKET_CONTAINER_10) {
@@ -161,6 +161,11 @@ public abstract class CustomItemValues extends ModelValues {
         this.attackRange = source.getAttackRange();
         this.texture = source.getTextureReference();
         this.customModel = source.getCustomModel();
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "(" + name + ")";
     }
 
     public abstract void save(BitOutput output, SItemSet.Side side);

@@ -26,7 +26,7 @@ public class CustomHelmet3dValues extends CustomArmorValues {
         }
 
         if (itemSet.getSide() == SItemSet.Side.EDITOR) {
-            result.loadEditorOnlyProperties1(input, itemSet, false);
+            result.loadEditorOnlyProperties1(input, itemSet, true);
         }
 
         return result;

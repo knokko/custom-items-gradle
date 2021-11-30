@@ -62,14 +62,20 @@ public class CustomShearsValues extends CustomToolValues {
         loadRightClickProperties9(input);
     }
 
+    private void loadShearsIdentityProperties10(BitInput input) {
+        input.readShort();
+        this.name = input.readJavaString();
+        this.alias = input.readString();
+    }
+
     private void load10(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
-        loadIdentityProperties10(input);
+        loadShearsIdentityProperties10(input);
         loadTextDisplayProperties1(input);
         loadVanillaBasedPowers4(input);
         loadToolOnlyPropertiesA4(input, itemSet);
-        this.shearDurabilityLoss = input.readInt();
         loadItemFlags6(input);
         loadToolOnlyPropertiesB6(input);
+        this.shearDurabilityLoss = input.readInt();
         loadPotionProperties10(input);
         loadRightClickProperties10(input, itemSet);
         loadExtraProperties10(input);

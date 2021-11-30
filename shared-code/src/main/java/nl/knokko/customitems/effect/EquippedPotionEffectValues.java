@@ -51,6 +51,21 @@ public class EquippedPotionEffectValues extends ModelValues  {
     }
 
     @Override
+    public String toString() {
+        return "EquippedEffect(" + type + ", " + level + ", " + slot + ")";
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof EquippedPotionEffectValues) {
+            EquippedPotionEffectValues otherEffect = (EquippedPotionEffectValues) other;
+            return this.type == otherEffect.type && this.level == otherEffect.level && this.slot == otherEffect.slot;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public EquippedPotionEffectValues copy(boolean mutable) {
         return new EquippedPotionEffectValues(this, mutable);
     }

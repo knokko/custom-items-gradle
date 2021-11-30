@@ -25,6 +25,7 @@ import nl.knokko.customitems.texture.ArmorTextureValues;
 import org.junit.Test;
 
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Scanner;
 
 import static nl.knokko.customitems.serialization.Backward3.testTextures3;
@@ -57,7 +58,9 @@ public class Backward8 {
 
     static String copiedFromServerString() {
         Scanner scanner = new Scanner(
-                Backward8.class.getClassLoader().getResourceAsStream("backward/itemset/copiedFromServer.txt")
+                Objects.requireNonNull(Backward8.class.getClassLoader().getResourceAsStream(
+                        "nl/knokko/customitems/serialization/copiedFromServer.txt"
+                ))
         );
         String result = scanner.next();
         scanner.close();
@@ -482,7 +485,7 @@ public class Backward8 {
                 true, false, true, false, false, false
         ), item.getItemFlags());
         assertEquals("gun1", item.getTexture().getName());
-        assertResourceEquals("backward/itemset/model/blue_crossbow.json", item.getCustomModel());
+        assertResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", item.getCustomModel());
         assertEquals(listOf(
                 PotionEffectValues.createQuick(EffectType.INVISIBILITY, 30, 1)
         ), item.getOnHitPlayerEffects());

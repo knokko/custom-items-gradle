@@ -7,4 +7,9 @@ public class SCustomItem extends Model<CustomItemValues> {
     public SCustomItem(CustomItemValues values) {
         super(values);
     }
+
+    @Override
+    public String toString() {
+        return values.toString();
+    }
 }

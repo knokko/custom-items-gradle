@@ -89,6 +89,11 @@ public class CustomItemIngredientValues extends IngredientValues {
     }
 
     @Override
+    public String toString() {
+        return "CustomItemIngredient(" + item.get().getName() + " x " + amount + ", remaining = " + remainingItem + ")";
+    }
+
+    @Override
     public boolean equals(Object other) {
         if (other instanceof CustomItemIngredientValues) {
             CustomItemIngredientValues otherIngredient = (CustomItemIngredientValues) other;

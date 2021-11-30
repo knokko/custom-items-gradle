@@ -60,6 +60,23 @@ public class ReplacementConditionValues extends ModelValues {
     }
 
     @Override
+    public String toString() {
+        return "ReplaceCondition(" + condition + ", " + item.get().getName() + ", " + operation + ", " + value + ", "
+                + replaceItem.get().getName() + ")";
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof ReplacementConditionValues) {
+            ReplacementConditionValues rc = (ReplacementConditionValues) other;
+            return this.condition == rc.condition && this.item.equals(rc.item) && this.operation == rc.operation
+                    && this.value == rc.value && this.replaceItem.equals(rc.replaceItem);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public ModelValues copy(boolean mutable) {
         return new ReplacementConditionValues(this, mutable);
     }

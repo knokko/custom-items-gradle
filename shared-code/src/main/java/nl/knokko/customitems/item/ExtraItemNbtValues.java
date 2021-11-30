@@ -58,6 +58,20 @@ public class ExtraItemNbtValues extends ModelValues {
     }
 
     @Override
+    public String toString() {
+        return "ExtraItemNBT(" + entries + ")";
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof ExtraItemNbtValues) {
+            return this.entries.equals(((ExtraItemNbtValues) other).entries);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public ExtraItemNbtValues copy(boolean mutable) {
         return new ExtraItemNbtValues(this, mutable);
     }
@@ -135,6 +149,21 @@ public class ExtraItemNbtValues extends ModelValues {
             this.key = new ArrayList<>(numKeyParts);
             for (int counter = 0; counter < numKeyParts; counter++) {
                 this.key.add(input.readString());
+            }
+        }
+
+        @Override
+        public String toString() {
+            return "Entry(" + key + " = " + value + ")";
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (other instanceof Entry) {
+                Entry otherEntry = (Entry) other;
+                return this.key.equals(otherEntry.key) && this.value.equals(otherEntry.value);
+            } else {
+                return false;
             }
         }
 
@@ -225,6 +254,20 @@ public class ExtraItemNbtValues extends ModelValues {
                 output.addString((String) value);
             } else {
                 throw new Error("Forgot NbtValueType " + type);
+            }
+        }
+
+        @Override
+        public String toString() {
+            return value.toString();
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (other instanceof Value) {
+                return this.value.equals(((Value) other).value);
+            } else {
+                return false;
             }
         }
     }

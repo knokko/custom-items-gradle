@@ -69,6 +69,8 @@ public class CopiedResultValues extends ResultValues {
     }
 
     private void load1(BitInput input) {
+        // Discard the amount (we don't need it, but it is stored for stupid legacy reasons)
+        input.readNumber((byte) 6, false);
         this.encoded = input.readString();
     }
 

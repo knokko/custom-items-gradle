@@ -72,6 +72,11 @@ public class SimpleVanillaIngredientValues extends IngredientValues {
     }
 
     @Override
+    public String toString() {
+        return "SimpleVanillaIngredient(" + material + " x " + amount + ", remaining = " + remainingItem + ")";
+    }
+
+    @Override
     public boolean equals(Object other) {
         if (other instanceof SimpleVanillaIngredientValues) {
             SimpleVanillaIngredientValues otherIngredient = (SimpleVanillaIngredientValues) other;

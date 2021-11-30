@@ -67,9 +67,9 @@ public class CustomHoeValues extends CustomToolValues {
         loadTextDisplayProperties1(input);
         loadVanillaBasedPowers4(input);
         loadToolOnlyPropertiesA4(input, itemSet);
-        this.tillDurabilityLoss = input.readInt();
         loadItemFlags6(input);
         loadToolOnlyPropertiesB6(input);
+        this.tillDurabilityLoss = input.readInt();
         loadPotionProperties10(input);
         loadRightClickProperties10(input, itemSet);
         loadExtraProperties10(input);

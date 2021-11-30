@@ -49,6 +49,21 @@ public class FuelEntryValues extends ModelValues {
     }
 
     @Override
+    public String toString() {
+        return "FuelEntry(" + fuel + " burns " + burnTime + " ticks)";
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof FuelEntryValues) {
+            FuelEntryValues otherEntry = (FuelEntryValues) other;
+            return this.fuel.equals(otherEntry.fuel) && this.burnTime == otherEntry.burnTime;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public FuelEntryValues copy(boolean mutable) {
         return new FuelEntryValues(this, mutable);
     }

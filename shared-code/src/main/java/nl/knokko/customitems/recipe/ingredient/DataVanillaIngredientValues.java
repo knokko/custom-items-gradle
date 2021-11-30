@@ -73,6 +73,11 @@ public class DataVanillaIngredientValues extends IngredientValues {
     }
 
     @Override
+    public String toString() {
+        return "DataVanillaIngredient(" + material + " [" + dataValue + "] x " + amount + ", remaining = " + remainingItem + ")";
+    }
+
+    @Override
     public boolean equals(Object other) {
         if (other instanceof DataVanillaIngredientValues) {
             DataVanillaIngredientValues otherIngredient = (DataVanillaIngredientValues) other;
