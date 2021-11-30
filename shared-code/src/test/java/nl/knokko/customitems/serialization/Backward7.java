@@ -25,16 +25,17 @@ public class Backward7 {
 
     @Test
     public void testBackwardCompatibility7() {
-        SItemSet set7 = loadItemSet("backward7");
-        testTextures3(set7, 3);
-        testItemsOld6(set7, 21);
-        testRecipesOld6(set7, 3);
-        testBlockDropsOld6(set7, 1);
-        testMobDropsOld6(set7, 2);
-        testProjectileCoversOld6(set7, 2);
-        testProjectilesOld6(set7, 1);
-        testFuelRegistries7(set7, 1);
-        testContainers7(set7, 1);
+        for (SItemSet set7 : loadItemSet("backward7")) {
+            testTextures3(set7, 3);
+            testItemsOld6(set7, 21);
+            testRecipesOld6(set7, 3);
+            testBlockDropsOld6(set7, 1);
+            testMobDropsOld6(set7, 2);
+            testProjectileCoversOld6(set7, 2);
+            testProjectilesOld6(set7, 1);
+            testFuelRegistries7(set7, 1);
+            testContainers7(set7, 1);
+        }
     }
 
     static void testFuelRegistries7(SItemSet set, int numFuelRegistries) {

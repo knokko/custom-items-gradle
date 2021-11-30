@@ -22,7 +22,6 @@ import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 import static nl.knokko.customitems.serialization.Backward1.testRecipes1;
 import static nl.knokko.customitems.serialization.Backward3.testTextures3;
@@ -34,19 +33,21 @@ public class Backward6 {
 
     @Test
     public void testBackwardCompatibility6() {
-        SItemSet oldSet = loadItemSet("backward6old");
-        testTextures3(oldSet, 3);
-        testItemsOld6(oldSet, 21);
-        testRecipesOld6(oldSet, 3);
-        testBlockDropsOld6(oldSet, 1);
-        testMobDropsOld6(oldSet, 2);
-        testProjectileCoversOld6(oldSet, 2);
-        testProjectilesOld6(oldSet, 1);
+        for (SItemSet oldSet : loadItemSet("backward6old")) {
+            testTextures3(oldSet, 3);
+            testItemsOld6(oldSet, 21);
+            testRecipesOld6(oldSet, 3);
+            testBlockDropsOld6(oldSet, 1);
+            testMobDropsOld6(oldSet, 2);
+            testProjectileCoversOld6(oldSet, 2);
+            testProjectilesOld6(oldSet, 1);
+        }
 
-        SItemSet newSet = loadItemSet("backward6new");
-        testTexturesNew6(newSet, 1);
-        testItemsNew6(newSet, 1);
-        testRecipesNew6(newSet, 1);
+        for (SItemSet newSet : loadItemSet("backward6new")) {
+            testTexturesNew6(newSet, 1);
+            testItemsNew6(newSet, 1);
+            testRecipesNew6(newSet, 1);
+        }
     }
 
     static void testTexturesNew6(SItemSet set, int numTextures) {

@@ -18,10 +18,11 @@ public class Backward4 {
 
     @Test
     public void testBackwardCompatibility4() {
-        SItemSet set4 = loadItemSet("backward4");
-        testTextures3(set4, 3);
-        testItems4(set4, 14);
-        testRecipes1(set4, 2);
+        for (SItemSet set4 : loadItemSet("backward4")) {
+            testTextures3(set4, 3);
+            testItems4(set4, 14);
+            testRecipes1(set4, 2);
+        }
     }
 
     static void testItems4(SItemSet set, int numItems) {

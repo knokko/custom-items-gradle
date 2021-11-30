@@ -22,8 +22,13 @@ public class BackwardHelper {
 
     public static final float DELTA = 0.0001f;
 
-    public static SItemSet loadItemSet(String name) {
-        String resourceName = "nl/knokko/customitems/serialization/" + name + ".cisb";
+    public static SItemSet[] loadItemSet(String name) {
+        return new SItemSet[] { loadItemSet(name, SItemSet.Side.EDITOR), loadItemSet(name, SItemSet.Side.PLUGIN) };
+    }
+
+    public static SItemSet loadItemSet(String name, SItemSet.Side side) {
+        String extension = side == SItemSet.Side.EDITOR ? ".cisb" : ".cis";
+        String resourceName = "nl/knokko/customitems/serialization/" + name + extension;
         InputStream rawInput = BackwardHelper.class.getClassLoader().getResourceAsStream(resourceName);
 
         if (rawInput == null) {
@@ -33,7 +38,7 @@ public class BackwardHelper {
         BitInputStream bitInput = new BitInputStream(new BufferedInputStream(rawInput));
         SItemSet result;
         try {
-            result = new SItemSet(bitInput, SItemSet.Side.EDITOR);
+            result = new SItemSet(bitInput, side);
         } catch (Exception e) {
             throw new RuntimeException("Let the test fail", e);
         }

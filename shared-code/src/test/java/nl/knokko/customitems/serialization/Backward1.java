@@ -21,10 +21,11 @@ public class Backward1 {
 
     @Test
     public void testBackwardCompatibility1() {
-        SItemSet set1 = BackwardHelper.loadItemSet("backward1");
-        testTextures1(set1, 2);
-        testItems1(set1, 1);
-        testRecipes1(set1, 2);
+        for (SItemSet set1 : BackwardHelper.loadItemSet("backward1")) {
+            testTextures1(set1, 2);
+            testItems1(set1, 1);
+            testRecipes1(set1, 2);
+        }
     }
 
     static void testTextures1(SItemSet itemSet, int numTextures) {

@@ -19,10 +19,11 @@ public class Backward3 {
 
     @Test
     public void testBackwardCompatibility3() {
-        SItemSet set3 = loadItemSet("backward3");
-        testTextures3(set3, 3);
-        testItems3(set3, 9);
-        testRecipes1(set3, 2);
+        for (SItemSet set3 : loadItemSet("backward3")) {
+            testTextures3(set3, 3);
+            testItems3(set3, 9);
+            testRecipes1(set3, 2);
+        }
     }
 
     static void testTextures3(SItemSet set, int numTextures) {

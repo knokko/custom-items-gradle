@@ -38,22 +38,24 @@ public class Backward8 {
 
     @Test
     public void testBackwardCompatibility8() {
-        SItemSet oldSet = loadItemSet("backward8old");
-        testTextures3(oldSet, 3);
-        testArmorTexturesOld8(oldSet, 1);
-        testItemsOld8(oldSet, 30);
-        testRecipesOld8(oldSet, 4);
-        testBlockDropsOld8(oldSet, 2);
-        testMobDropsOld8(oldSet, 2);
-        testProjectileCoversOld6(oldSet, 2);
-        testProjectilesOld6(oldSet, 1);
-        testFuelRegistriesOld8(oldSet, 1);
-        testContainersOld8(oldSet, 2);
+        for (SItemSet oldSet : loadItemSet("backward8old")) {
+            testTextures3(oldSet, 3);
+            testArmorTexturesOld8(oldSet, 1);
+            testItemsOld8(oldSet, 30);
+            testRecipesOld8(oldSet, 4);
+            testBlockDropsOld8(oldSet, 2);
+            testMobDropsOld8(oldSet, 2);
+            testProjectileCoversOld6(oldSet, 2);
+            testProjectilesOld6(oldSet, 1);
+            testFuelRegistriesOld8(oldSet, 1);
+            testContainersOld8(oldSet, 2);
+        }
 
-        SItemSet newSet = loadItemSet("backward8new");
-        testTexturesNew6(newSet, 1);
-        testItemsNew8(newSet, 2);
-        testRecipesNew6(newSet, 1);
+        for (SItemSet newSet : loadItemSet("backward8new")) {
+            testTexturesNew6(newSet, 1);
+            testItemsNew8(newSet, 2);
+            testRecipesNew6(newSet, 1);
+        }
     }
 
     static String copiedFromServerString() {

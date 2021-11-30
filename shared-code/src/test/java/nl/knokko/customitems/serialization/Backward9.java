@@ -41,23 +41,25 @@ public class Backward9 {
 
     @Test
     public void testBackwardCompatibility9() {
-        SItemSet old9 = loadItemSet("backward9old");
-        testTextures3(old9, 3);
-        testArmorTexturesOld8(old9, 1);
-        testItemsOld9(old9, 33);
-        testRecipesOld9(old9, 5);
-        testBlockDropsOld8(old9, 2);
-        testMobDropsOld8(old9, 2);
-        testProjectileCoversOld6(old9, 2);
-        testProjectilesOld9(old9, 2);
-        testFuelRegistriesOld8(old9, 1);
-        testContainersOld9(old9, 3);
+        for (SItemSet old9 : loadItemSet("backward9old")) {
+            testTextures3(old9, 3);
+            testArmorTexturesOld8(old9, 1);
+            testItemsOld9(old9, 33);
+            testRecipesOld9(old9, 5);
+            testBlockDropsOld8(old9, 2);
+            testMobDropsOld8(old9, 2);
+            testProjectileCoversOld6(old9, 2);
+            testProjectilesOld9(old9, 2);
+            testFuelRegistriesOld8(old9, 1);
+            testContainersOld9(old9, 3);
+        }
 
-        SItemSet new9 = loadItemSet("backward9new");
-        testTexturesNew9(new9, 2);
-        testItemsNew9(new9, 4);
-        testRecipesNew6(new9, 1);
-        testBlocksNew9(new9, 1);
+        for (SItemSet new9 : loadItemSet("backward9new")) {
+            testTexturesNew9(new9, 2);
+            testItemsNew9(new9, 4);
+            testRecipesNew6(new9, 1);
+            testBlocksNew9(new9, 1);
+        }
     }
 
     static void testBlocksNew9(SItemSet set, int numBlocks) {
