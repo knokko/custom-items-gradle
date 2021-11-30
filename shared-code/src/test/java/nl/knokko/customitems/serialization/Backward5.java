@@ -34,13 +34,13 @@ public class Backward5 {
         testArmorDefault5((CustomArmorValues) set.getItem("leggings_one").get());
         testArmorDefault5((CustomArmorValues) set.getItem("boots_one").get());
 
-        testHoe2((CustomHoeValues) set.getItem("hoe_two").get());
-        testShears2((CustomShearsValues) set.getItem("shears_two").get());
-        testBow2((CustomBowValues) set.getItem("bow_two").get());
-        testHelmet2((CustomArmorValues) set.getItem("helmet_two").get());
+        testHoe2((CustomHoeValues) set.getItem("hoe_two").get(), set.getSide());
+        testShears2((CustomShearsValues) set.getItem("shears_two").get(), set.getSide());
+        testBow2((CustomBowValues) set.getItem("bow_two").get(), set.getSide());
+        testHelmet2((CustomArmorValues) set.getItem("helmet_two").get(), set.getSide());
     }
 
-    static void testHoe2(CustomHoeValues item) {
+    static void testHoe2(CustomHoeValues item, SItemSet.Side side) {
         assertEquals("hoe_two", item.getName());
         assertEquals(CustomItemType.IRON_HOE, item.getItemType());
         assertEquals("Battle Hoe", item.getDisplayName());
@@ -57,7 +57,11 @@ public class Backward5 {
         assertEquals(listOf(
                 false, false, true, false, true, true
         ), item.getItemFlags());
-        assertEquals("gun1", item.getTexture().getName());
+        if (side == SItemSet.Side.EDITOR) {
+            assertEquals("gun1", item.getTexture().getName());
+        } else {
+            assertNull(item.getTextureReference());
+        }
         assertTrue(item.allowEnchanting());
         assertTrue(item.allowAnvilActions());
         assertEquals(500, (long) item.getMaxDurabilityNew());
@@ -67,7 +71,7 @@ public class Backward5 {
         assertEquals(0, item.getTillDurabilityLoss());
     }
 
-    static void testShears2(CustomShearsValues item) {
+    static void testShears2(CustomShearsValues item, SItemSet.Side side) {
         assertEquals("shears_two", item.getName());
         assertEquals(CustomItemType.SHEARS, item.getItemType());
         assertEquals("Breakable shears", item.getDisplayName());
@@ -86,9 +90,14 @@ public class Backward5 {
         assertEquals(0, item.getEntityHitDurabilityLoss());
         assertEquals(1, item.getBlockBreakDurabilityLoss());
         assertEquals(2, item.getShearDurabilityLoss());
+        if (side == SItemSet.Side.EDITOR) {
+            assertEquals("test1", item.getTexture().getName());
+        } else {
+            assertNull(item.getTextureReference());
+        }
     }
 
-    static void testBow2(CustomBowValues item) {
+    static void testBow2(CustomBowValues item, SItemSet.Side side) {
         assertEquals("bow_two", item.getName());
         assertEquals(CustomItemType.BOW, item.getItemType());
         assertEquals("Second Bow", item.getDisplayName());
@@ -98,7 +107,11 @@ public class Backward5 {
         assertEquals(listOf(
                 false, false, true, false, false, false
         ), item.getItemFlags());
-        assertEquals("bow_one", item.getTexture().getName());
+        if (side == SItemSet.Side.EDITOR) {
+            assertEquals("bow_one", item.getTexture().getName());
+        } else {
+            assertNull(item.getTextureReference());
+        }
         assertTrue(item.allowEnchanting());
         assertTrue(item.allowAnvilActions());
         assertEquals(500, (long) item.getMaxDurabilityNew());
@@ -112,7 +125,7 @@ public class Backward5 {
         assertTrue(item.hasGravity());
     }
 
-    static void testHelmet2(CustomArmorValues item) {
+    static void testHelmet2(CustomArmorValues item, SItemSet.Side side) {
         assertEquals("helmet_two", item.getName());
         assertEquals(CustomItemType.DIAMOND_HELMET, item.getItemType());
         assertEquals("Fire Helmet", item.getDisplayName());
@@ -131,7 +144,11 @@ public class Backward5 {
         assertEquals(listOf(
                 false, false, true, false, false, false
         ), item.getItemFlags());
-        assertEquals("gun1", item.getTexture().getName());
+        if (side == SItemSet.Side.EDITOR) {
+            assertEquals("gun1", item.getTexture().getName());
+        } else {
+            assertNull(item.getTextureReference());
+        }
         assertTrue(item.allowEnchanting());
         assertTrue(item.allowAnvilActions());
         assertEquals(500, (long) item.getMaxDurabilityNew());
