@@ -9,6 +9,7 @@ import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.particle.CIParticle;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 import nl.knokko.customitems.projectile.cover.CustomProjectileCoverValues;
+import nl.knokko.customitems.projectile.cover.ProjectileCoverValues;
 import nl.knokko.customitems.projectile.cover.SphereProjectileCoverValues;
 import nl.knokko.customitems.projectile.effect.*;
 import nl.knokko.customitems.recipe.OutputTableValues;
@@ -51,6 +52,11 @@ public class Backward6 {
     }
 
     static void testTexturesNew6(SItemSet set, int numTextures) {
+        if (set.getSide() == SItemSet.Side.PLUGIN) {
+            assertEquals(0, set.getTextures().size());
+            return;
+        }
+
         assertEquals(numTextures, set.getTextures().size());
 
         assertImageEqual(loadImage("quick_wand"), set.getTexture("quick_wand").get().getImage());
@@ -80,14 +86,20 @@ public class Backward6 {
         assertEquals(listOf(
                 false, false, true, false, false, false
         ), trident1.getItemFlags());
-        assertEquals("quick_wand", trident1.getTexture().getName());
-        assertResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", trident1.getCustomModel());
+        if (set.getSide() == SItemSet.Side.EDITOR) {
+            assertEquals("quick_wand", trident1.getTexture().getName());
+            assertStringResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", trident1.getCustomModel());
+            assertStringResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", trident1.getCustomInHandModel());
+        } else {
+            assertNull(trident1.getTextureReference());
+            assertNull(trident1.getCustomModel());
+            assertNull(trident1.getCustomInHandModel());
+        }
         assertEquals(0, trident1.getOnHitPlayerEffects().size());
         assertEquals(listOf(
                 PotionEffectValues.createQuick(EffectType.SLOW, 40, 3)
         ), trident1.getOnHitTargetEffects());
         assertEquals(0, trident1.getCommands().size());
-        assertStringResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", trident1.getCustomInHandModel());
         assertNull(trident1.getCustomThrowingModel());
         assertFalse(trident1.allowEnchanting());
         assertFalse(trident1.allowAnvilActions());
@@ -121,8 +133,8 @@ public class Backward6 {
         testBowDefault6((CustomBowValues) set.getItem("bow_two").get());
         testArmorDefault6((CustomArmorValues) set.getItem("helmet_two").get());
 
-        testShield1((CustomShieldValues) set.getItem("shield_one").get());
-        testWand1((CustomWandValues) set.getItem("wand_one").get());
+        testShield1((CustomShieldValues) set.getItem("shield_one").get(), set.getSide());
+        testWand1((CustomWandValues) set.getItem("wand_one").get(), set.getSide());
     }
 
     static void testRecipesOld6(SItemSet set, int numRecipes) {
@@ -196,17 +208,24 @@ public class Backward6 {
     static void testProjectileCoversOld6(SItemSet set, int numProjectileCovers) {
         assertEquals(numProjectileCovers, set.getProjectileCovers().size());
 
-        SphereProjectileCoverValues sphere1 = (SphereProjectileCoverValues) set.getProjectileCover("sphere_one").get();
-        assertEquals("sphere_one", sphere1.getName());
-        assertEquals(CustomItemType.DIAMOND_SHOVEL, sphere1.getItemType());
-        assertEquals(13, sphere1.getSlotsPerAxis());
-        assertEquals(0.65, sphere1.getScale(), 0.0);
-        assertEquals("test1", sphere1.getTexture().getName());
+        ProjectileCoverValues cover1 = set.getProjectileCover("sphere_one").get();
+        assertEquals("sphere_one", cover1.getName());
+        assertEquals(CustomItemType.DIAMOND_SHOVEL, cover1.getItemType());
+        if (set.getSide() == SItemSet.Side.EDITOR) {
+            SphereProjectileCoverValues sphere1 = (SphereProjectileCoverValues) cover1;
+            assertEquals(13, sphere1.getSlotsPerAxis());
+            assertEquals(0.65, sphere1.getScale(), 0.0);
+            assertEquals("test1", sphere1.getTexture().getName());
+        }
 
-        CustomProjectileCoverValues custom1 = (CustomProjectileCoverValues) set.getProjectileCover("custom_one").get();
-        assertEquals("custom_one", custom1.getName());
-        assertEquals(CustomItemType.DIAMOND_SHOVEL, custom1.getItemType());
-        assertResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", custom1.getCustomModel());
+        ProjectileCoverValues cover2 = set.getProjectileCover("custom_one").get();
+        assertEquals("custom_one", cover2.getName());
+        assertEquals(CustomItemType.DIAMOND_SHOVEL, cover2.getItemType());
+
+        if (set.getSide() == SItemSet.Side.EDITOR) {
+            CustomProjectileCoverValues custom1 = (CustomProjectileCoverValues) set.getProjectileCover("custom_one").get();
+            assertResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", custom1.getCustomModel());
+        }
     }
 
     static void testProjectilesOld6(SItemSet set, int numProjectiles) {
@@ -250,7 +269,7 @@ public class Backward6 {
         assertEquals("sphere_one", crazy1.getCover().getName());
     }
 
-    static void testShield1(CustomShieldValues item) {
+    static void testShield1(CustomShieldValues item, SItemSet.Side side) {
         assertEquals("shield_one", item.getName());
         assertEquals(CustomItemType.SHIELD, item.getItemType());
         assertEquals("Spike Shield", item.getDisplayName());
@@ -272,8 +291,15 @@ public class Backward6 {
         assertEquals(listOf(
                 true, false, true, false, false, false
         ), item.getItemFlags());
-        assertEquals("gun1", item.getTexture().getName());
-        assertResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", item.getCustomModel());
+        if (side == SItemSet.Side.EDITOR) {
+            assertEquals("gun1", item.getTexture().getName());
+            assertResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", item.getCustomModel());
+            assertStringResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", item.getCustomBlockingModel());
+        } else {
+            assertNull(item.getTextureReference());
+            assertNull(item.getCustomModel());
+            assertNull(item.getCustomBlockingModel());
+        }
         assertEquals(listOf(
                 PotionEffectValues.createQuick(EffectType.SPEED, 40, 1)
         ), item.getOnHitPlayerEffects());
@@ -283,7 +309,6 @@ public class Backward6 {
         assertEquals(listOf(
                 "summon bat"
         ), item.getCommands());
-        assertStringResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", item.getCustomBlockingModel());
         assertFalse(item.allowEnchanting());
         assertTrue(item.allowAnvilActions());
         assertEquals(234, (long) item.getMaxDurabilityNew());
@@ -293,7 +318,7 @@ public class Backward6 {
         assertEquals(7.0, item.getThresholdDamage(), 0.0);
     }
 
-    static void testWand1(CustomWandValues item) {
+    static void testWand1(CustomWandValues item, SItemSet.Side side) {
         assertEquals("wand_one", item.getName());
         assertEquals(CustomItemType.DIAMOND_HOE, item.getItemType());
         assertEquals("Crazy Wand", item.getDisplayName());
@@ -305,8 +330,13 @@ public class Backward6 {
         assertEquals(listOf(
                 true, true, true, false, false, false
         ), item.getItemFlags());
-        assertEquals("test1", item.getTexture().getName());
-        assertResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", item.getCustomModel());
+        if (side == SItemSet.Side.EDITOR) {
+            assertEquals("test1", item.getTexture().getName());
+            assertResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", item.getCustomModel());
+        } else {
+            assertNull(item.getTextureReference());
+            assertNull(item.getCustomModel());
+        }
         assertEquals(listOf(
                 PotionEffectValues.createQuick(EffectType.REGENERATION, 100, 1)
         ), item.getOnHitPlayerEffects());
