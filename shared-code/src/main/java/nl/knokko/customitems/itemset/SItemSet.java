@@ -299,6 +299,8 @@ public class SItemSet {
                     this.textures.add(new CustomTexture(BaseTextureValues.load(input, BaseTextureValues.ENCODING_SIMPLE_1, expectCompressed)));
                 }
             }
+        } else {
+            this.textures = new ArrayList<>(0);
         }
     }
 
@@ -309,6 +311,8 @@ public class SItemSet {
             for (int counter = 0; counter < numArmorTextures; counter++) {
                 this.armorTextures.add(new ArmorTexture(ArmorTextureValues.load(input)));
             }
+        } else {
+            this.armorTextures = new ArrayList<>(0);
         }
     }
 

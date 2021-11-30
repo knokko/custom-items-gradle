@@ -29,6 +29,11 @@ public class Backward1 {
     }
 
     static void testTextures1(SItemSet itemSet, int numTextures) {
+        if (itemSet.getSide() == SItemSet.Side.PLUGIN) {
+            assertEquals(0, itemSet.getTextures().size());
+            return;
+        }
+
         assertEquals(numTextures, itemSet.getTextures().size());
 
         checkTexture(itemSet, "test1");
@@ -43,7 +48,11 @@ public class Backward1 {
         // Internal item damage is no longer relevant
         assertEquals("Simple 1", simple1.getDisplayName());
         assertEquals(listOf("line1", "Second line"), simple1.getLore());
-        assertEquals(itemSet.getTextureReference("test1"), simple1.getTextureReference());
+        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+            assertEquals(itemSet.getTextureReference("test1"), simple1.getTextureReference());
+        } else {
+            assertNull(simple1.getTextureReference());
+        }
     }
 
     static void testRecipes1(SItemSet set, int numRecipes) {

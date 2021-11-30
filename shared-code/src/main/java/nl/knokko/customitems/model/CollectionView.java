@@ -1,5 +1,7 @@
 package nl.knokko.customitems.model;
 
+import nl.knokko.customitems.util.Checks;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.stream.Stream;
@@ -10,6 +12,7 @@ public abstract class CollectionView<M extends Model<V>, V extends ModelValues> 
     private final Collection<M> liveCollection;
 
     public CollectionView(Collection<M> liveCollection) {
+        Checks.notNull(liveCollection);
         this.liveCollection = liveCollection;
     }
 
