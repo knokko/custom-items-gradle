@@ -83,6 +83,10 @@ public class ProjectileCoverValues extends ModelValues {
         }
     }
 
+    protected boolean areBasePropertiesEqual(ProjectileCoverValues other) {
+        return this.itemType == other.itemType && this.name.equals(other.name);
+    }
+
     @Override
     public String toString() {
         return "ProjectileCover(" + name + ")";

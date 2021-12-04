@@ -10,6 +10,7 @@ import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.zip.ZipOutputStream;
 
 public class CustomProjectileCoverValues extends ProjectileCoverValues {
@@ -48,6 +49,15 @@ public class CustomProjectileCoverValues extends ProjectileCoverValues {
         output.addByte(ENCODING_CUSTOM1);
         saveSharedProperties1(output);
         output.addByteArray(customModel);
+    }
+
+    protected boolean areCustomPropertiesEqual(CustomProjectileCoverValues other) {
+        return areBasePropertiesEqual(other) && Arrays.equals(this.customModel, other.customModel);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other.getClass() == CustomProjectileCoverValues.class && areCustomPropertiesEqual((CustomProjectileCoverValues) other);
     }
 
     @Override

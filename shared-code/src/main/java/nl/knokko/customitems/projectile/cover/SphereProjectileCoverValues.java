@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipOutputStream;
 
+import static nl.knokko.customitems.util.Checks.isClose;
 import static nl.knokko.customitems.util.ResourceHelper.chain;
 
 public class SphereProjectileCoverValues extends ProjectileCoverValues {
@@ -65,6 +66,15 @@ public class SphereProjectileCoverValues extends ProjectileCoverValues {
         output.addString(texture.get().getName());
         output.addInt(slotsPerAxis);
         output.addDouble(scale);
+    }
+
+    protected boolean areSpherePropertiesEqual(SphereProjectileCoverValues other) {
+        return areBasePropertiesEqual(other) && this.slotsPerAxis == other.slotsPerAxis && isClose(this.scale, other.scale);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other.getClass() == SphereProjectileCoverValues.class && areSpherePropertiesEqual((SphereProjectileCoverValues) other);
     }
 
     @Override
