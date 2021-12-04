@@ -5,6 +5,8 @@ import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
+import java.util.Arrays;
+
 import static nl.knokko.customitems.damage.DamageSource.*;
 
 public class SDamageResistances extends ModelValues {
@@ -43,6 +45,11 @@ public class SDamageResistances extends ModelValues {
         this(mutable);
 
         System.arraycopy(toCopy.resistanceMap, 0, this.resistanceMap, 0, this.resistanceMap.length);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other.getClass() == SDamageResistances.class && Arrays.equals(this.resistanceMap, ((SDamageResistances) other).resistanceMap);
     }
 
     @Override
