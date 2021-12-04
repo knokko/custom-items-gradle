@@ -173,8 +173,6 @@ public class ShapelessRecipeValues extends CraftingRecipeValues {
                         if (conflicts) {
                             throw new ValidationException("Conflicts with recipe for " + otherRecipe.getResult());
                         }
-
-                        // TODO This could use unit tests
                     }
                 }
             }
