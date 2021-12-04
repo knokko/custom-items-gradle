@@ -141,6 +141,17 @@ public class ContainerRecipeValues extends ModelValues {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (other.getClass() == ContainerRecipeValues.class) {
+            ContainerRecipeValues otherRecipe = (ContainerRecipeValues) other;
+            return this.inputs.equals(otherRecipe.inputs) && this.outputs.equals(otherRecipe.outputs)
+                    && this.duration == otherRecipe.duration && this.experience == otherRecipe.experience;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public ContainerRecipeValues copy(boolean mutable) {
         return new ContainerRecipeValues(this, mutable);
     }

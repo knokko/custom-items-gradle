@@ -15,10 +15,7 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class CustomContainerValues extends ModelValues {
 
@@ -120,6 +117,19 @@ public class CustomContainerValues extends ModelValues {
         }
         output.addString(vanillaType.name());
         output.addBoolean(persistentStorage);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other.getClass() == CustomContainerValues.class) {
+            CustomContainerValues otherContainer = (CustomContainerValues) other;
+            return this.name.equals(otherContainer.name) && this.selectionIcon.equals(otherContainer.selectionIcon)
+                    && this.recipes.equals(otherContainer.recipes) && this.fuelMode == otherContainer.fuelMode
+                    && Arrays.deepEquals(this.slots, otherContainer.slots) && this.vanillaType == otherContainer.vanillaType
+                    && this.persistentStorage == otherContainer.persistentStorage;
+        } else {
+            return false;
+        }
     }
 
     @Override

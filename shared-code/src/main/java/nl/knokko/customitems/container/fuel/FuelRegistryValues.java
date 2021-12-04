@@ -68,6 +68,16 @@ public class FuelRegistryValues extends ModelValues {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (other.getClass() == FuelRegistryValues.class) {
+            FuelRegistryValues otherRegistry = (FuelRegistryValues) other;
+            return this.name.equals(otherRegistry.name) && this.entries.equals(otherRegistry.entries);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public FuelRegistryValues copy(boolean mutable) {
         return new FuelRegistryValues(this, mutable);
     }
