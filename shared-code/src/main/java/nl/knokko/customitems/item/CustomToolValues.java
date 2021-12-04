@@ -11,6 +11,8 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
+import java.util.Objects;
+
 public class CustomToolValues extends CustomItemValues {
 
     static CustomToolValues load(
@@ -169,6 +171,18 @@ public class CustomToolValues extends CustomItemValues {
     protected void loadToolOnlyPropertiesB6(BitInput input) {
         this.entityHitDurabilityLoss = input.readInt();
         this.blockBreakDurabilityLoss = input.readInt();
+    }
+
+    protected boolean areToolPropertiesEqual(CustomToolValues other) {
+        return areBaseItemPropertiesEqual(other) && Objects.equals(this.maxDurability, other.maxDurability)
+                && this.allowEnchanting == other.allowEnchanting && this.allowAnvilActions == other.allowAnvilActions
+                && this.repairItem.equals(other.repairItem) && this.entityHitDurabilityLoss == other.entityHitDurabilityLoss
+                && this.blockBreakDurabilityLoss == other.blockBreakDurabilityLoss;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other.getClass() == CustomToolValues.class && areToolPropertiesEqual((CustomToolValues) other);
     }
 
     @Override

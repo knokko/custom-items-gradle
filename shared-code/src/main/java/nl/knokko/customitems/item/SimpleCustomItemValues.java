@@ -199,6 +199,15 @@ public class SimpleCustomItemValues extends CustomItemValues {
         initSimpleOnlyDefaults1();
     }
 
+    protected boolean areSimplePropertiesEqual(SimpleCustomItemValues other) {
+        return areBaseItemPropertiesEqual(other) && this.maxStacksize == other.maxStacksize;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other.getClass() == SimpleCustomItemValues.class && areSimplePropertiesEqual((SimpleCustomItemValues) other);
+    }
+
     @Override
     public SimpleCustomItemValues copy(boolean mutable) {
         return new SimpleCustomItemValues(this, mutable);

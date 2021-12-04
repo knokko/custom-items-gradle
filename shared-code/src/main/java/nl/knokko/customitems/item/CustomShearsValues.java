@@ -81,6 +81,15 @@ public class CustomShearsValues extends CustomToolValues {
         loadExtraProperties10(input);
     }
 
+    protected boolean areShearsPropertiesEqual(CustomShearsValues other) {
+        return areToolPropertiesEqual(other) && this.shearDurabilityLoss == other.shearDurabilityLoss;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other.getClass() == CustomShearsValues.class && areShearsPropertiesEqual((CustomShearsValues) other);
+    }
+
     @Override
     public CustomShearsValues copy(boolean mutable) {
         return new CustomShearsValues(this, mutable);

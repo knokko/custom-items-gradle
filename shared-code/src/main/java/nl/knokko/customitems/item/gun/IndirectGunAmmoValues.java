@@ -61,6 +61,18 @@ public class IndirectGunAmmoValues extends GunAmmoValues {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (other.getClass() == IndirectGunAmmoValues.class) {
+            IndirectGunAmmoValues otherAmmo = (IndirectGunAmmoValues) other;
+            return this.reloadItem.equals(otherAmmo.reloadItem) && this.cooldown == otherAmmo.cooldown
+                    && this.storedAmmo == otherAmmo.storedAmmo && this.reloadTime == otherAmmo.reloadTime
+                    && this.startReloadSound == otherAmmo.startReloadSound && this.endReloadSound == otherAmmo.endReloadSound;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public IndirectGunAmmoValues copy(boolean mutable) {
         return new IndirectGunAmmoValues(this, mutable);
     }

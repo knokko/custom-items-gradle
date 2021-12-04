@@ -93,6 +93,16 @@ public class DirectGunAmmoValues extends GunAmmoValues {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (other.getClass() == DirectGunAmmoValues.class) {
+            DirectGunAmmoValues otherAmmo = (DirectGunAmmoValues) other;
+            return this.ammoItem.equals(otherAmmo.ammoItem) && this.cooldown == otherAmmo.cooldown;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public DirectGunAmmoValues copy(boolean mutable) {
         return new DirectGunAmmoValues(this, mutable);
     }

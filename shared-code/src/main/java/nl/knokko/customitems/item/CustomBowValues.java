@@ -10,6 +10,8 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
+import static nl.knokko.customitems.util.Checks.isClose;
+
 public class CustomBowValues extends CustomToolValues {
 
     static CustomBowValues load(
@@ -66,6 +68,17 @@ public class CustomBowValues extends CustomToolValues {
         this.knockbackStrength = toCopy.getKnockbackStrength();
         this.hasGravity = toCopy.hasGravity();
         this.shootDurabilityLoss = toCopy.getShootDurabilityLoss();
+    }
+
+    protected boolean areBowPropertiesEqual(CustomBowValues other) {
+        return areToolPropertiesEqual(other) && isClose(this.damageMultiplier, other.damageMultiplier)
+                && isClose(this.speedMultiplier, other.speedMultiplier) && this.knockbackStrength == other.knockbackStrength
+                && this.hasGravity == other.hasGravity && this.shootDurabilityLoss == other.shootDurabilityLoss;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other.getClass() == CustomBowValues.class && areBowPropertiesEqual((CustomBowValues) other);
     }
 
     @Override

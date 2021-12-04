@@ -41,6 +41,11 @@ public class CustomHelmet3dValues extends CustomArmorValues {
     }
 
     @Override
+    public boolean equals(Object other) {
+        return other.getClass() == CustomHelmet3dValues.class && areArmorPropertiesEqual((CustomArmorValues) other);
+    }
+
+    @Override
     public CustomHelmet3dValues copy(boolean mutable) {
         return new CustomHelmet3dValues(this, mutable);
     }

@@ -79,6 +79,16 @@ public class CustomGunValues extends CustomItemValues {
         return 1;
     }
 
+    protected boolean areGunPropertiesEqual(CustomGunValues other) {
+        return areBaseItemPropertiesEqual(other) && this.projectile.equals(other.projectile)
+                && this.ammo.equals(other.ammo) && this.amountPerShot == other.amountPerShot;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other.getClass() == CustomGunValues.class && areGunPropertiesEqual((CustomGunValues) other);
+    }
+
     @Override
     public CustomGunValues copy(boolean mutable) {
         return new CustomGunValues(this, mutable);

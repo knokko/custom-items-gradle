@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static nl.knokko.customitems.encoding.ItemEncoding.*;
+import static nl.knokko.customitems.util.Checks.isClose;
 
 public abstract class CustomItemValues extends ModelValues {
 
@@ -161,6 +162,17 @@ public abstract class CustomItemValues extends ModelValues {
         this.attackRange = source.getAttackRange();
         this.texture = source.getTextureReference();
         this.customModel = source.getCustomModel();
+    }
+
+    protected boolean areBaseItemPropertiesEqual(CustomItemValues other) {
+        return this.itemType == other.itemType && this.name.equals(other.name) && this.alias.equals(other.alias)
+                && this.displayName.equals(other.displayName) && this.lore.equals(other.lore)
+                && this.itemFlags.equals(other.itemFlags) && this.attributeModifiers.equals(other.attributeModifiers)
+                && this.defaultEnchantments.equals(other.defaultEnchantments) && this.playerEffects.equals(other.playerEffects)
+                && this.targetEffects.equals(other.targetEffects) && this.equippedEffects.equals(other.equippedEffects)
+                && this.commands.equals(other.commands) && this.replaceConditions.equals(other.replaceConditions)
+                && this.conditionOp == other.conditionOp && this.extraItemNbt.equals(other.extraItemNbt)
+                && isClose(this.attackRange, other.attackRange);
     }
 
     @Override

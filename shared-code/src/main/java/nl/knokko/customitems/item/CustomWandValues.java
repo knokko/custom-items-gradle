@@ -12,6 +12,8 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
+import java.util.Objects;
+
 public class CustomWandValues extends CustomItemValues {
 
     public static CustomWandValues load(
@@ -98,6 +100,17 @@ public class CustomWandValues extends CustomItemValues {
     @Override
     public byte getMaxStacksize() {
         return 1;
+    }
+
+    protected boolean areWandPropertiesEqual(CustomWandValues other) {
+        return areBaseItemPropertiesEqual(other) && this.projectile.equals(other.projectile)
+                && this.amountPerShot == other.amountPerShot && this.cooldown == other.cooldown
+                && Objects.equals(this.charges, other.charges);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other.getClass() == CustomWandValues.class && areWandPropertiesEqual((CustomWandValues) other);
     }
 
     @Override

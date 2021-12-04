@@ -94,6 +94,15 @@ public class CustomBlockItemValues extends CustomItemValues {
         return maxStacksize;
     }
 
+    protected boolean areBlockItemPropertiesEqual(CustomBlockItemValues other) {
+        return areBaseItemPropertiesEqual(other) && this.block.equals(other.block) && this.maxStacksize == other.maxStacksize;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other.getClass() == CustomBlockItemValues.class && areBlockItemPropertiesEqual((CustomBlockItemValues) other);
+    }
+
     @Override
     public CustomBlockItemValues copy(boolean mutable) {
         return new CustomBlockItemValues(this, mutable);

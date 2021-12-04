@@ -127,6 +127,15 @@ public class CustomHoeValues extends CustomToolValues {
         // There is nothing to be done until the next encoding is known
     }
 
+    protected boolean areHoePropertiesEqual(CustomHoeValues other) {
+        return areToolPropertiesEqual(other) && this.tillDurabilityLoss == other.tillDurabilityLoss;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other.getClass() == CustomHoeValues.class && areHoePropertiesEqual((CustomHoeValues) other);
+    }
+
     @Override
     public CustomHoeValues copy(boolean mutable) {
         return new CustomHoeValues(this, mutable);

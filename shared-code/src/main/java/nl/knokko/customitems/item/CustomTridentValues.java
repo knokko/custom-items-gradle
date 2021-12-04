@@ -11,6 +11,8 @@ import nl.knokko.util.bits.BitOutput;
 
 import java.util.Arrays;
 
+import static nl.knokko.customitems.util.Checks.isClose;
+
 public class CustomTridentValues extends CustomToolValues {
 
     static CustomTridentValues load(
@@ -154,6 +156,17 @@ public class CustomTridentValues extends CustomToolValues {
         this.throwDurabilityLoss = input.readInt();
         this.throwDamageMultiplier = input.readDouble();
         this.throwSpeedMultiplier = input.readDouble();
+    }
+
+    protected boolean areTridentPropertiesEqual(CustomTridentValues other) {
+        return areToolPropertiesEqual(other) && this.throwDurabilityLoss == other.throwDurabilityLoss
+                && isClose(this.throwDamageMultiplier, other.throwDamageMultiplier)
+                && isClose(this.throwSpeedMultiplier, other.throwSpeedMultiplier);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other.getClass() == CustomTridentValues.class && areTridentPropertiesEqual((CustomTridentValues) other);
     }
 
     @Override

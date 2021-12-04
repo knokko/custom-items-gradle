@@ -9,6 +9,8 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
+import static nl.knokko.customitems.util.Checks.isClose;
+
 public class CustomCrossbowValues extends CustomToolValues {
 
     static CustomCrossbowValues load(
@@ -105,6 +107,21 @@ public class CustomCrossbowValues extends CustomToolValues {
 
     private void initCrossbowOnlyDefaults10() {
         // There is nothing to be done until the next encoding
+    }
+
+    protected boolean areCrossbowPropertiesEqual(CustomCrossbowValues other) {
+        return areToolPropertiesEqual(other) && this.arrowDurabilityLoss == other.arrowDurabilityLoss
+                && this.fireworkDurabilityLoss == other.fireworkDurabilityLoss
+                && isClose(this.arrowDamageMultiplier, other.arrowDamageMultiplier)
+                && isClose(this.fireworkDamageMultiplier, other.fireworkDamageMultiplier)
+                && isClose(this.arrowSpeedMultiplier, other.arrowSpeedMultiplier)
+                && isClose(this.fireworkSpeedMultiplier, other.fireworkSpeedMultiplier)
+                && this.arrowKnockbackStrength == other.arrowKnockbackStrength && this.arrowGravity == other.arrowGravity;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other.getClass() == CustomCrossbowValues.class && areCrossbowPropertiesEqual((CustomCrossbowValues) other);
     }
 
     @Override

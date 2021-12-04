@@ -34,6 +34,16 @@ public class WandChargeValues extends ModelValues {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (other.getClass() == WandChargeValues.class) {
+            WandChargeValues otherCharges = (WandChargeValues) other;
+            return this.maxCharges == otherCharges.maxCharges && this.rechargeTime == otherCharges.rechargeTime;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public WandChargeValues copy(boolean mutable) {
         return new WandChargeValues(this, mutable);
     }

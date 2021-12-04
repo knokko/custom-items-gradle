@@ -100,6 +100,15 @@ public class CustomPocketContainerValues extends CustomItemValues {
         return 1;
     }
 
+    protected boolean arePocketContainerPropertiesEqual(CustomPocketContainerValues other) {
+        return areBaseItemPropertiesEqual(other) && this.containers.equals(other.containers);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other.getClass() == CustomPocketContainerValues.class && arePocketContainerPropertiesEqual((CustomPocketContainerValues) other);
+    }
+
     @Override
     public ModelValues copy(boolean mutable) {
         return new CustomPocketContainerValues(this, mutable);

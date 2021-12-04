@@ -16,6 +16,8 @@ import nl.knokko.util.bits.BitOutput;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static nl.knokko.customitems.util.Checks.isClose;
+
 public class CustomFoodValues extends CustomItemValues {
 
     static CustomFoodValues load(
@@ -135,6 +137,18 @@ public class CustomFoodValues extends CustomItemValues {
     @Override
     public byte getMaxStacksize() {
         return maxStacksize;
+    }
+
+    protected boolean areFoodPropertiesEqual(CustomFoodValues other) {
+        return areBaseItemPropertiesEqual(other) && this.foodValue == other.foodValue && this.eatEffects.equals(other.eatEffects)
+                && this.eatTime == other.eatTime && this.eatSound == other.eatSound && isClose(this.soundPitch, other.soundPitch)
+                && isClose(this.soundVolume, other.soundVolume) && this.soundPeriod == other.soundPeriod
+                && this.maxStacksize == other.maxStacksize;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other.getClass() == CustomFoodValues.class && areFoodPropertiesEqual((CustomFoodValues) other);
     }
 
     @Override

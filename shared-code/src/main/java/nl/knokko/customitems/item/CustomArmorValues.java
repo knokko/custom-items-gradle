@@ -153,6 +153,17 @@ public class CustomArmorValues extends CustomToolValues {
         loadPost10(input, itemSet);
     }
 
+    protected boolean areArmorPropertiesEqual(CustomArmorValues other) {
+        return areToolPropertiesEqual(other) && (!itemType.isLeatherArmor() || (
+                this.red == other.red && this.green == other.green && this.blue == other.blue))
+                && this.damageResistances.equals(other.damageResistances);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other.getClass() == CustomArmorValues.class && areArmorPropertiesEqual((CustomArmorValues) other);
+    }
+
     @Override
     public void save(BitOutput output, SItemSet.Side side) {
         output.addByte(ItemEncoding.ENCODING_ARMOR_11);

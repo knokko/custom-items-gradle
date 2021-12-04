@@ -9,6 +9,8 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
+import static nl.knokko.customitems.util.Checks.isClose;
+
 public class CustomShieldValues extends CustomToolValues {
 
     static CustomShieldValues load(
@@ -161,6 +163,15 @@ public class CustomShieldValues extends CustomToolValues {
 
     private void initShieldOnlyDefaults10() {
         // There is nothing to be done until the next encoding is known
+    }
+
+    protected boolean areShieldPropertiesEqual(CustomShieldValues other) {
+        return areToolPropertiesEqual(other) && isClose(this.thresholdDamage, other.thresholdDamage);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other.getClass() == CustomShieldValues.class && areShieldPropertiesEqual((CustomShieldValues) other);
     }
 
     @Override
