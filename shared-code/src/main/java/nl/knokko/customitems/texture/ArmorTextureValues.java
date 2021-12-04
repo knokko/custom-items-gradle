@@ -15,6 +15,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import static nl.knokko.customitems.texture.BaseTextureValues.areImagesEqual;
+
 public class ArmorTextureValues extends ModelValues {
 
     private static final byte ENCODING_1 = 1;
@@ -83,6 +85,17 @@ public class ArmorTextureValues extends ModelValues {
             layer2 = ImageIO.read(new ByteArrayInputStream(bytesOfLayer2));
         } catch (IOException shouldntHappen) {
             throw new IllegalArgumentException("Corrupted image input", shouldntHappen);
+        }
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other.getClass() == ArmorTextureValues.class) {
+            ArmorTextureValues otherTexture = (ArmorTextureValues) other;
+            return this.name.equals(otherTexture.name) && areImagesEqual(this.layer1, otherTexture.layer1)
+                    && areImagesEqual(this.layer2, otherTexture.layer2);
+        } else {
+            return false;
         }
     }
 

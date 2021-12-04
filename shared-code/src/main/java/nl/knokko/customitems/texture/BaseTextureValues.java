@@ -23,6 +23,21 @@ public class BaseTextureValues extends ModelValues {
     public static final byte ENCODING_BOW_1 = 1;
     public static final byte ENCODING_CROSSBOW_1 = 2;
 
+    public static boolean areImagesEqual(BufferedImage a, BufferedImage b) {
+        if (a == null && b == null) return true;
+        if (a == null) return false;
+        if (b == null) return false;
+        if (a.getWidth() != b.getWidth() || a.getHeight() != b.getHeight()) return false;
+
+        for (int x = 0; x < a.getWidth(); x++) {
+            for (int y = 0; y < a.getHeight(); y++) {
+                if (a.getRGB(x, y) != b.getRGB(x, y)) return false;
+            }
+        }
+
+        return true;
+    }
+
     private static void validateSize(int size) throws ValidationException {
         if (size < 1) throw new ValidationException("must be positive");
         if (size > 512) throw new ValidationException("can be at most 512");
@@ -106,6 +121,16 @@ public class BaseTextureValues extends ModelValues {
             }
 
             return result;
+        }
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other.getClass() == BaseTextureValues.class) {
+            BaseTextureValues otherTexture = (BaseTextureValues) other;
+            return this.name.equals(otherTexture.name) && areImagesEqual(this.image, otherTexture.image);
+        } else {
+            return false;
         }
     }
 

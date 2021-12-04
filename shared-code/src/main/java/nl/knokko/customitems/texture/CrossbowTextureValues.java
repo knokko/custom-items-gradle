@@ -46,6 +46,19 @@ public class CrossbowTextureValues extends BaseTextureValues {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (other.getClass() == CrossbowTextureValues.class) {
+            CrossbowTextureValues otherTexture = (CrossbowTextureValues) other;
+            return this.name.equals(otherTexture.name) && areImagesEqual(this.image, otherTexture.image)
+                    && this.pullTextures.equals(otherTexture.pullTextures)
+                    && areImagesEqual(this.arrowImage, otherTexture.arrowImage)
+                    && areImagesEqual(this.fireworkImage, otherTexture.fireworkImage);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public CrossbowTextureValues copy(boolean mutable) {
         return new CrossbowTextureValues(this, mutable);
     }

@@ -10,6 +10,9 @@ import nl.knokko.util.bits.BitOutput;
 
 import java.awt.image.BufferedImage;
 
+import static nl.knokko.customitems.texture.BaseTextureValues.areImagesEqual;
+import static nl.knokko.customitems.util.Checks.isClose;
+
 public class BowTextureEntry extends ModelValues {
 
     public static BowTextureEntry load1(BitInput input, boolean expectCompressed, boolean mutable) {
@@ -41,6 +44,16 @@ public class BowTextureEntry extends ModelValues {
 
         this.image = toCopy.getImage();
         this.pull = toCopy.getPull();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other.getClass() == BowTextureEntry.class) {
+            BowTextureEntry otherEntry = (BowTextureEntry) other;
+            return areImagesEqual(this.image, otherEntry.image) && isClose(this.pull, otherEntry.pull);
+        } else {
+            return false;
+        }
     }
 
     @Override

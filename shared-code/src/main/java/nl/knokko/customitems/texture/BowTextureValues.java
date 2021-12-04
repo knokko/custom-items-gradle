@@ -44,6 +44,17 @@ public class BowTextureValues extends BaseTextureValues {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (other.getClass() == BowTextureValues.class) {
+            BowTextureValues otherTexture = (BowTextureValues) other;
+            return this.name.equals(otherTexture.name) && areImagesEqual(this.image, otherTexture.image)
+                    && this.pullTextures.equals(otherTexture.pullTextures);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public BowTextureValues copy(boolean mutable) {
         return new BowTextureValues(this, mutable);
     }
