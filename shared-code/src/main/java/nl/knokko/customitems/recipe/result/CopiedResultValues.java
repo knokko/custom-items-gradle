@@ -81,6 +81,8 @@ public class CopiedResultValues extends ResultValues {
     }
 
     private void save1(BitOutput output) {
+        // Save 0 for legacy reasons
+        output.addNumber(0, (byte) 6, false);
         output.addString(encoded);
     }
 
