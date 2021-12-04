@@ -165,5 +165,4 @@ public class ItemEncoding {
 	 */
 	public static final byte ENCODING_ARMOR_11 = 44;
 	public static final byte ENCODING_HELMET3D_11 = 45;
-	// TODO Also create a backward compatibility test for these encodings!!
 }

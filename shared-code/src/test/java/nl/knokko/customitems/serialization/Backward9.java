@@ -41,17 +41,20 @@ public class Backward9 {
 
     @Test
     public void testBackwardCompatibility9() {
-        for (SItemSet old9 : loadItemSet("backward9old")) {
-            testTextures3(old9, 3);
-            testArmorTexturesOld8(old9, 1);
-            testItemsOld9(old9, 33);
-            testRecipesOld9(old9, 5);
-            testBlockDropsOld8(old9, 2);
-            testMobDropsOld8(old9, 2);
-            testProjectileCoversOld6(old9, 2);
-            testProjectilesOld9(old9, 2);
-            testFuelRegistriesOld8(old9, 1);
-            testContainersOld9(old9, 3);
+        // Due to a stupid oversight, I introduced an extra encoding between Editor 9.0 and Editor 9.12
+        for (SItemSet[] oldPair : new SItemSet[][] { loadItemSet("backward9old"), loadItemSet("backward9_12old") }) {
+            for (SItemSet old9 : oldPair) {
+                testTextures3(old9, 3);
+                testArmorTexturesOld8(old9, 1);
+                testItemsOld9(old9, 33);
+                testRecipesOld9(old9, 5);
+                testBlockDropsOld8(old9, 2);
+                testMobDropsOld8(old9, 2);
+                testProjectileCoversOld6(old9, 2);
+                testProjectilesOld9(old9, 2);
+                testFuelRegistriesOld8(old9, 1);
+                testContainersOld9(old9, 3);
+            }
         }
 
         for (SItemSet new9 : loadItemSet("backward9new")) {
