@@ -44,6 +44,24 @@ public abstract class IngredientValues extends ModelValues {
         this.remainingItem = toCopy.getRemainingItem();
     }
 
+    protected String remainingToString() {
+        if (remainingItem == null) {
+            return "";
+        } else {
+            return " [" + remainingItem + "]";
+        }
+    }
+
+    protected String amountToString(byte amount) {
+        if (amount == 1) {
+            return "";
+        } else {
+            return " x " + amount;
+        }
+    }
+
+    public abstract String toString(String emptyString);
+
     @Override
     public abstract IngredientValues copy(boolean mutable);
 

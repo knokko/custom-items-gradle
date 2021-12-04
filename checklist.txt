@@ -12,5 +12,3 @@ ItemSet:
  - Keep the functions that create the additional files like .zip and .txt
  - Keep the automatic back-up system
  - Check for conflicts of container recipes (I don't know if this happens already)
-Ingredients:
- - Keep the custom toString(String): String methods (special handling of 'empty')

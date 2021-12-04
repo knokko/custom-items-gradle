@@ -52,6 +52,11 @@ public class DataVanillaIngredientValues extends IngredientValues {
         this.dataValue = 0;
     }
 
+    @Override
+    public String toString(String emptyString) {
+        return material + "(" + dataValue + ")" + amountToString(amount) + remainingToString();
+    }
+
     DataVanillaIngredientValues(DataVanillaIngredientValues toCopy, boolean mutable) {
         super(toCopy, mutable);
 
@@ -74,7 +79,7 @@ public class DataVanillaIngredientValues extends IngredientValues {
 
     @Override
     public String toString() {
-        return "DataVanillaIngredient(" + material + " [" + dataValue + "] x " + amount + ", remaining = " + remainingItem + ")";
+        return toString(null);
     }
 
     @Override

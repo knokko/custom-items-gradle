@@ -73,7 +73,12 @@ public class SimpleVanillaIngredientValues extends IngredientValues {
 
     @Override
     public String toString() {
-        return "SimpleVanillaIngredient(" + material + " x " + amount + ", remaining = " + remainingItem + ")";
+        return toString(null);
+    }
+
+    @Override
+    public String toString(String emptyString) {
+        return material + amountToString(amount) + remainingToString();
     }
 
     @Override

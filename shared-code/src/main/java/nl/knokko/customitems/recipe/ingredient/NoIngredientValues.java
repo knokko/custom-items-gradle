@@ -35,6 +35,11 @@ public class NoIngredientValues extends IngredientValues {
     }
 
     @Override
+    public String toString(String emptyString) {
+        return emptyString;
+    }
+
+    @Override
     public NoIngredientValues copy(boolean mutable) {
         return new NoIngredientValues(this);
     }

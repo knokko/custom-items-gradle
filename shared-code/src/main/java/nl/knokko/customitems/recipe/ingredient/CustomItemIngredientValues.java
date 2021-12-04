@@ -48,6 +48,11 @@ public class CustomItemIngredientValues extends IngredientValues {
         this.item = null;
     }
 
+    @Override
+    public String toString(String emptyString) {
+        return item.get().getName() + amountToString(amount) + remainingToString();
+    }
+
     public CustomItemIngredientValues(CustomItemIngredientValues toCopy, boolean mutable) {
         super(toCopy, mutable);
 
@@ -90,7 +95,7 @@ public class CustomItemIngredientValues extends IngredientValues {
 
     @Override
     public String toString() {
-        return "CustomItemIngredient(" + item.get().getName() + " x " + amount + ", remaining = " + remainingItem + ")";
+        return toString(null);
     }
 
     @Override
