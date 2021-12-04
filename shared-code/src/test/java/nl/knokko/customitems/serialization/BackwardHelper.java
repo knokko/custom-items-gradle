@@ -39,10 +39,14 @@ public class BackwardHelper {
         SItemSet result;
         try {
             result = new SItemSet(bitInput, side);
+            if (side == SItemSet.Side.EDITOR) {
+                SaveEqualityHelper.testSaveEquality(result);
+            }
         } catch (Exception e) {
             throw new RuntimeException("Let the test fail", e);
         }
         bitInput.terminate();
+
         return result;
     }
 
