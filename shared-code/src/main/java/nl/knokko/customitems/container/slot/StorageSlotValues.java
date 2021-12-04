@@ -54,6 +54,7 @@ public class StorageSlotValues extends ContainerSlotValues {
 
     @Override
     public void save(BitOutput output) {
+        output.addByte(Encodings.STORAGE1);
         output.addBoolean(placeholder != null);
         if (placeholder != null) {
             placeholder.save(output);
