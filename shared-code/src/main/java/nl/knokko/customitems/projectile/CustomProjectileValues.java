@@ -19,6 +19,8 @@ import nl.knokko.util.bits.BitOutput;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static nl.knokko.customitems.util.Checks.isClose;
+
 public class CustomProjectileValues extends ModelValues {
 
     private static final byte ENCODING_1 = 0;
@@ -177,6 +179,27 @@ public class CustomProjectileValues extends ModelValues {
             effect.save(output);
         }
         output.addString(cover == null ? null : cover.get().getName());
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other.getClass() == CustomProjectileValues.class) {
+            CustomProjectileValues otherProjectile = (CustomProjectileValues) other;
+            return this.name.equals(otherProjectile.name) && isClose(this.damage, otherProjectile.damage)
+                    && isClose(this.minLaunchAngle, otherProjectile.minLaunchAngle)
+                    && isClose(this.maxLaunchAngle, otherProjectile.maxLaunchAngle)
+                    && isClose(this.minLaunchSpeed, otherProjectile.minLaunchSpeed)
+                    && isClose(this.maxLaunchSpeed, otherProjectile.maxLaunchSpeed)
+                    && isClose(this.gravity, otherProjectile.gravity)
+                    && isClose(this.launchKnockback, otherProjectile.launchKnockback)
+                    && isClose(this.impactKnockback, otherProjectile.impactKnockback)
+                    && this.impactPotionEffects.equals(otherProjectile.impactPotionEffects)
+                    && this.maxLifetime == otherProjectile.maxLifetime
+                    && this.inFlightEffects.equals(otherProjectile.inFlightEffects)
+                    && this.impactEffects.equals(otherProjectile.impactEffects);
+        } else {
+            return false;
+        }
     }
 
     @Override

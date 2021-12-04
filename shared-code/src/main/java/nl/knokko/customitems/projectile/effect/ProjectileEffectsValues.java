@@ -68,6 +68,17 @@ public class ProjectileEffectsValues extends ModelValues {
     }
 
     @Override
+    public boolean equals(Object other) {
+        if (other.getClass() == ProjectileEffectsValues.class) {
+            ProjectileEffectsValues otherEffects = (ProjectileEffectsValues) other;
+            return this.delay == otherEffects.delay && this.period == otherEffects.period
+                    && this.effects.equals(otherEffects.effects);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public ProjectileEffectsValues copy(boolean mutable) {
         return new ProjectileEffectsValues(this, mutable);
     }
