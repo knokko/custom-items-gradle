@@ -63,7 +63,7 @@ public class CustomShearsValues extends CustomToolValues {
     }
 
     private void loadShearsIdentityProperties10(BitInput input) {
-        input.readShort();
+        this.itemDamage = input.readShort();
         this.name = input.readJavaString();
         this.alias = input.readString();
     }
