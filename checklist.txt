@@ -1,3 +1,18 @@
 - Check the positive compatibility page to see if any third-party plug-ins will break due to this refactoring.
 - Get rid of all the == checks between custom item values (and between other model values) since they don't have an
 identity.
+
+Editor object model:
+ItemSet:
+ - Keep the bypassChecks() option? (control shift) Perhaps allow it only in some cases?
+ - Keep the functions that generate the default model for each type of custom item
+ - Keep the resourcepack generation functions (but refactor to another class)
+ - Keep the checks for the supported MC version of all objects upon exporting
+ - Keep the last-minute assignment of internal item damage to all custom items and projectile covers
+ - Keep the functions that create the additional files like .zip and .txt
+ - Keep the automatic back-up system
+ - Check for conflicts of container recipes (I don't know if this happens already)
+Ingredients:
+ - Keep the custom toString(String): String methods (special handling of 'empty')
+Results:
+ - Keep the createInfo() and amountClone() method

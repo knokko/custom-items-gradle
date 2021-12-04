@@ -131,6 +131,9 @@ public class ProjectileCoverValues extends ModelValues {
 
     public void validate(SItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         if (itemType == null) throw new ProgrammingValidationException("No item type");
+        if (!itemType.canServe(CustomItemType.Category.PROJECTILE_COVER)) {
+            throw new ProgrammingValidationException("Item type can't be used for projectile covers");
+        }
         // item damage is nowadays picked right before exporting and thus doesn't really need validation
         Validation.safeName(name);
         if (!name.equals(oldName) && itemSet.getProjectileCover(name).isPresent()) {

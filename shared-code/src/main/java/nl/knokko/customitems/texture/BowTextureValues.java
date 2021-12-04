@@ -91,9 +91,14 @@ public class BowTextureValues extends BaseTextureValues {
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {
         super.validateIndependent();
         if (pullTextures == null) throw new ProgrammingValidationException("No pull textures");
+        Double previousPull = null;
         for (BowTextureEntry entry : pullTextures) {
             if (entry == null) throw new ProgrammingValidationException("Missing a pull texture");
             Validation.scope("Pull texture", entry::validate);
+            if (previousPull != null && entry.getPull() <= previousPull) {
+                throw new ValidationException("Pull values must be sorted in ascending order from top to bottom");
+            }
+            previousPull = entry.getPull();
         }
     }
 }
