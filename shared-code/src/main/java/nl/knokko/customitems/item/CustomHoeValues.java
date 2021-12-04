@@ -90,9 +90,9 @@ public class CustomHoeValues extends CustomToolValues {
         saveTextDisplayProperties1(output);
         saveVanillaBasedPowers4(output);
         saveToolOnlyPropertiesA4(output);
-        output.addInt(tillDurabilityLoss);
         saveItemFlags6(output);
         saveToolOnlyPropertiesB6(output);
+        output.addInt(tillDurabilityLoss);
         savePotionProperties10(output);
         saveRightClickProperties10(output);
         saveExtraProperties10(output);

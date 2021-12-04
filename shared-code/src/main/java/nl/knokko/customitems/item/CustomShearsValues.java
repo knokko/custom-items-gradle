@@ -105,14 +105,20 @@ public class CustomShearsValues extends CustomToolValues {
         }
     }
 
+    private void saveShearsIdentityProperties10(BitOutput output) {
+        output.addShort(itemDamage);
+        output.addJavaString(name);
+        output.addString(alias);
+    }
+
     private void save10(BitOutput output) {
-        saveIdentityProperties10(output);
+        saveShearsIdentityProperties10(output);
         saveTextDisplayProperties1(output);
         saveVanillaBasedPowers4(output);
         saveToolOnlyPropertiesA4(output);
-        output.addInt(shearDurabilityLoss);
         saveItemFlags6(output);
         saveToolOnlyPropertiesB6(output);
+        output.addInt(shearDurabilityLoss);
         savePotionProperties10(output);
         saveRightClickProperties10(output);
         saveExtraProperties10(output);
