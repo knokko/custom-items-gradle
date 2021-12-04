@@ -45,7 +45,6 @@ public class FuelCustomSlot implements CustomSlot {
 	
 	private final String name;
 	
-	// TODO Add possibility for vanilla fuel registry
 	private final CustomFuelRegistry fuelRegistry;
 	
 	private final SlotDisplay placeholder;
