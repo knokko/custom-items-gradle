@@ -21,8 +21,6 @@ public class CustomToolValues extends CustomItemValues {
         // Note: it doesn't really matter which CustomItemType is used since it will be overwritten anyway
         CustomToolValues result = new CustomToolValues(false, CustomItemType.IRON_PICKAXE);
 
-        // TODO Handle the custom shears case that are 'upgraded to another encoding'
-
         if (encoding == ItemEncoding.ENCODING_TOOL_2) {
             result.loadTool2(input);
             result.initToolDefaults2();

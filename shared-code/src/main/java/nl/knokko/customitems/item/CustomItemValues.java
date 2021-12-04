@@ -823,6 +823,4 @@ public abstract class CustomItemValues extends ModelValues {
             Validation.scope("Replace condition", () -> condition.validateComplete(itemSet));
         }
     }
-
-    // TODO Add a unit test that checks if item set remains equal after saving and loading
 }
