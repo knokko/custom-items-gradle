@@ -45,6 +45,7 @@ public class CustomProjectileCoverValues extends ProjectileCoverValues {
 
     @Override
     protected void save(BitOutput output) {
+        output.addByte(ENCODING_CUSTOM1);
         saveSharedProperties1(output);
         output.addByteArray(customModel);
     }
