@@ -72,8 +72,7 @@ public class CustomBlockValues extends ModelValues {
     public boolean equals(Object other) {
         if (other instanceof CustomBlockValues) {
             CustomBlockValues otherBlock = (CustomBlockValues) other;
-            return otherBlock.name.equals(this.name) && otherBlock.drops.equals(this.drops) &&
-                    otherBlock.texture.get().getName().equals(this.texture.get().getName());
+            return otherBlock.name.equals(this.name) && otherBlock.drops.equals(this.drops);
         } else {
             return false;
         }
