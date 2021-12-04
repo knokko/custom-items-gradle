@@ -116,7 +116,7 @@ public class CustomFoodValues extends CustomItemValues {
         output.addInt(foodValue);
         output.addInt(eatEffects.size());
         for (PotionEffectValues eatEffect : eatEffects) {
-            eatEffect.save1(output);
+            eatEffect.save2(output);
         }
         output.addInt(eatTime);
         output.addString(eatSound.name());
