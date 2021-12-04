@@ -11,6 +11,9 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CustomItemResultValues extends ResultValues {
 
     static CustomItemResultValues load(BitInput input, byte encoding, SItemSet itemSet) throws UnknownEncodingException {
@@ -78,6 +81,14 @@ public class CustomItemResultValues extends ResultValues {
     public String toString() {
         String amountString = amount == 1 ? "" : (" x " + amount);
         return item.get().getName() + amountString;
+    }
+
+    @Override
+    protected List<String> getInfo() {
+        List<String> result = new ArrayList<>(2);
+        result.add("Custom item:");
+        result.add(item.get().getName() + " x " + amount);
+        return result;
     }
 
     @Override

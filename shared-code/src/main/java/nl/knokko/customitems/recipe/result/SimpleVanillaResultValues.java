@@ -10,6 +10,9 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SimpleVanillaResultValues extends ResultValues {
 
     static SimpleVanillaResultValues load(BitInput input, byte encoding) throws UnknownEncodingException {
@@ -51,6 +54,14 @@ public class SimpleVanillaResultValues extends ResultValues {
     @Override
     public String toString() {
         return material + (amount == 1 ? "" : " x " + amount);
+    }
+
+    @Override
+    protected List<String> getInfo() {
+        List<String> result = new ArrayList<>(2);
+        result.add("Vanilla result:");
+        result.add(material + " x " + amount);
+        return result;
     }
 
     @Override

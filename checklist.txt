@@ -14,5 +14,3 @@ ItemSet:
  - Check for conflicts of container recipes (I don't know if this happens already)
 Ingredients:
  - Keep the custom toString(String): String methods (special handling of 'empty')
-Results:
- - Keep the createInfo() and amountClone() method

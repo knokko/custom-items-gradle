@@ -10,6 +10,9 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DataVanillaResultValues extends ResultValues {
 
     static DataVanillaResultValues load(BitInput input, byte encoding) throws UnknownEncodingException {
@@ -56,6 +59,14 @@ public class DataVanillaResultValues extends ResultValues {
     public String toString() {
         String amountString = amount == 1 ? "" : (" x " + amount);
         return material + "[" + data + "]" + amountString;
+    }
+
+    @Override
+    protected List<String> getInfo() {
+        List<String> result = new ArrayList<>(2);
+        result.add("Data vanilla result:");
+        result.add(material + " [" + data + "] x " + amount);
+        return result;
     }
 
     @Override

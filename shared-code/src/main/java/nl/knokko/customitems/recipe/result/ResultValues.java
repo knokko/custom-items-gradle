@@ -9,6 +9,8 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
+import java.util.List;
+
 public abstract class ResultValues extends ModelValues  {
 
     public static ResultValues load(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
@@ -35,6 +37,8 @@ public abstract class ResultValues extends ModelValues  {
 
     @Override
     public abstract String toString();
+
+    protected abstract List<String> getInfo();
 
     protected byte loadAmount(BitInput input) {
         return (byte) (1 + input.readNumber((byte) 6, false));

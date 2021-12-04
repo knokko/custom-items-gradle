@@ -10,6 +10,9 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CopiedResultValues extends ResultValues {
 
     static CopiedResultValues load(BitInput input, byte encoding) throws UnknownEncodingException {
@@ -47,6 +50,13 @@ public class CopiedResultValues extends ResultValues {
     @Override
     public String toString() {
         return "copied item";
+    }
+
+    @Override
+    protected List<String> getInfo() {
+        List<String> result = new ArrayList<>(1);
+        result.add("Copied from a server item");
+        return result;
     }
 
     @Override
