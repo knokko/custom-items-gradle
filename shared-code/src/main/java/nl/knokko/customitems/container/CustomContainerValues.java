@@ -304,6 +304,14 @@ public class CustomContainerValues extends ModelValues {
             Validation.scope("Recipe", () -> recipe.validate(itemSet, this));
         }
 
+        for (int index1 = 0; index1 < recipes.size(); index1++) {
+            for (int index2 = index1 + 1; index2 < recipes.size(); index2++) {
+                if (recipes.get(index1).conflictsWith(recipes.get(index2))) {
+                    throw new ValidationException("Recipe " + (index1 + 1) + " conflicts with recipe " + (index2 + 1));
+                }
+            }
+        }
+
         if (fuelMode == null) throw new ProgrammingValidationException("No fuel mode");
         if (vanillaType == null) throw new ProgrammingValidationException("No vanilla type");
         // There are no invalid values for persistentStorage

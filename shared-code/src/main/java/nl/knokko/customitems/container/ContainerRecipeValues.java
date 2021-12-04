@@ -245,4 +245,21 @@ public class ContainerRecipeValues extends ModelValues {
         if (duration < 0) throw new ValidationException("Duration can't be negative");
         if (experience < 0) throw new ValidationException("Experience can't be negative");
     }
+
+    public boolean conflictsWith(ContainerRecipeValues other) {
+        // No conflict if possible if the number of used input slots are different
+        if (inputs.size() != other.inputs.size()) return false;
+
+        for (Map.Entry<String, IngredientValues> inputEntry : inputs.entrySet()) {
+            String inputSlotName = inputEntry.getKey();
+            IngredientValues ownIngredient = inputEntry.getValue();
+            IngredientValues otherIngredient = other.getInput(inputSlotName);
+
+            // There is only a conflict if ALL ingredients have a conflict, so there is no conflict if at least 1
+            // ingredient doesn't have a conflict
+            if (!ownIngredient.conflictsWith(otherIngredient)) return false;
+        }
+
+        return true;
+    }
 }

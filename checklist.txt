@@ -11,4 +11,3 @@ ItemSet:
  - Keep the last-minute assignment of internal item damage to all custom items and projectile covers
  - Keep the functions that create the additional files like .zip and .txt
  - Keep the automatic back-up system
- - Check for conflicts of container recipes (I don't know if this happens already)
