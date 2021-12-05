@@ -188,4 +188,9 @@ public class IndirectGunAmmoValues extends GunAmmoValues {
         validateIndependent();
         if (reloadItem != null) Validation.scope("Reload item", () -> reloadItem.validateComplete(itemSet));
     }
+
+    @Override
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        if (reloadItem != null) reloadItem.validateExportVersion(version);
+    }
 }

@@ -1,5 +1,6 @@
 package nl.knokko.customitems.container;
 
+import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.container.fuel.FuelMode;
 import nl.knokko.customitems.container.slot.ContainerSlotValues;
 import nl.knokko.customitems.container.slot.EmptySlotValues;
@@ -315,5 +316,28 @@ public class CustomContainerValues extends ModelValues {
         if (fuelMode == null) throw new ProgrammingValidationException("No fuel mode");
         if (vanillaType == null) throw new ProgrammingValidationException("No vanilla type");
         // There are no invalid values for persistentStorage
+    }
+
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        Validation.scope("Selection icon", () -> selectionIcon.validateExportVersion(version));
+        for (int x = 0; x < WIDTH; x++) {
+            for (int y = 0; y < getHeight(); y++) {
+                int finalX = x;
+                int finalY = y;
+                Validation.scope(
+                        "Slot ("+ (x + 1) + "," + (y + 1) + ")",
+                        () -> getSlot(finalX, finalY).validateExportVersion(version)
+                );
+            }
+        }
+        for (ContainerRecipeValues recipe : recipes) {
+            Validation.scope("Recipes", () -> recipe.validateExportVersion(version));
+        }
+        if (version < vanillaType.firstVersion) {
+            throw new ValidationException(vanillaType + " doesn't exist yet in mc " + MCVersions.createString(version));
+        }
+        if (version > vanillaType.lastVersion) {
+            throw new ValidationException(vanillaType + " doesn't exist anymore in mc " + MCVersions.createString(version));
+        }
     }
 }

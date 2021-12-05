@@ -183,4 +183,8 @@ public class DropValues extends ModelValues {
             }
         }
     }
+
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        outputTable.validateExportVersion(version);
+    }
 }

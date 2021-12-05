@@ -1,5 +1,6 @@
 package nl.knokko.customitems.item;
 
+import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.effect.*;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
@@ -821,6 +822,31 @@ public abstract class CustomItemValues extends ModelValues {
 
         for (ReplacementConditionValues condition : replaceConditions) {
             Validation.scope("Replace condition", () -> condition.validateComplete(itemSet));
+        }
+    }
+
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        if (itemType.firstVersion > version) {
+            throw new ValidationException(itemType + " doesn't exist yet in mc " + MCVersions.createString(version));
+        }
+        if (itemType.lastVersion < version) {
+            throw new ValidationException(itemType + " is no longer supported in mc " + MCVersions.createString(version));
+        }
+
+        for (EnchantmentValues enchantment : defaultEnchantments) {
+            Validation.scope("Default enchantment", () -> enchantment.validateExportVersion(version));
+        }
+
+        for (PotionEffectValues effect : playerEffects) {
+            Validation.scope("On-hit player effect", () -> effect.validateExportVersion(version));
+        }
+
+        for (PotionEffectValues effect : targetEffects) {
+            Validation.scope("On-hit target effect", () -> effect.validateExportVersion(version));
+        }
+
+        for (EquippedPotionEffectValues effect : equippedEffects) {
+            Validation.scope("Equipped effect", () -> effect.validateExportVersion(version));
         }
     }
 }

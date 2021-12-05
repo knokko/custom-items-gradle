@@ -1,5 +1,6 @@
 package nl.knokko.customitems.effect;
 
+import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.item.AttributeModifierValues;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.util.Checks;
@@ -110,5 +111,14 @@ public class EquippedPotionEffectValues extends ModelValues  {
         if (level < 1) throw new ValidationException("Level isn't positive");
         if (level > 256) throw new ValidationException("Level can be at most 256");
         if (slot == null) throw new ProgrammingValidationException("No slot");
+    }
+
+    public void validateExportVersion(int version) throws ValidationException {
+        if (version < type.firstVersion) {
+            throw new ValidationException(type + " doesn't exist yet in mc " + MCVersions.createString(version));
+        }
+        if (version > type.lastVersion) {
+            throw new ValidationException(type + " doesn't exist anymore in mc " + MCVersions.createString(version));
+        }
     }
 }

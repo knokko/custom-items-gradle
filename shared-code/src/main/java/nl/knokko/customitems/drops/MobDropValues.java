@@ -1,5 +1,6 @@
 package nl.knokko.customitems.drops;
 
+import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.encoding.DropEncoding;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.model.ModelValues;
@@ -134,5 +135,15 @@ public class MobDropValues extends ModelValues {
         // There are no invalid values for requiredName
         if (drop == null) throw new ProgrammingValidationException("No drop");
         Validation.scope("Drop", () -> drop.validate(itemSet));
+    }
+
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        if (version < entityType.firstVersion) {
+            throw new ValidationException(entityType + " doesn't exist yet in mc " + MCVersions.createString(version));
+        }
+        if (version > entityType.lastVersion) {
+            throw new ValidationException(entityType + " doesn't exist anymore in mc " + MCVersions.createString(version));
+        }
+        drop.validateExportVersion(version);
     }
 }

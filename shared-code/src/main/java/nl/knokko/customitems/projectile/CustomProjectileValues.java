@@ -383,4 +383,16 @@ public class CustomProjectileValues extends ModelValues {
         if (cover != null && !itemSet.isReferenceValid(cover))
             throw new ProgrammingValidationException("Projectile cover is no longer valid");
     }
+
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        for (PotionEffectValues impactEffect : impactPotionEffects) {
+            Validation.scope("Impact potion effects", () -> impactEffect.validateExportVersion(version));
+        }
+        for (ProjectileEffectValues impactEffect : impactEffects) {
+            Validation.scope("Impact effects", () -> impactEffect.validateExportVersion(version));
+        }
+        for (ProjectileEffectsValues flightEffects : inFlightEffects) {
+            Validation.scope("In-flight effects", () -> flightEffects.validateExportVersion(version));
+        }
+    }
 }

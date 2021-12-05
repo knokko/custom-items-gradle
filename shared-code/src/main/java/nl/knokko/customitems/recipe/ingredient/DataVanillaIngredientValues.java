@@ -1,5 +1,6 @@
 package nl.knokko.customitems.recipe.ingredient;
 
+import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.encoding.RecipeEncoding;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.itemset.SItemSet;
@@ -170,5 +171,16 @@ public class DataVanillaIngredientValues extends IngredientValues {
 
         if (dataValue < 0) throw new ValidationException("Data value can't be negative");
         if (dataValue > 15) throw new ValidationException("Data value can be at most 15");
+    }
+
+    @Override
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        super.validateExportVersion(version);
+        if (version < material.firstVersion) {
+            throw new ValidationException(material + " doesn't exist yet in mc " + MCVersions.createString(version));
+        }
+        if (version > material.lastVersion) {
+            throw new ValidationException(material + " was renamed after mc " + MCVersions.createString(material.lastVersion));
+        }
     }
 }

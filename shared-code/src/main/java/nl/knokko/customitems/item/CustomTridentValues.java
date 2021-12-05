@@ -1,5 +1,6 @@
 package nl.knokko.customitems.item;
 
+import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.encoding.ItemEncoding;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -272,5 +273,13 @@ public class CustomTridentValues extends CustomToolValues {
         if (throwDurabilityLoss < 0) throw new ValidationException("Durability loss on throwing can't be negative");
         if (throwDamageMultiplier < 0) throw new ValidationException("Throw damage multiplier can't be negative");
         if (throwSpeedMultiplier < 0) throw new ValidationException("Throw speed multiplier can't be negative");
+    }
+
+    @Override
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        if (version > MCVersions.VERSION1_14) {
+            throw new ValidationException("No custom tridents in MC 1.15+. See github.com/knokko/custom-items-gradle/issues/7");
+        }
+        super.validateExportVersion(version);
     }
 }

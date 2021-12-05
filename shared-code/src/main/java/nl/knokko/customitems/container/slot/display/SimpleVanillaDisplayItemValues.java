@@ -1,5 +1,6 @@
 package nl.knokko.customitems.container.slot.display;
 
+import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -78,5 +79,15 @@ public class SimpleVanillaDisplayItemValues extends SlotDisplayItemValues {
     @Override
     public void validate(SItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         if (material == null) throw new ProgrammingValidationException("No material");
+    }
+
+    @Override
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        if (version < material.firstVersion) {
+            throw new ValidationException(material + " doesn't exist yet in mc " + MCVersions.createString(version));
+        }
+        if (version > material.lastVersion) {
+            throw new ValidationException(material + " was renamed after " + MCVersions.createString(material.lastVersion));
+        }
     }
 }

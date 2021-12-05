@@ -140,4 +140,9 @@ public class CustomItemResultValues extends ResultValues {
 
         if (!itemSet.isReferenceValid(item)) throw new ProgrammingValidationException("The item is not or no longer valid");
     }
+
+    @Override
+    public void validateExportVersion(int version) throws ValidationException {
+        // Custom items results are allowed in any MC version
+    }
 }

@@ -389,4 +389,11 @@ public class CustomToolValues extends CustomItemValues {
 
         repairItem.validateComplete(itemSet);
     }
+
+    @Override
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        super.validateExportVersion(version);
+
+        repairItem.validateExportVersion(version);
+    }
 }

@@ -1,5 +1,6 @@
 package nl.knokko.customitems.projectile.cover;
 
+import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.item.CustomItemType;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.model.ModelValues;
@@ -138,6 +139,15 @@ public class ProjectileCoverValues extends ModelValues {
         Validation.safeName(name);
         if (!name.equals(oldName) && itemSet.getProjectileCover(name).isPresent()) {
             throw new ValidationException("Another projectile with this name already exists");
+        }
+    }
+
+    public void validateExportVersion(int version) throws ValidationException {
+        if (version < itemType.firstVersion) {
+            throw new ValidationException(itemType + " doesn't exist yet in mc " + MCVersions.createString(version));
+        }
+        if (version > itemType.lastVersion) {
+            throw new ValidationException(itemType + " doesn't exist anymore in mc " + MCVersions.createString(version));
         }
     }
 }

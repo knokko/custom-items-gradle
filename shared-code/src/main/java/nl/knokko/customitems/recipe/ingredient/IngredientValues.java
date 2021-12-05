@@ -108,4 +108,8 @@ public abstract class IngredientValues extends ModelValues {
             Validation.scope("Remaining item", () -> remainingItem.validateComplete(itemSet));
         }
     }
+
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        if (remainingItem != null) Validation.scope("Remaining", () -> remainingItem.validateExportVersion(version));
+    }
 }

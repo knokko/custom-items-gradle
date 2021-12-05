@@ -1,6 +1,7 @@
 package nl.knokko.customitems.block;
 
 import nl.knokko.customitems.block.drop.CustomBlockDrop;
+import nl.knokko.customitems.drops.DropValues;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.model.ModelValues;
@@ -203,6 +204,12 @@ public class CustomBlockValues extends ModelValues {
 
         if (!itemSet.isReferenceValid(texture)) {
             throw new ProgrammingValidationException("The chosen texture is not (or no longer) valid");
+        }
+    }
+
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        for (CustomBlockDrop drop : drops) {
+            Validation.scope("Drops", () -> drop.validateExportVersion(version));
         }
     }
 }

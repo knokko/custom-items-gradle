@@ -131,4 +131,8 @@ public class CustomBlockDrop extends ModelValues {
         requiredItems.validateComplete(itemSet);
         itemsToDrop.validate(itemSet);
     }
+
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        itemsToDrop.validateExportVersion(version);
+    }
 }

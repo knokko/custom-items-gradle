@@ -40,4 +40,6 @@ public abstract class SlotDisplayItemValues extends ModelValues {
     public abstract SlotDisplayItemValues copy(boolean mutable);
 
     public abstract void validate(SItemSet itemSet) throws ValidationException, ProgrammingValidationException;
+
+    public abstract void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException;
 }

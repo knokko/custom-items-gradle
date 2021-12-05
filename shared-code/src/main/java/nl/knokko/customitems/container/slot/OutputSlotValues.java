@@ -134,4 +134,11 @@ public class OutputSlotValues extends ContainerSlotValues {
             Validation.scope("Placeholder", placeholder::validate, itemSet);
         }
     }
+
+    @Override
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        if (placeholder != null) {
+            Validation.scope("Placeholder", () -> placeholder.validateExportVersion(version));
+        }
+    }
 }

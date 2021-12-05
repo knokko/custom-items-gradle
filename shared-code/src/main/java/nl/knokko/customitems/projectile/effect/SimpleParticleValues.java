@@ -1,5 +1,6 @@
 package nl.knokko.customitems.projectile.effect;
 
+import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.particle.CIParticle;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -138,5 +139,15 @@ public class SimpleParticleValues extends ProjectileEffectValues {
         if (maxRadius < 0f) throw new ValidationException("Maximum radius can't be negative");
         if (minRadius > maxRadius) throw new ValidationException("Minimum radius can't be larger than maximum radius");
         if (amount <= 0) throw new ValidationException("Amount must be positive");
+    }
+
+    @Override
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        if (version < particle.firstVersion) {
+            throw new ValidationException(particle + " doesn't exist yet in mc " + MCVersions.createString(version));
+        }
+        if (version > particle.lastVersion) {
+            throw new ValidationException(particle + " doesn't exist anymore in mc " + MCVersions.createString(version));
+        }
     }
 }

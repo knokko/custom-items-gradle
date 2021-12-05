@@ -122,4 +122,10 @@ public class ProjectileEffectsValues extends ModelValues {
             Validation.scope(effect.toString(), () -> effect.validate(itemSet));
         }
     }
+
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        for (ProjectileEffectValues effect : effects) {
+            effect.validateExportVersion(version);
+        }
+    }
 }

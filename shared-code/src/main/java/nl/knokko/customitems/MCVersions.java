@@ -11,4 +11,9 @@ public class MCVersions {
 	
 	public static final int FIRST_VERSION = VERSION1_12;
 	public static final int LAST_VERSION = VERSION1_17;
+
+	public static String createString(int version) {
+		// This function might become more complicated in the future
+		return "1." + version;
+	}
 }

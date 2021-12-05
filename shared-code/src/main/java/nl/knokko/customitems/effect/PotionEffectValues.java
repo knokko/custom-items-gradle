@@ -1,5 +1,6 @@
 package nl.knokko.customitems.effect;
 
+import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -127,5 +128,14 @@ public class PotionEffectValues extends ModelValues {
         if (duration <= 0) throw new ValidationException("Duration is not positive");
         if (level <= 0) throw new ValidationException("Level is not positive");
         if (level > 256) throw new ValidationException("Level is larger than 256");
+    }
+
+    public void validateExportVersion(int version) throws ValidationException {
+        if (version < type.firstVersion) {
+            throw new ValidationException(type + " doesn't exist yet in mc " + MCVersions.createString(version));
+        }
+        if (version > type.lastVersion) {
+            throw new ValidationException(type + " doesn't exist anymore in mc " + MCVersions.createString(version));
+        }
     }
 }

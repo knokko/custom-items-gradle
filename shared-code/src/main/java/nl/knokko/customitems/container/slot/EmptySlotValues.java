@@ -42,4 +42,9 @@ public class EmptySlotValues extends ContainerSlotValues {
     public void validate(SItemSet itemSet, Collection<ContainerSlotValues> otherSlots) throws ValidationException, ProgrammingValidationException {
         // This slot type doesn't have anything to validate
     }
+
+    @Override
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        // This slot is supported in all MC versions
+    }
 }

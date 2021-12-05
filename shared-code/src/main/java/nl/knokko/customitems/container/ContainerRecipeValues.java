@@ -262,4 +262,20 @@ public class ContainerRecipeValues extends ModelValues {
 
         return true;
     }
+
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        for (Map.Entry<String, IngredientValues> inputEntry : inputs.entrySet()) {
+            Validation.scope(
+                    "Input " + inputEntry.getKey(),
+                    () -> inputEntry.getValue().validateExportVersion(version)
+            );
+        }
+
+        for (Map.Entry<String, OutputTableValues> outputEntry : outputs.entrySet()) {
+            Validation.scope(
+                    "Output " + outputEntry.getKey(),
+                    () -> outputEntry.getValue().validateExportVersion(version)
+            );
+        }
+    }
 }

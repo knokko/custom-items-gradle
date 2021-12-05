@@ -120,4 +120,11 @@ public class PotionAuraValues extends ProjectileEffectValues {
             Validation.scope(effect.toString(), effect::validate);
         }
     }
+
+    @Override
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        for (PotionEffectValues effect : effects) {
+            effect.validateExportVersion(version);
+        }
+    }
 }

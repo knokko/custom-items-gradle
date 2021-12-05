@@ -1,5 +1,7 @@
 package nl.knokko.customitems.item;
 
+import nl.knokko.customitems.MCVersions;
+import nl.knokko.customitems.damage.DamageSource;
 import nl.knokko.customitems.encoding.ItemEncoding;
 import nl.knokko.customitems.itemset.ArmorTextureReference;
 import nl.knokko.customitems.itemset.SItemSet;
@@ -338,6 +340,22 @@ public class CustomArmorValues extends CustomToolValues {
 
         if (armorTexture != null && !itemSet.isReferenceValid(armorTexture)) {
             throw new ProgrammingValidationException("Armor texture is no longer valid");
+        }
+    }
+
+    @Override
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        super.validateExportVersion(version);
+
+        for (DamageSource damageSource : DamageSource.values()) {
+            if (damageResistances.getResistance(damageSource) != 0) {
+                if (version < damageSource.firstVersion) {
+                    throw new ValidationException(damageSource + " doesn't exist yet in mc " + MCVersions.createString(version));
+                }
+                if (version > damageSource.lastVersion) {
+                    throw new ValidationException(damageSource + " doesn't exist anymore in mc " + MCVersions.createString(version));
+                }
+            }
         }
     }
 }

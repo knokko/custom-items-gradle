@@ -7,6 +7,5 @@ ItemSet:
  - Keep the bypassChecks() option? (control shift) Perhaps allow it only in some cases?
  - Keep the functions that generate the default model for each type of custom item
  - Keep the resourcepack generation functions (but refactor to another class)
- - Keep the checks for the supported MC version of all objects upon exporting
  - Keep the functions that create the additional files like .zip and .txt
  - Keep the automatic back-up system

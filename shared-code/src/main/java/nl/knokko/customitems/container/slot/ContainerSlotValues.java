@@ -65,4 +65,6 @@ public abstract class ContainerSlotValues extends ModelValues {
     public abstract void validate(
             SItemSet itemSet, Collection<ContainerSlotValues> otherSlots
     ) throws ValidationException, ProgrammingValidationException;
+
+    public abstract void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException;
 }

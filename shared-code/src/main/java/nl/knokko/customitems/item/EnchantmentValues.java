@@ -1,5 +1,6 @@
 package nl.knokko.customitems.item;
 
+import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -86,5 +87,11 @@ public class EnchantmentValues extends ModelValues  {
     public void validate() throws ValidationException, ProgrammingValidationException {
         if (type == null) throw new ProgrammingValidationException("No type");
         if (level <= 0) throw new ValidationException("Level is not positive");
+    }
+
+    public void validateExportVersion(int version) throws ValidationException {
+        if (version < type.version) {
+            throw new ValidationException(type + " doesn't exist in mc " + MCVersions.createString(version));
+        }
     }
 }

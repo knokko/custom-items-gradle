@@ -203,4 +203,8 @@ public class BaseTextureValues extends ModelValues {
             throw new ValidationException("A texture with name " + this.name + " already exists");
         }
     }
+
+    public void validateExportVersion(int version) throws ValidationException {
+        // Regular textures don't have any version dependant properties
+    }
 }

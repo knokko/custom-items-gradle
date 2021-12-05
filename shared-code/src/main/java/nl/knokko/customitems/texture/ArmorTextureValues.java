@@ -157,4 +157,8 @@ public class ArmorTextureValues extends ModelValues {
             throw new ValidationException("The width of layer2 (" + layer2.getWidth() + ") is not twice as big as the height (" + layer2.getHeight() + ")");
         }
     }
+
+    public void validateExportVersion(int version) {
+        // At the moment, armor textures don't have any version-dependant properties
+    }
 }

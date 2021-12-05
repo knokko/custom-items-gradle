@@ -62,4 +62,8 @@ public abstract class ProjectileEffectValues extends ModelValues {
     public abstract ProjectileEffectValues copy(boolean mutable);
 
     public abstract void validate(SItemSet itemSet) throws ValidationException, ProgrammingValidationException;
+
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        // Most projectile effects don't need this
+    }
 }

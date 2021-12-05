@@ -152,4 +152,8 @@ public class SlotDisplayValues extends ModelValues {
         if (amount < 1) throw new ValidationException("Amount must be positive");
         if (amount > 64) throw new ValidationException("Amount can be at most 64");
     }
+
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        displayItem.validateExportVersion(version);
+    }
 }

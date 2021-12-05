@@ -1,5 +1,6 @@
 package nl.knokko.customitems.recipe.result;
 
+import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.encoding.RecipeEncoding;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.itemset.SItemSet;
@@ -149,5 +150,15 @@ public class DataVanillaResultValues extends ResultValues {
     @Override
     public void validateComplete(SItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         validateIndependent();
+    }
+
+    @Override
+    public void validateExportVersion(int version) throws ValidationException {
+        if (version < material.firstVersion) {
+            throw new ValidationException(material + " doesn't exist yet in mc " + MCVersions.createString(version));
+        }
+        if (version > material.lastVersion) {
+            throw new ValidationException(material + " was renamed after mc " + MCVersions.createString(material.lastVersion));
+        }
     }
 }

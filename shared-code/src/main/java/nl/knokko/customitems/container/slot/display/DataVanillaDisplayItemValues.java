@@ -1,5 +1,6 @@
 package nl.knokko.customitems.container.slot.display;
 
+import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -96,5 +97,15 @@ public class DataVanillaDisplayItemValues extends SlotDisplayItemValues {
         if (material == null) throw new ProgrammingValidationException("No material");
         if (dataValue < 0) throw new ValidationException("Data value can't be negative");
         if (dataValue > 15) throw new ValidationException("Data value can be at most 15");
+    }
+
+    @Override
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        if (version < material.firstVersion) {
+            throw new ValidationException(material + " doesn't exist yet in mc " + MCVersions.createString(version));
+        }
+        if (version > material.lastVersion) {
+            throw new ValidationException(material + " was renamed after " + MCVersions.createString(material.lastVersion));
+        }
     }
 }

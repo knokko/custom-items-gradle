@@ -1,5 +1,6 @@
 package nl.knokko.customitems.texture;
 
+import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -127,5 +128,12 @@ public class CrossbowTextureValues extends BaseTextureValues {
         }
         Validation.scope("Arrow image", () -> validateImage(this.arrowImage));
         Validation.scope("Firework image", () -> validateImage(this.fireworkImage));
+    }
+
+    @Override
+    public void validateExportVersion(int version) throws ValidationException {
+        if (version < MCVersions.VERSION1_14) {
+            throw new ValidationException("Minecraft " + MCVersions.createString(version) + " doesn't have crossbows");
+        }
     }
 }

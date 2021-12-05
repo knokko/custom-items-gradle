@@ -1,5 +1,6 @@
 package nl.knokko.customitems.recipe.ingredient;
 
+import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.recipe.result.ResultValues;
@@ -148,5 +149,17 @@ public class SimpleVanillaIngredientValues extends IngredientValues {
         if (amount > 64) throw new ValidationException("Amount can be at most 64");
         if (material == null) throw new ValidationException("You need to choose a material");
         if (material == CIMaterial.AIR) throw new ValidationException("Air is not allowed");
+    }
+
+    @Override
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        super.validateExportVersion(version);
+
+        if (version < material.firstVersion) {
+            throw new ValidationException(material + " doesn't exist yet in mc " + MCVersions.createString(version));
+        }
+        if (version > material.lastVersion) {
+            throw new ValidationException(material + " was renamed after mc " + MCVersions.createString(material.lastVersion));
+        }
     }
 }

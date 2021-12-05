@@ -801,6 +801,88 @@ public class SItemSet {
         return removedItemNames.contains(itemName);
     }
 
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        // Avoid annoying NullPointerException's by first doing a general validation check
+        validate();
+
+        for (BaseTextureValues texture : getTextures()) {
+            Validation.scope(
+                    "Texture " + texture.getName(),
+                    () -> texture.validateExportVersion(version)
+            );
+        }
+
+        for (ArmorTextureValues armorTexture : getArmorTextures()) {
+            Validation.scope(
+                    "Armor texture " + armorTexture.getName(),
+                    () -> armorTexture.validateExportVersion(version)
+            );
+        }
+
+        for (CustomItemValues item : getItems()) {
+            Validation.scope(
+                    "Item " + item.getName(),
+                    () -> item.validateExportVersion(version)
+            );
+        }
+
+        for (CraftingRecipeValues recipe : getCraftingRecipes()) {
+            Validation.scope(
+                    "Recipe for " + recipe.getResult(),
+                    () -> recipe.validateExportVersion(version)
+            );
+        }
+
+        for (BlockDropValues blockDrop : getBlockDrops()) {
+            Validation.scope(
+                    "Block drop for " + blockDrop.getBlockType(),
+                    () -> blockDrop.validateExportVersion(version)
+            );
+        }
+
+        for (MobDropValues mobDrop : getMobDrops()) {
+            Validation.scope(
+                    "Mob drop for " + mobDrop.getEntityType(),
+                    () -> mobDrop.validateExportVersion(version)
+            );
+        }
+
+        for (CustomProjectileValues projectile : getProjectiles()) {
+            Validation.scope(
+                    "Projectile " + projectile.getName(),
+                    () -> projectile.validateExportVersion(version)
+            );
+        }
+
+        for (ProjectileCoverValues projectileCover : getProjectileCovers()) {
+            Validation.scope(
+                    "Projectile cover " + projectileCover.getName(),
+                    () -> projectileCover.validateExportVersion(version)
+            );
+        }
+
+        for (CustomContainerValues container : getContainers()) {
+            Validation.scope(
+                    "Container " + container.getName(),
+                    () -> container.validateExportVersion(version)
+            );
+        }
+
+        for (FuelRegistryValues fuelRegistry : getFuelRegistries()) {
+            Validation.scope(
+                    "Fuel registry " + fuelRegistry.getName(),
+                    () -> fuelRegistry.validateExportVersion(version)
+            );
+        }
+
+        for (CustomBlockValues block : getBlocks()) {
+            Validation.scope(
+                    "Block " + block.getName(),
+                    () -> block.validateExportVersion(version)
+            );
+        }
+    }
+
     private void validate() throws ValidationException, ProgrammingValidationException {
         for (CustomTexture texture : textures) {
             Validation.scope(
@@ -822,7 +904,7 @@ public class SItemSet {
         }
         for (CustomCraftingRecipe recipe : craftingRecipes) {
             Validation.scope(
-                    "Recipe for " + recipe.getValues().getResult().toString(),
+                    "Recipe for " + recipe.getValues().getResult(),
                     () -> recipe.getValues().validate(this, new CraftingRecipeReference(recipe))
             );
         }

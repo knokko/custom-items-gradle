@@ -130,6 +130,12 @@ public class OutputTableValues extends ModelValues {
         }
     }
 
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        for (Entry entry : entries) {
+            entry.result.validateExportVersion(version);
+        }
+    }
+
     public static class Entry extends ModelValues {
 
         private static ResultValues createDefaultResult() {

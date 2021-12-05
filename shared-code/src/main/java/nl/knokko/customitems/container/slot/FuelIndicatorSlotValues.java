@@ -158,4 +158,10 @@ public class FuelIndicatorSlotValues extends ContainerSlotValues {
             throw new ValidationException("Indicator end can be at most " + IndicatorDomain.MAX);
         }
     }
+
+    @Override
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        Validation.scope("Display", () -> display.validateExportVersion(version));
+        Validation.scope("Placeholder", () -> placeholder.validateExportVersion(version));
+    }
 }

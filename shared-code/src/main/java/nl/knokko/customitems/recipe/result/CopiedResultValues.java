@@ -120,4 +120,9 @@ public class CopiedResultValues extends ResultValues {
     public void validateComplete(SItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         validateIndependent();
     }
+
+    @Override
+    public void validateExportVersion(int version) throws ValidationException {
+        // Checking this kind of result is too difficult
+    }
 }

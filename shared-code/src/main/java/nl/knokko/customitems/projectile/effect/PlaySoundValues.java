@@ -1,5 +1,6 @@
 package nl.knokko.customitems.projectile.effect;
 
+import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.sound.CISound;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -119,5 +120,15 @@ public class PlaySoundValues extends ProjectileEffectValues {
         if (sound == null) throw new ProgrammingValidationException("No sound");
         if (volume <= 0f) throw new ValidationException("Volume must be positive");
         if (pitch <= 0f) throw new ValidationException("Pitch must be positive");
+    }
+
+    @Override
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        if (version < sound.firstVersion) {
+            throw new ValidationException(sound + " doesn't exist yet in mc " + MCVersions.createString(version));
+        }
+        if (version > sound.lastVersion) {
+            throw new ValidationException(sound + " doesn't exist anymore in mc " + MCVersions.createString(version));
+        }
     }
 }

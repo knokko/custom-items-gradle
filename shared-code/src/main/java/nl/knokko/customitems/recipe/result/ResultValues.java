@@ -53,4 +53,6 @@ public abstract class ResultValues extends ModelValues  {
     public abstract void validateIndependent() throws ValidationException, ProgrammingValidationException;
 
     public abstract void validateComplete(SItemSet itemSet) throws ValidationException, ProgrammingValidationException;
+
+    public abstract void validateExportVersion(int version) throws ValidationException;
 }

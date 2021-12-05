@@ -1,5 +1,6 @@
 package nl.knokko.customitems.item;
 
+import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.effect.PotionEffectValues;
 import nl.knokko.customitems.encoding.ItemEncoding;
 import nl.knokko.customitems.itemset.SItemSet;
@@ -243,5 +244,19 @@ public class CustomFoodValues extends CustomItemValues {
         if (soundPeriod < 1) throw new ValidationException("Sound period must be positive");
         if (maxStacksize < 1) throw new ValidationException("Maximum stacksize must be positive");
         if (maxStacksize > 64) throw new ValidationException("Maximum stacksize can be at most 64");
+    }
+
+    @Override
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        for (PotionEffectValues effect : eatEffects) {
+            Validation.scope("Eat effects", () -> effect.validateExportVersion(version));
+        }
+
+        if (version < eatSound.firstVersion) {
+            throw new ValidationException(eatSound + " doesn't exist yet in mc " + MCVersions.createString(version));
+        }
+        if (version > eatSound.lastVersion) {
+            throw new ValidationException(eatSound + " doesn't exist anymore in mc " + MCVersions.createString(version));
+        }
     }
 }

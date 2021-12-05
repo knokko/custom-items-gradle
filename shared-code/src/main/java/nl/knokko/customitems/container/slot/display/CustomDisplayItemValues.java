@@ -85,4 +85,9 @@ public class CustomDisplayItemValues extends SlotDisplayItemValues {
         if (customItem == null) throw new ValidationException("You need to choose an item");
         if (!itemSet.isReferenceValid(customItem)) throw new ProgrammingValidationException("Item is no longer valid");
     }
+
+    @Override
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        // Custom display items don't rely on the MC version
+    }
 }

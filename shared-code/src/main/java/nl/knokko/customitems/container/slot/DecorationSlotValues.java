@@ -92,4 +92,9 @@ public class DecorationSlotValues extends ContainerSlotValues {
         if (display == null) throw new ProgrammingValidationException("No slot display");
         display.validate(itemSet);
     }
+
+    @Override
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        display.validateExportVersion(version);
+    }
 }

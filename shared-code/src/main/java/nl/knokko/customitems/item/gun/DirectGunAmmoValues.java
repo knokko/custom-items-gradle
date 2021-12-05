@@ -6,6 +6,7 @@ import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
+import nl.knokko.customitems.util.Validation;
 import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
@@ -79,6 +80,11 @@ public class DirectGunAmmoValues extends GunAmmoValues {
         validateIndependent();
 
         ammoItem.validateComplete(itemSet);
+    }
+
+    @Override
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        ammoItem.validateExportVersion(version);
     }
 
     public void setAmmoItem(IngredientValues newAmmoItem) {

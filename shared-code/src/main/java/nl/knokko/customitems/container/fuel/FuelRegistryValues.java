@@ -115,4 +115,10 @@ public class FuelRegistryValues extends ModelValues {
             Validation.scope("Fuel entry", entry::validate, itemSet);
         }
     }
+
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        for (FuelEntryValues entry : entries) {
+            Validation.scope("Fuel entry", () -> entry.getFuel().validateExportVersion(version));
+        }
+    }
 }

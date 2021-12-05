@@ -67,4 +67,8 @@ public abstract class CraftingRecipeValues extends ModelValues {
         if (result == null) throw new ProgrammingValidationException("No result");
         Validation.scope("Result", () -> result.validateComplete(itemSet));
     }
+
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        Validation.scope("Result", () -> result.validateExportVersion(version));
+    }
 }

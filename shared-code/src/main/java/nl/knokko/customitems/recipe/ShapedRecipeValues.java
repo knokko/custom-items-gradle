@@ -151,4 +151,12 @@ public class ShapedRecipeValues extends CraftingRecipeValues {
             }
         }
     }
+
+    @Override
+    public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        super.validateExportVersion(version);
+        for (IngredientValues ingredient : ingredients) {
+            Validation.scope("Ingredients", () -> ingredient.validateExportVersion(version));
+        }
+    }
 }
