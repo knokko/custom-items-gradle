@@ -18,7 +18,7 @@ public abstract class CollectionView<M extends Model<V>, V extends ModelValues> 
 
     @Override
     public Iterator<V> iterator() {
-        return new CollectionViewIterator<M, V>(liveCollection.iterator());
+        return new CollectionViewIterator<>(liveCollection.iterator());
     }
 
     public int size() {
