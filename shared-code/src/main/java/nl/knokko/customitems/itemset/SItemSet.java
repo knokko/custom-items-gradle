@@ -9,9 +9,9 @@ import nl.knokko.customitems.container.fuel.FuelRegistryValues;
 import nl.knokko.customitems.container.fuel.SFuelRegistry;
 import nl.knokko.customitems.drops.*;
 import nl.knokko.customitems.encoding.SetEncoding;
-import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.item.CustomItemsView;
-import nl.knokko.customitems.item.SCustomItem;
+import nl.knokko.customitems.item.*;
+import nl.knokko.customitems.item.durability.ItemDurabilityAssignments;
+import nl.knokko.customitems.item.durability.ItemDurabilityClaim;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 import nl.knokko.customitems.projectile.CustomProjectilesView;
 import nl.knokko.customitems.projectile.SCustomProjectile;
@@ -30,10 +30,7 @@ import nl.knokko.util.bits.BitOutput;
 import nl.knokko.util.bits.ByteArrayBitInput;
 import nl.knokko.util.bits.ByteArrayBitOutput;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class SItemSet {
@@ -107,6 +104,71 @@ public class SItemSet {
         removedItemNames = new ArrayList<>();
 
         finishedLoading = true;
+    }
+
+    public Map<CustomItemType, ItemDurabilityAssignments> assignInternalItemDamages() throws ValidationException {
+        Map<CustomItemType, ItemDurabilityAssignments> assignmentMap = new EnumMap<>(CustomItemType.class);
+
+        for (SCustomItem itemModel : items) {
+            CustomItemValues item = itemModel.cloneValues();
+            CustomItemType itemType = item.getItemType();
+            ItemDurabilityAssignments assignments = assignmentMap.get(itemType);
+            if (assignments == null) {
+                assignments = new ItemDurabilityAssignments();
+                assignmentMap.put(itemType, assignments);
+            }
+
+            boolean canReuseModel = item.getCustomModel() == null && itemType.hasSimpleModel;
+            boolean reuseExistingModel = false;
+            if (canReuseModel) {
+                Short existingItemDamage = assignments.textureReuseMap.get(item.getTexture().getName());
+                if (existingItemDamage != null) {
+                    item.setItemDamage(existingItemDamage);
+                    reuseExistingModel = true;
+                }
+            }
+
+            if (!reuseExistingModel) {
+                short nextItemDamage = assignments.getNextItemDamage(itemType);
+                item.setItemDamage(nextItemDamage);
+
+                String resourcePath = "customitems/" + item.getName();
+
+                List<BowTextureEntry> pullTextures = null;
+                if (itemType == CustomItemType.BOW) {
+                    pullTextures = ((BowTextureValues) item.getTexture()).getPullTextures();
+                } else if (itemType == CustomItemType.CROSSBOW) {
+                    pullTextures = ((CrossbowTextureValues) item.getTexture()).getPullTextures();
+                }
+
+                assignments.claimList.add(new ItemDurabilityClaim(resourcePath, pullTextures));
+
+                if (canReuseModel) {
+                    assignments.textureReuseMap.put(item.getTexture().getName(), nextItemDamage);
+                }
+            }
+
+            itemModel.setValues(item);
+        }
+
+        for (SProjectileCover coverModel : projectileCovers) {
+            ProjectileCoverValues cover = coverModel.cloneValues();
+            CustomItemType itemType = cover.getItemType();
+
+            ItemDurabilityAssignments assignments = assignmentMap.get(itemType);
+            if (assignments == null) {
+                assignments = new ItemDurabilityAssignments();
+                assignmentMap.put(itemType, assignments);
+            }
+
+            cover.setItemDamage(assignments.getNextItemDamage(itemType));
+            String resourcePath = "customprojectiles/" + cover.getName();
+            assignments.claimList.add(new ItemDurabilityClaim(resourcePath, null));
+
+            coverModel.setValues(cover);
+        }
+
+        return assignmentMap;
     }
 
     public void save(BitOutput output, Side targetSide) {

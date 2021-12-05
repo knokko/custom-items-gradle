@@ -8,6 +8,5 @@ ItemSet:
  - Keep the functions that generate the default model for each type of custom item
  - Keep the resourcepack generation functions (but refactor to another class)
  - Keep the checks for the supported MC version of all objects upon exporting
- - Keep the last-minute assignment of internal item damage to all custom items and projectile covers
  - Keep the functions that create the additional files like .zip and .txt
  - Keep the automatic back-up system
