@@ -368,10 +368,6 @@ public class CustomToolValues extends CustomItemValues {
             throw new ValidationException("Max durability must be positive or -1");
         }
 
-        // TODO Watch the automatic conversion from & to §
-        if (allowAnvilActions && displayName.contains("§")) {
-            throw new ValidationException("You can't allow anvil actions if the display name contains color codes");
-        }
         if (allowEnchanting && !defaultEnchantments.isEmpty()) {
             throw new ValidationException("You can't allow enchanting if the tool has default enchantments");
         }

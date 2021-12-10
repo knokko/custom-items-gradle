@@ -4,7 +4,6 @@ identity.
 
 Editor object model:
 ItemSet:
- - Keep the bypassChecks() option? (control shift) Perhaps allow it only in some cases?
  - Keep the functions that generate the default model for each type of custom item
  - Keep the resourcepack generation functions (but refactor to another class)
  - Keep the functions that create the additional files like .zip and .txt
