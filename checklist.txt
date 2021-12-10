@@ -1,6 +1,7 @@
 - Check the positive compatibility page to see if any third-party plug-ins will break due to this refactoring.
 - Get rid of all the == checks between custom item values (and between other model values) since they don't have an
 identity.
+- Remove the bypass checks option from the documentation
 
 Editor object model:
 ItemSet:
