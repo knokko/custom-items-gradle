@@ -2,6 +2,7 @@ package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.encoding.ItemEncoding;
 import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.texture.CrossbowTextureValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -165,6 +166,11 @@ public class CustomCrossbowValues extends CustomToolValues {
         output.addBoolean(arrowGravity);
     }
 
+    @Override
+    public CrossbowTextureValues getTexture() {
+        return (CrossbowTextureValues) super.getTexture();
+    }
+
     public int getArrowDurabilityLoss() {
         return arrowDurabilityLoss;
     }
@@ -195,6 +201,13 @@ public class CustomCrossbowValues extends CustomToolValues {
 
     public boolean hasArrowGravity() {
         return arrowGravity;
+    }
+
+    @Override
+    public void setTexture(TextureReference newTexture) {
+        if (!(newTexture.get() instanceof CrossbowTextureValues)) {
+            throw new IllegalArgumentException("Only crossbow textures are allowed");
+        }
     }
 
     public void setArrowDurabilityLoss(int newArrowDurabilityLoss) {

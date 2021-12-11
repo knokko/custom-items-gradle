@@ -141,7 +141,7 @@ public class SItemSet {
                     pullTextures = ((CrossbowTextureValues) item.getTexture()).getPullTextures();
                 }
 
-                assignments.claimList.add(new ItemDurabilityClaim(resourcePath, pullTextures));
+                assignments.claimList.add(new ItemDurabilityClaim(resourcePath, nextItemDamage, pullTextures));
 
                 if (canReuseModel) {
                     assignments.textureReuseMap.put(item.getTexture().getName(), nextItemDamage);
@@ -161,9 +161,10 @@ public class SItemSet {
                 assignmentMap.put(itemType, assignments);
             }
 
-            cover.setItemDamage(assignments.getNextItemDamage(itemType));
+            short itemDamage = assignments.getNextItemDamage(itemType);
+            cover.setItemDamage(itemDamage);
             String resourcePath = "customprojectiles/" + cover.getName();
-            assignments.claimList.add(new ItemDurabilityClaim(resourcePath, null));
+            assignments.claimList.add(new ItemDurabilityClaim(resourcePath, itemDamage, null));
 
             coverModel.setValues(cover);
         }

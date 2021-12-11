@@ -2,6 +2,7 @@ package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.encoding.ItemEncoding;
 import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.texture.BowTextureValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -256,6 +257,11 @@ public class CustomBowValues extends CustomToolValues {
         return new CustomBowValues(this, mutable);
     }
 
+    @Override
+    public BowTextureValues getTexture() {
+        return (BowTextureValues) super.getTexture();
+    }
+
     public double getDamageMultiplier() {
         return damageMultiplier;
     }
@@ -274,6 +280,14 @@ public class CustomBowValues extends CustomToolValues {
 
     public int getShootDurabilityLoss() {
         return shootDurabilityLoss;
+    }
+
+    @Override
+    public void setTexture(TextureReference newTexture) {
+        if (!(newTexture.get() instanceof BowTextureValues)) {
+            throw new IllegalArgumentException("Only bow textures are allowed");
+        }
+        super.setTexture(newTexture);
     }
 
     public void setDamageMultiplier(double newDamageMultiplier) {
@@ -304,6 +318,10 @@ public class CustomBowValues extends CustomToolValues {
     @Override
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {
         super.validateIndependent();
+
+        if (!(texture.get() instanceof BowTextureValues)) {
+            throw new ProgrammingValidationException("Texture must be a bow texture");
+        }
 
         if (damageMultiplier < 0.0) throw new ValidationException("Damage multiplier can't be negative");
         // Note: having a negative speed multiplier or knockback strength is allowed
