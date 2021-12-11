@@ -2,8 +2,3 @@
 - Get rid of all the == checks between custom item values (and between other model values) since they don't have an
 identity.
 - Remove the bypass checks option from the documentation
-
-Editor object model:
-ItemSet:
- - Keep the functions that create the additional files like .zip and .txt
- - Keep the automatic back-up system
