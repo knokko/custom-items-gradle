@@ -2,12 +2,14 @@ package nl.knokko.customitems.editor.menu.edit.block;
 
 import nl.knokko.customitems.block.BlockConstants;
 import nl.knokko.customitems.block.CustomBlockValues;
-import nl.knokko.customitems.block.CustomBlockView;
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.main.MainMenu;
-import nl.knokko.customitems.editor.set.ItemSet;
 import nl.knokko.customitems.editor.util.HelpButtons;
+import nl.knokko.customitems.editor.util.Validation;
+import nl.knokko.customitems.itemset.BlockReference;
+import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.texture.BaseTextureValues;
 import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -21,13 +23,13 @@ import java.net.URL;
 
 public class EditBlock extends GuiMenu  {
 
-    private final CustomBlockView toModify;
+    private final BlockReference toModify;
     private final CustomBlockValues currentValues;
 
     private final GuiComponent returnMenu;
-    private final ItemSet set;
+    private final SItemSet set;
 
-    public EditBlock(CustomBlockView blockToModify, CustomBlockValues valuesToModify, GuiComponent returnMenu, ItemSet set) {
+    public EditBlock(BlockReference blockToModify, CustomBlockValues valuesToModify, GuiComponent returnMenu, SItemSet set) {
         this.toModify = blockToModify;
         this.currentValues = valuesToModify;
         this.returnMenu = returnMenu;
@@ -44,12 +46,10 @@ public class EditBlock extends GuiMenu  {
         addComponent(errorComponent, 0.025f, 0.9f, 0.975f, 1f);
 
         addComponent(new DynamicTextButton(toModify == null ? "Create" : "Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-            String error;
-            if (toModify == null) {
-                error = set.addBlock(currentValues);
-            } else {
-                error = set.changeBlock(toModify, currentValues);
-            }
+            String error = Validation.toErrorString(() -> {
+                if (toModify == null) set.addBlock(currentValues);
+                else set.changeBlock(toModify, currentValues);
+            });
 
             if (error == null) {
                 state.getWindow().setMainComponent(returnMenu);
@@ -75,11 +75,11 @@ public class EditBlock extends GuiMenu  {
         addComponent(new DynamicTextComponent("Texture:", EditProps.LABEL),
                 0.3f, 0.5f, 0.44f, 0.6f);
         addComponent(CollectionSelect.createButton(
-                set.getBackingTextures(),
+                set.getTextures().references(),
                 currentValues::setTexture,
-                candidateTexture -> candidateTexture.getClass() == NamedImage.class,
-                NamedImage::getName,
-                currentValues.getTexture()
+                candidateTexture -> candidateTexture.get().getClass() == BaseTextureValues.class,
+                textureReference -> textureReference.get().getName(),
+                currentValues.getTextureReference()
         ), 0.45f, 0.5f, 0.6f, 0.6f);
 
         addComponent(new DynamicTextComponent(

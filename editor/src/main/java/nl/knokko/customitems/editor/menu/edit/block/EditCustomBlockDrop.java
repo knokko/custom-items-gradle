@@ -5,7 +5,7 @@ import nl.knokko.customitems.block.drop.SilkTouchRequirement;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.menu.edit.container.recipe.EditOutputTable;
-import nl.knokko.customitems.editor.set.ItemSet;
+import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
@@ -21,12 +21,12 @@ public class EditCustomBlockDrop extends GuiMenu  {
 
     private final CustomBlockDrop currentDrop;
 
-    private final ItemSet set;
+    private final SItemSet set;
     private final GuiComponent returnMenu;
     private final Consumer<CustomBlockDrop> onDone;
 
     public EditCustomBlockDrop(
-            CustomBlockDrop startValues, ItemSet set, GuiComponent returnMenu, Consumer<CustomBlockDrop> onDone
+            CustomBlockDrop startValues, SItemSet set, GuiComponent returnMenu, Consumer<CustomBlockDrop> onDone
     ) {
         Checks.nonNull(startValues, set, returnMenu);
         this.currentDrop = new CustomBlockDrop(startValues, true);
@@ -45,7 +45,7 @@ public class EditCustomBlockDrop extends GuiMenu  {
         addComponent(errorComponent, 0.025f, 0.9f, 0.975f, 1f);
 
         addComponent(new DynamicTextButton("Done", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-            String error = Validation.toErrorString(() -> currentDrop.validateComplete(set.getBackingItems()));
+            String error = Validation.toErrorString(() -> currentDrop.validateComplete(set));
             if (error == null) {
                 onDone.accept(currentDrop);
                 state.getWindow().setMainComponent(returnMenu);

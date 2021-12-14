@@ -7,7 +7,8 @@ import java.util.function.Consumer;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.item.CustomItem;
+import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -17,10 +18,10 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 public class ChooseRequiredHeldItems extends GuiMenu {
 	
-	private final Collection<CustomItem> selectedItems;
-	private final Collection<CustomItem> selectableItems;
+	private final Collection<ItemReference> selectedItems;
+	private final Collection<ItemReference> selectableItems;
 	
-	private final Consumer<Collection<CustomItem>> onSelect;
+	private final Consumer<Collection<ItemReference>> onSelect;
 	private final GuiComponent returnMenu;
 	private final String noSelectionString;
 	
@@ -31,13 +32,16 @@ public class ChooseRequiredHeldItems extends GuiMenu {
 	private String previousSearchText;
 	
 	public ChooseRequiredHeldItems(
-			Collection<nl.knokko.customitems.editor.set.item.CustomItem> allItems, 
-			Collection<CustomItem> selectedItems,
-			Consumer<Collection<CustomItem>> onSelect,
+			SItemSet itemSet,
+			Collection<ItemReference> selectedItems,
+			Consumer<Collection<ItemReference>> onSelect,
 			GuiComponent returnMenu, String noSelectionString
 	) {
 		this.selectedItems = new ArrayList<>(selectedItems);
-		this.selectableItems = new ArrayList<>(allItems);
+		this.selectableItems = new ArrayList<>(itemSet.getItems().size());
+		for (ItemReference item : itemSet.getItems().references()) {
+			selectableItems.add(item);
+		}
 		this.selectableItems.removeAll(selectedItems);
 		
 		this.onSelect = onSelect;
@@ -100,12 +104,12 @@ public class ChooseRequiredHeldItems extends GuiMenu {
 		@Override
 		protected void addComponents() {
 			int index = 0;
-			for (CustomItem selectable : selectableItems) {
+			for (ItemReference selectable : selectableItems) {
 				if (
-						selectable.getName().toLowerCase(Locale.ROOT)
+						selectable.get().getName().toLowerCase(Locale.ROOT)
 						.contains(searchField.getText().toLowerCase(Locale.ROOT))
 				) {
-					addComponent(new DynamicTextButton(selectable.getName(), 
+					addComponent(new DynamicTextButton(selectable.get().getName(),
 							EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
 						selectableItems.remove(selectable);
 						selectedItems.add(selectable);
@@ -132,8 +136,8 @@ public class ChooseRequiredHeldItems extends GuiMenu {
 		@Override
 		protected void addComponents() {
 			int index = 0;
-			for (CustomItem selected : selectedItems) {
-				addComponent(new DynamicTextButton(selected.getName(), 
+			for (ItemReference selected : selectedItems) {
+				addComponent(new DynamicTextButton(selected.get().getName(),
 						EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
 					selectedItems.remove(selected);
 					selectableItems.add(selected);

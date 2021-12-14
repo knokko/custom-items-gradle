@@ -3,9 +3,9 @@ package nl.knokko.customitems.editor.menu.edit.block;
 import nl.knokko.customitems.block.drop.RequiredItems;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.drops.ChooseRequiredHeldItems;
-import nl.knokko.customitems.editor.set.ItemSet;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
+import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
@@ -21,12 +21,12 @@ public class EditRequiredItems extends GuiMenu  {
     private final RequiredItems requiredItems;
 
     private final Consumer<RequiredItems> changeRequiredItems;
-    private final ItemSet set;
+    private final SItemSet set;
     private final GuiComponent returnMenu;
 
     public EditRequiredItems(
             RequiredItems oldItems, Consumer<RequiredItems> changeRequiredItems,
-            ItemSet set, GuiComponent returnMenu
+            SItemSet set, GuiComponent returnMenu
     ) {
         this.requiredItems = new RequiredItems(oldItems, true);
         this.changeRequiredItems = changeRequiredItems;
@@ -44,7 +44,7 @@ public class EditRequiredItems extends GuiMenu  {
         addComponent(errorComponent, 0.025f, 0.9f, 0.975f, 1f);
 
         addComponent(new DynamicTextButton("Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-            String error = Validation.toErrorString(() -> requiredItems.validateComplete(set.getBackingItems()));
+            String error = Validation.toErrorString(() -> requiredItems.validateComplete(set));
             if (error == null) {
                 changeRequiredItems.accept(requiredItems);
                 state.getWindow().setMainComponent(returnMenu);
@@ -82,7 +82,7 @@ public class EditRequiredItems extends GuiMenu  {
                     0.1f, 0.8f, 0.35f, 0.9f);
             addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () ->
                     state.getWindow().setMainComponent(new ChooseRequiredHeldItems(
-                            set.getBackingItems(), requiredItems.getCustomItems(),
+                            set, requiredItems.getCustomItems(),
                             requiredItems::setCustomItems, EditRequiredItems.this,
                             "Custom items are irrelevant"
                     ))

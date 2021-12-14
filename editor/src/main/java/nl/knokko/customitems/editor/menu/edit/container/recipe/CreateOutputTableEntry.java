@@ -4,10 +4,11 @@ import java.util.function.Consumer;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.recipe.result.ChooseResult;
-import nl.knokko.customitems.editor.set.ItemSet;
-import nl.knokko.customitems.editor.set.recipe.result.Result;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.recipe.OutputTable.Entry;
+import nl.knokko.customitems.editor.util.Validation;
+import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.recipe.OutputTableValues;
+import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -19,11 +20,11 @@ import nl.knokko.gui.util.Option;
 public class CreateOutputTableEntry extends GuiMenu {
 	
 	private final GuiComponent returnMenu;
-	private final Consumer<Entry> onCreate;
-	private final ItemSet set;
+	private final Consumer<OutputTableValues.Entry> onCreate;
+	private final SItemSet set;
 	
 	public CreateOutputTableEntry(
-			GuiComponent returnMenu, Consumer<Entry> onCreate, ItemSet set) {
+			GuiComponent returnMenu, Consumer<OutputTableValues.Entry> onCreate, SItemSet set) {
 		this.returnMenu = returnMenu;
 		this.onCreate = onCreate;
 		this.set = set;
@@ -45,7 +46,7 @@ public class CreateOutputTableEntry extends GuiMenu {
 		addComponent(new DynamicTextComponent("%", EditProps.LABEL), 0.4f, 0.6f, 0.42f, 0.7f);
 		
 		addComponent(new DynamicTextComponent("Item: ", EditProps.LABEL), 0.2f, 0.4f, 0.3f, 0.5f);
-		Result[] pResult = {null};
+		ResultValues[] pResult = {null};
 		addComponent(new DynamicTextButton("Choose...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new ChooseResult(
 					this, newResult -> pResult[0] = newResult, set
@@ -63,9 +64,15 @@ public class CreateOutputTableEntry extends GuiMenu {
 				errorComponent.setText("The chance must be an integer between 1 and 100");
 				return;
 			}
-			
-			onCreate.accept(new Entry(pResult[0], chance.getValue()));
-			state.getWindow().setMainComponent(returnMenu);
+
+			OutputTableValues.Entry entry = OutputTableValues.Entry.createQuick(pResult[0], chance.getValue());
+			String error = Validation.toErrorString(() -> entry.validate(set));
+			if (error == null) {
+				onCreate.accept(entry);
+				state.getWindow().setMainComponent(returnMenu);
+			} else {
+				errorComponent.setText(error);
+			}
 		}), 0.025f, 0.1f, 0.15f, 0.2f);
 		
 		HelpButtons.addHelpLink(this, "edit menu/recipes/output table entry.html");

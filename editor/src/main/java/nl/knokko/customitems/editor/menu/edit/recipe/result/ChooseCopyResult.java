@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.set.recipe.result.CopiedResult;
+import nl.knokko.customitems.recipe.result.CopiedResultValues;
 import nl.knokko.customitems.util.StringEncoder;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -21,11 +21,11 @@ import nl.knokko.gui.keycode.KeyCode;
 public class ChooseCopyResult extends GuiMenu {
 	
 	private final GuiComponent cancelMenu;
-	private final Consumer<CopiedResult> onChoose;
+	private final Consumer<CopiedResultValues> onChoose;
 	
 	private final DynamicTextComponent errorComponent;
 	
-	public ChooseCopyResult(GuiComponent cancelMenu, Consumer<CopiedResult> onChoose) {
+	public ChooseCopyResult(GuiComponent cancelMenu, Consumer<CopiedResultValues> onChoose) {
 		this.cancelMenu = cancelMenu;
 		this.onChoose = onChoose;
 		this.errorComponent = new DynamicTextComponent("", EditProps.ERROR);
@@ -89,7 +89,7 @@ public class ChooseCopyResult extends GuiMenu {
 					}
 					try {
 						StringEncoder.decode(code);
-						onChoose.accept(new CopiedResult(code));
+						onChoose.accept(CopiedResultValues.createQuick(code));
 					} catch (IllegalArgumentException badCode) {
 						errorComponent.setText("It looks like you don't have a valid code on your clipboard");
 						System.err.println(badCode.getMessage());

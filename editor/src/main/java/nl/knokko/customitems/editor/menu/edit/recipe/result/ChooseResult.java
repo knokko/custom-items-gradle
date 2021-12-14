@@ -27,14 +27,14 @@ import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.select.item.SelectCustomItem;
 import nl.knokko.customitems.editor.menu.edit.select.item.SelectDataVanillaItem;
 import nl.knokko.customitems.editor.menu.edit.select.item.SelectSimpleVanillaItem;
-import nl.knokko.customitems.editor.set.ItemSet;
-import nl.knokko.customitems.editor.set.item.CustomItem;
-import nl.knokko.customitems.editor.set.recipe.result.CustomItemResult;
-import nl.knokko.customitems.editor.set.recipe.result.DataVanillaResult;
-import nl.knokko.customitems.editor.set.recipe.result.Result;
-import nl.knokko.customitems.editor.set.recipe.result.SimpleVanillaResult;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.CIMaterial;
+import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.recipe.result.CustomItemResultValues;
+import nl.knokko.customitems.recipe.result.DataVanillaResultValues;
+import nl.knokko.customitems.recipe.result.ResultValues;
+import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -43,19 +43,22 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import nl.knokko.gui.component.text.TextEditField;
 
+import java.util.function.Consumer;
+
 public class ChooseResult extends GuiMenu {
 	
-	private final ResultListener listener;
+	private final Consumer<ResultValues> listener;
 	private final GuiComponent returnMenu;
-	private final ItemSet set;
+	private final SItemSet set;
 	
 	private final DynamicTextComponent errorComponent;
 	private final TextEditField amountField;
 	
-	private Result current;
+	private ResultValues current;
+	private Consumer<Byte> setAmount;
 
-	public ChooseResult(GuiComponent returnMenu, ResultListener listener, 
-			ItemSet set) {
+	public ChooseResult(GuiComponent returnMenu, Consumer<ResultValues> listener,
+			SItemSet set) {
 		this.listener = listener;
 		this.returnMenu = returnMenu;
 		this.set = set;
@@ -75,26 +78,29 @@ public class ChooseResult extends GuiMenu {
 			state.getWindow().setMainComponent(returnMenu);
 		}), 0.2f, 0.3f, 0.35f, 0.4f);
 		addComponent(new DynamicTextButton("Custom Item", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new SelectCustomItem(this, (CustomItem item) -> {
+			state.getWindow().setMainComponent(new SelectCustomItem(this, (ItemReference item) -> {
 				// Fix the amount with the Choose button
-				current = new CustomItemResult(item, (byte) 1);
+				current = CustomItemResultValues.createQuick(item, 1);
+				setAmount = ((CustomItemResultValues)current)::setAmount;
 			}, set));
 		}), 0.6f, 0.7f, 0.8f, 0.8f);
 		addComponent(new DynamicTextButton("Simple vanilla item", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new SelectSimpleVanillaItem(this, (CIMaterial material) -> {
 				// Fix the amount with the Choose button
-				current = new SimpleVanillaResult(material, (byte) 1);
+				current = SimpleVanillaResultValues.createQuick(material, 1);
+				setAmount = ((SimpleVanillaResultValues)current)::setAmount;
 			}, false));
 		}), 0.6f, 0.55f, 0.8f, 0.65f);
 		addComponent(new DynamicTextButton("Vanilla item with datavalue", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new SelectDataVanillaItem(this, (CIMaterial material, byte data) -> {
 				// Fix the amount with the Choose button
-				current = new DataVanillaResult(material, data, (byte) 1);
+				current = DataVanillaResultValues.createQuick(material, data, 1);
+				setAmount = ((DataVanillaResultValues)current)::setAmount;
 			}));
 		}), 0.6f, 0.4f, 0.8f, 0.5f);
 		addComponent(new DynamicTextButton("Copy from server", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new ChooseCopyResult(this, chosenResult -> {
-				listener.onSelect(chosenResult);
+				listener.accept(chosenResult);
 				state.getWindow().setMainComponent(returnMenu);
 			}));
 		}), 0.6f, 0.25f, 0.8f, 0.35f);
@@ -104,7 +110,8 @@ public class ChooseResult extends GuiMenu {
 			try {
 				int amount = Integer.parseInt(amountField.getText());
 				if (amount > 0 && amount <= 64) {
-					listener.onSelect(current.amountClone((byte) amount));
+					setAmount.accept((byte) amount);
+					listener.accept(current);
 					state.getWindow().setMainComponent(returnMenu);
 				} else {
 					errorComponent.setText("The amount must be between 1 and 64");
@@ -112,9 +119,8 @@ public class ChooseResult extends GuiMenu {
 			} catch (NumberFormatException nfe) {
 				errorComponent.setText("The amount must be an integer.");
 			}
-		}, () -> {
-			return current != null;
-		}), 0.2f, 0.1f, 0.35f, 0.2f);
+		}, () -> current != null && setAmount != null
+		), 0.2f, 0.1f, 0.35f, 0.2f);
 		addComponent(errorComponent, 0.05f, 0.85f, 0.95f, 0.95f);
 		
 		HelpButtons.addHelpLink(this, "edit%20menu/recipes/output%20type%20select.html");

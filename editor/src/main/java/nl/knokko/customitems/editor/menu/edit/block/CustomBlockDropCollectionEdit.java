@@ -2,13 +2,17 @@ package nl.knokko.customitems.editor.menu.edit.block;
 
 import nl.knokko.customitems.block.drop.CustomBlockDrop;
 import nl.knokko.customitems.block.drop.SilkTouchRequirement;
+import nl.knokko.customitems.drops.BlockDropValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.ModelValuesCollectionEdit;
-import nl.knokko.customitems.editor.set.ItemSet;
-import nl.knokko.customitems.editor.set.item.CustomItem;
-import nl.knokko.customitems.editor.set.recipe.result.CustomItemResult;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.recipe.OutputTable;
+import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.itemset.BlockDropReference;
+import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.recipe.OutputTableValues;
+import nl.knokko.customitems.recipe.result.CustomItemResultValues;
+import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
@@ -18,12 +22,12 @@ import java.util.function.Consumer;
 
 public class CustomBlockDropCollectionEdit extends ModelValuesCollectionEdit<CustomBlockDrop> {
 
-    private final ItemSet set;
+    private final SItemSet set;
 
     public CustomBlockDropCollectionEdit(
             Collection<CustomBlockDrop> currentDrops,
             Consumer<Collection<CustomBlockDrop>> changeDrops,
-            ItemSet set, GuiComponent returnMenu
+            SItemSet set, GuiComponent returnMenu
     ) {
         super(returnMenu, currentDrops, changeDrops);
         this.set = set;
@@ -61,11 +65,11 @@ public class CustomBlockDropCollectionEdit extends ModelValuesCollectionEdit<Cus
          * an image).
          */
         int bestDropChance = 0;
-        CustomItem bestDropItem = null;
-        for (OutputTable.Entry dropEntry : drop.getItemsToDrop().getEntries()) {
-            Object droppedItem = dropEntry.getResult();
-            if (dropEntry.getChance() > bestDropChance && droppedItem instanceof CustomItemResult) {
-                CustomItemResult droppedCustomItem = (CustomItemResult) droppedItem;
+        CustomItemValues bestDropItem = null;
+        for (OutputTableValues.Entry dropEntry : drop.getItemsToDrop().getEntries()) {
+            ResultValues droppedItem = dropEntry.getResult();
+            if (dropEntry.getChance() > bestDropChance && droppedItem instanceof CustomItemResultValues) {
+                CustomItemResultValues droppedCustomItem = (CustomItemResultValues) droppedItem;
                 bestDropItem = droppedCustomItem.getItem();
                 bestDropChance = dropEntry.getChance();
             }
@@ -74,8 +78,8 @@ public class CustomBlockDropCollectionEdit extends ModelValuesCollectionEdit<Cus
             return bestDropItem.getTexture().getImage();
         }
 
-        for (Object requiredItem : drop.getRequiredItems().getCustomItems()) {
-            return ((CustomItem) requiredItem).getTexture().getImage();
+        for (ItemReference requiredItem : drop.getRequiredItems().getCustomItems()) {
+            return requiredItem.get().getTexture().getImage();
         }
 
         return null;
@@ -92,7 +96,7 @@ public class CustomBlockDropCollectionEdit extends ModelValuesCollectionEdit<Cus
 
         Object likelyResult = null;
         int bestChance = 0;
-        for (OutputTable.Entry entry : drop.getItemsToDrop().getEntries()) {
+        for (OutputTableValues.Entry entry : drop.getItemsToDrop().getEntries()) {
             if (entry.getChance() > bestChance) {
                 likelyResult = entry.getResult();
                 bestChance = entry.getChance();

@@ -1,6 +1,5 @@
 package nl.knokko.customitems.editor.menu.edit;
 
-import java.util.Collection;
 import java.util.Locale;
 
 import nl.knokko.gui.color.GuiColor;
