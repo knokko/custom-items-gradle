@@ -2,8 +2,9 @@ package nl.knokko.customitems.editor.menu.commandhelp;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.select.item.SelectCustomItem;
-import nl.knokko.customitems.editor.set.ItemSet;
-import nl.knokko.customitems.editor.set.item.CustomItem;
+import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
@@ -14,17 +15,17 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 public class HelpGive extends GuiMenu {
 
-	private final ItemSet set;
+	private final SItemSet set;
 	private final GuiComponent returnMenu;
 
 	private final WrapperComponent<SimpleImageComponent> selectedItemImage;
 	private final DynamicTextComponent infoComponent;
-	private CustomItem selectedItem;
+	private CustomItemValues selectedItem;
 
-	public HelpGive(ItemSet set, GuiComponent returnMenu) {
+	public HelpGive(SItemSet set, GuiComponent returnMenu) {
 		this.set = set;
 		this.returnMenu = returnMenu;
-		this.selectedItemImage = new WrapperComponent<SimpleImageComponent>(null);
+		this.selectedItemImage = new WrapperComponent<>(null);
 		this.infoComponent = new DynamicTextComponent("", EditProps.LABEL);
 		this.selectedItem = null;
 	}
@@ -46,10 +47,10 @@ public class HelpGive extends GuiMenu {
 				0.1f, 0.4f, 0.95f, 0.5f);
 		addComponent(selectedItemImage, 0.55f, 0.8f, 0.65f, 0.9f);
 		addComponent(new DynamicTextButton("Select item...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new SelectCustomItem(this, (CustomItem chosen) -> {
-				selectedItem = chosen;
+			state.getWindow().setMainComponent(new SelectCustomItem(this, (ItemReference chosen) -> {
+				selectedItem = chosen.get();
 				selectedItemImage.setComponent(new SimpleImageComponent(
-						state.getWindow().getTextureLoader().loadTexture(chosen.getTexture().getImage())));
+						state.getWindow().getTextureLoader().loadTexture(selectedItem.getTexture().getImage())));
 			}, set));
 		}), 0.7f, 0.8f, 0.85f, 0.9f);
 		addComponent(new DynamicTextButton("Generate for minecraft 1.12", EditProps.BUTTON, EditProps.HOVER, () -> {

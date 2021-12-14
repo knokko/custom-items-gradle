@@ -23,13 +23,13 @@
  *******************************************************************************/
 package nl.knokko.customitems.editor.menu.edit.select.item;
 
-import java.util.Collection;
 import java.util.Locale;
+import java.util.function.Consumer;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.set.ItemSet;
-import nl.knokko.customitems.editor.set.item.CustomItem;
 import nl.knokko.customitems.editor.util.HelpButtons;
+import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -40,15 +40,15 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 public class SelectCustomItem extends GuiMenu {
 	
 	private final GuiComponent returnMenu;
-	private final Receiver receiver;
-	private final ItemSet set;
+	private final SItemSet set;
+	private final Consumer<ItemReference> onSelect;
 	
 	private final TextEditField searchField;
 	private final ItemList itemList;
 
-	public SelectCustomItem(GuiComponent returnMenu, Receiver receiver, ItemSet set) {
+	public SelectCustomItem(GuiComponent returnMenu, Consumer<ItemReference> onSelect, SItemSet set) {
 		this.returnMenu = returnMenu;
-		this.receiver = receiver;
+		this.onSelect = onSelect;
 		this.set = set;
 		
 		this.searchField = new TextEditField("", EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE);
@@ -104,14 +104,14 @@ public class SelectCustomItem extends GuiMenu {
 
 		@Override
 		protected void addComponents() {
-			Collection<CustomItem> items = set.getBackingItems();
 			int index = 0;
-			for (CustomItem item : items) {
-				if (item.getName().toLowerCase(Locale.ROOT).contains(searchField.getText().toLowerCase(Locale.ROOT))) {
-					addComponent(new DynamicTextButton(item.getName(), EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-						receiver.onSelect(item);
+			for (ItemReference item : set.getItems().references()) {
+				String itemName = item.get().getName();
+				if (itemName.toLowerCase(Locale.ROOT).contains(searchField.getText().toLowerCase(Locale.ROOT))) {
+					addComponent(new DynamicTextButton(itemName, EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
+						onSelect.accept(item);
 						state.getWindow().setMainComponent(returnMenu);
-					}), 0f, 0.9f - index * 0.1f, Math.min(1f, item.getName().length() * 0.022f), 1f - index * 0.1f);
+					}), 0f, 0.9f - index * 0.1f, Math.min(1f, itemName.length() * 0.022f), 1f - index * 0.1f);
 					index++;
 				}
 			}
@@ -121,10 +121,5 @@ public class SelectCustomItem extends GuiMenu {
 		public GuiColor getBackgroundColor() {
 			return EditProps.BACKGROUND;
 		}
-	}
-	
-	public static interface Receiver {
-		
-		void onSelect(CustomItem item);
 	}
 }

@@ -2,8 +2,9 @@ package nl.knokko.customitems.editor.menu.commandhelp;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.select.item.SelectCustomItem;
-import nl.knokko.customitems.editor.set.ItemSet;
-import nl.knokko.customitems.editor.set.item.CustomItem;
+import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
@@ -17,13 +18,13 @@ import static nl.knokko.customitems.editor.menu.commandhelp.HelpSummon.getEquipm
 
 public class HelpMobSpawner extends GuiMenu {
 
-	private final ItemSet set;
+	private final SItemSet set;
 	private final GuiComponent returnMenu;
 
-	private CustomItem selectedMainHand, selectedOffHand, selectedHelmet, selectedChestplate, selectedLeggings,
+	private CustomItemValues selectedMainHand, selectedOffHand, selectedHelmet, selectedChestplate, selectedLeggings,
 			selectedBoots;
 
-	public HelpMobSpawner(ItemSet set, GuiComponent returnMenu) {
+	public HelpMobSpawner(SItemSet set, GuiComponent returnMenu) {
 		this.set = set;
 		this.returnMenu = returnMenu;
 	}
@@ -36,12 +37,12 @@ public class HelpMobSpawner extends GuiMenu {
 	@Override
 	protected void addComponents() {
 		TextComponent infoComponent = new TextComponent("", EditProps.LABEL);
-		WrapperComponent<SimpleImageComponent> mainHandImage = new WrapperComponent<SimpleImageComponent>(null);
-		WrapperComponent<SimpleImageComponent> offHandImage = new WrapperComponent<SimpleImageComponent>(null);
-		WrapperComponent<SimpleImageComponent> helmetImage = new WrapperComponent<SimpleImageComponent>(null);
-		WrapperComponent<SimpleImageComponent> chestplateImage = new WrapperComponent<SimpleImageComponent>(null);
-		WrapperComponent<SimpleImageComponent> leggingsImage = new WrapperComponent<SimpleImageComponent>(null);
-		WrapperComponent<SimpleImageComponent> bootsImage = new WrapperComponent<SimpleImageComponent>(null);
+		WrapperComponent<SimpleImageComponent> mainHandImage = new WrapperComponent<>(null);
+		WrapperComponent<SimpleImageComponent> offHandImage = new WrapperComponent<>(null);
+		WrapperComponent<SimpleImageComponent> helmetImage = new WrapperComponent<>(null);
+		WrapperComponent<SimpleImageComponent> chestplateImage = new WrapperComponent<>(null);
+		WrapperComponent<SimpleImageComponent> leggingsImage = new WrapperComponent<>(null);
+		WrapperComponent<SimpleImageComponent> bootsImage = new WrapperComponent<>(null);
 
 		addComponent(new DynamicTextButton("Back", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
 			state.getWindow().setMainComponent(returnMenu);
@@ -61,50 +62,50 @@ public class HelpMobSpawner extends GuiMenu {
 
 		// The select buttons + their images
 		addComponent(new DynamicTextButton("Select maind hand...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new SelectCustomItem(this, (CustomItem chosen) -> {
-				selectedMainHand = chosen;
+			state.getWindow().setMainComponent(new SelectCustomItem(this, (ItemReference chosen) -> {
+				selectedMainHand = chosen.get();
 				mainHandImage.setComponent(new SimpleImageComponent(
-						state.getWindow().getTextureLoader().loadTexture(chosen.getTexture().getImage())));
+						state.getWindow().getTextureLoader().loadTexture(selectedMainHand.getTexture().getImage())));
 			}, set));
 		}), 0.75f, 0.8f, 0.9f, 0.9f);
 		addComponent(mainHandImage, 0.9f, 0.8f, 1f, 0.9f);
 		addComponent(new DynamicTextButton("Select off hand...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new SelectCustomItem(this, (CustomItem chosen) -> {
-				selectedOffHand = chosen;
+			state.getWindow().setMainComponent(new SelectCustomItem(this, (ItemReference chosen) -> {
+				selectedOffHand = chosen.get();
 				offHandImage.setComponent(new SimpleImageComponent(
-						state.getWindow().getTextureLoader().loadTexture(chosen.getTexture().getImage())));
+						state.getWindow().getTextureLoader().loadTexture(selectedOffHand.getTexture().getImage())));
 			}, set));
 		}), 0.75f, 0.675f, 0.9f, 0.775f);
 		addComponent(offHandImage, 0.9f, 0.675f, 1f, 0.775f);
 		addComponent(new DynamicTextButton("Select helmet...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new SelectCustomItem(this, (CustomItem chosen) -> {
-				selectedHelmet = chosen;
+			state.getWindow().setMainComponent(new SelectCustomItem(this, (ItemReference chosen) -> {
+				selectedHelmet = chosen.get();
 				helmetImage.setComponent(new SimpleImageComponent(
-						state.getWindow().getTextureLoader().loadTexture(chosen.getTexture().getImage())));
+						state.getWindow().getTextureLoader().loadTexture(selectedHelmet.getTexture().getImage())));
 			}, set));
 		}), 0.75f, 0.55f, 0.9f, 0.65f);
 		addComponent(helmetImage, 0.9f, 0.55f, 1f, 0.65f);
 		addComponent(new DynamicTextButton("Select chestplate...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new SelectCustomItem(this, (CustomItem chosen) -> {
-				selectedChestplate = chosen;
+			state.getWindow().setMainComponent(new SelectCustomItem(this, (ItemReference chosen) -> {
+				selectedChestplate = chosen.get();
 				chestplateImage.setComponent(new SimpleImageComponent(
-						state.getWindow().getTextureLoader().loadTexture(chosen.getTexture().getImage())));
+						state.getWindow().getTextureLoader().loadTexture(selectedChestplate.getTexture().getImage())));
 			}, set));
 		}), 0.75f, 0.425f, 0.9f, 0.525f);
 		addComponent(chestplateImage, 0.9f, 0.425f, 1f, 0.525f);
 		addComponent(new DynamicTextButton("Select leggings...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new SelectCustomItem(this, (CustomItem chosen) -> {
-				selectedLeggings = chosen;
+			state.getWindow().setMainComponent(new SelectCustomItem(this, (ItemReference chosen) -> {
+				selectedLeggings = chosen.get();
 				leggingsImage.setComponent(new SimpleImageComponent(
-						state.getWindow().getTextureLoader().loadTexture(chosen.getTexture().getImage())));
+						state.getWindow().getTextureLoader().loadTexture(selectedLeggings.getTexture().getImage())));
 			}, set));
 		}), 0.75f, 0.3f, 0.9f, 0.4f);
 		addComponent(leggingsImage, 0.9f, 0.3f, 1f, 0.4f);
 		addComponent(new DynamicTextButton("Select boots...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new SelectCustomItem(this, (CustomItem chosen) -> {
-				selectedBoots = chosen;
+			state.getWindow().setMainComponent(new SelectCustomItem(this, (ItemReference chosen) -> {
+				selectedBoots = chosen.get();
 				bootsImage.setComponent(new SimpleImageComponent(
-						state.getWindow().getTextureLoader().loadTexture(chosen.getTexture().getImage())));
+						state.getWindow().getTextureLoader().loadTexture(selectedBoots.getTexture().getImage())));
 			}, set));
 		}), 0.75f, 0.175f, 0.9f, 0.275f);
 		addComponent(bootsImage, 0.9f, 0.175f, 1f, 0.275f);
