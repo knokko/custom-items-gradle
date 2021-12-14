@@ -2,9 +2,7 @@ package nl.knokko.customitems.itemset;
 
 import nl.knokko.customitems.block.*;
 import nl.knokko.customitems.container.CustomContainerValues;
-import nl.knokko.customitems.container.CustomContainerView;
 import nl.knokko.customitems.container.SCustomContainer;
-import nl.knokko.customitems.container.fuel.FuelRegistriesView;
 import nl.knokko.customitems.container.fuel.FuelRegistryValues;
 import nl.knokko.customitems.container.fuel.SFuelRegistry;
 import nl.knokko.customitems.drops.*;
@@ -13,14 +11,11 @@ import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.durability.ItemDurabilityAssignments;
 import nl.knokko.customitems.item.durability.ItemDurabilityClaim;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
-import nl.knokko.customitems.projectile.CustomProjectilesView;
 import nl.knokko.customitems.projectile.SCustomProjectile;
 import nl.knokko.customitems.projectile.cover.ProjectileCoverValues;
-import nl.knokko.customitems.projectile.cover.ProjectileCoversView;
 import nl.knokko.customitems.projectile.cover.SProjectileCover;
 import nl.knokko.customitems.recipe.CraftingRecipeValues;
 import nl.knokko.customitems.recipe.CustomCraftingRecipe;
-import nl.knokko.customitems.recipe.CustomRecipesView;
 import nl.knokko.customitems.texture.*;
 import nl.knokko.customitems.trouble.IntegrityException;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -609,24 +604,12 @@ public class SItemSet {
         return new CustomRecipesView(craftingRecipes);
     }
 
-    public Stream<CraftingRecipeReference> getCraftingRecipeReferences() {
-        return craftingRecipes.stream().map(CraftingRecipeReference::new);
-    }
-
     public BlockDropsView getBlockDrops() {
         return new BlockDropsView(blockDrops);
     }
 
-    public Stream<BlockDropReference> getBlockDropReferences() {
-        return blockDrops.stream().map(BlockDropReference::new);
-    }
-
     public MobDropsView getMobDrops() {
         return new MobDropsView(mobDrops);
-    }
-
-    public Stream<MobDropReference> getMobDropReferences() {
-        return mobDrops.stream().map(MobDropReference::new);
     }
 
     public CustomProjectilesView getProjectiles() {

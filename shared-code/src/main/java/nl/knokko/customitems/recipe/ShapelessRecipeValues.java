@@ -16,7 +16,6 @@ import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class ShapelessRecipeValues extends CraftingRecipeValues {
 
@@ -129,7 +128,7 @@ public class ShapelessRecipeValues extends CraftingRecipeValues {
             throw new ValidationException("You need at least 1 ingredient");
         }
 
-        for (CraftingRecipeReference otherReference : itemSet.getCraftingRecipeReferences().collect(Collectors.toList())) {
+        for (CraftingRecipeReference otherReference : itemSet.getCraftingRecipes().references()) {
             if (selfReference == null || !selfReference.equals(otherReference)) {
                 CraftingRecipeValues otherRecipe = otherReference.get();
                 if (otherRecipe instanceof ShapelessRecipeValues) {

@@ -7,8 +7,9 @@ import nl.knokko.customitems.util.CollectionHelper;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.function.Supplier;
 
-abstract class StringBasedReference<M extends Model<V>, V extends ModelValues> {
+abstract class StringBasedReference<M extends Model<V>, V extends ModelValues> implements Supplier<V> {
 
     String name;
     SItemSet itemSet;
