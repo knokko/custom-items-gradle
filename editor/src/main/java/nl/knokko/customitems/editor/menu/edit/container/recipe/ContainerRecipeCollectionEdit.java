@@ -2,30 +2,31 @@ package nl.knokko.customitems.editor.menu.edit.container.recipe;
 
 import java.awt.image.BufferedImage;
 import java.util.Collection;
+import java.util.Map;
 
+import nl.knokko.customitems.container.ContainerRecipeValues;
+import nl.knokko.customitems.container.slot.ContainerSlotValues;
 import nl.knokko.customitems.container.slot.CustomSlot;
 import nl.knokko.customitems.editor.menu.edit.CollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.container.EditContainer;
-import nl.knokko.customitems.editor.set.ItemSet;
-import nl.knokko.customitems.editor.set.recipe.result.CustomItemResult;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.recipe.ContainerRecipe;
-import nl.knokko.customitems.recipe.ContainerRecipe.OutputEntry;
-import nl.knokko.customitems.recipe.OutputTable;
+import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.recipe.OutputTableValues;
+import nl.knokko.customitems.recipe.result.CustomItemResultValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
-public class ContainerRecipeCollectionEdit extends CollectionEdit<ContainerRecipe> {
+public class ContainerRecipeCollectionEdit extends CollectionEdit<ContainerRecipeValues> {
 	
-	private final CustomSlot[][] slots;
-	private final Collection<ContainerRecipe> recipes;
-	private final ItemSet set;
+	private final ContainerSlotValues[][] slots;
+	private final Collection<ContainerRecipeValues> recipes;
+	private final SItemSet set;
 
 	public ContainerRecipeCollectionEdit(
-			CustomSlot[][] slots, Collection<ContainerRecipe> recipes, 
-			EditContainer editMenu, ItemSet set
+			ContainerSlotValues[][] slots, Collection<ContainerRecipeValues> recipes,
+			EditContainer editMenu, SItemSet set
 	) {
 		super(
 				new ContainerRecipeActionHandler(slots, 
@@ -53,16 +54,16 @@ public class ContainerRecipeCollectionEdit extends CollectionEdit<ContainerRecip
 		return EditProps.BACKGROUND;
 	}
 
-	private static class ContainerRecipeActionHandler implements ActionHandler<ContainerRecipe> {
+	private static class ContainerRecipeActionHandler implements ActionHandler<ContainerRecipeValues> {
 
-		private final CustomSlot[][] slots;
-		private final Collection<ContainerRecipe> recipes;
+		private final ContainerSlotValues[][] slots;
+		private final Collection<ContainerRecipeValues> recipes;
 		private final EditContainer editMenu;
-		private final ItemSet set;
+		private final SItemSet set;
 		
-		ContainerRecipeActionHandler(CustomSlot[][] slots, 
-				Collection<ContainerRecipe> recipes, EditContainer editMenu,
-				ItemSet set) {
+		ContainerRecipeActionHandler(ContainerSlotValues[][] slots,
+									 Collection<ContainerRecipeValues> recipes, EditContainer editMenu,
+									 SItemSet set) {
 			this.slots = slots;
 			this.recipes = recipes;
 			this.editMenu = editMenu;
@@ -75,14 +76,14 @@ public class ContainerRecipeCollectionEdit extends CollectionEdit<ContainerRecip
 		}
 
 		@Override
-		public BufferedImage getImage(ContainerRecipe item) {
+		public BufferedImage getImage(ContainerRecipeValues item) {
 			
 			// If we find an output with a custom item, take it!
-			for (OutputEntry output : item.getOutputs()) {
-				OutputTable currentTable = output.getOutputTable();
-				for (OutputTable.Entry entry : currentTable.getEntries()) {
-					if (entry.getResult() instanceof CustomItemResult) {
-						CustomItemResult customResult = (CustomItemResult) entry.getResult();
+			for (Map.Entry<String, OutputTableValues> output : item.getOutputs().entrySet()) {
+				OutputTableValues currentTable = output.getValue();
+				for (OutputTableValues.Entry entry : currentTable.getEntries()) {
+					if (entry.getResult() instanceof CustomItemResultValues) {
+						CustomItemResultValues customResult = (CustomItemResultValues) entry.getResult();
 						return customResult.getItem().getTexture().getImage();
 					}
 				}
@@ -93,11 +94,11 @@ public class ContainerRecipeCollectionEdit extends CollectionEdit<ContainerRecip
 		}
 
 		@Override
-		public String getLabel(ContainerRecipe item) {
+		public String getLabel(ContainerRecipeValues item) {
 			StringBuilder result = new StringBuilder();
 			result.append('(');
-			for (OutputEntry output : item.getOutputs()) {
-				result.append(output.getOutputTable());
+			for (Map.Entry<String, OutputTableValues> output : item.getOutputs().entrySet()) {
+				result.append(output.getValue());
 				result.append(',');
 			}
 			result.append(')');
@@ -117,17 +118,17 @@ public class ContainerRecipeCollectionEdit extends CollectionEdit<ContainerRecip
 		}
 
 		@Override
-		public GuiComponent createEditMenu(ContainerRecipe itemToEdit, GuiComponent returnMenu) {
+		public GuiComponent createEditMenu(ContainerRecipeValues itemToEdit, GuiComponent returnMenu) {
 			return new EditContainerRecipe(slots, recipes, thisMenu(), itemToEdit, itemToEdit, set);
 		}
 
 		@Override
-		public GuiComponent createCopyMenu(ContainerRecipe itemToCopy, GuiComponent returnMenu) {
+		public GuiComponent createCopyMenu(ContainerRecipeValues itemToCopy, GuiComponent returnMenu) {
 			return new EditContainerRecipe(slots, recipes, thisMenu(), itemToCopy, null, set);
 		}
 
 		@Override
-		public String deleteItem(ContainerRecipe itemToDelete) {
+		public String deleteItem(ContainerRecipeValues itemToDelete) {
 			return recipes.remove(itemToDelete) 
 					? null : "This recipe wasn't in the list of container recipes";
 		}

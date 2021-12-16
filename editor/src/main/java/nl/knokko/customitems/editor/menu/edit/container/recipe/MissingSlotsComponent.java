@@ -2,14 +2,13 @@ package nl.knokko.customitems.editor.menu.edit.container.recipe;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Map;
 
-import nl.knokko.customitems.container.CustomContainer;
-import nl.knokko.customitems.container.slot.CustomSlot;
-import nl.knokko.customitems.container.slot.InputCustomSlot;
-import nl.knokko.customitems.container.slot.OutputCustomSlot;
+import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.container.slot.*;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.recipe.ContainerRecipe.InputEntry;
-import nl.knokko.customitems.recipe.ContainerRecipe.OutputEntry;
+import nl.knokko.customitems.recipe.OutputTableValues;
+import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
@@ -17,12 +16,12 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 public class MissingSlotsComponent extends GuiMenu {
 	
-	private final CustomSlot[][] slots;
-	private final Collection<InputEntry> inputs;
-	private final Collection<OutputEntry> outputs;
+	private final ContainerSlotValues[][] slots;
+	private final Map<String, IngredientValues> inputs;
+	private final Map<String, OutputTableValues> outputs;
 	
-	public MissingSlotsComponent(CustomSlot[][] slots, Collection<InputEntry> inputs,
-			Collection<OutputEntry> outputs) {
+	public MissingSlotsComponent(ContainerSlotValues[][] slots, Map<String, IngredientValues> inputs,
+			Map<String, OutputTableValues> outputs) {
 		this.slots = slots;
 		this.inputs = inputs;
 		this.outputs = outputs;
@@ -30,34 +29,34 @@ public class MissingSlotsComponent extends GuiMenu {
 
 	@Override
 	protected void addComponents() {
-		Iterable<CustomSlot> slots = CustomContainer.slotIterable(this.slots);
+		Iterable<ContainerSlotValues> slots = CustomContainerValues.createSlotList(this.slots);
 		
 		Collection<String> missingInputSlots = new ArrayList<>();
 		inputLoop:
-		for (InputEntry input : inputs) {
-			for (CustomSlot slot : slots) {
-				if (slot instanceof InputCustomSlot) {
-					InputCustomSlot inputSlot = (InputCustomSlot) slot;
-					if (inputSlot.getName().equals(input.getInputSlotName())) {
+		for (String inputSlotName : inputs.keySet()) {
+			for (ContainerSlotValues slot : slots) {
+				if (slot instanceof InputSlotValues) {
+					InputSlotValues inputSlot = (InputSlotValues) slot;
+					if (inputSlot.getName().equals(inputSlotName)) {
 						continue inputLoop;
 					}
 				}
 			}
-			missingInputSlots.add(input.getInputSlotName());
+			missingInputSlots.add(inputSlotName);
 		}
 		
 		Collection<String> missingOutputSlots = new ArrayList<>();
 		outputLoop:
-		for (OutputEntry output : outputs) {
-			for (CustomSlot slot : slots) {
-				if (slot instanceof OutputCustomSlot) {
-					OutputCustomSlot outputSlot = (OutputCustomSlot) slot;
-					if (outputSlot.getName().equals(output.getOutputSlotName())) {
+		for (String outputSlotName : outputs.keySet()) {
+			for (ContainerSlotValues slot : slots) {
+				if (slot instanceof OutputSlotValues) {
+					OutputSlotValues outputSlot = (OutputSlotValues) slot;
+					if (outputSlot.getName().equals(outputSlotName)) {
 						continue outputLoop;
 					}
 				}
 			}
-			missingOutputSlots.add(output.getOutputSlotName());
+			missingOutputSlots.add(outputSlotName);
 		}
 		
 		if (!missingInputSlots.isEmpty()) {
@@ -70,15 +69,7 @@ public class MissingSlotsComponent extends GuiMenu {
 						0.05f, 0.45f - 0.25f * index, 0.25f, 0.65f - 0.25f * index
 				);
 				addComponent(new DynamicTextButton("X", EditProps.QUIT_BASE, EditProps.QUIT_HOVER, () -> {
-					InputEntry toRemove = null;
-					for (InputEntry inputEntry : inputs) {
-						if (inputEntry.getInputSlotName().equals(rememberMissingInput)) {
-							toRemove = inputEntry;
-							break;
-						}
-					}
-					
-					inputs.remove(toRemove);
+					inputs.remove(rememberMissingInput);
 					clearComponents();
 					addComponents();
 				}), 0.26f, 0.5f - 0.25f * index, 0.29f, 0.6f - 0.25f * index);
@@ -96,15 +87,7 @@ public class MissingSlotsComponent extends GuiMenu {
 						0.6f, 0.45f - 0.25f * index, 0.8f, 0.65f - 0.25f * index
 				);
 				addComponent(new DynamicTextButton("X", EditProps.QUIT_BASE, EditProps.QUIT_HOVER, () -> {
-					OutputEntry toRemove = null;
-					for (OutputEntry outputEntry : outputs) {
-						if (outputEntry.getOutputSlotName().equals(rememberMissingOutput)) {
-							toRemove = outputEntry;
-							break;
-						}
-					}
-					
-					outputs.remove(toRemove);
+					outputs.remove(rememberMissingOutput);
 					clearComponents();
 					addComponents();
 				}), 0.81f, 0.5f - 0.25f * index, 0.84f, 0.6f - 0.25f * index);

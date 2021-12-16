@@ -67,6 +67,11 @@ public class DecorationSlotValues extends ContainerSlotValues {
         return new DecorationSlotValues(this, mutable);
     }
 
+    @Override
+    public DecorationSlotValues nonConflictingCopy(ContainerSlotValues[][] currentSlots) {
+        return this.copy(true);
+    }
+
     public SlotDisplayValues getDisplay() {
         return display;
     }

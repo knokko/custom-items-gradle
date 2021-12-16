@@ -5,14 +5,12 @@ import java.util.NoSuchElementException;
 import java.util.function.Consumer;
 
 import nl.knokko.customitems.container.IndicatorDomain;
-import nl.knokko.customitems.container.slot.CustomSlot;
-import nl.knokko.customitems.container.slot.FuelCustomSlot;
-import nl.knokko.customitems.container.slot.FuelIndicatorCustomSlot;
-import nl.knokko.customitems.container.slot.display.SlotDisplay;
+import nl.knokko.customitems.container.slot.*;
+import nl.knokko.customitems.container.slot.display.SlotDisplayValues;
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.set.item.CustomItem;
 import nl.knokko.customitems.editor.util.HelpButtons;
+import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -23,53 +21,47 @@ import nl.knokko.gui.util.Option;
 
 public class CreateFuelIndicatorSlot extends GuiMenu {
 	
-	private static Iterable<FuelCustomSlot> fuelSlotFilter(Iterable<CustomSlot> allSlots) {
-		return new Iterable<FuelCustomSlot>() {
-			
+	private static Iterable<FuelSlotValues> fuelSlotFilter(Iterable<ContainerSlotValues> allSlots) {
+		return () -> new Iterator<FuelSlotValues>() {
+
+			Iterator<ContainerSlotValues> slotsIterator = allSlots.iterator();
+			FuelSlotValues nextSlot;
+
 			@Override
-			public Iterator<FuelCustomSlot> iterator() {
-				return new Iterator<FuelCustomSlot>() {
-					
-					Iterator<CustomSlot> slotsIterator = allSlots.iterator();
-					FuelCustomSlot nextSlot;
-					
-					@Override
-					public boolean hasNext() {
-						if (nextSlot != null) {
-							return true;
-						}
-						while (slotsIterator.hasNext()) {
-							CustomSlot slot = slotsIterator.next();
-							if (slot instanceof FuelCustomSlot) {
-								nextSlot = (FuelCustomSlot) slot;
-								return true;
-							}
-						}
-						return false;
+			public boolean hasNext() {
+				if (nextSlot != null) {
+					return true;
+				}
+				while (slotsIterator.hasNext()) {
+					ContainerSlotValues slot = slotsIterator.next();
+					if (slot instanceof FuelSlotValues) {
+						nextSlot = (FuelSlotValues) slot;
+						return true;
 					}
-					
-					@Override
-					public FuelCustomSlot next() {
-						if (!hasNext()) {
-							throw new NoSuchElementException();
-						}
-						FuelCustomSlot result = nextSlot;
-						nextSlot = null;
-						return result;
-					}
-				};
+				}
+				return false;
+			}
+
+			@Override
+			public FuelSlotValues next() {
+				if (!hasNext()) {
+					throw new NoSuchElementException();
+				}
+				FuelSlotValues result = nextSlot;
+				nextSlot = null;
+				return result;
 			}
 		};
 	}
 	
 	private final GuiComponent returnMenu;
-	private final Consumer<CustomSlot> submitSlot;
-	private final Iterable<FuelCustomSlot> existingSlots;
-	private final Iterable<CustomItem> customItems;
+	private final Consumer<ContainerSlotValues> submitSlot;
+	private final Iterable<FuelSlotValues> existingSlots;
+	private final Iterable<ItemReference> customItems;
 	private final DynamicTextComponent errorComponent;
 	
 	public CreateFuelIndicatorSlot(GuiComponent returnMenu, 
-			Consumer<CustomSlot> submitSlot, Iterable<CustomSlot> existingSlots, Iterable<CustomItem> customItems) {
+			Consumer<ContainerSlotValues> submitSlot, Iterable<ContainerSlotValues> existingSlots, Iterable<ItemReference> customItems) {
 		this.returnMenu = returnMenu;
 		this.submitSlot = submitSlot;
 		this.existingSlots = fuelSlotFilter(existingSlots);
@@ -91,13 +83,13 @@ public class CreateFuelIndicatorSlot extends GuiMenu {
 			state.getWindow().setMainComponent(returnMenu);
 		}), 0.025f, 0.7f, 0.2f, 0.8f);
 		
-		FuelCustomSlot[] pFuelSlot = { null };
+		FuelSlotValues[] pFuelSlot = { null };
 		addComponent(new DynamicTextComponent("Fuel slot:", EditProps.LABEL), 0.25f, 0.7f, 0.4f, 0.75f);
 		addComponent(CollectionSelect.createButton(existingSlots,
-				fuelSlot -> pFuelSlot[0] = fuelSlot, FuelCustomSlot::getName, null),
+				fuelSlot -> pFuelSlot[0] = fuelSlot, FuelSlotValues::getName, null),
 		0.425f, 0.7f, 0.6f, 0.75f);
 		
-		SlotDisplay[] pDisplays = { null, null };
+		SlotDisplayValues[] pDisplays = { null, null };
 		addComponent(new DynamicTextButton("Display...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new CreateDisplay(this, 
 					newDisplay -> pDisplays[0] = newDisplay, false, customItems)
@@ -149,7 +141,7 @@ public class CreateFuelIndicatorSlot extends GuiMenu {
 				return;
 			}
 			
-			submitSlot.accept(new FuelIndicatorCustomSlot(pFuelSlot[0].getName(), 
+			submitSlot.accept(FuelIndicatorSlotValues.createQuick(pFuelSlot[0].getName(),
 					pDisplays[0], pDisplays[1], 
 					new IndicatorDomain(begin.getValue(), end.getValue())
 			));

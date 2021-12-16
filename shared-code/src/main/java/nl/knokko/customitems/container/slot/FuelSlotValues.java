@@ -1,5 +1,6 @@
 package nl.knokko.customitems.container.slot;
 
+import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.fuel.FuelRegistryValues;
 import nl.knokko.customitems.container.slot.display.SlotDisplayValues;
 import nl.knokko.customitems.itemset.FuelRegistryReference;
@@ -100,6 +101,19 @@ public class FuelSlotValues extends ContainerSlotValues {
     @Override
     public FuelSlotValues copy(boolean mutable) {
         return new FuelSlotValues(this, mutable);
+    }
+
+    @Override
+    public FuelSlotValues nonConflictingCopy(ContainerSlotValues[][] currentSlots) {
+        int suffixInt = 0;
+        String[] pSuffix = {""};
+        while (CustomContainerValues.createSlotList(currentSlots).stream().anyMatch(
+                slot -> slot instanceof FuelSlotValues && ((FuelSlotValues) slot).getName().equals(name + pSuffix[0])
+        )) {
+            suffixInt += 1;
+            pSuffix[0] = Integer.toString(suffixInt);
+        }
+        return createQuick(name + pSuffix[0], fuelRegistry, placeholder);
     }
 
     public String getName() {

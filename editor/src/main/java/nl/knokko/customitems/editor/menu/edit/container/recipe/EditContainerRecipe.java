@@ -1,15 +1,16 @@
 package nl.knokko.customitems.editor.menu.edit.container.recipe;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
-import nl.knokko.customitems.container.slot.CustomSlot;
+import nl.knokko.customitems.container.ContainerRecipeValues;
+import nl.knokko.customitems.container.slot.ContainerSlotValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.set.ItemSet;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.recipe.ContainerRecipe;
-import nl.knokko.customitems.recipe.ContainerRecipe.InputEntry;
-import nl.knokko.customitems.recipe.ContainerRecipe.OutputEntry;
+import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.recipe.OutputTableValues;
+import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -19,22 +20,22 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import nl.knokko.gui.util.Option;
 
 public class EditContainerRecipe extends GuiMenu {
-	
-	private final CustomSlot[][] slots;
-	private final Collection<ContainerRecipe> recipes;
+
+	private final ContainerSlotValues[][] slots;
+	private final Collection<ContainerRecipeValues> recipes;
 	private final GuiComponent returnMenu;
-	private final ContainerRecipe toModify;
-	private final ItemSet set;
+	private final ContainerRecipeValues toModify;
+	private final SItemSet set;
 	
 	private final DynamicTextComponent errorComponent;
 	private final IntEditField durationField;
 	private final IntEditField experienceField;
-	private final Collection<InputEntry> inputs;
-	private final Collection<OutputEntry> outputs;
+	private final Map<String, IngredientValues> inputs;
+	private final Map<String, OutputTableValues> outputs;
 	
-	public EditContainerRecipe(CustomSlot[][] slots, Collection<ContainerRecipe> recipes, 
-			GuiComponent returnMenu, ContainerRecipe oldValues, ContainerRecipe toModify,
-			ItemSet set) {
+	public EditContainerRecipe(ContainerSlotValues[][] slots, Collection<ContainerRecipeValues> recipes,
+			GuiComponent returnMenu, ContainerRecipeValues oldValues, ContainerRecipeValues toModify,
+			SItemSet set) {
 		this.slots = slots;
 		this.recipes = recipes;
 		this.returnMenu = returnMenu;
@@ -45,13 +46,13 @@ public class EditContainerRecipe extends GuiMenu {
 		
 		int duration;
 		int experience;
-		this.inputs = new ArrayList<>();
-		this.outputs = new ArrayList<>();
+		this.inputs = new HashMap<>();
+		this.outputs = new HashMap<>();
 		if (oldValues != null) {
 			duration = oldValues.getDuration();
 			experience = oldValues.getExperience();
-			this.inputs.addAll(oldValues.getInputs());
-			this.outputs.addAll(oldValues.getOutputs());
+			this.inputs.putAll(oldValues.getInputs());
+			this.outputs.putAll(oldValues.getOutputs());
 		} else {
 			duration = 40;
 			experience = 5;
@@ -100,13 +101,17 @@ public class EditContainerRecipe extends GuiMenu {
 			}
 			
 			if (toModify == null) {
-				recipes.add(new ContainerRecipe(inputs, outputs, 
-						duration.getValue(), experience.getValue()));
+				ContainerRecipeValues toAdd = new ContainerRecipeValues(true);
+				this.inputs.forEach(toAdd::setInput);
+				this.outputs.forEach(toAdd::setOutput);
+				toAdd.setDuration(duration.getValue());
+				toAdd.setExperience(experience.getValue());
+				recipes.add(toAdd);
 			} else {
 				toModify.getInputs().clear();
-				toModify.getInputs().addAll(inputs);
+				toModify.getInputs().putAll(inputs);
 				toModify.getOutputs().clear();
-				toModify.getOutputs().addAll(outputs);
+				toModify.getOutputs().putAll(outputs);
 				toModify.setDuration(duration.getValue());
 				toModify.setExperience(experience.getValue());
 			}

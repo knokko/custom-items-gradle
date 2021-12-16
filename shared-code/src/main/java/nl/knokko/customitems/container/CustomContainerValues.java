@@ -169,15 +169,17 @@ public class CustomContainerValues extends ModelValues {
     public ContainerSlotValues[][] getSlots() {
         ContainerSlotValues[][] shallowSlotsCopy = new ContainerSlotValues[WIDTH][getHeight()];
         for (int x = 0; x < WIDTH; x++) {
-            for (int y = 0; y < getHeight(); y++) {
-                shallowSlotsCopy[x][y] = this.slots[x][y];
-            }
+            if (getHeight() >= 0) System.arraycopy(this.slots[x], 0, shallowSlotsCopy[x], 0, getHeight());
         }
         return shallowSlotsCopy;
     }
 
     public Collection<ContainerSlotValues> createSlotList() {
-        Collection<ContainerSlotValues> slotList = new ArrayList<>(WIDTH * getHeight());
+        return createSlotList(this.slots);
+    }
+
+    public static Collection<ContainerSlotValues> createSlotList(ContainerSlotValues[][] slots) {
+        Collection<ContainerSlotValues> slotList = new ArrayList<>(WIDTH * slots[0].length);
         for (ContainerSlotValues[] slotArray : slots) {
             Collections.addAll(slotList, slotArray);
         }
@@ -217,6 +219,17 @@ public class CustomContainerValues extends ModelValues {
         checkSlotIndices(x, y);
         Checks.notNull(newSlot);
         this.slots[x][y] = newSlot.copy(false);
+    }
+
+    public void setSlots(ContainerSlotValues[][] newSlots) {
+        assertMutable();
+        int height = newSlots[0].length;
+        this.slots = new ContainerSlotValues[WIDTH][height];
+        for (int x = 0; x < WIDTH; x++) {
+            for (int y = 0; y < height; y++) {
+                this.slots[x][y] = newSlots[x][y].copy(false);
+            }
+        }
     }
 
     public void removeSlotRow(int rowIndex) throws IllegalArgumentException {

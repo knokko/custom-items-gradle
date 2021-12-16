@@ -4,25 +4,25 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 import nl.knokko.customitems.container.fuel.FuelEntry;
+import nl.knokko.customitems.container.fuel.FuelEntryValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.QuickCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.ChooseIngredient;
-import nl.knokko.customitems.editor.set.ItemSet;
-import nl.knokko.customitems.editor.set.recipe.ingredient.SimpleVanillaIngredient;
 import nl.knokko.customitems.item.CIMaterial;
+import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.model.Mutability;
+import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
-public class FuelEntryCollectionEdit extends QuickCollectionEdit<FuelEntry> {
+public class FuelEntryCollectionEdit extends QuickCollectionEdit<FuelEntryValues> {
 	
-	private final ItemSet set;
+	private final SItemSet set;
 
-	public FuelEntryCollectionEdit(Collection<FuelEntry> changingCollection, 
-			GuiComponent returnMenu, ItemSet set) {
-		super(changingCollection.stream().map(
-				original -> new FuelEntry(original.getFuel(), original.getBurnTime())
-				).collect(Collectors.toList()), newCollection -> {
+	public FuelEntryCollectionEdit(Collection<FuelEntryValues> changingCollection,
+			GuiComponent returnMenu, SItemSet set) {
+		super(Mutability.createDeepCopy(changingCollection, true), newCollection -> {
 			changingCollection.clear();
 			changingCollection.addAll(newCollection);
 		}, returnMenu);
@@ -31,7 +31,7 @@ public class FuelEntryCollectionEdit extends QuickCollectionEdit<FuelEntry> {
 
 	@Override
 	protected void addRowComponents(int itemIndex, float minY, float maxY) {
-		FuelEntry entry = ownCollection.get(itemIndex);
+		FuelEntryValues entry = ownCollection.get(itemIndex);
 		DynamicTextButton[] pFuelButton = new DynamicTextButton[1];
 		pFuelButton[0] = new DynamicTextButton(entry.getFuel().toString(), 
 				EditProps.BUTTON, EditProps.HOVER, () -> {
@@ -53,8 +53,8 @@ public class FuelEntryCollectionEdit extends QuickCollectionEdit<FuelEntry> {
 	}
 
 	@Override
-	protected FuelEntry addNew() {
-		return new FuelEntry(new SimpleVanillaIngredient(CIMaterial.COAL, (byte) 1, null), 100);
+	protected FuelEntryValues addNew() {
+		return FuelEntryValues.createQuick(SimpleVanillaIngredientValues.createQuick(CIMaterial.COAL, 1, null), 100);
 	}
 
 	@Override

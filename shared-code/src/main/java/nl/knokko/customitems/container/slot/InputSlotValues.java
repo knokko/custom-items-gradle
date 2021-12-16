@@ -1,5 +1,6 @@
 package nl.knokko.customitems.container.slot;
 
+import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.slot.display.SlotDisplayValues;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -27,6 +28,13 @@ public class InputSlotValues extends ContainerSlotValues {
             throw new UnknownEncodingException("InputSlot", encoding);
         }
 
+        return result;
+    }
+
+    public static InputSlotValues createQuick(String name, SlotDisplayValues placeholder) {
+        InputSlotValues result = new InputSlotValues(true);
+        result.setName(name);
+        result.setPlaceholder(placeholder);
         return result;
     }
 
@@ -84,6 +92,19 @@ public class InputSlotValues extends ContainerSlotValues {
     @Override
     public InputSlotValues copy(boolean mutable) {
         return new InputSlotValues(this, mutable);
+    }
+
+    @Override
+    public InputSlotValues nonConflictingCopy(ContainerSlotValues[][] currentSlots) {
+        int suffixInt = 0;
+        String[] pSuffix = {""};
+        while (CustomContainerValues.createSlotList(currentSlots).stream().anyMatch(
+                slot -> slot instanceof InputSlotValues && ((InputSlotValues) slot).getName().equals(name + pSuffix[0])
+        )) {
+            suffixInt += 1;
+            pSuffix[0] = Integer.toString(suffixInt);
+        }
+        return createQuick(name + pSuffix[0], placeholder);
     }
 
     public String getName() {

@@ -1,12 +1,13 @@
 package nl.knokko.customitems.editor.menu.edit.container;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
-import nl.knokko.customitems.container.CustomContainer;
+import nl.knokko.customitems.container.ContainerRecipeValues;
+import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.VanillaContainerType;
 import nl.knokko.customitems.container.fuel.FuelMode;
-import nl.knokko.customitems.container.slot.display.SlotDisplay;
+import nl.knokko.customitems.container.slot.display.SlotDisplayValues;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
@@ -14,7 +15,8 @@ import nl.knokko.customitems.editor.menu.edit.container.recipe.ContainerRecipeCo
 import nl.knokko.customitems.editor.menu.edit.container.slot.CreateDisplay;
 import nl.knokko.customitems.editor.menu.edit.container.slot.SlotsComponent;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.recipe.ContainerRecipe;
+import nl.knokko.customitems.editor.util.Validation;
+import nl.knokko.customitems.itemset.ContainerReference;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -25,41 +27,37 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 public class EditContainer extends GuiMenu {
 	
 	private final EditMenu menu;
-	private final CustomContainer toModify;
+	private final ContainerReference toModify;
 	
-	private final Collection<ContainerRecipe> recipes;
+	private final List<ContainerRecipeValues> recipes;
 	private final SlotsComponent slots;
 	private final TextEditField nameField;
 	private final CheckboxComponent persistentStorage;
-	private SlotDisplay selectionIcon;
+	private SlotDisplayValues selectionIcon;
 	private FuelMode fuelMode;
 	private VanillaContainerType vanillaType;
 	private final DynamicTextComponent errorComponent;
 	
-	public EditContainer(EditMenu menu, 
-			CustomContainer oldValues, CustomContainer toModify) {
+	public EditContainer(EditMenu menu,
+						 CustomContainerValues oldValues, ContainerReference toModify) {
 		this.menu = menu;
 		this.toModify = toModify;
 		this.slots = new SlotsComponent(this, menu.getSet(), oldValues);
 		
 		boolean initialPersistentStorage;
-		this.recipes = new ArrayList<>();
 		if (oldValues != null) {
 			this.selectionIcon = oldValues.getSelectionIcon();
 			initialPersistentStorage = oldValues.hasPersistentStorage();
 			this.fuelMode = oldValues.getFuelMode();
 			this.vanillaType = oldValues.getVanillaType();
 			// Add all recipes from oldValues
-			// Perform a deep copy because container recipes are mutable
-			for (ContainerRecipe recipe : oldValues.getRecipes()) {
-				this.recipes.add(recipe.clone());
-			}
+			this.recipes = oldValues.getRecipes();
 		} else {
 			this.selectionIcon = null;
 			initialPersistentStorage = true;
 			this.fuelMode = FuelMode.ALL;
 			this.vanillaType = VanillaContainerType.FURNACE;
-			// Keep this.recipes empty
+			this.recipes = new ArrayList<>();
 		}
 		
 		if (toModify == null) {
@@ -98,14 +96,14 @@ public class EditContainer extends GuiMenu {
 		if (nameField != null) {
 			addComponent(nameField, 0.175f, 0.6f, 0.3f, 0.65f);
 		} else {
-			addComponent(new DynamicTextComponent(toModify.getName(), EditProps.LABEL), 0.175f, 0.6f, 0.3f, 0.65f);
+			addComponent(new DynamicTextComponent(toModify.get().getName(), EditProps.LABEL), 0.175f, 0.6f, 0.3f, 0.65f);
 		}
 		addComponent(new DynamicTextComponent("Selection icon:", EditProps.LABEL), 0.05f, 0.525f, 0.2f, 0.575f);
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new CreateDisplay(
 					this, 
 					newSelectionIcon -> this.selectionIcon = newSelectionIcon, 
-					true, menu.getSet().getBackingItems()
+					true, menu.getSet().getItems().references()
 			));
 		}), 0.225f, 0.525f, 0.3f, 0.575f);
 		addComponent(new DynamicTextComponent("Fuel mode:", EditProps.LABEL), 0.05f, 0.45f, 0.175f, 0.5f);
@@ -128,10 +126,15 @@ public class EditContainer extends GuiMenu {
 		
 		if (toModify != null) {
 			addComponent(new DynamicTextButton("Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-				String error = menu.getSet().changeContainer(toModify,
-						selectionIcon, recipes, fuelMode, slots.getSlots(), 
-						vanillaType, persistentStorage.isChecked()
-				);
+				CustomContainerValues newValues = new CustomContainerValues(true);
+				newValues.setName(toModify.get().getName());
+				newValues.setSelectionIcon(selectionIcon);
+				newValues.setRecipes(recipes);
+				newValues.setFuelMode(fuelMode);
+				newValues.setSlots(slots.getSlots());
+				newValues.setVanillaType(vanillaType);
+				newValues.setPersistentStorage(persistentStorage.isChecked());
+				String error = Validation.toErrorString(() -> menu.getSet().changeContainer(toModify, newValues));
 				if (error != null) {
 					errorComponent.setText(error);
 				} else {
@@ -140,11 +143,15 @@ public class EditContainer extends GuiMenu {
 			}), 0.025f, 0.1f, 0.175f, 0.2f);
 		} else {
 			addComponent(new DynamicTextButton("Create", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-				String error = menu.getSet().addContainer(new CustomContainer(
-						nameField.getText(), selectionIcon, recipes, 
-						fuelMode, slots.getSlots(), vanillaType, 
-						persistentStorage.isChecked())
-				);
+				CustomContainerValues newValues = new CustomContainerValues(true);
+				newValues.setName(nameField.getText());
+				newValues.setSelectionIcon(selectionIcon);
+				newValues.setRecipes(recipes);
+				newValues.setFuelMode(fuelMode);
+				newValues.setSlots(slots.getSlots());
+				newValues.setVanillaType(vanillaType);
+				newValues.setPersistentStorage(persistentStorage.isChecked());
+				String error = Validation.toErrorString(() -> menu.getSet().addContainer(newValues));
 				if (error != null) {
 					errorComponent.setText(error);
 				} else {

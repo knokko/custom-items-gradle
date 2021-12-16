@@ -1,13 +1,12 @@
 package nl.knokko.customitems.editor.menu.edit.container.recipe;
 
-import java.util.Collection;
+import java.util.Map;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.ChooseIngredient;
-import nl.knokko.customitems.editor.set.ItemSet;
-import nl.knokko.customitems.editor.set.recipe.ingredient.Ingredient;
-import nl.knokko.customitems.editor.set.recipe.ingredient.NoIngredient;
-import nl.knokko.customitems.recipe.ContainerRecipe.InputEntry;
+import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.recipe.ingredient.IngredientValues;
+import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.color.SimpleGuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -23,15 +22,15 @@ public class InputSlotComponent implements GuiComponent {
 	
 	private final String name;
 	private final GuiComponent outerMenu;
-	private final Collection<InputEntry> inputs;
-	private final ItemSet set;
+	private final Map<String, IngredientValues> inputs;
+	private final SItemSet set;
 	
 	private GuiComponentState state;
 	private GuiTexture topTextTexture;
 	private GuiTexture bottomTextTexture;
 	
 	public InputSlotComponent(String name, GuiComponent outerMenu, 
-			Collection<InputEntry> inputs, ItemSet set) {
+			Map<String, IngredientValues> inputs, SItemSet set) {
 		this.name = name;
 		this.outerMenu = outerMenu;
 		this.inputs = inputs;
@@ -42,39 +41,20 @@ public class InputSlotComponent implements GuiComponent {
 		return name;
 	}
 	
-	private InputEntry getOwnEntry() {
-		for (InputEntry candidate : inputs) {
-			if (candidate.getInputSlotName().equals(name)) {
-				return candidate;
-			}
-		}
-		
-		return null;
-	}
-	
-	private Ingredient getOwnIngredient() {
-		InputEntry entry = getOwnEntry();
-		if (entry != null) {
-			return (Ingredient) entry.getIngredient();
-		} else {
-			return null;
-		}
-	}
-	
-	private void setIngredient(Ingredient newIngredient) {
+	private void setIngredient(IngredientValues newIngredient) {
 		
 		// Make sure only null indicates that there is no ingredient
-		if (newIngredient instanceof NoIngredient) {
+		if (newIngredient instanceof NoIngredientValues) {
 			newIngredient = null;
 		}
 		
 		// Update inputs collection
-		InputEntry currentEntry = getOwnEntry();
-		if (currentEntry != null) {
-			inputs.remove(currentEntry);
+		IngredientValues currentIngredient = inputs.get(name);
+		if (currentIngredient != null) {
+			inputs.remove(name);
 		}
 		if (newIngredient != null) {
-			inputs.add(new InputEntry(name, newIngredient));
+			inputs.put(name, newIngredient);
 		}
 		
 		// Update text
@@ -96,7 +76,7 @@ public class InputSlotComponent implements GuiComponent {
 		this.topTextTexture = state.getWindow().getTextureLoader().loadTexture(
 				TextBuilder.createTexture("input", EditProps.LABEL)
 		);
-		this.setIngredient(this.getOwnIngredient());
+		this.setIngredient(inputs.get(name));
 	}
 
 	@Override

@@ -91,6 +91,11 @@ public class FuelIndicatorSlotValues extends ContainerSlotValues {
         return new FuelIndicatorSlotValues(mutable);
     }
 
+    @Override
+    public FuelIndicatorSlotValues nonConflictingCopy(ContainerSlotValues[][] currentSlots) {
+        return this.copy(true);
+    }
+
     public String getFuelSlotName() {
         return fuelSlotName;
     }

@@ -2,21 +2,22 @@ package nl.knokko.customitems.editor.menu.edit.container;
 
 import java.awt.image.BufferedImage;
 
-import nl.knokko.customitems.container.CustomContainer;
 import nl.knokko.customitems.editor.menu.edit.CollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
+import nl.knokko.customitems.editor.util.Validation;
+import nl.knokko.customitems.itemset.ContainerReference;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
-public class ContainerCollectionEdit extends CollectionEdit<CustomContainer> {
+public class ContainerCollectionEdit extends CollectionEdit<ContainerReference> {
 	
 	private final EditMenu menu;
 
 	public ContainerCollectionEdit(EditMenu menu) {
-		super(new ContainerActionHandler(menu), menu.getSet().getBackingContainers());
+		super(new ContainerActionHandler(menu), menu.getSet().getContainers().references());
 		this.menu = menu;
 	}
 	
@@ -34,7 +35,7 @@ public class ContainerCollectionEdit extends CollectionEdit<CustomContainer> {
 		return EditProps.BACKGROUND;
 	}
 
-	private static class ContainerActionHandler implements ActionHandler<CustomContainer> {
+	private static class ContainerActionHandler implements ActionHandler<ContainerReference> {
 
 		private final EditMenu menu;
 		
@@ -48,28 +49,28 @@ public class ContainerCollectionEdit extends CollectionEdit<CustomContainer> {
 		}
 
 		@Override
-		public BufferedImage getImage(CustomContainer item) {
+		public BufferedImage getImage(ContainerReference item) {
 			return null;
 		}
 
 		@Override
-		public String getLabel(CustomContainer item) {
-			return item.getName();
+		public String getLabel(ContainerReference item) {
+			return item.get().getName();
 		}
 
 		@Override
-		public GuiComponent createEditMenu(CustomContainer itemToEdit, GuiComponent returnMenu) {
-			return new EditContainer(menu, itemToEdit, itemToEdit);
+		public GuiComponent createEditMenu(ContainerReference itemToEdit, GuiComponent returnMenu) {
+			return new EditContainer(menu, itemToEdit.get(), itemToEdit);
 		}
 
 		@Override
-		public GuiComponent createCopyMenu(CustomContainer itemToCopy, GuiComponent returnMenu) {
-			return new EditContainer(menu, itemToCopy, null);
+		public GuiComponent createCopyMenu(ContainerReference itemToCopy, GuiComponent returnMenu) {
+			return new EditContainer(menu, itemToCopy.get(), null);
 		}
 
 		@Override
-		public String deleteItem(CustomContainer itemToDelete) {
-			return menu.getSet().removeContainer(itemToDelete);
+		public String deleteItem(ContainerReference itemToDelete) {
+			return Validation.toErrorString(() -> menu.getSet().removeContainer(itemToDelete));
 		}
 	}
 }

@@ -1,13 +1,16 @@
 package nl.knokko.customitems.editor.menu.edit.container.fuel;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
-import nl.knokko.customitems.container.fuel.CustomFuelRegistry;
-import nl.knokko.customitems.container.fuel.FuelEntry;
+import nl.knokko.customitems.container.fuel.FuelEntryValues;
+import nl.knokko.customitems.container.fuel.FuelRegistryValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.set.ItemSet;
 import nl.knokko.customitems.editor.util.HelpButtons;
+import nl.knokko.customitems.editor.util.Validation;
+import nl.knokko.customitems.itemset.FuelRegistryReference;
+import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.model.Mutability;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -18,16 +21,16 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 public class EditFuelRegistry extends GuiMenu {
 	
 	private final GuiComponent returnMenu;
-	private final ItemSet set;
+	private final SItemSet set;
 	
-	private final CustomFuelRegistry toModify;
+	private final FuelRegistryReference toModify;
 	
 	private final TextEditField nameField;
-	private final Collection<FuelEntry> entries;
+	private final List<FuelEntryValues> entries;
 	private final DynamicTextComponent errorComponent;
 	
-	public EditFuelRegistry(GuiComponent returnMenu, ItemSet set, 
-			CustomFuelRegistry oldValues, CustomFuelRegistry toModify) {
+	public EditFuelRegistry(GuiComponent returnMenu, SItemSet set,
+							FuelRegistryValues oldValues, FuelRegistryReference toModify) {
 		this.returnMenu = returnMenu;
 		this.set = set;
 		this.toModify = toModify;
@@ -36,10 +39,7 @@ public class EditFuelRegistry extends GuiMenu {
 			this.nameField = new TextEditField(oldValues.getName(), 
 					EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE
 			);
-			this.entries = new ArrayList<>();
-			for (FuelEntry oldEntry : oldValues.getEntries()) {
-				this.entries.add(new FuelEntry(oldEntry.getFuel(), oldEntry.getBurnTime()));
-			}
+			this.entries = Mutability.createDeepCopy(oldValues.getEntries(), true);
 		} else {
 			this.nameField = new TextEditField("", EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE);
 			this.entries = new ArrayList<>();
@@ -76,7 +76,9 @@ public class EditFuelRegistry extends GuiMenu {
 		
 		if (toModify != null) {
 			addComponent(new DynamicTextButton("Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-				String error = set.changeFuelRegistry(toModify, nameField.getText(), entries);
+				String error = Validation.toErrorString(
+						() -> set.changeFuelRegistry(toModify, FuelRegistryValues.createQuick(nameField.getText(), entries))
+				);
 				if (error != null) {
 					errorComponent.setText(error);
 					errorComponent.setProperties(EditProps.ERROR);
@@ -86,7 +88,9 @@ public class EditFuelRegistry extends GuiMenu {
 			}), 0.025f, 0.1f, 0.15f, 0.2f);
 		} else {
 			addComponent(new DynamicTextButton("Create", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-				String error = set.addFuelRegistry(new CustomFuelRegistry(nameField.getText(), entries));
+				String error = Validation.toErrorString(
+						() -> set.addFuelRegistry(FuelRegistryValues.createQuick(nameField.getText(), entries))
+				);
 				if (error != null) {
 					errorComponent.setProperties(EditProps.ERROR);
 					errorComponent.setText(error);

@@ -28,15 +28,12 @@ import nl.knokko.customitems.editor.menu.edit.recipe.result.ChooseResult;
 import nl.knokko.customitems.editor.menu.edit.select.item.SelectCustomItem;
 import nl.knokko.customitems.editor.menu.edit.select.item.SelectDataVanillaItem;
 import nl.knokko.customitems.editor.menu.edit.select.item.SelectSimpleVanillaItem;
-import nl.knokko.customitems.editor.set.ItemSet;
-import nl.knokko.customitems.editor.set.item.CustomItem;
-import nl.knokko.customitems.editor.set.recipe.ingredient.CustomItemIngredient;
-import nl.knokko.customitems.editor.set.recipe.ingredient.DataVanillaIngredient;
-import nl.knokko.customitems.editor.set.recipe.ingredient.NoIngredient;
-import nl.knokko.customitems.editor.set.recipe.ingredient.SimpleVanillaIngredient;
-import nl.knokko.customitems.editor.set.recipe.result.Result;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.CIMaterial;
+import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.recipe.ingredient.*;
+import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -45,14 +42,16 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import nl.knokko.gui.util.Option;
 
+import java.util.function.Consumer;
+
 public class ChooseIngredient extends GuiMenu {
 	
-	private final IngredientListener listener;
+	private final Consumer<IngredientValues> listener;
 	private final GuiComponent returnMenu;
-	private final ItemSet set;
+	private final SItemSet set;
 	private final boolean allowEmpty;
 
-	public ChooseIngredient(GuiComponent returnMenu, IngredientListener listener, boolean allowEmpty, ItemSet set) {
+	public ChooseIngredient(GuiComponent returnMenu, Consumer<IngredientValues> listener, boolean allowEmpty, SItemSet set) {
 		this.listener = listener;
 		this.returnMenu = returnMenu;
 		this.allowEmpty = allowEmpty;
@@ -73,7 +72,7 @@ public class ChooseIngredient extends GuiMenu {
 				0.15f, 0.5f, 0.25f, 0.6f);
 		addComponent(amountField, 0.3f, 0.5f, 0.4f, 0.6f);
 
-		Result[] pRemaining = {null};
+		ResultValues[] pRemaining = {null};
 		addComponent(new DynamicTextComponent("Remaining item:", EditProps.LABEL),
 				0.15f, 0.35f, 0.34f, 0.45f);
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
@@ -86,10 +85,10 @@ public class ChooseIngredient extends GuiMenu {
 		}), 0.475f, 0.35f, 0.575f, 0.45f);
 
 		addComponent(new DynamicTextButton("Custom Item", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new SelectCustomItem(returnMenu, (CustomItem item) -> {
+			state.getWindow().setMainComponent(new SelectCustomItem(returnMenu, (ItemReference item) -> {
 				Option.Int amount = amountField.getInt();
 				if (amount.hasValue()) {
-					listener.set(new CustomItemIngredient(item, (byte) amount.getValue(), pRemaining[0]));
+					listener.accept(CustomItemIngredientValues.createQuick(item, amount.getValue(), pRemaining[0]));
 				} else {
 					errorComponent.setText("The amount must be an integer between 1 and 64");
 				}
@@ -100,7 +99,7 @@ public class ChooseIngredient extends GuiMenu {
 			state.getWindow().setMainComponent(new SelectSimpleVanillaItem(returnMenu, (CIMaterial material) -> {
 			    Option.Int amount = amountField.getInt();
 			    if (amount.hasValue()) {
-					listener.set(new SimpleVanillaIngredient(material, (byte) amount.getValue(), pRemaining[0]));
+					listener.accept(SimpleVanillaIngredientValues.createQuick(material, amount.getValue(), pRemaining[0]));
 				} else {
 					errorComponent.setText("The amount must be an integer between 1 and 64");
 				}
@@ -111,7 +110,7 @@ public class ChooseIngredient extends GuiMenu {
 			state.getWindow().setMainComponent(new SelectDataVanillaItem(returnMenu, (CIMaterial material, byte data) -> {
 				Option.Int amount = amountField.getInt();
 				if (amount.hasValue()) {
-					listener.set(new DataVanillaIngredient(material, data, (byte) amount.getValue(), pRemaining[0]));
+					listener.accept(DataVanillaIngredientValues.createQuick(material, data, amount.getValue(), pRemaining[0]));
 				} else {
 					errorComponent.setText("The amount must be an integer between 1 and 64");
 				}
@@ -120,7 +119,7 @@ public class ChooseIngredient extends GuiMenu {
 		if (allowEmpty) {
 			addComponent(new DynamicTextButton("Empty", EditProps.BUTTON, EditProps.HOVER, () -> {
 				if (pRemaining[0] == null) {
-					listener.set(new NoIngredient());
+					listener.accept(new NoIngredientValues());
 					state.getWindow().setMainComponent(returnMenu);
 				} else {
 					errorComponent.setText("You can't have a remaining item when selecting Empty");

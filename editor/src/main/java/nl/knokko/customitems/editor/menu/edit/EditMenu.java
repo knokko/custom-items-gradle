@@ -31,8 +31,8 @@ import nl.knokko.customitems.editor.menu.edit.projectile.ProjectileMenu;
 import nl.knokko.customitems.editor.menu.edit.recipe.RecipeCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.texture.TextureCollectionEdit;
 import nl.knokko.customitems.editor.menu.main.MainMenu;
-import nl.knokko.customitems.editor.set.ItemSet;
 import nl.knokko.customitems.editor.util.HelpButtons;
+import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -41,7 +41,7 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 public class EditMenu extends GuiMenu {
 
-	protected final ItemSet set;
+	protected final SItemSet set;
 
 	protected final DynamicTextComponent errorComponent;
 
@@ -52,7 +52,7 @@ public class EditMenu extends GuiMenu {
 	protected final ProjectileMenu projectileMenu;
 	protected final ContainerPortal containerPortal;
 
-	public EditMenu(ItemSet set) {
+	public EditMenu(SItemSet set) {
 		this.set = set;
 		itemOverview = new ItemCollectionEdit(this);
 		textureOverview = new TextureCollectionEdit(this);
@@ -69,7 +69,7 @@ public class EditMenu extends GuiMenu {
 		errorComponent.setText("");
 	}
 
-	public ItemSet getSet() {
+	public SItemSet getSet() {
 		return set;
 	}
 

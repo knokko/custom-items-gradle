@@ -1,11 +1,10 @@
 package nl.knokko.customitems.editor.menu.edit.container.recipe;
 
-import java.util.Collection;
+import java.util.Map;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.set.ItemSet;
-import nl.knokko.customitems.recipe.ContainerRecipe.OutputEntry;
-import nl.knokko.customitems.recipe.OutputTable;
+import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.color.SimpleGuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -21,15 +20,15 @@ public class OutputSlotComponent implements GuiComponent {
 	
 	private final String name;
 	private final GuiComponent outerMenu;
-	private final Collection<OutputEntry> outputs;
-	private final ItemSet set;
+	private final Map<String, OutputTableValues> outputs;
+	private final SItemSet set;
 	
 	private GuiComponentState state;
 	private GuiTexture topTextTexture;
 	private GuiTexture bottomTextTexture;
 	
 	public OutputSlotComponent(String name, GuiComponent outerMenu, 
-			Collection<OutputEntry> outputs, ItemSet set) {
+			Map<String, OutputTableValues> outputs, SItemSet set) {
 		this.name = name;
 		this.outerMenu = outerMenu;
 		this.outputs = outputs;
@@ -39,35 +38,16 @@ public class OutputSlotComponent implements GuiComponent {
 	public String getName() {
 		return name;
 	}
-	
-	private OutputEntry getOwnEntry() {
-		for (OutputEntry entry : outputs) {
-			if (entry.getOutputSlotName().equals(name)) {
-				return entry;
-			}
-		}
-		
-		return null;
-	}
-	
-	private OutputTable getOwnResultTable() {
-		OutputEntry ownEntry = getOwnEntry();
-		if (ownEntry != null) {
-			return ownEntry.getOutputTable();
-		} else {
-			return null;
-		}
-	}
-	
-	private void setResultTable(OutputTable newResultTable) {
+
+	private void setResultTable(OutputTableValues newResultTable) {
 		
 		// Update outputs collection
-		OutputEntry ownEntry = getOwnEntry();
+		OutputTableValues ownEntry = outputs.get(name);
 		if (ownEntry != null) {
-			outputs.remove(ownEntry);
+			outputs.remove(name);
 		}
 		if (newResultTable != null) {
-			outputs.add(new OutputEntry(name, newResultTable));
+			outputs.put(name, newResultTable);
 		}
 		
 		// Update text
@@ -89,7 +69,7 @@ public class OutputSlotComponent implements GuiComponent {
 		this.topTextTexture = state.getWindow().getTextureLoader().loadTexture(
 				TextBuilder.createTexture("output", EditProps.LABEL)
 		);
-		this.setResultTable(this.getOwnResultTable());
+		this.setResultTable(outputs.get(name));
 	}
 
 	@Override
@@ -116,8 +96,9 @@ public class OutputSlotComponent implements GuiComponent {
 
 	@Override
 	public void click(float x, float y, int button) {
+		OutputTableValues ownTable = outputs.get(name);
 		state.getWindow().setMainComponent(new EditOutputTable(
-				outerMenu, getOwnResultTable(), this::setResultTable, set
+				outerMenu, ownTable == null ? new OutputTableValues(true) : ownTable, this::setResultTable, set
 		));
 	}
 

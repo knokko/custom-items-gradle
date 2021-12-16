@@ -85,6 +85,11 @@ public class ProgressIndicatorSlotValues extends ContainerSlotValues {
         return new ProgressIndicatorSlotValues(this, mutable);
     }
 
+    @Override
+    public ProgressIndicatorSlotValues nonConflictingCopy(ContainerSlotValues[][] currentSlots) {
+        return this.copy(true);
+    }
+
     public SlotDisplayValues getDisplay() {
         return display;
     }

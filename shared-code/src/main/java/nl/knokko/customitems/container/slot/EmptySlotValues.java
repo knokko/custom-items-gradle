@@ -29,6 +29,11 @@ public class EmptySlotValues extends ContainerSlotValues {
     }
 
     @Override
+    public EmptySlotValues nonConflictingCopy(ContainerSlotValues[][] currentSlots) {
+        return new EmptySlotValues();
+    }
+
+    @Override
     public boolean canInsertItems() {
         return false;
     }

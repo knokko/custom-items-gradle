@@ -3,12 +3,12 @@ package nl.knokko.customitems.editor.menu.edit.container.slot;
 import java.util.function.Consumer;
 
 import nl.knokko.customitems.container.IndicatorDomain;
-import nl.knokko.customitems.container.slot.CustomSlot;
-import nl.knokko.customitems.container.slot.ProgressIndicatorCustomSlot;
-import nl.knokko.customitems.container.slot.display.SlotDisplay;
+import nl.knokko.customitems.container.slot.ContainerSlotValues;
+import nl.knokko.customitems.container.slot.ProgressIndicatorSlotValues;
+import nl.knokko.customitems.container.slot.display.SlotDisplayValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.set.item.CustomItem;
 import nl.knokko.customitems.editor.util.HelpButtons;
+import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -20,12 +20,12 @@ import nl.knokko.gui.util.Option;
 public class CreateCraftingIndicatorSlot extends GuiMenu {
 	
 	private final GuiComponent returnMenu;
-	private final Consumer<CustomSlot> submitSlot;
-	private final Iterable<CustomItem> customItems;
+	private final Consumer<ContainerSlotValues> submitSlot;
+	private final Iterable<ItemReference> customItems;
 	private final DynamicTextComponent errorComponent;
 	
-	public CreateCraftingIndicatorSlot(GuiComponent returnMenu, Consumer<CustomSlot> submitSlot, 
-			Iterable<CustomItem> customItems) {
+	public CreateCraftingIndicatorSlot(GuiComponent returnMenu, Consumer<ContainerSlotValues> submitSlot,
+			Iterable<ItemReference> customItems) {
 		this.returnMenu = returnMenu;
 		this.submitSlot = submitSlot;
 		this.customItems = customItems;
@@ -46,7 +46,7 @@ public class CreateCraftingIndicatorSlot extends GuiMenu {
 			state.getWindow().setMainComponent(returnMenu);
 		}), 0.025f, 0.7f, 0.175f, 0.8f);
 		
-		SlotDisplay[] pDisplays = { null, null };
+		SlotDisplayValues[] pDisplays = { null, null };
 		addComponent(new DynamicTextButton("Display...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new CreateDisplay(this, 
 					newDisplay -> pDisplays[0] = newDisplay, false, customItems)
@@ -94,8 +94,8 @@ public class CreateCraftingIndicatorSlot extends GuiMenu {
 				return;
 			}
 			
-			submitSlot.accept(new ProgressIndicatorCustomSlot( 
-					pDisplays[0], pDisplays[1], 
+			submitSlot.accept(ProgressIndicatorSlotValues.createQuick(
+					pDisplays[0], pDisplays[1],
 					new IndicatorDomain(begin.getValue(), end.getValue())
 			));
 			state.getWindow().setMainComponent(returnMenu);

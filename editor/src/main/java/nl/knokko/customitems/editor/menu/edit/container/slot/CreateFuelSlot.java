@@ -2,15 +2,15 @@ package nl.knokko.customitems.editor.menu.edit.container.slot;
 
 import java.util.function.Consumer;
 
-import nl.knokko.customitems.container.fuel.CustomFuelRegistry;
-import nl.knokko.customitems.container.slot.CustomSlot;
-import nl.knokko.customitems.container.slot.FuelCustomSlot;
-import nl.knokko.customitems.container.slot.display.SlotDisplay;
+import nl.knokko.customitems.container.slot.ContainerSlotValues;
+import nl.knokko.customitems.container.slot.FuelSlotValues;
+import nl.knokko.customitems.container.slot.display.SlotDisplayValues;
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.container.fuel.EditFuelRegistry;
-import nl.knokko.customitems.editor.set.ItemSet;
 import nl.knokko.customitems.editor.util.HelpButtons;
+import nl.knokko.customitems.itemset.FuelRegistryReference;
+import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -21,14 +21,14 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 public class CreateFuelSlot extends GuiMenu {
 	
 	private final GuiComponent returnMenu;
-	private final Consumer<CustomSlot> submitSlot;
-	private final ItemSet set;
-	private final Iterable<CustomSlot> existingSlots;
-	private final CustomSlot slotToReplace;
+	private final Consumer<ContainerSlotValues> submitSlot;
+	private final SItemSet set;
+	private final Iterable<ContainerSlotValues> existingSlots;
+	private final ContainerSlotValues slotToReplace;
 	private final DynamicTextComponent errorComponent;
 	
-	public CreateFuelSlot(GuiComponent returnMenu, Consumer<CustomSlot> submitSlot,
-			ItemSet set, Iterable<CustomSlot> existingSlots, CustomSlot slotToReplace) {
+	public CreateFuelSlot(GuiComponent returnMenu, Consumer<ContainerSlotValues> submitSlot,
+			SItemSet set, Iterable<ContainerSlotValues> existingSlots, ContainerSlotValues slotToReplace) {
 		this.returnMenu = returnMenu;
 		this.submitSlot = submitSlot;
 		this.set = set;
@@ -49,13 +49,13 @@ public class CreateFuelSlot extends GuiMenu {
 		addComponent(new DynamicTextComponent("Name:", EditProps.LABEL), 0.25f, 0.7f, 0.35f, 0.75f);
 		addComponent(nameField, 0.375f, 0.7f, 0.5f, 0.75f);
 		
-		CustomFuelRegistry[] pChosenRegistry = { null };
+		FuelRegistryReference[] pChosenRegistry = { null };
 		
 		addComponent(new DynamicTextComponent("Registry:", EditProps.LABEL), 0.25f, 0.6f, 0.4f, 0.65f);
 		addComponent(CollectionSelect.createButton(
-				set.getBackingFuelRegistries(), chosenRegistry -> {
+				set.getFuelRegistries().references(), chosenRegistry -> {
 					pChosenRegistry[0] = chosenRegistry;
-				}, registry -> registry == null ? "Select..." : registry.getName(), 
+				}, registry -> registry == null ? "Select..." : registry.get().getName(),
 				null
 			), 0.425f, 0.6f, 0.55f, 0.65f
 		);
@@ -63,12 +63,12 @@ public class CreateFuelSlot extends GuiMenu {
 			state.getWindow().setMainComponent(new EditFuelRegistry(this, set, null, null));
 		}), 0.6f, 0.6f, 0.75f, 0.65f);
 		
-		SlotDisplay[] pPlaceholder = { null };
+		SlotDisplayValues[] pPlaceholder = { null };
 		addComponent(new DynamicTextComponent("Placeholder:", EditProps.LABEL), 0.25f, 0.5f, 0.45f, 0.55f);
 		addComponent(new DynamicTextButton("Choose...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new CreateDisplay(this, 
 					newDisplay -> pPlaceholder[0] = newDisplay, true, 
-			set.getBackingItems()));
+			set.getItems().references()));
 		}), 0.475f, 0.5f, 0.625f, 0.55f);
 		addComponent(new DynamicTextButton("Clear", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
 			pPlaceholder[0] = null;
@@ -79,9 +79,9 @@ public class CreateFuelSlot extends GuiMenu {
 				errorComponent.setText("You need to give this fuel slot a name");
 				return;
 			}
-			for (CustomSlot existingSlot : existingSlots) {
-				if (existingSlot instanceof FuelCustomSlot) {
-					FuelCustomSlot existingFuelSlot = (FuelCustomSlot) existingSlot;
+			for (ContainerSlotValues existingSlot : existingSlots) {
+				if (existingSlot instanceof FuelSlotValues) {
+					FuelSlotValues existingFuelSlot = (FuelSlotValues) existingSlot;
 					if (
 							existingFuelSlot != slotToReplace && 
 							existingFuelSlot.getName().equals(nameField.getText())
@@ -96,7 +96,7 @@ public class CreateFuelSlot extends GuiMenu {
 				return;
 			}
 			// Placeholder is allowed to be null
-			submitSlot.accept(new FuelCustomSlot(nameField.getText(), pChosenRegistry[0], pPlaceholder[0]));
+			submitSlot.accept(FuelSlotValues.createQuick(nameField.getText(), pChosenRegistry[0], pPlaceholder[0]));
 			state.getWindow().setMainComponent(returnMenu);
 		}), 0.025f, 0.2f, 0.2f, 0.3f);
 		HelpButtons.addHelpLink(this, "edit menu/containers/slots/fuel.html");

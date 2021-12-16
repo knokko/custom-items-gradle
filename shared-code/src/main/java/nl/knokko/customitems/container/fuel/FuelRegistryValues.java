@@ -34,6 +34,13 @@ public class FuelRegistryValues extends ModelValues {
         return result;
     }
 
+    public static FuelRegistryValues createQuick(String name, List<FuelEntryValues> entries) {
+        FuelRegistryValues result = new FuelRegistryValues(true);
+        result.setName(name);
+        result.setEntries(entries);
+        return result;
+    }
+
     private String name;
     private List<FuelEntryValues> entries;
 

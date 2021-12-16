@@ -75,6 +75,11 @@ public class StorageSlotValues extends ContainerSlotValues {
         return new StorageSlotValues(this, mutable);
     }
 
+    @Override
+    public StorageSlotValues nonConflictingCopy(ContainerSlotValues[][] currentSlots) {
+        return this.copy(true);
+    }
+
     public SlotDisplayValues getPlaceholder() {
         return placeholder;
     }

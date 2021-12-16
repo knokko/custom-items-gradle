@@ -27,6 +27,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.imageio.ImageIO;
 
@@ -39,7 +40,7 @@ import nl.knokko.gui.component.text.TextEditField;
 import nl.knokko.gui.texture.GuiTexture;
 import nl.knokko.gui.util.TextBuilder.Properties;
 
-public class TextArrayEditMenu extends GuiMenu {
+public class TextListEditMenu extends GuiMenu {
 	
 	public static final BufferedImage ADD_IMAGE;
 	public static final BufferedImage ADD_HOVER_IMAGE;
@@ -48,10 +49,10 @@ public class TextArrayEditMenu extends GuiMenu {
 	
 	static {
 		try {
-			ADD_IMAGE = ImageIO.read(TextArrayEditMenu.class.getClassLoader().getResource("nl/knokko/gui/images/icons/add.png"));
-			ADD_HOVER_IMAGE = ImageIO.read(TextArrayEditMenu.class.getClassLoader().getResource("nl/knokko/gui/images/icons/add_hover.png"));
-			DELETE_IMAGE = ImageIO.read(TextArrayEditMenu.class.getClassLoader().getResource("nl/knokko/gui/images/icons/delete.png"));
-			DELETE_HOVER_IMAGE = ImageIO.read(TextArrayEditMenu.class.getClassLoader().getResource("nl/knokko/gui/images/icons/delete_hover.png"));
+			ADD_IMAGE = ImageIO.read(TextListEditMenu.class.getClassLoader().getResource("nl/knokko/gui/images/icons/add.png"));
+			ADD_HOVER_IMAGE = ImageIO.read(TextListEditMenu.class.getClassLoader().getResource("nl/knokko/gui/images/icons/add_hover.png"));
+			DELETE_IMAGE = ImageIO.read(TextListEditMenu.class.getClassLoader().getResource("nl/knokko/gui/images/icons/delete.png"));
+			DELETE_HOVER_IMAGE = ImageIO.read(TextListEditMenu.class.getClassLoader().getResource("nl/knokko/gui/images/icons/delete_hover.png"));
 		} catch (IOException | IllegalArgumentException e) {
 			throw new Error("Can't load required images for the Gui library: " + e.getMessage());
 		}
@@ -73,17 +74,17 @@ public class TextArrayEditMenu extends GuiMenu {
 	
 	protected List<SubComponent> edits;
 	
-	protected String[] initialStrings;
+	protected List<String> initialStrings;
 	
 	protected GuiComponent previousMenu;
-	protected ReturnAction returnAction;
+	protected Consumer<List<String>> returnAction;
 
-	public TextArrayEditMenu(GuiComponent previousMenu, ReturnAction returnAction, GuiColor backgroundColor,
-			Properties cancelProperties, Properties cancelHoverProperties,
-			Properties applyProperties, Properties applyHoverProperties,
-			Properties textProperties, Properties textActiveProperties, String... initialStrings) {
+	public TextListEditMenu(GuiComponent previousMenu, Consumer<List<String>> returnAction, GuiColor backgroundColor,
+							Properties cancelProperties, Properties cancelHoverProperties,
+							Properties applyProperties, Properties applyHoverProperties,
+							Properties textProperties, Properties textActiveProperties, List<String> initialStrings) {
 		this.initialStrings = initialStrings;
-		this.edits = new ArrayList<SubComponent>(initialStrings.length);
+		this.edits = new ArrayList<>(initialStrings.size());
 		this.previousMenu = previousMenu;
 		this.returnAction = returnAction;
 		
@@ -111,20 +112,19 @@ public class TextArrayEditMenu extends GuiMenu {
 			state.getWindow().markChange();
 		}), 0.1f, 0.5f, 0.25f, 0.6f);
 		addComponent(new TextButton("Apply", applyProperties, applyHoverProperties, () -> {
-			String[] result = new String[edits.size()];
-			int resultIndex = 0;
+			List<String> result = new ArrayList<>(edits.size());
 			for(SubComponent component : edits) {
-				result[resultIndex++] = ((TextEditField) component.getComponent()).getText();
+				result.add(((TextEditField) component.getComponent()).getText());
 			}
-			returnAction.apply(result);
+			returnAction.accept(result);
 			state.getWindow().setMainComponent(previousMenu);
 		}), 0.1f, 0.3f, 0.25f, 0.4f);
 		addTexture = state.getWindow().getTextureLoader().loadTexture(ADD_IMAGE);
 		addHoverTexture = state.getWindow().getTextureLoader().loadTexture(ADD_HOVER_IMAGE);
 		deleteTexture = state.getWindow().getTextureLoader().loadTexture(DELETE_IMAGE);
 		deleteHoverTexture = state.getWindow().getTextureLoader().loadTexture(DELETE_HOVER_IMAGE);
-		for(int index = 0; index < initialStrings.length; index++) {
-			addLine(index, initialStrings[index]);
+		for (int index = 0; index < initialStrings.size(); index++) {
+			addLine(index, initialStrings.get(index));
 		}
 	}
 	
@@ -164,10 +164,5 @@ public class TextArrayEditMenu extends GuiMenu {
 		if(subComponent.getComponent() instanceof TextEditField)
 			edits.remove(subComponent);
 		super.removeComponent(subComponent);
-	}
-	
-	public static interface ReturnAction {
-		
-		void apply(String[] strings);
 	}
 }

@@ -52,7 +52,7 @@ import nl.knokko.customitems.item.ReplaceCondition.ReplacementOperation;
 import nl.knokko.customitems.item.nbt.ExtraItemNbt;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.menu.GuiMenu;
-import nl.knokko.gui.component.menu.TextArrayEditMenu;
+import nl.knokko.gui.component.menu.TextListEditMenu;
 import nl.knokko.gui.component.text.FloatEditField;
 import nl.knokko.gui.component.text.TextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
@@ -352,7 +352,7 @@ public abstract class EditItemBase extends GuiMenu {
 
 	private void addLoreComponent() {
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new TextArrayEditMenu(EditItemBase.this, (String[] newLore) -> {
+			state.getWindow().setMainComponent(new TextListEditMenu(EditItemBase.this, (String[] newLore) -> {
 				lore = newLore;
 				for (int index = 0; index < lore.length; index++)
 					lore[index] = lore[index].replace('&', (char) 167);
@@ -406,7 +406,7 @@ public abstract class EditItemBase extends GuiMenu {
 	
 	private void addCommandsComponent() {
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new TextArrayEditMenu(EditItemBase.this, (String[] newCommands) -> {
+			state.getWindow().setMainComponent(new TextListEditMenu(EditItemBase.this, (String[] newCommands) -> {
 				commands = newCommands;
 				for (int index = 0; index < commands.length; index++)
 					commands[index] = commands[index].replace('&', (char) 167);

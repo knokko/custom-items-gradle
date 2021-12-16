@@ -25,7 +25,9 @@ package nl.knokko.customitems.editor.menu.edit.select.item;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Locale;
+import java.util.function.Consumer;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
@@ -40,14 +42,14 @@ import nl.knokko.gui.component.text.TextEditField;
 public class SelectSimpleVanillaItem extends GuiMenu {
 	
 	private final GuiComponent returnMenu;
-	private final Receiver receiver;
+	private final Consumer<CIMaterial> receiver;
 	private final List list;
 	
 	private final TextEditField filterField;
 	
 	private final boolean addNoneButton;
 
-	public SelectSimpleVanillaItem(GuiComponent returnMenu, Receiver receiver, boolean addNoneButton) {
+	public SelectSimpleVanillaItem(GuiComponent returnMenu, Consumer<CIMaterial> receiver, boolean addNoneButton) {
 		this.returnMenu = returnMenu;
 		this.receiver = receiver;
 		this.addNoneButton = addNoneButton;
@@ -106,19 +108,17 @@ public class SelectSimpleVanillaItem extends GuiMenu {
 		
 		private List() {
 			CIMaterial[] materials = CIMaterial.values();
-			Arrays.sort(materials, (CIMaterial a, CIMaterial b) -> {
-				return a.name().compareTo(b.name());
-			});
-			buttons = new ArrayList<DynamicTextButton>(materials.length);
+			Arrays.sort(materials, Comparator.comparing(Enum::name));
+			buttons = new ArrayList<>(materials.length);
 			for (CIMaterial material : materials) {
 				buttons.add(new DynamicTextButton(material.toString(), EditProps.SELECT_BASE, EditProps.SELECT_HOVER, () -> {
-					receiver.onSelect(material);
+					receiver.accept(material);
 					state.getWindow().setMainComponent(returnMenu);
 				}));
 			}
 			if (addNoneButton) {
 				none = new DynamicTextButton("None", EditProps.SELECT_BASE, EditProps.SELECT_HOVER, () -> {
-					receiver.onSelect(null);
+					receiver.accept(null);
 					state.getWindow().setMainComponent(returnMenu);
 				});
 			} else {
@@ -159,10 +159,5 @@ public class SelectSimpleVanillaItem extends GuiMenu {
 		public GuiColor getBackgroundColor() {
 			return EditProps.BACKGROUND;
 		}
-	}
-	
-	public static interface Receiver {
-		
-		void onSelect(CIMaterial material);
 	}
 }

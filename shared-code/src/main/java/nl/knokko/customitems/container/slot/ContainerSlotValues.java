@@ -58,6 +58,8 @@ public abstract class ContainerSlotValues extends ModelValues {
     @Override
     public abstract ContainerSlotValues copy(boolean mutable);
 
+    public abstract ContainerSlotValues nonConflictingCopy(ContainerSlotValues[][] currentSlots);
+
     public abstract boolean canInsertItems();
 
     public abstract boolean canTakeItems();

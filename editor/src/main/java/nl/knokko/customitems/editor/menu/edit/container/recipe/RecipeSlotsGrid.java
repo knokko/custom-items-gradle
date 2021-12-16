@@ -1,28 +1,26 @@
 package nl.knokko.customitems.editor.menu.edit.container.recipe;
 
-import java.util.Collection;
-
-import nl.knokko.customitems.container.slot.CustomSlot;
-import nl.knokko.customitems.container.slot.InputCustomSlot;
-import nl.knokko.customitems.container.slot.OutputCustomSlot;
+import nl.knokko.customitems.container.slot.*;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.set.ItemSet;
-import nl.knokko.customitems.recipe.ContainerRecipe.InputEntry;
-import nl.knokko.customitems.recipe.ContainerRecipe.OutputEntry;
+import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.recipe.OutputTableValues;
+import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 
+import java.util.Map;
+
 public class RecipeSlotsGrid extends GuiMenu {
 	
 	private final GuiComponent outerMenu;
-	private final CustomSlot[][] slots;
-	private final Collection<InputEntry> inputs;
-	private final Collection<OutputEntry> outputs;
-	private final ItemSet set;
+	private final ContainerSlotValues[][] slots;
+	private final Map<String, IngredientValues> inputs;
+	private final Map<String, OutputTableValues> outputs;
+	private final SItemSet set;
 	
-	public RecipeSlotsGrid(CustomSlot[][] slots, GuiComponent outerMenu,
-			Collection<InputEntry> inputs, Collection<OutputEntry> outputs, ItemSet set) {
+	public RecipeSlotsGrid(ContainerSlotValues[][] slots, GuiComponent outerMenu,
+			Map<String, IngredientValues> inputs, Map<String, OutputTableValues> outputs, SItemSet set) {
 		this.slots = slots;
 		this.outerMenu = outerMenu;
 		this.inputs = inputs;
@@ -36,14 +34,14 @@ public class RecipeSlotsGrid extends GuiMenu {
 		for (int x = 0; x < 9; x++) {
 			for (int y = 0; y < numRows; y++) {
 				GuiComponent slotComponent;
-				CustomSlot slot = slots[x][y];
-				if (slot instanceof InputCustomSlot) {
-					InputCustomSlot inputSlot = (InputCustomSlot) slot;
+				ContainerSlotValues slot = slots[x][y];
+				if (slot instanceof InputSlotValues) {
+					InputSlotValues inputSlot = (InputSlotValues) slot;
 					slotComponent = new InputSlotComponent(
 							inputSlot.getName(), outerMenu, inputs, set
 					);
-				} else if (slot instanceof OutputCustomSlot) {
-					OutputCustomSlot outputSlot = (OutputCustomSlot) slot;
+				} else if (slot instanceof OutputSlotValues) {
+					OutputSlotValues outputSlot = (OutputSlotValues) slot;
 					slotComponent = new OutputSlotComponent(
 							outputSlot.getName(), outerMenu, outputs, set
 					);
