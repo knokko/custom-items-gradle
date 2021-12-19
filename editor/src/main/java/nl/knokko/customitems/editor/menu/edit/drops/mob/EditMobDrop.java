@@ -1,13 +1,15 @@
 package nl.knokko.customitems.editor.menu.edit.drops.mob;
 
 import nl.knokko.customitems.drops.CIEntityType;
-import nl.knokko.customitems.drops.Drop;
-import nl.knokko.customitems.drops.EntityDrop;
+import nl.knokko.customitems.drops.DropValues;
+import nl.knokko.customitems.drops.MobDropValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.menu.edit.drops.SelectDrop;
-import nl.knokko.customitems.editor.set.ItemSet;
 import nl.knokko.customitems.editor.util.HelpButtons;
+import nl.knokko.customitems.editor.util.Validation;
+import nl.knokko.customitems.itemset.MobDropReference;
+import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
@@ -19,18 +21,18 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 public class EditMobDrop extends GuiMenu {
 	
-	private final ItemSet set;
+	private final SItemSet set;
 	private final GuiComponent returnMenu;
-	private final EntityDrop toModify;
+	private final MobDropReference toModify;
 	
 	private final NameField nameField;
 	private final CheckboxComponent requiresName;
 	
-	private Drop selectedDrop;
+	private DropValues selectedDrop;
 	private CIEntityType selectedType;
 	private final DynamicTextComponent errorComponent;
 
-	public EditMobDrop(ItemSet set, GuiComponent returnMenu, EntityDrop oldValues, EntityDrop toModify) {
+	public EditMobDrop(SItemSet set, GuiComponent returnMenu, MobDropValues oldValues, MobDropReference toModify) {
 		this.set = set;
 		this.returnMenu = returnMenu;
 		this.toModify = toModify;
@@ -71,7 +73,7 @@ public class EditMobDrop extends GuiMenu {
 		DynamicTextComponent[] changeButtons = { null, null };
 		
 		addComponent(new DynamicTextComponent("Drop:", EditProps.LABEL), 0.3f, 0.7f, 0.45f, 0.8f);
-		SelectDrop selectDrop = new SelectDrop(set, this, selectedDrop, (Drop newDrop) -> {
+		SelectDrop selectDrop = new SelectDrop(set, this, selectedDrop, (DropValues newDrop) -> {
 			selectedDrop = newDrop;
 			changeButtons[0].setText(newDrop.toString());
 		});
@@ -96,8 +98,8 @@ public class EditMobDrop extends GuiMenu {
 					errorComponent.setText("You need to choose a custom item to drop");
 					return;
 				}
-				String error = set.addMobDrop(new EntityDrop(selectedType, 
-						requiresName.isChecked() ? nameField.getComponent().getText() : null, selectedDrop));
+				String error = Validation.toErrorString(() -> set.addMobDrop(MobDropValues.createQuick(selectedType,
+						requiresName.isChecked() ? nameField.getComponent().getText() : null, selectedDrop)));
 				if (error == null) {
 					state.getWindow().setMainComponent(returnMenu);
 				} else {
@@ -106,7 +108,8 @@ public class EditMobDrop extends GuiMenu {
 			});
 		} else {
 			doneButton = new DynamicTextButton("Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-				String error = set.changeMobDrop(toModify, selectedType, requiresName.isChecked() ? nameField.getComponent().getText() : null, selectedDrop);
+				MobDropValues newValues = MobDropValues.createQuick(selectedType, requiresName.isChecked() ? nameField.getComponent().getText() : null, selectedDrop);
+				String error = Validation.toErrorString(() -> set.changeMobDrop(toModify, newValues));
 				if (error == null)
 					state.getWindow().setMainComponent(returnMenu);
 				else 

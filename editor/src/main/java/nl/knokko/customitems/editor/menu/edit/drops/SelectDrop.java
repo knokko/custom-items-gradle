@@ -4,13 +4,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Consumer;
 
-import nl.knokko.customitems.drops.Drop;
+import nl.knokko.customitems.drops.DropValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.container.recipe.EditOutputTable;
-import nl.knokko.customitems.editor.set.ItemSet;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.item.CustomItem;
-import nl.knokko.customitems.recipe.OutputTable;
+import nl.knokko.customitems.editor.util.Validation;
+import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.image.CheckboxComponent;
@@ -20,27 +21,27 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 public class SelectDrop extends GuiMenu {
 	
-	private final ItemSet set;
+	private final SItemSet set;
 	private final GuiComponent returnMenu;
-	private final Consumer<Drop> receiver;
+	private final Consumer<DropValues> receiver;
 	
-	private OutputTable dropTable;
+	private OutputTableValues dropTable;
 	private boolean cancelNormalDrop;
-	private Collection<CustomItem> requiredHeldItems;
+	private Collection<ItemReference> requiredHeldItems;
 	
 	private final DynamicTextComponent errorComponent;
 	
-	public SelectDrop(ItemSet set, GuiComponent returnMenu, Drop previous, Consumer<Drop> receiver) {
+	public SelectDrop(SItemSet set, GuiComponent returnMenu, DropValues previous, Consumer<DropValues> receiver) {
 		this.set = set;
 		this.returnMenu = returnMenu;
 		this.receiver = receiver;
 		
 		if (previous != null) {
-			dropTable = previous.getDropTable();
-			cancelNormalDrop = previous.cancelNormalDrop();
+			dropTable = previous.getOutputTable();
+			cancelNormalDrop = previous.shouldCancelNormalDrops();
 			requiredHeldItems = previous.getRequiredHeldItems();
 		} else {
-			dropTable = new OutputTable();
+			dropTable = new OutputTableValues(true);
 			cancelNormalDrop = false;
 			requiredHeldItems = new ArrayList<>();
 		}
@@ -72,7 +73,7 @@ public class SelectDrop extends GuiMenu {
 						EditProps.LABEL), 0.3f, 0.55f, 0.65f, 0.65f
 		);
 		addComponent(new DynamicTextButton("Choose...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new ChooseRequiredHeldItems(set.getBackingItems(), requiredHeldItems, newRequiredHeldItems -> {
+			state.getWindow().setMainComponent(new ChooseRequiredHeldItems(set, requiredHeldItems, newRequiredHeldItems -> {
 				requiredHeldItems = newRequiredHeldItems;
 			}, this, "Players can use any item"));
 		}), 0.7f, 0.55f, 0.85f, 0.65f);
@@ -82,9 +83,9 @@ public class SelectDrop extends GuiMenu {
 		addComponent(preventOtherDrops, 0.25f, 0.225f, 0.275f, 0.25f);
 		
 		addComponent(new DynamicTextButton("Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-			String error = dropTable.validate();
+			String error = Validation.toErrorString(() -> dropTable.validate(set));
 			if (error == null) {
-				receiver.accept(new Drop(dropTable, preventOtherDrops.isChecked(), requiredHeldItems));
+				receiver.accept(DropValues.createQuick(dropTable, preventOtherDrops.isChecked(), requiredHeldItems));
 				state.getWindow().setMainComponent(returnMenu);
 			} else {
 				errorComponent.setText(error);

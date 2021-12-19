@@ -2,20 +2,21 @@ package nl.knokko.customitems.editor.menu.edit.drops.mob;
 
 import java.awt.image.BufferedImage;
 
-import nl.knokko.customitems.drops.EntityDrop;
 import nl.knokko.customitems.editor.menu.edit.*;
-import nl.knokko.customitems.editor.set.recipe.result.CustomItemResult;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.recipe.OutputTable;
+import nl.knokko.customitems.editor.util.Validation;
+import nl.knokko.customitems.itemset.MobDropReference;
+import nl.knokko.customitems.recipe.OutputTableValues;
+import nl.knokko.customitems.recipe.result.CustomItemResultValues;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
-public class MobDropCollectionEdit extends CollectionEdit<EntityDrop> {
+public class MobDropCollectionEdit extends CollectionEdit<MobDropReference> {
 	
 	private final EditMenu menu;
 
 	public MobDropCollectionEdit(EditMenu menu) {
-		super(new MobDropActionHandler(menu), menu.getSet().getBackingMobDrops());
+		super(new MobDropActionHandler(menu), menu.getSet().getMobDrops().references());
 		this.menu = menu;
 	}
 	
@@ -29,7 +30,7 @@ public class MobDropCollectionEdit extends CollectionEdit<EntityDrop> {
 		HelpButtons.addHelpLink(this, "edit%20menu/drops/mobs.html");
 	}
 	
-	private static class MobDropActionHandler implements ActionHandler<EntityDrop> {
+	private static class MobDropActionHandler implements ActionHandler<MobDropReference> {
 		
 		private final EditMenu menu;
 		
@@ -43,13 +44,13 @@ public class MobDropCollectionEdit extends CollectionEdit<EntityDrop> {
 		}
 
 		@Override
-		public BufferedImage getImage(EntityDrop drop) {
+		public BufferedImage getImage(MobDropReference drop) {
 			
 			// If we have any custom item drop, use that as icon!
-			OutputTable dropTable = drop.getDrop().getDropTable();
-			for (OutputTable.Entry entry : dropTable.getEntries()) {
-				if (entry.getResult() instanceof CustomItemResult) {
-					CustomItemResult customResult = (CustomItemResult) entry.getResult();
+			OutputTableValues dropTable = drop.get().getDrop().getOutputTable();
+			for (OutputTableValues.Entry entry : dropTable.getEntries()) {
+				if (entry.getResult() instanceof CustomItemResultValues) {
+					CustomItemResultValues customResult = (CustomItemResultValues) entry.getResult();
 					return customResult.getItem().getTexture().getImage();
 				}
 			}
@@ -59,26 +60,23 @@ public class MobDropCollectionEdit extends CollectionEdit<EntityDrop> {
 		}
 
 		@Override
-		public String getLabel(EntityDrop item) {
-			return item.toString();
+		public String getLabel(MobDropReference item) {
+			return item.get().toString();
 		}
 
 		@Override
-		public GuiComponent createEditMenu(EntityDrop itemToEdit, GuiComponent returnMenu) {
-			return new EditMobDrop(menu.getSet(), returnMenu, itemToEdit, itemToEdit);
+		public GuiComponent createEditMenu(MobDropReference itemToEdit, GuiComponent returnMenu) {
+			return new EditMobDrop(menu.getSet(), returnMenu, itemToEdit.get(), itemToEdit);
 		}
 		
 		@Override
-		public GuiComponent createCopyMenu(EntityDrop itemToEdit, GuiComponent returnMenu) {
-			return new EditMobDrop(menu.getSet(), returnMenu, itemToEdit, null);
+		public GuiComponent createCopyMenu(MobDropReference itemToEdit, GuiComponent returnMenu) {
+			return new EditMobDrop(menu.getSet(), returnMenu, itemToEdit.get(), null);
 		}
 
 		@Override
-		public String deleteItem(EntityDrop itemToDelete) {
-			menu.getSet().removeMobDrop(itemToDelete);
-			
-			// Not much to go wrong here
-			return null;
+		public String deleteItem(MobDropReference itemToDelete) {
+			return Validation.toErrorString(() -> menu.getSet().removeMobDrop(itemToDelete));
 		}
 	}
 }

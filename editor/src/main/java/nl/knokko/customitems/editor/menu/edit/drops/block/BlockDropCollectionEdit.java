@@ -2,22 +2,23 @@ package nl.knokko.customitems.editor.menu.edit.drops.block;
 
 import java.awt.image.BufferedImage;
 
-import nl.knokko.customitems.drops.BlockDrop;
 import nl.knokko.customitems.editor.menu.edit.CollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.set.recipe.result.CustomItemResult;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.recipe.OutputTable;
+import nl.knokko.customitems.editor.util.Validation;
+import nl.knokko.customitems.itemset.BlockDropReference;
+import nl.knokko.customitems.recipe.OutputTableValues;
+import nl.knokko.customitems.recipe.result.CustomItemResultValues;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
-public class BlockDropCollectionEdit extends CollectionEdit<BlockDrop> {
+public class BlockDropCollectionEdit extends CollectionEdit<BlockDropReference> {
 	
 	private final EditMenu menu;
 
 	public BlockDropCollectionEdit(EditMenu menu) {
-		super(new BlockDropActionHandler(menu), menu.getSet().getBackingBlockDrops());
+		super(new BlockDropActionHandler(menu), menu.getSet().getBlockDrops().references());
 		this.menu = menu;
 	}
 	
@@ -31,7 +32,7 @@ public class BlockDropCollectionEdit extends CollectionEdit<BlockDrop> {
 		HelpButtons.addHelpLink(this, "edit%20menu/drops/blocks.html");
 	}
 
-	private static class BlockDropActionHandler implements ActionHandler<BlockDrop> {
+	private static class BlockDropActionHandler implements ActionHandler<BlockDropReference> {
 		
 		private final EditMenu menu;
 		
@@ -45,13 +46,13 @@ public class BlockDropCollectionEdit extends CollectionEdit<BlockDrop> {
 		}
 
 		@Override
-		public BufferedImage getImage(BlockDrop drop) {
+		public BufferedImage getImage(BlockDropReference drop) {
 			
 			// If we have any custom item drop, use that as icon!
-			OutputTable dropTable = drop.getDrop().getDropTable();
-			for (OutputTable.Entry entry : dropTable.getEntries()) {
-				if (entry.getResult() instanceof CustomItemResult) {
-					CustomItemResult customResult = (CustomItemResult) entry.getResult();
+			OutputTableValues dropTable = drop.get().getDrop().getOutputTable();
+			for (OutputTableValues.Entry entry : dropTable.getEntries()) {
+				if (entry.getResult() instanceof CustomItemResultValues) {
+					CustomItemResultValues customResult = (CustomItemResultValues) entry.getResult();
 					return customResult.getItem().getTexture().getImage();
 				}
 			}
@@ -61,26 +62,23 @@ public class BlockDropCollectionEdit extends CollectionEdit<BlockDrop> {
 		}
 
 		@Override
-		public String getLabel(BlockDrop item) {
-			return item.toString();
+		public String getLabel(BlockDropReference item) {
+			return item.get().toString();
 		}
 
 		@Override
-		public GuiComponent createEditMenu(BlockDrop drop, GuiComponent returnMenu) {
-			return new EditBlockDrop(menu.getSet(), returnMenu, drop, drop);
+		public GuiComponent createEditMenu(BlockDropReference drop, GuiComponent returnMenu) {
+			return new EditBlockDrop(menu.getSet(), returnMenu, drop.get(), drop);
 		}
 		
 		@Override
-		public GuiComponent createCopyMenu(BlockDrop drop, GuiComponent returnMenu) {
-			return new EditBlockDrop(menu.getSet(), returnMenu, drop, null);
+		public GuiComponent createCopyMenu(BlockDropReference drop, GuiComponent returnMenu) {
+			return new EditBlockDrop(menu.getSet(), returnMenu, drop.get(), null);
 		}
 
 		@Override
-		public String deleteItem(BlockDrop itemToDelete) {
-			menu.getSet().removeBlockDrop(itemToDelete);
-			
-			// Not much to go wrong when deleting block drops
-			return null;
+		public String deleteItem(BlockDropReference itemToDelete) {
+			return Validation.toErrorString(() -> menu.getSet().removeBlockDrop(itemToDelete));
 		}
 	}
 }
