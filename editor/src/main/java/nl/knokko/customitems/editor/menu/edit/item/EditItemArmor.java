@@ -23,66 +23,41 @@
  *******************************************************************************/
 package nl.knokko.customitems.editor.menu.edit.item;
 
-import nl.knokko.customitems.damage.DamageResistances;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.set.item.CustomArmor;
-import nl.knokko.customitems.editor.set.item.texture.ArmorTextures;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.editor.util.ReadOnlyReference;
-import nl.knokko.customitems.item.AttributeModifier;
-import nl.knokko.customitems.item.AttributeModifier.Attribute;
-import nl.knokko.customitems.item.AttributeModifier.Operation;
-import nl.knokko.customitems.item.AttributeModifier.Slot;
+import nl.knokko.customitems.item.AttributeModifierValues;
+import nl.knokko.customitems.item.CustomArmorValues;
 import nl.knokko.customitems.item.CustomItemType;
-import nl.knokko.customitems.item.CustomItemType.Category;
+import nl.knokko.customitems.item.SDamageResistances;
+import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.gui.component.WrapperComponent;
 import nl.knokko.gui.component.text.ConditionalTextButton;
 import nl.knokko.gui.component.text.ConditionalTextComponent;
-import nl.knokko.gui.component.text.IntEditField;
+import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
-import nl.knokko.gui.util.Option;
+
+import java.util.function.IntConsumer;
+
+import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
+import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
+import static nl.knokko.customitems.item.AttributeModifierValues.*;
 
 public class EditItemArmor extends EditItemTool {
 	
-	private static final int DEFAULT_RED = 160;
-	private static final int DEFAULT_GREEN = 101;
-	private static final int DEFAULT_BLUE = 64;
-	
-	protected final CustomArmor toModify;
-	
-	private final ColorEditField red;
-	private final ColorEditField green;
-	private final ColorEditField blue;
-	
-	protected DamageResistances damageResistances;
-	protected ReadOnlyReference<ArmorTextures> wornTexture;
+	private final CustomArmorValues currentValues;
 
-	public EditItemArmor(EditMenu menu, CustomArmor oldValues, CustomArmor toModify, Category toolCategory) {
-		super(menu, oldValues, toModify, toolCategory);
-		this.toModify = toModify;
-		if (oldValues == null) {
-			red = new ColorEditField(DEFAULT_RED);
-			green = new ColorEditField(DEFAULT_GREEN);
-			blue = new ColorEditField(DEFAULT_BLUE);
-			damageResistances = new DamageResistances();
-			// This is null by default and optional
-			wornTexture = null;
-		} else {
-			red = new ColorEditField(oldValues.getRed());
-			green = new ColorEditField(oldValues.getGreen());
-			blue = new ColorEditField(oldValues.getBlue());
-			damageResistances = oldValues.getDamageResistances();
-			wornTexture = oldValues.getWornTexture();
-		}
+	public EditItemArmor(EditMenu menu, CustomArmorValues oldValues, ItemReference toModify) {
+		super(menu, oldValues, toModify);
+		this.currentValues = oldValues.copy(true);
 	}
 	
 	@Override
-	protected AttributeModifier getExampleAttributeModifier() {
+	protected AttributeModifierValues getExampleAttributeModifier() {
 		double armor;
 		Slot slot;
-		CustomItemType i = internalType;
+		CustomItemType i = currentValues.getItemType();
 		if (i == CustomItemType.NETHERITE_HELMET) {
 			armor = 3;
 			slot = Slot.HEAD;
@@ -159,81 +134,24 @@ public class EditItemArmor extends EditItemTool {
 			throw new IllegalArgumentException("Unknown item type: " + i.name());
 		}
 		
-		return new AttributeModifier(Attribute.ARMOR, slot, Operation.ADD, armor);
-	}
-	
-	private int getColorValue(ColorEditField field, int defaultValue) {
-		if (field.isActive()) {
-			Option.Int value = field.getComponent().getInt();
-			if (value.hasValue()) {
-				return value.getValue();
-			} else {
-				return -1;
-			}
-		} else {
-			return defaultValue;
-		}
-	}
-	
-	@Override
-	protected String create(
-			long maxUses, int entityHitDurabilityLoss, int blockBreakDurabilityLoss,
-			float attackRange) {
-		int redValue = getColorValue(red, DEFAULT_RED);
-		if (redValue == -1) return "The red must be an integer at least 0 and at most 255";
-		int greenValue = getColorValue(green, DEFAULT_GREEN);
-		if (greenValue == -1) return "The green must be an integer at least 0 and at most 255";
-		int blueValue = getColorValue(blue, DEFAULT_BLUE);
-		if (blueValue == -1) return "The blue must be an integer at least 0 and at most 255";
-		if (internalType.isLeatherArmor()) {
-			wornTexture = null;
-		}
-		return menu.getSet().addArmor(new CustomArmor(
-				internalType, nameField.getText(), aliasField.getText(),
-				getDisplayName(), lore, attributes, enchantments, maxUses, 
-				allowEnchanting.isChecked(), allowAnvil.isChecked(), 
-				repairItem.getIngredient(), textureSelect.getSelected(),
-				redValue, greenValue, blueValue, itemFlags, 
-				entityHitDurabilityLoss, blockBreakDurabilityLoss, 
-				damageResistances, customModel, playerEffects, 
-				targetEffects, equippedEffects,
-				commands, conditions, op, extraNbt, wornTexture, attackRange), true
+		return createQuick(
+				Attribute.ARMOR,
+				slot,
+				Operation.ADD,
+				armor
 		);
 	}
-	
-	@Override
-	protected String apply(
-			long maxUses, int entityHit, int blockBreak, float attackRange) {
-		int redValue = getColorValue(red, DEFAULT_RED);
-		if (redValue == -1) return "The red must be an integer at least 0 and at most 255";
-		int greenValue = getColorValue(green, DEFAULT_GREEN);
-		if (greenValue == -1) return "The green must be an integer at least 0 and at most 255";
-		int blueValue = getColorValue(blue, DEFAULT_BLUE);
-		if (blueValue == -1) return "The blue must be an integer at least 0 and at most 255";
-		if (internalType.isLeatherArmor()) {
-			wornTexture = null;
-		}
-		return menu.getSet().changeArmor(
-				toModify, internalType, aliasField.getText(), getDisplayName(), 
-				lore, attributes, enchantments, allowEnchanting.isChecked(),
-				allowAnvil.isChecked(), repairItem.getIngredient(), maxUses, 
-				textureSelect.getSelected(), redValue, greenValue, blueValue, 
-				itemFlags, entityHit, blockBreak, damageResistances,
-				customModel, playerEffects, targetEffects, equippedEffects,
-				commands, conditions, op, extraNbt, wornTexture, attackRange, true
-		);
-	}
-	
+
 	@Override
 	protected void addComponents() {
 		super.addComponents();
 		addComponent(new DynamicTextComponent("Damage resistances: ", EditProps.LABEL), 0.62f, 0.35f, 0.84f, 0.425f);
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new EditDamageResistances(damageResistances, () -> {
+			state.getWindow().setMainComponent(new EditDamageResistances(currentValues.getDamageResistances(), () -> {
 				state.getWindow().setMainComponent(this);
-			}, (DamageResistances newResistances) -> {
+			}, (SDamageResistances newResistances) -> {
 				state.getWindow().setMainComponent(this);
-				damageResistances = newResistances;
+				currentValues.setDamageResistances(newResistances);
 			}));
 		}), 0.85f, 0.35f, 0.99f, 0.425f);
 		if (!(this instanceof EditItemHelmet3D)) {
@@ -243,16 +161,33 @@ public class EditItemArmor extends EditItemTool {
 			addComponent(new ConditionalTextButton(
 					"Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
 						state.getWindow().setMainComponent(new SelectWornTexture(
-								this, menu.getSet(), 
-								newWornTexture -> wornTexture = newWornTexture
+								this, menu.getSet(), currentValues::setArmorTexture
 						));
 					}, () -> !showColors()), 0.85f, 0.29f, 0.99f, 0.35f);
-			addComponent(new ConditionalTextComponent("Red: ", EditProps.LABEL, () -> {return showColors();}), 0.78f, 0.29f, 0.84f, 0.35f);
-			addComponent(new ConditionalTextComponent("Green: ", EditProps.LABEL, () -> {return showColors();}), 0.75f, 0.21f, 0.84f, 0.27f);
-			addComponent(new ConditionalTextComponent("Blue: ", EditProps.LABEL, () -> {return showColors();}), 0.77f, 0.13f, 0.84f, 0.19f);
-			addComponent(red, 0.85f, 0.28f, 0.9f, 0.35f);
-			addComponent(green, 0.85f, 0.20f, 0.9f, 0.27f);
-			addComponent(blue, 0.85f, 0.12f, 0.9f, 0.19f);
+			addComponent(
+					new ConditionalTextComponent("Red: ", EditProps.LABEL, this::showColors),
+					0.78f, 0.29f, 0.84f, 0.35f
+			);
+			addComponent(
+					new ConditionalTextComponent("Green: ", EditProps.LABEL, this::showColors),
+					0.75f, 0.21f, 0.84f, 0.27f
+			);
+			addComponent(
+					new ConditionalTextComponent("Blue: ", EditProps.LABEL, this::showColors),
+					0.77f, 0.13f, 0.84f, 0.19f
+			);
+			addComponent(
+					new ColorEditField(currentValues.getRed(), currentValues::setRed),
+					0.85f, 0.28f, 0.9f, 0.35f
+			);
+			addComponent(
+					new ColorEditField(currentValues.getGreen(), currentValues::setGreen),
+					0.85f, 0.20f, 0.9f, 0.27f
+			);
+			addComponent(
+					new ColorEditField(currentValues.getBlue(), currentValues::setBlue),
+					0.85f, 0.12f, 0.9f, 0.19f
+			);
 		}
 		errorComponent.setProperties(EditProps.LABEL);
 		errorComponent.setText("Hint: Use attribute modifiers to set the armor (toughness) of this piece.");
@@ -264,13 +199,13 @@ public class EditItemArmor extends EditItemTool {
 	}
 	
 	private boolean showColors() {
-		return internalType.isLeatherArmor();
+		return currentValues.getItemType().isLeatherArmor();
 	}
 	
-	private class ColorEditField extends WrapperComponent<IntEditField> {
+	private class ColorEditField extends WrapperComponent<EagerIntEditField> {
 
-		public ColorEditField(int initial) {
-			super(new IntEditField(initial, 0, 255, EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE));
+		public ColorEditField(int initial, IntConsumer changeValue) {
+			super(new EagerIntEditField(initial, 0, 255, EDIT_BASE, EDIT_ACTIVE, changeValue));
 		}
 		
 		@Override

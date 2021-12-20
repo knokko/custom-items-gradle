@@ -9,10 +9,10 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Scanner;
+import java.util.function.Consumer;
 
 import nl.knokko.customitems.editor.menu.commandhelp.CommandBlockHelpOverview;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.menu.edit.item.EditCustomModel.ByteArrayFileConverter;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -25,15 +25,31 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 public class EditCustomModel extends GuiMenu {
-	
+
+	private static byte[] convertFile (File file) {
+		try {
+			if (file.length() > 500000000) {
+				return new byte[0];
+			}
+			byte[] result = new byte[(int) file.length()];
+			InputStream in = Files.newInputStream(file.toPath());
+			DataInputStream dataIn = new DataInputStream(in);
+			dataIn.readFully(result);
+			in.close();
+			return result;
+		} catch (IOException ioex) {
+			return new byte[0];
+		}
+	}
+
 	private final GuiComponent returnMenu;
-	private final ByteArrayListener receiver;
+	private final Consumer<byte[]> receiver;
 	
 	private final String[] exampleContent;
 	private final byte[] currentContent;
-	private TextEditField parent = new TextEditField("handheld", EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE);
+	private final TextEditField parent = new TextEditField("handheld", EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE);
 	
-	public EditCustomModel(String[] exampleContent, GuiComponent returnMenu, ByteArrayListener receiver, byte[] currentContent) {
+	public EditCustomModel(String[] exampleContent, GuiComponent returnMenu, Consumer<byte[]> receiver, byte[] currentContent) {
 		this.returnMenu = returnMenu;
 		this.receiver = receiver;
 		this.exampleContent = exampleContent;
@@ -62,7 +78,7 @@ public class EditCustomModel extends GuiMenu {
 			}
 			String result = output.toString().replaceFirst("handheld", parent.getText());
 			byte[] array = result.getBytes();
-			receiver.readArray(array);
+			receiver.accept(array);
 			state.getWindow().setMainComponent(returnMenu);
 		}, () -> exampleContent != null && !parent.getText().equals("handheld") && knowsTextureName()
 		), 0.65f, 0.025f, 0.995f, 0.125f);
@@ -102,7 +118,7 @@ public class EditCustomModel extends GuiMenu {
 		}
 		addComponent(new DynamicTextButton("Select file...", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
 			state.getWindow().setMainComponent(new FileChooserMenu(returnMenu, (File file) -> {
-				receiver.readArray(new ByteArrayFileListener().convertFile(file));
+				receiver.accept(convertFile(file));
 				return returnMenu;
 			}, (File file) -> {
 				return file.getName().endsWith(".json");
@@ -111,11 +127,11 @@ public class EditCustomModel extends GuiMenu {
 		}), 0.2f, 0.8f, 0.375f, 0.9f);
 		if (exampleContent != null) {
 			addComponent(new DynamicTextButton("Copy Default Model", EditProps.BUTTON, EditProps.HOVER, () ->  {
-				String result = "";
+				StringBuilder result = new StringBuilder();
 				for (String content: exampleContent) {
-					result += content + "\n";
+					result.append(content).append("\n");
 				}
-				CommandBlockHelpOverview.setClipboard(result);
+				CommandBlockHelpOverview.setClipboard(result.toString());
 			}), 0.4f, 0.8f, 0.675f, 0.9f);
 			addComponent(new DynamicTextComponent("Default Parent:", EditProps.LABEL), 0.8f, 0.325f, 0.975f, 0.425f);
 			addComponent(parent, 0.8f, 0.2f, 0.975f, 0.3f);
@@ -127,31 +143,5 @@ public class EditCustomModel extends GuiMenu {
 	@Override
 	public GuiColor getBackgroundColor() {
 		return EditProps.BACKGROUND;
-	}
-	
-	public static interface ByteArrayFileConverter{
-		byte[] convertFile(File file);
-	}
-
-	public static interface ByteArrayListener {
-		void readArray(byte[] array);
-	}
-}
-
-class ByteArrayFileListener implements ByteArrayFileConverter{
-	public byte[] convertFile (File file) {
-		try {
-			if (file.length() > 500000000) {
-				return new byte[0];
-			}
-			byte[] result = new byte[(int) file.length()];
-			InputStream in = Files.newInputStream(file.toPath());
-			DataInputStream dataIn = new DataInputStream(in);
-			dataIn.readFully(result);
-			in.close();
-			return result;
-		} catch (IOException ioex) {
-			return new byte[0];
-		}
 	}
 }

@@ -3,113 +3,78 @@ package nl.knokko.customitems.editor.menu.edit.item;
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.set.item.CustomGun;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.item.AttributeModifier;
+import nl.knokko.customitems.item.AttributeModifierValues;
+import nl.knokko.customitems.item.CustomGunValues;
 import nl.knokko.customitems.item.CustomItemType;
-import nl.knokko.customitems.item.gun.DirectGunAmmo;
-import nl.knokko.customitems.item.gun.GunAmmo;
-import nl.knokko.customitems.projectile.CIProjectile;
-import nl.knokko.gui.component.text.IntEditField;
+import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
-import nl.knokko.gui.util.Option;
+
+import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
+import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
 
 public class EditItemGun extends EditItemBase {
 
-    private static final AttributeModifier EXAMPLE_MODIFIER = new AttributeModifier(
-            AttributeModifier.Attribute.ATTACK_DAMAGE, AttributeModifier.Slot.MAINHAND,
-            AttributeModifier.Operation.ADD, 3
+    private static final AttributeModifierValues EXAMPLE_MODIFIER = AttributeModifierValues.createQuick(
+            AttributeModifierValues.Attribute.ATTACK_DAMAGE,
+            AttributeModifierValues.Slot.MAINHAND,
+            AttributeModifierValues.Operation.ADD,
+            3
     );
 
-    private final CustomGun toModify;
+    private final CustomGunValues currentValues;
 
-    private final IntEditField amountField;
-
-    private CIProjectile projectile;
-    private GunAmmo ammoSystem;
-
-    public EditItemGun(EditMenu menu, CustomGun oldValues, CustomGun toModify) {
-        super(menu, oldValues, toModify, CustomItemType.Category.GUN);
-        this.toModify = toModify;
-
-        int initialAmountPerShot;
-        if (oldValues != null) {
-            projectile = oldValues.projectile;
-            ammoSystem = oldValues.ammo;
-            initialAmountPerShot = oldValues.amountPerShot;
-        } else {
-            initialAmountPerShot = 1;
-            ammoSystem = new DirectGunAmmo(null, 10);
-        }
-
-        amountField = new IntEditField(initialAmountPerShot, 1, EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE);
+    public EditItemGun(EditMenu menu, CustomGunValues oldValues, ItemReference toModify) {
+        super(menu, oldValues, toModify);
+        this.currentValues = oldValues.copy(true);
     }
 
     @Override
     protected void addComponents() {
         super.addComponents();
 
-        addComponent(new DynamicTextComponent("Projectile:", EditProps.LABEL), 0.6f, 0.8f, 0.7f, 0.85f);
+        addComponent(
+                new DynamicTextComponent("Projectile:", EditProps.LABEL),
+                0.6f, 0.8f, 0.7f, 0.85f
+        );
         addComponent(CollectionSelect.createButton(
-                menu.getSet().getBackingProjectiles(),
-                newProjectile -> projectile = newProjectile,
-                projectile -> projectile.name,
-                projectile
+                menu.getSet().getProjectiles().references(),
+                currentValues::setProjectile,
+                projectileReference -> projectileReference.get().getName(),
+                currentValues.getProjectileReference()
         ), 0.73f, 0.8f, 0.8f, 0.85f);
 
-        addComponent(new DynamicTextComponent("Ammo system:", EditProps.LABEL), 0.6f, 0.74f, 0.7f, 0.79f);
+        addComponent(
+                new DynamicTextComponent("Ammo system:", EditProps.LABEL),
+                0.6f, 0.74f, 0.7f, 0.79f
+        );
         addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
             state.getWindow().setMainComponent(new EditAmmoSystem(
-                    this, newAmmo -> this.ammoSystem = newAmmo, menu.getSet(), this.ammoSystem
+                    this, currentValues::setAmmo, menu.getSet(), currentValues.getAmmo()
             ));
         }), 0.73f, 0.74f, 0.8f, 0.79f);
 
-        addComponent(new DynamicTextComponent("Amount per shot:", EditProps.LABEL), 0.6f, 0.68f, 0.72f, 0.73f);
-        addComponent(amountField, 0.73f, 0.68f, 0.78f, 0.73f);
+        addComponent(
+                new DynamicTextComponent("Amount per shot:", EditProps.LABEL),
+                0.6f, 0.68f, 0.72f, 0.73f
+        );
+        addComponent(
+                new EagerIntEditField(currentValues.getAmountPerShot(), 1, EDIT_BASE, EDIT_ACTIVE, currentValues::setAmountPerShot),
+                0.73f, 0.68f, 0.78f, 0.73f
+        );
 
         HelpButtons.addHelpLink(this, "edit%20menu/items/edit/gun.html");
     }
 
     @Override
-    protected AttributeModifier getExampleAttributeModifier() {
+    protected AttributeModifierValues getExampleAttributeModifier() {
         return EXAMPLE_MODIFIER;
     }
 
     @Override
     protected CustomItemType.Category getCategory() {
         return CustomItemType.Category.GUN;
-    }
-
-    @Override
-    protected String create(float attackRange) {
-
-        Option.Int amountPerShot = amountField.getInt();
-        if (!amountPerShot.hasValue()) return "The amount per shot must be a positive integer";
-
-        return menu.getSet().addGun(new CustomGun(
-                internalType, nameField.getText(), aliasField.getText(),
-                getDisplayName(), lore, attributes, enchantments,
-                textureSelect.getSelected(), itemFlags, customModel,
-                playerEffects, targetEffects, equippedEffects, commands,
-                conditions, op, extraNbt, attackRange, projectile, ammoSystem,
-                amountPerShot.getValue()
-        ));
-    }
-
-    @Override
-    protected String apply(float attackRange) {
-
-        Option.Int amountPerShot = amountField.getInt();
-        if (!amountPerShot.hasValue()) return "The amount per shot must be a positive integer";
-
-        return menu.getSet().changeGun(
-                toModify, internalType, aliasField.getText(),
-                getDisplayName(), lore, attributes, enchantments,
-                textureSelect.getSelected(), itemFlags, customModel,
-                playerEffects, targetEffects, equippedEffects, commands,
-                conditions, op, extraNbt, attackRange, projectile, ammoSystem,
-                amountPerShot.getValue()
-        );
     }
 }

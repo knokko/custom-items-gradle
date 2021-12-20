@@ -19,8 +19,7 @@ public class CustomWandValues extends CustomItemValues {
     public static CustomWandValues load(
             BitInput input, byte encoding, SItemSet itemSet
     ) throws UnknownEncodingException {
-        // Note: initial item type doesn't matter because it will be overwritten right away
-        CustomWandValues result = new CustomWandValues(false, CustomItemType.DIAMOND_HOE);
+        CustomWandValues result = new CustomWandValues(false);
 
         if (encoding == ItemEncoding.ENCODING_WAND_9) {
             result.load9(input, itemSet);
@@ -48,8 +47,8 @@ public class CustomWandValues extends CustomItemValues {
 
     private int amountPerShot;
 
-    public CustomWandValues(boolean mutable, CustomItemType initialItemType) {
-        super(mutable, initialItemType);
+    public CustomWandValues(boolean mutable) {
+        super(mutable, CustomItemType.DIAMOND_HOE);
 
         this.projectile = null;
         this.cooldown = 40;
@@ -202,7 +201,7 @@ public class CustomWandValues extends CustomItemValues {
 
     public void setCharges(WandChargeValues newCharges) {
         assertMutable();
-        this.charges = newCharges.copy(false);
+        this.charges = newCharges != null ? newCharges.copy(false) : null;
     }
 
     public void setAmountPerShot(int newAmountPerShot) {

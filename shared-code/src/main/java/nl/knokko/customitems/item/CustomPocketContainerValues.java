@@ -19,8 +19,7 @@ public class CustomPocketContainerValues extends CustomItemValues {
     static CustomPocketContainerValues load(
             BitInput input, byte encoding, SItemSet itemSet
     ) throws UnknownEncodingException {
-        // Note: Initial item type doesn't matter because it will be overwritten during loading
-        CustomPocketContainerValues result = new CustomPocketContainerValues(false, CustomItemType.DIAMOND_HOE);
+        CustomPocketContainerValues result = new CustomPocketContainerValues(false);
 
         if (encoding == ItemEncoding.ENCODING_POCKET_CONTAINER_10) {
             result.load10(input, itemSet);
@@ -38,8 +37,8 @@ public class CustomPocketContainerValues extends CustomItemValues {
 
     private Set<ContainerReference> containers;
 
-    public CustomPocketContainerValues(boolean mutable, CustomItemType initialItemType) {
-        super(mutable, initialItemType);
+    public CustomPocketContainerValues(boolean mutable) {
+        super(mutable, CustomItemType.DIAMOND_HOE);
 
         this.containers = new HashSet<>();
     }
@@ -110,7 +109,7 @@ public class CustomPocketContainerValues extends CustomItemValues {
     }
 
     @Override
-    public ModelValues copy(boolean mutable) {
+    public CustomPocketContainerValues copy(boolean mutable) {
         return new CustomPocketContainerValues(this, mutable);
     }
 

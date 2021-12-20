@@ -25,132 +25,95 @@ package nl.knokko.customitems.editor.menu.edit.item;
 
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.set.item.CustomBow;
-import nl.knokko.customitems.texture.NamedImage;
-import nl.knokko.customitems.editor.set.item.texture.BowTextures;
+import nl.knokko.customitems.item.AttributeModifierValues;
+import nl.knokko.customitems.item.CustomBowValues;
+import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.TextureReference;
+import nl.knokko.customitems.texture.BowTextureValues;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.item.AttributeModifier;
-import nl.knokko.customitems.item.AttributeModifier.Attribute;
-import nl.knokko.customitems.item.AttributeModifier.Operation;
-import nl.knokko.customitems.item.AttributeModifier.Slot;
-import nl.knokko.customitems.item.CustomItemType.Category;
 import nl.knokko.gui.component.image.CheckboxComponent;
-import nl.knokko.gui.component.text.FloatEditField;
-import nl.knokko.gui.component.text.IntEditField;
+import nl.knokko.gui.component.text.EagerFloatEditField;
+import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
-import nl.knokko.gui.util.Option;
+
+import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
+import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
 
 public class EditItemBow extends EditItemTool {
 	
-	private static final AttributeModifier EXAMPLE_ATTRIBUTE_MODIFIER = new AttributeModifier(Attribute.MOVEMENT_SPEED, Slot.OFFHAND, Operation.ADD_FACTOR, 1.5);
+	private static final AttributeModifierValues EXAMPLE_ATTRIBUTE_MODIFIER = AttributeModifierValues.createQuick(
+			AttributeModifierValues.Attribute.MOVEMENT_SPEED,
+			AttributeModifierValues.Slot.OFFHAND,
+			AttributeModifierValues.Operation.ADD_FACTOR,
+			1.5
+	);
 
-	private final CustomBow toModify;
+	private final CustomBowValues currentValues;
 
-	private final FloatEditField damageMultiplier;
-	private final FloatEditField speedMultiplier;
-	private final IntEditField knockbackStrength;
-	private final CheckboxComponent gravity;
-	
-	private final IntEditField shootDurabilityLoss;
+	public EditItemBow(EditMenu menu, CustomBowValues oldValues, ItemReference toModify) {
+		super(menu, oldValues, toModify);
+		this.currentValues = oldValues.copy(true);
+	}
 
-	public EditItemBow(EditMenu menu, CustomBow oldValues, CustomBow toModify) {
-		super(menu, oldValues, toModify, Category.BOW);
-		this.toModify = toModify;
-		if (oldValues != null) {
-			damageMultiplier = new FloatEditField(oldValues.getDamageMultiplier(), 0, EditProps.EDIT_BASE,
-					EditProps.EDIT_ACTIVE);
-			speedMultiplier = new FloatEditField(oldValues.getSpeedMultiplier(), 0, EditProps.EDIT_BASE,
-					EditProps.EDIT_ACTIVE);
-			knockbackStrength = new IntEditField(oldValues.getKnockbackStrength(), 0, EditProps.EDIT_BASE,
-					EditProps.EDIT_ACTIVE);
-			shootDurabilityLoss = new IntEditField(oldValues.getShootDurabilityLoss(), 0, EditProps.EDIT_BASE,
-					EditProps.EDIT_ACTIVE);
-			gravity = new CheckboxComponent(oldValues.hasGravity());
-		} else {
-			damageMultiplier = new FloatEditField(1, 0, EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE);
-			speedMultiplier = new FloatEditField(1, 0, EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE);
-			knockbackStrength = new IntEditField(0, 0, EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE);
-			shootDurabilityLoss = new IntEditField(1, 0, EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE);
-			gravity = new CheckboxComponent(true);
-		}
+	@Override
+	public boolean canHaveCustomModel() {
+		return false;
 	}
 	
 	@Override
-	protected AttributeModifier getExampleAttributeModifier() {
+	protected AttributeModifierValues getExampleAttributeModifier() {
 		return EXAMPLE_ATTRIBUTE_MODIFIER;
 	}
 
 	@Override
 	protected void addComponents() {
 		super.addComponents();
-		addComponent(new DynamicTextComponent("Durability loss on shooting:", EditProps.LABEL), 0.55f, 0.35f, 0.84f, 0.425f);
-		addComponent(shootDurabilityLoss, 0.85f, 0.35f, 0.9f, 0.425f);
-		addComponent(new DynamicTextComponent("Damage multiplier: ", EditProps.LABEL), 0.71f, 0.245f, 0.895f, 0.32f);
-		addComponent(damageMultiplier, 0.895f, 0.245f, 0.965f, 0.32f);
-		addComponent(new DynamicTextComponent("Speed multiplier: ", EditProps.LABEL), 0.71f, 0.17f, 0.88f, 0.245f);
-		addComponent(speedMultiplier, 0.895f, 0.17f, 0.965f, 0.245f);
-		addComponent(new DynamicTextComponent("knockback strength: ", EditProps.LABEL), 0.71f, 0.095f, 0.9f, 0.17f);
-		addComponent(knockbackStrength, 0.9f, 0.095f, 0.95f, 0.17f);
-		addComponent(new DynamicTextComponent("Arrow gravity", EditProps.LABEL), 0.8f, 0.02f, 0.95f, 0.095f);
-		addComponent(gravity, 0.75f, 0.02f, 0.775f, 0.045f);
+		addComponent(
+				new DynamicTextComponent("Durability loss on shooting:", EditProps.LABEL),
+				0.55f, 0.35f, 0.84f, 0.425f
+		);
+		addComponent(
+				new EagerIntEditField(currentValues.getShootDurabilityLoss(), 0, EDIT_BASE, EDIT_ACTIVE, currentValues::setShootDurabilityLoss),
+				0.85f, 0.35f, 0.9f, 0.425f
+		);
+		addComponent(
+				new DynamicTextComponent("Damage multiplier: ", EditProps.LABEL),
+				0.71f, 0.245f, 0.895f, 0.32f
+		);
+		addComponent(
+				new EagerFloatEditField(currentValues.getDamageMultiplier(), 0f, EDIT_BASE, EDIT_ACTIVE, currentValues::setDamageMultiplier),
+				0.895f, 0.245f, 0.965f, 0.32f
+		);
+		addComponent(
+				new DynamicTextComponent("Speed multiplier: ", EditProps.LABEL),
+				0.71f, 0.17f, 0.88f, 0.245f
+		);
+		addComponent(
+				new EagerFloatEditField(currentValues.getSpeedMultiplier(), -1000f, EDIT_BASE, EDIT_ACTIVE, currentValues::setSpeedMultiplier),
+				0.895f, 0.17f, 0.965f, 0.245f
+		);
+		addComponent(
+				new DynamicTextComponent("knockback strength: ", EditProps.LABEL),
+				0.71f, 0.095f, 0.9f, 0.17f
+		);
+		addComponent(
+				new EagerIntEditField(currentValues.getKnockbackStrength(), -1000, EDIT_BASE, EDIT_ACTIVE, currentValues::setKnockbackStrength),
+				0.9f, 0.095f, 0.95f, 0.17f
+		);
+		addComponent(
+				new DynamicTextComponent("Arrow gravity", EditProps.LABEL),
+				0.8f, 0.02f, 0.95f, 0.095f
+		);
+		addComponent(
+				new CheckboxComponent(currentValues.hasGravity(), currentValues::setGravity),
+				0.75f, 0.02f, 0.775f, 0.045f
+		);
 		
 		HelpButtons.addHelpLink(this, "edit%20menu/items/edit/bow.html");
 	}
 
 	@Override
-	protected boolean allowTexture(NamedImage texture) {
-		return texture instanceof BowTextures;
-	}
-
-	@Override
-	protected String create(
-			long maxUses, int entityHitDurabilityLoss, int blockBreakDurabilityLoss,
-			float attackRange) {
-		Option.Double damageMultiplier = this.damageMultiplier.getDouble();
-		if (!damageMultiplier.hasValue()) return "The damage multiplier must be a positive number";
-		Option.Double speedMultiplier = this.speedMultiplier.getDouble();
-		if (!speedMultiplier.hasValue()) return "The speed multiplier must be a positive number";
-		Option.Int knockbackStrength = this.knockbackStrength.getInt();
-		if (!knockbackStrength.hasValue()) return "The knockback strength must be a positive integer";
-		Option.Int shootDurabilityLoss = this.shootDurabilityLoss.getInt();
-		if (!shootDurabilityLoss.hasValue()) return "The shoot durability loss must be a positive integer";
-		return menu.getSet().addBow(new CustomBow(
-				nameField.getText(), aliasField.getText(), getDisplayName(), lore, 
-				attributes, enchantments, maxUses, damageMultiplier.getValue(), 
-				speedMultiplier.getValue(), knockbackStrength.getValue(), 
-				gravity.isChecked(), allowEnchanting.isChecked(), 
-				allowAnvil.isChecked(), repairItem.getIngredient(),
-				(BowTextures) textureSelect.getSelected(), itemFlags, 
-				entityHitDurabilityLoss, blockBreakDurabilityLoss, 
-				shootDurabilityLoss.getValue(), customModel, playerEffects, 
-				targetEffects, equippedEffects, commands, conditions, op,
-				extraNbt, attackRange), true
-		);
-	}
-
-	@Override
-	protected String apply(
-			long maxUses, int entityHitDurabilityLoss, int blockBreakDurabilityLoss,
-			float attackRange) {
-		Option.Double damageMultiplier = this.damageMultiplier.getDouble();
-		if (!damageMultiplier.hasValue()) return "The damage multiplier must be a positive number";
-		Option.Double speedMultiplier = this.speedMultiplier.getDouble();
-		if (!speedMultiplier.hasValue()) return "The speed multiplier must be a positive number";
-		Option.Int knockbackStrength = this.knockbackStrength.getInt();
-		if (!knockbackStrength.hasValue()) return "The knockback strength must be a positive integer";
-		Option.Int shootDurabilityLoss = this.shootDurabilityLoss.getInt();
-		if (!shootDurabilityLoss.hasValue()) return "The shoot durability loss must be a positive integer";
-		return menu.getSet().changeBow(
-				toModify, aliasField.getText(), getDisplayName(), lore, attributes, 
-				enchantments, damageMultiplier.getValue(), 
-				speedMultiplier.getValue(), knockbackStrength.getValue(), 
-				gravity.isChecked(), allowEnchanting.isChecked(), 
-				allowAnvil.isChecked(), repairItem.getIngredient(), maxUses, 
-				(BowTextures) textureSelect.getSelected(), itemFlags, 
-				entityHitDurabilityLoss, blockBreakDurabilityLoss, 
-				shootDurabilityLoss.getValue(), customModel, playerEffects, 
-				targetEffects, equippedEffects, commands, conditions, op, 
-				extraNbt, attackRange, true
-		);
+	protected boolean allowTexture(TextureReference texture) {
+		return texture.get() instanceof BowTextureValues;
 	}
 }

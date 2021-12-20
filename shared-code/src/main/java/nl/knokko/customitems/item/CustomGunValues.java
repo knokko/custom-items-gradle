@@ -17,8 +17,7 @@ import nl.knokko.util.bits.BitOutput;
 public class CustomGunValues extends CustomItemValues {
 
     static CustomGunValues load(BitInput input, byte encoding, SItemSet itemSet) throws UnknownEncodingException {
-        // Note: Initial item type doesn't matter because it will be overwritten during loading
-        CustomGunValues result = new CustomGunValues(false, CustomItemType.DIAMOND_HOE);
+        CustomGunValues result = new CustomGunValues(false);
 
         if (encoding == ItemEncoding.ENCODING_GUN_10) {
             result.load10(input, itemSet);
@@ -38,8 +37,8 @@ public class CustomGunValues extends CustomItemValues {
     private GunAmmoValues ammo;
     private int amountPerShot;
 
-    public CustomGunValues(boolean mutable, CustomItemType initialItemType) {
-        super(mutable, initialItemType);
+    public CustomGunValues(boolean mutable) {
+        super(mutable, CustomItemType.DIAMOND_HOE);
 
         this.projectile = null;
         this.ammo = new DirectGunAmmoValues(false);

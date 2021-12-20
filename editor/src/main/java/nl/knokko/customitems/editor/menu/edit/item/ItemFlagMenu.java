@@ -25,49 +25,57 @@ package nl.knokko.customitems.editor.menu.edit.item;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
+import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.CustomToolValues;
 import nl.knokko.customitems.item.ItemFlag;
+import nl.knokko.customitems.item.SimpleCustomItemValues;
 import nl.knokko.gui.color.GuiColor;
+import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
+import java.util.List;
+
 public class ItemFlagMenu extends GuiMenu {
-	
-	private final EditItemBase itemEdit;
-	private final CheckboxComponent[] checkBoxes;
-	
-	public ItemFlagMenu(EditItemBase itemEdit, boolean[] oldFlags) {
-		this.itemEdit = itemEdit;
-		this.checkBoxes = new CheckboxComponent[oldFlags.length];
-		for (int index = 0; index < oldFlags.length; index++) {
-			checkBoxes[index] = new CheckboxComponent(oldFlags[index]);
-		}
+
+	private final GuiComponent returnMenu;
+	private final CustomItemValues itemValues;
+	private final List<Boolean> currentFlags;
+
+	public ItemFlagMenu(GuiComponent returnMenu, CustomItemValues itemValues) {
+		this.returnMenu = returnMenu;
+		this.itemValues = itemValues;
+		this.currentFlags = itemValues.getItemFlags();
 	}
 
 	@Override
 	protected void addComponents() {
 		ItemFlag[] allFlags = ItemFlag.values();
 		for (int index = 0; index < allFlags.length; index++) {
-			addComponent(checkBoxes[index], 0.4f, 0.725f - 0.1f * index, 0.425f, 0.75f - 0.1f * index);
-			addComponent(new DynamicTextComponent(allFlags[index].toString(), EditProps.LABEL), 0.45f, 0.725f - 0.1f * index, 0.65f, 0.8f - 0.1f * index);
+			int rememberIndex = index;
+			addComponent(
+					new CheckboxComponent(currentFlags.get(index), newValue -> currentFlags.set(rememberIndex, newValue)),
+					0.4f, 0.725f - 0.1f * index, 0.425f, 0.75f - 0.1f * index
+			);
+			addComponent(
+					new DynamicTextComponent(allFlags[index].toString(), EditProps.LABEL),
+					0.45f, 0.725f - 0.1f * index, 0.65f, 0.8f - 0.1f * index
+			);
 		}
 		addComponent(new DynamicTextButton("Cancel", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
-			state.getWindow().setMainComponent(itemEdit);
+			state.getWindow().setMainComponent(returnMenu);
 		}), 0.1f, 0.9f, 0.25f, 0.97f);
 		addComponent(new DynamicTextButton("Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-			boolean[] newFlags = new boolean[checkBoxes.length];
-			for (int index = 0; index < newFlags.length; index++) {
-				newFlags[index] = checkBoxes[index].isChecked();
-			}
-			itemEdit.setItemFlags(newFlags);
-			state.getWindow().setMainComponent(itemEdit);
+			itemValues.setItemFlags(currentFlags);
+			state.getWindow().setMainComponent(returnMenu);
 		}), 0.1f, 0.13f, 0.25f, 0.2f);
 		
-		if (itemEdit instanceof EditItemSimple) {
+		if (itemValues instanceof SimpleCustomItemValues) {
 			addComponent(new DynamicTextComponent("Notice: it is recommended for simple custom items to keep the 'hide unbreakable' checked", EditProps.LABEL), 0.05f, 0.025f, 0.95f, 0.1f);
 		}
-		if (itemEdit instanceof EditItemTool && !((EditItemTool) itemEdit).durability.getText().equals("-1")) {
+		if (itemValues instanceof CustomToolValues && ((CustomToolValues) itemValues).getMaxDurabilityNew() != null) {
 			addComponent(new DynamicTextComponent("Notice: it is recommended for breakable custom tools to keep the 'hide unbreakable' checked", EditProps.LABEL), 0.05f, 0.025f, 0.95f, 0.1f);
 		}
 		

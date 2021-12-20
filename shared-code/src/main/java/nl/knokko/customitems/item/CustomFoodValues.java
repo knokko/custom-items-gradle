@@ -24,8 +24,7 @@ public class CustomFoodValues extends CustomItemValues {
     static CustomFoodValues load(
             BitInput input, byte encoding, SItemSet itemSet
     ) throws UnknownEncodingException {
-        // Note: Initial item type doesn't matter because it will be overwritten during loading
-        CustomFoodValues result = new CustomFoodValues(false, CustomItemType.DIAMOND_HOE);
+        CustomFoodValues result = new CustomFoodValues(false);
 
         if (encoding == ItemEncoding.ENCODING_FOOD_10) {
             result.load10(input, itemSet);
@@ -52,8 +51,8 @@ public class CustomFoodValues extends CustomItemValues {
 
     private byte maxStacksize;
 
-    public CustomFoodValues(boolean mutable, CustomItemType initialItemType) {
-        super(mutable, initialItemType);
+    public CustomFoodValues(boolean mutable) {
+        super(mutable, CustomItemType.DIAMOND_HOE);
 
         this.foodValue = 4;
         this.eatEffects = new ArrayList<>();

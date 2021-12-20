@@ -24,140 +24,42 @@
 package nl.knokko.customitems.editor.menu.edit.item;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 
+import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
-import nl.knokko.customitems.editor.menu.edit.item.SelectTexture.CreateMenuFactory;
-import nl.knokko.customitems.editor.menu.edit.texture.BowTextureEdit;
-import nl.knokko.customitems.editor.menu.edit.texture.TextureEdit;
-import nl.knokko.customitems.editor.set.ItemSet;
-import nl.knokko.customitems.editor.set.item.CustomItem;
-import nl.knokko.customitems.texture.NamedImage;
-import nl.knokko.customitems.util.Checks;
-import nl.knokko.customitems.effect.EquippedPotionEffect;
-import nl.knokko.customitems.effect.PotionEffect;
-import nl.knokko.customitems.item.AttributeModifier;
-import nl.knokko.customitems.item.CustomItemType;
-import nl.knokko.customitems.item.CustomItemType.Category;
-import nl.knokko.customitems.item.Enchantment;
-import nl.knokko.customitems.item.ItemFlag;
-import nl.knokko.customitems.item.ReplaceCondition;
-import nl.knokko.customitems.item.ReplaceCondition.ConditionOperation;
-import nl.knokko.customitems.item.ReplaceCondition.ReplacementCondition;
-import nl.knokko.customitems.item.ReplaceCondition.ReplacementOperation;
-import nl.knokko.customitems.item.nbt.ExtraItemNbt;
+import nl.knokko.customitems.editor.resourcepack.DefaultItemModels;
+import nl.knokko.customitems.editor.util.Validation;
+import nl.knokko.customitems.item.*;
+import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.TextureReference;
+import nl.knokko.customitems.texture.BaseTextureValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.menu.TextListEditMenu;
-import nl.knokko.gui.component.text.FloatEditField;
-import nl.knokko.gui.component.text.TextEditField;
+import nl.knokko.gui.component.text.EagerFloatEditField;
+import nl.knokko.gui.component.text.EagerTextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
-import nl.knokko.gui.util.Option;
+
+import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public abstract class EditItemBase extends GuiMenu {
 
 	protected static final float LABEL_X = 0.2f;
 	protected static final float BUTTON_X = 0.4f;
 
-	private static final AttributeModifier[] DEFAULT_ATTRIBUTES = {};
-	private static final Enchantment[] DEFAULT_ENCHANTMENTS = {};
-	private static final List<PotionEffect> DEFAULT_PLAYER_EFFECTS = new ArrayList<PotionEffect>();
-	private static final List<PotionEffect> DEFAULT_TARGET_EFFECTS = new ArrayList<PotionEffect>();
-	
 	protected final EditMenu menu;
-	private final CustomItem toModify;
+	private final CustomItemValues currentValues;
+	private final ItemReference toModify;
 
-	protected TextEditField nameField;
-	protected CustomItemType internalType;
-	protected TextEditField aliasField;
-	protected TextEditField displayName;
-	protected String[] lore;
-	protected AttributeModifier[] attributes;
-	protected Enchantment[] enchantments;
-	protected TextureSelect textureSelect;
 	protected DynamicTextComponent errorComponent;
-	protected boolean[] itemFlags;
-	protected byte[] customModel;
-	protected List<PotionEffect> playerEffects;
-	protected List<PotionEffect> targetEffects;
-	protected Collection<EquippedPotionEffect> equippedEffects;
-	protected String[] commands;
-	protected ReplaceCondition[] conditions;
-	protected ConditionOperation op;
-	protected ExtraItemNbt extraNbt;
-	protected FloatEditField attackRangeField;
 
-	public EditItemBase(EditMenu menu, CustomItem oldValues, CustomItem toModify, Category category) {
+	public EditItemBase(EditMenu menu, CustomItemValues oldValues, ItemReference toModify) {
 		this.menu = menu;
+		this.currentValues = oldValues.copy(true);
 		this.toModify = toModify;
-		CreateMenuFactory textureCreateFactory = (set, returnMenu, afterSave) -> {
-			if (this instanceof EditItemBow)
-				return new BowTextureEdit(set, returnMenu, 
-						bowTextures -> afterSave.accept(bowTextures), null, null);
-			else
-				return new TextureEdit(set, returnMenu, afterSave, null, null);
-		};
-		if (oldValues != null) {
-			if (toModify == null) {
-				nameField = new TextEditField(oldValues.getName(), EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE);
-			}
-			internalType = oldValues.getItemType();
-			aliasField = new TextEditField(oldValues.getAlias(), EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE);
-			displayName = new TextEditField(oldValues.getDisplayName(), EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE);
-			textureSelect = new TextureSelect(oldValues.getTexture(), textureCreateFactory);
-			lore = oldValues.getLore();
-			attributes = oldValues.getAttributes();
-			enchantments = oldValues.getDefaultEnchantments();
-			itemFlags = oldValues.getItemFlags();
-			customModel = oldValues.getCustomModel();
-			playerEffects = oldValues.getPlayerEffects();
-			targetEffects = oldValues.getTargetEffects();
-			equippedEffects = oldValues.getEquippedEffects();
-			commands = oldValues.getCommands();
-			conditions = oldValues.getReplaceConditions();
-			op = oldValues.getConditionOperator();
-			extraNbt = oldValues.getExtraNbt();
-			attackRangeField = new FloatEditField(
-					oldValues.getAttackRange(), 0f, 
-					EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE
-			);
-		} else {
-			if (toModify == null) {
-				nameField = new TextEditField("", EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE);
-			}
-			aliasField = new TextEditField("", EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE);
-			internalType = CustomItemType.DIAMOND_HOE;
-			displayName = new TextEditField("", EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE);
-			textureSelect = new TextureSelect(null, textureCreateFactory);
-			lore = new String[] {};
-			attributes = DEFAULT_ATTRIBUTES;
-			enchantments = DEFAULT_ENCHANTMENTS;
-			itemFlags = ItemFlag.getDefaultValues();
-			customModel = null;
-			playerEffects = DEFAULT_PLAYER_EFFECTS;
-			targetEffects = DEFAULT_TARGET_EFFECTS;
-			equippedEffects = new ArrayList<>();
-			commands = new String[] {};
-			conditions = new ReplaceCondition[] {};
-			op = ConditionOperation.NONE;
-			extraNbt = new ExtraItemNbt();
-			attackRangeField = new FloatEditField(
-					1f, 0f, EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE
-			);
-		}
-		
-		Checks.nonNullArray(lore);
-		Checks.nonNullArray(attributes);
-		Checks.nonNullArray(enchantments);
-		Checks.nonNull(playerEffects);
-		Checks.nonNull(targetEffects);
-		Checks.nonNullArray(commands);
-		Checks.nonNullArray(conditions);
 	}
 	
 	@Override
@@ -177,44 +79,94 @@ public abstract class EditItemBase extends GuiMenu {
 		addComponent(new DynamicTextButton("Cancel", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
 			state.getWindow().setMainComponent(menu.getItemOverview());
 		}), 0.025f, 0.7f, 0.15f, 0.8f);
-		addComponent(new DynamicTextComponent("Note:", EditProps.LABEL), 0.05f, 0.6f, 0.1f, 0.65f);
-		addComponent(new DynamicTextComponent("You can scroll down for more", EditProps.LABEL), 0f, 0.55f, 0.2f, 0.6f);
-		addComponent(new DynamicTextComponent("Name: ", EditProps.LABEL), LABEL_X, 0.8f, LABEL_X + 0.1f, 0.85f);
-		addComponent(new DynamicTextComponent("Internal item type: ", EditProps.LABEL), LABEL_X, 0.74f, LABEL_X + 0.2f,
-				0.79f);
-		addComponent(new DynamicTextComponent("Alias: ", EditProps.LABEL), LABEL_X, 0.68f, LABEL_X + 0.1f, 0.73f);
-		addComponent(new DynamicTextComponent("Display name: ", EditProps.LABEL), LABEL_X, 0.62f, LABEL_X + 0.18f,
-				0.67f);
-		addComponent(new DynamicTextComponent("Lore: ", EditProps.LABEL), LABEL_X, 0.56f, LABEL_X + 0.1f, 0.61f);
-		addComponent(new DynamicTextComponent("Attribute modifiers: ", EditProps.LABEL), LABEL_X, 0.5f, LABEL_X + 0.2f,
-				0.55f);
-		addComponent(new DynamicTextComponent("Default enchantments: ", EditProps.LABEL), LABEL_X, 0.44f,
-				LABEL_X + 0.2f, 0.49f);
-		addComponent(new DynamicTextComponent("Item flags: ", EditProps.LABEL), LABEL_X, 0.38f, LABEL_X + 0.135f,
-				0.43f);
+
+		addComponent(
+				new DynamicTextComponent("Note:", EditProps.LABEL),
+				0.05f, 0.6f, 0.1f, 0.65f
+		);
+		addComponent(
+				new DynamicTextComponent("You can scroll down for more", EditProps.LABEL),
+				0f, 0.55f, 0.2f, 0.6f
+		);
+		addComponent(
+				new DynamicTextComponent("Name: ", EditProps.LABEL),
+				LABEL_X, 0.8f, LABEL_X + 0.1f, 0.85f
+		);
+		addComponent(
+				new DynamicTextComponent("Internal item type: ", EditProps.LABEL),
+				LABEL_X, 0.74f, LABEL_X + 0.2f, 0.79f
+		);
+		addComponent(
+				new DynamicTextComponent("Alias: ", EditProps.LABEL),
+				LABEL_X, 0.68f, LABEL_X + 0.1f, 0.73f
+		);
+		addComponent(
+				new DynamicTextComponent("Display name: ", EditProps.LABEL),
+				LABEL_X, 0.62f, LABEL_X + 0.18f, 0.67f
+		);
+		addComponent(
+				new DynamicTextComponent("Lore: ", EditProps.LABEL),
+				LABEL_X, 0.56f, LABEL_X + 0.1f, 0.61f
+		);
+		addComponent(
+				new DynamicTextComponent("Attribute modifiers: ", EditProps.LABEL),
+				LABEL_X, 0.5f, LABEL_X + 0.2f, 0.55f
+		);
+		addComponent(
+				new DynamicTextComponent("Default enchantments: ", EditProps.LABEL),
+				LABEL_X, 0.44f, LABEL_X + 0.2f, 0.49f
+		);
+		addComponent(
+				new DynamicTextComponent("Item flags: ", EditProps.LABEL),
+				LABEL_X, 0.38f, LABEL_X + 0.135f, 0.43f
+		);
+
 		// Block items don't have their own texture
 		if (!(this instanceof EditItemBlock)) {
-			addComponent(new DynamicTextComponent("Texture: ", EditProps.LABEL), LABEL_X, 0.32f, LABEL_X + 0.125f, 0.37f);
+			addComponent(
+					new DynamicTextComponent("Texture: ", EditProps.LABEL),
+					LABEL_X, 0.32f, LABEL_X + 0.125f, 0.37f
+			);
 		}
-		addComponent(new DynamicTextComponent("On-Hit Player effects: ", EditProps.LABEL), LABEL_X, 0.2f, LABEL_X + 0.2f, 0.25f);
-		addComponent(new DynamicTextComponent("On-Hit Target effects: ", EditProps.LABEL), LABEL_X, 0.14f, LABEL_X + 0.2f, 0.19f);
-		addComponent(new DynamicTextComponent("Commands: ", EditProps.LABEL), LABEL_X, 0.08f, LABEL_X + 0.125f, 0.13f);
-		addComponent(new DynamicTextComponent("Replace on right click: ", EditProps.LABEL), LABEL_X, 0.02f, LABEL_X + 0.2f, 0.07f);
-		addComponent(new DynamicTextComponent("Held/equipped potion effects: ", EditProps.LABEL), LABEL_X, -0.04f, LABEL_X + 0.2f, 0.01f);
-		addComponent(new DynamicTextComponent("NBT: ", EditProps.LABEL), LABEL_X, -0.1f, LABEL_X + 0.08f, -0.05f);
-		addComponent(new DynamicTextComponent("Attack range multiplier: ", EditProps.LABEL), LABEL_X, -0.16f, LABEL_X + 0.2f, -0.11f);
+		addComponent(
+				new DynamicTextComponent("On-Hit Player effects: ", EditProps.LABEL),
+				LABEL_X, 0.2f, LABEL_X + 0.2f, 0.25f
+		);
+		addComponent(
+				new DynamicTextComponent("On-Hit Target effects: ", EditProps.LABEL),
+				LABEL_X, 0.14f, LABEL_X + 0.2f, 0.19f
+		);
+		addComponent(
+				new DynamicTextComponent("Commands: ", EditProps.LABEL),
+				LABEL_X, 0.08f, LABEL_X + 0.125f, 0.13f
+		);
+		addComponent(
+				new DynamicTextComponent("Replace on right click: ", EditProps.LABEL),
+				LABEL_X, 0.02f, LABEL_X + 0.2f, 0.07f
+		);
+		addComponent(
+				new DynamicTextComponent("Held/equipped potion effects: ", EditProps.LABEL),
+				LABEL_X, -0.04f, LABEL_X + 0.2f, 0.01f
+		);
+		addComponent(
+				new DynamicTextComponent("NBT: ", EditProps.LABEL),
+				LABEL_X, -0.1f, LABEL_X + 0.08f, -0.05f
+		);
+		addComponent(
+				new DynamicTextComponent("Attack range multiplier: ", EditProps.LABEL),
+				LABEL_X, -0.16f, LABEL_X + 0.2f, -0.11f
+		);
 		
-		if (!(
-				// I might add custom bow and crossbow models later, but I leave it out for now
-				this instanceof EditItemBow || this instanceof EditItemCrossbow
-                // Block items take on the model of their block
-				|| this instanceof EditItemBlock
-		)) {
-			addComponent(new DynamicTextComponent("Model: ", EditProps.LABEL), LABEL_X, 0.26f, LABEL_X + 0.11f, 0.31f);
+		if (canHaveCustomModel()) {
+			addComponent(
+					new DynamicTextComponent("Model: ", EditProps.LABEL),
+					LABEL_X, 0.26f, LABEL_X + 0.11f, 0.31f
+			);
 		}
+
 		if (toModify != null) {
-			addComponent(new DynamicTextButton("Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-				String error = apply();
+			addComponent(new DynamicTextButton("Apply", SAVE_BASE, EditProps.SAVE_HOVER, () -> {
+				String error = Validation.toErrorString(() -> menu.getSet().changeItem(toModify, currentValues));
 				if (error != null) {
 					errorComponent.setText(error);
 					errorComponent.setProperties(EditProps.ERROR);
@@ -223,8 +175,8 @@ public abstract class EditItemBase extends GuiMenu {
 				}
 			}), 0.025f, 0.1f, 0.15f, 0.2f);
 		} else {
-			addComponent(new DynamicTextButton("Create", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-				String error = create();
+			addComponent(new DynamicTextButton("Create", SAVE_BASE, SAVE_HOVER, () -> {
+				String error = Validation.toErrorString(() -> menu.getSet().addItem(currentValues));
 				if (error != null) {
 					errorComponent.setProperties(EditProps.ERROR);
 					errorComponent.setText(error);
@@ -236,22 +188,29 @@ public abstract class EditItemBase extends GuiMenu {
 		
 		// Renaming is no longer allowed!
 		if (toModify == null) {
-			addComponent(nameField, BUTTON_X, 0.8f, BUTTON_X + 0.1f, 0.85f);
+			addComponent(
+					new EagerTextEditField(currentValues.getName(), EDIT_BASE, EDIT_ACTIVE, currentValues::setName),
+					BUTTON_X, 0.8f, BUTTON_X + 0.1f, 0.85f
+			);
 		} else {
 			addComponent(
-					new DynamicTextComponent(toModify.getName(), EditProps.LABEL), 
+					new DynamicTextComponent(currentValues.getName(), EditProps.LABEL),
 					BUTTON_X, 0.8f, BUTTON_X + 0.1f, 0.85f
 			);
 		}
 		addComponent(EnumSelect.createSelectButton(
 				CustomItemType.class, 
-				(CustomItemType newType) -> {
-			internalType = newType;
-		}, (CustomItemType maybe) -> {
+				currentValues::setItemType, (CustomItemType maybe) -> {
 			return maybe.canServe(getCategory());
-		}, internalType), BUTTON_X, 0.74f, BUTTON_X + 0.1f, 0.79f);
-		addComponent(aliasField, BUTTON_X, 0.68f, BUTTON_X + 0.1f, 0.73f);
-		addComponent(displayName, BUTTON_X, 0.62f, BUTTON_X + 0.1f, 0.67f);
+		}, currentValues.getItemType()), BUTTON_X, 0.74f, BUTTON_X + 0.1f, 0.79f);
+		addComponent(
+				new EagerTextEditField(currentValues.getAlias(), EDIT_BASE, EDIT_ACTIVE, currentValues::setAlias),
+				BUTTON_X, 0.68f, BUTTON_X + 0.1f, 0.73f
+		);
+		addComponent(
+				new EagerTextEditField(currentValues.getDisplayName(), EDIT_BASE, EDIT_ACTIVE, currentValues::setDisplayName),
+				BUTTON_X, 0.62f, BUTTON_X + 0.1f, 0.67f
+		);
 		addLoreComponent();
 		addAttributesComponent();
 		addEnchantmentsComponent();
@@ -260,188 +219,141 @@ public abstract class EditItemBase extends GuiMenu {
 		addReplaceComponent();
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new EquippedEffectsCollectionEdit(
-					equippedEffects, 
-					newEquippedEffects -> equippedEffects = newEquippedEffects, 
-					this
+					currentValues.getEquippedEffects(), currentValues::setEquippedEffects, this
 			));
 		}), BUTTON_X, -0.04f, BUTTON_X + 0.1f, 0.01f);
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			boolean hasDurability;
-			if (this instanceof EditItemTool) {
-				Option.Int currentDurability = ((EditItemTool) this).durability.getInt();
-				hasDurability = currentDurability.hasValue() && currentDurability.getValue() != -1;
+			if (currentValues instanceof CustomToolValues) {
+				hasDurability = ((CustomToolValues) currentValues).getMaxDurabilityNew() != null;
 			} else {
 				hasDurability = false;
 			}
-			String name;
-			if (nameField != null) {
-				name = nameField.getText();
-			} else {
-				name = toModify.getName();
-			}
-			state.getWindow().setMainComponent(new ItemNbtMenu(extraNbt, newExtraNbt -> {
-				extraNbt = newExtraNbt;
-			}, this, name, hasDurability));
+			state.getWindow().setMainComponent(new ItemNbtMenu(
+					currentValues.getExtraNbt(), currentValues::setExtraItemNbt, this, currentValues.getName(), hasDurability)
+			);
 		}), BUTTON_X, -0.1f, BUTTON_X + 0.1f, -0.05f);
-		addComponent(attackRangeField, BUTTON_X, -0.16f, BUTTON_X + 0.1f, -0.11f);
+		addComponent(
+				new EagerFloatEditField(
+						currentValues.getAttackRange(), 0f, EDIT_BASE, EDIT_ACTIVE, currentValues::setAttackRange
+				), BUTTON_X, -0.16f, BUTTON_X + 0.1f, -0.11f
+		);
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new ItemFlagMenu(this, itemFlags));
+			state.getWindow().setMainComponent(new ItemFlagMenu(this, currentValues));
 		}), BUTTON_X, 0.38f, BUTTON_X + 0.1f, 0.43f);
 		if (!(this instanceof EditItemBlock)) {
-			addComponent(textureSelect, BUTTON_X, 0.32f, BUTTON_X + 0.1f, 0.37f);
+			// TODO Add "Load texture" button
+			addComponent(
+					CollectionSelect.createButton(
+							menu.getSet().getTextures().references(),
+							currentValues::setTexture,
+							this::allowTexture,
+							textureReference -> textureReference.get().getName(),
+							currentValues.getTextureReference()
+					),
+					BUTTON_X, 0.32f, BUTTON_X + 0.1f, 0.37f
+			);
 		}
 
-		if (!(
-				// Bow models and crossbow models are more complex and have less priority, so leave it out for now
-				this instanceof EditItemBow || this instanceof EditItemCrossbow
-				// Block items will simply take on the model of their block
-                || this instanceof EditItemBlock
-		)) {
+		if (canHaveCustomModel()) {
 			addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
-				state.getWindow().setMainComponent(new EditCustomModel(ItemSet.getDefaultModel(
-						internalType, 
-						textureSelect.getSelected() != null ? textureSelect.getSelected().getName()
-								: "%TEXTURE_NAME%", internalType.isLeatherArmor(),
+				state.getWindow().setMainComponent(new EditCustomModel(DefaultItemModels.getDefaultModel(
+						currentValues.getItemType(),
+						currentValues.getTextureReference() != null ? currentValues.getTexture().getName()
+								: "%TEXTURE_NAME%", currentValues.getItemType().isLeatherArmor(),
 								!(this instanceof EditItemHelmet3D))
-								, this, (byte[] array) -> {
-									customModel = array;
-								}, customModel));
+								, this, currentValues::setCustomModel, currentValues.getCustomModel()));
 			}), BUTTON_X, 0.26f, BUTTON_X + 0.1f, 0.31f);
 		}
 	}
 
-	void setItemFlags(boolean[] newFlags) {
-		this.itemFlags = newFlags;
-	}
-	
-	protected final String create() {
-		Option.Float attackRange = attackRangeField.getFloat();
-		if (!attackRange.hasValue()) {
-			return "The attack range must be a positive number";
-		}
-		return create(attackRange.getValue());
-	}
-	
-	protected final String apply() {
-		Option.Float attackRange = attackRangeField.getFloat();
-		if (!attackRange.hasValue()) {
-			return "The attack range must be a positive number";
-		}
-		return apply(attackRange.getValue());
-	}
-
-	protected abstract String create(float attackRange);
-
-	protected abstract String apply(float attackRange);
-
-	protected String getDisplayName() {
-		return displayName.getText().replace('&', (char) 167);
-	}
-	
-	protected class TextureSelect extends TextureSelectButton {
-
-		public TextureSelect(NamedImage initial, CreateMenuFactory factory) {
-			super(initial, menu.getSet(), factory);
-		}
-
-		@Override
-		protected boolean allowTexture(NamedImage texture) {
-			return EditItemBase.this.allowTexture(texture);
-		}
+	protected boolean canHaveCustomModel() {
+		return true;
 	}
 
 	private void addLoreComponent() {
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new TextListEditMenu(EditItemBase.this, (String[] newLore) -> {
-				lore = newLore;
-				for (int index = 0; index < lore.length; index++)
-					lore[index] = lore[index].replace('&', (char) 167);
-			}, EditProps.BACKGROUND, EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, EditProps.SAVE_BASE,
-					EditProps.SAVE_HOVER, EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE, lore));
+			state.getWindow().setMainComponent(new TextListEditMenu(
+					EditItemBase.this, currentValues::setLore,
+					EditProps.BACKGROUND, EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, SAVE_BASE,
+					EditProps.SAVE_HOVER, EDIT_BASE, EDIT_ACTIVE, currentValues.getLore())
+			);
 		}), BUTTON_X, 0.56f, BUTTON_X + 0.1f, 0.61f);
 	}
 
-	protected abstract AttributeModifier getExampleAttributeModifier();
+	protected abstract AttributeModifierValues getExampleAttributeModifier();
 
 	private void addAttributesComponent() {
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new AttributeCollectionEdit(Arrays.asList(attributes),
-					newAttributes -> {
-						Checks.nonNullArray(attributes);
-						this.attributes = newAttributes.toArray(new AttributeModifier[newAttributes.size()]);
-					}, EditItemBase.this, getExampleAttributeModifier()));
+			state.getWindow().setMainComponent(new AttributeCollectionEdit(
+					currentValues.getAttributeModifiers(), currentValues::setAttributeModifiers,
+					EditItemBase.this, getExampleAttributeModifier()
+			));
 		}), BUTTON_X, 0.5f, BUTTON_X + 0.1f, 0.55f);
 	}
 
 	private void addEnchantmentsComponent() {
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			/*
-			state.getWindow().setMainComponent(
-					new EnchantmentsOverview(enchantments, EditItemBase.this, (Enchantment[] enchantments) -> {
-						Checks.nonNull(enchantments);
-						this.enchantments = enchantments;
-					}));*/
 			state.getWindow().setMainComponent(new EnchantmentCollectionEdit(
-					Arrays.asList(enchantments), newEnchantments -> {
-						enchantments = newEnchantments.toArray(new Enchantment[newEnchantments.size()]);
-					}, EditItemBase.this));
+					currentValues.getDefaultEnchantments(), currentValues::setDefaultEnchantments, EditItemBase.this
+			));
 		}), BUTTON_X, 0.44f, BUTTON_X + 0.1f, 0.49f);
 	}
 
-	
 	private void addEffectsComponent() {
-		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(
-					new EffectsCollectionEdit(playerEffects, newEffects -> {
-						playerEffects = new ArrayList<>(newEffects);
-				}, EditItemBase.this));
+		addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new EffectsCollectionEdit(
+					currentValues.getOnHitPlayerEffects(), currentValues::setPlayerEffects, EditItemBase.this
+			));
 		}), BUTTON_X, 0.2f, BUTTON_X + 0.1f, 0.25f);
-		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(
-					new EffectsCollectionEdit(targetEffects, newEffects -> {
-						targetEffects = new ArrayList<>(newEffects);
-				}, EditItemBase.this));
+		addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new EffectsCollectionEdit(
+					currentValues.getOnHitTargetEffects(), currentValues::setTargetEffects, EditItemBase.this
+			));
 		}), BUTTON_X, 0.14f, BUTTON_X + 0.1f, 0.19f);
 	}
 	
 	private void addCommandsComponent() {
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new TextListEditMenu(EditItemBase.this, (String[] newCommands) -> {
-				commands = newCommands;
-				for (int index = 0; index < commands.length; index++)
-					commands[index] = commands[index].replace('&', (char) 167);
-			}, EditProps.BACKGROUND, EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, EditProps.SAVE_BASE,
-					EditProps.SAVE_HOVER, EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE, commands));
+			state.getWindow().setMainComponent(new TextListEditMenu(
+					EditItemBase.this, currentValues::setCommands,
+					BACKGROUND, CANCEL_BASE, CANCEL_HOVER, SAVE_BASE, SAVE_HOVER, EDIT_BASE, EDIT_ACTIVE,
+					currentValues.getCommands()
+			));
 		}), BUTTON_X, 0.08f, BUTTON_X + 0.1f, 0.13f);
 	}
 	
-	protected ReplaceCondition getExampleReplaceCondition() {
-		return new ReplaceCondition(ReplacementCondition.HASITEM, "None", ReplacementOperation.NONE, 0, new String());
+	protected ReplacementConditionValues getExampleReplaceCondition() {
+		return ReplacementConditionValues.createQuick(
+				ReplacementConditionValues.ReplacementCondition.HASITEM,
+				null,
+				ReplacementConditionValues.ReplacementOperation.NONE,
+				0,
+				null
+		);
 	}
 	
 	private void addReplaceComponent() {
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			if (menu.getSet().getBackingItems().size() > 0) {
-				state.getWindow().setMainComponent(new ReplacementCollectionEdit(Arrays.asList(conditions), 
-						newConditions -> {
-							Checks.nonNullArray(conditions);
-							this.conditions = newConditions.toArray(new ReplaceCondition[newConditions.size()]);
-						}, EditItemBase.this, getExampleReplaceCondition(), menu.getSet().getBackingItems(), newOp ->  {
-							if (newOp == null) {
-								newOp = ConditionOperation.NONE;
-							}
-							this.op = newOp;
-						}));
+			if (menu.getSet().getItems().size() > 0) {
+				state.getWindow().setMainComponent(new ReplacementCollectionEdit(
+						currentValues.getReplacementConditions(),
+						newConditions -> currentValues.setReplaceConditions(new ArrayList<>(newConditions)),
+						EditItemBase.this,
+						getExampleReplaceCondition(),
+						menu.getSet().getItems().references(), currentValues::setConditionOp
+				));
 			} else {
 				errorComponent.setText("No items defined yet, so cannot replace this item with other items.");
 			}
 		}), BUTTON_X, 0.02f, BUTTON_X + 0.1f, 0.07f);
 	}
+
 	protected abstract CustomItemType.Category getCategory();
 
-	protected boolean allowTexture(NamedImage texture) {
+	protected boolean allowTexture(TextureReference texture) {
 		
 		// No subclasses such as bow textures
-		return texture.getClass() == NamedImage.class;
+		return texture.get().getClass() == BaseTextureValues.class;
 	}
 }

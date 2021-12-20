@@ -246,6 +246,16 @@ public class ExtraItemNbtValues extends ModelValues {
             this.value = value;
         }
 
+        public int getIntValue() {
+            if (type != NbtValueType.INTEGER) throw new UnsupportedOperationException("Type is not Int");
+            return (Integer) value;
+        }
+
+        public String getStringValue() {
+            if (type != NbtValueType.STRING) throw new UnsupportedOperationException("Type is not String");
+            return (String) value;
+        }
+
         private void save1(BitOutput output) {
             output.addByte((byte) type.ordinal());
             if (type == NbtValueType.INTEGER) {

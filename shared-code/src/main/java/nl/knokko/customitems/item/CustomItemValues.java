@@ -177,6 +177,9 @@ public abstract class CustomItemValues extends ModelValues {
     }
 
     @Override
+    public abstract CustomItemValues copy(boolean mutable);
+
+    @Override
     public String toString() {
         return getClass().getSimpleName() + "(" + name + ")";
     }
@@ -627,7 +630,8 @@ public abstract class CustomItemValues extends ModelValues {
     public void setDisplayName(String newDisplayName) {
         assertMutable();
         Checks.notNull(newDisplayName);
-        this.displayName = newDisplayName;
+        // 167 is the code for the color code character
+        this.displayName = newDisplayName.replace('&', (char) 167);
     }
 
     public void setLore(List<String> newLore) {
@@ -642,31 +646,31 @@ public abstract class CustomItemValues extends ModelValues {
         this.itemFlags = new ArrayList<>(newItemFlags);
     }
 
-    public void setAttributeModifiers(List<AttributeModifierValues> newAttributeModifiers) {
+    public void setAttributeModifiers(Collection<AttributeModifierValues> newAttributeModifiers) {
         assertMutable();
         Checks.nonNull(newAttributeModifiers);
         this.attributeModifiers = Mutability.createDeepCopy(newAttributeModifiers, false);
     }
 
-    public void setDefaultEnchantments(List<EnchantmentValues> newDefaultEnchantments) {
+    public void setDefaultEnchantments(Collection<EnchantmentValues> newDefaultEnchantments) {
         assertMutable();
         Checks.nonNull(newDefaultEnchantments);
         this.defaultEnchantments = Mutability.createDeepCopy(newDefaultEnchantments, false);
     }
 
-    public void setPlayerEffects(List<PotionEffectValues> newPlayerEffects) {
+    public void setPlayerEffects(Collection<PotionEffectValues> newPlayerEffects) {
         assertMutable();
         Checks.nonNull(newPlayerEffects);
         this.playerEffects = Mutability.createDeepCopy(newPlayerEffects, false);
     }
 
-    public void setTargetEffects(List<PotionEffectValues> newTargetEffects) {
+    public void setTargetEffects(Collection<PotionEffectValues> newTargetEffects) {
         assertMutable();
         Checks.nonNull(newTargetEffects);
         this.targetEffects = Mutability.createDeepCopy(newTargetEffects, false);
     }
 
-    public void setEquippedEffects(List<EquippedPotionEffectValues> newEquippedEffects) {
+    public void setEquippedEffects(Collection<EquippedPotionEffectValues> newEquippedEffects) {
         assertMutable();
         Checks.nonNull(newEquippedEffects);
         this.equippedEffects = Mutability.createDeepCopy(equippedEffects, false);

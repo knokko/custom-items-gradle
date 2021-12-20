@@ -1,5 +1,6 @@
 package nl.knokko.gui.component.text;
 
+import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 
 import nl.knokko.gui.util.Option;
@@ -18,11 +19,25 @@ public class EagerFloatEditField extends FloatEditField {
 		this.onChange = onChange;
 	}
 
-	public EagerFloatEditField(double initialValue, double minValue, double maxValue, 
+	public EagerFloatEditField(float initialValue, float minValue,
+							   Properties passiveProperties, Properties activeProperties,
+							   Consumer<Float> onChange) {
+		super(initialValue, minValue, passiveProperties, activeProperties);
+		this.onChange = newValue -> onChange.accept((float) newValue);
+	}
+
+	public EagerFloatEditField(double initialValue, double minValue, double maxValue,
 			Properties passiveProperties, Properties activeProperties,
 			DoubleConsumer onChange) {
 		super(initialValue, minValue, maxValue, passiveProperties, activeProperties);
 		this.onChange = onChange;
+	}
+
+	public EagerFloatEditField(float initialValue, float minValue, float maxValue,
+							   Properties passiveProperties, Properties activeProperties,
+							   Consumer<Float> onChange) {
+		super(initialValue, minValue, maxValue, passiveProperties, activeProperties);
+		this.onChange = newValue -> onChange.accept((float) newValue);
 	}
 
 	@Override

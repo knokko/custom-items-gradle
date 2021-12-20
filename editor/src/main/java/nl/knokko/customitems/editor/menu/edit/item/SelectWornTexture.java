@@ -4,28 +4,29 @@ import java.util.function.Consumer;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.texture.ArmorTexturesEdit;
-import nl.knokko.customitems.editor.set.ItemSet;
-import nl.knokko.customitems.editor.set.item.texture.ArmorTextures;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.editor.util.ReadOnlyReference;
-import nl.knokko.customitems.editor.util.Reference;
+import nl.knokko.customitems.itemset.ArmorTextureReference;
+import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
+import static nl.knokko.customitems.editor.menu.edit.EditProps.CHOOSE_BASE;
+import static nl.knokko.customitems.editor.menu.edit.EditProps.CHOOSE_HOVER;
+
 public class SelectWornTexture extends GuiMenu {
 	
 	private final GuiComponent returnMenu;
-	private final ItemSet set;
-	private final Consumer<ReadOnlyReference<ArmorTextures>> onChoose;
+	private final SItemSet set;
+	private final Consumer<ArmorTextureReference> onChoose;
 	
 	private int lastNumTextures;
 
 	public SelectWornTexture(
-			GuiComponent returnMenu, ItemSet set,
-			Consumer<ReadOnlyReference<ArmorTextures>> onChoose
+			GuiComponent returnMenu, SItemSet set,
+			Consumer<ArmorTextureReference> onChoose
 	) {
 		this.returnMenu = returnMenu;
 		this.set = set;
@@ -39,11 +40,11 @@ public class SelectWornTexture extends GuiMenu {
 			state.getWindow().setMainComponent(returnMenu);
 		}), 0.025f, 0.8f, 0.2f, 0.9f);
 		
-		lastNumTextures = set.getBackingArmorTextures().size();
+		lastNumTextures = set.getArmorTextures().size();
 		int index = 0;
-		for (Reference<ArmorTextures> armorTextures : set.getBackingArmorTextures()) {
-			addComponent(new DynamicTextButton(armorTextures.get().getName(), EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-				onChoose.accept(new ReadOnlyReference<>(armorTextures));
+		for (ArmorTextureReference armorTextures : set.getArmorTextures().references()) {
+			addComponent(new DynamicTextButton(armorTextures.get().getName(), CHOOSE_BASE, CHOOSE_HOVER, () -> {
+				onChoose.accept(armorTextures);
 				state.getWindow().setMainComponent(returnMenu);
 			}), 0.3f, 0.9f - 0.15f * index, 0.5f, 1f - 0.15f * index);
 			index++;
@@ -66,7 +67,7 @@ public class SelectWornTexture extends GuiMenu {
 	public void update() {
 		super.update();
 		
-		if (didInit && lastNumTextures != set.getBackingArmorTextures().size()) {
+		if (didInit && lastNumTextures != set.getArmorTextures().size()) {
 			clearComponents();
 			addComponents();
 		}

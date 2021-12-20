@@ -16,8 +16,7 @@ public class CustomBlockItemValues extends CustomItemValues {
     public static CustomBlockItemValues load(
             BitInput input, byte encoding, SItemSet itemSet
     ) throws UnknownEncodingException {
-        // Note: Initial item type doesn't matter in this case
-        CustomBlockItemValues result = new CustomBlockItemValues(false, CustomItemType.DIAMOND_HOE);
+        CustomBlockItemValues result = new CustomBlockItemValues(false);
 
         if (encoding == ItemEncoding.ENCODING_BLOCK_ITEM_10) {
             result.load10(input, itemSet);
@@ -36,8 +35,8 @@ public class CustomBlockItemValues extends CustomItemValues {
     private BlockReference block;
     private byte maxStacksize;
 
-    public CustomBlockItemValues(boolean mutable, CustomItemType initialItemType) {
-        super(mutable, initialItemType);
+    public CustomBlockItemValues(boolean mutable) {
+        super(mutable, CustomItemType.DIAMOND_HOE);
 
         this.maxStacksize = 64;
         this.block = null;

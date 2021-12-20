@@ -26,7 +26,7 @@ package nl.knokko.customitems.editor.menu.edit.item;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.item.CustomItemType.Category;
+import nl.knokko.customitems.item.*;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
@@ -51,77 +51,77 @@ public class CreateItem extends GuiMenu {
 		}), 0.1f, 0.8f, 0.25f, 0.9f);
 
 		addComponent(new DynamicTextButton("Food or Potion", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-			state.getWindow().setMainComponent(new EditItemFood(menu, null, null));
+			state.getWindow().setMainComponent(new EditItemFood(menu, new CustomFoodValues(true), null));
 		}), 0.5f, 0.89f, 0.7f, 0.99f);
 		addComponent(new DynamicTextButton("Simple Item", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-			state.getWindow().setMainComponent(new EditItemSimple(menu, null, null));
+			state.getWindow().setMainComponent(new EditItemSimple(menu, new SimpleCustomItemValues(true), null));
 		}), 0.5f, 0.78f, 0.7f, 0.88f);
 		
 		// The row for later minecraft versions
 		addComponent(new DynamicTextButton("Trident (1.13 and 1.14)", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-			state.getWindow().setMainComponent(new EditItemTrident(menu, null, null));
+			state.getWindow().setMainComponent(new EditItemTrident(menu, new CustomTridentValues(true), null));
 		}), 0f, 0.65f, 0.23f, 0.75f);
 		addComponent(new DynamicTextButton("Crossbow (1.14+)", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-			state.getWindow().setMainComponent(new EditItemCrossbow(menu, null, null));
+			state.getWindow().setMainComponent(new EditItemCrossbow(menu, new CustomCrossbowValues(true), null));
 		}), 0f, 0.525f, 0.23f, 0.625f);
 		addComponent(new DynamicTextButton("Block (1.13+)", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-			state.getWindow().setMainComponent(new EditItemBlock(menu, null, null));
+			state.getWindow().setMainComponent(new EditItemBlock(menu, new CustomBlockItemValues(true), null));
 		}), 0f, 0.4f, 0.2f, 0.5f);
 
 		// The row for the special stuff
 		addComponent(new DynamicTextButton("Wand", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-			state.getWindow().setMainComponent(new EditItemWand(menu, null, null));
+			state.getWindow().setMainComponent(new EditItemWand(menu, new CustomWandValues(true), null));
 		}), 0.25f, 0.65f, 0.45f, 0.75f);
 
 		addComponent(new DynamicTextButton("Gun", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-			state.getWindow().setMainComponent(new EditItemGun(menu, null, null));
+			state.getWindow().setMainComponent(new EditItemGun(menu, new CustomGunValues(true), null));
 		}), 0.25f, 0.525f, 0.45f, 0.625f);
 
 		addComponent(new DynamicTextButton("Pocket Container", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-			state.getWindow().setMainComponent(new EditItemPocketContainer(menu, null, null));
+			state.getWindow().setMainComponent(new EditItemPocketContainer(menu, new CustomPocketContainerValues(true), null));
 		}), 0.25f, 0.4f, 0.45f, 0.5f);
 		
 		// The row for the basic tools
 		addComponent(new DynamicTextButton("Sword", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-			state.getWindow().setMainComponent(new EditItemTool(menu, null, null, Category.SWORD));
+			state.getWindow().setMainComponent(new EditItemTool(menu, new CustomToolValues(true, CustomItemType.IRON_SWORD), null));
 		}), 0.5f, 0.65f, 0.7f, 0.75f);
 		addComponent(new DynamicTextButton("Pickaxe", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-			state.getWindow().setMainComponent(new EditItemTool(menu, null, null, Category.PICKAXE));
+			state.getWindow().setMainComponent(new EditItemTool(menu, new CustomToolValues(true, CustomItemType.IRON_PICKAXE), null));
 		}), 0.5f, 0.525f, 0.7f, 0.625f);
 		addComponent(new DynamicTextButton("Axe", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-			state.getWindow().setMainComponent(new EditItemTool(menu, null, null, Category.AXE));
+			state.getWindow().setMainComponent(new EditItemTool(menu, new CustomToolValues(true, CustomItemType.IRON_AXE), null));
 		}), 0.5f, 0.4f, 0.7f, 0.5f);
 		addComponent(new DynamicTextButton("Shovel", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-			state.getWindow().setMainComponent(new EditItemTool(menu, null, null, Category.SHOVEL));
+			state.getWindow().setMainComponent(new EditItemTool(menu, new CustomToolValues(true, CustomItemType.IRON_SHOVEL), null));
 		}), 0.5f, 0.275f, 0.7f, 0.375f);
 		addComponent(new DynamicTextButton("Hoe", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-			state.getWindow().setMainComponent(new EditItemHoe(menu, null, null));
+			state.getWindow().setMainComponent(new EditItemHoe(menu, new CustomHoeValues(true), null));
 		}), 0.5f, 0.15f, 0.7f, 0.25f);
 		addComponent(new DynamicTextButton("Shear", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-			state.getWindow().setMainComponent(new EditItemShears(menu, null, null));
+			state.getWindow().setMainComponent(new EditItemShears(menu, new CustomShearsValues(true), null));
 		}), 0.5f, 0.025f, 0.7f, 0.125f);
 		
 		// The row for the advanced combat stuff
 		addComponent(new DynamicTextButton("3D helmet", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-			state.getWindow().setMainComponent(new EditItemHelmet3D(menu, null, null));
+			state.getWindow().setMainComponent(new EditItemHelmet3D(menu, new CustomHelmet3dValues(true), null));
 		}), 0.75f, 0.775f, 0.95f, 0.875f);
 		addComponent(new DynamicTextButton("Bow", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-			state.getWindow().setMainComponent(new EditItemBow(menu, null, null));
+			state.getWindow().setMainComponent(new EditItemBow(menu, new CustomBowValues(true), null));
 		}), 0.75f, 0.65f, 0.95f, 0.75f);
 		addComponent(new DynamicTextButton("Helmet", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-			state.getWindow().setMainComponent(new EditItemArmor(menu, null, null, Category.HELMET));
+			state.getWindow().setMainComponent(new EditItemArmor(menu, new CustomArmorValues(true, CustomItemType.IRON_HELMET), null));
 		}), 0.75f, 0.525f, 0.95f, 0.625f);
 		addComponent(new DynamicTextButton("Chestplate", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-			state.getWindow().setMainComponent(new EditItemArmor(menu, null, null, Category.CHESTPLATE));
+			state.getWindow().setMainComponent(new EditItemArmor(menu, new CustomArmorValues(true, CustomItemType.IRON_CHESTPLATE), null));
 		}), 0.75f, 0.4f, 0.95f, 0.5f);
 		addComponent(new DynamicTextButton("Leggings", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-			state.getWindow().setMainComponent(new EditItemArmor(menu, null, null, Category.LEGGINGS));
+			state.getWindow().setMainComponent(new EditItemArmor(menu, new CustomArmorValues(true, CustomItemType.IRON_LEGGINGS), null));
 		}), 0.75f, 0.275f, 0.95f, 0.375f);
 		addComponent(new DynamicTextButton("Boots", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-			state.getWindow().setMainComponent(new EditItemArmor(menu, null, null, Category.BOOTS));
+			state.getWindow().setMainComponent(new EditItemArmor(menu, new CustomArmorValues(true, CustomItemType.IRON_BOOTS), null));
 		}), 0.75f, 0.15f, 0.95f, 0.25f);
 		addComponent(new DynamicTextButton("Shield", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-			state.getWindow().setMainComponent(new EditItemShield(menu, null, null));
+			state.getWindow().setMainComponent(new EditItemShield(menu, new CustomShieldValues(true), null));
 		}), 0.75f, 0.025f, 0.95f, 0.125f);
 
 		HelpButtons.addHelpLink(this, "edit%20menu/items/select%20type.html");

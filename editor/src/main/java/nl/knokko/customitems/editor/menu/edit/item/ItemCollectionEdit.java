@@ -4,17 +4,20 @@ import java.awt.image.BufferedImage;
 
 import nl.knokko.customitems.editor.menu.commandhelp.CommandBlockHelpOverview;
 import nl.knokko.customitems.editor.menu.edit.*;
-import nl.knokko.customitems.editor.set.item.*;
+import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
+import nl.knokko.customitems.editor.util.Validation;
+import nl.knokko.customitems.item.*;
+import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
-public class ItemCollectionEdit extends CollectionEdit<CustomItem> {
+public class ItemCollectionEdit extends DedicatedCollectionEdit<CustomItemValues, ItemReference> {
 	
 	private final EditMenu menu;
 
 	public ItemCollectionEdit(EditMenu menu) {
-		super(new ItemActionHandler(menu), menu.getSet().getBackingItems());
+		super(menu, menu.getSet().getItems().references(), null);
 		this.menu = menu;
 	}
 	
@@ -30,79 +33,82 @@ public class ItemCollectionEdit extends CollectionEdit<CustomItem> {
 		
 		HelpButtons.addHelpLink(this, "edit%20menu/items/overview.html");
 	}
-	
-	private static class ItemActionHandler implements ActionHandler<CustomItem> {
-		
-		private final EditMenu menu;
-		
-		private ItemActionHandler(EditMenu menu) {
-			this.menu = menu;
-		}
 
-		@Override
-		public void goBack() {
-			menu.getState().getWindow().setMainComponent(menu);
-		}
-		
-		private GuiComponent createEditMenu(CustomItem item, boolean copy) {
-			CustomItem secondParam = copy ? null : item;
-			if (item instanceof CustomBow)
-				return new EditItemBow(menu, (CustomBow) item, (CustomBow) secondParam);
-			else if (item instanceof CustomCrossbow)
-				return new EditItemCrossbow(menu, (CustomCrossbow) item, (CustomCrossbow) secondParam);
-			else if (item instanceof CustomHelmet3D)
-				return new EditItemHelmet3D(menu, (CustomArmor) item, (CustomArmor) secondParam);
-			else if (item instanceof CustomArmor)
-				return new EditItemArmor(menu, (CustomArmor) item, (CustomArmor) secondParam, item.getItemType().getMainCategory());
-			else if (item instanceof CustomShears) 
-				return new EditItemShears(menu, (CustomShears) item, (CustomShears) secondParam);
-			else if (item instanceof CustomHoe)
-				return new EditItemHoe(menu, (CustomHoe) item, (CustomHoe) secondParam);
-			else if (item instanceof CustomShield)
-				return new EditItemShield(menu, (CustomShield) item, (CustomShield) secondParam);
-			else if (item instanceof CustomTrident)
-				return new EditItemTrident(menu, (CustomTrident) item, (CustomTrident) secondParam);
-			else if (item instanceof CustomTool)
-				return new EditItemTool(menu, (CustomTool) item, (CustomTool) secondParam, item.getItemType().getMainCategory());
-			else if (item instanceof CustomWand)
-				return new EditItemWand(menu, (CustomWand) item, (CustomWand) secondParam);
-			else if (item instanceof CustomGun)
-				return new EditItemGun(menu, (CustomGun) item, (CustomGun) secondParam);
-			else if (item instanceof CustomPocketContainer)
-				return new EditItemPocketContainer(menu, (CustomPocketContainer) item, (CustomPocketContainer) secondParam);
-			else if (item instanceof SimpleCustomItem)
-				return new EditItemSimple(menu, (SimpleCustomItem) item, (SimpleCustomItem) secondParam);
-			else if (item instanceof CustomFood)
-				return new EditItemFood(menu, (CustomFood) item, (CustomFood) secondParam);
-			else if (item instanceof CustomBlockItem)
-				return new EditItemBlock(menu, (CustomBlockItem) item, (CustomBlockItem) secondParam);
-			else
-				throw new IllegalArgumentException("Unsupported custom item class: " + item.getClass());
-		}
+	private GuiComponent createEditMenu(ItemReference itemReference, boolean copy) {
+		ItemReference toModify = copy ? null : itemReference;
+		CustomItemValues itemValues = itemReference.get();
 
-		@Override
-		public GuiComponent createEditMenu(CustomItem item, GuiComponent returnMenu) {
-			return createEditMenu(item, false);
-		}
-		
-		@Override
-		public GuiComponent createCopyMenu(CustomItem item, GuiComponent returnMenu) {
-			return createEditMenu(item, true);
-		}
+		if (itemValues instanceof CustomBowValues)
+			return new EditItemBow(menu, (CustomBowValues) itemValues, toModify);
+		else if (itemValues instanceof CustomCrossbowValues)
+			return new EditItemCrossbow(menu, (CustomCrossbowValues) itemValues, toModify);
+		else if (itemValues instanceof CustomHelmet3dValues)
+			return new EditItemHelmet3D(menu, (CustomHelmet3dValues) itemValues, toModify);
+		else if (itemValues instanceof CustomArmorValues)
+			return new EditItemArmor(menu, (CustomArmorValues) itemValues, toModify);
+		else if (itemValues instanceof CustomShearsValues)
+			return new EditItemShears(menu, (CustomShearsValues) itemValues, toModify);
+		else if (itemValues instanceof CustomHoeValues)
+			return new EditItemHoe(menu, (CustomHoeValues) itemValues, toModify);
+		else if (itemValues instanceof CustomShieldValues)
+			return new EditItemShield(menu, (CustomShieldValues) itemValues, toModify);
+		else if (itemValues instanceof CustomTridentValues)
+			return new EditItemTrident(menu, (CustomTridentValues) itemValues, toModify);
+		else if (itemValues instanceof CustomToolValues)
+			return new EditItemTool(menu, (CustomToolValues) itemValues, toModify);
+		else if (itemValues instanceof CustomWandValues)
+			return new EditItemWand(menu, (CustomWandValues) itemValues, toModify);
+		else if (itemValues instanceof CustomGunValues)
+			return new EditItemGun(menu, (CustomGunValues) itemValues, toModify);
+		else if (itemValues instanceof CustomPocketContainerValues)
+			return new EditItemPocketContainer(menu, (CustomPocketContainerValues) itemValues, toModify);
+		else if (itemValues instanceof SimpleCustomItemValues)
+			return new EditItemSimple(menu, (SimpleCustomItemValues) itemValues, toModify);
+		else if (itemValues instanceof CustomFoodValues)
+			return new EditItemFood(menu, (CustomFoodValues) itemValues, toModify);
+		else if (itemValues instanceof CustomBlockItemValues)
+			return new EditItemBlock(menu, (CustomBlockItemValues) itemValues, toModify);
+		else
+			throw new IllegalArgumentException("Unsupported custom item class: " + itemValues.getClass());
+	}
 
-		@Override
-		public String deleteItem(CustomItem itemToDelete) {
-			return menu.getSet().removeItem(itemToDelete);
-		}
+	@Override
+	public GuiComponent createEditMenu(ItemReference item) {
+		return createEditMenu(item, false);
+	}
 
-		@Override
-		public String getLabel(CustomItem item) {
-			return item.getName();
-		}
+	@Override
+	public GuiComponent createCopyMenu(ItemReference item) {
+		return createEditMenu(item, true);
+	}
 
-		@Override
-		public BufferedImage getImage(CustomItem item) {
-			return item.getTexture().getImage();
-		}
+	@Override
+	public String deleteModel(ItemReference itemToDelete) {
+		return Validation.toErrorString(() -> menu.getSet().removeItem(itemToDelete));
+	}
+
+	@Override
+	protected boolean canDeleteModels() {
+		return true;
+	}
+
+	@Override
+	protected CopyMode getCopyMode(ItemReference modelReference) {
+		return CopyMode.SEPARATE_MENU;
+	}
+
+	@Override
+	public String getModelLabel(CustomItemValues item) {
+		return item.getName();
+	}
+
+	@Override
+	public BufferedImage getModelIcon(CustomItemValues item) {
+		return item.getTexture().getImage();
+	}
+
+	@Override
+	protected EditMode getEditMode(CustomItemValues model) {
+		return EditMode.SEPARATE_MENU;
 	}
 }

@@ -1,54 +1,50 @@
 package nl.knokko.customitems.editor.menu.edit.item;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
+import nl.knokko.customitems.editor.menu.edit.collection.InlineCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.item.nbt.ExtraItemNbt;
-import nl.knokko.customitems.item.nbt.NbtKey;
-import nl.knokko.customitems.item.nbt.NbtPair;
-import nl.knokko.customitems.item.nbt.NbtValue;
+import nl.knokko.customitems.item.ExtraItemNbtValues;
 import nl.knokko.customitems.item.nbt.NbtValueType;
-import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
+import nl.knokko.gui.component.image.ImageButton;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.EagerTextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
+import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
+
 public class ItemNbtMenu extends GuiMenu {
-	
-	private final Consumer<ExtraItemNbt> onApply;
+
+	private static final List<String> INITIAL_KEY = new ArrayList<>(1);
+
+	static {
+		INITIAL_KEY.add("");
+	}
+
+	private final ExtraItemNbtValues currentValues;
+	private final Consumer<ExtraItemNbtValues> onApply;
 	private final GuiComponent returnMenu;
 	private final String currentName;
 	private final boolean hasDurability;
 	
 	private final DynamicTextComponent errorComponent;
 	
-	private final List<String[]> keys;
-	private final List<NbtValue> values;
-
-	public ItemNbtMenu(ExtraItemNbt oldNbt, Consumer<ExtraItemNbt> onApply,
+	public ItemNbtMenu(ExtraItemNbtValues oldNbt, Consumer<ExtraItemNbtValues> onApply,
 			GuiComponent returnMenu, String currentName, boolean hasDurability) {
+		this.currentValues = oldNbt.copy(true);
 		this.onApply = onApply;
 		this.returnMenu = returnMenu;
 		this.currentName = !currentName.isEmpty() ? currentName : "%NAME%";
 		this.hasDurability = hasDurability;
 		this.errorComponent = new DynamicTextComponent("", EditProps.ERROR);
-		
-		Collection<NbtPair> pairs = oldNbt.getPairs();
-		this.keys = new ArrayList<>(pairs.size());
-		this.values = new ArrayList<>(pairs.size());
-		for (NbtPair pair : pairs) {
-			this.keys.add(pair.getKey().getParts());
-			this.values.add(pair.getValue());
-		}
 	}
 
 	@Override
@@ -77,7 +73,26 @@ public class ItemNbtMenu extends GuiMenu {
 		addComponent(new DynamicTextComponent(
 				"You can add more nbt tags below if you would like to:", 
 				EditProps.LABEL), 0.02f, 0.3f, 0.7f, 0.4f);
-		addComponent(new PairList(), 0f, 0f, 1f, 0.3f);
+
+		NewPairList pairList = new NewPairList();
+		addComponent(new DynamicTextButton("Add integer",
+				EditProps.BUTTON, EditProps.HOVER, () -> {
+
+			Collection<ExtraItemNbtValues.Entry> newEntries = currentValues.getEntries();
+			newEntries.add(ExtraItemNbtValues.Entry.createQuick(INITIAL_KEY, new ExtraItemNbtValues.Value(1)));
+			currentValues.setEntries(newEntries);
+			pairList.refresh();
+		}), 0.1f, 0.25f, 0.3f, 0.3f);
+		addComponent(new DynamicTextButton("Add string",
+				EditProps.BUTTON, EditProps.HOVER, () -> {
+
+			Collection<ExtraItemNbtValues.Entry> newEntries = currentValues.getEntries();
+			newEntries.add(ExtraItemNbtValues.Entry.createQuick(INITIAL_KEY, new ExtraItemNbtValues.Value("")));
+			currentValues.setEntries(newEntries);
+			pairList.refresh();
+		}), 0.35f, 0.25f, 0.55f, 0.3f);
+
+		addComponent(new NewPairList(), 0f, 0f, 1f, 0.25f);
 		
 		HelpButtons.addHelpLink(this, "edit%20menu/items/edit/nbt.html");
 	}
@@ -86,111 +101,80 @@ public class ItemNbtMenu extends GuiMenu {
 	public GuiColor getBackgroundColor() {
 		return EditProps.BACKGROUND;
 	}
-	
-	protected class PairList extends GuiMenu {
+
+	private class NewPairList extends InlineCollectionEdit<ExtraItemNbtValues.Entry> {
+
+		NewPairList() {
+			super(currentValues.getEntries(), newEntries -> {
+				currentValues.setEntries(newEntries);
+				ItemNbtMenu.this.onApply.accept(currentValues);
+			}, ItemNbtMenu.this.returnMenu);
+		}
 
 		@Override
-		protected void addComponents() {
-			for (int index = 0; index < keys.size(); index++) {
-				
-				final int rememberIndex = index;
-				String[] key = keys.get(index);
-				NbtValue value = values.get(index);
-				
-				float minY = 0.9f - 0.15f * index;
-				float maxY = 1f - 0.15f * index;
-				
-				for (int keyIndex = 0; keyIndex < key.length; keyIndex++) {
-					
-					int rememberKeyIndex = keyIndex;
-					addComponent(new EagerTextEditField(key[keyIndex], 
-							EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE, 
-							newText -> {
-								key[rememberKeyIndex] = newText;
-							}
-					), 0.05f + keyIndex * 0.2f, minY, 0.2f + keyIndex * 0.2f, maxY);
-				}
-				
-				addComponent(new DynamicTextButton("+", 
-						EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-					String[] newKey = Arrays.copyOf(key, key.length + 1);
-					newKey[key.length] = "";
-					keys.set(rememberIndex, newKey);
-					refresh();
-				}), 0.1f + 0.2f * key.length, minY, 0.15f + 0.2f * key.length, maxY);
-				addComponent(new DynamicTextButton("X", 
-						EditProps.QUIT_BASE, EditProps.QUIT_HOVER, () -> {
-					keys.remove(rememberIndex);
-					values.remove(rememberIndex);
-					refresh();
-				}), 0.2f + 0.2f * key.length, minY, 0.25f + 0.2f * key.length, maxY);
-				
-				GuiComponent valueField;
-				if (value.getType() == NbtValueType.INTEGER) {
-					valueField = new EagerIntEditField(
-							value.getIntValue(), Integer.MIN_VALUE, 
-							EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE, newValue -> {
-								values.set(rememberIndex, new NbtValue(newValue));
-							});
-				} else if (value.getType() == NbtValueType.STRING) {
-					valueField = new EagerTextEditField(value.getStringValue(),
-							EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE, newValue -> {
-								values.set(rememberIndex, new NbtValue(newValue));
-							});
-				} else {
-					throw new Error("Unknown value type: " + value.getType());
-				}
-				
-				addComponent(new DynamicTextComponent("Value:", EditProps.LABEL),
-						0.3f + 0.2f * key.length, minY, 0.4f + 0.2f * key.length, maxY
-				);
-				addComponent(valueField, 0.45f + 0.2f * key.length, minY, 
-						0.6f + 0.2f * key.length, maxY
+		public void refresh() {
+			super.refresh();
+		}
+
+		@Override
+		protected void addRowComponents(int itemIndex, float minY, float maxY) {
+			ExtraItemNbtValues.Entry entry = ownCollection.get(itemIndex);
+			List<String> oldKey = entry.getKey();
+
+			for (int keyIndex = 0; keyIndex < oldKey.size(); keyIndex++) {
+				int rememberKeyIndex = keyIndex;
+				addComponent(
+						new EagerTextEditField(oldKey.get(keyIndex), EDIT_BASE, EDIT_ACTIVE, newText -> {
+							List<String> currentKey = entry.getKey();
+							currentKey.set(rememberKeyIndex, newText);
+							entry.setKey(currentKey);
+						}), 0.05f + 0.2f * keyIndex, minY, 0.2f + 0.2f * keyIndex, maxY
 				);
 			}
-			
-			float minY = 0.85f - 0.2f * keys.size();
-			float maxY = 1f - 0.2f * keys.size();
-			addComponent(new DynamicTextButton("Add integer", 
-					EditProps.BUTTON, EditProps.HOVER, () -> {
-				keys.add(new String[] {""});
-				values.add(new NbtValue(1));
+
+			addComponent(new DynamicTextButton("+",
+					SAVE_BASE, SAVE_HOVER, () -> {
+				List<String> newKey = entry.getKey();
+				newKey.add("");
+				entry.setKey(newKey);
 				refresh();
-			}), 0.1f, minY, 0.3f, maxY);
-			addComponent(new DynamicTextButton("Add string", 
-					EditProps.BUTTON, EditProps.HOVER, () -> {
-				keys.add(new String[] {""});
-				values.add(new NbtValue(""));
-				refresh();
-			}), 0.35f, minY, 0.55f, maxY);
-			addComponent(new DynamicTextButton("Cancel", 
-					EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
-				state.getWindow().setMainComponent(returnMenu);
-			}), 0.6f, minY, 0.75f, maxY);
-			addComponent(new DynamicTextButton("Apply", 
-					EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
-				try {
-					Collection<NbtPair> newPairs = new ArrayList<>(keys.size());
-					for (int index = 0; index < keys.size(); index++) {
-						NbtKey key = new NbtKey(keys.get(index));
-						newPairs.add(new NbtPair(key, values.get(index)));
-					}
-					onApply.accept(new ExtraItemNbt(newPairs));
-					state.getWindow().setMainComponent(returnMenu);
-				} catch (ValidationException invalid) {
-					errorComponent.setText(invalid.getMessage());
-				}
-			}), 0.8f, minY, 0.95f, maxY);
+			}), 0.1f + 0.2f * oldKey.size(), minY, 0.15f + 0.2f * oldKey.size(), maxY);
+			addComponent(new ImageButton(deleteBase, deleteHover, () -> {
+				removeItem(itemIndex);
+			}), 0.2f + 0.2f * oldKey.size(), minY, 0.25f + 0.2f * oldKey.size(), maxY);
+
+			GuiComponent valueField;
+			if (entry.getValue().type == NbtValueType.INTEGER) {
+				valueField = new EagerIntEditField(
+						entry.getValue().getIntValue(), Integer.MIN_VALUE,
+						EDIT_BASE, EDIT_ACTIVE, newValue -> {
+							entry.setValue(new ExtraItemNbtValues.Value(newValue));
+				});
+			} else if (entry.getValue().type == NbtValueType.STRING) {
+				valueField = new EagerTextEditField(entry.getValue().getStringValue(),
+						EDIT_BASE, EDIT_ACTIVE, newValue -> {
+					entry.setValue(new ExtraItemNbtValues.Value(newValue));
+				});
+			} else {
+				throw new Error("Unknown value type: " + entry.getValue().type);
+			}
+
+			addComponent(new DynamicTextComponent("Value:", EditProps.LABEL),
+					0.3f + 0.2f * oldKey.size(), minY, 0.4f + 0.2f * oldKey.size(), maxY
+			);
+			addComponent(valueField, 0.45f + 0.2f * oldKey.size(), minY,
+					0.6f + 0.2f * oldKey.size(), maxY
+			);
 		}
-		
-		protected void refresh() {
-			clearComponents();
-			addComponents();
-		}
-		
+
 		@Override
-		public GuiColor getBackgroundColor() {
-			return EditProps.BACKGROUND2;
+		protected ExtraItemNbtValues.Entry addNew() {
+			return new ExtraItemNbtValues.Entry(true);
+		}
+
+		@Override
+		protected String getHelpPage() {
+			return null;
 		}
 	}
 }

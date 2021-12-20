@@ -5,47 +5,35 @@ import java.util.function.Consumer;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
-import nl.knokko.customitems.editor.menu.edit.QuickCollectionEdit;
-import nl.knokko.customitems.item.AttributeModifier;
-import nl.knokko.customitems.item.AttributeModifier.Attribute;
-import nl.knokko.customitems.item.AttributeModifier.Operation;
-import nl.knokko.customitems.item.AttributeModifier.Slot;
+import nl.knokko.customitems.editor.menu.edit.collection.InlineCollectionEdit;
+import nl.knokko.customitems.item.AttributeModifierValues;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.image.ImageButton;
 import nl.knokko.gui.component.text.EagerFloatEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
-public class AttributeCollectionEdit extends QuickCollectionEdit<AttributeModifier> {
+public class AttributeCollectionEdit extends InlineCollectionEdit<AttributeModifierValues> {
 
-	private final AttributeModifier exampleModifier;
+	private final AttributeModifierValues exampleModifier;
 	
-	public AttributeCollectionEdit(Collection<AttributeModifier> currentCollection,
-			Consumer<Collection<AttributeModifier>> onApply, 
-			GuiComponent returnMenu, AttributeModifier exampleModifier) {
+	public AttributeCollectionEdit(Collection<AttributeModifierValues> currentCollection,
+			Consumer<Collection<AttributeModifierValues>> onApply,
+			GuiComponent returnMenu, AttributeModifierValues exampleModifier) {
 		super(currentCollection, onApply, returnMenu);
 		this.exampleModifier = exampleModifier;
 	}
 
 	@Override
 	protected void addRowComponents(int itemIndex, float minY, float maxY) {
-		AttributeModifier original = ownCollection.get(itemIndex);
-		GuiComponent attributeButton = EnumSelect.createSelectButton(Attribute.class, newAttribute -> {
-			AttributeModifier previous = ownCollection.get(itemIndex);
-			ownCollection.set(itemIndex, new AttributeModifier(
-					newAttribute, previous.getSlot(), 
-					previous.getOperation(), previous.getValue()));
+		AttributeModifierValues original = ownCollection.get(itemIndex);
+		GuiComponent attributeButton = EnumSelect.createSelectButton(AttributeModifierValues.Attribute.class, newAttribute -> {
+			ownCollection.get(itemIndex).setAttribute(newAttribute);
 		}, original.getAttribute());
-		GuiComponent slotButton = EnumSelect.createSelectButton(Slot.class, newSlot -> {
-			AttributeModifier previous = ownCollection.get(itemIndex);
-			ownCollection.set(itemIndex, new AttributeModifier(
-					previous.getAttribute(), newSlot, previous.getOperation(), 
-					previous.getValue()));
+		GuiComponent slotButton = EnumSelect.createSelectButton(AttributeModifierValues.Slot.class, newSlot -> {
+			ownCollection.get(itemIndex).setSlot(newSlot);
 		}, original.getSlot());
-		GuiComponent operationButton = EnumSelect.createSelectButton(Operation.class, newOperation -> {
-			AttributeModifier previous = ownCollection.get(itemIndex);
-			ownCollection.set(itemIndex, new AttributeModifier(
-					previous.getAttribute(), previous.getSlot(), 
-					newOperation, previous.getValue()));
+		GuiComponent operationButton = EnumSelect.createSelectButton(AttributeModifierValues.Operation.class, newOperation -> {
+			ownCollection.get(itemIndex).setOperation(newOperation);
 		}, original.getOperation());
 		addComponent(new ImageButton(deleteBase, deleteHover, () -> {
 			removeItem(itemIndex);
@@ -56,16 +44,13 @@ public class AttributeCollectionEdit extends QuickCollectionEdit<AttributeModifi
 		addComponent(new DynamicTextComponent("Value: ", EditProps.LABEL), 0.79f, minY, 0.89f, maxY);
 		addComponent(new EagerFloatEditField(original.getValue(), -1024.0, 
 				EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE, newValue -> {
-			AttributeModifier previous = ownCollection.get(itemIndex);
-			ownCollection.set(itemIndex, new AttributeModifier(
-					previous.getAttribute(), previous.getSlot(), 
-					previous.getOperation(), newValue));
+			ownCollection.get(itemIndex).setValue(newValue);
 		}), 0.9f, minY, 0.995f, maxY);
 	}
 
 	@Override
-	protected AttributeModifier addNew() {
-		return exampleModifier;
+	protected AttributeModifierValues addNew() {
+		return exampleModifier.copy(true);
 	}
 
 	@Override

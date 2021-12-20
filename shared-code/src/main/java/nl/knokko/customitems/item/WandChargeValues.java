@@ -16,6 +16,13 @@ public class WandChargeValues extends ModelValues {
         return result;
     }
 
+    public static WandChargeValues createQuick(int maxCharges, int reloadTime) {
+        WandChargeValues result = new WandChargeValues(true);
+        result.setMaxCharges(maxCharges);
+        result.setRechargeTime(reloadTime);
+        return result;
+    }
+
     private int maxCharges;
     private int rechargeTime;
 

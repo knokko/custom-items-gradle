@@ -24,10 +24,10 @@ public class ReplacementConditionValues extends ModelValues {
     ) {
         ReplacementConditionValues result = new ReplacementConditionValues(true);
         result.setCondition(condition);
-        result.setItem(item);
+        if (item != null) result.setItem(item);
         result.setOperation(operation);
         result.setValue(value);
-        result.setReplaceItem(replaceItem);
+        if (replaceItem != null) result.setReplaceItem(replaceItem);
         return result;
     }
 
