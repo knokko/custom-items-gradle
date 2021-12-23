@@ -14,13 +14,10 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
 
-public class EditItemTrident extends EditItemTool {
+public class EditItemTrident extends EditItemTool<CustomTridentValues> {
 	
-	private final CustomTridentValues currentValues;
-
 	public EditItemTrident(EditMenu menu, CustomTridentValues oldValues, ItemReference toModify) {
 		super(menu, oldValues, toModify);
-		this.currentValues = oldValues.copy(true);
 	}
 	
 	@Override

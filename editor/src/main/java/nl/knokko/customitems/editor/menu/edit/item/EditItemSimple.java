@@ -36,7 +36,7 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
 
-public class EditItemSimple extends EditItemBase {
+public class EditItemSimple extends EditItemBase<SimpleCustomItemValues> {
 	
 	private static final AttributeModifierValues EXAMPLE_MODIFIER = AttributeModifierValues.createQuick(
 			AttributeModifierValues.Attribute.ATTACK_DAMAGE,
@@ -45,11 +45,8 @@ public class EditItemSimple extends EditItemBase {
 			5.0
 	);
 
-	private final SimpleCustomItemValues currentValues;
-
 	public EditItemSimple(EditMenu menu, SimpleCustomItemValues oldValues, ItemReference toModify) {
 		super(menu, oldValues, toModify);
-		this.currentValues = oldValues.copy(true);
 	}
 	
 	@Override

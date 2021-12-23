@@ -14,7 +14,7 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
 
-public class EditItemBlock extends EditItemBase {
+public class EditItemBlock extends EditItemBase<CustomBlockItemValues> {
 
     private static final AttributeModifierValues EXAMPLE_MODIFIER = AttributeModifierValues.createQuick(
             AttributeModifierValues.Attribute.ATTACK_DAMAGE,
@@ -23,11 +23,8 @@ public class EditItemBlock extends EditItemBase {
             5.0
     );
 
-    private final CustomBlockItemValues currentValues;
-
     public EditItemBlock(EditMenu menu, CustomBlockItemValues oldValues, ItemReference toModify) {
         super(menu, oldValues, toModify);
-        this.currentValues = oldValues.copy(true);
     }
 
     @Override

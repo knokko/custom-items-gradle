@@ -16,7 +16,7 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
 
-public class EditItemCrossbow extends EditItemTool {
+public class EditItemCrossbow extends EditItemTool<CustomCrossbowValues> {
 
     private static final AttributeModifierValues EXAMPLE_ATTRIBUTE_MODIFIER = AttributeModifierValues.createQuick(
             AttributeModifierValues.Attribute.MOVEMENT_SPEED,
@@ -25,11 +25,8 @@ public class EditItemCrossbow extends EditItemTool {
             1.5
     );
 
-    private final CustomCrossbowValues currentValues;
-
     public EditItemCrossbow(EditMenu menu, CustomCrossbowValues oldValues, ItemReference toModify) {
         super(menu, oldValues, toModify);
-        this.currentValues = oldValues.copy(true);
     }
 
     @Override

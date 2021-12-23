@@ -13,13 +13,10 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
 
-public class EditItemShield extends EditItemTool {
+public class EditItemShield extends EditItemTool<CustomShieldValues> {
 	
-	private final CustomShieldValues currentValues;
-
 	public EditItemShield(EditMenu menu, CustomShieldValues oldValues, ItemReference toModify) {
 		super(menu, oldValues, toModify);
-		this.currentValues = oldValues.copy(true);
 	}
 	
 	@Override

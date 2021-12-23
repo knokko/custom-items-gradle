@@ -17,18 +17,19 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
 
-public abstract class EditProjectileCover extends GuiMenu {
+public abstract class EditProjectileCover<V extends ProjectileCoverValues> extends GuiMenu {
 	
 	protected final EditMenu menu;
 	
 	protected DynamicTextComponent errorComponent;
 
-	private final ProjectileCoverValues currentValues;
+	protected final V currentValues;
 	private final ProjectileCoverReference toModify;
 
-	public EditProjectileCover(EditMenu menu, ProjectileCoverValues oldValues, ProjectileCoverReference toModify) {
+	@SuppressWarnings("unchecked")
+	public EditProjectileCover(EditMenu menu, V oldValues, ProjectileCoverReference toModify) {
 		this.menu = menu;
-		this.currentValues = oldValues.copy(true);
+		this.currentValues = (V) oldValues.copy(true);
 		this.toModify = toModify;
 	}
 	

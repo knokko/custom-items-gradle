@@ -9,13 +9,10 @@ import nl.knokko.customitems.projectile.cover.CustomProjectileCoverValues;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
-public class EditCustomProjectileCover extends EditProjectileCover {
-	
-	private final CustomProjectileCoverValues currentValues;
+public class EditCustomProjectileCover extends EditProjectileCover<CustomProjectileCoverValues> {
 	
 	public EditCustomProjectileCover(EditMenu menu, CustomProjectileCoverValues oldValues, ProjectileCoverReference toModify) {
 		super(menu, oldValues, toModify);
-		this.currentValues = oldValues.copy(true);
 	}
 
 	@Override

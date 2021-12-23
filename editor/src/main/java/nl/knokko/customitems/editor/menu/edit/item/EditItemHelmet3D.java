@@ -10,7 +10,7 @@ import nl.knokko.customitems.item.CustomHelmet3dValues;
 import nl.knokko.customitems.item.CustomItemType;
 import nl.knokko.customitems.itemset.ItemReference;
 
-public class EditItemHelmet3D extends EditItemArmor {
+public class EditItemHelmet3D extends EditItemArmor<CustomHelmet3dValues> {
 
 	public EditItemHelmet3D(EditMenu menu, CustomHelmet3dValues oldValues, ItemReference toModify) {
 		/*

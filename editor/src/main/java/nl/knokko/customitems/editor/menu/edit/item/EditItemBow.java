@@ -39,7 +39,7 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
 
-public class EditItemBow extends EditItemTool {
+public class EditItemBow extends EditItemTool<CustomBowValues> {
 	
 	private static final AttributeModifierValues EXAMPLE_ATTRIBUTE_MODIFIER = AttributeModifierValues.createQuick(
 			AttributeModifierValues.Attribute.MOVEMENT_SPEED,
@@ -48,11 +48,8 @@ public class EditItemBow extends EditItemTool {
 			1.5
 	);
 
-	private final CustomBowValues currentValues;
-
 	public EditItemBow(EditMenu menu, CustomBowValues oldValues, ItemReference toModify) {
 		super(menu, oldValues, toModify);
-		this.currentValues = oldValues.copy(true);
 	}
 
 	@Override

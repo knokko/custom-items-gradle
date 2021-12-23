@@ -13,13 +13,10 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
 
-public class EditSphereProjectileCover extends EditProjectileCover {
-	
-	protected final SphereProjectileCoverValues currentValues;
+public class EditSphereProjectileCover extends EditProjectileCover<SphereProjectileCoverValues> {
 	
 	public EditSphereProjectileCover(EditMenu menu, SphereProjectileCoverValues oldValues, ProjectileCoverReference toModify) {
 		super(menu, oldValues, toModify);
-		this.currentValues = oldValues.copy(true);
 	}
 	
 	@Override

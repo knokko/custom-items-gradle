@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
-public class EditItemPocketContainer extends EditItemBase {
+public class EditItemPocketContainer extends EditItemBase<CustomPocketContainerValues> {
 
     private static final AttributeModifierValues EXAMPLE_MODIFIER = AttributeModifierValues.createQuick(
             AttributeModifierValues.Attribute.ATTACK_DAMAGE,
@@ -32,11 +32,8 @@ public class EditItemPocketContainer extends EditItemBase {
             5.0
     );
 
-    private final CustomPocketContainerValues currentValues;
-
     public EditItemPocketContainer(EditMenu menu, CustomPocketContainerValues oldValues, ItemReference toModify) {
         super(menu, oldValues, toModify);
-        this.currentValues = oldValues.copy(true);
     }
 
     @Override

@@ -37,13 +37,10 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
 
-public class EditItemTool extends EditItemBase {
+public class EditItemTool<V extends CustomToolValues> extends EditItemBase<V> {
 
-	private final CustomToolValues currentValues;
-
-	public EditItemTool(EditMenu menu, CustomToolValues oldValues, ItemReference toModify) {
+	public EditItemTool(EditMenu menu, V oldValues, ItemReference toModify) {
 		super(menu, oldValues, toModify);
-		this.currentValues = oldValues.copy(true);
 	}
 	
 	@Override

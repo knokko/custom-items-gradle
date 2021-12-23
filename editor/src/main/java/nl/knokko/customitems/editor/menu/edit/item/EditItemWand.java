@@ -16,7 +16,7 @@ import nl.knokko.gui.component.WrapperComponent;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
-public class EditItemWand extends EditItemBase {
+public class EditItemWand extends EditItemBase<CustomWandValues> {
 	
 	private static final AttributeModifierValues EXAMPLE = AttributeModifierValues.createQuick(
 			Attribute.MOVEMENT_SPEED, Slot.OFFHAND, Operation.MULTIPLY, 1.2
@@ -25,11 +25,8 @@ public class EditItemWand extends EditItemBase {
 	private static final float BUTTON_X2 = 0.75f;
 	private static final float LABEL_X2 = BUTTON_X2 - 0.01f;
 	
-	private final CustomWandValues currentValues;
-
 	public EditItemWand(EditMenu menu, CustomWandValues oldValues, ItemReference toModify) {
 		super(menu, oldValues, toModify);
-		this.currentValues = oldValues.copy(true);
 	}
 	
 	@Override

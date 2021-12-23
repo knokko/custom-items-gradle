@@ -45,20 +45,21 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
-public abstract class EditItemBase extends GuiMenu {
+public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 
 	protected static final float LABEL_X = 0.2f;
 	protected static final float BUTTON_X = 0.4f;
 
 	protected final EditMenu menu;
-	private final CustomItemValues currentValues;
+	protected final V currentValues;
 	private final ItemReference toModify;
 
 	protected DynamicTextComponent errorComponent;
 
-	public EditItemBase(EditMenu menu, CustomItemValues oldValues, ItemReference toModify) {
+	@SuppressWarnings("unchecked")
+	public EditItemBase(EditMenu menu, V oldValues, ItemReference toModify) {
 		this.menu = menu;
-		this.currentValues = oldValues.copy(true);
+		this.currentValues = (V) oldValues.copy(true);
 		this.toModify = toModify;
 	}
 	

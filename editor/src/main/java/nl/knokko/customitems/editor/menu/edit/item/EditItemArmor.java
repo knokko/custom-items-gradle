@@ -44,13 +44,10 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
 import static nl.knokko.customitems.item.AttributeModifierValues.*;
 
-public class EditItemArmor extends EditItemTool {
+public class EditItemArmor<V extends CustomArmorValues> extends EditItemTool<V> {
 	
-	private final CustomArmorValues currentValues;
-
-	public EditItemArmor(EditMenu menu, CustomArmorValues oldValues, ItemReference toModify) {
+	public EditItemArmor(EditMenu menu, V oldValues, ItemReference toModify) {
 		super(menu, oldValues, toModify);
-		this.currentValues = oldValues.copy(true);
 	}
 	
 	@Override
