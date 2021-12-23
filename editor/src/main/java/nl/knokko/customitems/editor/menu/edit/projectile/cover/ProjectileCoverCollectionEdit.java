@@ -2,22 +2,24 @@ package nl.knokko.customitems.editor.menu.edit.projectile.cover;
 
 import java.awt.image.BufferedImage;
 
-import nl.knokko.customitems.editor.menu.edit.CollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.set.projectile.cover.CustomProjectileCover;
-import nl.knokko.customitems.editor.set.projectile.cover.EditorProjectileCover;
-import nl.knokko.customitems.editor.set.projectile.cover.SphereProjectileCover;
+import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
+import nl.knokko.customitems.editor.util.Validation;
+import nl.knokko.customitems.itemset.ProjectileCoverReference;
+import nl.knokko.customitems.projectile.cover.CustomProjectileCoverValues;
+import nl.knokko.customitems.projectile.cover.ProjectileCoverValues;
+import nl.knokko.customitems.projectile.cover.SphereProjectileCoverValues;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
-public class ProjectileCoverCollectionEdit extends CollectionEdit<EditorProjectileCover> {
+public class ProjectileCoverCollectionEdit extends DedicatedCollectionEdit<ProjectileCoverValues, ProjectileCoverReference> {
 	
 	private final EditMenu menu;
 
 	public ProjectileCoverCollectionEdit(EditMenu menu) {
-		super(new ProjectileCoverActionHandler(menu), menu.getSet().getBackingProjectileCovers());
+		super(menu.getProjectileMenu(), menu.getSet().getProjectileCovers().references(), null);
 		this.menu = menu;
 	}
 	
@@ -31,53 +33,59 @@ public class ProjectileCoverCollectionEdit extends CollectionEdit<EditorProjecti
 		HelpButtons.addHelpLink(this, "edit%20menu/projectiles/covers/overview.html");
 	}
 
-	private static class ProjectileCoverActionHandler implements ActionHandler<EditorProjectileCover> {
-		
-		private final EditMenu menu;
-		
-		private ProjectileCoverActionHandler(EditMenu menu) {
-			this.menu = menu;
-		}
+	@Override
+	protected String getModelLabel(ProjectileCoverValues model) {
+		return model.getName();
+	}
 
-		@Override
-		public void goBack() {
-			menu.getState().getWindow().setMainComponent(menu.getProjectileMenu());
-		}
-
-		@Override
-		public BufferedImage getImage(EditorProjectileCover item) {
+	@Override
+	protected BufferedImage getModelIcon(ProjectileCoverValues model) {
+		if (model instanceof SphereProjectileCoverValues) {
+			return ((SphereProjectileCoverValues) model).getTexture().getImage();
+		} else {
 			return null;
 		}
+	}
 
-		@Override
-		public String getLabel(EditorProjectileCover item) {
-			return item.name;
-		}
-		
-		private GuiComponent createEditMenu(EditorProjectileCover cover, boolean copy) {
-			EditorProjectileCover second = copy ? null : cover;
-			if (cover instanceof SphereProjectileCover) {
-				return new EditSphereProjectileCover(menu, (SphereProjectileCover) cover, (SphereProjectileCover) second);
-			} else if (cover instanceof CustomProjectileCover) {
-				return new EditCustomProjectileCover(menu, (CustomProjectileCover) cover, (CustomProjectileCover) second);
-			} else {
-				throw new Error("It looks like we forgot the edit menu for this projectile cover type. Please report on discord or BukkitDev");
-			}
-		}
+	@Override
+	protected EditMode getEditMode(ProjectileCoverValues model) {
+		return EditMode.SEPARATE_MENU;
+	}
 
-		@Override
-		public GuiComponent createEditMenu(EditorProjectileCover cover, GuiComponent returnMenu) {
-			return createEditMenu(cover, false);
+	private GuiComponent createEditMenu(ProjectileCoverReference coverReference, boolean copy) {
+		ProjectileCoverValues coverValues = coverReference.get();
+		ProjectileCoverReference toModify = copy ? null : coverReference;
+		if (coverValues instanceof SphereProjectileCoverValues) {
+			return new EditSphereProjectileCover(menu, (SphereProjectileCoverValues) coverValues, toModify);
+		} else if (coverValues instanceof CustomProjectileCoverValues) {
+			return new EditCustomProjectileCover(menu, (CustomProjectileCoverValues) coverValues, toModify);
+		} else {
+			throw new Error("It looks like we forgot the edit menu for this projectile cover type. Please report on discord or BukkitDev");
 		}
-		
-		@Override
-		public GuiComponent createCopyMenu(EditorProjectileCover cover, GuiComponent returnMenu) {
-			return createEditMenu(cover, true);
-		}
+	}
 
-		@Override
-		public String deleteItem(EditorProjectileCover itemToDelete) {
-			return menu.getSet().removeProjectileCover(itemToDelete);
-		}
+	@Override
+	protected GuiComponent createEditMenu(ProjectileCoverReference modelReference) {
+		return createEditMenu(modelReference, false);
+	}
+
+	@Override
+	protected String deleteModel(ProjectileCoverReference modelReference) {
+		return Validation.toErrorString(() -> menu.getSet().removeProjectileCover(modelReference));
+	}
+
+	@Override
+	protected boolean canDeleteModels() {
+		return true;
+	}
+
+	@Override
+	protected CopyMode getCopyMode(ProjectileCoverReference modelReference) {
+		return CopyMode.SEPARATE_MENU;
+	}
+
+	@Override
+	protected GuiComponent createCopyMenu(ProjectileCoverReference modelReference) {
+		return createEditMenu(modelReference, true);
 	}
 }
