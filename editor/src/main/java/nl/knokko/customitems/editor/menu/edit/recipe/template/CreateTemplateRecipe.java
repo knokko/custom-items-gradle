@@ -3,11 +3,12 @@ package nl.knokko.customitems.editor.menu.edit.recipe.template;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.ChooseIngredient;
 import nl.knokko.customitems.editor.menu.edit.recipe.result.ChooseResult;
-import nl.knokko.customitems.editor.set.ItemSet;
-import nl.knokko.customitems.editor.set.recipe.ShapedRecipe;
-import nl.knokko.customitems.editor.set.recipe.ingredient.Ingredient;
-import nl.knokko.customitems.editor.set.recipe.ingredient.NoIngredient;
-import nl.knokko.customitems.editor.set.recipe.result.Result;
+import nl.knokko.customitems.editor.util.Validation;
+import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.recipe.ShapedRecipeValues;
+import nl.knokko.customitems.recipe.ingredient.IngredientValues;
+import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
+import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -21,15 +22,15 @@ import java.util.function.Function;
 public class CreateTemplateRecipe extends GuiMenu {
 
     private final String[] materialNames;
-    private final List<Ingredient> selectedIngredients;
-    private Result selectedResult;
-    private final Function<List<Ingredient>, Ingredient[]> shapeIngredients;
+    private final List<IngredientValues> selectedIngredients;
+    private ResultValues selectedResult;
+    private final Function<List<IngredientValues>, IngredientValues[]> shapeIngredients;
     private final GuiComponent returnMenu;
-    private final ItemSet set;
+    private final SItemSet set;
 
     public CreateTemplateRecipe(
-            String[] materialNames, Function<List<Ingredient>, Ingredient[]> shapeIngredients, GuiComponent returnMenu,
-            ItemSet set
+            String[] materialNames, Function<List<IngredientValues>, IngredientValues[]> shapeIngredients, GuiComponent returnMenu,
+            SItemSet set
     ) {
         this.materialNames = materialNames;
         this.selectedIngredients = new ArrayList<>(materialNames.length);
@@ -79,13 +80,15 @@ public class CreateTemplateRecipe extends GuiMenu {
                     return;
                 }
 
-                Ingredient[] ingredientMatrix = shapeIngredients.apply(selectedIngredients);
+                IngredientValues[] ingredientMatrix = shapeIngredients.apply(selectedIngredients);
                 for (int ingredientIndex = 0; ingredientIndex < ingredientMatrix.length; ingredientIndex++) {
                     if (ingredientMatrix[ingredientIndex] == null) {
-                        ingredientMatrix[ingredientIndex] = new NoIngredient();
+                        ingredientMatrix[ingredientIndex] = new NoIngredientValues();
                     }
                 }
-                String error = set.addShapedRecipe(ingredientMatrix, selectedResult);
+
+                ShapedRecipeValues shapedRecipe = ShapedRecipeValues.createQuick(ingredientMatrix, selectedResult);
+                String error = Validation.toErrorString(() -> set.addRecipe(shapedRecipe));
                 if (error != null) {
                     errorComponent.setText(error);
                 } else {

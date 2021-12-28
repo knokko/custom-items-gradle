@@ -63,7 +63,7 @@ public class DataVanillaResultValues extends ResultValues {
     }
 
     @Override
-    protected List<String> getInfo() {
+    public List<String> getInfo() {
         List<String> result = new ArrayList<>(2);
         result.add("Data vanilla result:");
         result.add(material + " [" + data + "] x " + amount);

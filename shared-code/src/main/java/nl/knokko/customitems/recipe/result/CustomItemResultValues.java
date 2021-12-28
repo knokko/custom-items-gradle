@@ -84,7 +84,7 @@ public class CustomItemResultValues extends ResultValues {
     }
 
     @Override
-    protected List<String> getInfo() {
+    public List<String> getInfo() {
         List<String> result = new ArrayList<>(2);
         result.add("Custom item:");
         result.add(item.get().getName() + " x " + amount);

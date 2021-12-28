@@ -24,19 +24,20 @@
 package nl.knokko.customitems.editor.menu.edit.recipe.result;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.set.ItemSet;
-import nl.knokko.customitems.editor.set.recipe.result.Result;
+import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
+import java.util.List;
+
 public class ResultView extends GuiMenu {
 	
 	private final ResultComponent component;
-	private final ItemSet set;
+	private final SItemSet set;
 
-	public ResultView(ResultComponent component, ItemSet set) {
+	public ResultView(ResultComponent component, SItemSet set) {
 		this.component = component;
 		this.set = set;
 	}
@@ -47,13 +48,16 @@ public class ResultView extends GuiMenu {
 			state.getWindow().setMainComponent(component.getMenu());
 		}), 0.1f, 0.7f, 0.25f, 0.8f);
 		addComponent(new DynamicTextButton("Change", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new ChooseResult(component.getMenu(), (Result result) -> {
-				component.setResult(result);
-			}, set));
+			state.getWindow().setMainComponent(new ChooseResult(component.getMenu(), component::setResult, set));
 		}), 0.1f, 0.3f, 0.25f, 0.4f);
-		String[] info = component.getResult().getInfo();
-		for (int index = 0; index < info.length; index++)
-			addComponent(new DynamicTextComponent(info[index], EditProps.LABEL), 0.4f, 0.8f - index * 0.15f, 0.7f, 0.9f - index * 0.15f);
+
+		List<String> info = component.current.getInfo();
+		for (int index = 0; index < info.size(); index++) {
+			addComponent(
+					new DynamicTextComponent(info.get(index), EditProps.LABEL),
+					0.4f, 0.8f - index * 0.15f, 0.7f, 0.9f - index * 0.15f
+			);
+		}
 	}
 	
 	@Override

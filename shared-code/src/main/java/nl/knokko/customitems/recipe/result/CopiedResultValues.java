@@ -53,7 +53,7 @@ public class CopiedResultValues extends ResultValues {
     }
 
     @Override
-    protected List<String> getInfo() {
+    public List<String> getInfo() {
         List<String> result = new ArrayList<>(1);
         result.add("Copied from a server item");
         return result;

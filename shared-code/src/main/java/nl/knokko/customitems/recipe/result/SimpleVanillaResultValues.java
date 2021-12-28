@@ -58,7 +58,7 @@ public class SimpleVanillaResultValues extends ResultValues {
     }
 
     @Override
-    protected List<String> getInfo() {
+    public List<String> getInfo() {
         List<String> result = new ArrayList<>(2);
         result.add("Vanilla result:");
         result.add(material + " x " + amount);

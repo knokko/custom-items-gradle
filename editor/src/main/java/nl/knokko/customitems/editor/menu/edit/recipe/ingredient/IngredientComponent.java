@@ -27,64 +27,61 @@ import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.select.item.SelectCustomItem;
 import nl.knokko.customitems.editor.menu.edit.select.item.SelectDataVanillaItem;
 import nl.knokko.customitems.editor.menu.edit.select.item.SelectSimpleVanillaItem;
-import nl.knokko.customitems.editor.set.ItemSet;
-import nl.knokko.customitems.editor.set.item.CustomItem;
-import nl.knokko.customitems.editor.set.recipe.ingredient.CustomItemIngredient;
-import nl.knokko.customitems.editor.set.recipe.ingredient.DataVanillaIngredient;
-import nl.knokko.customitems.editor.set.recipe.ingredient.Ingredient;
-import nl.knokko.customitems.editor.set.recipe.ingredient.NoIngredient;
-import nl.knokko.customitems.editor.set.recipe.ingredient.SimpleVanillaIngredient;
 import nl.knokko.customitems.item.CIMaterial;
+import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.recipe.ShapedRecipeValues;
+import nl.knokko.customitems.recipe.ingredient.CustomItemIngredientValues;
+import nl.knokko.customitems.recipe.ingredient.DataVanillaIngredientValues;
+import nl.knokko.customitems.recipe.ingredient.IngredientValues;
+import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
 public class IngredientComponent extends DynamicTextButton {
-	
-	private Ingredient current;
+
+	private final ShapedRecipeValues recipe;
+	private final int x, y;
 	private final GuiComponent menu;
 	private final String emptyText;
-	private final ItemSet set;
+	private final SItemSet set;
 
-	public IngredientComponent(String emptyText, Ingredient original, GuiComponent menu, ItemSet set) {
-		super(original.toString(emptyText), EditProps.BUTTON, EditProps.HOVER, null);
+	public IngredientComponent(
+			ShapedRecipeValues recipe, int x, int y,
+			String emptyText, GuiComponent menu, SItemSet set) {
+		super(recipe.getIngredientAt(x, y).toString(emptyText), EditProps.BUTTON, EditProps.HOVER, null);
 		this.clickAction = () -> {
 			state.getWindow().setMainComponent(new ChooseIngredient(menu, this::setIngredient, true, set));
 		};
-		current = original;
+		this.recipe = recipe;
+		this.x = x;
+		this.y = y;
 		this.emptyText = emptyText;
 		this.menu = menu;
 		this.set = set;
 	}
 
-	public void setIngredient(Ingredient ingredient) {
-		current = ingredient;
-		setText(current.toString(emptyText));
+	public void setIngredient(IngredientValues newIngredient) {
+		recipe.setIngredientAt(x, y, newIngredient);
+		setText(newIngredient.toString(emptyText));
 	}
-	
-	public Ingredient getIngredient() {
-		return current;
-	}
-	
-	public GuiComponent getMenu() {
-		return menu;
-	}
-	
+
 	@Override
 	public void keyPressed(char character) {
 		if (state.isMouseOver()) {
 			if (character == 'v') {
-				state.getWindow().setMainComponent(new SelectSimpleVanillaItem(getMenu(), (CIMaterial material) -> {
-					IngredientComponent.this.setIngredient(new SimpleVanillaIngredient(material, (byte) 1, null));
+				state.getWindow().setMainComponent(new SelectSimpleVanillaItem(menu, (CIMaterial material) -> {
+					IngredientComponent.this.setIngredient(SimpleVanillaIngredientValues.createQuick(material, 1, null));
 					//the SelectSimpleVanillaItem will go to the returnGui automatically
 				},false));
 			} else if (character == 'c') {
-				state.getWindow().setMainComponent(new SelectCustomItem(getMenu(), (CustomItem item) -> {
-					IngredientComponent.this.setIngredient(new CustomItemIngredient(item, (byte) 1, null));
+				state.getWindow().setMainComponent(new SelectCustomItem(menu, (ItemReference item) -> {
+					IngredientComponent.this.setIngredient(CustomItemIngredientValues.createQuick(item, 1, null));
 					//the SelectCustomItem will go the the returnGui automatically
 				}, set));
 			} else if (character == 'd') {
-				state.getWindow().setMainComponent(new SelectDataVanillaItem(getMenu(), (CIMaterial material, byte data) -> {
-					IngredientComponent.this.setIngredient(new DataVanillaIngredient(material, data, (byte) 1, null));
+				state.getWindow().setMainComponent(new SelectDataVanillaItem(menu, (CIMaterial material, byte data) -> {
+					IngredientComponent.this.setIngredient(DataVanillaIngredientValues.createQuick(material, data, 1, null));
 				}));
 			}
 		}

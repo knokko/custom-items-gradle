@@ -27,12 +27,10 @@ import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.IngredientComponent;
 import nl.knokko.customitems.editor.menu.edit.recipe.result.ResultComponent;
-import nl.knokko.customitems.editor.set.recipe.ShapedRecipe;
-import nl.knokko.customitems.editor.set.recipe.ingredient.Ingredient;
-import nl.knokko.customitems.editor.set.recipe.ingredient.NoIngredient;
-import nl.knokko.customitems.editor.set.recipe.result.SimpleVanillaResult;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.item.CIMaterial;
+import nl.knokko.customitems.editor.util.Validation;
+import nl.knokko.customitems.itemset.CraftingRecipeReference;
+import nl.knokko.customitems.recipe.ShapedRecipeValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
@@ -41,23 +39,23 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 public class ShapedRecipeEdit extends GuiMenu {
 	
 	private final EditMenu menu;
-	private final ShapedRecipe toModify;
+	private final ShapedRecipeValues currentValues;
+	private final CraftingRecipeReference toModify;
+
 	private final Ingredients ingredientsComponent;
 	private final ResultComponent resultComponent;
 	private final DynamicTextComponent errorComponent;
 
-	public ShapedRecipeEdit(EditMenu menu, ShapedRecipe oldValues, ShapedRecipe toModify) {
+	public ShapedRecipeEdit(EditMenu menu, ShapedRecipeValues oldValues, CraftingRecipeReference toModify) {
 		this.menu = menu;
+		this.currentValues = oldValues.copy(true);
 		this.toModify = toModify;
-		errorComponent = new DynamicTextComponent("", EditProps.ERROR);
-		if (oldValues != null)
-			resultComponent = new ResultComponent(oldValues.getResult(), this, menu.getSet());
-		else
-			resultComponent = new ResultComponent(new SimpleVanillaResult(CIMaterial.IRON_INGOT, (byte) 1), this, menu.getSet());
-		if (oldValues != null)
-			ingredientsComponent = new Ingredients(oldValues.getIngredients());
-		else
-			ingredientsComponent = new Ingredients();
+
+		this.ingredientsComponent = new Ingredients();
+		this.resultComponent = new ResultComponent(
+				currentValues.getResult(), currentValues::setResult, this, menu.getSet()
+		);
+		this.errorComponent = new DynamicTextComponent("", EditProps.ERROR);
 	}
 	
 	@Override
@@ -72,25 +70,12 @@ public class ShapedRecipeEdit extends GuiMenu {
 			state.getWindow().setMainComponent(menu.getRecipeOverview());
 		}), 0.1f, 0.85f, 0.25f, 0.95f);
 		addComponent(new DynamicTextButton(toModify == null ? "Create" : "Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-			if (toModify != null) {
-				Ingredient[] ingredients = new Ingredient[9];
-				for (int index = 0; index < ingredients.length; index++)
-					ingredients[index] = ingredientsComponent.ingredients[index].getIngredient();
-				String error = menu.getSet().changeShapedRecipe(toModify, ingredients, resultComponent.getResult());
-				if (error != null)
-					errorComponent.setText(error);
-				else
-					state.getWindow().setMainComponent(menu.getRecipeOverview());
-			} else {
-				Ingredient[] ingredients = new Ingredient[9];
-				for (int index = 0; index < ingredients.length; index++)
-					ingredients[index] = ingredientsComponent.ingredients[index].getIngredient();
-				String error = menu.getSet().addShapedRecipe(ingredients, resultComponent.getResult());
-				if (error != null)
-					errorComponent.setText(error);
-				else
-					state.getWindow().setMainComponent(menu.getRecipeOverview());
-			}
+			String error;
+			if (toModify == null) error = Validation.toErrorString(() -> menu.getSet().addRecipe(currentValues));
+			else error = Validation.toErrorString(() -> menu.getSet().changeRecipe(toModify, currentValues));
+
+			if (error != null) errorComponent.setText(error);
+			else state.getWindow().setMainComponent(menu.getRecipeOverview());
 		}), 0.1f, 0.7f, 0.25f, 0.8f);
 		addComponent(ingredientsComponent, 0.05f, 0.1f, 0.65f, 0.6f);
 		addComponent(errorComponent, 0.35f, 0.85f, 0.95f, 0.95f);
@@ -110,14 +95,11 @@ public class ShapedRecipeEdit extends GuiMenu {
 		
 		private Ingredients() {
 			ingredients = new IngredientComponent[9];
-			for (int index = 0; index < ingredients.length; index++)
-				ingredients[index] = new IngredientComponent("empty", new NoIngredient(), ShapedRecipeEdit.this, menu.getSet());
-		}
-		
-		private Ingredients(Ingredient[] ingredients) {
-			this.ingredients = new IngredientComponent[9];
-			for (int index = 0; index < ingredients.length; index++)
-				this.ingredients[index] = new IngredientComponent("empty", ingredients[index], ShapedRecipeEdit.this, menu.getSet());
+			for (int index = 0; index < ingredients.length; index++) {
+				ingredients[index] = new IngredientComponent(
+						currentValues, index % 3, index / 3, "empty", ShapedRecipeEdit.this, menu.getSet()
+				);
+			}
 		}
 
 		@Override
