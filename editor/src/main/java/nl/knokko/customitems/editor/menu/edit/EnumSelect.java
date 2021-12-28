@@ -1,6 +1,8 @@
 package nl.knokko.customitems.editor.menu.edit;
 
 import java.util.Locale;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -11,30 +13,32 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 public class EnumSelect<T extends Enum<?>> extends GuiMenu {
 	
-	public static <T extends Enum<?>> GuiComponent createSelectButton(Class<T> enumClass, Receiver<T> receiver, EnumFilter<T> filter, T current) {
+	public static <T extends Enum<?>> GuiComponent createSelectButton(Class<T> enumClass, Consumer<T> receiver, Predicate<T> filter, T current) {
 		String text = current == null ? "None" : current.toString();
 		return new DynamicTextButton(text, EditProps.BUTTON, EditProps.HOVER, null) {
 			
 			@Override
 			public void click(float x, float y, int button) {
-				state.getWindow().setMainComponent(new EnumSelect<T>(enumClass, (T newType) -> {
+				state.getWindow().setMainComponent(new EnumSelect<>(enumClass, (T newType) -> {
 					setText(newType.toString());
-					receiver.onSelect(newType);
+					receiver.accept(newType);
 				}, filter, state.getWindow().getMainComponent()));
 			}
 		};
 	}
 	
-	public static <T extends Enum<?>> GuiComponent createSelectButton(Class<T> enumClass, Receiver<T> receiver, T current) {
+	public static <T extends Enum<?>> GuiComponent createSelectButton(
+			Class<T> enumClass, Consumer<T> receiver, T current
+	) {
 		return createSelectButton(enumClass, receiver, (T option) -> { return true; } , current);
 	}
 	
 	private final Class<T> enumClass;
-	private final Receiver<T> receiver;
-	private final EnumFilter<T> filter;
+	private final Consumer<T> receiver;
+	private final Predicate<T> filter;
 	private final GuiComponent returnMenu;
 	
-	public EnumSelect(Class<T> enumClass, Receiver<T> receiver, EnumFilter<T> filter, GuiComponent returnMenu) {
+	public EnumSelect(Class<T> enumClass, Consumer<T> receiver, Predicate<T> filter, GuiComponent returnMenu) {
 		this.enumClass = enumClass;
 		this.receiver = receiver;
 		this.filter = filter;
@@ -100,10 +104,10 @@ public class EnumSelect<T extends Enum<?>> extends GuiMenu {
 					if (
 							currentType.toString().toLowerCase(Locale.ROOT).
 							contains(prevSearchText.toLowerCase(Locale.ROOT)) && 
-							filter.allow(currentType)
+							filter.test(currentType)
 					) {
 						addComponent(new DynamicTextButton(currentType.toString(), EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-							receiver.onSelect(currentType);
+							receiver.accept(currentType);
 							state.getWindow().setMainComponent(returnMenu);
 						}), x, y - 0.125f, x + 0.27f, y);
 						y -= 0.19f;
@@ -119,12 +123,12 @@ public class EnumSelect<T extends Enum<?>> extends GuiMenu {
 				float x = 0f;
 				float y = 1f;
 				for (T currentType : all) {
-					if (filter.allow(currentType) && 
+					if (filter.test(currentType) &&
 							currentType.toString().toLowerCase(Locale.ROOT)
 							.contains(prevSearchText.toLowerCase(Locale.ROOT))
 					) {
 						addComponent(new DynamicTextButton(currentType.toString(), EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-							receiver.onSelect(currentType);
+							receiver.accept(currentType);
 							state.getWindow().setMainComponent(returnMenu);
 						}), x, y - 0.125f, x + 0.27f, y);
 						x += 0.333f;
@@ -136,15 +140,5 @@ public class EnumSelect<T extends Enum<?>> extends GuiMenu {
 				}
 			}
 		}
-	}
-	
-	public static interface Receiver<T> {
-		
-		void onSelect(T selected);
-	}
-	
-	public static interface EnumFilter<T> {
-		
-		boolean allow(T option);
 	}
 }

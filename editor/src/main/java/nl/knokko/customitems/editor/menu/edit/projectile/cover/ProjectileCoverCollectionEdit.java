@@ -48,8 +48,8 @@ public class ProjectileCoverCollectionEdit extends DedicatedCollectionEdit<Proje
 	}
 
 	@Override
-	protected EditMode getEditMode(ProjectileCoverValues model) {
-		return EditMode.SEPARATE_MENU;
+	protected boolean canEditModel(ProjectileCoverValues model) {
+		return true;
 	}
 
 	private GuiComponent createEditMenu(ProjectileCoverReference coverReference, boolean copy) {

@@ -10,27 +10,29 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import nl.knokko.gui.texture.loader.GuiTextureLoader;
 
 import java.awt.image.BufferedImage;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.function.Consumer;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.BACKGROUND2;
 
-public abstract class DedicatedCollectionEdit<V extends ModelValues, R extends Supplier<V>> extends GuiMenu {
+public abstract class SelfDedicatedCollectionEdit<V extends ModelValues> extends GuiMenu {
 
     protected final GuiComponent returnMenu;
-    protected final Iterable<R> liveCollection;
-    protected final Function<V, String> attemptAddModel;
+    protected final List<V> liveCollection;
+    protected final Consumer<List<V>> changeCollection;
 
     protected final ItemList itemList;
     protected final DynamicTextComponent errorComponent;
 
-    public DedicatedCollectionEdit(
-            GuiComponent returnMenu, Iterable<R> liveCollection, Function<V, String> attemptAddModel
+    public SelfDedicatedCollectionEdit(
+            Collection<V> oldCollection, Consumer<List<V>> changeCollection, GuiComponent returnMenu
     ) {
         this.returnMenu = returnMenu;
-        this.liveCollection = liveCollection;
-        this.attemptAddModel = attemptAddModel;
+        this.liveCollection = new ArrayList<>(oldCollection);
+        this.changeCollection = changeCollection;
 
         this.itemList = new ItemList();
         this.errorComponent = new DynamicTextComponent("", ERROR);
@@ -38,9 +40,15 @@ public abstract class DedicatedCollectionEdit<V extends ModelValues, R extends S
 
     @Override
     protected void addComponents() {
-        addComponent(new DynamicTextButton("Back", CANCEL_BASE, CANCEL_HOVER, () ->
+        addComponent(new DynamicTextButton("Cancel", CANCEL_BASE, CANCEL_HOVER, () ->
                 state.getWindow().setMainComponent(returnMenu)
         ), 0.025f, 0.7f, 0.175f, 0.8f);
+        addComponent(new DynamicTextButton("Apply", SAVE_BASE, SAVE_HOVER, () -> {
+            changeCollection.accept(liveCollection);
+            state.getWindow().setMainComponent(returnMenu);
+        }), 0.025f, 0.5f, 0.175f, 0.6f);
+
+
         addComponent(itemList, 0.25f, 0f, 1f, 0.9f);
         addComponent(errorComponent, 0.05f, 0.9f, 0.95f, 1f);
     }
@@ -63,25 +71,26 @@ public abstract class DedicatedCollectionEdit<V extends ModelValues, R extends S
 
     protected abstract boolean canEditModel(V model);
 
-    protected abstract GuiComponent createEditMenu(R modelReference);
-
-    protected abstract String deleteModel(R modelReference);
+    protected abstract GuiComponent createEditMenu(V oldModelValues, Consumer<V> changeModelValues);
 
     protected abstract boolean canDeleteModels();
 
-    protected abstract CopyMode getCopyMode(R modelReference);
+    protected abstract SelfDedicatedCollectionEdit.CopyMode getCopyMode(V model);
 
-    protected abstract GuiComponent createCopyMenu(R modelReference);
+    protected void addModel(V model) {
+        this.itemList.addModel(model);
+    }
 
     protected class ItemList extends GuiMenu {
 
         @Override
+        @SuppressWarnings("unchecked")
         protected void addComponents() {
             float minY = 0.9f;
 
             boolean hasIcon = false;
-            for (R modelReference: liveCollection) {
-                if (getModelIcon(modelReference.get()) != null) {
+            for (V model : liveCollection) {
+                if (getModelIcon(model) != null) {
                     hasIcon = true;
                 }
             }
@@ -89,10 +98,12 @@ public abstract class DedicatedCollectionEdit<V extends ModelValues, R extends S
             float minTextX = hasIcon ? 0.15f : 0f;
             GuiTextureLoader textureLoader = state.getWindow().getTextureLoader();
 
-            for (R modelReference : liveCollection) {
-                V model = modelReference.get();
+            int index = 0;
+            for (V model: liveCollection) {
 
+                int rememberIndex = index;
                 float maxY = minY + 0.1f;
+
                 BufferedImage icon = getModelIcon(model);
                 if (icon != null) {
                     addComponent(new SimpleImageComponent(textureLoader.loadTexture(icon)), 0f, minY, 0.125f, maxY);
@@ -107,36 +118,35 @@ public abstract class DedicatedCollectionEdit<V extends ModelValues, R extends S
 
                 if (canEditModel(model)) {
                     addComponent(new DynamicTextButton("Edit", BUTTON, HOVER, () ->
-                            state.getWindow().setMainComponent(createEditMenu(modelReference))
+                            state.getWindow().setMainComponent(createEditMenu(
+                                    (V) model.copy(true), newValues -> {
+                                        liveCollection.set(rememberIndex, newValues);
+                                        refresh();
+                                    }
+                            ))
                     ), 0.61f, minY, 0.72f, maxY);
                 }
 
-                CopyMode copyMode = getCopyMode(modelReference);
-                if (copyMode != CopyMode.DISABLED) {
+                SelfDedicatedCollectionEdit.CopyMode copyMode = getCopyMode(model);
+                if (copyMode != SelfDedicatedCollectionEdit.CopyMode.DISABLED) {
                     addComponent(new DynamicTextButton("Copy", BUTTON, HOVER, () -> {
-                        if (copyMode == CopyMode.SEPARATE_MENU) {
-                            state.getWindow().setMainComponent(createCopyMenu(modelReference));
-                        } else if (copyMode == CopyMode.INSTANT) {
-                            String error = attemptAddModel.apply(model);
-                            if (error == null) {
-                                refresh();
-                            } else {
-                                errorComponent.setText(error);
-                            }
+                        if (copyMode == SelfDedicatedCollectionEdit.CopyMode.SEPARATE_MENU) {
+                            state.getWindow().setMainComponent(createEditMenu((V) model.copy(true), this::addModel));
+                        } else if (copyMode == SelfDedicatedCollectionEdit.CopyMode.INSTANT) {
+                            liveCollection.add((V) model.copy(true));
+                            refresh();
                         }
                     }), 0.73f, minY, 0.83f, maxY);
                 }
                 if (canDeleteModels()) {
                     addComponent(new DynamicTextButton("Delete", QUIT_BASE, QUIT_HOVER, () -> {
-                        String error = deleteModel(modelReference);
-                        if (error == null) {
-                            refresh();
-                        } else {
-                            errorComponent.setText(error);
-                        }
+                        liveCollection.remove(rememberIndex);
+                        refresh();
                     }), 0.84f, minY, 0.99f, maxY);
                 }
+
                 minY -= 0.1f;
+                index++;
             }
         }
 
@@ -148,6 +158,11 @@ public abstract class DedicatedCollectionEdit<V extends ModelValues, R extends S
         public void refresh() {
             clearComponents();
             addComponents();
+        }
+
+        protected void addModel(V newModel) {
+            liveCollection.add(newModel);
+            refresh();
         }
     }
 

@@ -21,7 +21,7 @@ public abstract class InlineCollectionEdit<T extends ModelValues> extends GuiMen
 
     protected final List<T> ownCollection;
 
-    protected final Consumer<Collection<T>> onApply;
+    protected final Consumer<List<T>> onApply;
     protected final GuiComponent returnMenu;
 
     protected final DynamicTextComponent errorComponent;
@@ -30,13 +30,17 @@ public abstract class InlineCollectionEdit<T extends ModelValues> extends GuiMen
     protected GuiTexture deleteHover;
 
     public InlineCollectionEdit(Collection<T> currentCollection,
-                               Consumer<Collection<T>> onApply, GuiComponent returnMenu
+                               Consumer<List<T>> onApply, GuiComponent returnMenu
     ) {
         this.ownCollection = new ArrayList<>(Mutability.createDeepCopy(currentCollection, true));
         this.onApply = onApply;
         this.returnMenu = returnMenu;
 
         this.errorComponent = new DynamicTextComponent("", EditProps.ERROR);
+    }
+
+    public InlineCollectionEdit(GuiComponent returnMenu, Collection<T> currentCollection, Consumer<Collection<T>> onApply) {
+        this(currentCollection, onApply::accept, returnMenu);
     }
 
     @Override
@@ -83,10 +87,11 @@ public abstract class InlineCollectionEdit<T extends ModelValues> extends GuiMen
 
     protected void addItemComponents() {
 
+        float rowHeight = getRowHeight();
         for (int index = 0; index < ownCollection.size(); index++) {
 
-            float maxY = 0.9f - index * 0.1f;
-            float minY = 0.8f - index * 0.1f;
+            float maxY = 0.9f - index * rowHeight;
+            float minY = 0.9f - (index + 1) * rowHeight;
 
             addRowComponents(index, minY, maxY);
         }
@@ -95,6 +100,10 @@ public abstract class InlineCollectionEdit<T extends ModelValues> extends GuiMen
     protected void removeItem(int indexToRemove) {
         ownCollection.remove(indexToRemove);
         refresh();
+    }
+
+    protected float getRowHeight() {
+        return 0.1f;
     }
 
     protected abstract void addRowComponents(int itemIndex, float minY, float maxY);

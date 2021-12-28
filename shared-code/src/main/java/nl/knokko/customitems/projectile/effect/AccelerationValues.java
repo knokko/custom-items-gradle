@@ -6,7 +6,7 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
-abstract class AccelerationValues extends ProjectileEffectValues {
+public abstract class AccelerationValues extends ProjectileEffectValues {
 
     protected float minAcceleration;
     protected float maxAcceleration;

@@ -53,7 +53,7 @@ public class ExecuteCommand extends ProjectileEffect {
 	
 	private static final Executor[] EXECUTORS = Executor.values();
 	
-	public static enum Executor {
+	public enum Executor {
 		
 		SHOOTER,
 		CONSOLE;

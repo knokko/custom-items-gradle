@@ -18,7 +18,7 @@ public class EnchantmentCollectionEdit extends InlineCollectionEdit<EnchantmentV
 
 	public EnchantmentCollectionEdit(Collection<EnchantmentValues> currentCollection,
 			Consumer<Collection<EnchantmentValues>> onApply, GuiComponent returnMenu) {
-		super(currentCollection, onApply, returnMenu);
+		super(returnMenu, currentCollection, onApply);
 	}
 
 	@Override

@@ -267,6 +267,12 @@ public class CustomProjectileValues extends ModelValues {
         return cover == null ? null : cover.get();
     }
 
+    public void setName(String newName) {
+        assertMutable();
+        Checks.notNull(newName);
+        this.name = newName;
+    }
+
     public void setDamage(float newDamage) {
         assertMutable();
         this.damage = newDamage;
@@ -328,6 +334,11 @@ public class CustomProjectileValues extends ModelValues {
         assertMutable();
         Checks.nonNull(newImpactEffects);
         this.impactEffects = Mutability.createDeepCopy(newImpactEffects, false);
+    }
+
+    public void setCover(ProjectileCoverReference newCover) {
+        assertMutable();
+        this.cover = newCover;
     }
 
     public void validate(SItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {

@@ -5,17 +5,22 @@ import java.awt.image.BufferedImage;
 import nl.knokko.customitems.editor.menu.edit.CollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
+import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
+import nl.knokko.customitems.editor.util.Validation;
+import nl.knokko.customitems.itemset.ProjectileReference;
 import nl.knokko.customitems.projectile.CIProjectile;
+import nl.knokko.customitems.projectile.CustomProjectileValues;
+import nl.knokko.customitems.projectile.cover.ProjectileCoverValues;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
-public class ProjectileCollectionEdit extends CollectionEdit<CIProjectile> {
+public class ProjectileCollectionEdit extends DedicatedCollectionEdit<CustomProjectileValues, ProjectileReference> {
 	
 	private final EditMenu menu;
 
 	public ProjectileCollectionEdit(EditMenu menu) {
-		super(new ProjectileActionHandler(menu), menu.getSet().getBackingProjectiles());
+		super(menu.getProjectileMenu(), menu.getSet().getProjectiles().references(), null);
 		this.menu = menu;
 	}
 	
@@ -23,48 +28,51 @@ public class ProjectileCollectionEdit extends CollectionEdit<CIProjectile> {
 	protected void addComponents() {
 		super.addComponents();
 		addComponent(new DynamicTextButton("Create", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new EditProjectile(menu, null, null));
+			state.getWindow().setMainComponent(
+					new EditProjectile(menu, new CustomProjectileValues(true), null)
+			);
 		}), 0.025f, 0.2f, 0.2f, 0.3f);
 		
 		HelpButtons.addHelpLink(this, "edit%20menu/projectiles/overview.html");
 	}
-	
-	private static class ProjectileActionHandler implements ActionHandler<CIProjectile> {
-		
-		private final EditMenu menu;
-		
-		private ProjectileActionHandler(EditMenu menu) {
-			this.menu = menu;
-		}
 
-		@Override
-		public void goBack() {
-			menu.getState().getWindow().setMainComponent(menu.getProjectileMenu());
-		}
+	@Override
+	protected String getModelLabel(CustomProjectileValues model) {
+		return model.getName();
+	}
 
-		@Override
-		public BufferedImage getImage(CIProjectile item) {
-			return null;
-		}
+	@Override
+	protected BufferedImage getModelIcon(CustomProjectileValues model) {
+		return null;
+	}
 
-		@Override
-		public String getLabel(CIProjectile item) {
-			return item.name;
-		}
+	@Override
+	protected boolean canEditModel(CustomProjectileValues model) {
+		return true;
+	}
 
-		@Override
-		public GuiComponent createEditMenu(CIProjectile itemToEdit, GuiComponent returnMenu) {
-			return new EditProjectile(menu, itemToEdit, itemToEdit);
-		}
-		
-		@Override
-		public GuiComponent createCopyMenu(CIProjectile itemToEdit, GuiComponent returnMenu) {
-			return new EditProjectile(menu, itemToEdit, null);
-		}
+	@Override
+	protected GuiComponent createEditMenu(ProjectileReference modelReference) {
+		return new EditProjectile(menu, modelReference.get().copy(true), modelReference);
+	}
 
-		@Override
-		public String deleteItem(CIProjectile itemToDelete) {
-			return menu.getSet().removeProjectile(itemToDelete);
-		}
+	@Override
+	protected String deleteModel(ProjectileReference modelReference) {
+		return Validation.toErrorString(() -> menu.getSet().removeProjectile(modelReference));
+	}
+
+	@Override
+	protected boolean canDeleteModels() {
+		return true;
+	}
+
+	@Override
+	protected CopyMode getCopyMode(ProjectileReference modelReference) {
+		return CopyMode.SEPARATE_MENU;
+	}
+
+	@Override
+	protected GuiComponent createCopyMenu(ProjectileReference modelReference) {
+		return new EditProjectile(menu, modelReference.get().copy(true), null);
 	}
 }
