@@ -19,7 +19,7 @@ public class AttributeCollectionEdit extends InlineCollectionEdit<AttributeModif
 	public AttributeCollectionEdit(Collection<AttributeModifierValues> currentCollection,
 			Consumer<Collection<AttributeModifierValues>> onApply,
 			GuiComponent returnMenu, AttributeModifierValues exampleModifier) {
-		super(currentCollection, onApply, returnMenu);
+		super(returnMenu, currentCollection, onApply);
 		this.exampleModifier = exampleModifier;
 	}
 

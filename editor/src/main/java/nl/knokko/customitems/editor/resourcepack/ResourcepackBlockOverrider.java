@@ -1,9 +1,7 @@
 package nl.knokko.customitems.editor.resourcepack;
 
-import nl.knokko.customitems.block.CustomBlock;
 import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.block.MushroomBlockMapping;
-import nl.knokko.customitems.editor.set.ItemSet;
 import nl.knokko.customitems.itemset.SItemSet;
 
 import java.io.IOException;
@@ -106,7 +104,7 @@ class ResourcepackBlockOverrider {
                     zipOutput.putNextEntry(vanillaModelEntry);
                     PrintWriter vanillaModelWriter = new PrintWriter(zipOutput);
 
-                    InputStream defaultInput = ItemSet.class.getClassLoader().getResourceAsStream(
+                    InputStream defaultInput = ResourcepackBlockOverrider.class.getClassLoader().getResourceAsStream(
                             "lapisdemon/bonusblocks/defaultblocks/" + mushroomType.getResourceName() + "/" + vanillaEntry.getFileName() + ".json"
                     );
                     assert defaultInput != null;

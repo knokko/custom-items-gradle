@@ -21,7 +21,7 @@ public class EquippedEffectsCollectionEdit extends InlineCollectionEdit<Equipped
 
 	public EquippedEffectsCollectionEdit(Collection<EquippedPotionEffectValues> currentCollection,
 			Consumer<Collection<EquippedPotionEffectValues>> onApply, GuiComponent returnMenu) {
-		super(currentCollection, onApply, returnMenu);
+		super(returnMenu, currentCollection, onApply);
 	}
 
 	@Override

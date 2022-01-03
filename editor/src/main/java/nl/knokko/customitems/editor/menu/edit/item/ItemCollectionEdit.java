@@ -108,7 +108,7 @@ public class ItemCollectionEdit extends DedicatedCollectionEdit<CustomItemValues
 	}
 
 	@Override
-	protected EditMode getEditMode(CustomItemValues model) {
-		return EditMode.SEPARATE_MENU;
+	protected boolean canEditModel(CustomItemValues model) {
+		return true;
 	}
 }

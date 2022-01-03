@@ -30,7 +30,7 @@ public class ReplacementCollectionEdit extends InlineCollectionEdit<ReplacementC
 			ReplacementConditionValues exampleCondition,
 			Iterable<ItemReference> backingItems,
 			Consumer<ReplacementConditionValues.ConditionOperation> changeOperation) {
-		super(currentCollection, onApply, returnMenu);
+		super(returnMenu, currentCollection, onApply);
 		this.exampleCondition = exampleCondition;
 		this.backingItems = backingItems;
 		this.changeOperation = changeOperation;

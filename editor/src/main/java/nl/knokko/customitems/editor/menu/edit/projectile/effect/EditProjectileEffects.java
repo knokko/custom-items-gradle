@@ -1,26 +1,19 @@
 package nl.knokko.customitems.editor.menu.edit.projectile.effect;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.function.Consumer;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
-import nl.knokko.customitems.editor.set.ItemSet;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.projectile.effect.ProjectileEffectsValues;
-import nl.knokko.customitems.projectile.effects.ProjectileEffect;
-import nl.knokko.customitems.projectile.effects.ProjectileEffects;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.EagerIntEditField;
-import nl.knokko.gui.component.text.IntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
-import nl.knokko.gui.util.Option;
 
 public class EditProjectileEffects extends GuiMenu {
 	
@@ -57,22 +50,7 @@ public class EditProjectileEffects extends GuiMenu {
 		}), 0.025f, 0.7f, 0.175f, 0.8f);
 		
 		addComponent(errorComponent, 0.05f, 0.9f, 0.95f, 1f);
-		
-		IntEditField delayField, periodField;
-		{
-			int delay, period;
-			if (oldValues == null) {
-				delay = 10;
-				period = 20;
-			} else {
-				delay = oldValues.delay;
-				period = oldValues.period;
-			}
-			
-			delayField = new IntEditField(delay, 0, EDIT_BASE, EDIT_ACTIVE);
-			periodField = new IntEditField(period, 1, EDIT_BASE, EDIT_ACTIVE);
-		}
-		
+
 		addComponent(
 				new DynamicTextComponent("Ticks until first round:", LABEL),
 				LABEL_X - 0.3f, 0.7f, LABEL_X, 0.8f
@@ -86,7 +64,7 @@ public class EditProjectileEffects extends GuiMenu {
 				LABEL_X - 0.25f, 0.6f, LABEL_X, 0.7f
 		);
 		addComponent(
-				periodField,
+				new EagerIntEditField(currentValues.getPeriod(), 1, EDIT_BASE, EDIT_ACTIVE, currentValues::setPeriod),
 				BUTTON_X, 0.61f, BUTTON_X + 0.05f, 0.69f
 		);
 		addComponent(
@@ -94,7 +72,9 @@ public class EditProjectileEffects extends GuiMenu {
 				LABEL_X - 0.25f, 0.5f, LABEL_X, 0.6f
 		);
 		addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
-			state.getWindow().setMainComponent(new ProjectileEffectCollectionEdit(set, currentEffects, this));
+			state.getWindow().setMainComponent(new ProjectileEffectCollectionEdit(
+					set, currentValues.getEffects(), currentValues::setEffects, this
+			));
 		}), BUTTON_X, 0.5f, BUTTON_X + 0.15f, 0.6f);
 		
 		addComponent(new DynamicTextButton("Apply", SAVE_BASE, SAVE_HOVER, () -> {

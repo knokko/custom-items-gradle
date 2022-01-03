@@ -21,7 +21,7 @@ public class EffectsCollectionEdit extends InlineCollectionEdit<PotionEffectValu
 	public EffectsCollectionEdit(
 			Collection<PotionEffectValues> currentCollection, Consumer<Collection<PotionEffectValues>> onApply, GuiComponent returnMenu
 	) {
-		super(currentCollection, onApply, returnMenu);
+		super(returnMenu, currentCollection, onApply);
 	}
 
 	@Override
