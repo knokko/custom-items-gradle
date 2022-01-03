@@ -80,6 +80,13 @@ public class BaseTextureValues extends ModelValues {
         return result;
     }
 
+    public static BaseTextureValues createQuick(String name, BufferedImage image) {
+        BaseTextureValues result = new BaseTextureValues(true);
+        result.setName(name);
+        if (image != null) result.setImage(image);
+        return result;
+    }
+
     protected String name;
     protected BufferedImage image;
 
@@ -140,7 +147,7 @@ public class BaseTextureValues extends ModelValues {
     }
 
     @Override
-    public ModelValues copy(boolean mutable) {
+    public BaseTextureValues copy(boolean mutable) {
         return new BaseTextureValues(this, mutable);
     }
 

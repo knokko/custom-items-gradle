@@ -8,37 +8,39 @@ import java.util.function.Consumer;
 import javax.imageio.ImageIO;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.set.ItemSet;
-import nl.knokko.customitems.editor.set.item.texture.ArmorTextures;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.editor.util.Reference;
-import nl.knokko.customitems.util.ValidationException;
+import nl.knokko.customitems.editor.util.Validation;
+import nl.knokko.customitems.itemset.ArmorTextureReference;
+import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.texture.ArmorTextureValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.FileChooserMenu;
 import nl.knokko.gui.component.menu.GuiMenu;
+import nl.knokko.gui.component.text.EagerTextEditField;
 import nl.knokko.gui.component.text.TextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
+import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
+
 public class ArmorTexturesEdit extends GuiMenu {
 	
 	private final GuiComponent returnMenu;
-	private final ItemSet set;
-	
-	private final ArmorTextures oldValues;
-	private final Reference<ArmorTextures> toModify;
-	
+	private final SItemSet set;
+
+	private final ArmorTextureReference toModify;
+	private final ArmorTextureValues currentValues;
+
 	private final DynamicTextComponent errorComponent;
 
 	public ArmorTexturesEdit(
-			GuiComponent returnMenu, ItemSet set, ArmorTextures oldValues, 
-			Reference<ArmorTextures> toModify
+			GuiComponent returnMenu, SItemSet set, ArmorTextureReference toModify, ArmorTextureValues oldValues
 	) {
 		this.returnMenu = returnMenu;
 		this.set = set;
-		this.oldValues = oldValues;
 		this.toModify = toModify;
+		this.currentValues = oldValues.copy(true);
 		
 		this.errorComponent = new DynamicTextComponent("", EditProps.ERROR);
 	}
@@ -50,60 +52,37 @@ public class ArmorTexturesEdit extends GuiMenu {
 				"Cancel", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
 			state.getWindow().setMainComponent(returnMenu);
 		}), 0.025f, 0.7f, 0.2f, 0.8f);
-		
-		String initialName;
-		BufferedImage initialLayer1;
-		BufferedImage initialLayer2;
-		if (oldValues != null) {
-			initialName = oldValues.getName();
-			initialLayer1 = oldValues.getLayer1();
-			initialLayer2 = oldValues.getLayer2();
-		} else {
-			initialName = "";
-			initialLayer1 = null;
-			initialLayer2 = null;
-		}
-		
-		TextEditField nameField = new TextEditField(
-				initialName, EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE
+
+		addComponent(
+				new DynamicTextComponent("Name:", EditProps.LABEL),
+				0.3f, 0.7f, 0.4f, 0.8f
 		);
-		BufferedImage[] pLayers = {initialLayer1, initialLayer2};
-		
-		addComponent(new DynamicTextComponent("Name:", EditProps.LABEL), 
-				0.3f, 0.7f, 0.4f, 0.8f);
-		addComponent(nameField, 0.45f, 0.7f, 0.65f, 0.8f);
-		addComponent(new DynamicTextComponent("Layer 1:", EditProps.LABEL),
-				0.3f, 0.55f, 0.45f, 0.65f);
-		addComponent(new DynamicTextButton("Change...", 
-				EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(
-					createImageSelect(newImage -> pLayers[0] = newImage)
-			);
+		addComponent(
+				new EagerTextEditField(currentValues.getName(), EDIT_BASE, EDIT_ACTIVE, currentValues::setName),
+				0.45f, 0.7f, 0.65f, 0.8f
+		);
+		addComponent(
+				new DynamicTextComponent("Layer 1:", EditProps.LABEL),
+				0.3f, 0.55f, 0.45f, 0.65f
+		);
+		addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(createImageSelect(currentValues::setLayer1));
 		}), 0.5f, 0.55f, 0.65f, 0.65f);
-		addComponent(new DynamicTextComponent("Layer 2:", EditProps.LABEL),
-				0.3f, 0.4f, 0.45f, 0.5f);
-		addComponent(new DynamicTextButton("Change...", 
-				EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(
-					createImageSelect(newImage -> pLayers[1] = newImage)
-			);
+		addComponent(
+				new DynamicTextComponent("Layer 2:", EditProps.LABEL),
+				0.3f, 0.4f, 0.45f, 0.5f
+		);
+		addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(createImageSelect(currentValues::setLayer2));
 		}), 0.5f, 0.4f, 0.65f, 0.5f);
 		
-		addComponent(new DynamicTextButton(
-				"Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-			try {
-				ArmorTextures newValues = new ArmorTextures(
-						nameField.getText(), pLayers[0], pLayers[1]
-				);
-				if (toModify == null) {
-					set.addArmorTextures(newValues);
-				} else {
-					set.changeArmorTextures(toModify, newValues);
-				}
-				state.getWindow().setMainComponent(returnMenu);
-			} catch (ValidationException invalid) {
-				errorComponent.setText(invalid.getMessage());
-			}
+		addComponent(new DynamicTextButton(toModify == null ? "Create" : "Apply", SAVE_BASE, SAVE_HOVER, () -> {
+			String error;
+			if (toModify == null) error = Validation.toErrorString(() -> set.addArmorTexture(currentValues));
+			else error = Validation.toErrorString(() -> set.changeArmorTexture(toModify, currentValues));
+
+			if (error == null) state.getWindow().setMainComponent(returnMenu);
+			else errorComponent.setText(error);
 		}), 0.025f, 0.2f, 0.2f, 0.3f);
 		
 		HelpButtons.addHelpLink(this, "edit%20menu/textures/armor edit.html");

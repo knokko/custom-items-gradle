@@ -5,20 +5,23 @@ import java.io.File;
 import java.util.Locale;
 
 import nl.knokko.customitems.editor.menu.edit.*;
-import nl.knokko.customitems.texture.NamedImage;
-import nl.knokko.customitems.editor.set.item.texture.BowTextures;
-import nl.knokko.customitems.editor.set.item.texture.CrossbowTextures;
+import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
+import nl.knokko.customitems.editor.util.Validation;
+import nl.knokko.customitems.itemset.TextureReference;
+import nl.knokko.customitems.texture.BaseTextureValues;
+import nl.knokko.customitems.texture.BowTextureValues;
+import nl.knokko.customitems.texture.CrossbowTextureValues;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.DirectoryChooserMenu;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
-public class TextureCollectionEdit extends CollectionEdit<NamedImage> {
+public class TextureCollectionEdit extends DedicatedCollectionEdit<BaseTextureValues, TextureReference> {
 	
 	private final EditMenu menu;
 
 	public TextureCollectionEdit(EditMenu menu) {
-		super(new TextureActionHandler(menu), menu.getSet().getBackingTextures());
+		super(menu, menu.getSet().getTextures().references(), null);
 		this.menu = menu;
 	}
 	
@@ -39,8 +42,8 @@ public class TextureCollectionEdit extends CollectionEdit<NamedImage> {
 					this, files -> {
 						for (File file : files) {
 							try {
-								NamedImage fileImage = TextureEdit.loadBasicImage(file);
-								String error = menu.getSet().addTexture(fileImage, true);
+								BaseTextureValues fileImage = TextureEdit.loadBasicImage(file);
+								String error = Validation.toErrorString(() -> menu.getSet().addTexture(fileImage));
 								if (error != null) {
 									errorComponent.setText(fileImage.getName() + ": " + error);
 								}
@@ -57,53 +60,54 @@ public class TextureCollectionEdit extends CollectionEdit<NamedImage> {
 		
 		HelpButtons.addHelpLink(this, "edit%20menu/textures/overview.html");
 	}
-	
-	private static class TextureActionHandler implements ActionHandler<NamedImage> {
-		
-		private final EditMenu menu;
-		
-		private TextureActionHandler(EditMenu menu) {
-			this.menu = menu;
-		}
 
-		@Override
-		public void goBack() {
-			menu.getState().getWindow().setMainComponent(menu);
-		}
+	@Override
+	protected String getModelLabel(BaseTextureValues model) {
+		return model.getName();
+	}
 
-		@Override
-		public BufferedImage getImage(NamedImage item) {
-			return item.getImage();
-		}
+	@Override
+	protected BufferedImage getModelIcon(BaseTextureValues model) {
+		return model.getImage();
+	}
 
-		@Override
-		public String getLabel(NamedImage item) {
-			return item.getName();
-		}
+	@Override
+	protected boolean canEditModel(BaseTextureValues model) {
+		return true;
+	}
 
-		@Override
-		public GuiComponent createEditMenu(NamedImage texture, GuiComponent returnMenu) {
-			if (texture instanceof BowTextures)
-				return new BowTextureEdit(menu, modified -> {}, (BowTextures) texture, (BowTextures) texture);
-			else if (texture instanceof CrossbowTextures)
-				return new CrossbowTextureEdit(menu, modified -> {}, (CrossbowTextures) texture, (CrossbowTextures) texture);
-			else
-				return new TextureEdit(menu, modified -> {}, texture, texture);
+	private GuiComponent createEditMenu(TextureReference toModify, BaseTextureValues oldValues) {
+		if (oldValues instanceof CrossbowTextureValues) {
+			return new CrossbowTextureEdit(menu, toModify, (CrossbowTextureValues) oldValues);
+		} else if (oldValues instanceof BowTextureValues) {
+			return new BowTextureEdit(menu, toModify, (BowTextureValues) oldValues);
+		} else {
+			return new TextureEdit(menu, toModify, oldValues);
 		}
-		
-		@Override
-		public GuiComponent createCopyMenu(NamedImage texture, GuiComponent returnMenu) {
-			if (texture instanceof BowTextures)
-				return new BowTextureEdit(menu, copied -> {}, (BowTextures) texture, null);
-			else if (texture instanceof CrossbowTextures)
-				return new CrossbowTextureEdit(menu, copied -> {}, (CrossbowTextures) texture, null);
-			else
-				return new TextureEdit(menu, copied -> {}, texture, null);
-		}
+	}
 
-		@Override
-		public String deleteItem(NamedImage itemToDelete) {
-			return menu.getSet().removeTexture(itemToDelete);
-		}
+	@Override
+	protected GuiComponent createEditMenu(TextureReference modelReference) {
+		return createEditMenu(modelReference, modelReference.get());
+	}
+
+	@Override
+	protected String deleteModel(TextureReference modelReference) {
+		return Validation.toErrorString(() -> menu.getSet().removeTexture(modelReference));
+	}
+
+	@Override
+	protected boolean canDeleteModels() {
+		return true;
+	}
+
+	@Override
+	protected CopyMode getCopyMode(TextureReference modelReference) {
+		return CopyMode.SEPARATE_MENU;
+	}
+
+	@Override
+	protected GuiComponent createCopyMenu(TextureReference modelReference) {
+		return createEditMenu(null, modelReference.get());
 	}
 }

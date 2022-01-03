@@ -28,15 +28,15 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Locale;
-import java.util.function.Consumer;
 
 import javax.imageio.ImageIO;
 
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.menu.main.CreateMenu;
-import nl.knokko.customitems.editor.set.ItemSet;
-import nl.knokko.customitems.texture.NamedImage;
+import nl.knokko.customitems.editor.util.Validation;
+import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.TextureReference;
+import nl.knokko.customitems.texture.BaseTextureValues;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -44,36 +44,36 @@ import nl.knokko.gui.component.WrapperComponent;
 import nl.knokko.gui.component.menu.FileChooserMenu;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.image.SimpleImageComponent;
+import nl.knokko.gui.component.text.EagerTextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
-import nl.knokko.gui.component.text.TextEditField;
+
+import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class TextureEdit extends GuiMenu {
 	
-	protected final ItemSet itemSet;
+	protected final SItemSet itemSet;
 	protected final GuiComponent returnMenu;
-	protected final Consumer<NamedImage> afterSave;
-	protected final NamedImage oldValues, toModify;
+
 	protected final DynamicTextComponent errorComponent;
-	
-	protected TextEditField name;
-	protected BufferedImage image;
 	protected WrapperComponent<SimpleImageComponent> wrapper;
+
+	protected final TextureReference toModify;
+	protected final BaseTextureValues currentValues;
 	
-	public TextureEdit(EditMenu menu, Consumer<NamedImage> afterSave, 
-			NamedImage oldValues, NamedImage toModify) {
-		this(menu.getSet(), menu.getTextureOverview(), afterSave, oldValues, toModify);
+	public TextureEdit(EditMenu menu, TextureReference toModify, BaseTextureValues oldValues) {
+		this(menu.getSet(), menu.getTextureOverview(), toModify, oldValues);
 	}
 
-	public TextureEdit(ItemSet set, GuiComponent returnMenu, Consumer<NamedImage> afterSave,
-			NamedImage oldValues, NamedImage toModify) {
+	public TextureEdit(SItemSet set, GuiComponent returnMenu, TextureReference toModify, BaseTextureValues oldValues) {
 		this.itemSet = set;
-		this.afterSave = afterSave;
 		this.returnMenu = returnMenu;
-		this.oldValues = oldValues;
+
+		this.errorComponent = new DynamicTextComponent("", EditProps.ERROR);
+		this.wrapper = new WrapperComponent<>(null);
+
 		this.toModify = toModify;
-		errorComponent = new DynamicTextComponent("", EditProps.ERROR);
-		wrapper = new WrapperComponent<SimpleImageComponent>(null);
+		this.currentValues = oldValues.copy(true);
 	}
 	
 	@Override
@@ -87,53 +87,35 @@ public class TextureEdit extends GuiMenu {
 		addComponent(new DynamicTextButton("Cancel", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
 			state.getWindow().setMainComponent(returnMenu);
 		}), 0.1f, 0.7f, 0.25f, 0.8f);
-		if(oldValues != null) {
-			name = new TextEditField(oldValues.getName(), EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE);
-			image = oldValues.getImage();
-			wrapper.setComponent(new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(image)));
+
+		if (currentValues.getImage() != null) {
+			wrapper.setComponent(new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(currentValues.getImage())));
 		}
-		else {
-			name = new TextEditField("", EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE);
-		}
-		addComponent(new DynamicTextComponent("Name: ", EditProps.LABEL), 0.4f, 0.6f, 0.55f, 0.7f);
-		addComponent(name, 0.6f, 0.6f, 0.9f, 0.7f);
-		addComponent(new DynamicTextComponent("Texture: ", EditProps.LABEL), 0.4f, 0.4f, 0.55f, 0.5f);
+		addComponent(
+				new DynamicTextComponent("Name: ", EditProps.LABEL),
+				0.4f, 0.6f, 0.55f, 0.7f
+		);
+		EagerTextEditField nameField = new EagerTextEditField(currentValues.getName(), EDIT_BASE, EDIT_ACTIVE, currentValues::setName);
+		addComponent(nameField, 0.6f, 0.6f, 0.9f, 0.7f);
+		addComponent(
+				new DynamicTextComponent("Texture: ", LABEL),
+				0.4f, 0.4f, 0.55f, 0.5f
+		);
 		addComponent(wrapper, 0.6f, 0.4f, 0.7f, 0.5f);
-		addComponent(createImageSelect(), 0.75f, 0.4f, 0.9f, 0.5f);
-		addComponent(new DynamicTextButton(toModify != null ? "Apply" : "Create", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-			if(image != null) {
-				String error = CreateMenu.testFileName(name.getText() + ".png");
-				if(error != null)
-					errorComponent.setText(error);
-				else {
-					if(toModify != null) {
-						error = itemSet.changeTexture(toModify, name.getText(), image, true);
-						if(error != null)
-							errorComponent.setText(error);
-						else {
-							state.getWindow().setMainComponent(returnMenu);
-							afterSave.accept(toModify);
-						}
-					}
-					else {
-						NamedImage textureToAdd = new NamedImage(name.getText(), image);
-						error = itemSet.addTexture(textureToAdd, true);
-						if(error != null)
-							errorComponent.setText(error);
-						else {
-							state.getWindow().setMainComponent(returnMenu);
-							afterSave.accept(textureToAdd);
-						}
-					}
-				}
-			} else
-				errorComponent.setText("You have to select an image before you can create this.");
+		addComponent(createImageSelect(nameField), 0.75f, 0.4f, 0.9f, 0.5f);
+		addComponent(new DynamicTextButton(toModify != null ? "Apply" : "Create", SAVE_BASE, SAVE_HOVER, () -> {
+			String error;
+			if (toModify == null) error = Validation.toErrorString(() -> itemSet.addTexture(currentValues));
+			else error = Validation.toErrorString(() -> itemSet.changeTexture(toModify, currentValues));
+
+			if (error == null) state.getWindow().setMainComponent(returnMenu);
+			else errorComponent.setText(error);
 		}), 0.4f, 0.3f, 0.6f, 0.4f);
 		
-		HelpButtons.addHelpLink(this, "edit%20menu/textures/edit.html");
+		HelpButtons.addHelpLink(this, "edit menu/textures/edit.html");
 	}
 
-	public static NamedImage loadBasicImage(File file) throws IllegalArgumentException {
+	public static BaseTextureValues loadBasicImage(File file) throws IllegalArgumentException {
 		try {
 			BufferedImage loaded = ImageIO.read(file);
 			if(loaded != null) {
@@ -148,7 +130,7 @@ public class TextureEdit extends GuiMenu {
 							else
 								imageName = file.getName().substring(0, indexDot);
 
-							return new NamedImage(imageName, loaded);
+							return BaseTextureValues.createQuick(imageName, loaded);
 						} else
 							throw new IllegalArgumentException("The width and height (" + width + ") should be a power of 2");
 					} else
@@ -166,7 +148,7 @@ public class TextureEdit extends GuiMenu {
 		return new DynamicTextButton("Edit...", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
 			returnMenu.getState().getWindow().setMainComponent(new FileChooserMenu(returnMenu, file -> {
 				try {
-					NamedImage loaded = loadBasicImage(file);
+					BaseTextureValues loaded = loadBasicImage(file);
 					return listener.listen(loaded.getImage(), loaded.getName());
 				} catch (IllegalArgumentException error) {
 					errorComponent.setText(error.getMessage());
@@ -178,10 +160,10 @@ public class TextureEdit extends GuiMenu {
 		});
 	}
 	
-	private DynamicTextButton createImageSelect() {
+	private DynamicTextButton createImageSelect(EagerTextEditField nameField) {
 		return createImageSelect(new PartialTransparencyFilter(this, 
 				(BufferedImage loaded, String imageName) -> {
-					setImage(loaded, imageName);
+					setImage(loaded, imageName, nameField);
 			return this;
 		}), errorComponent, this);
 	}
@@ -213,24 +195,22 @@ public class TextureEdit extends GuiMenu {
 			if (hasPartialTransparency) {
 				return new TransparencyFixMenu(() -> {
 					cancelMenu.getState().getWindow().setMainComponent(cancelMenu);
-				}, (BufferedImage modified, String alsoImageName) -> {
-					return listener.listen(modified, alsoImageName);
-				}, loaded, imageName);
+				}, listener, loaded, imageName);
 			} else {
 				return listener.listen(loaded, imageName);
 			}
 		}
 	}
 	
-	private void setImage(BufferedImage loaded, String imageName) {
-		image = loaded;
-		wrapper.setComponent(new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(image)));
-		if (name.getText().isEmpty()) {
-			name.setText(imageName);
+	private void setImage(BufferedImage loaded, String imageName, EagerTextEditField nameField) {
+		currentValues.setImage(loaded);
+		wrapper.setComponent(new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(loaded)));
+		if (nameField.getText().isEmpty()) {
+			nameField.setText(imageName);
 		}
 	}
 	
-	public static interface ImageListener {
+	public interface ImageListener {
 		
 		GuiComponent listen(BufferedImage image, String imageName);
 	}

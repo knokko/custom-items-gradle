@@ -2,25 +2,23 @@ package nl.knokko.customitems.editor.menu.edit.texture;
 
 import java.awt.image.BufferedImage;
 
-import nl.knokko.customitems.editor.menu.edit.CollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.set.ItemSet;
-import nl.knokko.customitems.editor.set.item.texture.ArmorTextures;
+import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.editor.util.Reference;
+import nl.knokko.customitems.editor.util.Validation;
+import nl.knokko.customitems.itemset.ArmorTextureReference;
+import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.texture.ArmorTextureValues;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
-public class ArmorTexturesCollectionEdit extends CollectionEdit<Reference<ArmorTextures>> {
+public class ArmorTexturesCollectionEdit extends DedicatedCollectionEdit<ArmorTextureValues, ArmorTextureReference> {
 
-	private final ItemSet set;
+	private final SItemSet set;
 	
-	public ArmorTexturesCollectionEdit(GuiComponent returnMenu, ItemSet set) {
-		super(
-				new ArmorTexturesActionHandler(returnMenu, set), 
-				set.getBackingArmorTextures()
-		);
+	public ArmorTexturesCollectionEdit(GuiComponent returnMenu, SItemSet set) {
+		super(returnMenu, set.getArmorTextures().references(), null);
 		this.set = set;
 	}
 	
@@ -30,7 +28,7 @@ public class ArmorTexturesCollectionEdit extends CollectionEdit<Reference<ArmorT
 		addComponent(new DynamicTextButton(
 				"Create new", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(
-					new ArmorTexturesEdit(this, set, null, null)
+					new ArmorTexturesEdit(this, set, null, new ArmorTextureValues(true))
 			);
 		}), 0.025f, 0.2f, 0.2f, 0.3f);
 		addComponent(new DynamicTextComponent("Note: only players with Optifine", 
@@ -41,44 +39,43 @@ public class ArmorTexturesCollectionEdit extends CollectionEdit<Reference<ArmorT
 		HelpButtons.addHelpLink(this, "edit%20menu/textures/armor overview.html");
 	}
 
-	private static class ArmorTexturesActionHandler implements ActionHandler<Reference<ArmorTextures>> {
+	@Override
+	protected String getModelLabel(ArmorTextureValues model) {
+		return model.getName();
+	}
 
-		private final GuiComponent returnMenu;
-		private final ItemSet set;
-		
-		ArmorTexturesActionHandler(GuiComponent returnMenu, ItemSet set) {
-			this.returnMenu = returnMenu;
-			this.set = set;
-		}
-		
-		@Override
-		public void goBack() {
-			returnMenu.getState().getWindow().setMainComponent(returnMenu);
-		}
+	@Override
+	protected BufferedImage getModelIcon(ArmorTextureValues model) {
+		return model.getLayer1();
+	}
 
-		@Override
-		public BufferedImage getImage(Reference<ArmorTextures> item) {
-			return item.get().getLayer1();
-		}
+	@Override
+	protected boolean canEditModel(ArmorTextureValues model) {
+		return true;
+	}
 
-		@Override
-		public String getLabel(Reference<ArmorTextures> item) {
-			return item.get().getName();
-		}
+	@Override
+	protected GuiComponent createEditMenu(ArmorTextureReference modelReference) {
+		return new ArmorTexturesEdit(this, set, modelReference, modelReference.get());
+	}
 
-		@Override
-		public GuiComponent createEditMenu(Reference<ArmorTextures> itemToEdit, GuiComponent returnMenu) {
-			return new ArmorTexturesEdit(returnMenu, set, itemToEdit.get(), itemToEdit);
-		}
+	@Override
+	protected String deleteModel(ArmorTextureReference modelReference) {
+		return Validation.toErrorString(() -> set.removeArmorTexture(modelReference));
+	}
 
-		@Override
-		public GuiComponent createCopyMenu(Reference<ArmorTextures> itemToCopy, GuiComponent returnMenu) {
-			return new ArmorTexturesEdit(returnMenu, set, itemToCopy.get(), null);
-		}
+	@Override
+	protected boolean canDeleteModels() {
+		return true;
+	}
 
-		@Override
-		public String deleteItem(Reference<ArmorTextures> itemToDelete) {
-			return set.removeArmorTextures(itemToDelete);
-		}
+	@Override
+	protected CopyMode getCopyMode(ArmorTextureReference modelReference) {
+		return CopyMode.DISABLED;
+	}
+
+	@Override
+	protected GuiComponent createCopyMenu(ArmorTextureReference modelReference) {
+		throw new UnsupportedOperationException("Can't copy armor textures");
 	}
 }
