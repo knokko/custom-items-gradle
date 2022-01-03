@@ -1,6 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit;
 
-import nl.knokko.customitems.editor.Editor;
+import nl.knokko.customitems.editor.EditorFileManager;
 import nl.knokko.customitems.editor.menu.main.MainMenu;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.gui.color.GuiColor;
@@ -10,6 +10,9 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 import java.awt.*;
 import java.io.IOException;
+
+import static nl.knokko.customitems.editor.menu.edit.EditProps.LINK_BASE;
+import static nl.knokko.customitems.editor.menu.edit.EditProps.LINK_HOVER;
 
 public class AfterExportMenu extends GuiMenu {
 	
@@ -24,10 +27,10 @@ public class AfterExportMenu extends GuiMenu {
 		addComponent(new DynamicTextComponent(
 				"Your item set has been exported to:", EditProps.LABEL), 
 				0.05f, 0.8f, 0.5f, 0.9f);
-		addComponent(new DynamicTextButton(Editor.getFolder().getAbsolutePath(),
-				EditProps.LINK_BASE, EditProps.LINK_HOVER, () -> {
+		addComponent(new DynamicTextButton(EditorFileManager.FOLDER.getAbsolutePath(),
+				LINK_BASE, LINK_HOVER, () -> {
 			try {
-				Desktop.getDesktop().open(Editor.getFolder());
+				Desktop.getDesktop().open(EditorFileManager.FOLDER);
 			} catch (IOException e) {
 				System.err.println("Couldn't open export destination folder: " + e.getLocalizedMessage());
 			}

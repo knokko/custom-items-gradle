@@ -1,6 +1,5 @@
 package nl.knokko.customitems.editor.menu.edit;
 
-import java.nio.file.DirectoryStream;
 import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -22,7 +21,7 @@ public class CollectionSelect<T> extends GuiMenu {
 			
 			@Override
 			public void click(float x, float y, int button) {
-				state.getWindow().setMainComponent(new CollectionSelect<T>(backingCollection, (T selected) -> {
+				state.getWindow().setMainComponent(new CollectionSelect<>(backingCollection, (T selected) -> {
 					setText(formatter.apply(selected));
 					onSelect.accept(selected);
 				}, filter, formatter, state.getWindow().getMainComponent()));

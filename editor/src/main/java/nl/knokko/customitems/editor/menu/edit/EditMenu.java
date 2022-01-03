@@ -23,6 +23,7 @@
  *******************************************************************************/
 package nl.knokko.customitems.editor.menu.edit;
 
+import nl.knokko.customitems.editor.EditorFileManager;
 import nl.knokko.customitems.editor.menu.edit.block.BlockCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.container.ContainerPortal;
 import nl.knokko.customitems.editor.menu.edit.drops.DropsMenu;
@@ -33,15 +34,23 @@ import nl.knokko.customitems.editor.menu.edit.texture.TextureCollectionEdit;
 import nl.knokko.customitems.editor.menu.main.MainMenu;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.util.ProgrammingValidationException;
+import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
+import java.io.IOException;
+
+import static nl.knokko.customitems.MCVersions.*;
+import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
+
 public class EditMenu extends GuiMenu {
 
 	protected final SItemSet set;
+	protected final String fileName;
 
 	protected final DynamicTextComponent errorComponent;
 
@@ -52,8 +61,9 @@ public class EditMenu extends GuiMenu {
 	protected final ProjectileMenu projectileMenu;
 	protected final ContainerPortal containerPortal;
 
-	public EditMenu(SItemSet set) {
+	public EditMenu(SItemSet set, String fileName) {
 		this.set = set;
+		this.fileName = fileName;
 		itemOverview = new ItemCollectionEdit(this);
 		textureOverview = new TextureCollectionEdit(this);
 		recipeOverview = new RecipeCollectionEdit(this);
@@ -112,148 +122,82 @@ public class EditMenu extends GuiMenu {
 		errorComponent.setText(info);
 	}
 
+	private void saveAndExport(int mcVersion) {
+		try {
+			EditorFileManager.saveAndBackUp(this.set, fileName);
+			this.set.validateExportVersion(mcVersion);
+			EditorFileManager.export(this.set, mcVersion, fileName);
+			state.getWindow().setMainComponent(new AfterExportMenu(this));
+		} catch (IOException | ValidationException ex) {
+			setError(ex.getLocalizedMessage());
+		} catch (ProgrammingValidationException ex) {
+			setError("Programming error: " + ex.getMessage());
+		}
+	}
+
 	@Override
 	protected void addComponents() {
 		addComponent(this.errorComponent, 0.305F, 0.9F, 0.95F, 1.0F);
-		addComponent(
-				new DynamicTextButton("Quit", EditProps.QUIT_BASE, EditProps.QUIT_HOVER,
-						() -> this.state.getWindow().setMainComponent(MainMenu.INSTANCE)),
-
-				0.1F, 0.88F, 0.3F, 0.98F);
-		addComponent(new DynamicTextButton("Save", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-			String error = this.set.save();
-			if (error != null) {
-				setError(error);
-			} else {
+		addComponent(new DynamicTextButton("Quit", QUIT_BASE, QUIT_HOVER,
+						() -> this.state.getWindow().setMainComponent(MainMenu.INSTANCE)
+				), 0.1F, 0.88F, 0.3F, 0.98F);
+		addComponent(new DynamicTextButton("Save", SAVE_BASE, SAVE_HOVER, () -> {
+			try {
+				EditorFileManager.saveAndBackUp(this.set, fileName);
 				setInfo("Saved successfully");
+			} catch (IOException io) {
+				setError(io.getLocalizedMessage());
 			}
-
 		}), 0.1F, 0.7F, 0.25F, 0.8F);
-		addComponent(
-				new DynamicTextButton("Save and quit", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-					String error = this.set.save();
-					if (error != null) {
-						setError(error);
-					} else {
-						this.state.getWindow().setMainComponent(MainMenu.INSTANCE);
-					}
-				}), 0.1F, 0.59F, 0.35F, 0.69F);
-		addComponent(new DynamicTextButton("Export for 1.12", EditProps.SAVE_BASE, EditProps.SAVE_HOVER,
-				() -> {
-					String error = this.set.save();
-					if (error != null) {
-						setError(error);
-					} else {
-						error = this.set.exportFor12(12);
-						if (error != null) {
-							setError(error);
-						} else {
-							this.state.getWindow().setMainComponent(new AfterExportMenu(this));
-						}
-					}
-				}), 0.1F, 0.50F, 0.3F, 0.58F);
-		addComponent(new DynamicTextButton("Export for 1.13", EditProps.SAVE_BASE, EditProps.SAVE_HOVER,
-				() -> {
-					String error = this.set.save();
-					if (error != null) {
-						setError(error);
-					} else {
-						error = this.set.exportFor13OrLater(13);
-						if (error != null) {
-							setError(error);
-						} else {
-							this.state.getWindow().setMainComponent(new AfterExportMenu(this));
-						}
-					}
-				}), 0.1F, 0.41F, 0.3F, 0.49F);
-		addComponent(new DynamicTextButton("Export for 1.14", EditProps.SAVE_BASE, EditProps.SAVE_HOVER,
-				() -> {
-					String error = this.set.save();
-					if (error != null) {
-						setError(error);
-					} else {
-						error = this.set.exportFor13OrLater(14);
-						if (error != null) {
-							setError(error);
-						} else {
-							this.state.getWindow().setMainComponent(new AfterExportMenu(this));
-						}
-					}
-				}), 0.1F, 0.32F, 0.3F, 0.40F);
-		addComponent(new DynamicTextButton("Export for 1.15", EditProps.SAVE_BASE, EditProps.SAVE_HOVER,
-				() -> {
-					String error = this.set.save();
-					if (error != null) {
-						setError(error);
-					} else {
-						error = this.set.exportFor15();
-						if (error != null) {
-							setError(error);
-						} else {
-							this.state.getWindow().setMainComponent(new AfterExportMenu(this));
-						}
-					}
-				}), 0.1F, 0.23F, 0.3F, 0.31F);
-		addComponent(new DynamicTextButton("Export for 1.16", EditProps.SAVE_BASE, EditProps.SAVE_HOVER,
-				() -> {
-					String error = this.set.save();
-					if (error != null) {
-						setError(error);
-					} else {
-						error = this.set.exportFor16();
-						if (error != null) {
-							setError(error);
-						} else {
-							this.state.getWindow().setMainComponent(new AfterExportMenu(this));
-						}
-					}
-				}), 0.1F, 0.14F, 0.3F, 0.22F);
-		addComponent(new DynamicTextButton("Export for 1.17", EditProps.SAVE_BASE, EditProps.SAVE_HOVER,
-				() -> {
-					String error = this.set.save();
-					if (error != null) {
-						setError(error);
-					} else {
-						error = this.set.exportFor17();
-						if (error != null) {
-							setError(error);
-						} else {
-							this.state.getWindow().setMainComponent(new AfterExportMenu(this));
-						}
-					}
-				}), 0.1F, 0.05F, 0.3F, 0.13F);
-		addComponent(
-				new DynamicTextButton("Textures", EditProps.BUTTON, EditProps.HOVER,
-						() -> this.state.getWindow().setMainComponent(this.textureOverview)),
+		addComponent(new DynamicTextButton("Save and quit", SAVE_BASE, SAVE_HOVER, () -> {
+			try {
+				EditorFileManager.saveAndBackUp(this.set, fileName);
+				this.state.getWindow().setMainComponent(MainMenu.INSTANCE);
+			} catch (IOException io) {
+				setError(io.getLocalizedMessage());
+			}
+		}), 0.1F, 0.59F, 0.35F, 0.69F);
+		addComponent(new DynamicTextButton("Export for 1.12", SAVE_BASE, SAVE_HOVER, () -> {
+			saveAndExport(VERSION1_12);
+		}), 0.1F, 0.50F, 0.3F, 0.58F);
+		addComponent(new DynamicTextButton("Export for 1.13", SAVE_BASE, SAVE_HOVER, () -> {
+			saveAndExport(VERSION1_13);
+		}), 0.1F, 0.41F, 0.3F, 0.49F);
+		addComponent(new DynamicTextButton("Export for 1.14", SAVE_BASE, SAVE_HOVER, () -> {
+			saveAndExport(VERSION1_14);
+		}), 0.1F, 0.32F, 0.3F, 0.40F);
+		addComponent(new DynamicTextButton("Export for 1.15", SAVE_BASE, SAVE_HOVER, () -> {
+			saveAndExport(VERSION1_15);
+		}), 0.1F, 0.23F, 0.3F, 0.31F);
+		addComponent(new DynamicTextButton("Export for 1.16", SAVE_BASE, SAVE_HOVER, () -> {
+			saveAndExport(VERSION1_16);
+		}), 0.1F, 0.14F, 0.3F, 0.22F);
+		addComponent(new DynamicTextButton("Export for 1.17", SAVE_BASE, SAVE_HOVER, () -> {
+			saveAndExport(VERSION1_17);
+		}), 0.1F, 0.05F, 0.3F, 0.13F);
 
-				0.6F, 0.8F, 0.8F, 0.9F);
-		addComponent(
-				new DynamicTextButton("Items", EditProps.BUTTON, EditProps.HOVER,
-						() -> this.state.getWindow().setMainComponent(this.itemOverview)),
-
-				0.6F, 0.68F, 0.8F, 0.78F);
-		addComponent(
-				new DynamicTextButton("Recipes", EditProps.BUTTON, EditProps.HOVER,
-						() -> this.state.getWindow().setMainComponent(this.recipeOverview)),
-
-				0.6F, 0.56F, 0.8F, 0.66F);
-		addComponent(
-				new DynamicTextButton("Drops", EditProps.BUTTON, EditProps.HOVER,
-						() -> this.state.getWindow().setMainComponent(this.dropsMenu)),
-
-				0.6F, 0.44F, 0.8F, 0.54F);
-		addComponent(
-				new DynamicTextButton("Projectiles", EditProps.BUTTON, EditProps.HOVER,
-						() -> this.state.getWindow().setMainComponent(this.projectileMenu)),
-
-				0.6F, 0.32F, 0.875F, 0.42F);
-		addComponent(new DynamicTextButton("Containers", EditProps.BUTTON, EditProps.HOVER, () -> {
+		addComponent(new DynamicTextButton("Textures", BUTTON, HOVER, () -> {
+			this.state.getWindow().setMainComponent(this.textureOverview);
+		}), 0.6F, 0.8F, 0.8F, 0.9F);
+		addComponent(new DynamicTextButton("Items", BUTTON, HOVER, () -> {
+			this.state.getWindow().setMainComponent(this.itemOverview);
+		}), 0.6F, 0.68F, 0.8F, 0.78F);
+		addComponent(new DynamicTextButton("Recipes", BUTTON, HOVER, () -> {
+			this.state.getWindow().setMainComponent(this.recipeOverview);
+		}), 0.6F, 0.56F, 0.8F, 0.66F);
+		addComponent(new DynamicTextButton("Drops", BUTTON, HOVER, () -> {
+			this.state.getWindow().setMainComponent(this.dropsMenu);
+		}), 0.6F, 0.44F, 0.8F, 0.54F);
+		addComponent(new DynamicTextButton("Projectiles", BUTTON, HOVER, () -> {
+			this.state.getWindow().setMainComponent(this.projectileMenu);
+		}), 0.6F, 0.32F, 0.875F, 0.42F);
+		addComponent(new DynamicTextButton("Containers", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(containerPortal);
 		}), 0.6f, 0.2f, 0.875f, 0.3f);
-		addComponent(new DynamicTextButton("Blocks (1.13+)", EditProps.BUTTON, EditProps.HOVER, () ->
-				state.getWindow().setMainComponent(new BlockCollectionEdit(set, this))
-		), 0.6f, 0.08f, 0.9f, 0.18f);
+		addComponent(new DynamicTextButton("Blocks (1.13+)", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new BlockCollectionEdit(set, this));
+		}), 0.6f, 0.08f, 0.9f, 0.18f);
 
-		HelpButtons.addHelpLink(this, "edit%20menu/index.html");
+		HelpButtons.addHelpLink(this, "edit menu/index.html");
 	}
 }

@@ -94,12 +94,12 @@ public class EnumSelect<T extends Enum<?>> extends GuiMenu {
 		protected void addComponents() {
 			prevSearchText = searchField.getText();
 			T[] all = enumClass.getEnumConstants();
-			
+
+			float x = 0.0f;
+			float y = 1f;
 			if (all.length <= 12) {
 				
 				// If everything fits on the page, just put everything on the page
-				float x = 0.0f;
-				float y = 1f;
 				for (T currentType : all) {
 					if (
 							currentType.toString().toLowerCase(Locale.ROOT).
@@ -120,8 +120,6 @@ public class EnumSelect<T extends Enum<?>> extends GuiMenu {
 			} else {
 				
 				// Not everything fits, so we let the list grow down
-				float x = 0f;
-				float y = 1f;
 				for (T currentType : all) {
 					if (filter.test(currentType) &&
 							currentType.toString().toLowerCase(Locale.ROOT)

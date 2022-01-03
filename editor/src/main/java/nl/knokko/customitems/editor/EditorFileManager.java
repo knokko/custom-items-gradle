@@ -16,9 +16,9 @@ import java.nio.file.Files;
 
 public class EditorFileManager {
 
-    private static final File FOLDER = new File(FileSystemView.getFileSystemView().getDefaultDirectory() + "/Custom Item Sets");
+    public static final File FOLDER = new File(FileSystemView.getFileSystemView().getDefaultDirectory() + "/Custom Item Sets");
     private static final File LOGS_FOLDER = new File(FOLDER + "/logs");
-    private static final File BACKUPS_FOLDER = new File(FOLDER + "/backups");
+    public static final File BACKUPS_FOLDER = new File(FOLDER + "/backups");
 
     static void startLogging() {
         FOLDER.mkdirs();
