@@ -27,11 +27,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Calendar;
 
-import nl.knokko.customitems.editor.Editor;
+import nl.knokko.customitems.editor.EditorFileManager;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.set.ItemSet;
 import nl.knokko.customitems.editor.util.HelpButtons;
+import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.trouble.IntegrityException;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.gui.color.GuiColor;
@@ -120,8 +120,6 @@ public class LoadMenu extends GuiMenu {
 	
 	private static class BackupSetList extends GuiMenu {
 		
-		//private static final Properties BUTTON_PROPERTIES = Properties.createButton(new Color(0, 200, 0), new Color(0, 50, 0), 1024, 128);
-		//private static final Properties HOVER_PROPERTIES = Properties.createButton(new Color(0, 250, 0), new Color(0, 70, 0), 1024, 128);
 		private final DynamicTextComponent errorComponent;
 		
 		private BackupSetList(DynamicTextComponent errorComponent) {
@@ -146,10 +144,10 @@ public class LoadMenu extends GuiMenu {
 		
 		private void refresh() {
 			clearComponents();
-			File folder = Editor.getBackupFolder();
+			File folder = EditorFileManager.BACKUPS_FOLDER;
 			File[] files = folder.listFiles((dir, name) -> name.endsWith(".cisb"));
-			if(files != null) {
-				for(int index = 0; index < files.length; index++) {
+			if (files != null) {
+				for (int index = 0; index < files.length; index++) {
 					final File file = files[index];
 					int indexSpace = file.getName().lastIndexOf(" ");
 					String setName;
@@ -174,9 +172,9 @@ public class LoadMenu extends GuiMenu {
 					addComponent(new DynamicTextButton(displayName, EditProps.BUTTON, EditProps.HOVER, () -> {
 						try {
 							BitInput input = ByteArrayBitInput.fromFile(file);
-							ItemSet set = new ItemSet(finalSetName, input);
+							SItemSet set = new SItemSet(input, SItemSet.Side.EDITOR);
 							input.terminate();
-							state.getWindow().setMainComponent(new EditMenu(set));
+							state.getWindow().setMainComponent(new EditMenu(set, finalSetName));
 						} catch(IOException ioex) {
 							errorComponent.setText(ioex.getMessage());
 						} catch (UnknownEncodingException encoding) {
@@ -204,7 +202,7 @@ public class LoadMenu extends GuiMenu {
 		
 		private void refresh() {
 			clearComponents();
-			File folder = Editor.getFolder();
+			File folder = EditorFileManager.FOLDER;
 			File[] files = folder.listFiles((dir, name) -> name.endsWith(".cisb"));
 			if(files != null) {
 				for(int index = 0; index < files.length; index++) {
@@ -212,9 +210,10 @@ public class LoadMenu extends GuiMenu {
 					addComponent(new DynamicTextButton(file.getName().substring(0, file.getName().length() - 5), EditProps.BUTTON, EditProps.HOVER, () -> {
 						try {
 							BitInput input = ByteArrayBitInput.fromFile(file);
-							ItemSet set = new ItemSet(file.getName().substring(0, file.getName().length() - 5), input);
+							String fileName = file.getName().substring(0, file.getName().length() - 5);
+							SItemSet set = new SItemSet(input, SItemSet.Side.EDITOR);
 							input.terminate();
-							state.getWindow().setMainComponent(new EditMenu(set));
+							state.getWindow().setMainComponent(new EditMenu(set, fileName));
 						} catch(IOException ioex) {
 							throw new RuntimeException(ioex);
 						} catch (UnknownEncodingException encoding) {

@@ -26,6 +26,7 @@ import nl.knokko.util.bits.ByteArrayBitInput;
 import nl.knokko.util.bits.ByteArrayBitOutput;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class SItemSet {
@@ -45,6 +46,48 @@ public class SItemSet {
          * use a newer editor to avoid this.
          */
         return (long) (-1_000_000_000_000_000L * Math.random());
+    }
+
+    public static SItemSet combine(SItemSet primary, SItemSet secondary) throws ValidationException {
+
+        SItemSet result = new SItemSet(Side.EDITOR);
+
+        result.textures.addAll(primary.textures);
+        result.textures.addAll(secondary.textures);
+        result.armorTextures.addAll(primary.armorTextures);
+        result.armorTextures.addAll(secondary.armorTextures);
+
+        result.items.addAll(primary.items);
+        result.items.addAll(secondary.items);
+
+        result.craftingRecipes.addAll(primary.craftingRecipes);
+        result.craftingRecipes.addAll(secondary.craftingRecipes);
+
+        result.blockDrops.addAll(primary.blockDrops);
+        result.blockDrops.addAll(secondary.blockDrops);
+        result.mobDrops.addAll(primary.mobDrops);
+        result.mobDrops.addAll(secondary.mobDrops);
+
+        result.containers.addAll(primary.containers);
+        result.containers.addAll(secondary.containers);
+        result.fuelRegistries.addAll(primary.fuelRegistries);
+        result.fuelRegistries.addAll(secondary.fuelRegistries);
+
+        result.projectiles.addAll(primary.projectiles);
+        result.projectiles.addAll(secondary.projectiles);
+        result.projectileCovers.addAll(primary.projectileCovers);
+        result.projectileCovers.addAll(secondary.projectileCovers);
+
+        result.blocks.addAll(primary.blocks);
+        if (!secondary.blocks.isEmpty()) throw new ValidationException("The secondary item set can't have blocks");
+
+        try {
+            result.validate();
+        } catch (ProgrammingValidationException ex) {
+            throw new ValidationException(ex.getMessage());
+        }
+
+        return result;
     }
 
     // <---- INTERNAL USE ONLY ---->
@@ -867,6 +910,17 @@ public class SItemSet {
         }
     }
 
+    private <M, I> void validateUniqueIDs(
+            String description, Collection<M> collection, Function<M, I> getID
+    ) throws ProgrammingValidationException {
+        Set<I> foundIDs = new HashSet<>(collection.size());
+        for (M element : collection) {
+            I id = getID.apply(element);
+            if (foundIDs.contains(id)) throw new ProgrammingValidationException("Duplicate " + description + " " + id);
+            foundIDs.add(id);
+        }
+    }
+
     private void validate() throws ValidationException, ProgrammingValidationException {
         for (CustomTexture texture : textures) {
             Validation.scope(
@@ -874,66 +928,85 @@ public class SItemSet {
                     () -> texture.getValues().validateComplete(this, texture.getValues().getName())
             );
         }
+        validateUniqueIDs("texture name", textures, texture -> texture.getValues().getName());
+
         for (ArmorTexture texture : armorTextures) {
             Validation.scope(
                     "Armor texture " + texture.getValues().getName(),
                     () -> texture.getValues().validate(this, texture.getValues().getName())
             );
         }
+        validateUniqueIDs("armor texture name", armorTextures, armorTexture -> armorTexture.getValues().getName());
+
         for (SCustomItem item : items) {
             Validation.scope(
                     "Item " + item.getValues().getName(),
                     () -> item.getValues().validateComplete(this, item.getValues().getName())
             );
         }
+        validateUniqueIDs("item name", items, item -> item.getValues().getName());
+
         for (CustomCraftingRecipe recipe : craftingRecipes) {
             Validation.scope(
                     "Recipe for " + recipe.getValues().getResult(),
                     () -> recipe.getValues().validate(this, new CraftingRecipeReference(recipe))
             );
         }
+
         for (SBlockDrop blockDrop : blockDrops) {
             Validation.scope(
                     "Block drop for " + blockDrop.getValues().getBlockType(),
                     () -> blockDrop.getValues().validate(this)
             );
         }
+
         for (MobDrop mobDrop : mobDrops) {
             Validation.scope(
                     "Mob drop for " + mobDrop.getValues().getEntityType(),
                     () -> mobDrop.getValues().validate(this)
             );
         }
+
         for (SCustomProjectile projectile : projectiles) {
             Validation.scope(
                     "Projectile " + projectile.getValues().getName(),
                     () -> projectile.getValues().validate(this, projectile.getValues().getName())
             );
         }
+        validateUniqueIDs("projectile name", projectiles, projectile -> projectile.getValues().getName());
+
         for (SProjectileCover projectileCover : projectileCovers) {
             Validation.scope(
                     "Projectile cover " + projectileCover.getValues().getName(),
                     () -> projectileCover.getValues().validate(this, projectileCover.getValues().getName())
             );
         }
+        validateUniqueIDs("projectile cover name", projectileCovers, projectileCover -> projectileCover.getValues().getName());
+
         for (SCustomContainer container : containers) {
             Validation.scope(
                     "Container " + container.getValues().getName(),
                     () -> container.getValues().validate(this, container.getValues().getName())
             );
         }
+        validateUniqueIDs("container name", containers, container -> container.getValues().getName());
+
         for (SFuelRegistry fuelRegistry : fuelRegistries) {
             Validation.scope(
                     "Fuel registry " + fuelRegistry.getValues().getName(),
                     () -> fuelRegistry.getValues().validate(this, fuelRegistry.getValues().getName())
             );
         }
+        validateUniqueIDs("fuel registry name", fuelRegistries, fuelRegistry -> fuelRegistry.getValues().getName());
+
         for (CustomBlock block : blocks) {
             Validation.scope(
                     "Block " + block.getValues().getName(),
                     () -> block.getValues().validateComplete(this, block.getValues().getInternalID())
             );
         }
+        validateUniqueIDs("block id", blocks, block -> block.getValues().getInternalID());
+        validateUniqueIDs("block name", blocks, block -> block.getValues().getName());
     }
 
     public void addTexture(BaseTextureValues newTexture) throws ValidationException, ProgrammingValidationException {

@@ -16,7 +16,7 @@ public class SystemTests {
 	private static final String DUMMY_STRING = "Dummy String";
 
 	public static SystemTestResult performTests() {
-		File folder = Editor.getFolder();
+		File folder = EditorFileManager.FOLDER;
 		if (!folder.exists() && !folder.mkdirs()) {
 			return SystemTestResult.CANT_CREATE_DIRECTORIES;
 		}
@@ -79,7 +79,7 @@ public class SystemTests {
 		return SystemTestResult.SUCCESS;
 	}
 	
-	public static enum SystemTestResult {
+	public enum SystemTestResult {
 		
 		SUCCESS,
 		CANT_CREATE_DIRECTORIES,

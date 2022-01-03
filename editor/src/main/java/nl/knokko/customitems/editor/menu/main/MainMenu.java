@@ -61,26 +61,22 @@ public class MainMenu extends GuiMenu {
 					CommandBlockHelpOverview.setClipboard("https://discordapp.com/invite/bmF3Zvu");
 		}), 0.05f, 0.65f, 0.145f, 0.7f);
 		addComponent(new DynamicTextButton("Open invite link", EditProps.BUTTON, EditProps.HOVER, () -> {
-				URL url = null;
-				try {
-					url = new URL("https://discordapp.com/invite/bmF3Zvu");
-				} catch (MalformedURLException e) {
-					e.printStackTrace();
-				}
-				openWebpage(url);
+			try {
+				openWebpage(new URL("https://discordapp.com/invite/bmF3Zvu"));
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
 		}), 0.155f, 0.65f, 0.25f, 0.7f);
 		addComponent(new DynamicTextComponent("Or read the tutorial:", EditProps.LABEL), 0.05f, 0.59f, 0.18f, 0.64f);
 		addComponent(new DynamicTextButton("Click here to open the tutorial", EditProps.BUTTON, EditProps.HOVER, () -> {
-				URL url = null;
-				try {
-					url = new URL("https://knokko.github.io/custom%20items/tutorials/basic%20tools.html");
-				} catch (MalformedURLException e) {
-					e.printStackTrace();
-				}
-				openWebpage(url);
+			try {
+				openWebpage(new URL("https://knokko.github.io/custom%20items/tutorials/basic%20tools.html"));
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			}
 		}), 0.05f, 0.53f, 0.25f, 0.58f);
 		
-		HelpButtons.addHelpLink(this, "main%20menu/index.html");
+		HelpButtons.addHelpLink(this, "main menu/index.html");
 	}
 	
 	@Override
@@ -88,25 +84,22 @@ public class MainMenu extends GuiMenu {
 		return EditProps.BACKGROUND;
 	}
 	
-	public static boolean openWebpage(URI uri) {
+	public static void openWebpage(URI uri) {
 	    Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
 	    if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
 	        try {
 	            desktop.browse(uri);
-	            return true;
-	        } catch (Exception e) {
+			} catch (Exception e) {
 	            e.printStackTrace();
 	        }
 	    }
-	    return false;
 	}
 
-	public static boolean openWebpage(URL url) {
+	public static void openWebpage(URL url) {
 	    try {
-	        return openWebpage(url.toURI());
-	    } catch (URISyntaxException e) {
+			openWebpage(url.toURI());
+		} catch (URISyntaxException e) {
 	        e.printStackTrace();
 	    }
-	    return false;
 	}
 }
