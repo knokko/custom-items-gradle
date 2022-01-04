@@ -81,6 +81,19 @@ public class SItemSet {
         result.blocks.addAll(primary.blocks);
         if (!secondary.blocks.isEmpty()) throw new ValidationException("The secondary item set can't have blocks");
 
+        for (String deletedItem : primary.removedItemNames) {
+            if (secondary.getItem(deletedItem).isPresent()) {
+                throw new ValidationException("The secondary set has item " + deletedItem + ", which is removed in the primary set");
+            }
+        }
+        for (String deletedItem : secondary.removedItemNames) {
+            if (primary.getItem(deletedItem).isPresent()) {
+                throw new ValidationException("The primary set has item " + deletedItem + ", which is removed in the secondary set");
+            }
+        }
+        result.removedItemNames.addAll(primary.removedItemNames);
+        result.removedItemNames.addAll(secondary.removedItemNames);
+
         try {
             result.validate();
         } catch (ProgrammingValidationException ex) {
