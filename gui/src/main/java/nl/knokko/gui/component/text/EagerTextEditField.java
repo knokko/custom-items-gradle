@@ -17,7 +17,10 @@ public class EagerTextEditField extends TextEditField {
 
 	@Override
 	protected void updateTexture() {
+		boolean hadTexture = this.texture != null;
 		super.updateTexture();
-		onChange.accept(text);
+		if (hadTexture) {
+			onChange.accept(text);
+		}
 	}
 }

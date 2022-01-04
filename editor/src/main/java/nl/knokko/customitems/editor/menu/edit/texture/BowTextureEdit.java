@@ -25,7 +25,9 @@ package nl.knokko.customitems.editor.menu.edit.texture;
 
 import java.awt.image.BufferedImage;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
@@ -115,6 +117,14 @@ public class BowTextureEdit extends GuiMenu {
 		addComponent(new DynamicTextButton(toModify == null ? "Create" : "Apply", SAVE_BASE, SAVE_HOVER, () -> {
 
 			List<BowTextureEntry> pulls = currentValues.getPullTextures();
+			Set<Double> pullValues = new HashSet<>();
+			for (BowTextureEntry pullEntry : pulls) {
+				if (pullValues.contains(pullEntry.getPull())) {
+					errorComponent.setText("Pull value " + pullEntry.getPull() + " occurs more than once");
+					return;
+				}
+				pullValues.add(pullEntry.getPull());
+			}
 			pulls.sort(Comparator.comparingDouble(BowTextureEntry::getPull));
 			currentValues.setPullTextures(pulls);
 

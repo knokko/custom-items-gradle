@@ -718,7 +718,6 @@ public abstract class CustomItemValues extends ModelValues {
 
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {
         if (itemType == null) throw new ProgrammingValidationException("No item type");
-        if (itemDamage < 0) throw new ValidationException("Internal item damage is negative");
 
         Validation.safeName(name);
         

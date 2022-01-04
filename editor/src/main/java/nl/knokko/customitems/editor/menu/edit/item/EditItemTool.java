@@ -32,10 +32,10 @@ import nl.knokko.customitems.item.CustomItemType.Category;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.text.EagerIntEditField;
+import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
-import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
-import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
+import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class EditItemTool<V extends CustomToolValues> extends EditItemBase<V> {
 
@@ -97,10 +97,19 @@ public class EditItemTool<V extends CustomToolValues> extends EditItemBase<V> {
 				new DynamicTextComponent("Repair item: ", EditProps.LABEL),
 				0.71f, 0.575f, 0.84f, 0.65f
 		);
-		addComponent(
-				new ChooseIngredient(this, currentValues::setRepairItem, true, menu.getSet()),
-				0.85f, 0.575f, 0.99f, 0.65f
+
+		DynamicTextButton[] pChangeRepairItemButton = { null };
+		pChangeRepairItemButton[0] = new DynamicTextButton(
+				currentValues.getRepairItem().toString("None"), BUTTON, HOVER, () -> {
+					state.getWindow().setMainComponent(new ChooseIngredient(
+							this, newRepairItem -> {
+								currentValues.setRepairItem(newRepairItem);
+								pChangeRepairItemButton[0].setText(newRepairItem.toString("None"));
+					}, true, menu.getSet()
+					));
+				}
 		);
+		addComponent(pChangeRepairItemButton[0], 0.85f, 0.575f, 0.99f, 0.65f);
 		addComponent(
 				new DynamicTextComponent("Durability loss on attack:", EditProps.LABEL),
 				0.55f, 0.5f, 0.84f, 0.575f

@@ -64,6 +64,6 @@ public class CustomHelmet3dValues extends CustomArmorValues {
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {
         super.validateIndependent();
 
-        if (customModel != null) throw new ValidationException("3d helmets must have a custom model");
+        if (customModel == null) throw new ValidationException("3d helmets must have a custom model");
     }
 }

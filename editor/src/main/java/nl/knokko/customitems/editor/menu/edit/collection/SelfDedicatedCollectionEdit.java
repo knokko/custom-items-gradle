@@ -127,8 +127,8 @@ public abstract class SelfDedicatedCollectionEdit<V extends ModelValues> extends
                     ), 0.61f, minY, 0.72f, maxY);
                 }
 
-                SelfDedicatedCollectionEdit.CopyMode copyMode = getCopyMode(model);
-                if (copyMode != SelfDedicatedCollectionEdit.CopyMode.DISABLED) {
+                CopyMode copyMode = getCopyMode(model);
+                if (copyMode != CopyMode.DISABLED) {
                     addComponent(new DynamicTextButton("Copy", BUTTON, HOVER, () -> {
                         if (copyMode == SelfDedicatedCollectionEdit.CopyMode.SEPARATE_MENU) {
                             state.getWindow().setMainComponent(createEditMenu((V) model.copy(true), this::addModel));

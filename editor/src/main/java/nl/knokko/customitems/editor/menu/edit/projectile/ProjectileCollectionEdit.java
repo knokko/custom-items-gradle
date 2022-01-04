@@ -19,8 +19,8 @@ public class ProjectileCollectionEdit extends DedicatedCollectionEdit<CustomProj
 	
 	private final EditMenu menu;
 
-	public ProjectileCollectionEdit(EditMenu menu) {
-		super(menu.getProjectileMenu(), menu.getSet().getProjectiles().references(), null);
+	public ProjectileCollectionEdit(EditMenu menu, GuiComponent returnMenu) {
+		super(returnMenu, menu.getSet().getProjectiles().references(), null);
 		this.menu = menu;
 	}
 	

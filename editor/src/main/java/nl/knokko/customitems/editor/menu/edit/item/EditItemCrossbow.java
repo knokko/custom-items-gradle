@@ -2,12 +2,14 @@ package nl.knokko.customitems.editor.menu.edit.item;
 
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
+import nl.knokko.customitems.editor.menu.edit.texture.CrossbowTextureEdit;
 import nl.knokko.customitems.item.AttributeModifierValues;
 import nl.knokko.customitems.item.CustomCrossbowValues;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.texture.CrossbowTextureValues;
 import nl.knokko.customitems.editor.util.HelpButtons;
+import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.text.EagerFloatEditField;
 import nl.knokko.gui.component.text.EagerIntEditField;
@@ -27,6 +29,11 @@ public class EditItemCrossbow extends EditItemTool<CustomCrossbowValues> {
 
     public EditItemCrossbow(EditMenu menu, CustomCrossbowValues oldValues, ItemReference toModify) {
         super(menu, oldValues, toModify);
+    }
+
+    @Override
+    protected GuiComponent createLoadTextureMenu() {
+        return new CrossbowTextureEdit(menu.getSet(), this, null, new CrossbowTextureValues(true));
     }
 
     @Override

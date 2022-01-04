@@ -41,6 +41,7 @@ public class ResourcepackGenerator {
 
         writePackMcMeta(zipOutput);
         zipOutput.flush();
+        zipOutput.close();
     }
 
     private void writePackMcMeta(ZipOutputStream zipOutput) throws IOException, ProgrammingValidationException {

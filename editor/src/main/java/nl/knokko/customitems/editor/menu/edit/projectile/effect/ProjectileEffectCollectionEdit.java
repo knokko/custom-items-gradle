@@ -82,7 +82,7 @@ public class ProjectileEffectCollectionEdit extends SelfDedicatedCollectionEdit<
 
 	@Override
 	protected boolean canDeleteModels() {
-		return false;
+		return true;
 	}
 
 	@Override

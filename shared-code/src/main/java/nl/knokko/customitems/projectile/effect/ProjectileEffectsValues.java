@@ -83,6 +83,11 @@ public class ProjectileEffectsValues extends ModelValues {
         return new ProjectileEffectsValues(this, mutable);
     }
 
+    @Override
+    public String toString() {
+        return this.effects.size() + " effects with period " + this.period;
+    }
+
     public int getDelay() {
         return delay;
     }

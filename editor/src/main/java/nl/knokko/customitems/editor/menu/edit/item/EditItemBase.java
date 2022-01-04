@@ -29,13 +29,16 @@ import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
+import nl.knokko.customitems.editor.menu.edit.texture.TextureEdit;
 import nl.knokko.customitems.editor.resourcepack.DefaultItemModels;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.texture.BaseTextureValues;
+import nl.knokko.customitems.texture.BowTextureValues;
 import nl.knokko.gui.color.GuiColor;
+import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.menu.TextListEditMenu;
 import nl.knokko.gui.component.text.EagerFloatEditField;
@@ -243,7 +246,11 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 			state.getWindow().setMainComponent(new ItemFlagMenu(this, currentValues));
 		}), BUTTON_X, 0.38f, BUTTON_X + 0.1f, 0.43f);
 		if (!(this instanceof EditItemBlock)) {
-			// TODO Add "Load texture" button
+			addComponent(
+					new DynamicTextButton("Load texture...", BUTTON, HOVER, () -> {
+						state.getWindow().setMainComponent(createLoadTextureMenu());
+					}), 0.025f, 0.32f, 0.125f, 0.37f
+			);
 			addComponent(
 					CollectionSelect.createButton(
 							menu.getSet().getTextures().references(),
@@ -266,6 +273,10 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 								, this, currentValues::setCustomModel, currentValues.getCustomModel()));
 			}), BUTTON_X, 0.26f, BUTTON_X + 0.1f, 0.31f);
 		}
+	}
+
+	protected GuiComponent createLoadTextureMenu() {
+		return new TextureEdit(menu.getSet(), this, null, new BaseTextureValues(true));
 	}
 
 	protected boolean canHaveCustomModel() {

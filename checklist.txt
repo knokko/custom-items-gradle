@@ -2,4 +2,3 @@
 - Get rid of all the == checks between custom item values (and between other model values) since they don't have an
 identity.
 - Remove the bypass checks option from the documentation
-- Add "Load texture" button to EditItemBase

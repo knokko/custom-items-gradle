@@ -7,6 +7,7 @@ import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
+import nl.knokko.customitems.util.Validation;
 import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
@@ -383,7 +384,7 @@ public class CustomToolValues extends CustomItemValues {
     public void validateComplete(SItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         super.validateComplete(itemSet, oldName);
 
-        repairItem.validateComplete(itemSet);
+        Validation.scope("Repair item", repairItem::validateComplete, itemSet);
     }
 
     @Override

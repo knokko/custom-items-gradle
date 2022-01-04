@@ -50,7 +50,7 @@ public class SimpleVanillaIngredientValues extends IngredientValues {
     }
 
     public SimpleVanillaIngredientValues(SimpleVanillaIngredientValues toCopy, boolean mutable) {
-        super(mutable);
+        super(toCopy, mutable);
 
         this.amount = toCopy.getAmount();
         this.material = toCopy.getMaterial();

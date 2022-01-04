@@ -19,8 +19,8 @@ public class ProjectileMenu extends GuiMenu {
 	public ProjectileMenu(EditMenu menu) {
 		this.menu = menu;
 		
-		this.projectileOverview = new ProjectileCollectionEdit(menu);
-		this.coverOverview = new ProjectileCoverCollectionEdit(menu);
+		this.projectileOverview = new ProjectileCollectionEdit(menu, this);
+		this.coverOverview = new ProjectileCoverCollectionEdit(menu, this);
 	}
 
 	@Override
