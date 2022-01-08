@@ -4,15 +4,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-
-import nl.knokko.customitems.plugin.set.ItemSet;
-import nl.knokko.customitems.plugin.set.item.CustomItem;
 
 public class CustomItemPickups {
 
@@ -24,7 +23,7 @@ public class CustomItemPickups {
 			List<Item> closeItems = new ArrayList<>();
 			List<Integer> customSlots = new ArrayList<>();
 			
-			ItemSet set = CustomItemsPlugin.getInstance().getSet();
+			ItemSetWrapper set = CustomItemsPlugin.getInstance().getSet();
 			
 			worldLoop:
 			for (World world : Bukkit.getWorlds()) {
@@ -40,7 +39,7 @@ public class CustomItemPickups {
 						// That have at least 1 custom item that is not fully stacked
 						for (ItemStack stack : inv.getContents()) {
 								
-							CustomItem custom = set.getItem(stack);
+							CustomItemValues custom = set.getItem(stack);
 							if (custom != null) {
 								if (custom.canStack() && stack.getAmount() < custom.getMaxStacksize()) {
 									interestingPlayers.add(player);
@@ -52,8 +51,7 @@ public class CustomItemPickups {
 				}
 			
 				// If there are no interesting players, skip this world
-				if (interestingPlayers.isEmpty())
-					continue worldLoop;
+				if (interestingPlayers.isEmpty()) continue worldLoop;
 				
 				// Gather all dropped custom items
 				for (Item item : world.getEntitiesByClass(Item.class)) {
@@ -81,7 +79,7 @@ public class CustomItemPickups {
 							for (int index = 0; index < inv.length; index++) {
 								ItemStack stack = inv[index];
 									
-								CustomItem custom = set.getItem(stack);
+								CustomItemValues custom = set.getItem(stack);
 								if (custom != null && custom.canStack() && stack.getAmount() < custom.getMaxStacksize()) {
 									customSlots.add(index);
 								}
@@ -96,7 +94,7 @@ public class CustomItemPickups {
 								ItemStack droppedStack = item.getItemStack();
 								
 								// Shouldn't be null
-								CustomItem customDropped = set.getItem(droppedStack);
+								CustomItemValues customDropped = set.getItem(droppedStack);
 								
 								// Check if there is a suitable slot
 								Iterator<Integer> slotIt = customSlots.iterator();
@@ -106,7 +104,7 @@ public class CustomItemPickups {
 									ItemStack slotStack = inv[slot];
 									
 									// Shouldn't be null now
-									CustomItem customSlot = set.getItem(slotStack);
+									CustomItemValues customSlot = set.getItem(slotStack);
 									
 									if (customSlot == customDropped) {
 										

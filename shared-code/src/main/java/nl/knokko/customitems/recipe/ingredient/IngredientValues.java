@@ -62,6 +62,8 @@ public abstract class IngredientValues extends ModelValues {
 
     public abstract String toString(String emptyString);
 
+    public abstract byte getAmount() throws UnsupportedOperationException;
+
     @Override
     public abstract IngredientValues copy(boolean mutable);
 

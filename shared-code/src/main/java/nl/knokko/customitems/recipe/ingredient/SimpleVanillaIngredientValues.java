@@ -122,6 +122,7 @@ public class SimpleVanillaIngredientValues extends IngredientValues {
         output.addJavaString(material.name());
     }
 
+    @Override
     public byte getAmount() {
         return amount;
     }

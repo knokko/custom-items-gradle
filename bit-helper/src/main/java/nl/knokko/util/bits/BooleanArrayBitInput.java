@@ -88,13 +88,6 @@ public class BooleanArrayBitInput extends BitInput {
 		data = null;
 	}
 
-	@Override
-	public void skip(long amount) {
-		if (amount < 0 || amount > Integer.MAX_VALUE)
-			throw new IllegalArgumentException("Invalid amount: " + amount);
-		index = Math.addExact(index, (int) amount);
-	}
-
 	public boolean[] getAllBits() {
 		return data;
 	}

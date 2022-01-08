@@ -26,11 +26,15 @@ package nl.knokko.customitems.plugin;
 import java.io.DataInputStream;
 import java.io.File;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.logging.Level;
 
 import nl.knokko.core.plugin.block.MushroomBlocks;
 import nl.knokko.core.plugin.item.SmithingBlocker;
+import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.plugin.command.CustomItemsTabCompletions;
+import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.util.StringEncoder;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -42,7 +46,6 @@ import nl.knokko.customitems.plugin.container.ContainerEventHandler;
 import nl.knokko.customitems.plugin.data.PluginData;
 import nl.knokko.customitems.plugin.multisupport.crazyenchantments.CrazyEnchantmentsSupport;
 import nl.knokko.customitems.plugin.projectile.ProjectileManager;
-import nl.knokko.customitems.plugin.set.ItemSet;
 import nl.knokko.customitems.plugin.set.item.update.ItemUpdater;
 import nl.knokko.customitems.trouble.IntegrityException;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -53,8 +56,8 @@ public class CustomItemsPlugin extends JavaPlugin {
 
 	private static CustomItemsPlugin instance;
 
-	private ItemSet set;
-	private long setExportTime;
+	private ItemSetWrapper itemSet;
+	private Collection<String> loadErrors;
 	private LanguageFile languageFile;
 	private PluginData data;
 	private ProjectileManager projectileManager;
@@ -67,12 +70,10 @@ public class CustomItemsPlugin extends JavaPlugin {
 	}
 	
 	public void reload() {
+		this.loadErrors.clear();
 		loadConfig();
 		languageFile = new LanguageFile(new File(getDataFolder() + "/lang.yml"));
 		loadSet();
-		
-		// Inform the item updater about the new items
-		itemUpdater.onReload(set.getBackingItems(), set::isItemDeleted, setExportTime);
 		
 		// The PluginData maintains a map from custom objects to data
 		// That will have to be updated as well
@@ -83,6 +84,8 @@ public class CustomItemsPlugin extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		super.onEnable();
+		this.loadErrors = new ArrayList<>();
+		this.itemSet = new ItemSetWrapper();
 		instance = this;
 		languageFile = new LanguageFile(new File(getDataFolder() + "/lang.yml"));
 		loadConfig();
@@ -93,11 +96,11 @@ public class CustomItemsPlugin extends JavaPlugin {
 		debugChecks();
 		data = PluginData.loadData();
 		projectileManager = new ProjectileManager();
-		itemUpdater = new ItemUpdater(set.getBackingItems(), set::isItemDeleted, setExportTime);
+		itemUpdater = new ItemUpdater(itemSet);
 		getCommand("customitems").setExecutor(new CommandCustomItems(languageFile));
-		getCommand("customitems").setTabCompleter(new CustomItemsTabCompletions(this::getSet));
-		Bukkit.getPluginManager().registerEvents(new CustomItemsEventHandler(), this);
-		Bukkit.getPluginManager().registerEvents(new ContainerEventHandler(), this);
+		getCommand("customitems").setTabCompleter(new CustomItemsTabCompletions(itemSet));
+		Bukkit.getPluginManager().registerEvents(new CustomItemsEventHandler(itemSet), this);
+		Bukkit.getPluginManager().registerEvents(new ContainerEventHandler(itemSet), this);
 		Bukkit.getPluginManager().registerEvents(projectileManager, this);
 		CustomItemPickups.start();
 		EquipmentEffectsManager.start();
@@ -114,15 +117,11 @@ public class CustomItemsPlugin extends JavaPlugin {
 		instance = null;
 		super.onDisable();
 	}
-	
-	public void setExportTime(long theSetExportTime) {
-		this.setExportTime = theSetExportTime;
+
+	public Collection<String> getLoadErrors() {
+		return this.loadErrors;
 	}
-	
-	public long getSetExportTime() {
-		return setExportTime;
-	}
-	
+
 	public ItemUpdater getItemUpdater() {
 		return itemUpdater;
 	}
@@ -136,14 +135,14 @@ public class CustomItemsPlugin extends JavaPlugin {
 	private void debugChecks() {
 		Plugin knokkoCore = Bukkit.getPluginManager().getPlugin("KnokkoCore");
 		if (knokkoCore == null) {
-			set.addError("It looks like KnokkoCore is not installed.");
+			this.loadErrors.add("It looks like KnokkoCore is not installed.");
 			return;
 		}
 		
 		File pluginsFolder = getDataFolder().getParentFile();
 		File[] plugins = pluginsFolder.listFiles();
 		if (plugins == null) {
-			set.addError("It looks like the datafolder of CustomItems is at a weird location");
+			this.loadErrors.add("It looks like the datafolder of CustomItems is at a weird location");
 		} else {
 			
 			int knokkoCoreCounter = 0;
@@ -156,7 +155,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 					if (name.contains("Knokko") && name.contains("Core") && name.indexOf("Knokko") < name.indexOf("Core"))
 						knokkoCoreCounter++;
 					if (name.equals("Editor.jar"))
-						set.addError("It looks like you put the Editor in the "
+						this.loadErrors.add("It looks like you put the Editor in the "
 								+ "plugins folder. However, it's not a plug-in. "
 								+ "You should instead download it to your computer "
 								+ "and double-click it.");
@@ -164,15 +163,15 @@ public class CustomItemsPlugin extends JavaPlugin {
 			}
 			
 			if (knokkoCoreCounter > 1)
-				set.addError("It looks like you have multiple versions of KnokkoCore in your plugins folder. This can cause problems.");
+				this.loadErrors.add("It looks like you have multiple versions of KnokkoCore in your plugins folder. This can cause problems.");
 			if (customItemsCounter > 1)
-				set.addError("It looks like you have multiple versions of CustomItems in your plugins folder. This can cause problems");
+				this.loadErrors.add("It looks like you have multiple versions of CustomItems in your plugins folder. This can cause problems");
 		}
 		
 		String coreVersion = knokkoCore.getDescription().getVersion();
 		int indexSpace = coreVersion.indexOf(' ');
 		if (indexSpace == -1) {
-			set.addError("It looks like KnokkoCore is very outdated. Please install a newer one.");
+			this.loadErrors.add("It looks like KnokkoCore is very outdated. Please install a newer one.");
 			return;
 		}
 		
@@ -181,20 +180,20 @@ public class CustomItemsPlugin extends JavaPlugin {
 		
 		int indexMC = bukkitVersion.indexOf("MC: ");
 		if (indexMC == -1) {
-			set.addError("Can't find mc server version");
+			this.loadErrors.add("Can't find mc server version");
 			return;
 		}
 		
 		int indexBracket = bukkitVersion.indexOf(')', indexMC);
 		if (indexBracket == -1) {
-			set.addError("Can't parse mc version");
+			this.loadErrors.add("Can't parse mc version");
 			return;
 		}
 		
 		String mcVersion = bukkitVersion.substring(indexMC + 4, indexBracket);
 		
 		if (!mcVersion.startsWith(coreMcVersion)) {
-			set.addError("It looks like you are using KnokkoCore for mc " + coreMcVersion + " on a mc " + mcVersion + " server. This will probably go wrong.");
+			this.loadErrors.add("It looks like you are using KnokkoCore for mc " + coreMcVersion + " on a mc " + mcVersion + " server. This will probably go wrong.");
 		}
 		
 		try {
@@ -204,7 +203,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 			// Use a method introduced in the newest KnokkoCore update to check if it is up-to-date
 			MushroomBlocks.areEnabled();
 		} catch (NoClassDefFoundError outdated) {
-			set.addError("It looks like your KnokkoCore is outdated. Please install a newer version.");
+			this.loadErrors.add("It looks like your KnokkoCore is outdated. Please install a newer version.");
 		}
 	}
 	
@@ -228,32 +227,32 @@ public class CustomItemsPlugin extends JavaPlugin {
 				fileInput.close();
 				if (file.getName().endsWith(".cis")) {
 					BitInput input = new ByteArrayBitInput(bytes);
-					set = new ItemSet(input);
+					this.itemSet.setItemSet(new SItemSet(input, SItemSet.Side.PLUGIN));
 					input.terminate();
 				} else {
 					byte[] dataBytes = StringEncoder.decodeTextyBytes(bytes);
 					BitInput input = new ByteArrayBitInput(dataBytes);
-					set = new ItemSet(input);
+					this.itemSet.setItemSet(new SItemSet(input, SItemSet.Side.PLUGIN));
 					input.terminate();
 				}
 			} else {
 				Bukkit.getLogger().log(Level.SEVERE, "The custom item set " + file + " is too big");
-				set = new ItemSet();
-				set.addError("The custom item set " + file + " is too big.");
+				this.itemSet.setItemSet(new SItemSet(SItemSet.Side.PLUGIN));
+				this.loadErrors.add("The custom item set " + file + " is too big.");
 			}
 		} catch (UnknownEncodingException outdated) {
 			Bukkit.getLogger().log(Level.SEVERE, "Failed to load the custom item set " + file + " because this plug-in version is outdated. Please install a newer version.");
-			set = new ItemSet();
-			set.addError("The item set " + file + " was made with a newer version of the editor. To use this item set, you also need a newer version of the plug-in.");
+			this.itemSet.setItemSet(new SItemSet(SItemSet.Side.PLUGIN));
+			this.loadErrors.add("The item set " + file + " was made with a newer version of the editor. To use this item set, you also need a newer version of the plug-in.");
 		} catch (IntegrityException corrupted) {
 			Bukkit.getLogger().log(Level.SEVERE, "Failed to load the custom item set " + file + " because it was corrupted.");
-			set = new ItemSet();
-			set.addError("The item set " + file + " seems to have been corrupted. Try exporting and uploading again.");
+			this.itemSet.setItemSet(new SItemSet(SItemSet.Side.PLUGIN));
+			this.loadErrors.add("The item set " + file + " seems to have been corrupted. Try exporting and uploading again.");
 		} catch (NoSuchMethodError | NoClassDefFoundError missingStuff) {
 			Bukkit.getLogger().log(Level.SEVERE, "Failed to load the custom item set because something is missing", missingStuff);
-			set = new ItemSet();
+			this.itemSet.setItemSet(new SItemSet(SItemSet.Side.PLUGIN));
 			if (missingStuff.getMessage().startsWith("nl.knokko.core")) {
-				set.addError("It looks like KnokkoCore is outdated or not installed at all.");
+				this.loadErrors.add("It looks like KnokkoCore is outdated or not installed at all.");
 			}
 		} catch (Throwable t) {
 			
@@ -261,12 +260,12 @@ public class CustomItemsPlugin extends JavaPlugin {
 			// if KnokkoCore is outdated.
 			if (t.getClass().getSimpleName().equals("UnknownMaterialException")) {
 				Bukkit.getLogger().log(Level.SEVERE, "Item set uses " + t.getMessage());
-				set = new ItemSet();
-				set.addError("You are using " + t.getMessage() + ", which doesn't exist in this version of bukkit/minecraft. Perhaps it was renamed.");
+				this.itemSet.setItemSet(new SItemSet(SItemSet.Side.PLUGIN));
+				this.loadErrors.add("You are using " + t.getMessage() + ", which doesn't exist in this version of bukkit/minecraft. Perhaps it was renamed.");
 			} else {
 				Bukkit.getLogger().log(Level.SEVERE, "Failed to load the custom item set " + file, t);
-				set = new ItemSet();
-				set.addError("An error occured while trying to load the item set " + file + ". Check the console for the stacktrace.");
+				this.itemSet.setItemSet(new SItemSet(SItemSet.Side.PLUGIN));
+				this.loadErrors.add("An error occured while trying to load the item set " + file + ". Check the console for the stacktrace.");
 			}
 		}
 	}
@@ -284,7 +283,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 			} else if (files.length == 0) {
 				Bukkit.getLogger().log(Level.WARNING,
 						"No custom item set could be found in the Custom Items plugin data folder. It should contain a file that ends with .cis or .txt");
-				set = new ItemSet();
+				this.itemSet.setItemSet(new SItemSet(SItemSet.Side.PLUGIN));
 			} else {
 				File file = files[0];
 				Bukkit.getLogger()
@@ -293,12 +292,12 @@ public class CustomItemsPlugin extends JavaPlugin {
 			}
 		} else {
 			Bukkit.getLogger().warning("Something is wrong with the Custom Items Plug-in data folder");
-			set = new ItemSet();
+			this.itemSet.setItemSet(new SItemSet(SItemSet.Side.PLUGIN));
 		}
 	}
 
-	public ItemSet getSet() {
-		return set;
+	public ItemSetWrapper getSet() {
+		return itemSet;
 	}
 
 	public LanguageFile getLanguageFile() {

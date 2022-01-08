@@ -131,6 +131,7 @@ public class DataVanillaIngredientValues extends IngredientValues {
         output.addNumber(dataValue, (byte) 4, false);
     }
 
+    @Override
     public byte getAmount() {
         return amount;
     }

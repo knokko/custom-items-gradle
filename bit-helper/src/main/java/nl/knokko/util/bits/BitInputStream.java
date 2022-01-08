@@ -93,26 +93,7 @@ public class BitInputStream extends BitInput {
 			input = null;
 			leftBits = null;
 			leftIndex = -1;
-		} catch (IOException e) {
-		}
-	}
-
-	@Override
-	public void skip(long amount) {
-		try {
-			if (leftIndex != 0) {
-				for (; leftIndex < 8; leftIndex++)
-					amount--;
-				leftBits = null;
-				leftIndex = 0;
-			}
-			long bytes = amount / 8;
-			leftIndex = (int) (amount - bytes * 8);
-			input.skip(bytes);
-			if (leftIndex != 0)
-				leftBits = BitHelper.byteToBinary((byte) input.read());
-		} catch (IOException ex) {
-			throw new IllegalStateException(ex);
+		} catch (IOException ignored) {
 		}
 	}
 

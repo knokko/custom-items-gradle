@@ -36,8 +36,6 @@ public abstract class BitInput {
 
 	public abstract void terminate();
 
-	public abstract void skip(long amount);
-
 	public char readDirectChar() {
 		return BitHelper.makeChar(readDirectByte(), readDirectByte());
 	}

@@ -40,6 +40,11 @@ public class NoIngredientValues extends IngredientValues {
     }
 
     @Override
+    public byte getAmount() throws UnsupportedOperationException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public NoIngredientValues copy(boolean mutable) {
         return new NoIngredientValues(this);
     }

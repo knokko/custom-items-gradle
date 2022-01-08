@@ -40,6 +40,12 @@ public class EditorFileManager {
 
         FOLDER.mkdirs();
 
+        // Generate the resourcepack...
+        // NOTE: This must happen BEFORE writing the .cis file since this also assigns internal item damages
+        try (OutputStream outputStream = Files.newOutputStream(new File(FOLDER + "/" + fileName + ".zip").toPath())) {
+            new ResourcepackGenerator(itemSet, mcVersion).write(outputStream);
+        }
+
         ByteArrayBitOutput output = new ByteArrayBitOutput();
         itemSet.save(output, SItemSet.Side.PLUGIN);
         output.terminate();
@@ -67,11 +73,6 @@ public class EditorFileManager {
         fileOutput.write(textBytes);
         fileOutput.flush();
         fileOutput.close();
-
-        // Generate the resourcepack...
-        try (OutputStream outputStream = Files.newOutputStream(new File(FOLDER + "/" + fileName + ".zip").toPath())) {
-            new ResourcepackGenerator(itemSet, mcVersion).write(outputStream);
-        }
     }
 
     public static void saveAndBackUp(SItemSet itemSet, String fileName) throws IOException {

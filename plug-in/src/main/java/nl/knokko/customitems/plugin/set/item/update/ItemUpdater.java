@@ -9,6 +9,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.logging.Level;
 
+import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.itemset.CustomItemsView;
 import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -40,18 +42,18 @@ import nl.knokko.customitems.plugin.set.item.CustomItemNBT;
 
 public class ItemUpdater {
 
-	private CustomItem[] items;
+	private CustomItemsView items;
 	private Function<String, Boolean> isItemDeleted;
 	private long setExportTime;
 	
-	public ItemUpdater(CustomItem[] items, Function<String, Boolean> isItemDeleted, long setExportTime) {
+	public ItemUpdater(CustomItemsView items, Function<String, Boolean> isItemDeleted, long setExportTime) {
 		this.items = items;
 		this.isItemDeleted = isItemDeleted;
 		this.setExportTime = setExportTime;
 	}
 	
 	public void onReload(
-			CustomItem[] newItems, 
+			CustomItemsView newItems,
 			Function<String, Boolean> newIsItemDeleted,
 			long newSetExportTime) {
 		this.items = newItems;
@@ -129,8 +131,8 @@ public class ItemUpdater {
 			return null;
 		}
 		
-		CustomItem[] pOldItem = {null};
-		CustomItem[] pNewItem = {null};
+		CustomItemValues[] pOldItem = {null};
+		CustomItemValues[] pNewItem = {null};
 		UpdateAction[] pAction = {null};
 		
 		CustomItemNBT.readOnly(originalStack, nbt -> {
@@ -152,7 +154,7 @@ public class ItemUpdater {
 					 * an item stack, it will replace it by a proper item stack
 					 * representation of the desired custom item.
 					 */
-					CustomItem currentItem = getItemByName(itemName);
+					CustomItemValues currentItem = getItemByName(itemName);
 					if (currentItem != null) {
 						pNewItem[0] = currentItem;
 						pAction[0] = UpdateAction.INITIALIZE;
@@ -170,11 +172,11 @@ public class ItemUpdater {
 					 */
 					pAction[0] = UpdateAction.DO_NOTHING;
 				} else {
-					CustomItem currentItem = getItemByName(itemName);
+					CustomItemValues currentItem = getItemByName(itemName);
 					if (currentItem != null) {
 						
 						BooleanRepresentation oldBoolRepresentation = nbt.getBooleanRepresentation();
-						BooleanRepresentation newBoolRepresentation = currentItem.getBooleanRepresentation();
+						BooleanRepresentation newBoolRepresentation = new BooleanRepresentation(currentItem.getBooleanRepresentation());
 						if (oldBoolRepresentation.equals(newBoolRepresentation)) {
 							/*
 							 * This case will happen when the item set is updated,
@@ -201,7 +203,8 @@ public class ItemUpdater {
 							 * instance erase the enchantments and durability).
 							 */
 							try {
-								CustomItem oldItem = ItemSet.loadOldItem(oldBoolRepresentation, currentItem);
+								//CustomItem oldItem = ItemSet.loadOldItem(oldBoolRepresentation, currentItem);
+								CustomItemValues oldItem = CustomItemValues.loadFromBooleanRepresentation(oldBoolRepresentation.getAsBytes());
 								pOldItem[0] = oldItem;
 								pNewItem[0] = currentItem;
 								pAction[0] = UpdateAction.UPGRADE;
@@ -661,8 +664,8 @@ public class ItemUpdater {
 		}
 	}
 	
-	private CustomItem getItemByName(String name) {
-		for (CustomItem item : items) {
+	private CustomItemValues getItemByName(String name) {
+		for (CustomItemValues item : items) {
 			if (item.getName().equals(name)) {
 				return item;
 			}
@@ -671,7 +674,7 @@ public class ItemUpdater {
 		return null;
 	}
 	
-	private static enum UpdateAction {
+	private enum UpdateAction {
 		
 		DO_NOTHING,
 		UPDATE_LAST_EXPORT_TIME,

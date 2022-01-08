@@ -308,10 +308,12 @@ public class CustomToolValues extends CustomItemValues {
         return maxDurability;
     }
 
+    @Override
     public boolean allowEnchanting() {
         return allowEnchanting;
     }
 
+    @Override
     public boolean allowAnvilActions() {
         return allowAnvilActions;
     }

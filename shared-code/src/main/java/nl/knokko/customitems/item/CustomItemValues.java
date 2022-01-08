@@ -2,6 +2,7 @@ package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.effect.*;
+import nl.knokko.customitems.itemset.FakeItemSet;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.model.ModelValues;
@@ -10,7 +11,9 @@ import nl.knokko.customitems.texture.BaseTextureValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.*;
 import nl.knokko.util.bits.BitInput;
+import nl.knokko.util.bits.BitInputTracker;
 import nl.knokko.util.bits.BitOutput;
+import nl.knokko.util.bits.ByteArrayBitInput;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,7 +24,23 @@ import static nl.knokko.customitems.util.Checks.isClose;
 
 public abstract class CustomItemValues extends ModelValues {
 
+    public static CustomItemValues loadFromBooleanRepresentation(byte[] booleanRepresentation) throws UnknownEncodingException {
+        BitInput input = new ByteArrayBitInput(booleanRepresentation);
+
+        return loadRaw(input, new FakeItemSet(), true);
+    }
+
     public static CustomItemValues load(
+            BitInput input, SItemSet itemSet, boolean checkCustomModel
+    ) throws UnknownEncodingException {
+
+        BitInputTracker inputTracker = new BitInputTracker(input, 100);
+        CustomItemValues loadedItem = loadRaw(inputTracker, itemSet, checkCustomModel);
+        loadedItem.setBooleanRepresentation(inputTracker.getReadBytes());
+        return loadedItem;
+    }
+
+    private static CustomItemValues loadRaw(
             BitInput input, SItemSet itemSet, boolean checkCustomModel
     ) throws UnknownEncodingException {
         byte encoding = input.readByte();
@@ -110,6 +129,9 @@ public abstract class CustomItemValues extends ModelValues {
     protected TextureReference texture;
     protected byte[] customModel;
 
+    // Plugin-only properties
+    private byte[] booleanRepresentation;
+
     public CustomItemValues(boolean mutable, CustomItemType initialItemType) {
         super(mutable);
 
@@ -163,6 +185,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.attackRange = source.getAttackRange();
         this.texture = source.getTextureReference();
         this.customModel = source.getCustomModel();
+        this.booleanRepresentation = source.getBooleanRepresentation();
     }
 
     protected boolean areBaseItemPropertiesEqual(CustomItemValues other) {
@@ -540,6 +563,10 @@ public abstract class CustomItemValues extends ModelValues {
 
     public abstract byte getMaxStacksize();
 
+    public boolean canStack() {
+        return getMaxStacksize() > 1;
+    }
+
     public String getDisplayName() {
         return displayName;
     }
@@ -602,6 +629,18 @@ public abstract class CustomItemValues extends ModelValues {
 
     public byte[] getCustomModel() {
         return CollectionHelper.arrayCopy(customModel);
+    }
+
+    public byte[] getBooleanRepresentation() {
+        return CollectionHelper.arrayCopy(booleanRepresentation);
+    }
+
+    public boolean allowAnvilActions() {
+        return false;
+    }
+
+    public boolean allowEnchanting() {
+        return false;
     }
 
     public void setItemType(CustomItemType newItemType) {
@@ -714,6 +753,10 @@ public abstract class CustomItemValues extends ModelValues {
     public void setCustomModel(byte[] newModel) {
         assertMutable();
         this.customModel = CollectionHelper.arrayCopy(newModel);
+    }
+
+    private void setBooleanRepresentation(byte[] newRepresentation) {
+        this.booleanRepresentation = CollectionHelper.arrayCopy(newRepresentation);
     }
 
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {

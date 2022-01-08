@@ -119,6 +119,7 @@ public class CustomItemIngredientValues extends IngredientValues {
         return new CustomItemIngredientValues(this, mutable);
     }
 
+    @Override
     public byte getAmount() {
         return amount;
     }

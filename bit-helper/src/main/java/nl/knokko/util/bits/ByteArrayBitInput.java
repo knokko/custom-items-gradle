@@ -90,19 +90,4 @@ public class ByteArrayBitInput extends BitInput {
 		byteIndex = -1;
 		booleanIndex = -1;
 	}
-
-	@Override
-	public void skip(long amount) {
-		long byteCount = amount / 8;
-		if (byteCount > Integer.MAX_VALUE)
-			throw new UnsupportedOperationException(
-					"A byte array bit input can't skip more bytes than the maximum integer.");
-		byteIndex += byteCount;
-		int booleanCount = (int) (amount - byteCount * 8);
-		booleanIndex += booleanCount;
-		if (booleanIndex > 7) {
-			booleanIndex -= 8;
-			byteIndex++;
-		}
-	}
 }

@@ -1,6 +1,11 @@
 package nl.knokko.customitems.plugin;
 
+import nl.knokko.customitems.item.CustomGunValues;
+import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.CustomToolValues;
+import nl.knokko.customitems.item.CustomWandValues;
 import nl.knokko.customitems.item.gun.IndirectGunAmmo;
+import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
 import nl.knokko.customitems.plugin.data.PlayerGunInfo;
 import nl.knokko.customitems.plugin.data.PlayerWandInfo;
 import nl.knokko.customitems.plugin.multisupport.actionbarapi.ActionBarAPISupport;
@@ -37,24 +42,24 @@ public class PluginIndicators {
         ItemStack mainItem = player.getInventory().getItemInMainHand();
         CustomItemsPlugin plugin = CustomItemsPlugin.getInstance();
         LanguageFile lang = plugin.getLanguageFile();
-        CustomItem customMain = plugin.getSet().getItem(mainItem);
+        CustomItemValues customMain = plugin.getSet().getItem(mainItem);
 
-        if (customMain instanceof CustomWand) {
-            CustomWand wand = (CustomWand) customMain;
+        if (customMain instanceof CustomWandValues) {
+            CustomWandValues wand = (CustomWandValues) customMain;
 
             PlayerWandInfo wandInfo = plugin.getData().getWandInfo(player, wand);
             if (wandInfo != null) {
 
                 String chargesString = "";
                 String rechargeString = "";
-                if (wand.charges != null) {
-                    if (wandInfo.remainingCharges < wand.charges.maxCharges) {
+                if (wand.getCharges() != null) {
+                    if (wandInfo.remainingCharges < wand.getCharges().getMaxCharges()) {
 
                         chargesString = lang.getWandChargesIndicator()
                                 .replace("%CURRENT_CHARGES%", wandInfo.remainingCharges + "")
-                                .replace("%MAX_CHARGES%", wand.charges.maxCharges + "") + " ";
+                                .replace("%MAX_CHARGES%", wand.getCharges().getMaxCharges() + "") + " ";
 
-                        if (wand.charges.rechargeTime > TIME_THRESHOLD) {
+                        if (wand.getCharges().getRechargeTime() > TIME_THRESHOLD) {
                             rechargeString = lang.getWandRechargeIndicator()
                                     .replace("%REMAINING_TIME%", formatTime(wandInfo.remainingRechargeTime)) + " ";
                         }
@@ -62,7 +67,7 @@ public class PluginIndicators {
                 }
 
                 String cooldownString = "";
-                if (wand.cooldown > TIME_THRESHOLD && wandInfo.remainingCooldown > 0) {
+                if (wand.getCooldown() > TIME_THRESHOLD && wandInfo.remainingCooldown > 0) {
                     cooldownString = lang.getWandCooldownIndicator()
                             .replace("%REMAINING_TIME%", formatTime(wandInfo.remainingCooldown)) + " ";
                 }
@@ -73,9 +78,9 @@ public class PluginIndicators {
                     seesIndicator.add(player.getUniqueId());
                 }
             }
-        } else if (customMain instanceof CustomGun) {
+        } else if (customMain instanceof CustomGunValues) {
 
-            CustomGun gun = (CustomGun) customMain;
+            CustomGunValues gun = (CustomGunValues) customMain;
             PlayerGunInfo gunInfo = plugin.getData().getGunInfo(player, gun, mainItem, true);
             if (gunInfo != null) {
 
@@ -86,11 +91,11 @@ public class PluginIndicators {
 
                     String ammoString = "";
                     if (gunInfo.remainingStoredAmmo != null) {
-                        ammoString = lang.getIndirectStoredAmmo() + " " + gunInfo.remainingStoredAmmo + " / " + ((IndirectGunAmmo) gun.ammo).storedAmmo + " ";
+                        ammoString = lang.getIndirectStoredAmmo() + " " + gunInfo.remainingStoredAmmo + " / " + ((IndirectGunAmmoValues) gun.getAmmo()).getStoredAmmo() + " ";
                     }
 
                     String cooldownString = "";
-                    if (gunInfo.remainingCooldown > 0 && gun.ammo.getCooldown() > TIME_THRESHOLD) {
+                    if (gunInfo.remainingCooldown > 0 && gun.getAmmo().getCooldown() > TIME_THRESHOLD) {
                         cooldownString = lang.getGunCooldownIndicator()
                                 .replace("%REMAINING_TIME%", formatTime(gunInfo.remainingCooldown));
                     }
@@ -103,9 +108,9 @@ public class PluginIndicators {
                     seesIndicator.add(player.getUniqueId());
                 }
             }
-        } else if (customMain instanceof CustomTool) {
+        } else if (customMain instanceof CustomToolValues) {
 
-            CustomTool tool = (CustomTool) customMain;
+            CustomToolValues tool = (CustomToolValues) customMain;
             if (tool.getMaxDurabilityNew() != null) {
                 long remainingDurability = tool.getDurability(mainItem);
                 if (remainingDurability != CustomTool.UNBREAKABLE_TOOL_DURABILITY) {

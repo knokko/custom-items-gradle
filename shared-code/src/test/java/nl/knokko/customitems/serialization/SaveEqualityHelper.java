@@ -43,6 +43,10 @@ public class SaveEqualityHelper {
             assertEquals(originalSet.getItems().size(), testSet.getItems().size());
             for (CustomItemValues originalItem : originalSet.getItems()) {
                 assertEquals(originalItem, testSet.getItem(originalItem.getName()).get());
+                if (side == SItemSet.Side.PLUGIN) {
+                    // Doesn't really belong here, but is very convenient
+                    assertEquals(originalItem, CustomItemValues.loadFromBooleanRepresentation(originalItem.getBooleanRepresentation()));
+                }
             }
 
             assertEquals(originalSet.getCraftingRecipes().size(), testSet.getCraftingRecipes().size());

@@ -41,7 +41,6 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 
 import nl.knokko.core.plugin.block.MushroomBlocks;
-import nl.knokko.customitems.block.CustomBlockView;
 import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
 import nl.knokko.customitems.plugin.set.item.CustomTool;
 import org.bukkit.Bukkit;
