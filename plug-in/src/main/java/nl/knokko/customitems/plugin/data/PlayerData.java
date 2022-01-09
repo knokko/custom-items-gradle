@@ -6,15 +6,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 
+import nl.knokko.customitems.item.CustomFoodValues;
+import nl.knokko.customitems.item.CustomGunValues;
+import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.CustomWandValues;
 import nl.knokko.customitems.plugin.container.ContainerInstance;
-import nl.knokko.customitems.plugin.set.ItemSet;
-import nl.knokko.customitems.plugin.set.item.CustomFood;
-import nl.knokko.customitems.plugin.set.item.CustomGun;
-import nl.knokko.customitems.plugin.set.item.CustomItem;
-import nl.knokko.customitems.plugin.set.item.CustomWand;
+import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
-import org.bukkit.inventory.ItemStack;
 
 class PlayerData {
 
@@ -26,14 +25,14 @@ class PlayerData {
 
 	static final int EAT_TIME = 10;
 	
-	public static PlayerData load1(BitInput input, ItemSet set, Logger logger) {
+	public static PlayerData load1(BitInput input, ItemSetWrapper set, Logger logger) {
 		int numWandsData = input.readInt();
-		Map<CustomWand,PlayerWandData> wandsData = new HashMap<>(numWandsData);
+		Map<CustomWandValues, PlayerWandData> wandsData = new HashMap<>(numWandsData);
 		for (int counter = 0; counter < numWandsData; counter++) {
 			String itemName = input.readString();
-			CustomItem item = set.getCustomItemByName(itemName);
-			if (item instanceof CustomWand) {
-				CustomWand wand = (CustomWand) item;
+			CustomItemValues item = set.getItem(itemName);
+			if (item instanceof CustomWandValues) {
+				CustomWandValues wand = (CustomWandValues) item;
 				wandsData.put(wand, PlayerWandData.load1(input, wand));
 			} else {
 				PlayerWandData.discard1(input);
@@ -52,7 +51,7 @@ class PlayerData {
 	 * If an entry for a given wand is missing, it indicates that the wand is currently not on
 	 * cooldown and has all charges available (if the wand uses charges).
 	 */
-	final Map<CustomWand,PlayerWandData> wandsData;
+	final Map<CustomWandValues, PlayerWandData> wandsData;
 	
 	// Non-persisting data
 
@@ -68,15 +67,15 @@ class PlayerData {
 	long nextOffhandGunShootTick;
 
     long finishMainhandGunReloadTick;
-    CustomGun mainhandGunToReload;
+    CustomGunValues mainhandGunToReload;
     long finishOffhandGunReloadTick;
-    CustomGun offhandGunToReload;
+    CustomGunValues offhandGunToReload;
 
     long startMainhandEatTime;
-    CustomFood mainhandFood;
+    CustomFoodValues mainhandFood;
 
     long startOffhandEatTime;
-    CustomFood offhandFood;
+    CustomFoodValues offhandFood;
 	
 	public PlayerData() {
 		wandsData = new HashMap<>();
@@ -84,7 +83,7 @@ class PlayerData {
 		init();
 	}
 	
-	private PlayerData(Map<CustomWand,PlayerWandData> wandsData){
+	private PlayerData(Map<CustomWandValues, PlayerWandData> wandsData){
 		this.wandsData = wandsData;
 		
 		init();
@@ -105,7 +104,7 @@ class PlayerData {
 	
 	public void save1(BitOutput output, long currentTick) {
 		output.addInt(wandsData.size());
-		for (Entry<CustomWand,PlayerWandData> entry : wandsData.entrySet()) {
+		for (Entry<CustomWandValues, PlayerWandData> entry : wandsData.entrySet()) {
 			output.addString(entry.getKey().getName());
 			entry.getValue().save1(output, entry.getKey(), currentTick);
 		}
@@ -135,9 +134,9 @@ class PlayerData {
 	 * @return true if the player was allowed to fire projectiles and the cooldown has been set, false
 	 * if the player wasn't allowed to fire projectiles
 	 */
-	public boolean shootIfAllowed(CustomItem weapon, long currentTick, boolean isMainhand) {
-		if (weapon instanceof CustomWand) {
-			CustomWand wand = (CustomWand) weapon;
+	public boolean shootIfAllowed(CustomItemValues weapon, long currentTick, boolean isMainhand) {
+		if (weapon instanceof CustomWandValues) {
+			CustomWandValues wand = (CustomWandValues) weapon;
 			PlayerWandData data = wandsData.get(wand);
 			
 			if (data != null) {
@@ -153,19 +152,19 @@ class PlayerData {
 				data.onShoot(wand, currentTick);
 				return true;
 			}
-		} else if (weapon instanceof CustomGun) {
+		} else if (weapon instanceof CustomGunValues) {
 
-			CustomGun gun = (CustomGun) weapon;
+			CustomGunValues gun = (CustomGunValues) weapon;
 			if (isMainhand) {
 				if ((nextMainhandGunShootTick == -1 || currentTick >= nextMainhandGunShootTick) && !isReloadingMainhand(currentTick)) {
-					nextMainhandGunShootTick = currentTick + gun.ammo.getCooldown();
+					nextMainhandGunShootTick = currentTick + gun.getAmmo().getCooldown();
 					return true;
 				} else {
 					return false;
 				}
 			} else {
 				if ((nextOffhandGunShootTick == -1 || currentTick >= nextOffhandGunShootTick) && !isReloadingOffhand(currentTick)) {
-					nextOffhandGunShootTick = currentTick + gun.ammo.getCooldown();
+					nextOffhandGunShootTick = currentTick + gun.getAmmo().getCooldown();
 					return true;
 				} else {
 					return false;
@@ -216,9 +215,9 @@ class PlayerData {
 	public boolean clean(long currentTick) {
 		
 		// Clean the wands data
-		Iterator<Entry<CustomWand, PlayerWandData>> iterator = wandsData.entrySet().iterator();
+		Iterator<Entry<CustomWandValues, PlayerWandData>> iterator = wandsData.entrySet().iterator();
 		while (iterator.hasNext()) {
-			Entry<CustomWand, PlayerWandData> next = iterator.next();
+			Entry<CustomWandValues, PlayerWandData> next = iterator.next();
 			PlayerWandData data = next.getValue();
 			
 			/*

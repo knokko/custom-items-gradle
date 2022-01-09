@@ -23,6 +23,7 @@
  *******************************************************************************/
 package nl.knokko.customitems.plugin;
 
+import static nl.knokko.customitems.plugin.recipe.RecipeHelper.*;
 import static org.bukkit.enchantments.Enchantment.ARROW_FIRE;
 import static org.bukkit.enchantments.Enchantment.ARROW_INFINITE;
 import static org.bukkit.enchantments.Enchantment.ARROW_KNOCKBACK;
@@ -1705,8 +1706,8 @@ public class CustomItemsEventHandler implements Listener {
 					} else if (contents[1] != null && !ItemHelper.getMaterialName(contents[1]).equals(CIMaterial.AIR.name())) {
 						if (ItemHelper.getMaterialName(contents[1]).equals(CIMaterial.ENCHANTED_BOOK.name())) {
 						    // This case is handled by minecraft automagically
-						} else if (tool.getRepairItem().acceptSpecific(contents[1])) {
-							// We use acceptSpecific because we need to handle remaining items differently
+						} else if (shouldIngredientAcceptAmountless(tool.getRepairItem(), contents[1])) {
+							// We use AcceptAmountless because we need to handle remaining items differently
 
 							long neededDurability = 0;
 							if (tool.getMaxDurabilityNew() != null) {
@@ -2097,8 +2098,8 @@ public class CustomItemsEventHandler implements Listener {
 									&& !ItemHelper.getMaterialName(contents[1]).equals(CIMaterial.AIR.name())) {
 								CustomToolValues tool = (CustomToolValues) custom;
 
-								// Use acceptSpecific because we need to handle remaining item differently
-								if (tool.getRepairItem().acceptSpecific(contents[1]) && tool.getMaxDurabilityNew() != null) {
+								// Use AcceptAmountless because we need to handle remaining item differently
+								if (shouldIngredientAcceptAmountless(tool.getRepairItem(), contents[1]) && tool.getMaxDurabilityNew() != null) {
 									long durability = tool.getDurability(contents[0]);
 									long maxDurability = tool.getMaxDurabilityNew();
 									long neededDurability = maxDurability - durability;
@@ -2114,7 +2115,7 @@ public class CustomItemsEventHandler implements Listener {
 											contents[1].setAmount(contents[1].getAmount() - usedAmount);
 										} else {
 											ResultValues remainingResult = tool.getRepairItem().getRemainingItem();
-											contents[1] = convertResultToItem(remainingResult);
+											contents[1] = convertResultToItemStack(remainingResult);
 											if (tool.getRepairItem().getRemainingItem() != null) {
 												contents[1].setAmount(contents[1].getAmount() * repairValue);
 											}
@@ -2439,7 +2440,7 @@ public class CustomItemsEventHandler implements Listener {
 			// Shaped recipes first because they have priority
 			for (CraftingRecipeValues recipe : recipes) {
 				if (recipe instanceof ShapedRecipeValues) {
-					List<IngredientEntry> ingredientMapping = recipe.shouldAccept(ingredients);
+					List<IngredientEntry> ingredientMapping = wrap(recipe).shouldAccept(ingredients);
 					if (ingredientMapping != null) {
 						inventory.setResult(convertResultToItemStack(recipe.getResult()));
 						inventory.getViewers().forEach(viewer -> {
@@ -2456,7 +2457,7 @@ public class CustomItemsEventHandler implements Listener {
 			// No shaped recipe fits, so try the shapeless recipes
 			for (CraftingRecipeValues recipe : recipes) {
 				if (recipe instanceof ShapelessRecipeValues) {
-					List<IngredientEntry> ingredientMapping = recipe.shouldAccept(ingredients);
+					List<IngredientEntry> ingredientMapping = wrap(recipe).shouldAccept(ingredients);
 					if (ingredientMapping != null) {
 						inventory.setResult(convertResultToItemStack(recipe.getResult()));
 						inventory.getViewers().forEach(viewer -> {

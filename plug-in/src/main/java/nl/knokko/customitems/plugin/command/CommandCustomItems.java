@@ -34,6 +34,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.zip.ZipEntry;
@@ -41,6 +42,10 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipInputStream;
 
 import nl.knokko.core.plugin.block.MushroomBlocks;
+import nl.knokko.customitems.block.CustomBlockValues;
+import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.CustomToolValues;
+import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
 import nl.knokko.customitems.plugin.set.item.CustomTool;
 import org.bukkit.Bukkit;
@@ -57,8 +62,6 @@ import org.bukkit.inventory.ItemStack;
 
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.LanguageFile;
-import nl.knokko.customitems.plugin.set.ItemSet;
-import nl.knokko.customitems.plugin.set.item.CustomItem;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import nl.knokko.customitems.util.StringEncoder;
 
@@ -71,15 +74,17 @@ public class CommandCustomItems implements CommandExecutor {
 				return player;
 		return null;
 	}
-	
-	private void sendGiveUseage(CommandSender sender) {
-		sender.sendMessage(lang.getCommandGiveUseage());
-	}
-	
+
+	private final ItemSetWrapper itemSet;
 	private final LanguageFile lang;
 	
-	public CommandCustomItems(LanguageFile lang) {
+	public CommandCustomItems(ItemSetWrapper itemSet, LanguageFile lang) {
+		this.itemSet = itemSet;
 		this.lang = lang;
+	}
+
+	private void sendGiveUseage(CommandSender sender) {
+		sender.sendMessage(lang.getCommandGiveUseage());
 	}
 
 	@Override
@@ -95,21 +100,21 @@ public class CommandCustomItems implements CommandExecutor {
 					}
 					if (args.length == 2 || args.length == 3 || args.length == 4) {
 
-						ItemSet set = CustomItemsPlugin.getInstance().getSet();
-						if (set.hasErrors()) {
+						Collection<String> errors = CustomItemsPlugin.getInstance().getLoadErrors();
+						if (!errors.isEmpty()) {
 							sender.sendMessage(ChatColor.RED + "The following errors occurred while enabling " +
 									"this plug-in. These errors will likely cause this command to fail:");
-							for (String error : set.getErrors()) {
+							for (String error : errors) {
 								sender.sendMessage(ChatColor.DARK_RED + error);
 							}
 						}
 
 						// Try to find a custom item with the give name
-						CustomItem item = set.getItem(args[1]);
+						CustomItemValues item = itemSet.getItem(args[1]);
 
 						// If no such item is found, try to find one with the given alias
 						if (item == null) {
-							for (CustomItem candidate : set.getBackingItems()) {
+							for (CustomItemValues candidate : itemSet.get().getItems()) {
 								if (candidate.getAlias().equals(args[1])) {
 									item = candidate;
 									break;
@@ -166,20 +171,19 @@ public class CommandCustomItems implements CommandExecutor {
 						return true;
 					}
 
-					ItemSet set = CustomItemsPlugin.getInstance().getSet();
+					Collection<String> errors = CustomItemsPlugin.getInstance().getLoadErrors();
 
-					if (set.hasErrors()) {
+					if (!errors.isEmpty()) {
 						sender.sendMessage(ChatColor.RED + "The following errors occurred while enabling " +
 								"this plug-in. These errors will likely cause this command to fail:");
-						for (String error : set.getErrors()) {
+						for (String error : errors) {
 							sender.sendMessage(ChatColor.DARK_RED + error);
 						}
 					}
 					
-					CustomItem[] items = set.getBackingItems();
-					if (items.length > 0) {
+					if (itemSet.get().getItems().size() > 0) {
 						sender.sendMessage(ChatColor.AQUA + "All custom items:");
-						for (CustomItem item : items) {
+						for (CustomItemValues item : itemSet.get().getItems()) {
 							if (item.getAlias().isEmpty()) {
 								sender.sendMessage(item.getName());
 							} else {
@@ -190,10 +194,10 @@ public class CommandCustomItems implements CommandExecutor {
 						sender.sendMessage(ChatColor.RED + "There are 0 custom items");
 					}
 
-					if (set.getBlocks().size() > 0) {
+					if (itemSet.get().getBlocks().size() > 0) {
 						sender.sendMessage(ChatColor.AQUA + "All custom blocks:");
-						for (CustomBlockView block : set.getBlocks()) {
-							sender.sendMessage(block.getValues().getName());
+						for (CustomBlockValues block : itemSet.get().getBlocks()) {
+							sender.sendMessage(block.getName());
 						}
 					} else {
 						sender.sendMessage(ChatColor.AQUA + "There are 0 custom blocks");
@@ -213,7 +217,6 @@ public class CommandCustomItems implements CommandExecutor {
 						return true;
 					}
 
-					ItemSet set = CustomItemsPlugin.getInstance().getSet();
 					if (args.length <= 1) {
 						sender.sendMessage(ChatColor.RED + "You should use /kci " + args[0] + "<amount> [player]");
 						return true;
@@ -254,18 +257,18 @@ public class CommandCustomItems implements CommandExecutor {
 						return true;
 					}
 
-					CustomItem customItem = set.getItem(item);
+					CustomItemValues customItem = itemSet.getItem(item);
 					if (customItem == null) {
 						sender.sendMessage(ChatColor.RED + "The item in the main hand of " + target.getName() + " should be a custom item");
 						return true;
 					}
 
-					if (!(customItem instanceof CustomTool)) {
+					if (!(customItem instanceof CustomToolValues)) {
 						sender.sendMessage(ChatColor.RED + "The item in the main hand of " + target.getName() + " should be a custom tool");
 						return true;
 					}
 
-					CustomTool customTool = (CustomTool) customItem;
+					CustomToolValues customTool = (CustomToolValues) customItem;
 					if (customTool.getMaxDurabilityNew() == null) {
 						sender.sendMessage(ChatColor.RED + "The tool in the main hand of " + target.getName() + " is unbreakable");
 						return true;
@@ -293,20 +296,21 @@ public class CommandCustomItems implements CommandExecutor {
 						sender.sendMessage(ChatColor.DARK_RED + "You don't have access to this command.");
 						return true;
 					}
-					ItemSet set = CustomItemsPlugin.getInstance().getSet();
-					if (set.hasErrors()) {
+
+					Collection<String> errors = CustomItemsPlugin.getInstance().getLoadErrors();
+					if (!errors.isEmpty()) {
 						sender.sendMessage(ChatColor.DARK_RED + "1 or more errors occurred during start-up:");
-						for (String error : set.getErrors()) {
+						for (String error : errors) {
 							sender.sendMessage(ChatColor.RED + error);
 						}
 					} else {
 						sender.sendMessage(ChatColor.GREEN + "It looks like no errors occurred during start-up");
-						long exportTime = CustomItemsPlugin.getInstance().getSetExportTime();
+						long exportTime = itemSet.get().getExportTime();
 						if (exportTime > 0) {
 							ZoneId timeZone = ZoneId.systemDefault();
 							DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm MMMM dd").withZone(timeZone);
 							Calendar exportTimeCalendar = Calendar.getInstance();
-							exportTimeCalendar.setTimeInMillis(CustomItemsPlugin.getInstance().getSetExportTime());
+							exportTimeCalendar.setTimeInMillis(itemSet.get().getExportTime());
 							String timeString = formatter.format(exportTimeCalendar.toInstant()) + " (with respect to timezone " + timeZone.getId() + ")";
 							sender.sendMessage(ChatColor.AQUA + "The current .cis or .txt file was "
 									+ "exported at " + timeString + ". If you exported it more recently, "
@@ -317,11 +321,11 @@ public class CommandCustomItems implements CommandExecutor {
 									+ "file was exported by an older version of the Editor. "
 									+ "Consider upgrading it to 8.0");
 						}
-						sender.sendMessage("There are " + set.getNumItems() + " custom items");
-						sender.sendMessage("There are " + set.getNumRecipes() + " custom crafting recipes");
-						sender.sendMessage("There are " + set.getNumProjectiles() + " custom projectiles");
-						sender.sendMessage("There are " + set.getNumContainers() + " custom containers");
-						sender.sendMessage("There are " + set.getBlocks().size() + " custom blocks");
+						sender.sendMessage("There are " + itemSet.get().getItems().size() + " custom items");
+						sender.sendMessage("There are " + itemSet.get().getCraftingRecipes().size() + " custom crafting recipes");
+						sender.sendMessage("There are " + itemSet.get().getProjectiles().size() + " custom projectiles");
+						sender.sendMessage("There are " + itemSet.get().getContainers().size() + " custom containers");
+						sender.sendMessage("There are " + itemSet.get().getBlocks().size() + " custom blocks");
 
 						File serverProperties = new File("server.properties");
 						String resourcePackUrl = "";
@@ -514,15 +518,9 @@ public class CommandCustomItems implements CommandExecutor {
                     	return true;
 					}
 
-					CustomBlockView block = null;
-					for (CustomBlockView candidate : CustomItemsPlugin.getInstance().getSet().getBlocks()) {
-						if (candidate.getValues().getName().equals(args[1])) {
-							block = candidate;
-							break;
-						}
-					}
+                    Optional<CustomBlockValues> block = itemSet.get().getBlock(args[1]);
 
-					if (block == null) {
+					if (!block.isPresent()) {
 						sender.sendMessage(ChatColor.RED + "There is no custom block with name '" + args[1] + "'");
 						return true;
 					}
@@ -584,7 +582,7 @@ public class CommandCustomItems implements CommandExecutor {
 						world = senderLocation.getWorld();
 					}
 
-					MushroomBlockHelper.place(world.getBlockAt(x, y, z), block);
+					MushroomBlockHelper.place(world.getBlockAt(x, y, z), block.get());
 					break;
 				}
 				case "encode":

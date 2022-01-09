@@ -9,8 +9,15 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import nl.knokko.customitems.container.slot.CustomSlot;
-import nl.knokko.customitems.container.slot.StorageCustomSlot;
+import nl.knokko.customitems.container.ContainerRecipeValues;
+import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.container.fuel.FuelEntryValues;
+import nl.knokko.customitems.container.slot.ContainerSlotValues;
+import nl.knokko.customitems.container.slot.StorageSlotValues;
+import nl.knokko.customitems.container.slot.display.*;
+import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.recipe.OutputTableValues;
+import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -24,27 +31,18 @@ import com.google.common.collect.Lists;
 
 import nl.knokko.core.plugin.item.GeneralItemNBT;
 import nl.knokko.core.plugin.item.ItemHelper;
-import nl.knokko.customitems.container.CustomContainer;
 import nl.knokko.customitems.container.IndicatorDomain;
-import nl.knokko.customitems.container.fuel.FuelEntry;
 import nl.knokko.customitems.container.fuel.FuelMode;
-import nl.knokko.customitems.container.slot.display.CustomItemDisplayItem;
-import nl.knokko.customitems.container.slot.display.DataVanillaDisplayItem;
-import nl.knokko.customitems.container.slot.display.SimpleVanillaDisplayItem;
-import nl.knokko.customitems.container.slot.display.SlotDisplay;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.plugin.container.ContainerInfo.DecorationProps;
 import nl.knokko.customitems.plugin.container.ContainerInfo.FuelProps;
 import nl.knokko.customitems.plugin.container.ContainerInfo.IndicatorProps;
-import nl.knokko.customitems.plugin.recipe.ingredient.Ingredient;
-import nl.knokko.customitems.plugin.set.item.CustomItem;
 import nl.knokko.customitems.plugin.util.ItemUtils;
-import nl.knokko.customitems.recipe.ContainerRecipe;
-import nl.knokko.customitems.recipe.ContainerRecipe.InputEntry;
-import nl.knokko.customitems.recipe.ContainerRecipe.OutputEntry;
-import nl.knokko.customitems.recipe.OutputTable;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
+
+import static nl.knokko.customitems.plugin.recipe.RecipeHelper.convertResultToItemStack;
+import static nl.knokko.customitems.plugin.recipe.RecipeHelper.shouldIngredientAcceptItemStack;
 
 /**
  * An in-game instance of a custom container. While the CustomContainer class defines
@@ -57,25 +55,25 @@ public class ContainerInstance {
 	public static final String[] PLACEHOLDER_KEY = {"KnokkosItemFlags", "IsSlotDisplay"};
 	
 	@SuppressWarnings("deprecation")
-	public static ItemStack fromDisplay(SlotDisplay display) {
+	public static ItemStack fromDisplay(SlotDisplayValues display) {
 		ItemStack stack;
-		boolean isCustom = display.getItem() instanceof CustomItemDisplayItem;
+		boolean isCustom = display.getDisplayItem() instanceof CustomDisplayItemValues;
 		if (isCustom) {
-			CustomItem customItem = ((CustomItem)((CustomItemDisplayItem) display.getItem()).getItem());
+			CustomItemValues customItem = ((CustomDisplayItemValues) display.getDisplayItem()).getItem();
 			stack = customItem.create(display.getAmount());
 		} else {
 			CIMaterial material;
-			if (display.getItem() instanceof DataVanillaDisplayItem) {
-				material = ((DataVanillaDisplayItem) display.getItem()).getMaterial();
-			} else if (display.getItem() instanceof SimpleVanillaDisplayItem) {
-				material = ((SimpleVanillaDisplayItem) display.getItem()).getMaterial();
+			if (display.getDisplayItem() instanceof DataVanillaDisplayItemValues) {
+				material = ((DataVanillaDisplayItemValues) display.getDisplayItem()).getMaterial();
+			} else if (display.getDisplayItem() instanceof SimpleVanillaDisplayItemValues) {
+				material = ((SimpleVanillaDisplayItemValues) display.getDisplayItem()).getMaterial();
 			} else {
 				throw new Error("Unknown display type: " + display);
 			}
 			stack = ItemHelper.createStack(material.name(), display.getAmount());
-			if (display.getItem() instanceof DataVanillaDisplayItem) {
+			if (display.getDisplayItem() instanceof DataVanillaDisplayItemValues) {
 				MaterialData data = stack.getData();
-				data.setData(((DataVanillaDisplayItem) display.getItem()).getData());
+				data.setData(((DataVanillaDisplayItemValues) display.getDisplayItem()).getDataValue());
 				stack.setData(data);
 				stack.setDurability(data.getData());
 			}
@@ -87,7 +85,7 @@ public class ContainerInstance {
 		// specifically specified
 		if (!isCustom || !display.getDisplayName().isEmpty())
 			meta.setDisplayName(display.getDisplayName());
-		if (!isCustom || display.getLore().length > 0)
+		if (!isCustom || display.getLore().size() > 0)
 			meta.setLore(Lists.newArrayList(display.getLore()));
 		
 		// Store changes in item meta
@@ -99,7 +97,7 @@ public class ContainerInstance {
 	}
 	
 	private static Inventory createInventory(ContainerInfo typeInfo) {
-		CustomContainer container = typeInfo.getContainer();
+		CustomContainerValues container = typeInfo.getContainer();
 		Inventory inv = Bukkit.createInventory(null, 9 * container.getHeight(), 
 				container.getSelectionIcon().getDisplayName());
 		
@@ -382,8 +380,8 @@ public class ContainerInstance {
 				continue;
 			}
 
-			CustomSlot slot = typeInfo.getContainer().getSlot(x, y);
-			if (slot instanceof StorageCustomSlot) {
+			ContainerSlotValues slot = typeInfo.getContainer().getSlot(x, y);
+			if (slot instanceof StorageSlotValues) {
 			    base.inventory.setItem(invIndex, storedStack);
 			} else {
 				// This can happen if the admin (re)moved the storage slot
@@ -400,8 +398,8 @@ public class ContainerInstance {
 			for (int y = 0; y < typeInfo.getContainer().getHeight(); y++) {
 				for (int x = 0; x < 9; x++) {
 					int invIndex = x + 9 * y;
-					CustomSlot slot = typeInfo.getContainer().getSlot(x, y);
-					if (slot instanceof StorageCustomSlot) {
+					ContainerSlotValues slot = typeInfo.getContainer().getSlot(x, y);
+					if (slot instanceof StorageSlotValues) {
 						ItemStack currentStack = base.inventory.getItem(invIndex);
 						if (ItemUtils.isEmpty(currentStack)) {
 							freeSlots.add(invIndex);
@@ -487,7 +485,7 @@ public class ContainerInstance {
 
 	private int remainingHotTime;
 	
-	private ContainerRecipe currentRecipe;
+	private ContainerRecipeValues currentRecipe;
 	
 	private int storedExperience;
 	
@@ -627,7 +625,7 @@ public class ContainerInstance {
 		});
 	}
 	
-	public CustomContainer getType() {
+	public CustomContainerValues getType() {
 		return typeInfo.getContainer();
 	}
 	
@@ -767,13 +765,13 @@ public class ContainerInstance {
 		});
 	}
 
-	private boolean canPerformRecipe(ContainerRecipe candidate) {
+	private boolean canPerformRecipe(ContainerRecipeValues candidate) {
 
 		// Check that all inputs are present
-		for (InputEntry input : candidate.getInputs()) {
-			ItemStack inSlot = getInput(input.getInputSlotName());
-			Ingredient ingredient = (Ingredient) input.getIngredient();
-			if (!ingredient.accept(inSlot)) {
+		for (Map.Entry<String, IngredientValues> input : candidate.getInputs().entrySet()) {
+			ItemStack inSlot = getInput(input.getKey());
+			IngredientValues ingredient = input.getValue();
+			if (!shouldIngredientAcceptItemStack(ingredient, inSlot)) {
 				return false;
 			}
 		}
@@ -781,10 +779,10 @@ public class ContainerInstance {
 		// Check that all other inputs are empty
 		inputLoop:
 		for (Entry<String, ContainerInfo.PlaceholderProps> inputEntry : typeInfo.getInputSlots()) {
-			for (InputEntry usedInput : candidate.getInputs()) {
+			for (Map.Entry<String, IngredientValues> usedInput : candidate.getInputs().entrySet()) {
 
 				// If this input is used, we shouldn't check if its empty
-				if (usedInput.getInputSlotName().equals(inputEntry.getKey())) {
+				if (usedInput.getKey().equals(inputEntry.getKey())) {
 					continue inputLoop;
 				}
 			}
@@ -796,17 +794,17 @@ public class ContainerInstance {
 			}
 		}
 
-		for (OutputEntry output : candidate.getOutputs()) {
-			ItemStack outSlot = getOutput(output.getOutputSlotName());
-			OutputTable outputTable = output.getOutputTable();
+		for (Entry<String, OutputTableValues> output : candidate.getOutputs().entrySet()) {
+			ItemStack outSlot = getOutput(output.getKey());
+			OutputTableValues outputTable = output.getValue();
 
 			// If the output slot is empty, nothing could go wrong
 			if (!ItemUtils.isEmpty(outSlot)) {
 
 				// All possible output entries must be able to stack on top of
 				// the current item stack in the output slot
-				for (OutputTable.Entry entry : outputTable.getEntries()) {
-					ItemStack potentialResult = (ItemStack) entry.getResult();
+				for (OutputTableValues.Entry entry : outputTable.getEntries()) {
+					ItemStack potentialResult = convertResultToItemStack(entry.getResult());
 					if (!potentialResult.isSimilar(outSlot)) {
 						return false;
 					}
@@ -820,7 +818,7 @@ public class ContainerInstance {
 		return true;
 	}
 
-	private ContainerRecipe determineCurrentRecipe(ContainerRecipe mostLikely) {
+	private ContainerRecipeValues determineCurrentRecipe(ContainerRecipeValues mostLikely) {
 
 		// Performance trick: first check the recipe that is most likely. If we can perform that recipe,
 		// we don't need to waste time with checking the other recipes.
@@ -829,7 +827,7 @@ public class ContainerInstance {
 		}
 
 		// If the most likely candidate can't be performed, we will have to try all other recipes
-		for (ContainerRecipe candidate : typeInfo.getContainer().getRecipes()) {
+		for (ContainerRecipeValues candidate : typeInfo.getContainer().getRecipes()) {
 			if (canPerformRecipe(candidate)) {
 				return candidate;
 			}
@@ -850,7 +848,7 @@ public class ContainerInstance {
 		// Also, all containers are *hot* right after this plugin is enabled (so that each container can
 		// check whether it has to do recipes).
 		if (isHot()) {
-			ContainerRecipe oldRecipe = currentRecipe;
+			ContainerRecipeValues oldRecipe = currentRecipe;
 			currentRecipe = null;
 
 			if (hasViewers) {
@@ -891,16 +889,16 @@ public class ContainerInstance {
 						// that all inputs are still present before producing a result.
 					    if (currentRecipe == determineCurrentRecipe(currentRecipe)) {
 							// Decrease the stacksize of all relevant input slots
-							for (InputEntry input : currentRecipe.getInputs()) {
+							for (Map.Entry<String, IngredientValues> input : currentRecipe.getInputs().entrySet()) {
 
-								int invIndex = typeInfo.getInputSlot(input.getInputSlotName()).getSlotIndex();
+								int invIndex = typeInfo.getInputSlot(input.getKey()).getSlotIndex();
 
-								ItemStack remainingItem = ((Ingredient) input.getIngredient()).getRemainingItem();
+								ItemStack remainingItem = convertResultToItemStack(input.getValue().getRemainingItem());
 								if (remainingItem != null) {
 									inventory.setItem(invIndex, remainingItem);
 								} else {
 									ItemStack inputItem = inventory.getItem(invIndex);
-									inputItem.setAmount(inputItem.getAmount() - input.getIngredient().getAmount());
+									inputItem.setAmount(inputItem.getAmount() - input.getValue().getAmount());
 
 									if (inputItem.getAmount() == 0) {
 										inputItem = null;
@@ -911,11 +909,11 @@ public class ContainerInstance {
 							}
 
 							// Add the results to the output slots
-							for (OutputEntry output : currentRecipe.getOutputs()) {
+							for (Map.Entry<String, OutputTableValues> output : currentRecipe.getOutputs().entrySet()) {
 
-								int invIndex = typeInfo.getOutputSlot(output.getOutputSlotName()).getSlotIndex();
+								int invIndex = typeInfo.getOutputSlot(output.getKey()).getSlotIndex();
 								ItemStack outputItem = inventory.getItem(invIndex);
-								ItemStack result = (ItemStack) output.getOutputTable().pickResult(new Random());
+								ItemStack result = convertResultToItemStack(output.getValue().pickResult(new Random()));
 
 								// result can be null because the chance to get something could be < 100%
 								if (result != null) {
@@ -1042,13 +1040,13 @@ public class ContainerInstance {
 		return getSuitableFuelEntry(fuelSlotName, slot, candidateFuel) != null;
 	}
 	
-	private FuelEntry getSuitableFuelEntry(String fuelSlotName, FuelBurnEntry slot, ItemStack fuel) {
+	private FuelEntryValues getSuitableFuelEntry(String fuelSlotName, FuelBurnEntry slot, ItemStack fuel) {
 		if (ItemUtils.isEmpty(fuel)) {
 			return null;
 		}
-		for (FuelEntry registryEntry : typeInfo.getFuelSlot(fuelSlotName).getRegistry().getEntries()) {
-			Ingredient ingredient = (Ingredient) registryEntry.getFuel();
-			if (ingredient.accept(fuel)) {
+		for (FuelEntryValues registryEntry : typeInfo.getFuelSlot(fuelSlotName).getRegistry().getEntries()) {
+			IngredientValues ingredient = registryEntry.getFuel();
+			if (shouldIngredientAcceptItemStack(ingredient, fuel)) {
 				return registryEntry;
 			}
 		}
@@ -1109,17 +1107,17 @@ public class ContainerInstance {
 		if (fuel.remainingBurnTime == 0) {
 
 			ItemStack fuelStack = getFuel(fuelSlotName);
-			FuelEntry entryToBurn = getSuitableFuelEntry(fuelSlotName, fuel, fuelStack);
+			FuelEntryValues entryToBurn = getSuitableFuelEntry(fuelSlotName, fuel, fuelStack);
 			if (entryToBurn != null) {
 				fuel.remainingBurnTime = entryToBurn.getBurnTime();
 				fuel.maxBurnTime = fuel.remainingBurnTime;
 
-				Ingredient fuelIngredient = (Ingredient) entryToBurn.getFuel();
+				IngredientValues fuelIngredient = entryToBurn.getFuel();
 				if (fuelIngredient.getRemainingItem() == null) {
 					fuelStack.setAmount(fuelStack.getAmount() - fuelIngredient.getAmount());
 					setFuel(fuelSlotName, fuelStack);
 				} else {
-					setFuel(fuelSlotName, fuelIngredient.getRemainingItem().clone());
+					setFuel(fuelSlotName, convertResultToItemStack(fuelIngredient.getRemainingItem()));
 				}
 
 				updateFuelIndicator(fuelSlotName);

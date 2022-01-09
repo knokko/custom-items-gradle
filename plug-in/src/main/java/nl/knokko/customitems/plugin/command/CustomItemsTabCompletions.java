@@ -1,10 +1,9 @@
 package nl.knokko.customitems.plugin.command;
 
 import com.google.common.collect.Lists;
-import nl.knokko.customitems.block.CustomBlockView;
-import nl.knokko.customitems.plugin.CustomItemsPlugin;
-import nl.knokko.customitems.plugin.set.ItemSet;
-import nl.knokko.customitems.plugin.set.item.CustomItem;
+import nl.knokko.customitems.block.CustomBlockValues;
+import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -15,7 +14,6 @@ import org.bukkit.entity.HumanEntity;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class CustomItemsTabCompletions implements TabCompleter {
@@ -31,15 +29,14 @@ public class CustomItemsTabCompletions implements TabCompleter {
         );
     }
 
-    private final Supplier<ItemSet> getSet;
+    private final ItemSetWrapper itemSet;
 
-    public CustomItemsTabCompletions(Supplier<ItemSet> getSet) {
-        this.getSet = getSet;
+    public CustomItemsTabCompletions(ItemSetWrapper itemSet) {
+        this.itemSet = itemSet;
     }
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        ItemSet set = getSet.get();
         if (args.length == 0) {
             return getRootCompletions(sender);
         } else if (args.length == 1) {
@@ -50,8 +47,8 @@ public class CustomItemsTabCompletions implements TabCompleter {
             String prefix = args[1];
 
             if (first.equals("give") && sender.hasPermission("customitems.give")) {
-                List<String> result = new ArrayList<>(set.getNumItems());
-                for (CustomItem item : set.getBackingItems()) {
+                List<String> result = new ArrayList<>(itemSet.get().getItems().size());
+                for (CustomItemValues item : itemSet.get().getItems()) {
                     result.add(item.getName());
                     if (!item.getAlias().isEmpty()) {
                         result.add(item.getAlias());
@@ -68,9 +65,9 @@ public class CustomItemsTabCompletions implements TabCompleter {
             }
 
             if (first.equals("setblock") && sender.hasPermission("customitems.setblock")) {
-                List<String> result = new ArrayList<>(set.getBlocks().size());
-                for (CustomBlockView block : set.getBlocks()) {
-                    result.add(block.getValues().getName());
+                List<String> result = new ArrayList<>(itemSet.get().getBlocks().size());
+                for (CustomBlockValues block : itemSet.get().getBlocks()) {
+                    result.add(block.getName());
                 }
                 return filter(result, prefix);
             }
@@ -93,7 +90,7 @@ public class CustomItemsTabCompletions implements TabCompleter {
             String first = args[0];
             if (first.equals("give") && sender.hasPermission("customitems.give")) {
                 String itemName = args[1];
-                CustomItem item = set.getItem(itemName);
+                CustomItemValues item = itemSet.getItem(itemName);
                 if (item != null) {
                     if (item.canStack()) {
                         return Lists.newArrayList("1", item.getMaxStacksize() + "");

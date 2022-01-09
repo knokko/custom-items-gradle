@@ -1,9 +1,9 @@
 package nl.knokko.customitems.item;
 
+import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.encoding.ItemEncoding;
 import nl.knokko.customitems.itemset.ContainerReference;
 import nl.knokko.customitems.itemset.SItemSet;
-import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -13,6 +13,7 @@ import nl.knokko.util.bits.BitOutput;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class CustomPocketContainerValues extends CustomItemValues {
 
@@ -46,7 +47,7 @@ public class CustomPocketContainerValues extends CustomItemValues {
     public CustomPocketContainerValues(CustomPocketContainerValues toCopy, boolean mutable) {
         super(toCopy, mutable);
 
-        this.containers = toCopy.getContainers();
+        this.containers = toCopy.getContainerReferences();
     }
 
     @Override
@@ -113,8 +114,12 @@ public class CustomPocketContainerValues extends CustomItemValues {
         return new CustomPocketContainerValues(this, mutable);
     }
 
-    public Set<ContainerReference> getContainers() {
+    public Set<ContainerReference> getContainerReferences() {
         return new HashSet<>(containers);
+    }
+
+    public Set<CustomContainerValues> getContainers() {
+        return containers.stream().map(ContainerReference::get).collect(Collectors.toSet());
     }
 
     public void setContainers(Set<ContainerReference> newContainers) {

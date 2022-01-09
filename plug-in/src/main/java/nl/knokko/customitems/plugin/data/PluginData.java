@@ -10,14 +10,15 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 
 import nl.knokko.core.plugin.item.GeneralItemNBT;
+import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.slot.*;
 import nl.knokko.customitems.encoding.ContainerEncoding;
-import nl.knokko.customitems.item.gun.DirectGunAmmo;
-import nl.knokko.customitems.item.gun.IndirectGunAmmo;
-import nl.knokko.customitems.plugin.recipe.ingredient.Ingredient;
-import nl.knokko.customitems.plugin.recipe.ingredient.NoIngredient;
-import nl.knokko.customitems.plugin.set.item.*;
-import nl.knokko.customitems.sound.CISound;
+import nl.knokko.customitems.item.*;
+import nl.knokko.customitems.item.gun.DirectGunAmmoValues;
+import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
+import nl.knokko.customitems.plugin.set.ItemSetWrapper;
+import nl.knokko.customitems.recipe.ingredient.IngredientValues;
+import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.customitems.util.StringEncoder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -30,13 +31,10 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import nl.knokko.core.plugin.item.ItemHelper;
-import nl.knokko.customitems.container.CustomContainer;
 import nl.knokko.customitems.container.VanillaContainerType;
-import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.container.ContainerInfo;
 import nl.knokko.customitems.plugin.container.ContainerInstance;
-import nl.knokko.customitems.plugin.set.ItemSet;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
@@ -44,6 +42,9 @@ import nl.knokko.util.bits.ByteArrayBitInput;
 import nl.knokko.util.bits.ByteArrayBitOutput;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+
+import static nl.knokko.customitems.plugin.recipe.RecipeHelper.convertResultToItemStack;
+import static nl.knokko.customitems.plugin.recipe.RecipeHelper.shouldIngredientAcceptItemStack;
 
 public class PluginData {
 	
@@ -63,7 +64,7 @@ public class PluginData {
 	 * This method should be called exactly once in the onEnable() of CustomItemsPlugin.
 	 * @return A new PluginData or the previously saved PluginData
 	 */
-	public static PluginData loadData() {
+	public static PluginData loadData(ItemSetWrapper itemSet) {
 		File dataFile = getDataFile();
 		if (dataFile.exists()) {
 			try {
@@ -72,26 +73,26 @@ public class PluginData {
 				byte encoding = input.readByte();
 				switch (encoding) {
 					case ENCODING_1:
-						return load1(input);
+						return load1(input, itemSet);
 					case ENCODING_2:
-						return load2(input);
+						return load2(input, itemSet);
 					case ENCODING_3:
-						return load3(input);
+						return load3(input, itemSet);
 					default:
 						throw new IllegalArgumentException("Unknown data encoding: " + encoding);
 				}
 			} catch (IOException e) {
 				Bukkit.getLogger().log(Level.SEVERE, "Failed to open the data file for CustomItems", e);
 				Bukkit.getLogger().severe("The current data for CustomItems won't be overwritten when you stop the server.");
-				return new CarefulPluginData();
+				return new CarefulPluginData(itemSet);
 			}
 		} else {
 			Bukkit.getLogger().warning("Couldn't find the data file for CustomItems. Is this the first time you are using CustomItems with version at least 6.0?");
-			return new PluginData();
+			return new PluginData(itemSet);
 		}
 	}
 	
-	private static Map<UUID, PlayerData> loadPlayerData1(BitInput input, ItemSet set) {
+	private static Map<UUID, PlayerData> loadPlayerData1(BitInput input, ItemSetWrapper set) {
 		int numPlayers = input.readInt();
 		Map<UUID,PlayerData> playersMap = new HashMap<>(numPlayers);
 		for (int counter = 0; counter < numPlayers; counter++) {
@@ -103,21 +104,19 @@ public class PluginData {
 		return playersMap;
 	}
 	
-	private static PluginData load1(BitInput input) {
+	private static PluginData load1(BitInput input, ItemSetWrapper itemSet) {
 		long currentTick = input.readLong();
-		CustomItemsPlugin plugin = CustomItemsPlugin.getInstance();
-		
-		Map<UUID, PlayerData> playersMap = loadPlayerData1(input, plugin.getSet());
+
+		Map<UUID, PlayerData> playersMap = loadPlayerData1(input, itemSet);
 		
 		// There were no persistent containers in this version
-		return new PluginData(currentTick, playersMap, new HashMap<>());
+		return new PluginData(itemSet, currentTick, playersMap, new HashMap<>());
 	}
 	
-	private static PluginData load2(BitInput input) {
+	private static PluginData load2(BitInput input, ItemSetWrapper itemSet) {
 		long currentTick = input.readLong();
-		CustomItemsPlugin plugin = CustomItemsPlugin.getInstance();
-		
-		Map<UUID, PlayerData> playersMap = loadPlayerData1(input, plugin.getSet());
+
+		Map<UUID, PlayerData> playersMap = loadPlayerData1(input, itemSet);
 		
 		int numPersistentContainers = input.readInt();
 		Map<ContainerLocation, ContainerInstance> persistentContainers = new HashMap<>(numPersistentContainers);
@@ -130,7 +129,7 @@ public class PluginData {
 			int z = input.readInt();
 			String typeName = input.readString();
 			
-			ContainerInfo typeInfo = plugin.getSet().getContainerInfo(typeName);
+			ContainerInfo typeInfo = itemSet.getContainerInfo(typeName);
 			
 			if (typeInfo != null) {
 				ContainerInstance instance = ContainerInstance.load1(input, typeInfo);
@@ -141,14 +140,13 @@ public class PluginData {
 			}
 		}
 		
-		return new PluginData(currentTick, playersMap, persistentContainers);
+		return new PluginData(itemSet, currentTick, playersMap, persistentContainers);
 	}
 
-	private static PluginData load3(BitInput input) {
+	private static PluginData load3(BitInput input, ItemSetWrapper itemSet) {
 		long currentTick = input.readLong();
-		CustomItemsPlugin plugin = CustomItemsPlugin.getInstance();
 
-		Map<UUID, PlayerData> playersMap = loadPlayerData1(input, plugin.getSet());
+		Map<UUID, PlayerData> playersMap = loadPlayerData1(input, itemSet);
 
 		int numPersistentContainers = input.readInt();
 		Map<ContainerLocation, ContainerInstance> persistentContainers = new HashMap<>(numPersistentContainers);
@@ -161,7 +159,7 @@ public class PluginData {
 			int z = input.readInt();
 			String typeName = input.readString();
 
-			ContainerInfo typeInfo = plugin.getSet().getContainerInfo(typeName);
+			ContainerInfo typeInfo = itemSet.getContainerInfo(typeName);
 
 			if (typeInfo != null) {
 				ContainerInstance instance = ContainerInstance.load2(input, typeInfo);
@@ -172,7 +170,7 @@ public class PluginData {
 			}
 		}
 
-		return new PluginData(currentTick, playersMap, persistentContainers);
+		return new PluginData(itemSet, currentTick, playersMap, persistentContainers);
 	}
 
 	// Persisting data
@@ -182,14 +180,15 @@ public class PluginData {
 	private long currentTick;
 	
 	// Non-persisting data
+	private final ItemSetWrapper itemSet;
 	private Collection<TempContainerInstance> tempContainers;
 	private List<Player> shootingPlayers;
 	private List<Player> eatingPlayers;
-	private Map<VanillaContainerType, List<CustomContainer>> containerTypeMap;
 	private Map<VanillaContainerType, Inventory> containerSelectionMap;
 	private Map<String, Inventory> pocketContainerSelectionMap;
 
-	private PluginData() {
+	private PluginData(ItemSetWrapper itemSet) {
+		this.itemSet = itemSet;
 		playerData = new HashMap<>();
 		persistentContainers = new HashMap<>();
 		currentTick = 0;
@@ -197,8 +196,9 @@ public class PluginData {
 		init();
 	}
 	
-	private PluginData(long currentTick, Map<UUID,PlayerData> playerData,
+	private PluginData(ItemSetWrapper itemSet, long currentTick, Map<UUID,PlayerData> playerData,
 			Map<ContainerLocation, ContainerInstance> persistentContainers) {
+		this.itemSet = itemSet;
 		this.playerData = playerData;
 		this.persistentContainers = persistentContainers;
 		this.currentTick = currentTick;
@@ -220,20 +220,11 @@ public class PluginData {
 	}
 	
 	private void initContainerTypeMap() {
-		containerTypeMap = new EnumMap<>(VanillaContainerType.class);
 		containerSelectionMap = new EnumMap<>(VanillaContainerType.class);
 
-		ItemSet set = CustomItemsPlugin.getInstance().getSet();
 		for (VanillaContainerType vanillaType : VanillaContainerType.values()) {
 			
-			List<CustomContainer> containersForType = new ArrayList<>();
-			for (CustomContainer container : set.getContainers()) {
-				if (container.getVanillaType() == vanillaType) {
-					containersForType.add(container);
-				}
-			}
-			
-			containerTypeMap.put(vanillaType, containersForType);
+			Collection<CustomContainerValues> containersForType = itemSet.getContainers(vanillaType);
 			if (containersForType.size() > 1) {
 				containerSelectionMap.put(vanillaType, createContainerSelectionMenu(containersForType));
 			}
@@ -243,14 +234,13 @@ public class PluginData {
 	private void initPocketContainerMap() {
 		pocketContainerSelectionMap = new HashMap<>();
 
-		ItemSet set = CustomItemsPlugin.getInstance().getSet();
-		for (CustomItem item : set.getBackingItems()) {
-			if (item instanceof CustomPocketContainer) {
-				CustomPocketContainer pocketContainer = (CustomPocketContainer) item;
-				if (pocketContainer.getContainers().length > 1) {
+		for (CustomItemValues item : itemSet.get().getItems()) {
+			if (item instanceof CustomPocketContainerValues) {
+				CustomPocketContainerValues pocketContainer = (CustomPocketContainerValues) item;
+				if (pocketContainer.getContainers().size() > 1) {
 					pocketContainerSelectionMap.put(
 							item.getName(),
-							createContainerSelectionMenu(Arrays.asList(pocketContainer.getContainers()))
+							createContainerSelectionMenu(new ArrayList<>(pocketContainer.getContainers()))
 					);
 				}
 			}
@@ -258,7 +248,7 @@ public class PluginData {
 	}
 	
 	private Inventory createContainerSelectionMenu(
-			List<CustomContainer> containers) {
+			Collection<CustomContainerValues> containers) {
 		int invSize = 1 + containers.size();
 		if (invSize % 9 != 0) {
 			invSize = 9 + 9 * (invSize / 9);
@@ -272,12 +262,11 @@ public class PluginData {
 			cancelStack.setItemMeta(meta);
 			menu.setItem(0, cancelStack);
 		}
-		
-		for (int listIndex = 0; listIndex < containers.size(); listIndex++) {
-			int invIndex = listIndex + 1;
-			CustomContainer container = containers.get(listIndex);
-			
-			menu.setItem(invIndex, ContainerInstance.fromDisplay(container.getSelectionIcon()));
+
+		int listIndex = 0;
+		for (CustomContainerValues container : containers) {
+			menu.setItem(listIndex + 1, ContainerInstance.fromDisplay(container.getSelectionIcon()));
+			listIndex++;
 		}
 		
 		return menu;
@@ -294,14 +283,13 @@ public class PluginData {
 	}
 	
 	private void updateShooting() {
-		ItemSet set = CustomItemsPlugin.getInstance().getSet();
 		Iterator<Player> iterator = shootingPlayers.iterator();
 		while (iterator.hasNext()) {
 			Player current = iterator.next();
 			PlayerData data = getPlayerData(current);
 			if (data.isShooting(currentTick)) {
-				CustomItem mainItem = set.getItem(current.getInventory().getItemInMainHand());
-				CustomItem offItem = set.getItem(current.getInventory().getItemInOffHand());
+				CustomItemValues mainItem = itemSet.getItem(current.getInventory().getItemInMainHand());
+				CustomItemValues offItem = itemSet.getItem(current.getInventory().getItemInOffHand());
 				
 				if (data.shootIfAllowed(mainItem, currentTick, true)) {
 					fire(current, data, mainItem, current.getInventory().getItemInMainHand(), true);
@@ -317,7 +305,6 @@ public class PluginData {
 
 	private void updateEating() {
 
-		ItemSet set = CustomItemsPlugin.getInstance().getSet();
 		Iterator<Player> iterator = eatingPlayers.iterator();
 		while (iterator.hasNext()) {
 		    Player player = iterator.next();
@@ -327,14 +314,14 @@ public class PluginData {
 
 				ItemStack mainItemStack = player.getInventory().getItemInMainHand();
 				ItemStack offItemStack = player.getInventory().getItemInOffHand();
-				CustomItem mainItem = set.getItem(mainItemStack);
-				CustomItem offItem = set.getItem(offItemStack);
+				CustomItemValues mainItem = itemSet.getItem(mainItemStack);
+				CustomItemValues offItem = itemSet.getItem(offItemStack);
 
-				if (mainItem instanceof CustomFood) {
+				if (mainItem instanceof CustomFoodValues) {
 
-					CustomFood mainFood = (CustomFood) mainItem;
+					CustomFoodValues mainFood = (CustomFoodValues) mainItem;
 					if (mainFood != pd.mainhandFood) {
-						if (!mainFood.eatEffects.isEmpty() || player.getFoodLevel() < 20 || mainFood.foodValue < 0) {
+						if (!mainFood.getEatEffects().isEmpty() || player.getFoodLevel() < 20 || mainFood.getFoodValue() < 0) {
 							pd.mainhandFood = mainFood;
 							pd.startMainhandEatTime = currentTick;
 						} else {
@@ -345,19 +332,19 @@ public class PluginData {
 
 					if (pd.mainhandFood != null) {
 						long elapsedTime = currentTick - pd.startMainhandEatTime;
-						if (elapsedTime % mainFood.soundPeriod == 0) {
+						if (elapsedTime % mainFood.getSoundPeriod() == 0) {
 							player.playSound(
 									player.getLocation(),
-									Sound.valueOf(mainFood.eatSound.name()),
-									mainFood.soundVolume, mainFood.soundPitch
+									Sound.valueOf(mainFood.getEatSound().name()),
+									mainFood.getSoundVolume(), mainFood.getSoundPitch()
 							);
 						}
 
-						if (elapsedTime >= mainFood.eatTime) {
-							player.setFoodLevel(player.getFoodLevel() + mainFood.foodValue);
-							mainFood.eatEffects.forEach(eatEffect ->
+						if (elapsedTime >= mainFood.getEatTime()) {
+							player.setFoodLevel(player.getFoodLevel() + mainFood.getFoodValue());
+							mainFood.getEatEffects().forEach(eatEffect ->
 									player.addPotionEffect(new PotionEffect(
-											PotionEffectType.getByName(eatEffect.getEffect().name()),
+											PotionEffectType.getByName(eatEffect.getType().name()),
 											eatEffect.getDuration(),
 											eatEffect.getLevel() - 1
 									))
@@ -373,11 +360,11 @@ public class PluginData {
 					pd.startMainhandEatTime = -1;
 				}
 
-				if (offItem instanceof CustomFood) {
+				if (offItem instanceof CustomFoodValues) {
 
-					CustomFood offFood = (CustomFood) offItem;
+					CustomFoodValues offFood = (CustomFoodValues) offItem;
 					if (pd.offhandFood != offFood) {
-						if (!offFood.eatEffects.isEmpty() || player.getFoodLevel() < 20 || offFood.foodValue < 0) {
+						if (!offFood.getEatEffects().isEmpty() || player.getFoodLevel() < 20 || offFood.getFoodValue() < 0) {
 							pd.offhandFood = offFood;
 							pd.startOffhandEatTime = currentTick;
 						} else {
@@ -388,19 +375,19 @@ public class PluginData {
 
 					if (pd.offhandFood != null) {
 						long elapsedTime = currentTick - pd.startOffhandEatTime;
-						if (elapsedTime % offFood.soundPeriod == 0) {
+						if (elapsedTime % offFood.getSoundPeriod() == 0) {
 							player.playSound(
 									player.getLocation(),
-									Sound.valueOf(offFood.eatSound.name()),
-									offFood.soundVolume, offFood.soundPitch
+									Sound.valueOf(offFood.getEatSound().name()),
+									offFood.getSoundVolume(), offFood.getSoundPitch()
 							);
 						}
 
-						if (elapsedTime >= offFood.eatTime) {
-							player.setFoodLevel(player.getFoodLevel() + offFood.foodValue);
-							offFood.eatEffects.forEach(eatEffect ->
+						if (elapsedTime >= offFood.getEatTime()) {
+							player.setFoodLevel(player.getFoodLevel() + offFood.getFoodValue());
+							offFood.getEatEffects().forEach(eatEffect ->
 									player.addPotionEffect(new PotionEffect(
-											PotionEffectType.getByName(eatEffect.getEffect().name()),
+											PotionEffectType.getByName(eatEffect.getType().name()),
 											eatEffect.getDuration(),
 											eatEffect.getLevel() - 1
 									))
@@ -426,34 +413,33 @@ public class PluginData {
 	}
 
 	private void manageReloadingGuns() {
-		ItemSet set = CustomItemsPlugin.getInstance().getSet();
 		playerData.forEach((playerId, data) -> {
 
 			// Check if we need to reload the gun in the main hand
 			if (data.mainhandGunToReload != null && currentTick >= data.finishMainhandGunReloadTick) {
 
-				CustomGun gun = data.mainhandGunToReload;
+				CustomGunValues gun = data.mainhandGunToReload;
 				Player player = Bukkit.getPlayer(playerId);
 				if (player != null) {
 
 					ItemStack currentItem = player.getInventory().getItemInMainHand();
-					CustomItem currentCustomItem = set.getItem(currentItem);
+					CustomItemValues currentCustomItem = itemSet.getItem(currentItem);
 					if (currentCustomItem == gun) {
-						if (gun.ammo instanceof IndirectGunAmmo) {
+						if (gun.getAmmo() instanceof IndirectGunAmmoValues) {
 
-							IndirectGunAmmo indirectAmmo = (IndirectGunAmmo) gun.ammo;
-							if (checkAmmo(player.getInventory(), (Ingredient) indirectAmmo.reloadItem, true)) {
+							IndirectGunAmmoValues indirectAmmo = (IndirectGunAmmoValues) gun.getAmmo();
+							if (checkAmmo(player.getInventory(), indirectAmmo.getReloadItem(), true)) {
 								player.getInventory().setItemInMainHand(gun.reload(currentItem));
-								if (indirectAmmo.finishReloadSound != null) {
+								if (indirectAmmo.getEndReloadSound() != null) {
 									player.playSound(
 											player.getLocation(),
-											Sound.valueOf(indirectAmmo.finishReloadSound.name()),
+											Sound.valueOf(indirectAmmo.getEndReloadSound().name()),
 											1f, 1f
 									);
 								}
 							}
 						} else {
-							throw new Error("Unsupported indirect ammo: " + gun.ammo.getClass());
+							throw new Error("Unsupported indirect ammo: " + gun.getAmmo().getClass());
 						}
 					}
 				}
@@ -465,29 +451,29 @@ public class PluginData {
 			// Check if we need to reload the gun in the off hand
 			if (data.offhandGunToReload != null && currentTick >= data.finishOffhandGunReloadTick) {
 
-				CustomGun gun = data.offhandGunToReload;
+				CustomGunValues gun = data.offhandGunToReload;
 				Player player = Bukkit.getPlayer(playerId);
 				if (player != null) {
 
 					ItemStack currentItem = player.getInventory().getItemInOffHand();
-					CustomItem currentCustomItem = set.getItem(currentItem);
+					CustomItemValues currentCustomItem = itemSet.getItem(currentItem);
 					if (currentCustomItem == gun) {
-						if (gun.ammo instanceof IndirectGunAmmo) {
+						if (gun.getAmmo() instanceof IndirectGunAmmoValues) {
 
-							IndirectGunAmmo indirectAmmo = (IndirectGunAmmo) gun.ammo;
-							if (checkAmmo(player.getInventory(), (Ingredient) indirectAmmo.reloadItem, true)) {
+							IndirectGunAmmoValues indirectAmmo = (IndirectGunAmmoValues) gun.getAmmo();
+							if (checkAmmo(player.getInventory(), indirectAmmo.getReloadItem(), true)) {
                                 player.getInventory().setItemInOffHand(gun.reload(currentItem));
-                                if (indirectAmmo.finishReloadSound != null) {
+                                if (indirectAmmo.getEndReloadSound() != null) {
 									player.playSound(
 											player.getLocation(),
-											Sound.valueOf(indirectAmmo.finishReloadSound.name()),
+											Sound.valueOf(indirectAmmo.getEndReloadSound().name()),
 											1f, 1f
 									);
 								}
 
 							}
 						} else {
-							throw new Error("Unsupported indirect ammo: " + gun.ammo.getClass());
+							throw new Error("Unsupported indirect ammo: " + gun.getAmmo().getClass());
 						}
 					}
 				}
@@ -519,7 +505,7 @@ public class PluginData {
 		}
 	}
 
-	public PlayerWandInfo getWandInfo(Player player, CustomWand wand) {
+	public PlayerWandInfo getWandInfo(Player player, CustomWandValues wand) {
 		PlayerData targetPlayerData = playerData.get(player.getUniqueId());
 		if (targetPlayerData != null) {
 		    PlayerWandData wandData = targetPlayerData.wandsData.get(wand);
@@ -535,10 +521,10 @@ public class PluginData {
 		return null;
 	}
 
-	public PlayerGunInfo getGunInfo(Player player, CustomGun gun, ItemStack gunStack, boolean isMainhand) {
+	public PlayerGunInfo getGunInfo(Player player, CustomGunValues gun, ItemStack gunStack, boolean isMainhand) {
 		PlayerData targetPlayerData = playerData.get(player.getUniqueId());
 
-		if (gun.ammo instanceof DirectGunAmmo) {
+		if (gun.getAmmo() instanceof DirectGunAmmoValues) {
 
 			if (targetPlayerData != null) {
 				if (isMainhand) {
@@ -557,7 +543,7 @@ public class PluginData {
 			} else {
 				return null;
 			}
-		} else if (gun.ammo instanceof IndirectGunAmmo) {
+		} else if (gun.getAmmo() instanceof IndirectGunAmmoValues) {
 
 			if (targetPlayerData != null) {
 				if (isMainhand) {
@@ -587,7 +573,7 @@ public class PluginData {
 				return PlayerGunInfo.indirect(0, gun.getCurrentAmmo(gunStack));
 			}
 		} else {
-			throw new Error("Unknown ammo system: " + gun.ammo.getClass());
+			throw new Error("Unknown ammo system: " + gun.getAmmo().getClass());
 		}
 	}
 
@@ -614,7 +600,6 @@ public class PluginData {
 
 	private void maybeClosePocketContainer(PlayerData pd, Player player, boolean force) {
 
-		ItemSet set = CustomItemsPlugin.getInstance().getSet();
 		PlayerInventory inv = player.getInventory();
 
 		boolean closeContainerInv = false;
@@ -623,7 +608,7 @@ public class PluginData {
 
 		if (pd.pocketContainerInMainHand) {
 			ItemStack mainItem = inv.getItemInMainHand();
-			if (!(set.getItem(mainItem) instanceof CustomPocketContainer)) {
+			if (!(itemSet.getItem(mainItem) instanceof CustomPocketContainerValues)) {
 				closeContainerInv = true;
 			} else if (!pd.openPocketContainer.getInventory().getViewers().contains(player) || force) {
 				closeContainerInv = true;
@@ -632,7 +617,7 @@ public class PluginData {
 			}
 		} else {
 			ItemStack offItem = inv.getItemInOffHand();
-			if (!(set.getItem(offItem) instanceof CustomPocketContainer)) {
+			if (!(itemSet.getItem(offItem) instanceof CustomPocketContainerValues)) {
 				closeContainerInv = true;
 			} else if (!pd.openPocketContainer.getInventory().getViewers().contains(player) || force) {
 				closeContainerInv = true;
@@ -649,9 +634,9 @@ public class PluginData {
 
 			if (closeDestination != null) {
 
-				CustomPocketContainer pocketContainer = (CustomPocketContainer) set.getItem(closeDestination);
+				CustomPocketContainerValues pocketContainer = (CustomPocketContainerValues) itemSet.getItem(closeDestination);
 				boolean acceptsCurrentContainer = false;
-				for (CustomContainer candidate : pocketContainer.getContainers()) {
+				for (CustomContainerValues candidate : pocketContainer.getContainers()) {
 					if (candidate == pd.openPocketContainer.getType()) {
 						acceptsCurrentContainer = true;
 						break;
@@ -719,26 +704,26 @@ public class PluginData {
 		cleanEmptyContainers();
 	}
 	
-	private void fire(Player player, PlayerData data, CustomItem weapon, ItemStack weaponStack, boolean isMainhand) {
-		if (weapon instanceof CustomWand) {
-			CustomWand wand = (CustomWand) weapon;
+	private void fire(Player player, PlayerData data, CustomItemValues weapon, ItemStack weaponStack, boolean isMainhand) {
+		if (weapon instanceof CustomWandValues) {
+			CustomWandValues wand = (CustomWandValues) weapon;
 			
-			for (int counter = 0; counter < wand.amountPerShot; counter++)
-				CustomItemsPlugin.getInstance().getProjectileManager().fireProjectile(player, wand.projectile);
-		} else if (weapon instanceof CustomGun) {
+			for (int counter = 0; counter < wand.getAmountPerShot(); counter++)
+				CustomItemsPlugin.getInstance().getProjectileManager().fireProjectile(player, wand.getProjectile());
+		} else if (weapon instanceof CustomGunValues) {
 
-			CustomGun gun = (CustomGun) weapon;
+			CustomGunValues gun = (CustomGunValues) weapon;
 
 			boolean fireGun = false;
-			if (gun.ammo instanceof DirectGunAmmo) {
+			if (gun.getAmmo() instanceof DirectGunAmmoValues) {
 
-				DirectGunAmmo directAmmo = (DirectGunAmmo) gun.ammo;
-				if (checkAmmo(player.getInventory(), (Ingredient) directAmmo.ammoItem, true)) {
+				DirectGunAmmoValues directAmmo = (DirectGunAmmoValues) gun.getAmmo();
+				if (checkAmmo(player.getInventory(), directAmmo.getAmmoItem(), true)) {
 					fireGun = true;
 				}
-			} else if (gun.ammo instanceof IndirectGunAmmo) {
+			} else if (gun.getAmmo() instanceof IndirectGunAmmoValues) {
 
-				IndirectGunAmmo indirectAmmo = (IndirectGunAmmo) gun.ammo;
+				IndirectGunAmmoValues indirectAmmo = (IndirectGunAmmoValues) gun.getAmmo();
 				ItemStack newWeaponStack = gun.decrementAmmo(weaponStack);
 				if (newWeaponStack != null) {
 
@@ -751,30 +736,30 @@ public class PluginData {
 					fireGun = true;
 				} else {
 
-					if (checkAmmo(player.getInventory(), (Ingredient) indirectAmmo.reloadItem, false)) {
-						if (indirectAmmo.startReloadSound != null) {
+					if (checkAmmo(player.getInventory(), indirectAmmo.getReloadItem(), false)) {
+						if (indirectAmmo.getStartReloadSound() != null) {
 							player.playSound(
-									player.getLocation(), Sound.valueOf(indirectAmmo.startReloadSound.name()),
+									player.getLocation(), Sound.valueOf(indirectAmmo.getStartReloadSound().name()),
 									1f, 1f
 							);
 						}
 
                         if (isMainhand) {
-                        	data.finishMainhandGunReloadTick = currentTick + indirectAmmo.reloadTime;
+                        	data.finishMainhandGunReloadTick = currentTick + indirectAmmo.getReloadTime();
                         	data.mainhandGunToReload = gun;
 						} else {
-                        	data.finishOffhandGunReloadTick = currentTick + indirectAmmo.reloadTime;
+                        	data.finishOffhandGunReloadTick = currentTick + indirectAmmo.getReloadTime();
                         	data.offhandGunToReload = gun;
 						}
 					}
 				}
 			} else {
-				throw new IllegalArgumentException("Unknown gun ammo system: " + gun.ammo.getClass());
+				throw new IllegalArgumentException("Unknown gun ammo system: " + gun.getAmmo().getClass());
 			}
 
 			if (fireGun) {
-				for (int counter = 0; counter < gun.amountPerShot; counter++) {
-					CustomItemsPlugin.getInstance().getProjectileManager().fireProjectile(player, gun.projectile);
+				for (int counter = 0; counter < gun.getAmountPerShot(); counter++) {
+					CustomItemsPlugin.getInstance().getProjectileManager().fireProjectile(player, gun.getProjectile());
 				}
 			} else {
 
@@ -788,22 +773,22 @@ public class PluginData {
 		}
 	}
 
-	private boolean checkAmmo(Inventory inv, Ingredient ammo, boolean consume) {
+	private boolean checkAmmo(Inventory inv, IngredientValues ammo, boolean consume) {
 
-		if (ammo instanceof NoIngredient) {
+		if (ammo instanceof NoIngredientValues) {
 			return true;
 		}
 
 		ItemStack[] contents = inv.getContents();
 		for (int index = 0; index < contents.length; index++) {
 			ItemStack candidate = contents[index];
-			if (ammo.accept(candidate)) {
+			if (shouldIngredientAcceptItemStack(ammo, candidate)) {
 
 				if (consume) {
 					if (ammo.getRemainingItem() == null) {
 						candidate.setAmount(candidate.getAmount() - ammo.getAmount());
 					} else {
-						contents[index] = ammo.getRemainingItem().clone();
+						contents[index] = convertResultToItemStack(ammo.getRemainingItem());
 					}
 
 					inv.setContents(contents);
@@ -871,8 +856,8 @@ public class PluginData {
 			for (int x = 0; x < 9; x++) {
 				for (int y = 0; y < instance.getType().getHeight(); y++) {
 
-					CustomSlot slot = instance.getType().getSlot(x, y);
-					if (slot instanceof InputCustomSlot || slot instanceof OutputCustomSlot || slot instanceof FuelCustomSlot || slot instanceof StorageCustomSlot) {
+					ContainerSlotValues slot = instance.getType().getSlot(x, y);
+					if (slot instanceof InputSlotValues || slot instanceof OutputSlotValues || slot instanceof FuelSlotValues || slot instanceof StorageSlotValues) {
 
 						int invIndex = x + 9 * y;
 						if (!ItemUtils.isEmpty(instance.getInventory().getItem(invIndex))) {
@@ -970,11 +955,7 @@ public class PluginData {
 			eatingPlayers.add(player);
 		}
 	}
-	
-	private ContainerInfo infoFor(CustomContainer container) {
-		return CustomItemsPlugin.getInstance().getSet().getContainerInfo(container);
-	}
-	
+
 	private PlayerData getPlayerData(Player player) {
 		PlayerData data = playerData.get(player.getUniqueId());
 		if (data == null) {
@@ -1010,7 +991,7 @@ public class PluginData {
 		return pd.openPocketContainer;
 	}
 	
-	public ContainerInstance getCustomContainer(Location location, Player newViewer, CustomContainer prototype) {
+	public ContainerInstance getCustomContainer(Location location, Player newViewer, CustomContainerValues prototype) {
 		
 		/*
 		 * There are 2 kinds of custom containers: those with persistent storage
@@ -1026,7 +1007,7 @@ public class PluginData {
 			ContainerLocation key = new ContainerLocation(location, prototype);
 			ContainerInstance instance = persistentContainers.get(key);
 			if (instance == null) {
-				instance = new ContainerInstance(infoFor(prototype));
+				instance = new ContainerInstance(itemSet.getContainerInfo(prototype));
 				persistentContainers.put(key, instance);
 			}
 			return instance;
@@ -1034,7 +1015,7 @@ public class PluginData {
 			
 			// Not shared between players, so just create a new instance
 			TempContainerInstance tempInstance = new TempContainerInstance(
-					new ContainerInstance(infoFor(prototype)), newViewer
+					new ContainerInstance(itemSet.getContainerInfo(prototype)), newViewer
 			);
 			tempContainers.add(tempInstance);
 			return tempInstance.instance;
@@ -1049,12 +1030,12 @@ public class PluginData {
 			return null;
 		}
 		
-		List<CustomContainer> correspondingContainers = containerTypeMap.get(containerType);
+		Collection<CustomContainerValues> correspondingContainers = itemSet.getContainers(containerType);
 		if (correspondingContainers.isEmpty()) {
 			return null;
 		} else if (correspondingContainers.size() == 1) {
 			return getCustomContainer(
-					location, player, correspondingContainers.get(0)
+					location, player, correspondingContainers.iterator().next()
 			).getInventory();
 		} else {
 			PlayerData pd = getPlayerData(player);
@@ -1063,29 +1044,29 @@ public class PluginData {
 		}
 	}
 
-	public void openPocketContainerMenu(Player player, CustomPocketContainer pocketContainer) {
-		CustomContainer[] containers = pocketContainer.getContainers();
+	public void openPocketContainerMenu(Player player, CustomPocketContainerValues pocketContainer) {
+		Set<CustomContainerValues> containers = pocketContainer.getContainers();
 		PlayerData pd = getPlayerData(player);
 		pd.pocketContainerSelection = true;
 
-		if (containers.length == 1) {
-		    selectCustomContainer(player, containers[0]);
+		if (containers.size() == 1) {
+		    selectCustomContainer(player, containers.iterator().next());
 		} else {
             player.openInventory(pocketContainerSelectionMap.get(pocketContainer.getName()));
 		}
 	}
 	
-	public List<CustomContainer> getCustomContainerSelection(HumanEntity player) {
+	public List<CustomContainerValues> getCustomContainerSelection(HumanEntity player) {
 		for (Entry<VanillaContainerType, Inventory> entry : containerSelectionMap.entrySet()) {
 			if (entry.getValue().getViewers().contains(player)) {
-				return containerTypeMap.get(entry.getKey());
+				return itemSet.getContainers(entry.getKey());
 			}
 		}
 
 		for (Entry<String, Inventory> entry : pocketContainerSelectionMap.entrySet()) {
 			if (entry.getValue().getViewers().contains(player)) {
-				CustomItem pocketContainer = CustomItemsPlugin.getInstance().getSet().getItem(entry.getKey());
-				return Arrays.asList(((CustomPocketContainer)pocketContainer).getContainers());
+				CustomItemValues pocketContainer = CustomItemsPlugin.getInstance().getSet().getItem(entry.getKey());
+				return new ArrayList<>(((CustomPocketContainerValues) pocketContainer).getContainers());
 			}
 		}
 
@@ -1096,7 +1077,7 @@ public class PluginData {
 		return new String[] {"KnokkosPocketContainer", "State", containerName};
 	}
 	
-	public void selectCustomContainer(Player player, CustomContainer selected) {
+	public void selectCustomContainer(Player player, CustomContainerValues selected) {
 		PlayerData pd = getPlayerData(player);
 
 		if (pd.containerSelectionLocation != null) {
@@ -1123,21 +1104,20 @@ public class PluginData {
 		} else if (pd.pocketContainerSelection) {
 
 			PlayerInventory inv = player.getInventory();
-			ItemSet set = CustomItemsPlugin.getInstance().getSet();
 			ItemStack mainItem = inv.getItemInMainHand();
 			ItemStack offItem = inv.getItemInOffHand();
-			CustomItem customMain = set.getItem(mainItem);
-			CustomItem customOff = set.getItem(offItem);
+			CustomItemValues customMain = itemSet.getItem(mainItem);
+			CustomItemValues customOff = itemSet.getItem(offItem);
 
-			CustomPocketContainer pocketContainer = null;
+			CustomPocketContainerValues pocketContainer = null;
 			ItemStack pocketContainerStack = null;
 			boolean isMainHand = false;
-			if (customMain instanceof CustomPocketContainer) {
-				pocketContainer = (CustomPocketContainer) customMain;
+			if (customMain instanceof CustomPocketContainerValues) {
+				pocketContainer = (CustomPocketContainerValues) customMain;
 				pocketContainerStack = mainItem;
 				isMainHand = true;
-			} else if (customOff instanceof CustomPocketContainer) {
-				pocketContainer = (CustomPocketContainer) customOff;
+			} else if (customOff instanceof CustomPocketContainerValues) {
+				pocketContainer = (CustomPocketContainerValues) customOff;
 				pocketContainerStack = offItem;
 			}
 
@@ -1163,14 +1143,14 @@ public class PluginData {
 					if (stateEncoding == ContainerEncoding.ENCODING_2) {
 						instance = ContainerInstance.load2(
 								containerStateInput,
-								set.getContainerInfo(selected)
+								itemSet.getContainerInfo(selected)
 						);
 					} else {
 						throw new IllegalStateException("Illegal stored pocket container contents in inventory of " + player.getName());
 					}
 
 				} else {
-					instance = new ContainerInstance(set.getContainerInfo(selected));
+					instance = new ContainerInstance(itemSet.getContainerInfo(selected));
 				}
 
 				player.openInventory(instance.getInventory());
@@ -1223,16 +1203,16 @@ public class PluginData {
 		
 		final PassiveLocation location;
 		
-		final CustomContainer type;
+		final CustomContainerValues type;
 		
-		ContainerLocation(PassiveLocation location, CustomContainer type){
+		ContainerLocation(PassiveLocation location, CustomContainerValues type){
 			this.location = location;
 			this.type = type;
 			if (type == null) throw new NullPointerException("type");
 			if (location == null) throw new NullPointerException("location");
 		}
 		
-		ContainerLocation(Location location, CustomContainer type) {
+		ContainerLocation(Location location, CustomContainerValues type) {
 			this(new PassiveLocation(location), type);
 		}
 		
@@ -1265,7 +1245,11 @@ public class PluginData {
 	}
 	
 	private static class CarefulPluginData extends PluginData {
-		
+
+		private CarefulPluginData(ItemSetWrapper itemSet) {
+			super(itemSet);
+		}
+
 		@Override
 		public void saveData() {
 			File dataFile = getDataFile();

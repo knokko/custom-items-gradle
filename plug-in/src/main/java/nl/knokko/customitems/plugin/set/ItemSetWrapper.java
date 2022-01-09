@@ -1,6 +1,7 @@
 package nl.knokko.customitems.plugin.set;
 
 import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.container.VanillaContainerType;
 import nl.knokko.customitems.drops.*;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.item.CustomItemValues;
@@ -10,7 +11,6 @@ import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.plugin.container.ContainerInfo;
 import nl.knokko.customitems.plugin.set.item.CustomItemNBT;
 import nl.knokko.customitems.plugin.util.ItemUtils;
-import nl.knokko.customitems.util.Checks;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -26,6 +26,7 @@ public class ItemSetWrapper {
     private Map<CIEntityType, Collection<MobDrop>> mobDropMap;
     private Map<BlockType, Collection<SBlockDrop>> blockDropMap;
     private Map<String, ContainerInfo> containerInfoMap;
+    private Map<VanillaContainerType, List<CustomContainerValues>> containerTypeMap;
 
     public void setItemSet(SItemSet newItemSet) {
         this.currentItemSet = newItemSet;
@@ -34,6 +35,7 @@ public class ItemSetWrapper {
         this.initMobDropMap();
         this.initBlockDropMap();
         this.initContainerInfoMap();
+        this.initContainerTypeMap();
     }
 
     private void initItemMap() {
@@ -71,6 +73,18 @@ public class ItemSetWrapper {
         this.containerInfoMap = new HashMap<>(this.currentItemSet.getContainers().size());
         for (CustomContainerValues container : this.currentItemSet.getContainers()) {
             this.containerInfoMap.put(container.getName(), new ContainerInfo(container));
+        }
+    }
+
+    private void initContainerTypeMap() {
+        this.containerTypeMap = new EnumMap<>(VanillaContainerType.class);
+        for (VanillaContainerType vanillaType : VanillaContainerType.values()) {
+            this.containerTypeMap.put(vanillaType, new ArrayList<>());
+        }
+        for (CustomContainerValues container : this.currentItemSet.getContainers()) {
+            if (container.getVanillaType() != null) {
+                this.containerTypeMap.get(container.getVanillaType()).add(container);
+            }
         }
     }
 
@@ -159,5 +173,9 @@ public class ItemSetWrapper {
 
     public ContainerInfo getContainerInfo(CustomContainerValues container) {
         return this.getContainerInfo(container.getName());
+    }
+
+    public List<CustomContainerValues> getContainers(VanillaContainerType vanillaType) {
+        return this.containerTypeMap.get(vanillaType);
     }
 }

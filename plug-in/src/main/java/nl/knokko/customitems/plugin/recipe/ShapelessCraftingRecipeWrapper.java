@@ -23,31 +23,31 @@
  *******************************************************************************/
 package nl.knokko.customitems.plugin.recipe;
 
+import nl.knokko.customitems.recipe.ShapelessRecipeValues;
+import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import org.bukkit.inventory.ItemStack;
 
 import nl.knokko.core.plugin.item.ItemHelper;
 import nl.knokko.customitems.item.CIMaterial;
-import nl.knokko.customitems.plugin.recipe.ingredient.Ingredient;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-public class ShapelessCustomRecipe implements CustomRecipe {
-	
-	private final Ingredient[] ingredients;
-	private final ItemStack result;
+import static nl.knokko.customitems.plugin.recipe.RecipeHelper.convertResultToItemStack;
+import static nl.knokko.customitems.plugin.recipe.RecipeHelper.shouldIngredientAcceptItemStack;
 
-	public ShapelessCustomRecipe(Ingredient[] ingredients, ItemStack result) {
-		this.ingredients = ingredients;
-		this.result = result;
+public class ShapelessCraftingRecipeWrapper implements CraftingRecipeWrapper {
+
+	private final ShapelessRecipeValues recipe;
+
+	public ShapelessCraftingRecipeWrapper(ShapelessRecipeValues recipe) {
+		this.recipe = recipe;
 	}
 
 	@Override
 	public boolean equals(Object other) {
-		if (other instanceof ShapelessCustomRecipe) {
-			ShapelessCustomRecipe recipe = (ShapelessCustomRecipe) other;
-			return Arrays.equals(ingredients, recipe.ingredients) && result.equals(recipe.result);
+		if (other instanceof ShapelessCraftingRecipeWrapper) {
+			return this.recipe == ((ShapelessCraftingRecipeWrapper) other).recipe;
 		} else {
 			return false;
 		}
@@ -55,23 +55,24 @@ public class ShapelessCustomRecipe implements CustomRecipe {
 
 	@Override
 	public ItemStack getResult() {
-		return result;
+		return convertResultToItemStack(this.recipe.getResult());
 	}
 
 	@Override
 	public List<IngredientEntry> shouldAccept(ItemStack[] ingredients) {
 
-		boolean[] has = new boolean[this.ingredients.length];
-		List<IngredientEntry> result = new ArrayList<>(this.ingredients.length);
+		List<IngredientValues> recipeIngredients = new ArrayList<>(this.recipe.getIngredients());
+		boolean[] has = new boolean[recipeIngredients.size()];
+		List<IngredientEntry> result = new ArrayList<>(recipeIngredients.size());
 
 		outerLoop:
 		for (int ingredientIndex = 0; ingredientIndex < ingredients.length; ingredientIndex++) {
 		    ItemStack ingredient = ingredients[ingredientIndex];
 			if (!ItemHelper.getMaterialName(ingredient).equals(CIMaterial.AIR.name())) {
 				for (int index = 0; index < has.length; index++) {
-					if (!has[index] && this.ingredients[index].accept(ingredient)) {
+					if (!has[index] && shouldIngredientAcceptItemStack(recipeIngredients.get(index), ingredient)) {
 						has[index] = true;
-						result.add(new IngredientEntry(this.ingredients[index], ingredientIndex));
+						result.add(new IngredientEntry(recipeIngredients.get(index), ingredientIndex));
 						continue outerLoop;
 					}
 				}
@@ -87,9 +88,5 @@ public class ShapelessCustomRecipe implements CustomRecipe {
 		
 		// We have exactly what we need
 		return result;
-	}
-
-	public Ingredient[] getIngredients() {
-		return ingredients;
 	}
 }

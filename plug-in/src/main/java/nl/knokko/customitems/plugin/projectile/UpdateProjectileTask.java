@@ -30,7 +30,7 @@ public class UpdateProjectileTask implements Runnable {
 
 	@Override
 	public void run() {
-		if (coverItem == null && projectile.prototype.cover != null) {
+		if (coverItem == null && projectile.prototype.getCover() != null) {
 			createCoverItem(projectile.currentPosition);
 		}
 		
@@ -44,7 +44,7 @@ public class UpdateProjectileTask implements Runnable {
 
 			if (ray == null) {
 
-				projectile.currentVelocity.setY(projectile.currentVelocity.getY() - projectile.prototype.gravity);
+				projectile.currentVelocity.setY(projectile.currentVelocity.getY() - projectile.prototype.getGravity());
 
 				if (coverItem != null) {
 					if (coverItem.isValid()) {
@@ -63,12 +63,12 @@ public class UpdateProjectileTask implements Runnable {
 
 				// Move the projectile to the precise impact location before applying its effects
 				projectile.currentPosition.multiply(0).add(ray.getImpactLocation().toVector());
-				projectile.applyEffects(projectile.prototype.impactEffects);
+				projectile.applyEffects(projectile.prototype.getImpactEffects());
 
 				// If we hit an entity, damage it
-				if (ray.getHitEntity() != null && projectile.prototype.damage > 0) {
+				if (ray.getHitEntity() != null && projectile.prototype.getDamage() > 0) {
 					EntityDamageHelper.causeFakeProjectileDamage(ray.getHitEntity(),
-							projectile.responsibleShooter, projectile.prototype.damage,
+							projectile.responsibleShooter, projectile.prototype.getDamage(),
 							projectile.currentPosition.getX(), projectile.currentPosition.getY(),
 							projectile.currentPosition.getZ(),
 							projectile.currentVelocity.getX(), projectile.currentVelocity.getY(),
@@ -77,14 +77,14 @@ public class UpdateProjectileTask implements Runnable {
 
 				if (ray.getHitEntity() != null && projectile.currentVelocity.lengthSquared() > 0.0001) {
 					Vector direction = projectile.currentVelocity.normalize();
-					ray.getHitEntity().setVelocity(ray.getHitEntity().getVelocity().add(direction.multiply(projectile.prototype.impactKnockback)));
+					ray.getHitEntity().setVelocity(ray.getHitEntity().getVelocity().add(direction.multiply(projectile.prototype.getImpactKnockback())));
 				}
 
 				if (ray.getHitEntity() instanceof LivingEntity) {
 					LivingEntity living = (LivingEntity) ray.getHitEntity();
-					projectile.prototype.impactPotionEffects.forEach(
+					projectile.prototype.getImpactPotionEffects().forEach(
 							effect -> living.addPotionEffect(new PotionEffect(
-									PotionEffectType.getByName(effect.getEffect().name()),
+									PotionEffectType.getByName(effect.getType().name()),
 									effect.getDuration(),
 									effect.getLevel() - 1
 							))
@@ -111,12 +111,12 @@ public class UpdateProjectileTask implements Runnable {
 	
 	private void createCoverItem(Vector position) {
 		
-		CIMaterial coverMaterial = CustomItem.getMaterial(projectile.prototype.cover.itemType);
+		CIMaterial coverMaterial = CustomItem.getMaterial(projectile.prototype.getCover().getItemType());
 		ItemStack coverStack = ItemHelper.createStack(coverMaterial.name(), 1);
 		ItemMeta coverMeta = coverStack.getItemMeta();
 		coverMeta.setUnbreakable(true);
 		coverStack.setItemMeta(coverMeta);
-		coverStack.setDurability(projectile.prototype.cover.itemDamage);
+		coverStack.setDurability(projectile.prototype.getCover().getItemDamage());
 		GeneralItemNBT nbt = GeneralItemNBT.readWriteInstance(coverStack);
 		nbt.set(FlyingProjectile.KEY_COVER_ITEM, 1);
 		coverStack = nbt.backToBukkit();

@@ -1,8 +1,11 @@
 package nl.knokko.customitems.plugin.container;
 
-import java.util.List;
-
-import nl.knokko.customitems.plugin.set.item.CustomPocketContainer;
+import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.container.slot.ContainerSlotValues;
+import nl.knokko.customitems.container.slot.OutputSlotValues;
+import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.CustomPocketContainerValues;
+import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.entity.HumanEntity;
@@ -26,24 +29,27 @@ import org.bukkit.inventory.ItemStack;
 
 import nl.knokko.core.plugin.item.GeneralItemNBT;
 import nl.knokko.core.plugin.item.ItemHelper;
-import nl.knokko.customitems.container.CustomContainer;
 import nl.knokko.customitems.container.VanillaContainerType;
-import nl.knokko.customitems.container.slot.CustomSlot;
-import nl.knokko.customitems.container.slot.OutputCustomSlot;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.data.PluginData;
-import nl.knokko.customitems.plugin.set.ItemSet;
-import nl.knokko.customitems.plugin.set.item.CustomItem;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import org.bukkit.inventory.PlayerInventory;
+
+import java.util.List;
 
 public class ContainerEventHandler implements Listener {
 	
 	private static PluginData pluginData() {
 		return CustomItemsPlugin.getInstance().getData();
 	}
-	
+
+	private final ItemSetWrapper itemSet;
+
+	public ContainerEventHandler(ItemSetWrapper itemSet) {
+		this.itemSet = itemSet;
+	}
+
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockBreak(BlockBreakEvent event) {
 		// Delay it to prevent the items to be dropped while the block is still there
@@ -111,7 +117,7 @@ public class ContainerEventHandler implements Listener {
 			if (customContainer != null) {
 				for (int slotIndex : event.getRawSlots()) {
 					if (slotIndex >= 0 && slotIndex < 9 * customContainer.getType().getHeight()) {
-						CustomSlot slot = customContainer.getType().getSlot(slotIndex % 9, slotIndex / 9);
+						ContainerSlotValues slot = customContainer.getType().getSlot(slotIndex % 9, slotIndex / 9);
 						if (!slot.canInsertItems()) {
 							event.setCancelled(true);
 							return;
@@ -132,13 +138,13 @@ public class ContainerEventHandler implements Listener {
 			if (customContainer != null) {
 				
 				int slotIndex = event.getRawSlot();
-				CustomContainer containerType = customContainer.getType();
+				CustomContainerValues containerType = customContainer.getType();
 				
 				// Check if the player clicked inside the custom container
 				if (slotIndex >= 0 && slotIndex < 9 * containerType.getHeight()) {
-					CustomSlot slot = customContainer.getType().getSlot(slotIndex % 9, slotIndex / 9);
+					ContainerSlotValues slot = customContainer.getType().getSlot(slotIndex % 9, slotIndex / 9);
 					
-					if (customContainer.getStoredExperience() > 0 && slot instanceof OutputCustomSlot) {
+					if (customContainer.getStoredExperience() > 0 && slot instanceof OutputSlotValues) {
 						player.giveExp(customContainer.getStoredExperience());
 						customContainer.clearStoredExperience();
 					}
@@ -173,9 +179,8 @@ public class ContainerEventHandler implements Listener {
 					} else if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
 					    if (slot.canTakeItems()) {
 
-							ItemSet set = CustomItemsPlugin.getInstance().getSet();
 							ItemStack toTransfer = event.getCurrentItem();
-							CustomItem customTransfer = set.getItem(toTransfer);
+							CustomItemValues customTransfer = itemSet.getItem(toTransfer);
 
 							// If it is a stackable custom item, we can improve the action by attempting to merge
 							// the item stack with an existing item stack in the destination inventory
@@ -187,16 +192,13 @@ public class ContainerEventHandler implements Listener {
                                 Inventory bottomInv = event.getView().getBottomInventory();
                                 for (int bottomIndex = 0; bottomIndex < bottomInv.getSize(); bottomIndex++) {
                                 	ItemStack bottomStack = bottomInv.getItem(bottomIndex);
-                                	CustomItem customBottom = set.getItem(bottomStack);
+                                	CustomItemValues customBottom = itemSet.getItem(bottomStack);
                                 	if (customTransfer == customBottom) {
                                 		int remainingSpace = customBottom.getMaxStacksize() - bottomStack.getAmount();
                                 		if (remainingSpace > 0) {
                                 			if (remainingAmount > remainingSpace) {
                                 				bottomStack.setAmount(customBottom.getMaxStacksize());
                                 				remainingAmount -= remainingSpace;
-                                				if (remainingAmount == 0) {
-                                					break;
-												}
 											} else {
                                 				int newAmount = bottomStack.getAmount() + remainingAmount;
                                 				bottomStack.setAmount(newAmount);
@@ -245,21 +247,19 @@ public class ContainerEventHandler implements Listener {
 						// transferred, so better safe than sorry.
 						event.setCancelled(true);
 						
-						ItemSet set = CustomItemsPlugin.getInstance().getSet();
-						
 						ItemStack toTransfer = event.getCurrentItem();
-						CustomItem customTransfer = set.getItem(toTransfer);
+						CustomItemValues customTransfer = itemSet.getItem(toTransfer);
 
 						// First try to find a slot that already contains the item
 						for (int y = 0; y < customContainer.getType().getHeight(); y++) {
 							for (int x = 0; x < 9; x++) {
-								CustomSlot slot = customContainer.getType().getSlot(x, y);
+								ContainerSlotValues slot = customContainer.getType().getSlot(x, y);
 								if (slot.canInsertItems()) {
 									ItemStack existingItem = event.getInventory().getItem(x + 9 * y);
 									if (!ItemUtils.isEmpty(existingItem)) {
 										int transferredAmount = 0;
 										if (customTransfer != null) {
-											CustomItem customExisting = set.getItem(existingItem);
+											CustomItemValues customExisting = itemSet.getItem(existingItem);
 											if (customExisting == customTransfer) {
 												transferredAmount = Math.min(
 														customTransfer.getMaxStacksize() 
@@ -295,7 +295,7 @@ public class ContainerEventHandler implements Listener {
 						// Place the remainder in a suitable slot that is still empty
 						for (int y = 0; y < customContainer.getType().getHeight(); y++) {
 							for (int x = 0; x < 9; x++) {
-								CustomSlot slot = customContainer.getType().getSlot(x, y);
+								ContainerSlotValues slot = customContainer.getType().getSlot(x, y);
 								if (slot.canInsertItems()) {
 									ItemStack existing = event.getInventory().getItem(x + 9 * y);
 									if (ItemUtils.isEmpty(existing)) {
@@ -312,7 +312,7 @@ public class ContainerEventHandler implements Listener {
 				}
 			}
 			
-			List<CustomContainer> containerSelection = pluginData().getCustomContainerSelection(event.getWhoClicked());
+			List<CustomContainerValues> containerSelection = pluginData().getCustomContainerSelection(event.getWhoClicked());
 			if (containerSelection != null) {
 				// Block any inventory action during container selection
 				event.setCancelled(true);
@@ -325,7 +325,7 @@ public class ContainerEventHandler implements Listener {
 					);
 					event.getWhoClicked().closeInventory();
 				} else if (slotIndex <= containerSelection.size() && slotIndex >= 0) {
-					CustomContainer toOpen = containerSelection.get(slotIndex - 1);
+					CustomContainerValues toOpen = containerSelection.get(slotIndex - 1);
 					Bukkit.getScheduler().scheduleSyncDelayedTask(
 							CustomItemsPlugin.getInstance(), 
 							() -> pluginData().selectCustomContainer(
@@ -372,22 +372,21 @@ public class ContainerEventHandler implements Listener {
 		if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 
 			PlayerInventory inv = event.getPlayer().getInventory();
-			ItemSet set = CustomItemsPlugin.getInstance().getSet();
-			CustomItem customMain = set.getItem(inv.getItemInMainHand());
-			CustomItem customOff = set.getItem(inv.getItemInOffHand());
+			CustomItemValues customMain = itemSet.getItem(inv.getItemInMainHand());
+			CustomItemValues customOff = itemSet.getItem(inv.getItemInOffHand());
 
 			// Prevent players from opening 2 pocket containers at the same time
 			if (
-					customMain instanceof CustomPocketContainer
-							&& customOff instanceof CustomPocketContainer
+					customMain instanceof CustomPocketContainerValues
+							&& customOff instanceof CustomPocketContainerValues
 							&& event.getHand() != EquipmentSlot.HAND
 			) {
 				return;
 			}
 
-			CustomItem customItem = set.getItem(event.getItem());
-			if (customItem instanceof CustomPocketContainer) {
-				CustomPocketContainer pocketContainer = (CustomPocketContainer) customItem;
+			CustomItemValues customItem = itemSet.getItem(event.getItem());
+			if (customItem instanceof CustomPocketContainerValues) {
+				CustomPocketContainerValues pocketContainer = (CustomPocketContainerValues) customItem;
 				pluginData().openPocketContainerMenu(event.getPlayer(), pocketContainer);
 			}
 		}

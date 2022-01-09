@@ -1,20 +1,20 @@
 package nl.knokko.customitems.plugin.data;
 
-import nl.knokko.customitems.plugin.set.item.CustomWand;
+import nl.knokko.customitems.item.CustomWandValues;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.BitOutput;
 
 class PlayerWandData {
 
-	static PlayerWandData load1(BitInput input, CustomWand wand) {
+	static PlayerWandData load1(BitInput input, CustomWandValues wand) {
 		long cooldownExpireTick = -1;
 		if (input.readBoolean())
 			cooldownExpireTick = input.readLong();
 		
 		int currentCharges = -1;
 		long chargeRestoreTick = -1;
-		if (wand.charges != null)
-			currentCharges = wand.charges.maxCharges;
+		if (wand.getCharges() != null)
+			currentCharges = wand.getCharges().getMaxCharges();
 		
 		if (input.readBoolean()) {
 			currentCharges = input.readInt();
@@ -66,10 +66,10 @@ class PlayerWandData {
 		chargeRestoreTick = chargeRestore;
 	}
 	
-	public PlayerWandData(CustomWand wand) {
+	public PlayerWandData(CustomWandValues wand) {
 		cooldownExpireTick = -1;
-		if (wand.charges != null) {
-			currentCharges = wand.charges.maxCharges;
+		if (wand.getCharges() != null) {
+			currentCharges = wand.getCharges().getMaxCharges();
 			// chargeRestoreTick is undefined
 		}
 	}
@@ -80,7 +80,7 @@ class PlayerWandData {
 				", chargeRestoreTick=" + chargeRestoreTick + ")";
 	}
 	
-	public void save1(BitOutput output, CustomWand wand, long currentTick) {
+	public void save1(BitOutput output, CustomWandValues wand, long currentTick) {
 		boolean onCooldown = isOnCooldown(currentTick);
 		output.addBoolean(onCooldown);
 		if (onCooldown)
@@ -105,16 +105,16 @@ class PlayerWandData {
 		}
 	}
 	
-	private void updateCharges(CustomWand wand, long currentTick) {
+	private void updateCharges(CustomWandValues wand, long currentTick) {
 		if (isMissingChargesDirect(wand)) {
-			while (currentTick >= chargeRestoreTick && currentCharges < wand.charges.maxCharges) {
+			while (currentTick >= chargeRestoreTick && currentCharges < wand.getCharges().getMaxCharges()) {
 				currentCharges++;
-				chargeRestoreTick += wand.charges.rechargeTime;
+				chargeRestoreTick += wand.getCharges().getRechargeTime();
 			}
 		}
 	}
 
-	public long getTimeUntilNextRecharge(CustomWand wand, long currentTick) {
+	public long getTimeUntilNextRecharge(CustomWandValues wand, long currentTick) {
 		updateCharges(wand, currentTick);
 		if (isMissingChargesDirect(wand)) {
 			return chargeRestoreTick - currentTick;
@@ -123,34 +123,34 @@ class PlayerWandData {
 		}
 	}
 	
-	private boolean isMissingChargesDirect(CustomWand wand) {
-		return wand.charges != null && currentCharges < wand.charges.maxCharges;
+	private boolean isMissingChargesDirect(CustomWandValues wand) {
+		return wand.getCharges() != null && currentCharges < wand.getCharges().getMaxCharges();
 	}
 	
-	public boolean isMissingCharges(CustomWand wand, long currentTick) {
+	public boolean isMissingCharges(CustomWandValues wand, long currentTick) {
 		updateCharges(wand, currentTick);
 		return isMissingChargesDirect(wand);
 	}
 
-	public int getCurrentCharges(CustomWand wand, long currentTick) {
+	public int getCurrentCharges(CustomWandValues wand, long currentTick) {
 		updateCharges(wand, currentTick);
-		if (wand.charges != null) {
+		if (wand.getCharges() != null) {
 			return currentCharges;
 		} else {
 			return 1;
 		}
 	}
 
-	public boolean canShootNow(CustomWand wand, long currentTick) {
+	public boolean canShootNow(CustomWandValues wand, long currentTick) {
 		updateCharges(wand, currentTick);
-		return !isOnCooldown(currentTick) && (wand.charges == null || currentCharges > 0);
+		return !isOnCooldown(currentTick) && (wand.getCharges() == null || currentCharges > 0);
 	}
 	
-	public void onShoot(CustomWand wand, long currentTick) {
-		cooldownExpireTick = currentTick + wand.cooldown;
-		if (wand.charges != null) {
-			if (currentCharges == wand.charges.maxCharges)
-				chargeRestoreTick = currentTick + wand.charges.rechargeTime;
+	public void onShoot(CustomWandValues wand, long currentTick) {
+		cooldownExpireTick = currentTick + wand.getCooldown();
+		if (wand.getCharges() != null) {
+			if (currentCharges == wand.getCharges().getMaxCharges())
+				chargeRestoreTick = currentTick + wand.getCharges().getRechargeTime();
 			currentCharges--;
 		}
 	}
