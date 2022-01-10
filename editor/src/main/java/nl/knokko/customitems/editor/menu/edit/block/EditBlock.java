@@ -10,7 +10,6 @@ import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.BlockReference;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.texture.BaseTextureValues;
-import nl.knokko.customitems.texture.NamedImage;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;

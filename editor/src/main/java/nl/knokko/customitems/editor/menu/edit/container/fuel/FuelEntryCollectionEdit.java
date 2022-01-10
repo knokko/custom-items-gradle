@@ -1,9 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.container.fuel;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
 
-import nl.knokko.customitems.container.fuel.FuelEntry;
 import nl.knokko.customitems.container.fuel.FuelEntryValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.QuickCollectionEdit;

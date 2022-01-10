@@ -1,4 +1,4 @@
 - Check the positive compatibility page to see if any third-party plug-ins will break due to this refactoring.
 - Get rid of all the == checks between custom item values (and between other model values) since they don't have an
-identity.
+identity. EDIT: Hm... I don't think this is necessary, but it is a lot of work...
 - Remove the bypass checks option from the documentation
