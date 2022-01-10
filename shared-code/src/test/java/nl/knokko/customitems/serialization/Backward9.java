@@ -456,7 +456,7 @@ public class Backward9 {
         assertEquals(0.75, item.getAttackRange(), 0.0);
         assertEquals(new HashSet<>(listOf(
                 set.getContainerReference("container2")
-        )), item.getContainers());
+        )), item.getContainerReferences());
     }
 
     static void testFood1(CustomFoodValues item, SItemSet set) {

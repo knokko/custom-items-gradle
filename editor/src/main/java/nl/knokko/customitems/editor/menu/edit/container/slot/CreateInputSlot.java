@@ -3,10 +3,7 @@ package nl.knokko.customitems.editor.menu.edit.container.slot;
 import java.util.function.Consumer;
 
 import nl.knokko.customitems.container.slot.ContainerSlotValues;
-import nl.knokko.customitems.container.slot.CustomSlot;
-import nl.knokko.customitems.container.slot.InputCustomSlot;
 import nl.knokko.customitems.container.slot.InputSlotValues;
-import nl.knokko.customitems.container.slot.display.SlotDisplay;
 import nl.knokko.customitems.container.slot.display.SlotDisplayValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;

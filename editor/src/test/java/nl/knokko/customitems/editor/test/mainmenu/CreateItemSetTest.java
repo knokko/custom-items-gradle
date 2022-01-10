@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 
 import nl.knokko.customitems.editor.Editor;
+import nl.knokko.customitems.editor.EditorFileManager;
 import nl.knokko.gui.testing.GuiTestHelper;
 import nl.knokko.gui.testing.TestException;
 
@@ -41,12 +42,12 @@ public class CreateItemSetTest {
 	public static void test(GuiTestHelper test, String name) {
 		
 		// If the file already exists, delete it!
-		File maybe = new File(Editor.getFolder() + "/" + name + ".cisb");
+		File maybe = new File(EditorFileManager.FOLDER + "/" + name + ".cisb");
 		maybe.delete();
 		
 		// Also test that it forbids to create an item set with the same name as an existing item set
 		try {
-			new File(Editor.getFolder() + "/" + name + "full.cisb").createNewFile();
+			new File(EditorFileManager.FOLDER + "/" + name + "full.cisb").createNewFile();
 		} catch (IOException e) {
 			throw new TestException("Failed to create a dumb test file");
 		}

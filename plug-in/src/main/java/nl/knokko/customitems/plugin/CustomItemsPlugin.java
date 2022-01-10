@@ -78,7 +78,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 		// The PluginData maintains a map from custom objects to data
 		// That will have to be updated as well
 		data.saveData();
-		data = PluginData.loadData();
+		data = PluginData.loadData(this.itemSet);
 	}
 
 	@Override
@@ -94,10 +94,10 @@ public class CustomItemsPlugin extends JavaPlugin {
 		// durability prefix
 		loadSet();
 		debugChecks();
-		data = PluginData.loadData();
+		data = PluginData.loadData(this.itemSet);
 		projectileManager = new ProjectileManager();
 		itemUpdater = new ItemUpdater(itemSet);
-		getCommand("customitems").setExecutor(new CommandCustomItems(languageFile));
+		getCommand("customitems").setExecutor(new CommandCustomItems(this.itemSet, languageFile));
 		getCommand("customitems").setTabCompleter(new CustomItemsTabCompletions(itemSet));
 		Bukkit.getPluginManager().registerEvents(new CustomItemsEventHandler(itemSet), this);
 		Bukkit.getPluginManager().registerEvents(new ContainerEventHandler(itemSet), this);

@@ -23,7 +23,10 @@
  *******************************************************************************/
 package nl.knokko.customitems.plugin;
 
+import static nl.knokko.customitems.plugin.recipe.RecipeHelper.wrap;
 import static nl.knokko.customitems.plugin.recipe.RecipeHelper.*;
+import static nl.knokko.customitems.plugin.set.item.CustomItemWrapper.wrap;
+import static nl.knokko.customitems.plugin.set.item.CustomToolWrapper.wrap;
 import static org.bukkit.enchantments.Enchantment.ARROW_FIRE;
 import static org.bukkit.enchantments.Enchantment.ARROW_INFINITE;
 import static org.bukkit.enchantments.Enchantment.ARROW_KNOCKBACK;
@@ -75,6 +78,7 @@ import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
 import nl.knokko.customitems.plugin.recipe.IngredientEntry;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
+import nl.knokko.customitems.plugin.set.item.CustomToolWrapper;
 import nl.knokko.customitems.recipe.CraftingRecipeValues;
 import nl.knokko.customitems.recipe.ShapedRecipeValues;
 import nl.knokko.customitems.recipe.ShapelessRecipeValues;
@@ -110,9 +114,9 @@ import nl.knokko.core.plugin.world.Raytracer;
 import nl.knokko.customitems.damage.DamageSource;
 import nl.knokko.customitems.item.ReplacementConditionValues.ConditionOperation;
 import nl.knokko.customitems.item.ReplacementConditionValues.ReplacementCondition;
-import nl.knokko.customitems.plugin.set.item.CustomTool.IncreaseDurabilityResult;
 import nl.knokko.customitems.plugin.set.item.update.ItemUpdater;
 import nl.knokko.customitems.plugin.util.ItemUtils;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.projectiles.ProjectileSource;
 
 @SuppressWarnings("deprecation")
@@ -281,7 +285,7 @@ public class CustomItemsEventHandler implements Listener {
 
 				ItemStack newStack = item;
 
-				if (custom.forbidDefaultUse(item)) {
+				if (wrap(custom).forbidDefaultUse(item)) {
 
 					// But don't cancel unnecessary events (so don't prevent opening containers)
 					if (custom.getItemType().canServe(CustomItemType.Category.HOE)) {
@@ -303,14 +307,14 @@ public class CustomItemsEventHandler implements Listener {
 					if (tool instanceof CustomHoeValues) {
 						CustomHoeValues customHoe = (CustomHoeValues) tool;
 						if (canBeTilled) {
-							newStack = tool.decreaseDurability(item, customHoe.getTillDurabilityLoss());
+							newStack = wrap(tool).decreaseDurability(item, customHoe.getTillDurabilityLoss());
 						}
 					}
 
 					if (tool instanceof CustomShearsValues) {
 						CustomShearsValues customShears = (CustomShearsValues) tool;
 						if (canBeSheared) {
-							newStack = tool.decreaseDurability(item, customShears.getShearDurabilityLoss());
+							newStack = wrap(tool).decreaseDurability(item, customShears.getShearDurabilityLoss());
 						}
 					}
 
@@ -318,7 +322,7 @@ public class CustomItemsEventHandler implements Listener {
 						if (newStack == null) {
 							String newItemName = checkBrokenCondition(tool.getReplacementConditions());
 							if (newItemName != null) {
-								newStack = itemSet.getItem(newItemName).create(1);
+								newStack = wrap(itemSet.getItem(newItemName)).create(1);
 							}
 							playBreakSound(event.getPlayer());
 						}
@@ -408,7 +412,7 @@ public class CustomItemsEventHandler implements Listener {
 									replaceItems(condition, player);
 								}
 
-								replaceItem = conditions.get(replaceIndex).getReplaceItem());
+								replaceItem = conditions.get(replaceIndex).getReplaceItem();
 								EquipmentSlot slot = event.getHand();
 
 								boolean replaceSelf = false;
@@ -424,7 +428,7 @@ public class CustomItemsEventHandler implements Listener {
 								}
 
 								if (replaceItem != null) {
-									ItemStack stack = replaceItem.create(1);
+									ItemStack stack = wrap(replaceItem).create(1);
 									if (item.getAmount() <= 0) {
 										if (slot.equals(EquipmentSlot.OFF_HAND)) {
 											player.getInventory().setItemInOffHand(stack);
@@ -454,7 +458,7 @@ public class CustomItemsEventHandler implements Listener {
 								replaceItem = conditions.get(replaceIndex).getReplaceItem();
 								slot = event.getHand();
 								if (replaceItem != null) {
-									ItemStack stack = replaceItem.create(1);
+									ItemStack stack = wrap(replaceItem).create(1);
 									if (item.getAmount() <= 0) {
 										if (slot.equals(EquipmentSlot.OFF_HAND)) {
 											player.getInventory().setItemInOffHand(stack);
@@ -486,7 +490,7 @@ public class CustomItemsEventHandler implements Listener {
 								replaceItem = conditions.get(replaceIndex).getReplaceItem();
 								slot = event.getHand();
 								if (replaceItem != null) {
-									ItemStack stack = replaceItem.create(1);
+									ItemStack stack = wrap(replaceItem).create(1);
 									if (item.getAmount() <= 0) {
 										if (slot.equals(EquipmentSlot.OFF_HAND)) {
 											player.getInventory().setItemInOffHand(stack);
@@ -726,7 +730,7 @@ public class CustomItemsEventHandler implements Listener {
 				if (customTridentItem instanceof CustomTridentValues) {
 					customTrident = (CustomTridentValues) customTridentItem;
 
-					ItemStack newTridentItem = customTrident.decreaseDurability(tridentItem, customTrident.getThrowDurabilityLoss());
+					ItemStack newTridentItem = wrap(customTrident).decreaseDurability(tridentItem, customTrident.getThrowDurabilityLoss());
 					if (newTridentItem == null) {
 						trident.setMetadata("CustomTridentBreak", TRIDENT_BREAK_META);
 					} else if (newTridentItem != tridentItem) {
@@ -842,20 +846,20 @@ public class CustomItemsEventHandler implements Listener {
 						ItemStack newBowOrCrossbow;
 						if (customItem instanceof CustomBowValues) {
 							CustomBowValues bow = (CustomBowValues) customItem;
-							newBowOrCrossbow = bow.decreaseDurability(oldBowOrCrossbow, bow.getShootDurabilityLoss());
+							newBowOrCrossbow = wrap(bow).decreaseDurability(oldBowOrCrossbow, bow.getShootDurabilityLoss());
 						} else {
 							CustomCrossbowValues crossbow = (CustomCrossbowValues) customItem;
 							if (projectile instanceof Arrow) {
-								newBowOrCrossbow = crossbow.decreaseDurability(oldBowOrCrossbow, crossbow.getArrowDurabilityLoss());
+								newBowOrCrossbow = wrap(crossbow).decreaseDurability(oldBowOrCrossbow, crossbow.getArrowDurabilityLoss());
 							} else {
-								newBowOrCrossbow = crossbow.decreaseDurability(oldBowOrCrossbow, crossbow.getFireworkDurabilityLoss());
+								newBowOrCrossbow = wrap(crossbow).decreaseDurability(oldBowOrCrossbow, crossbow.getFireworkDurabilityLoss());
 							}
 						}
 
 						if (newBowOrCrossbow == null) {
 							String newItemName = checkBrokenCondition(customItem.getReplacementConditions());
 							if (newItemName != null) {
-								newBowOrCrossbow = itemSet.getItem(newItemName).create(1);
+								newBowOrCrossbow = wrap(itemSet.getItem(newItemName)).create(1);
 							}
 							playBreakSound(player);
 						}
@@ -976,16 +980,16 @@ public class CustomItemsEventHandler implements Listener {
 				? itemSet.getItem(off) : null;
 				
 		if (customMain != null) {
-			if (customMain.forbidDefaultUse(main))
+			if (wrap(customMain).forbidDefaultUse(main))
 				event.setCancelled(true);
 			else if (customMain instanceof CustomShearsValues) {
 				CustomShearsValues tool = (CustomShearsValues) customMain;
-				ItemStack newMain = tool.decreaseDurability(main, tool.getShearDurabilityLoss());
+				ItemStack newMain = wrap(tool).decreaseDurability(main, tool.getShearDurabilityLoss());
 				if (newMain != main) {
 					if (newMain == null) {
 						String newItemName = checkBrokenCondition(tool.getReplacementConditions());
 						if (newItemName != null) {
-							newMain = itemSet.getItem(newItemName).create(1);
+							newMain = wrap(itemSet.getItem(newItemName)).create(1);
 						}
 						playBreakSound(event.getPlayer());
 					}
@@ -993,16 +997,16 @@ public class CustomItemsEventHandler implements Listener {
 				}
 			}
 		} else if (customOff != null) {
-			if (customOff.forbidDefaultUse(off))
+			if (wrap(customOff).forbidDefaultUse(off))
 				event.setCancelled(true);
 			else if (customOff instanceof CustomShearsValues) {
 				CustomShearsValues tool = (CustomShearsValues) customOff;
-				ItemStack newOff = tool.decreaseDurability(off, tool.getShearDurabilityLoss());
+				ItemStack newOff = wrap(tool).decreaseDurability(off, tool.getShearDurabilityLoss());
 				if (newOff != off) {
 					if (newOff == null) {
 						String newItemName = checkBrokenCondition(tool.getReplacementConditions());
 						if (newItemName != null) {
-							newOff = itemSet.getItem(newItemName).create(1);
+							newOff = wrap(itemSet.getItem(newItemName)).create(1);
 						}
 						playBreakSound(event.getPlayer());
 					}
@@ -1104,7 +1108,7 @@ public class CustomItemsEventHandler implements Listener {
 			
 			// Delay this to avoid messing around with other plug-ins
 			Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () ->
-				custom.onBlockBreak(event.getPlayer(), mainItem, wasSolid, wasFakeMainHand)
+				wrap(custom).onBlockBreak(event.getPlayer(), mainItem, wasSolid, wasFakeMainHand)
 			);
 		}
 		
@@ -1288,14 +1292,14 @@ public class CustomItemsEventHandler implements Listener {
 						ItemStack weapon = damager.getEquipment().getItemInMainHand();
 						CustomItemValues custom = itemSet.getItem(weapon);
 						if (custom != null) {
-							custom.onEntityHit(damager, weapon, event.getEntity());
+							wrap(custom).onEntityHit(damager, weapon, event.getEntity());
 						}
 					}
 	
 					Collection<org.bukkit.potion.PotionEffect> te = new ArrayList<>();
 					if (customHelmet != null) {
 						for (PotionEffectValues effect : customHelmet.getOnHitTargetEffects()) {
-							te.add(new org.bukkit.potion.PotionEffect(
+							te.add(new PotionEffect(
 									org.bukkit.potion.PotionEffectType.getByName(
 											effect.getType().name()
 									), effect.getDuration() * 20, 
@@ -1305,7 +1309,7 @@ public class CustomItemsEventHandler implements Listener {
 					}
 					if (customChest != null) {
 						for (PotionEffectValues effect : customChest.getOnHitTargetEffects()) {
-							te.add(new org.bukkit.potion.PotionEffect(
+							te.add(new PotionEffect(
 									org.bukkit.potion.PotionEffectType.getByName(
 											effect.getType().name()
 									), effect.getDuration() * 20, 
@@ -1315,7 +1319,7 @@ public class CustomItemsEventHandler implements Listener {
 					}
 					if (customLegs != null) {
 						for (PotionEffectValues effect : customLegs.getOnHitTargetEffects()) {
-							te.add(new org.bukkit.potion.PotionEffect(
+							te.add(new PotionEffect(
 									org.bukkit.potion.PotionEffectType.getByName(
 											effect.getType().name()
 									), effect.getDuration() * 20, 
@@ -1325,7 +1329,7 @@ public class CustomItemsEventHandler implements Listener {
 					}
 					if (customBoots != null) {
 						for (PotionEffectValues effect : customBoots.getOnHitTargetEffects()) {
-							te.add(new org.bukkit.potion.PotionEffect(
+							te.add(new PotionEffect(
 									org.bukkit.potion.PotionEffectType.getByName(
 											effect.getType().name()
 									), effect.getDuration() * 20, 
@@ -1366,7 +1370,7 @@ public class CustomItemsEventHandler implements Listener {
 						if (helmet instanceof CustomArmorValues) {
 							String newItemName = checkBrokenCondition(helmet.getReplacementConditions());
 							if (newItemName != null) {
-								player.getInventory().addItem(itemSet.getItem(newItemName).create(1));
+								player.getInventory().addItem(wrap(itemSet.getItem(newItemName)).create(1));
 							}
 						}
 						playBreakSound(player);
@@ -1382,7 +1386,7 @@ public class CustomItemsEventHandler implements Listener {
 						if (plate instanceof CustomArmorValues) {
 							String newItemName = checkBrokenCondition(plate.getReplacementConditions());
 							if (newItemName != null) {
-								player.getInventory().addItem(itemSet.getItem(newItemName).create(1));
+								player.getInventory().addItem(wrap(itemSet.getItem(newItemName)).create(1));
 							}
 						}
 						playBreakSound(player);
@@ -1398,7 +1402,7 @@ public class CustomItemsEventHandler implements Listener {
 						if (leggings instanceof CustomArmorValues) {
 							String newItemName = checkBrokenCondition(leggings.getReplacementConditions());
 							if (newItemName != null) {
-								player.getInventory().addItem(itemSet.getItem(newItemName).create(1));
+								player.getInventory().addItem(wrap(itemSet.getItem(newItemName)).create(1));
 							}
 						}
 						playBreakSound(player);
@@ -1414,7 +1418,7 @@ public class CustomItemsEventHandler implements Listener {
 						if (boots instanceof CustomArmorValues) {
 							String newItemName = checkBrokenCondition(boots.getReplacementConditions());
 							if (newItemName != null) {
-								player.getInventory().addItem(itemSet.getItem(newItemName).create(1));
+								player.getInventory().addItem(wrap(itemSet.getItem(newItemName)).create(1));
 							}
 						}
 						playBreakSound(player);
@@ -1449,26 +1453,26 @@ public class CustomItemsEventHandler implements Listener {
 					int lostDurability = (int) (event.getDamage()) + 1;
 					if (offhand) {
 						ItemStack oldOffHand = player.getInventory().getItemInOffHand();
-						ItemStack newOffHand = shield.decreaseDurability(oldOffHand, lostDurability);
+						ItemStack newOffHand = wrap(shield).decreaseDurability(oldOffHand, lostDurability);
 						if (oldOffHand != newOffHand) {
 							player.getInventory().setItemInOffHand(newOffHand);
 							if (newOffHand == null) {
 								String newItemName = checkBrokenCondition(customOff.getReplacementConditions());
 								if (newItemName != null) {
-									player.getInventory().setItemInOffHand(itemSet.getItem(newItemName).create(1));
+									player.getInventory().setItemInOffHand(wrap(itemSet.getItem(newItemName)).create(1));
 								}
 								playBreakSound(player);
 							}
 						}
 					} else {
 						ItemStack oldMainHand = player.getInventory().getItemInMainHand();
-						ItemStack newMainHand = shield.decreaseDurability(oldMainHand, lostDurability);
+						ItemStack newMainHand = wrap(shield).decreaseDurability(oldMainHand, lostDurability);
 						if (oldMainHand != newMainHand) {
 							player.getInventory().setItemInMainHand(newMainHand);
 							if (newMainHand == null) {
 								String newItemName = checkBrokenCondition(customMain.getReplacementConditions());
 								if (newItemName != null) {
-									player.getInventory().setItemInMainHand(itemSet.getItem(newItemName).create(1));
+									player.getInventory().setItemInMainHand(wrap(itemSet.getItem(newItemName)).create(1));
 								}
 								playBreakSound(player);
 							}
@@ -1482,7 +1486,7 @@ public class CustomItemsEventHandler implements Listener {
 	private ItemStack decreaseCustomArmorDurability(ItemStack piece, int damage) {
 		CustomItemValues custom = itemSet.getItem(piece);
 		if (custom instanceof CustomArmorValues) {
-			return ((CustomArmorValues) custom).decreaseDurability(piece, damage);
+			return wrap((CustomArmorValues) custom).decreaseDurability(piece, damage);
 		}
 		return piece;
 	}
@@ -1555,7 +1559,7 @@ public class CustomItemsEventHandler implements Listener {
 		else
 			item = event.getPlayer().getInventory().getItemInOffHand();
 		CustomItemValues custom = itemSet.getItem(item);
-		if (custom != null && custom.forbidDefaultUse(item)) {
+		if (custom != null && wrap(custom).forbidDefaultUse(item)) {
 			// Don't let custom items be used as their internal item
 			event.setCancelled(true);
 		}
@@ -1585,7 +1589,7 @@ public class CustomItemsEventHandler implements Listener {
 				if (item.containsEnchantment(Enchantment.MENDING) && custom instanceof CustomToolValues) {
 					CustomToolValues tool = (CustomToolValues) custom;
 					
-					IncreaseDurabilityResult increaseResult = tool.increaseDurability(item, durAmount);
+					CustomToolWrapper.IncreaseDurabilityResult increaseResult = wrap(tool).increaseDurability(item, durAmount);
 					durAmount -= increaseResult.increasedAmount;
 					allEquipment[index] = increaseResult.stack;
 					
@@ -1634,15 +1638,15 @@ public class CustomItemsEventHandler implements Listener {
 					String oldName = ItemHelper.getStackName(contents[0]);
 					boolean isRenaming = !renameText.isEmpty() && !renameText.equals(oldName);
 					if (custom1 == custom2) {
-						long durability1 = tool.getDurability(contents[0]);
-						long durability2 = tool.getDurability(contents[1]);
+						long durability1 = wrap(tool).getDurability(contents[0]);
+						long durability2 = wrap(tool).getDurability(contents[1]);
 						long resultDurability = -1;
 						if (tool.getMaxDurabilityNew() != null) {
 							resultDurability = Math.min(durability1 + durability2, tool.getMaxDurabilityNew());
 						}
 						Map<Enchantment, Integer> enchantments1 = contents[0].getEnchantments();
 						Map<Enchantment, Integer> enchantments2 = contents[1].getEnchantments();
-						ItemStack result = tool.create(1, resultDurability);
+						ItemStack result = wrap(tool).create(1, resultDurability);
 						int levelCost = 0;
 						boolean hasChange = false;
 						if (isRenaming) {
@@ -1689,7 +1693,7 @@ public class CustomItemsEventHandler implements Listener {
 						int maxRepairCount = (int) Math.round(Math.log(maxRepairCost + 1) / Math.log(2));
 						((Repairable) resultMeta).setRepairCost((int) Math.round(Math.pow(2, maxRepairCount + 1) - 1));
 						result.setItemMeta(resultMeta);
-						if (tool.getMaxDurabilityNew() != null && tool.getDurability(contents[0]) < tool.getMaxDurabilityNew()) {
+						if (tool.getMaxDurabilityNew() != null && wrap(tool).getDurability(contents[0]) < tool.getMaxDurabilityNew()) {
 							levelCost += 2;
 							hasChange = true;
 						}
@@ -1711,14 +1715,14 @@ public class CustomItemsEventHandler implements Listener {
 
 							long neededDurability = 0;
 							if (tool.getMaxDurabilityNew() != null) {
-								long durability = tool.getDurability(contents[0]);
+								long durability = wrap(tool).getDurability(contents[0]);
 								long maxDurability = tool.getMaxDurabilityNew();
 								neededDurability = maxDurability - durability;
 							}
 
 							if (neededDurability > 0) {
 								IngredientValues repairItem = tool.getRepairItem();
-								long durability = tool.getDurability(contents[0]);
+								long durability = wrap(tool).getDurability(contents[0]);
 								int neededAmount = (int) Math.ceil(neededDurability * 4.0 / tool.getMaxDurabilityNew()) * repairItem.getAmount();
 
 								int repairValue = Math.min(neededAmount, contents[1].getAmount()) / repairItem.getAmount();
@@ -1727,7 +1731,7 @@ public class CustomItemsEventHandler implements Listener {
 								if (repairValue > 0 && (repairItem.getRemainingItem() == null || repairValue * repairItem.getAmount() == contents[1].getAmount())) {
 									long resultDurability = Math.min(durability + tool.getMaxDurabilityNew() * repairValue / 4,
 											tool.getMaxDurabilityNew());
-									ItemStack result = tool.create(1, resultDurability);
+									ItemStack result = wrap(tool).create(1, resultDurability);
 									result.addUnsafeEnchantments(contents[0].getEnchantments());
 									int levelCost = repairValue;
 									if (isRenaming) {
@@ -2002,7 +2006,7 @@ public class CustomItemsEventHandler implements Listener {
 										ItemStack slotItem = contents[entry.itemIndex + 1];
 										slotItem.setAmount(slotItem.getAmount() - entry.ingredient.getAmount() * baseAmountsToRemove);
 									} else {
-										contents[entry.itemIndex + 1] = entry.ingredient.getRemainingItem();
+										contents[entry.itemIndex + 1] = convertResultToItemStack(entry.ingredient.getRemainingItem());
 									}
 								}
 
@@ -2100,7 +2104,7 @@ public class CustomItemsEventHandler implements Listener {
 
 								// Use AcceptAmountless because we need to handle remaining item differently
 								if (shouldIngredientAcceptAmountless(tool.getRepairItem(), contents[1]) && tool.getMaxDurabilityNew() != null) {
-									long durability = tool.getDurability(contents[0]);
+									long durability = wrap(tool).getDurability(contents[0]);
 									long maxDurability = tool.getMaxDurabilityNew();
 									long neededDurability = maxDurability - durability;
 									int neededAmount = (int) Math.ceil(neededDurability * 4.0 / maxDurability) * tool.getRepairItem().getAmount();
@@ -2148,7 +2152,6 @@ public class CustomItemsEventHandler implements Listener {
 			if (customCursor != null && customCursor == customCurrent && customCursor.canStack()) {
 				
 				event.setResult(Result.DENY);
-				// TODO Why is this denied, but not cancelled?
 				if (event.isLeftClick()) {
 					int amount = current.getAmount() + cursor.getAmount();
 					if (amount <= customCursor.getMaxStacksize()) {
@@ -2479,7 +2482,7 @@ public class CustomItemsEventHandler implements Listener {
 		if (customItem != null) {
 			int remainingAmount = stack.getAmount();
 			for (ItemStack content : contents) {
-				if (customItem.is(content)) {
+				if (wrap(customItem).is(content)) {
 					int remainingSpace = customItem.getMaxStacksize() - content.getAmount();
 					if (remainingSpace > 0) {
 						if (remainingSpace >= remainingAmount) {
@@ -2579,7 +2582,7 @@ public class CustomItemsEventHandler implements Listener {
 				for (ItemStack content : contents) {
 
 					// customStack can't be null because fixCustomItemPickup would have returned false then
-					if (customStack.is(content)) {
+					if (wrap(customStack).is(content)) {
 
 						// We rely here on the fact that hoppers won't move more than 1 item at a time
 						content.setAmount(content.getAmount() - 1);

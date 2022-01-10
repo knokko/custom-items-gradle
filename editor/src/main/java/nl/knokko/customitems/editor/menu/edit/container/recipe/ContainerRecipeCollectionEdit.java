@@ -6,7 +6,6 @@ import java.util.Map;
 
 import nl.knokko.customitems.container.ContainerRecipeValues;
 import nl.knokko.customitems.container.slot.ContainerSlotValues;
-import nl.knokko.customitems.container.slot.CustomSlot;
 import nl.knokko.customitems.editor.menu.edit.CollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.container.EditContainer;

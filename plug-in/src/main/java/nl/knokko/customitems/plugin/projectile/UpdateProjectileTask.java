@@ -1,5 +1,6 @@
 package nl.knokko.customitems.plugin.projectile;
 
+import nl.knokko.customitems.plugin.set.item.CustomItemWrapper;
 import org.bukkit.World;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
@@ -16,7 +17,6 @@ import nl.knokko.core.plugin.world.RaytraceResult;
 import nl.knokko.core.plugin.world.Raytracer;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
-import nl.knokko.customitems.plugin.set.item.CustomItem;
 
 public class UpdateProjectileTask implements Runnable {
 	
@@ -111,7 +111,7 @@ public class UpdateProjectileTask implements Runnable {
 	
 	private void createCoverItem(Vector position) {
 		
-		CIMaterial coverMaterial = CustomItem.getMaterial(projectile.prototype.getCover().getItemType());
+		CIMaterial coverMaterial = CustomItemWrapper.getMaterial(projectile.prototype.getCover().getItemType());
 		ItemStack coverStack = ItemHelper.createStack(coverMaterial.name(), 1);
 		ItemMeta coverMeta = coverStack.getItemMeta();
 		coverMeta.setUnbreakable(true);

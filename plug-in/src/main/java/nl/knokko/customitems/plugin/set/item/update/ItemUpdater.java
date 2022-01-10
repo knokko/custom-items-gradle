@@ -1,17 +1,19 @@
 package nl.knokko.customitems.plugin.set.item.update;
 
+import static nl.knokko.customitems.plugin.set.item.CustomItemWrapper.*;
 import static org.bukkit.enchantments.Enchantment.getByName;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.logging.Level;
 
-import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.itemset.CustomItemsView;
+import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
+import nl.knokko.customitems.plugin.set.ItemSetWrapper;
+import nl.knokko.customitems.plugin.set.item.CustomItemWrapper;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import org.bukkit.Bukkit;
@@ -27,40 +29,20 @@ import org.bukkit.inventory.meta.ItemMeta;
 import nl.knokko.core.plugin.item.GeneralItemNBT;
 import nl.knokko.core.plugin.item.ItemHelper;
 import nl.knokko.core.plugin.item.attributes.ItemAttributes;
-import nl.knokko.customitems.item.Enchantment;
-import nl.knokko.customitems.item.EnchantmentType;
-import nl.knokko.customitems.item.ItemFlag;
-import nl.knokko.customitems.item.nbt.NbtPair;
-import nl.knokko.customitems.item.nbt.NbtValue;
 import nl.knokko.customitems.item.nbt.NbtValueType;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.container.ContainerInstance;
-import nl.knokko.customitems.plugin.set.ItemSet;
 import nl.knokko.customitems.plugin.set.item.BooleanRepresentation;
-import nl.knokko.customitems.plugin.set.item.CustomItem;
 import nl.knokko.customitems.plugin.set.item.CustomItemNBT;
 
 public class ItemUpdater {
 
-	private CustomItemsView items;
-	private Function<String, Boolean> isItemDeleted;
-	private long setExportTime;
-	
-	public ItemUpdater(CustomItemsView items, Function<String, Boolean> isItemDeleted, long setExportTime) {
-		this.items = items;
-		this.isItemDeleted = isItemDeleted;
-		this.setExportTime = setExportTime;
+	private final ItemSetWrapper itemSet;
+
+	public ItemUpdater(ItemSetWrapper itemSet) {
+		this.itemSet = itemSet;
 	}
-	
-	public void onReload(
-			CustomItemsView newItems,
-			Function<String, Boolean> newIsItemDeleted,
-			long newSetExportTime) {
-		this.items = newItems;
-		this.isItemDeleted = newIsItemDeleted;
-		this.setExportTime = newSetExportTime;
-	}
-	
+
 	public void start() {
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(CustomItemsPlugin.getInstance(), () -> {
 			for (Player player : Bukkit.getOnlinePlayers()) {
@@ -154,7 +136,7 @@ public class ItemUpdater {
 					 * an item stack, it will replace it by a proper item stack
 					 * representation of the desired custom item.
 					 */
-					CustomItemValues currentItem = getItemByName(itemName);
+					CustomItemValues currentItem = this.itemSet.getItem(itemName);
 					if (currentItem != null) {
 						pNewItem[0] = currentItem;
 						pAction[0] = UpdateAction.INITIALIZE;
@@ -162,7 +144,7 @@ public class ItemUpdater {
 						// I'm not really sure how this case should be handled
 						pAction[0] = UpdateAction.DO_NOTHING;
 					}
-				} else if (lastExportTime == setExportTime) {
+				} else if (lastExportTime == this.itemSet.get().getExportTime()) {
 					
 					/*
 					 * If the exportTime of the item stack is the same as the 
@@ -172,7 +154,7 @@ public class ItemUpdater {
 					 */
 					pAction[0] = UpdateAction.DO_NOTHING;
 				} else {
-					CustomItemValues currentItem = getItemByName(itemName);
+					CustomItemValues currentItem = this.itemSet.getItem(itemName);
 					if (currentItem != null) {
 						
 						BooleanRepresentation oldBoolRepresentation = nbt.getBooleanRepresentation();
@@ -257,7 +239,7 @@ public class ItemUpdater {
 						 */
 						pAction[0] = UpdateAction.DO_NOTHING;
 						
-						if (isItemDeleted.apply(itemName)) {
+						if (this.itemSet.get().hasItemBeenDeleted(itemName)) {
 							pAction[0] = UpdateAction.DESTROY;
 						}
 					}
@@ -280,17 +262,17 @@ public class ItemUpdater {
 		} else if (action == UpdateAction.UPDATE_LAST_EXPORT_TIME) {
 			ItemStack[] pResult = {null};
 			CustomItemNBT.readWrite(originalStack, nbt -> {
-				nbt.setLastExportTime(setExportTime);
+				nbt.setLastExportTime(this.itemSet.get().getExportTime());
 			}, result -> pResult[0] = result);
 			return pResult[0];
 		} else {
 			
-			CustomItem newItem = pNewItem[0];
+			CustomItemValues newItem = pNewItem[0];
 			if (action == UpdateAction.INITIALIZE) {
-				return newItem.create(originalStack.getAmount());
+				return wrap(newItem).create(originalStack.getAmount());
 			} else if (action == UpdateAction.UPGRADE) {
 				
-				CustomItem oldItem = pOldItem[0];
+				CustomItemValues oldItem = pOldItem[0];
 				return upgradeItem(originalStack, oldItem, newItem);
 			} else {
 				throw new Error("Unknown update action: " + action);
@@ -298,7 +280,7 @@ public class ItemUpdater {
 		}
 	}
 	
-	private ItemStack upgradeItem(ItemStack oldStack, CustomItem oldItem, CustomItem newItem) {
+	private ItemStack upgradeItem(ItemStack oldStack, CustomItemValues oldItem, CustomItemValues newItem) {
 		
 		// We start with the attribute modifiers
 		ItemAttributes.Single[] newStackAttributes = determineUpgradedAttributes(
@@ -311,12 +293,14 @@ public class ItemUpdater {
 		Long[] pOldDurability = {null};
 		Long[] pNewDurability = {null};
 		CustomItemNBT.readWrite(newStack, nbt -> {
-			nbt.setLastExportTime(setExportTime);
-			nbt.setBooleanRepresentation(newItem.getBooleanRepresentation());
+			nbt.setLastExportTime(this.itemSet.get().getExportTime());
+			nbt.setBooleanRepresentation(new BooleanRepresentation(newItem.getBooleanRepresentation()));
 			Long currentDurability = nbt.getDurability();
 			pOldDurability[0] = currentDurability;
 			if (currentDurability != null) {
-				if (newItem.getMaxDurabilityNew() != null) {
+				if (newItem instanceof CustomToolValues && ((CustomToolValues) newItem).getMaxDurabilityNew() != null) {
+					CustomToolValues oldTool = (CustomToolValues) oldItem;
+					CustomToolValues newTool = (CustomToolValues) newItem;
 					/*
 					 * There was durability, and there still is. We will do the
 					 * following: if the new maximum durability became bigger,
@@ -331,15 +315,15 @@ public class ItemUpdater {
 					 * These decisions are not necessarily perfect, but decisions
 					 * have to be made.
 					 */
-					if (oldItem.getMaxDurabilityNew() != null) {
-						if (newItem.getMaxDurabilityNew() >= oldItem.getMaxDurabilityNew()) {
+					if (oldTool.getMaxDurabilityNew() != null) {
+						if (newTool.getMaxDurabilityNew() >= oldTool.getMaxDurabilityNew()) {
 							pNewDurability[0] = currentDurability 
-									+ newItem.getMaxDurabilityNew() 
-									- oldItem.getMaxDurabilityNew();
+									+ newTool.getMaxDurabilityNew()
+									- oldTool.getMaxDurabilityNew();
 						} else {
 							pNewDurability[0] = Math.min(
 									currentDurability, 
-									newItem.getMaxDurabilityNew()
+									newTool.getMaxDurabilityNew()
 							);
 						}
 					} else {
@@ -347,7 +331,7 @@ public class ItemUpdater {
 						// Anyway, this seems like the most logical response
 						pNewDurability[0] = Math.min(
 								currentDurability, 
-								newItem.getMaxDurabilityNew()
+								newTool.getMaxDurabilityNew()
 						);
 					}
 				} else {
@@ -355,10 +339,10 @@ public class ItemUpdater {
 					pNewDurability[0] = null;
 				}
 			} else {
-				if (newItem.getMaxDurabilityNew() != null) {
+				if (newItem instanceof CustomToolValues && ((CustomToolValues) newItem).getMaxDurabilityNew() != null) {
 					// There was no durability, but now there is.
 					// Let's just start with full durability
-					pNewDurability[0] = newItem.getMaxDurabilityNew();
+					pNewDurability[0] = ((CustomToolValues) newItem).getMaxDurabilityNew();
 				} else {
 					// There was no durability, and there shouldn't be durability
 					pNewDurability[0] = null;
@@ -374,17 +358,17 @@ public class ItemUpdater {
 		newStack = pNewStack[0];
 		
 		GeneralItemNBT generalNbt = GeneralItemNBT.readWriteInstance(newStack);
-		for (NbtPair oldPair : oldItem.getExtraNbt().getPairs()) {
-			generalNbt.remove(oldPair.getKey().getParts());
+		for (ExtraItemNbtValues.Entry oldPair : oldItem.getExtraNbt().getEntries()) {
+			generalNbt.remove(oldPair.getKey().toArray(new String[0]));
 		}
-		for (NbtPair newPair : newItem.getExtraNbt().getPairs()) {
-			NbtValue newValue = newPair.getValue();
-			if (newValue.getType() == NbtValueType.INTEGER) {
-				generalNbt.set(newPair.getKey().getParts(), newValue.getIntValue());
-			} else if (newValue.getType() == NbtValueType.STRING) {
-				generalNbt.set(newPair.getKey().getParts(), newValue.getStringValue());
+		for (ExtraItemNbtValues.Entry newPair : newItem.getExtraNbt().getEntries()) {
+			ExtraItemNbtValues.Value newValue = newPair.getValue();
+			if (newValue.type == NbtValueType.INTEGER) {
+				generalNbt.set(newPair.getKey().toArray(new String[0]), newValue.getIntValue());
+			} else if (newValue.type == NbtValueType.STRING) {
+				generalNbt.set(newPair.getKey().toArray(new String[0]), newValue.getStringValue());
 			} else {
-				throw new Error("Unknown nbt value type: " + newValue.getType());
+				throw new Error("Unknown nbt value type: " + newValue.type);
 			}
 		}
 		
@@ -392,7 +376,7 @@ public class ItemUpdater {
 		
 		upgradeEnchantments(newStack, oldItem, newItem);
 		
-		ItemHelper.setMaterial(newStack, newItem.getMaterial().name());
+		ItemHelper.setMaterial(newStack, CustomItemWrapper.getMaterial(newItem.getItemType()).name());
 		
 		ItemMeta meta = newStack.getItemMeta();
 		
@@ -403,12 +387,12 @@ public class ItemUpdater {
 		meta.setUnbreakable(true);
 		newStack.setItemMeta(meta);
 		
-		newStack.setDurability(newItem.getInternalItemDamage());
+		newStack.setDurability(newItem.getItemDamage());
 		
 		return newStack;
 	}
 	
-	private void upgradeDisplayName(ItemMeta toUpgrade, CustomItem oldItem, CustomItem newItem) {
+	private void upgradeDisplayName(ItemMeta toUpgrade, CustomItemValues oldItem, CustomItemValues newItem) {
 		/*
 		 * If the item allows anvil actions, it is possible that the player renamed
 		 * the item in an anvil. It would be bad to 'reset' the name each time the
@@ -430,30 +414,30 @@ public class ItemUpdater {
 		}
 	}
 	
-	private void upgradeLore(ItemMeta toUpgrade, CustomItem oldItem, CustomItem newItem, Long oldDurability, Long newDurability) {
+	private void upgradeLore(ItemMeta toUpgrade, CustomItemValues oldItem, CustomItemValues newItem, Long oldDurability, Long newDurability) {
 		if (!Objects.equals(oldDurability, newDurability) || !Objects.deepEquals(oldItem.getLore(), newItem.getLore())) {
 			/*
 			 * I will do no attempt to 'upgrade' the lore rather than replacing it,
 			 * because tools will overwrite lore each time they take durability
 			 * anyway.
 			 */
-			toUpgrade.setLore(newItem.createLore(newDurability));
+			toUpgrade.setLore(wrap(newItem).createLore(newDurability));
 		}
 	}
 	
-	private void upgradeItemFlags(ItemMeta toUpgrade, CustomItem oldItem, CustomItem newItem) {
+	private void upgradeItemFlags(ItemMeta toUpgrade, CustomItemValues oldItem, CustomItemValues newItem) {
 		/*
 		 * We will only update the item flags that changed for optimal preservation
 		 * of the custom values of the item stack being upgraded.
 		 */
-		boolean[] oldFlags = oldItem.getItemFlags();
-		boolean[] newFlags = newItem.getItemFlags();
-		boolean hadAttributes = oldItem.getAttributeModifiers().length > 0;
-		boolean hasAttributes = newItem.getAttributeModifiers().length > 0;
+		List<Boolean> oldFlags = oldItem.getItemFlags();
+		List<Boolean> newFlags = newItem.getItemFlags();
+		boolean hadAttributes = oldItem.getAttributeModifiers().size() > 0;
+		boolean hasAttributes = newItem.getAttributeModifiers().size() > 0;
 		ItemFlag[] allFlags = ItemFlag.values();
 		for (int flagIndex = 0; flagIndex < allFlags.length; flagIndex++) {
-			boolean oldHasFlag = flagIndex < oldFlags.length && oldFlags[flagIndex];
-			boolean newHasFlag = flagIndex < newFlags.length && newFlags[flagIndex];
+			boolean oldHasFlag = flagIndex < oldFlags.size() && oldFlags.get(flagIndex);
+			boolean newHasFlag = flagIndex < newFlags.size() && newFlags.get(flagIndex);
 			ItemFlag currentFlag = allFlags[flagIndex];
 			
 			// Yeah... there is a special and nasty edge case for the HIDE_ATTRIBUTES flag
@@ -483,7 +467,7 @@ public class ItemUpdater {
 	}
 	
 	private ItemAttributes.Single[] determineUpgradedAttributes(
-			ItemStack oldStack, CustomItem oldItem, CustomItem newItem
+			ItemStack oldStack, CustomItemValues oldItem, CustomItemValues newItem
 	) {
 		
 		/*
@@ -494,18 +478,20 @@ public class ItemUpdater {
 		 */
 		ItemAttributes.Single[] oldStackAttributes = ItemAttributes.getAttributes(oldStack);
 		Collection<ItemAttributes.Single> newStackAttributes = new ArrayList<>(
-				oldStackAttributes.length - oldItem.getAttributeModifiers().length 
-				+ newItem.getAttributeModifiers().length
+				oldStackAttributes.length - oldItem.getAttributeModifiers().size()
+				+ newItem.getAttributeModifiers().size()
 		);
 		
 		oldStackLoop:
 		for (ItemAttributes.Single oldStackAttribute : oldStackAttributes) {
-			for (ItemAttributes.Single oldItemAttribute : oldItem.getAttributeModifiers()) {
+			for (AttributeModifierValues rawOldAttribute : oldItem.getAttributeModifiers()) {
+				ItemAttributes.Single oldItemAttribute = convertAttributeModifier(rawOldAttribute);
 				if (oldStackAttribute.equals(oldItemAttribute)) {
 					continue oldStackLoop;
 				}
 			}
-			for (ItemAttributes.Single newItemAttribute : newItem.getAttributeModifiers()) {
+			for (AttributeModifierValues rawNewAttribute : newItem.getAttributeModifiers()) {
+				ItemAttributes.Single newItemAttribute = convertAttributeModifier(rawNewAttribute);
 				if (oldStackAttribute.equals(newItemAttribute)) {
 					continue oldStackLoop;
 				}
@@ -520,14 +506,14 @@ public class ItemUpdater {
 		}
 		
 		// Obviously, we should also add the attribute modifiers of newItem
-		for (ItemAttributes.Single newItemAttribute : newItem.getAttributeModifiers()) {
-			newStackAttributes.add(newItemAttribute);
+		for (AttributeModifierValues rawNewAttribute : newItem.getAttributeModifiers()) {
+			newStackAttributes.add(convertAttributeModifier(rawNewAttribute));
 		}
 		
-		return newStackAttributes.toArray(new ItemAttributes.Single[newStackAttributes.size()]);
+		return newStackAttributes.toArray(new ItemAttributes.Single[0]);
 	}
 	
-	private void upgradeEnchantments(ItemStack toUpgrade, CustomItem oldItem, CustomItem newItem) {
+	private void upgradeEnchantments(ItemStack toUpgrade, CustomItemValues oldItem, CustomItemValues newItem) {
 		
 		/*
 		 * If the new item doesn't allow anvil actions, it should not be possible to
@@ -535,8 +521,8 @@ public class ItemUpdater {
 		 * enchantments of the new item.
 		 */
 		if (!newItem.allowAnvilActions()) {
-			toUpgrade.getEnchantments().keySet().forEach(enchantment -> toUpgrade.removeEnchantment(enchantment));
-			for (Enchantment enchantment : newItem.getDefaultEnchantments()) {
+			toUpgrade.getEnchantments().keySet().forEach(toUpgrade::removeEnchantment);
+			for (EnchantmentValues enchantment : newItem.getDefaultEnchantments()) {
 				toUpgrade.addUnsafeEnchantment(
 						getByName(enchantment.getType().name()), 
 						enchantment.getLevel()
@@ -556,14 +542,14 @@ public class ItemUpdater {
 				}
 			}
 			
-			Collection<Enchantment> removedEnchantments = new ArrayList<>();
-			Collection<Enchantment> addedEnchantments = new ArrayList<>();
+			Collection<EnchantmentValues> removedEnchantments = new ArrayList<>();
+			Collection<EnchantmentValues> addedEnchantments = new ArrayList<>();
 			Collection<ChangedEnchantment> changedEnchantments = new ArrayList<>();
 			
 			// Find out which enchantments are removed and which are upgraded
 			outerLoop:
-			for (Enchantment oldEnchantment : oldItem.getDefaultEnchantments()) {
-				for (Enchantment newEnchantment : newItem.getDefaultEnchantments()) {
+			for (EnchantmentValues oldEnchantment : oldItem.getDefaultEnchantments()) {
+				for (EnchantmentValues newEnchantment : newItem.getDefaultEnchantments()) {
 					if (oldEnchantment.getType() == newEnchantment.getType()) {
 						if (oldEnchantment.getLevel() != newEnchantment.getLevel()) {
 							changedEnchantments.add(new ChangedEnchantment(
@@ -581,8 +567,8 @@ public class ItemUpdater {
 			
 			// Find out which enchantments are added
 			outerLoop:
-			for (Enchantment newEnchantment : newItem.getDefaultEnchantments()) {
-				for (Enchantment oldEnchantment : oldItem.getDefaultEnchantments()) {
+			for (EnchantmentValues newEnchantment : newItem.getDefaultEnchantments()) {
+				for (EnchantmentValues oldEnchantment : oldItem.getDefaultEnchantments()) {
 					if (newEnchantment.getType() == oldEnchantment.getType()) {
 						continue outerLoop;
 					}
@@ -591,7 +577,7 @@ public class ItemUpdater {
 				addedEnchantments.add(newEnchantment);
 			}
 			
-			for (Enchantment removed : removedEnchantments) {
+			for (EnchantmentValues removed : removedEnchantments) {
 				int currentLevel = toUpgrade.getEnchantmentLevel(
 						getByName(removed.getType().name())
 				);
@@ -614,7 +600,7 @@ public class ItemUpdater {
 				}
 			}
 			
-			for (Enchantment added : addedEnchantments) {
+			for (EnchantmentValues added : addedEnchantments) {
 				int currentLevel = toUpgrade.getEnchantmentLevel(
 						getByName(added.getType().name())
 				);
@@ -663,17 +649,7 @@ public class ItemUpdater {
 			}
 		}
 	}
-	
-	private CustomItemValues getItemByName(String name) {
-		for (CustomItemValues item : items) {
-			if (item.getName().equals(name)) {
-				return item;
-			}
-		}
-		
-		return null;
-	}
-	
+
 	private enum UpdateAction {
 		
 		DO_NOTHING,

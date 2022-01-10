@@ -47,7 +47,7 @@ import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomToolValues;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
-import nl.knokko.customitems.plugin.set.item.CustomTool;
+import nl.knokko.customitems.plugin.set.item.CustomToolWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -64,6 +64,9 @@ import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.LanguageFile;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import nl.knokko.customitems.util.StringEncoder;
+
+import static nl.knokko.customitems.plugin.set.item.CustomItemWrapper.wrap;
+import static nl.knokko.customitems.plugin.set.item.CustomToolWrapper.wrap;
 
 public class CommandCustomItems implements CommandExecutor {
 	
@@ -155,7 +158,7 @@ public class CommandCustomItems implements CommandExecutor {
 								return true;
 							}
 							if (receiver != null) {
-								receiver.getInventory().addItem(item.create(amount));
+								receiver.getInventory().addItem(wrap(item).create(amount));
 								sender.sendMessage(lang.getCommandItemGiven());
 							}
 						} else {
@@ -275,7 +278,7 @@ public class CommandCustomItems implements CommandExecutor {
 					}
 
 					if (args[0].equals("repair")) {
-						CustomTool.IncreaseDurabilityResult result = customTool.increaseDurability(item, amount);
+						CustomToolWrapper.IncreaseDurabilityResult result = wrap(customTool).increaseDurability(item, amount);
 						if (result.increasedAmount == 0) {
 							sender.sendMessage(ChatColor.RED + "The tool in the main hand of " + target.getName() + " wasn't damaged");
 							return true;
@@ -285,7 +288,7 @@ public class CommandCustomItems implements CommandExecutor {
 					}
 
 					if (args[0].equals("damage")) {
-						ItemStack result = customTool.decreaseDurability(item, amount);
+						ItemStack result = wrap(customTool).decreaseDurability(item, amount);
 						target.getInventory().setItemInMainHand(result);
 					}
 

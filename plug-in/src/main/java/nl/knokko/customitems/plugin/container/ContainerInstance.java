@@ -43,6 +43,7 @@ import nl.knokko.util.bits.BitOutput;
 
 import static nl.knokko.customitems.plugin.recipe.RecipeHelper.convertResultToItemStack;
 import static nl.knokko.customitems.plugin.recipe.RecipeHelper.shouldIngredientAcceptItemStack;
+import static nl.knokko.customitems.plugin.set.item.CustomItemWrapper.wrap;
 
 /**
  * An in-game instance of a custom container. While the CustomContainer class defines
@@ -60,7 +61,7 @@ public class ContainerInstance {
 		boolean isCustom = display.getDisplayItem() instanceof CustomDisplayItemValues;
 		if (isCustom) {
 			CustomItemValues customItem = ((CustomDisplayItemValues) display.getDisplayItem()).getItem();
-			stack = customItem.create(display.getAmount());
+			stack = wrap(customItem).create(display.getAmount());
 		} else {
 			CIMaterial material;
 			if (display.getDisplayItem() instanceof DataVanillaDisplayItemValues) {

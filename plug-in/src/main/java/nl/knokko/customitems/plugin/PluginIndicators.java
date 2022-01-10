@@ -4,15 +4,10 @@ import nl.knokko.customitems.item.CustomGunValues;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomToolValues;
 import nl.knokko.customitems.item.CustomWandValues;
-import nl.knokko.customitems.item.gun.IndirectGunAmmo;
 import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
 import nl.knokko.customitems.plugin.data.PlayerGunInfo;
 import nl.knokko.customitems.plugin.data.PlayerWandInfo;
 import nl.knokko.customitems.plugin.multisupport.actionbarapi.ActionBarAPISupport;
-import nl.knokko.customitems.plugin.set.item.CustomGun;
-import nl.knokko.customitems.plugin.set.item.CustomItem;
-import nl.knokko.customitems.plugin.set.item.CustomTool;
-import nl.knokko.customitems.plugin.set.item.CustomWand;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -20,6 +15,8 @@ import org.bukkit.inventory.ItemStack;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+
+import static nl.knokko.customitems.plugin.set.item.CustomToolWrapper.wrap;
 
 public class PluginIndicators {
 
@@ -112,8 +109,8 @@ public class PluginIndicators {
 
             CustomToolValues tool = (CustomToolValues) customMain;
             if (tool.getMaxDurabilityNew() != null) {
-                long remainingDurability = tool.getDurability(mainItem);
-                if (remainingDurability != CustomTool.UNBREAKABLE_TOOL_DURABILITY) {
+                long remainingDurability = wrap(tool).getDurability(mainItem);
+                if (remainingDurability != CustomToolValues.UNBREAKABLE_TOOL_DURABILITY) {
 
                     String actionBarMessage = lang.getDurabilityPrefix() + " " + remainingDurability + " / " + tool.getMaxDurabilityNew();
                     ActionBarAPISupport.sendActionBar(player, actionBarMessage);

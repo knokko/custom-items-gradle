@@ -5,24 +5,17 @@ import static java.lang.Math.*;
 import java.util.Collection;
 import java.util.Random;
 
-import nl.knokko.core.plugin.item.ItemHelper;
-import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 import nl.knokko.customitems.projectile.effect.*;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.*;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.*;
 import org.bukkit.util.Vector;
 
 import nl.knokko.core.plugin.particles.ParticleHelper;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
-import nl.knokko.customitems.projectile.CIProjectile;
-import nl.knokko.customitems.projectile.effects.*;
 
 /**
  * Represents a custom projectile that has been fired and is thus currently flying. A new instance of

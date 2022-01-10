@@ -40,7 +40,7 @@ public class MushroomBlockHelper {
             for (int id = MIN_BLOCK_ID; id <= MAX_BLOCK_ID; id++) {
                 if (getType(id) == mushroomType && Arrays.equals(directions, getDirections(id))) {
 
-                    for (CustomBlockValues candidate : CustomItemsPlugin.getInstance().getSet().getBlocks()) {
+                    for (CustomBlockValues candidate : CustomItemsPlugin.getInstance().getSet().get().getBlocks()) {
                         if (candidate.getInternalID() == id) {
                             return candidate;
                         }

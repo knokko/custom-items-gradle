@@ -34,6 +34,8 @@ import me.badbones69.crazyenchantments.api.enums.CEnchantments;
 import me.badbones69.crazyenchantments.api.events.HellForgedUseEvent;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 
+import static nl.knokko.customitems.plugin.set.item.CustomToolWrapper.wrap;
+
 public class CrazyEnchantmentsEventHandler implements Listener {
 	
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -44,7 +46,7 @@ public class CrazyEnchantmentsEventHandler implements Listener {
 			event.setCancelled(true);
 			if (custom instanceof CustomToolValues) {
 				CustomToolValues tool = (CustomToolValues) custom;
-				tool.increaseDurability(item, CEnchantments.HELLFORGED.getEnchantment().getPower(item));
+				wrap(tool).increaseDurability(item, CEnchantments.HELLFORGED.getEnchantment().getPower(item));
 			}
 		}
 	}

@@ -2,6 +2,7 @@ package nl.knokko.customitems.plugin.recipe;
 
 import nl.knokko.core.plugin.item.ItemHelper;
 import nl.knokko.customitems.item.CIMaterial;
+import nl.knokko.customitems.plugin.set.item.CustomItemWrapper;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import nl.knokko.customitems.recipe.CraftingRecipeValues;
 import nl.knokko.customitems.recipe.ShapedRecipeValues;
@@ -43,6 +44,7 @@ public class RecipeHelper {
         }
     }
 
+    @SuppressWarnings("deprecation")
     public static boolean shouldIngredientAcceptAmountless(IngredientValues ingredient, ItemStack item) {
         if (ingredient instanceof NoIngredientValues) return ItemUtils.isEmpty(item);
 
@@ -69,12 +71,13 @@ public class RecipeHelper {
         }
 
         if (ingredient instanceof CustomItemIngredientValues) {
-            // TODO Ehm...
+            return CustomItemWrapper.wrap(((CustomItemIngredientValues) ingredient).getItem()).is(item);
         }
 
         throw new IllegalArgumentException("Unknown ingredient class: " + ingredient.getClass());
     }
 
+    @SuppressWarnings("deprecation")
     public static ItemStack convertResultToItemStack(ResultValues result) {
         if (result instanceof SimpleVanillaResultValues) {
             SimpleVanillaResultValues simpleResult = (SimpleVanillaResultValues) result;
@@ -92,7 +95,7 @@ public class RecipeHelper {
         }
 
         if (result instanceof CustomItemResultValues) {
-            // TODO Ehm...
+            return CustomItemWrapper.wrap(((CustomItemResultValues) result).getItem()).create(((CustomItemResultValues) result).getAmount());
         }
 
         if (result instanceof CopiedResultValues) {

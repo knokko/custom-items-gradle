@@ -3,47 +3,60 @@ package nl.knokko.customitems.plugin.data;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Collections;
-
+import nl.knokko.customitems.effect.PotionEffectValues;
+import nl.knokko.customitems.item.*;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
 import nl.knokko.customitems.effect.EffectType;
-import nl.knokko.customitems.effect.PotionEffect;
-import nl.knokko.customitems.item.AttributeModifier;
-import nl.knokko.customitems.item.AttributeModifier.Attribute;
-import nl.knokko.customitems.item.AttributeModifier.Operation;
-import nl.knokko.customitems.item.AttributeModifier.Slot;
-import nl.knokko.customitems.item.CustomItemType;
-import nl.knokko.customitems.item.Enchantment;
-import nl.knokko.customitems.item.EnchantmentType;
-import nl.knokko.customitems.item.ItemFlag;
-import nl.knokko.customitems.item.ReplaceCondition;
-import nl.knokko.customitems.item.ReplaceCondition.ConditionOperation;
-import nl.knokko.customitems.item.WandCharges;
-import nl.knokko.customitems.item.nbt.ExtraItemNbt;
-import nl.knokko.customitems.plugin.set.item.CustomWand;
 import nl.knokko.util.bits.BitInput;
 import nl.knokko.util.bits.ByteArrayBitInput;
 import nl.knokko.util.bits.ByteArrayBitOutput;
 
 public class TestPlayerWandData {
+
+	private static CustomWandValues createWith() {
+		CustomWandValues with = new CustomWandValues(true);
+		with.setItemType(CustomItemType.GOLD_HOE);
+		with.setItemDamage((short) 10);
+		with.setName("with_charges_one");
+		with.setDisplayName("With charges 1");
+		with.setLore(Lists.newArrayList("A wand that needs charges"));
+		with.setAttributeModifiers(Lists.newArrayList(
+				AttributeModifierValues.createQuick(
+						AttributeModifierValues.Attribute.ATTACK_SPEED,
+						AttributeModifierValues.Slot.OFFHAND,
+						AttributeModifierValues.Operation.ADD, 0.3
+				)
+		));
+		with.setDefaultEnchantments(Lists.newArrayList(
+				EnchantmentValues.createQuick(EnchantmentType.FIRE_ASPECT, 1)
+		));
+		with.setPlayerEffects(Lists.newArrayList(
+				PotionEffectValues.createQuick(EffectType.ABSORPTION, 15, 1)
+		));
+		with.setCooldown(5);
+		with.setCharges(WandChargeValues.createQuick(5, 20));
+		with.setAmountPerShot(2);
+		return with.copy(false);
+	}
+
+	private static CustomWandValues createWithout() {
+		CustomWandValues without = new CustomWandValues(true);
+		without.setItemType(CustomItemType.SHEARS);
+		without.setItemDamage((short) 3);
+		without.setName("without_charges_one");
+		without.setDisplayName("Without charges 1");
+		without.setCooldown(20);
+		without.setCharges(null);
+		without.setAmountPerShot(3);
+		return without.copy(false);
+	}
+
+	static final CustomWandValues WITH = createWith();
 	
-	static final CustomWand WITH = new CustomWand(CustomItemType.GOLD_HOE, (short) 10, 
-			"with_charges_one", "", "With charges 1", new String[] {"A wand that needs charges"}, 
-			new AttributeModifier[] {new AttributeModifier(Attribute.ATTACK_SPEED, Slot.OFFHAND, 
-					Operation.ADD, 0.3)}, new Enchantment[] {new Enchantment(EnchantmentType.FIRE_ASPECT, 1)},
-			new boolean[ItemFlag.values().length], 
-			Lists.newArrayList(new PotionEffect(EffectType.ABSORPTION, 15, 1)), 
-			null, null, null, new ReplaceCondition[0], ConditionOperation.NONE, null, 
-			5, new WandCharges(5, 20), 2, new ExtraItemNbt(), 1f);
-	
-	static final CustomWand WITHOUT = new CustomWand(CustomItemType.SHEARS, (short) 3,
-			"without_charges_one", "", "Without charges 1", new String[0], new AttributeModifier[0],
-			new Enchantment[0], ItemFlag.getDefaultValues(), Collections.emptyList(), 
-			null, null, null, new ReplaceCondition[0], ConditionOperation.NONE, null, 20, 
-			null, 3, new ExtraItemNbt(), 1f);
+	static final CustomWandValues WITHOUT = createWithout();
 
 	@Test
 	public void testSaveLoadDiscard() {

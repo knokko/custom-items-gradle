@@ -4,8 +4,6 @@ import java.util.Arrays;
 
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.slot.ContainerSlotValues;
-import nl.knokko.customitems.container.slot.CustomSlot;
-import nl.knokko.customitems.container.slot.EmptyCustomSlot;
 import nl.knokko.customitems.container.slot.EmptySlotValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.itemset.SItemSet;

@@ -1,24 +1,15 @@
 package nl.knokko.customitems.plugin.set.item;
 
 import nl.knokko.core.plugin.item.GeneralItemNBT;
-import nl.knokko.customitems.effect.EquippedPotionEffect;
-import nl.knokko.customitems.effect.PotionEffect;
-import nl.knokko.customitems.item.AttributeModifier;
-import nl.knokko.customitems.item.CustomItemType;
-import nl.knokko.customitems.item.Enchantment;
-import nl.knokko.customitems.item.ReplaceCondition;
-import nl.knokko.customitems.item.gun.GunAmmo;
-import nl.knokko.customitems.item.gun.IndirectGunAmmo;
-import nl.knokko.customitems.item.nbt.ExtraItemNbt;
+import nl.knokko.customitems.item.CustomGunValues;
+import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
-import nl.knokko.customitems.projectile.CIProjectile;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Collection;
 import java.util.List;
 
-public class CustomGun extends CustomItem {
+public class CustomGunWrapper extends CustomItemWrapper {
 
     private static final String[] KEY_INDIRECT_AMMO = { "KnokkosCustomGun", "StoredAmmo" };
 
@@ -26,26 +17,11 @@ public class CustomGun extends CustomItem {
         return CustomItemsPlugin.getInstance().getLanguageFile().getIndirectStoredAmmo();
     }
 
-    public final CIProjectile projectile;
-    public final GunAmmo ammo;
-    public final int amountPerShot;
+    private final CustomGunValues gun;
 
-    public CustomGun(
-            CustomItemType itemType, short itemDamage, String name, String alias, String displayName,
-            String[] lore, AttributeModifier[] attributes, Enchantment[] defaultEnchantments,
-            boolean[] itemFlags, List<PotionEffect> playerEffects, List<PotionEffect> targetEffects,
-            Collection<EquippedPotionEffect> equippedEffects, String[] commands, ReplaceCondition[] conditions,
-            ReplaceCondition.ConditionOperation op, ExtraItemNbt extraNbt, float attackRange,
-            CIProjectile projectile, GunAmmo ammo, int amountPerShot
-    ) {
-        super(
-                itemType, itemDamage, name, alias, displayName, lore, attributes, defaultEnchantments, itemFlags,
-                playerEffects, targetEffects, equippedEffects, commands, conditions, op, extraNbt, attackRange
-        );
-
-        this.projectile = projectile;
-        this.ammo = ammo;
-        this.amountPerShot = amountPerShot;
+    public CustomGunWrapper(CustomGunValues item) {
+        super(item);
+        this.gun = item;
     }
 
     @Override
@@ -54,25 +30,20 @@ public class CustomGun extends CustomItem {
     }
 
     @Override
-    public int getMaxStacksize() {
-        return 1;
-    }
-
-    @Override
     public ItemStack create(int amount) {
-        if (ammo instanceof IndirectGunAmmo) {
-            return createWithAmmo(((IndirectGunAmmo) ammo).storedAmmo);
+        if (gun.getAmmo() instanceof IndirectGunAmmoValues) {
+            return createWithAmmo(((IndirectGunAmmoValues) gun.getAmmo()).getStoredAmmo());
         } else {
             return super.create(amount);
         }
     }
 
     public ItemStack createWithAmmo(int remainingAmmo) {
-        if (!(ammo instanceof IndirectGunAmmo)) {
+        if (!(gun.getAmmo() instanceof IndirectGunAmmoValues)) {
             throw new UnsupportedOperationException("Only guns with indirect ammo store remaining ammo in NBT");
         }
 
-        IndirectGunAmmo indirectAmmo = (IndirectGunAmmo) ammo;
+        IndirectGunAmmoValues indirectAmmo = (IndirectGunAmmoValues) gun.getAmmo();
 
         ItemStack beforeNbt = super.create(1, createLore(indirectAmmo, remainingAmmo));
         GeneralItemNBT nbt = GeneralItemNBT.readWriteInstance(beforeNbt);
@@ -81,10 +52,10 @@ public class CustomGun extends CustomItem {
         return nbt.backToBukkit();
     }
 
-    private List<String> createLore(IndirectGunAmmo indirectAmmo, int remainingAmmo) {
+    private List<String> createLore(IndirectGunAmmoValues indirectAmmo, int remainingAmmo) {
         List<String> lore = super.createLore();
         lore.add("");
-        lore.add(ammoPrefix() + " " + remainingAmmo + " / " + indirectAmmo.storedAmmo);
+        lore.add(ammoPrefix() + " " + remainingAmmo + " / " + indirectAmmo.getStoredAmmo());
         return lore;
     }
 
@@ -96,9 +67,9 @@ public class CustomGun extends CustomItem {
      * @return A gun item stack with 1 less ammo, or null if original is out of ammo
      */
     public ItemStack decrementAmmo(ItemStack original) {
-        if (ammo instanceof IndirectGunAmmo) {
+        if (gun.getAmmo() instanceof IndirectGunAmmoValues) {
 
-            IndirectGunAmmo indirectAmmo = (IndirectGunAmmo) ammo;
+            IndirectGunAmmoValues indirectAmmo = (IndirectGunAmmoValues) gun.getAmmo();
             GeneralItemNBT nbt = GeneralItemNBT.readWriteInstance(original);
 
             int currentAmmo = nbt.getOrDefault(KEY_INDIRECT_AMMO, 0);
@@ -122,7 +93,7 @@ public class CustomGun extends CustomItem {
     }
 
     public int getCurrentAmmo(ItemStack gunStack) {
-        if (ammo instanceof IndirectGunAmmo) {
+        if (gun.getAmmo() instanceof IndirectGunAmmoValues) {
 
             GeneralItemNBT nbt = GeneralItemNBT.readOnlyInstance(gunStack);
             return nbt.getOrDefault(KEY_INDIRECT_AMMO, 0);
@@ -132,16 +103,16 @@ public class CustomGun extends CustomItem {
     }
 
     public ItemStack reload(ItemStack gunStack) {
-        if (ammo instanceof IndirectGunAmmo) {
+        if (gun.getAmmo() instanceof IndirectGunAmmoValues) {
 
-            IndirectGunAmmo indirectAmmo = (IndirectGunAmmo) ammo;
+            IndirectGunAmmoValues indirectAmmo = (IndirectGunAmmoValues) gun.getAmmo();
 
             GeneralItemNBT nbt = GeneralItemNBT.readWriteInstance(gunStack);
-            nbt.set(KEY_INDIRECT_AMMO, indirectAmmo.storedAmmo);
+            nbt.set(KEY_INDIRECT_AMMO, indirectAmmo.getStoredAmmo());
             ItemStack reloaded = nbt.backToBukkit();
 
             ItemMeta meta = reloaded.getItemMeta();
-            meta.setLore(createLore(indirectAmmo, indirectAmmo.storedAmmo));
+            meta.setLore(createLore(indirectAmmo, indirectAmmo.getStoredAmmo()));
             reloaded.setItemMeta(meta);
 
             return reloaded;

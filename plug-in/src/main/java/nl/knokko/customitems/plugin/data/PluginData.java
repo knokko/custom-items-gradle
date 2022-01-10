@@ -17,6 +17,7 @@ import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.gun.DirectGunAmmoValues;
 import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
+import nl.knokko.customitems.plugin.set.item.CustomGunWrapper;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.customitems.util.StringEncoder;
@@ -429,7 +430,7 @@ public class PluginData {
 
 							IndirectGunAmmoValues indirectAmmo = (IndirectGunAmmoValues) gun.getAmmo();
 							if (checkAmmo(player.getInventory(), indirectAmmo.getReloadItem(), true)) {
-								player.getInventory().setItemInMainHand(gun.reload(currentItem));
+								player.getInventory().setItemInMainHand(new CustomGunWrapper(gun).reload(currentItem));
 								if (indirectAmmo.getEndReloadSound() != null) {
 									player.playSound(
 											player.getLocation(),
@@ -462,7 +463,7 @@ public class PluginData {
 
 							IndirectGunAmmoValues indirectAmmo = (IndirectGunAmmoValues) gun.getAmmo();
 							if (checkAmmo(player.getInventory(), indirectAmmo.getReloadItem(), true)) {
-                                player.getInventory().setItemInOffHand(gun.reload(currentItem));
+                                player.getInventory().setItemInOffHand(new CustomGunWrapper(gun).reload(currentItem));
                                 if (indirectAmmo.getEndReloadSound() != null) {
 									player.playSound(
 											player.getLocation(),
@@ -555,7 +556,7 @@ public class PluginData {
 							remainingCooldown = targetPlayerData.nextMainhandGunShootTick - currentTick;
 						}
 
-						return PlayerGunInfo.indirect(remainingCooldown, gun.getCurrentAmmo(gunStack));
+						return PlayerGunInfo.indirect(remainingCooldown, new CustomGunWrapper(gun).getCurrentAmmo(gunStack));
 					}
 				} else {
 					if (targetPlayerData.offhandGunToReload == gun && targetPlayerData.finishOffhandGunReloadTick > currentTick) {
@@ -566,11 +567,11 @@ public class PluginData {
 							remainingCooldown = targetPlayerData.nextOffhandGunShootTick - currentTick;
 						}
 
-						return PlayerGunInfo.indirect(remainingCooldown, gun.getCurrentAmmo(gunStack));
+						return PlayerGunInfo.indirect(remainingCooldown, new CustomGunWrapper(gun).getCurrentAmmo(gunStack));
 					}
 				}
 			} else {
-				return PlayerGunInfo.indirect(0, gun.getCurrentAmmo(gunStack));
+				return PlayerGunInfo.indirect(0, new CustomGunWrapper(gun).getCurrentAmmo(gunStack));
 			}
 		} else {
 			throw new Error("Unknown ammo system: " + gun.getAmmo().getClass());
@@ -724,7 +725,7 @@ public class PluginData {
 			} else if (gun.getAmmo() instanceof IndirectGunAmmoValues) {
 
 				IndirectGunAmmoValues indirectAmmo = (IndirectGunAmmoValues) gun.getAmmo();
-				ItemStack newWeaponStack = gun.decrementAmmo(weaponStack);
+				ItemStack newWeaponStack = new CustomGunWrapper(gun).decrementAmmo(weaponStack);
 				if (newWeaponStack != null) {
 
                     if (isMainhand) {
@@ -871,7 +872,8 @@ public class PluginData {
 			entryIterator.remove();
 		}
 	}
-	
+
+	@SuppressWarnings("unused")
 	private void save2(BitOutput output) {
 		save1(output);
 		

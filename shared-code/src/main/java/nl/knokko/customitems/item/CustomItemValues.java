@@ -24,6 +24,8 @@ import static nl.knokko.customitems.util.Checks.isClose;
 
 public abstract class CustomItemValues extends ModelValues {
 
+    public static final long UNBREAKABLE_TOOL_DURABILITY = -1;
+
     public static CustomItemValues loadFromBooleanRepresentation(byte[] booleanRepresentation) throws UnknownEncodingException {
         BitInput input = new ByteArrayBitInput(booleanRepresentation);
 
@@ -186,6 +188,11 @@ public abstract class CustomItemValues extends ModelValues {
         this.texture = source.getTextureReference();
         this.customModel = source.getCustomModel();
         this.booleanRepresentation = source.getBooleanRepresentation();
+    }
+
+    @Override
+    public int hashCode() {
+        return this.name.hashCode();
     }
 
     protected boolean areBaseItemPropertiesEqual(CustomItemValues other) {

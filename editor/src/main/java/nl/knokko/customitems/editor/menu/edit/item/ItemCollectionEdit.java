@@ -45,7 +45,7 @@ public class ItemCollectionEdit extends DedicatedCollectionEdit<CustomItemValues
 		else if (itemValues instanceof CustomHelmet3dValues)
 			return new EditItemHelmet3D(menu, (CustomHelmet3dValues) itemValues, toModify);
 		else if (itemValues instanceof CustomArmorValues)
-			return new EditItemArmor(menu, (CustomArmorValues) itemValues, toModify);
+			return new EditItemArmor<>(menu, (CustomArmorValues) itemValues, toModify);
 		else if (itemValues instanceof CustomShearsValues)
 			return new EditItemShears(menu, (CustomShearsValues) itemValues, toModify);
 		else if (itemValues instanceof CustomHoeValues)
@@ -55,7 +55,7 @@ public class ItemCollectionEdit extends DedicatedCollectionEdit<CustomItemValues
 		else if (itemValues instanceof CustomTridentValues)
 			return new EditItemTrident(menu, (CustomTridentValues) itemValues, toModify);
 		else if (itemValues instanceof CustomToolValues)
-			return new EditItemTool(menu, (CustomToolValues) itemValues, toModify);
+			return new EditItemTool<>(menu, (CustomToolValues) itemValues, toModify);
 		else if (itemValues instanceof CustomWandValues)
 			return new EditItemWand(menu, (CustomWandValues) itemValues, toModify);
 		else if (itemValues instanceof CustomGunValues)

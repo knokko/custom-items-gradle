@@ -1,7 +1,6 @@
 package nl.knokko.customitems.block.drop;
 
 import nl.knokko.customitems.item.CIMaterial;
-import nl.knokko.customitems.item.CustomItem;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
