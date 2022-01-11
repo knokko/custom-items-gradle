@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *******************************************************************************/
-package nl.knokko.util.bits;
+package nl.knokko.customitems.bithelper;
 
 import java.util.Arrays;
 

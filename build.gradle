@@ -33,8 +33,7 @@ allprojects {
 
 project(':shared-code') {
     dependencies {
-        compileOnly project(':bit-helper')
-        testImplementation project(':bit-helper')
+        implementation project(':bit-helper')
     }
 }
 
@@ -86,7 +85,6 @@ project(':editor') {
 project(':core-plugin-12') {
     apply plugin: 'com.github.johnrengelman.shadow'
     dependencies {
-        implementation project(':bit-helper')
         compileOnly 'org.bukkit:craftbukkit:1.12.2-R0.1-SNAPSHOT'
     }
 }

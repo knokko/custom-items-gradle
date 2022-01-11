@@ -2,7 +2,7 @@ package nl.knokko.customitems.serialization;
 
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.texture.BaseTextureValues;
-import nl.knokko.util.bits.BitInputStream;
+import nl.knokko.customitems.bithelper.BitInputStream;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

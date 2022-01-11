@@ -36,6 +36,7 @@ import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.plugin.command.CustomItemsTabCompletions;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.util.StringEncoder;
+import nl.knokko.customitems.bithelper.BitInputTracker;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -49,8 +50,8 @@ import nl.knokko.customitems.plugin.projectile.ProjectileManager;
 import nl.knokko.customitems.plugin.set.item.update.ItemUpdater;
 import nl.knokko.customitems.trouble.IntegrityException;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
-import nl.knokko.util.bits.BitInput;
-import nl.knokko.util.bits.ByteArrayBitInput;
+import nl.knokko.customitems.bithelper.BitInput;
+import nl.knokko.customitems.bithelper.ByteArrayBitInput;
 
 public class CustomItemsPlugin extends JavaPlugin {
 

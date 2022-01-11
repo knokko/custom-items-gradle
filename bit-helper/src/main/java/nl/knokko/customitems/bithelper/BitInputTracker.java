@@ -1,4 +1,4 @@
-package nl.knokko.util.bits;
+package nl.knokko.customitems.bithelper;
 
 public class BitInputTracker extends BitInput {
 

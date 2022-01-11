@@ -12,8 +12,8 @@ import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomWandValues;
 import nl.knokko.customitems.plugin.container.ContainerInstance;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
-import nl.knokko.util.bits.BitInput;
-import nl.knokko.util.bits.BitOutput;
+import nl.knokko.customitems.bithelper.BitInput;
+import nl.knokko.customitems.bithelper.BitOutput;
 
 class PlayerData {
 

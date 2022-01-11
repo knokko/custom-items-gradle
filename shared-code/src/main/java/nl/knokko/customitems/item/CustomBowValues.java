@@ -8,8 +8,8 @@ import nl.knokko.customitems.texture.BowTextureValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
-import nl.knokko.util.bits.BitInput;
-import nl.knokko.util.bits.BitOutput;
+import nl.knokko.customitems.bithelper.BitInput;
+import nl.knokko.customitems.bithelper.BitOutput;
 
 import static nl.knokko.customitems.util.Checks.isClose;
 

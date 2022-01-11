@@ -1,7 +1,7 @@
 package nl.knokko.customitems.projectile.effect;
 
 import nl.knokko.customitems.trouble.UnknownEncodingException;
-import nl.knokko.util.bits.BitInput;
+import nl.knokko.customitems.bithelper.BitInput;
 
 import static nl.knokko.customitems.util.Checks.isClose;
 

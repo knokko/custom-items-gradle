@@ -4,10 +4,10 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.function.Consumer;
 
-import nl.knokko.util.bits.BitInput;
-import nl.knokko.util.bits.BitOutput;
-import nl.knokko.util.bits.ByteArrayBitInput;
-import nl.knokko.util.bits.ByteArrayBitOutput;
+import nl.knokko.customitems.bithelper.BitInput;
+import nl.knokko.customitems.bithelper.BitOutput;
+import nl.knokko.customitems.bithelper.ByteArrayBitInput;
+import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
 
 public class TestHelper {
 

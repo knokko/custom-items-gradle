@@ -5,8 +5,8 @@ import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
-import nl.knokko.util.bits.BitInput;
-import nl.knokko.util.bits.BitOutput;
+import nl.knokko.customitems.bithelper.BitInput;
+import nl.knokko.customitems.bithelper.BitOutput;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -15,7 +15,6 @@ import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.ConditionalTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
-import nl.knokko.util.bits.BitOutput;
 
 import java.util.Collection;
 

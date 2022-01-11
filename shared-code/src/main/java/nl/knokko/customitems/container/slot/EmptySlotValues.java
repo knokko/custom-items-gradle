@@ -3,7 +3,7 @@ package nl.knokko.customitems.container.slot;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
-import nl.knokko.util.bits.BitOutput;
+import nl.knokko.customitems.bithelper.BitOutput;
 
 import java.util.Collection;
 

@@ -10,10 +10,10 @@ import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.texture.BaseTextureValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.*;
-import nl.knokko.util.bits.BitInput;
-import nl.knokko.util.bits.BitInputTracker;
-import nl.knokko.util.bits.BitOutput;
-import nl.knokko.util.bits.ByteArrayBitInput;
+import nl.knokko.customitems.bithelper.BitInput;
+import nl.knokko.customitems.bithelper.BitInputTracker;
+import nl.knokko.customitems.bithelper.BitOutput;
+import nl.knokko.customitems.bithelper.ByteArrayBitInput;
 
 import java.util.ArrayList;
 import java.util.Collection;

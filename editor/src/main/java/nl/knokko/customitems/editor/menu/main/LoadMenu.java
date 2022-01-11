@@ -38,8 +38,8 @@ import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
-import nl.knokko.util.bits.BitInput;
-import nl.knokko.util.bits.ByteArrayBitInput;
+import nl.knokko.customitems.bithelper.BitInput;
+import nl.knokko.customitems.bithelper.ByteArrayBitInput;
 
 public class LoadMenu extends GuiMenu {
 	

@@ -37,10 +37,10 @@ import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.container.ContainerInfo;
 import nl.knokko.customitems.plugin.container.ContainerInstance;
 import nl.knokko.customitems.plugin.util.ItemUtils;
-import nl.knokko.util.bits.BitInput;
-import nl.knokko.util.bits.BitOutput;
-import nl.knokko.util.bits.ByteArrayBitInput;
-import nl.knokko.util.bits.ByteArrayBitOutput;
+import nl.knokko.customitems.bithelper.BitInput;
+import nl.knokko.customitems.bithelper.BitOutput;
+import nl.knokko.customitems.bithelper.ByteArrayBitInput;
+import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 

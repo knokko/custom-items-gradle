@@ -5,7 +5,7 @@ import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.StringEncoder;
 import nl.knokko.customitems.util.ValidationException;
-import nl.knokko.util.bits.ByteArrayBitOutput;
+import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
 
 import javax.swing.filechooser.FileSystemView;
 import java.io.File;

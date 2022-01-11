@@ -2,9 +2,8 @@ package nl.knokko.customitems.util;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.logging.Level;
 
-import nl.knokko.util.bits.BitHelper;
+import nl.knokko.customitems.bithelper.BitHelper;
 
 public class StringEncoder {
 

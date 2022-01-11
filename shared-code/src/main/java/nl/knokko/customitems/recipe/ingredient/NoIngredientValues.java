@@ -1,7 +1,7 @@
 package nl.knokko.customitems.recipe.ingredient;
 
 import nl.knokko.customitems.encoding.RecipeEncoding;
-import nl.knokko.util.bits.BitOutput;
+import nl.knokko.customitems.bithelper.BitOutput;
 
 import java.util.Objects;
 

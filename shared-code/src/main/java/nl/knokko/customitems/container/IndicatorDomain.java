@@ -1,7 +1,7 @@
 package nl.knokko.customitems.container;
 
-import nl.knokko.util.bits.BitInput;
-import nl.knokko.util.bits.BitOutput;
+import nl.knokko.customitems.bithelper.BitInput;
+import nl.knokko.customitems.bithelper.BitOutput;
 
 public class IndicatorDomain {
 

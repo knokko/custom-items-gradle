@@ -10,9 +10,9 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 
 import nl.knokko.customitems.effect.EffectType;
-import nl.knokko.util.bits.BitInput;
-import nl.knokko.util.bits.ByteArrayBitInput;
-import nl.knokko.util.bits.ByteArrayBitOutput;
+import nl.knokko.customitems.bithelper.BitInput;
+import nl.knokko.customitems.bithelper.ByteArrayBitInput;
+import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
 
 public class TestPlayerWandData {
 

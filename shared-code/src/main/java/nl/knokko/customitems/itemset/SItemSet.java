@@ -20,14 +20,13 @@ import nl.knokko.customitems.texture.*;
 import nl.knokko.customitems.trouble.IntegrityException;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.*;
-import nl.knokko.util.bits.BitInput;
-import nl.knokko.util.bits.BitOutput;
-import nl.knokko.util.bits.ByteArrayBitInput;
-import nl.knokko.util.bits.ByteArrayBitOutput;
+import nl.knokko.customitems.bithelper.BitInput;
+import nl.knokko.customitems.bithelper.BitOutput;
+import nl.knokko.customitems.bithelper.ByteArrayBitInput;
+import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 public class SItemSet {
 

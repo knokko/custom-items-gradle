@@ -12,9 +12,9 @@ import nl.knokko.customitems.projectile.CustomProjectileValues;
 import nl.knokko.customitems.texture.BaseTextureValues;
 import org.junit.Test;
 
-import nl.knokko.util.bits.BitInput;
-import nl.knokko.util.bits.ByteArrayBitInput;
-import nl.knokko.util.bits.ByteArrayBitOutput;
+import nl.knokko.customitems.bithelper.BitInput;
+import nl.knokko.customitems.bithelper.ByteArrayBitInput;
+import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
 
 import static nl.knokko.customitems.plugin.data.TestPlayerWandData.*;
 

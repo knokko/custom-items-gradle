@@ -1,8 +1,8 @@
 package nl.knokko.customitems.plugin.data;
 
 import nl.knokko.customitems.item.CustomWandValues;
-import nl.knokko.util.bits.BitInput;
-import nl.knokko.util.bits.BitOutput;
+import nl.knokko.customitems.bithelper.BitInput;
+import nl.knokko.customitems.bithelper.BitOutput;
 
 class PlayerWandData {
 

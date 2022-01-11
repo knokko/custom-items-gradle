@@ -14,8 +14,8 @@ import nl.knokko.customitems.texture.ArmorTextureValues;
 import nl.knokko.customitems.texture.BaseTextureValues;
 import nl.knokko.customitems.trouble.IntegrityException;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
-import nl.knokko.util.bits.ByteArrayBitInput;
-import nl.knokko.util.bits.ByteArrayBitOutput;
+import nl.knokko.customitems.bithelper.ByteArrayBitInput;
+import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
