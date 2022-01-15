@@ -1,22 +1,19 @@
 package nl.knokko.customitems.editor.menu.edit.container.fuel;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import nl.knokko.customitems.container.fuel.FuelEntryValues;
 import nl.knokko.customitems.container.fuel.FuelRegistryValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.FuelRegistryReference;
 import nl.knokko.customitems.itemset.SItemSet;
-import nl.knokko.customitems.model.Mutability;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
-import nl.knokko.gui.component.text.TextEditField;
+import nl.knokko.gui.component.text.EagerTextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
+
+import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class EditFuelRegistry extends GuiMenu {
 	
@@ -24,9 +21,8 @@ public class EditFuelRegistry extends GuiMenu {
 	private final SItemSet set;
 	
 	private final FuelRegistryReference toModify;
+	private final FuelRegistryValues currentValues;
 	
-	private final TextEditField nameField;
-	private final List<FuelEntryValues> entries;
 	private final DynamicTextComponent errorComponent;
 	
 	public EditFuelRegistry(GuiComponent returnMenu, SItemSet set,
@@ -34,17 +30,7 @@ public class EditFuelRegistry extends GuiMenu {
 		this.returnMenu = returnMenu;
 		this.set = set;
 		this.toModify = toModify;
-		
-		if (oldValues != null) {
-			this.nameField = new TextEditField(oldValues.getName(), 
-					EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE
-			);
-			this.entries = Mutability.createDeepCopy(oldValues.getEntries(), true);
-		} else {
-			this.nameField = new TextEditField("", EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE);
-			this.entries = new ArrayList<>();
-		}
-		
+		this.currentValues = oldValues.copy(true);
 		this.errorComponent = new DynamicTextComponent("", EditProps.ERROR);
 	}
 	
@@ -67,18 +53,24 @@ public class EditFuelRegistry extends GuiMenu {
 		
 		addComponent(errorComponent, 0.025f, 0.9f, 0.97f, 1f);
 		
-		addComponent(new DynamicTextComponent("Name:", EditProps.LABEL), 0.25f, 0.7f, 0.375f, 0.75f);
-		addComponent(nameField, 0.4f, 0.7f, 0.6f, 0.75f);
+		addComponent(
+				new DynamicTextComponent("Name:", EditProps.LABEL),
+				0.25f, 0.7f, 0.375f, 0.75f
+		);
+		addComponent(
+				new EagerTextEditField(currentValues.getName(), EDIT_BASE, EDIT_ACTIVE, currentValues::setName),
+				0.4f, 0.7f, 0.6f, 0.75f
+		);
 		
-		addComponent(new DynamicTextButton("Entries...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new FuelEntryCollectionEdit(entries, this, set));
+		addComponent(new DynamicTextButton("Entries...", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new FuelEntryCollectionEdit(
+					currentValues.getEntries(), currentValues::setEntries, this, set
+			));
 		}), 0.4f, 0.5f, 0.6f, 0.6f);
 		
 		if (toModify != null) {
 			addComponent(new DynamicTextButton("Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-				String error = Validation.toErrorString(
-						() -> set.changeFuelRegistry(toModify, FuelRegistryValues.createQuick(nameField.getText(), entries))
-				);
+				String error = Validation.toErrorString(() -> set.changeFuelRegistry(toModify, currentValues));
 				if (error != null) {
 					errorComponent.setText(error);
 					errorComponent.setProperties(EditProps.ERROR);
@@ -88,9 +80,7 @@ public class EditFuelRegistry extends GuiMenu {
 			}), 0.025f, 0.1f, 0.15f, 0.2f);
 		} else {
 			addComponent(new DynamicTextButton("Create", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-				String error = Validation.toErrorString(
-						() -> set.addFuelRegistry(FuelRegistryValues.createQuick(nameField.getText(), entries))
-				);
+				String error = Validation.toErrorString(() -> set.addFuelRegistry(currentValues));
 				if (error != null) {
 					errorComponent.setProperties(EditProps.ERROR);
 					errorComponent.setText(error);
