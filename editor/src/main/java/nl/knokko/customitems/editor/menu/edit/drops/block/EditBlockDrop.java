@@ -4,6 +4,7 @@ import nl.knokko.customitems.drops.BlockDropValues;
 import nl.knokko.customitems.drops.BlockType;
 import nl.knokko.customitems.drops.DropValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
+import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.menu.edit.drops.SelectDrop;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
@@ -16,33 +17,23 @@ import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
+import static nl.knokko.customitems.editor.menu.edit.EditProps.CHOOSE_BASE;
+import static nl.knokko.customitems.editor.menu.edit.EditProps.CHOOSE_HOVER;
+
 public class EditBlockDrop extends GuiMenu {
 	
 	private final SItemSet set;
 	private final GuiComponent returnMenu;
-	private final BlockDropValues oldValues;
+	private final BlockDropValues currentValues;
 	private final BlockDropReference toModify;
 	
-	private BlockType selectedBlock;
-	private DropValues selectedDrop;
-	private boolean allowSilkTouch;
 	private final DynamicTextComponent errorComponent;
 	
 	public EditBlockDrop(SItemSet set, GuiComponent returnMenu, BlockDropValues oldValues, BlockDropReference toModify) {
 		this.set = set;
 		this.returnMenu = returnMenu;
-		this.oldValues = oldValues;
+		this.currentValues = oldValues.copy(true);
 		this.toModify = toModify;
-		
-		if (oldValues == null) {
-			selectedBlock = BlockType.STONE;
-			selectedDrop = null;
-			allowSilkTouch = false;
-		} else {
-			selectedBlock = oldValues.getBlockType();
-			selectedDrop = oldValues.getDrop();
-			allowSilkTouch = oldValues.shouldAllowSilkTouch();
-		}
 		this.errorComponent = new DynamicTextComponent("", EditProps.ERROR);
 	}
 	
@@ -60,38 +51,41 @@ public class EditBlockDrop extends GuiMenu {
 			state.getWindow().setMainComponent(returnMenu);
 		}), 0.025f, 0.8f, 0.2f, 0.9f);
 		
-		DynamicTextButton[] changeButtons = { null, null };
-		addComponent(new DynamicTextComponent("Block:", EditProps.LABEL), 0.3f, 0.6f, 0.45f, 0.7f);
-		SelectBlockType blockSelect = new SelectBlockType(this, (BlockType newBlock) -> {
-			selectedBlock = newBlock;
-			changeButtons[0].setText(newBlock.toString());
-		});
-		changeButtons[0] = new DynamicTextButton(selectedBlock.toString(), EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-			state.getWindow().setMainComponent(blockSelect);
-		});
-		addComponent(changeButtons[0], 0.5f, 0.6f, 0.8f, 0.7f);
+		addComponent(
+				new DynamicTextComponent("Block:", EditProps.LABEL),
+				0.3f, 0.6f, 0.45f, 0.7f
+		);
+		addComponent(
+				EnumSelect.createSelectButton(BlockType.class, currentValues::setBlockType, currentValues.getBlockType()),
+				0.5f, 0.6f, 0.8f, 0.7f
+		);
 		
-		addComponent(new DynamicTextComponent("Drop:", EditProps.LABEL), 0.3f, 0.4f, 0.45f, 0.5f);
-		SelectDrop dropSelect = new SelectDrop(set, this, oldValues != null ? oldValues.getDrop() : null, (DropValues newDrop) -> {
-			selectedDrop = newDrop;
-			changeButtons[1].setText(newDrop.toString());
+		addComponent(
+				new DynamicTextComponent("Drop:", EditProps.LABEL),
+				0.3f, 0.4f, 0.45f, 0.5f
+		);
+		DynamicTextButton[] pSelectDrop = {null};
+		SelectDrop dropSelect = new SelectDrop(set, this, currentValues.getDrop(), (DropValues newDrop) -> {
+			currentValues.setDrop(newDrop);
+			pSelectDrop[0].setText(newDrop.toString());
 		});
-		changeButtons[1] = new DynamicTextButton(selectedDrop != null ? selectedDrop.toString() : "None", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
+		pSelectDrop[0] = new DynamicTextButton(currentValues.getDrop().toString(), CHOOSE_BASE, CHOOSE_HOVER, () -> {
 			state.getWindow().setMainComponent(dropSelect);
 		});
-		addComponent(changeButtons[1], 0.5f, 0.4f, 0.8f, 0.5f);
+		addComponent(pSelectDrop[0], 0.5f, 0.4f, 0.8f, 0.5f);
 		
-		CheckboxComponent silkTouchBox = new CheckboxComponent(allowSilkTouch);
-		addComponent(silkTouchBox, 0.3f, 0.2f, 0.325f, 0.225f);
-		addComponent(new DynamicTextComponent("Allow silk touch", EditProps.LABEL), 0.35f, 0.2f, 0.6f, 0.3f);
+		addComponent(
+				new CheckboxComponent(currentValues.shouldAllowSilkTouch(), currentValues::setAllowSilkTouch),
+				0.3f, 0.2f, 0.325f, 0.225f
+		);
+		addComponent(
+				new DynamicTextComponent("Allow silk touch", EditProps.LABEL),
+				0.35f, 0.2f, 0.6f, 0.3f
+		);
 		
 		if (toModify == null) {
 			addComponent(new DynamicTextButton("Create", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-				if (selectedDrop == null) {
-					errorComponent.setText("You need to select the drop");
-					return;
-				}
-				String error = Validation.toErrorString(() -> set.addBlockDrop(BlockDropValues.createQuick(selectedBlock, silkTouchBox.isChecked(), selectedDrop)));
+				String error = Validation.toErrorString(() -> set.addBlockDrop(currentValues));
 				if (error == null) {
 					state.getWindow().setMainComponent(returnMenu);
 				} else {
@@ -100,7 +94,7 @@ public class EditBlockDrop extends GuiMenu {
 			}), 0.025f, 0.1f, 0.2f, 0.2f);
 		} else {
 			addComponent(new DynamicTextButton("Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-				String error = Validation.toErrorString(() -> set.changeBlockDrop(toModify, BlockDropValues.createQuick(selectedBlock, allowSilkTouch, selectedDrop)));
+				String error = Validation.toErrorString(() -> set.changeBlockDrop(toModify, currentValues));
 				if (error == null) {
 					state.getWindow().setMainComponent(returnMenu);
 				} else {
@@ -109,7 +103,7 @@ public class EditBlockDrop extends GuiMenu {
 			}), 0.025f, 0.1f, 0.2f, 0.2f);
 		}
 		
-		HelpButtons.addHelpLink(this, "edit%20menu/drops/blocks.html");
+		HelpButtons.addHelpLink(this, "edit menu/drops/blocks.html");
 	}
 
 	@Override

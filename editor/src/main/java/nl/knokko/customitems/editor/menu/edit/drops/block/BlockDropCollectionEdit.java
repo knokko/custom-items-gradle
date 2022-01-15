@@ -2,9 +2,10 @@ package nl.knokko.customitems.editor.menu.edit.drops.block;
 
 import java.awt.image.BufferedImage;
 
-import nl.knokko.customitems.editor.menu.edit.CollectionEdit;
+import nl.knokko.customitems.drops.BlockDropValues;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
+import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.BlockDropReference;
@@ -13,12 +14,12 @@ import nl.knokko.customitems.recipe.result.CustomItemResultValues;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
-public class BlockDropCollectionEdit extends CollectionEdit<BlockDropReference> {
+public class BlockDropCollectionEdit extends DedicatedCollectionEdit<BlockDropValues, BlockDropReference> {
 	
 	private final EditMenu menu;
 
 	public BlockDropCollectionEdit(EditMenu menu) {
-		super(new BlockDropActionHandler(menu), menu.getSet().getBlockDrops().references());
+		super(menu, menu.getSet().getBlockDrops().references(), toAdd -> Validation.toErrorString(() -> menu.getSet().addBlockDrop(toAdd)));
 		this.menu = menu;
 	}
 	
@@ -32,53 +33,54 @@ public class BlockDropCollectionEdit extends CollectionEdit<BlockDropReference> 
 		HelpButtons.addHelpLink(this, "edit%20menu/drops/blocks.html");
 	}
 
-	private static class BlockDropActionHandler implements ActionHandler<BlockDropReference> {
-		
-		private final EditMenu menu;
-		
-		private BlockDropActionHandler(EditMenu menu) {
-			this.menu = menu;
-		}
+	@Override
+	protected String getModelLabel(BlockDropValues model) {
+		return model.getDrop().toString() + " for " + model.getBlockType();
+	}
 
-		@Override
-		public void goBack() {
-			menu.getState().getWindow().setMainComponent(menu.getDropsMenu());
-		}
+	@Override
+	protected BufferedImage getModelIcon(BlockDropValues model) {
 
-		@Override
-		public BufferedImage getImage(BlockDropReference drop) {
-			
-			// If we have any custom item drop, use that as icon!
-			OutputTableValues dropTable = drop.get().getDrop().getOutputTable();
-			for (OutputTableValues.Entry entry : dropTable.getEntries()) {
-				if (entry.getResult() instanceof CustomItemResultValues) {
-					CustomItemResultValues customResult = (CustomItemResultValues) entry.getResult();
-					return customResult.getItem().getTexture().getImage();
-				}
+		// If we have any custom item drop, use that as icon!
+		OutputTableValues dropTable = model.getDrop().getOutputTable();
+		for (OutputTableValues.Entry entry : dropTable.getEntries()) {
+			if (entry.getResult() instanceof CustomItemResultValues) {
+				CustomItemResultValues customResult = (CustomItemResultValues) entry.getResult();
+				return customResult.getItem().getTexture().getImage();
 			}
-			
-			// If we can't find one... well... that's unfortunate
-			return null;
 		}
 
-		@Override
-		public String getLabel(BlockDropReference item) {
-			return item.get().toString();
-		}
+		// If we can't find one... well... that's unfortunate
+		return null;
+	}
 
-		@Override
-		public GuiComponent createEditMenu(BlockDropReference drop, GuiComponent returnMenu) {
-			return new EditBlockDrop(menu.getSet(), returnMenu, drop.get(), drop);
-		}
-		
-		@Override
-		public GuiComponent createCopyMenu(BlockDropReference drop, GuiComponent returnMenu) {
-			return new EditBlockDrop(menu.getSet(), returnMenu, drop.get(), null);
-		}
+	@Override
+	protected boolean canEditModel(BlockDropValues model) {
+		return true;
+	}
 
-		@Override
-		public String deleteItem(BlockDropReference itemToDelete) {
-			return Validation.toErrorString(() -> menu.getSet().removeBlockDrop(itemToDelete));
-		}
+	@Override
+	protected GuiComponent createEditMenu(BlockDropReference modelReference) {
+		return new EditBlockDrop(menu.getSet(), this, modelReference.get(), modelReference);
+	}
+
+	@Override
+	protected String deleteModel(BlockDropReference modelReference) {
+		return Validation.toErrorString(() -> menu.getSet().removeBlockDrop(modelReference));
+	}
+
+	@Override
+	protected boolean canDeleteModels() {
+		return true;
+	}
+
+	@Override
+	protected CopyMode getCopyMode(BlockDropReference modelReference) {
+		return CopyMode.INSTANT;
+	}
+
+	@Override
+	protected GuiComponent createCopyMenu(BlockDropReference modelReference) {
+		throw new UnsupportedOperationException("CopyMode is INSTANT");
 	}
 }

@@ -30,7 +30,7 @@ public class DropsMenu extends GuiMenu {
 			state.getWindow().setMainComponent(new MobDropCollectionEdit(editMenu));
 		}), 0.7f, 0.5f, 0.9f, 0.6f);
 		
-		HelpButtons.addHelpLink(this, "edit%20menu/drops/index.html");
+		HelpButtons.addHelpLink(this, "edit menu/drops/index.html");
 	}
 	
 	@Override

@@ -15,44 +15,26 @@ import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
 import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
-import nl.knokko.gui.component.text.TextEditField;
+import nl.knokko.gui.component.text.EagerTextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
+
+import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class EditMobDrop extends GuiMenu {
 	
 	private final SItemSet set;
 	private final GuiComponent returnMenu;
 	private final MobDropReference toModify;
+	private final MobDropValues currentValues;
 	
-	private final NameField nameField;
-	private final CheckboxComponent requiresName;
-	
-	private DropValues selectedDrop;
-	private CIEntityType selectedType;
 	private final DynamicTextComponent errorComponent;
 
 	public EditMobDrop(SItemSet set, GuiComponent returnMenu, MobDropValues oldValues, MobDropReference toModify) {
 		this.set = set;
 		this.returnMenu = returnMenu;
 		this.toModify = toModify;
-		if (oldValues == null) {
-			selectedDrop = null;
-			selectedType = CIEntityType.ZOMBIE;
-			nameField = new NameField("");
-			requiresName = new CheckboxComponent(false);
-		} else {
-			selectedDrop = oldValues.getDrop();
-			selectedType = oldValues.getEntityType();
-			if (oldValues.getRequiredName() == null) {
-				nameField = new NameField("");
-				requiresName = new CheckboxComponent(false);
-			}
-			else {
-				nameField = new NameField(oldValues.getRequiredName());
-				requiresName = new CheckboxComponent(true);
-			}
-		}
+		this.currentValues = oldValues.copy(true);
 		this.errorComponent = new DynamicTextComponent("", EditProps.ERROR);
 	}
 	
@@ -70,36 +52,54 @@ public class EditMobDrop extends GuiMenu {
 			state.getWindow().setMainComponent(returnMenu);
 		}), 0.025f, 0.8f, 0.2f, 0.9f);
 		
-		DynamicTextComponent[] changeButtons = { null, null };
+		DynamicTextComponent[] pChangeButton = { null };
 		
-		addComponent(new DynamicTextComponent("Drop:", EditProps.LABEL), 0.3f, 0.7f, 0.45f, 0.8f);
-		SelectDrop selectDrop = new SelectDrop(set, this, selectedDrop, (DropValues newDrop) -> {
-			selectedDrop = newDrop;
-			changeButtons[0].setText(newDrop.toString());
+		addComponent(
+				new DynamicTextComponent("Drop:", EditProps.LABEL),
+				0.3f, 0.7f, 0.45f, 0.8f
+		);
+		SelectDrop selectDrop = new SelectDrop(set, this, currentValues.getDrop(), (DropValues newDrop) -> {
+			currentValues.setDrop(newDrop);
+			pChangeButton[0].setText(newDrop.toString());
 		});
-		changeButtons[0] = new DynamicTextButton(selectedDrop + "", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
+		pChangeButton[0] = new DynamicTextButton(currentValues.getDrop().toString(), CHOOSE_BASE, CHOOSE_HOVER, () -> {
 			state.getWindow().setMainComponent(selectDrop);
 		});
-		addComponent(changeButtons[0], 0.5f, 0.7f, 0.8f, 0.8f);
+		addComponent(pChangeButton[0], 0.5f, 0.7f, 0.8f, 0.8f);
 		
-		addComponent(new DynamicTextComponent("Entity:", EditProps.LABEL), 0.28f, 0.5f, 0.45f, 0.6f);
-		addComponent(EnumSelect.createSelectButton(CIEntityType.class, (CIEntityType newType) -> {
-			selectedType = newType;
-		}, selectedType), 0.5f, 0.5f, 0.7f, 0.6f);
-		
+		addComponent(
+				new DynamicTextComponent("Entity:", EditProps.LABEL),
+				0.28f, 0.5f, 0.45f, 0.6f
+		);
+		addComponent(
+				EnumSelect.createSelectButton(CIEntityType.class, currentValues::setEntityType, currentValues.getEntityType()),
+				0.5f, 0.5f, 0.7f, 0.6f
+		);
+
+		CheckboxComponent requiresName = new CheckboxComponent(currentValues.getRequiredName() != null, newValue -> {
+			if (!newValue) {
+				currentValues.setRequiredName(null);
+			}
+		});
 		addComponent(requiresName, 0.25f, 0.35f, 0.275f, 0.375f);
-		addComponent(new DynamicTextComponent("Requires specific name", EditProps.LABEL), 0.3f, 0.3f, 0.55f, 0.4f);
-		addComponent(nameField, 0.6f, 0.3f, 0.8f, 0.4f);
+		addComponent(
+				new DynamicTextComponent("Requires specific name", EditProps.LABEL),
+				0.3f, 0.3f, 0.55f, 0.4f
+		);
+		addComponent(
+				new WrapperComponent<EagerTextEditField>(new EagerTextEditField(currentValues.getRequiredName(), EDIT_BASE, EDIT_ACTIVE, currentValues::setRequiredName)) {
+					@Override
+					public boolean isActive() {
+						return requiresName.isChecked();
+					}
+				},
+				0.6f, 0.3f, 0.8f, 0.4f
+		);
 		
 		DynamicTextButton doneButton;
 		if (toModify == null) {
 			doneButton = new DynamicTextButton("Create", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-				if (selectedDrop == null) {
-					errorComponent.setText("You need to choose a custom item to drop");
-					return;
-				}
-				String error = Validation.toErrorString(() -> set.addMobDrop(MobDropValues.createQuick(selectedType,
-						requiresName.isChecked() ? nameField.getComponent().getText() : null, selectedDrop)));
+				String error = Validation.toErrorString(() -> set.addMobDrop(currentValues));
 				if (error == null) {
 					state.getWindow().setMainComponent(returnMenu);
 				} else {
@@ -108,12 +108,12 @@ public class EditMobDrop extends GuiMenu {
 			});
 		} else {
 			doneButton = new DynamicTextButton("Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-				MobDropValues newValues = MobDropValues.createQuick(selectedType, requiresName.isChecked() ? nameField.getComponent().getText() : null, selectedDrop);
-				String error = Validation.toErrorString(() -> set.changeMobDrop(toModify, newValues));
-				if (error == null)
+				String error = Validation.toErrorString(() -> set.changeMobDrop(toModify, currentValues));
+				if (error == null) {
 					state.getWindow().setMainComponent(returnMenu);
-				else 
+				} else {
 					errorComponent.setText(error);
+				}
 			});
 		}
 		addComponent(doneButton, 0.025f, 0.1f, 0.2f, 0.2f);
@@ -124,17 +124,5 @@ public class EditMobDrop extends GuiMenu {
 	@Override
 	public GuiColor getBackgroundColor() {
 		return EditProps.BACKGROUND;
-	}
-	
-	private class NameField extends WrapperComponent<TextEditField> {
-		
-		public NameField(String initialText) {
-			super(new TextEditField(initialText, EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE), EditProps.BACKGROUND);;
-		}
-
-		@Override
-		public boolean isActive() {
-			return requiresName.isChecked();
-		}
 	}
 }
