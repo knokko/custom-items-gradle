@@ -195,7 +195,7 @@ public class EditMenu extends GuiMenu {
 			state.getWindow().setMainComponent(containerPortal);
 		}), 0.6f, 0.2f, 0.875f, 0.3f);
 		addComponent(new DynamicTextButton("Blocks (1.13+)", BUTTON, HOVER, () -> {
-			state.getWindow().setMainComponent(new BlockCollectionEdit(set, this));
+			state.getWindow().setMainComponent(new BlockCollectionEdit(this));
 		}), 0.6f, 0.08f, 0.9f, 0.18f);
 
 		HelpButtons.addHelpLink(this, "edit menu/index.html");

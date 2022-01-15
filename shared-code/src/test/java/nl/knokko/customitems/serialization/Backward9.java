@@ -85,7 +85,7 @@ public class Backward9 {
                 set.getItemReference("trident_one")
         ), requiredItems.getCustomItems());
         assertEquals(listOf(
-                new RequiredItems.VanillaEntry(CIMaterial.STONE_PICKAXE, false)
+                RequiredItems.VanillaEntry.createQuick(CIMaterial.STONE_PICKAXE, false)
         ), requiredItems.getVanillaItems());
 
         if (set.getSide() == SItemSet.Side.EDITOR) {

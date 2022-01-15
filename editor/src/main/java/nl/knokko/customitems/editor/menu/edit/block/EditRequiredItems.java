@@ -28,7 +28,7 @@ public class EditRequiredItems extends GuiMenu  {
             RequiredItems oldItems, Consumer<RequiredItems> changeRequiredItems,
             SItemSet set, GuiComponent returnMenu
     ) {
-        this.requiredItems = new RequiredItems(oldItems, true);
+        this.requiredItems = oldItems.copy(true);
         this.changeRequiredItems = changeRequiredItems;
         this.set = set;
         this.returnMenu = returnMenu;

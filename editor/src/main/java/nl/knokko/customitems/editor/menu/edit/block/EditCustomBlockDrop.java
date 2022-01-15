@@ -29,7 +29,7 @@ public class EditCustomBlockDrop extends GuiMenu  {
             CustomBlockDrop startValues, SItemSet set, GuiComponent returnMenu, Consumer<CustomBlockDrop> onDone
     ) {
         Checks.nonNull(startValues, set, returnMenu);
-        this.currentDrop = new CustomBlockDrop(startValues, true);
+        this.currentDrop = startValues.copy(true);
         this.set = set;
         this.returnMenu = returnMenu;
         this.onDone = onDone;

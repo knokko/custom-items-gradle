@@ -3,7 +3,10 @@ package nl.knokko.customitems.block.drop;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.model.ModelValues;
+import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
+import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
@@ -11,7 +14,7 @@ import nl.knokko.customitems.bithelper.BitOutput;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class RequiredItems {
+public class RequiredItems extends ModelValues {
 
     private static final byte ENCODING_1 = 1;
 
@@ -35,10 +38,8 @@ public class RequiredItems {
     private Collection<ItemReference> customItems;
     private boolean invert;
 
-    private final boolean mutable;
-
     public RequiredItems(boolean mutable) {
-        this.mutable = mutable;
+        super(mutable);
 
         this.enabled = false;
         this.vanillaItems = new ArrayList<>(0);
@@ -47,7 +48,7 @@ public class RequiredItems {
     }
 
     public RequiredItems(RequiredItems toCopy, boolean mutable) {
-        this.mutable = mutable;
+        super(mutable);
 
         this.enabled = toCopy.isEnabled();
         this.vanillaItems = toCopy.getVanillaItems();
@@ -70,10 +71,10 @@ public class RequiredItems {
         int numItems = input.readInt();
         this.vanillaItems = new ArrayList<>(numItems);
         for (int counter = 0; counter < numItems; counter++) {
-            this.vanillaItems.add(new VanillaEntry(
+            this.vanillaItems.add(VanillaEntry.createQuick(
                     CIMaterial.valueOf(input.readString()),
                     input.readBoolean()
-            ));
+            ).copy(false));
         }
     }
 
@@ -135,10 +136,9 @@ public class RequiredItems {
         return invert;
     }
 
-    private void assertMutable() {
-        if (!mutable) {
-            throw new UnsupportedOperationException("This RequiredItems instance is immutable");
-        }
+    @Override
+    public RequiredItems copy(boolean mutable) {
+        return new RequiredItems(this, mutable);
     }
 
     public void setEnabled(boolean newEnabled) {
@@ -148,7 +148,7 @@ public class RequiredItems {
 
     public void setVanillaItems(Collection<VanillaEntry> newVanillaItems) {
         assertMutable();
-        this.vanillaItems = new ArrayList<>(newVanillaItems);
+        this.vanillaItems = Mutability.createDeepCopy(newVanillaItems, false);
     }
 
     public void setCustomItems(Collection<ItemReference> newCustomItems) {
@@ -185,14 +185,30 @@ public class RequiredItems {
         }
     }
 
-    public static class VanillaEntry {
+    public static class VanillaEntry extends ModelValues {
 
-        public final CIMaterial material;
-        public final boolean allowCustom;
+        public static VanillaEntry createQuick(CIMaterial material, boolean allowCustom) {
+            VanillaEntry result = new VanillaEntry(true);
+            result.setMaterial(material);
+            result.setAllowCustomItems(allowCustom);
+            return result;
+        }
 
-        public VanillaEntry(CIMaterial material, boolean allowCustom) {
-            this.material = material;
-            this.allowCustom = allowCustom;
+        private CIMaterial material;
+        private boolean allowCustom;
+
+        public VanillaEntry(boolean mutable) {
+            super(mutable);
+
+            this.material = CIMaterial.STONE;
+            this.allowCustom = true;
+        }
+
+        public VanillaEntry(VanillaEntry toCopy, boolean mutable) {
+            super(mutable);
+
+            this.material = toCopy.getMaterial();
+            this.allowCustom = toCopy.shouldAllowCustomItems();
         }
 
         @Override
@@ -203,6 +219,30 @@ public class RequiredItems {
             } else {
                 return false;
             }
+        }
+
+        @Override
+        public VanillaEntry copy(boolean mutable) {
+            return new VanillaEntry(this, mutable);
+        }
+
+        public CIMaterial getMaterial() {
+            return material;
+        }
+
+        public boolean shouldAllowCustomItems() {
+            return allowCustom;
+        }
+
+        public void setMaterial(CIMaterial newMaterial) {
+            assertMutable();
+            Checks.notNull(newMaterial);
+            this.material = newMaterial;
+        }
+
+        public void setAllowCustomItems(boolean allowCustomItems) {
+            assertMutable();
+            this.allowCustom = allowCustomItems;
         }
     }
 }

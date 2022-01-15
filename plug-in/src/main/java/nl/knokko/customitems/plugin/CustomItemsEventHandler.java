@@ -2824,8 +2824,8 @@ public class CustomItemsEventHandler implements Listener {
 
 				boolean matchesVanillaItem = false;
 				for (RequiredItems.VanillaEntry vanillaEntry : ri.getVanillaItems()) {
-					if (vanillaEntry.material == usedMaterial) {
-						if (vanillaEntry.allowCustom || usedCustomItem == null) {
+					if (vanillaEntry.getMaterial() == usedMaterial) {
+						if (vanillaEntry.shouldAllowCustomItems() || usedCustomItem == null) {
 							matchesVanillaItem = true;
 							break;
 						}
