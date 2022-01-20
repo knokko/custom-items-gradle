@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 
+import nl.knokko.customitems.container.ContainerRecipeValues;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.slot.*;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
@@ -15,25 +16,22 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 public class MissingSlotsComponent extends GuiMenu {
-	
-	private final ContainerSlotValues[][] slots;
-	private final Map<String, IngredientValues> inputs;
-	private final Map<String, OutputTableValues> outputs;
-	
-	public MissingSlotsComponent(ContainerSlotValues[][] slots, Map<String, IngredientValues> inputs,
-			Map<String, OutputTableValues> outputs) {
-		this.slots = slots;
-		this.inputs = inputs;
-		this.outputs = outputs;
+
+	private final CustomContainerValues container;
+	private final ContainerRecipeValues recipe;
+
+	public MissingSlotsComponent(CustomContainerValues container, ContainerRecipeValues recipe) {
+		this.container = container;
+		this.recipe = recipe;
 	}
 
 	@Override
 	protected void addComponents() {
-		Iterable<ContainerSlotValues> slots = CustomContainerValues.createSlotList(this.slots);
+		Iterable<ContainerSlotValues> slots = CustomContainerValues.createSlotList(container.getSlots());
 		
 		Collection<String> missingInputSlots = new ArrayList<>();
 		inputLoop:
-		for (String inputSlotName : inputs.keySet()) {
+		for (String inputSlotName : recipe.getInputs().keySet()) {
 			for (ContainerSlotValues slot : slots) {
 				if (slot instanceof InputSlotValues) {
 					InputSlotValues inputSlot = (InputSlotValues) slot;
@@ -47,7 +45,7 @@ public class MissingSlotsComponent extends GuiMenu {
 		
 		Collection<String> missingOutputSlots = new ArrayList<>();
 		outputLoop:
-		for (String outputSlotName : outputs.keySet()) {
+		for (String outputSlotName : recipe.getOutputs().keySet()) {
 			for (ContainerSlotValues slot : slots) {
 				if (slot instanceof OutputSlotValues) {
 					OutputSlotValues outputSlot = (OutputSlotValues) slot;
@@ -69,7 +67,7 @@ public class MissingSlotsComponent extends GuiMenu {
 						0.05f, 0.45f - 0.25f * index, 0.25f, 0.65f - 0.25f * index
 				);
 				addComponent(new DynamicTextButton("X", EditProps.QUIT_BASE, EditProps.QUIT_HOVER, () -> {
-					inputs.remove(rememberMissingInput);
+					recipe.clearInput(rememberMissingInput);
 					clearComponents();
 					addComponents();
 				}), 0.26f, 0.5f - 0.25f * index, 0.29f, 0.6f - 0.25f * index);
@@ -87,7 +85,7 @@ public class MissingSlotsComponent extends GuiMenu {
 						0.6f, 0.45f - 0.25f * index, 0.8f, 0.65f - 0.25f * index
 				);
 				addComponent(new DynamicTextButton("X", EditProps.QUIT_BASE, EditProps.QUIT_HOVER, () -> {
-					outputs.remove(rememberMissingOutput);
+					recipe.clearOutput(rememberMissingOutput);
 					clearComponents();
 					addComponents();
 				}), 0.81f, 0.5f - 0.25f * index, 0.84f, 0.6f - 0.25f * index);

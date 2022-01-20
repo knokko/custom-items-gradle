@@ -1,7 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.container.recipe;
 
-import java.util.Map;
-
+import nl.knokko.customitems.container.ContainerRecipeValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.ChooseIngredient;
 import nl.knokko.customitems.itemset.SItemSet;
@@ -22,18 +21,18 @@ public class InputSlotComponent implements GuiComponent {
 	
 	private final String name;
 	private final GuiComponent outerMenu;
-	private final Map<String, IngredientValues> inputs;
 	private final SItemSet set;
+	private final ContainerRecipeValues recipe;
 	
 	private GuiComponentState state;
 	private GuiTexture topTextTexture;
 	private GuiTexture bottomTextTexture;
 	
 	public InputSlotComponent(String name, GuiComponent outerMenu, 
-			Map<String, IngredientValues> inputs, SItemSet set) {
+			ContainerRecipeValues recipe, SItemSet set) {
 		this.name = name;
 		this.outerMenu = outerMenu;
-		this.inputs = inputs;
+		this.recipe = recipe;
 		this.set = set;
 	}
 	
@@ -49,12 +48,12 @@ public class InputSlotComponent implements GuiComponent {
 		}
 		
 		// Update inputs collection
-		IngredientValues currentIngredient = inputs.get(name);
+		IngredientValues currentIngredient = recipe.getInput(name);
 		if (currentIngredient != null) {
-			inputs.remove(name);
+			recipe.clearInput(name);
 		}
 		if (newIngredient != null) {
-			inputs.put(name, newIngredient);
+			recipe.setInput(name, newIngredient);
 		}
 		
 		// Update text
@@ -76,7 +75,7 @@ public class InputSlotComponent implements GuiComponent {
 		this.topTextTexture = state.getWindow().getTextureLoader().loadTexture(
 				TextBuilder.createTexture("input", EditProps.LABEL)
 		);
-		this.setIngredient(inputs.get(name));
+		this.setIngredient(recipe.getInput(name));
 	}
 
 	@Override

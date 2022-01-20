@@ -1,7 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.container.recipe;
 
-import java.util.Map;
-
+import nl.knokko.customitems.container.ContainerRecipeValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.recipe.OutputTableValues;
@@ -20,18 +19,18 @@ public class OutputSlotComponent implements GuiComponent {
 	
 	private final String name;
 	private final GuiComponent outerMenu;
-	private final Map<String, OutputTableValues> outputs;
 	private final SItemSet set;
+	private final ContainerRecipeValues recipe;
 	
 	private GuiComponentState state;
 	private GuiTexture topTextTexture;
 	private GuiTexture bottomTextTexture;
 	
 	public OutputSlotComponent(String name, GuiComponent outerMenu, 
-			Map<String, OutputTableValues> outputs, SItemSet set) {
+			ContainerRecipeValues recipe, SItemSet set) {
 		this.name = name;
 		this.outerMenu = outerMenu;
-		this.outputs = outputs;
+		this.recipe = recipe;
 		this.set = set;
 	}
 	
@@ -42,12 +41,12 @@ public class OutputSlotComponent implements GuiComponent {
 	private void setResultTable(OutputTableValues newResultTable) {
 		
 		// Update outputs collection
-		OutputTableValues ownEntry = outputs.get(name);
+		OutputTableValues ownEntry = recipe.getOutput(name);
 		if (ownEntry != null) {
-			outputs.remove(name);
+			recipe.clearOutput(name);
 		}
 		if (newResultTable != null) {
-			outputs.put(name, newResultTable);
+			recipe.setOutput(name, newResultTable);
 		}
 		
 		// Update text
@@ -69,7 +68,7 @@ public class OutputSlotComponent implements GuiComponent {
 		this.topTextTexture = state.getWindow().getTextureLoader().loadTexture(
 				TextBuilder.createTexture("output", EditProps.LABEL)
 		);
-		this.setResultTable(outputs.get(name));
+		this.setResultTable(recipe.getOutput(name));
 	}
 
 	@Override
@@ -96,7 +95,7 @@ public class OutputSlotComponent implements GuiComponent {
 
 	@Override
 	public void click(float x, float y, int button) {
-		OutputTableValues ownTable = outputs.get(name);
+		OutputTableValues ownTable = recipe.getOutput(name);
 		state.getWindow().setMainComponent(new EditOutputTable(
 				outerMenu, ownTable == null ? new OutputTableValues(true) : ownTable, this::setResultTable, set
 		));

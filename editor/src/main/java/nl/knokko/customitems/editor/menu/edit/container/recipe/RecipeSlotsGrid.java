@@ -1,49 +1,46 @@
 package nl.knokko.customitems.editor.menu.edit.container.recipe;
 
+import nl.knokko.customitems.container.ContainerRecipeValues;
+import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.slot.*;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.itemset.SItemSet;
-import nl.knokko.customitems.recipe.OutputTableValues;
-import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 
-import java.util.Map;
-
 public class RecipeSlotsGrid extends GuiMenu {
 	
 	private final GuiComponent outerMenu;
-	private final ContainerSlotValues[][] slots;
-	private final Map<String, IngredientValues> inputs;
-	private final Map<String, OutputTableValues> outputs;
-	private final SItemSet set;
-	
-	public RecipeSlotsGrid(ContainerSlotValues[][] slots, GuiComponent outerMenu,
-			Map<String, IngredientValues> inputs, Map<String, OutputTableValues> outputs, SItemSet set) {
-		this.slots = slots;
+	private final SItemSet itemSet;
+	private final CustomContainerValues container;
+	private final ContainerRecipeValues recipe;
+
+	public RecipeSlotsGrid(
+			GuiComponent outerMenu, SItemSet itemSet,
+			CustomContainerValues container, ContainerRecipeValues recipe
+	) {
 		this.outerMenu = outerMenu;
-		this.inputs = inputs;
-		this.outputs = outputs;
-		this.set = set;
+		this.itemSet = itemSet;
+		this.container = container;
+		this.recipe = recipe;
 	}
 
 	@Override
 	protected void addComponents() {
-		int numRows = slots[0].length;
-		for (int x = 0; x < 9; x++) {
-			for (int y = 0; y < numRows; y++) {
+		for (int x = 0; x < container.getWidth(); x++) {
+			for (int y = 0; y < container.getHeight(); y++) {
 				GuiComponent slotComponent;
-				ContainerSlotValues slot = slots[x][y];
+				ContainerSlotValues slot = container.getSlot(x, y);
 				if (slot instanceof InputSlotValues) {
 					InputSlotValues inputSlot = (InputSlotValues) slot;
 					slotComponent = new InputSlotComponent(
-							inputSlot.getName(), outerMenu, inputs, set
+							inputSlot.getName(), outerMenu, recipe, itemSet
 					);
 				} else if (slot instanceof OutputSlotValues) {
 					OutputSlotValues outputSlot = (OutputSlotValues) slot;
 					slotComponent = new OutputSlotComponent(
-							outputSlot.getName(), outerMenu, outputs, set
+							outputSlot.getName(), outerMenu, recipe, itemSet
 					);
 				} else {
 					slotComponent = new OtherSlotComponent();
