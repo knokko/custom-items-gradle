@@ -3,8 +3,8 @@ package nl.knokko.customitems.editor.menu.edit.container.fuel;
 import java.awt.image.BufferedImage;
 
 import nl.knokko.customitems.container.fuel.FuelRegistryValues;
-import nl.knokko.customitems.editor.menu.edit.CollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
+import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.FuelRegistryReference;
@@ -13,12 +13,12 @@ import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
-public class FuelRegistryCollectionEdit extends CollectionEdit<FuelRegistryReference> {
+public class FuelRegistryCollectionEdit extends DedicatedCollectionEdit<FuelRegistryValues, FuelRegistryReference> {
 	
 	private final SItemSet set;
 
 	public FuelRegistryCollectionEdit(GuiComponent returnMenu, SItemSet set) {
-		super(new FuelRegistryActionHandler(returnMenu, set), set.getFuelRegistries().references());
+		super(returnMenu, set.getFuelRegistries().references(), null);
 		this.set = set;
 	}
 	
@@ -38,48 +38,43 @@ public class FuelRegistryCollectionEdit extends CollectionEdit<FuelRegistryRefer
 		return EditProps.BACKGROUND;
 	}
 
-	private static class FuelRegistryActionHandler implements ActionHandler<FuelRegistryReference> {
-		
-		private final GuiComponent returnMenu;
-		private final SItemSet set;
-		
-		FuelRegistryActionHandler(GuiComponent returnMenu, SItemSet set) {
-			this.returnMenu = returnMenu;
-			this.set = set;
-		}
+	@Override
+	protected String getModelLabel(FuelRegistryValues model) {
+		return model.getName();
+	}
 
-		@Override
-		public void goBack() {
-			returnMenu.getState().getWindow().setMainComponent(returnMenu);
-		}
+	@Override
+	protected BufferedImage getModelIcon(FuelRegistryValues model) {
+		return null;
+	}
 
-		@Override
-		public BufferedImage getImage(FuelRegistryReference item) {
-			return null;
-		}
+	@Override
+	protected boolean canEditModel(FuelRegistryValues model) {
+		return true;
+	}
 
-		@Override
-		public String getLabel(FuelRegistryReference item) {
-			return item.get().getName();
-		}
-		
-		private GuiComponent thisMenu() {
-			return returnMenu.getState().getWindow().getMainComponent();
-		}
+	@Override
+	protected GuiComponent createEditMenu(FuelRegistryReference modelReference) {
+		return new EditFuelRegistry(this, set, modelReference.get(), modelReference);
+	}
 
-		@Override
-		public GuiComponent createEditMenu(FuelRegistryReference itemToEdit, GuiComponent returnMenu) {
-			return new EditFuelRegistry(thisMenu(), set, itemToEdit.get(), itemToEdit);
-		}
+	@Override
+	protected String deleteModel(FuelRegistryReference modelReference) {
+		return Validation.toErrorString(() -> set.removeFuelRegistry(modelReference));
+	}
 
-		@Override
-		public GuiComponent createCopyMenu(FuelRegistryReference itemToCopy, GuiComponent returnMenu) {
-			return new EditFuelRegistry(thisMenu(), set, itemToCopy.get(), null);
-		}
+	@Override
+	protected boolean canDeleteModels() {
+		return true;
+	}
 
-		@Override
-		public String deleteItem(FuelRegistryReference itemToDelete) {
-			return Validation.toErrorString(() -> set.removeFuelRegistry(itemToDelete));
-		}
+	@Override
+	protected CopyMode getCopyMode(FuelRegistryReference modelReference) {
+		return CopyMode.SEPARATE_MENU;
+	}
+
+	@Override
+	protected GuiComponent createCopyMenu(FuelRegistryReference modelReference) {
+		return new EditFuelRegistry(this, set, modelReference.get(), null);
 	}
 }
