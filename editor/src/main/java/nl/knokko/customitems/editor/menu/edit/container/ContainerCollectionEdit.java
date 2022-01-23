@@ -2,9 +2,10 @@ package nl.knokko.customitems.editor.menu.edit.container;
 
 import java.awt.image.BufferedImage;
 
-import nl.knokko.customitems.editor.menu.edit.CollectionEdit;
+import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
+import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ContainerReference;
@@ -12,22 +13,25 @@ import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
-public class ContainerCollectionEdit extends CollectionEdit<ContainerReference> {
+import static nl.knokko.customitems.editor.menu.edit.EditProps.BUTTON;
+import static nl.knokko.customitems.editor.menu.edit.EditProps.HOVER;
+
+public class ContainerCollectionEdit extends DedicatedCollectionEdit<CustomContainerValues, ContainerReference> {
 	
 	private final EditMenu menu;
 
 	public ContainerCollectionEdit(EditMenu menu) {
-		super(new ContainerActionHandler(menu), menu.getSet().getContainers().references());
+		super(menu.getContainerPortal(), menu.getSet().getContainers().references(), null);
 		this.menu = menu;
 	}
 	
 	@Override
 	protected void addComponents() {
 		super.addComponents();
-		addComponent(new DynamicTextButton("Create new", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new EditContainer(menu, null, null));
+		addComponent(new DynamicTextButton("Create new", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new EditContainer(menu, new CustomContainerValues(true), null));
 		}), 0.025f, 0.3f, 0.2f, 0.4f);
-		HelpButtons.addHelpLink(this, "edit%20menu/containers/overview.html");
+		HelpButtons.addHelpLink(this, "edit menu/containers/overview.html");
 	}
 	
 	@Override
@@ -35,42 +39,43 @@ public class ContainerCollectionEdit extends CollectionEdit<ContainerReference> 
 		return EditProps.BACKGROUND;
 	}
 
-	private static class ContainerActionHandler implements ActionHandler<ContainerReference> {
+	@Override
+	protected String getModelLabel(CustomContainerValues model) {
+		return model.getName();
+	}
 
-		private final EditMenu menu;
-		
-		ContainerActionHandler(EditMenu menu) {
-			this.menu = menu;
-		}
-		
-		@Override
-		public void goBack() {
-			menu.getState().getWindow().setMainComponent(menu.getContainerPortal());
-		}
+	@Override
+	protected BufferedImage getModelIcon(CustomContainerValues model) {
+		return null;
+	}
 
-		@Override
-		public BufferedImage getImage(ContainerReference item) {
-			return null;
-		}
+	@Override
+	protected boolean canEditModel(CustomContainerValues model) {
+		return true;
+	}
 
-		@Override
-		public String getLabel(ContainerReference item) {
-			return item.get().getName();
-		}
+	@Override
+	protected GuiComponent createEditMenu(ContainerReference modelReference) {
+		return new EditContainer(menu, modelReference.get(), modelReference);
+	}
 
-		@Override
-		public GuiComponent createEditMenu(ContainerReference itemToEdit, GuiComponent returnMenu) {
-			return new EditContainer(menu, itemToEdit.get(), itemToEdit);
-		}
+	@Override
+	protected String deleteModel(ContainerReference modelReference) {
+		return Validation.toErrorString(() -> menu.getSet().removeContainer(modelReference));
+	}
 
-		@Override
-		public GuiComponent createCopyMenu(ContainerReference itemToCopy, GuiComponent returnMenu) {
-			return new EditContainer(menu, itemToCopy.get(), null);
-		}
+	@Override
+	protected boolean canDeleteModels() {
+		return true;
+	}
 
-		@Override
-		public String deleteItem(ContainerReference itemToDelete) {
-			return Validation.toErrorString(() -> menu.getSet().removeContainer(itemToDelete));
-		}
+	@Override
+	protected CopyMode getCopyMode(ContainerReference modelReference) {
+		return CopyMode.SEPARATE_MENU;
+	}
+
+	@Override
+	protected GuiComponent createCopyMenu(ContainerReference modelReference) {
+		return new EditContainer(menu, modelReference.get(), null);
 	}
 }
