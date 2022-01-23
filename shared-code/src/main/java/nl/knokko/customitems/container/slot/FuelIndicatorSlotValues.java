@@ -1,5 +1,6 @@
 package nl.knokko.customitems.container.slot;
 
+import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.IndicatorDomain;
 import nl.knokko.customitems.container.slot.display.SlotDisplayValues;
 import nl.knokko.customitems.itemset.SItemSet;
@@ -92,7 +93,7 @@ public class FuelIndicatorSlotValues extends ContainerSlotValues {
     }
 
     @Override
-    public FuelIndicatorSlotValues nonConflictingCopy(ContainerSlotValues[][] currentSlots) {
+    public FuelIndicatorSlotValues nonConflictingCopy(CustomContainerValues container) {
         return this.copy(true);
     }
 

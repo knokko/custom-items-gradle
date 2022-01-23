@@ -1,5 +1,6 @@
 package nl.knokko.customitems.container.slot;
 
+import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -58,7 +59,7 @@ public abstract class ContainerSlotValues extends ModelValues {
     @Override
     public abstract ContainerSlotValues copy(boolean mutable);
 
-    public abstract ContainerSlotValues nonConflictingCopy(ContainerSlotValues[][] currentSlots);
+    public abstract ContainerSlotValues nonConflictingCopy(CustomContainerValues container);
 
     public abstract boolean canInsertItems();
 

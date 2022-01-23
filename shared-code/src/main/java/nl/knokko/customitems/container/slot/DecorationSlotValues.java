@@ -1,5 +1,6 @@
 package nl.knokko.customitems.container.slot;
 
+import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.slot.display.SlotDisplayValues;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -68,7 +69,7 @@ public class DecorationSlotValues extends ContainerSlotValues {
     }
 
     @Override
-    public DecorationSlotValues nonConflictingCopy(ContainerSlotValues[][] currentSlots) {
+    public DecorationSlotValues nonConflictingCopy(CustomContainerValues container) {
         return this.copy(true);
     }
 

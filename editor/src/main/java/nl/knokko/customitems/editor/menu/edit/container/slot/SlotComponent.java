@@ -1,9 +1,12 @@
 package nl.knokko.customitems.editor.menu.edit.container.slot;
 
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.slot.*;
 import nl.knokko.customitems.container.slot.display.SlotDisplayValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
@@ -20,9 +23,8 @@ public class SlotComponent implements GuiComponent {
 	
 	private final GuiComponent outerMenu;
 	private final SItemSet set;
-	private final Iterable<ContainerSlotValues> allSlots;
-	private ContainerSlotValues currentSlot;
-	private final Consumer<ContainerSlotValues> changeSlot;
+	private final CustomContainerValues container;
+	private final int x, y;
 	private final Supplier<ContainerSlotValues> getSlotToPaste;
 	private final Consumer<ContainerSlotValues> copySlot;
 	
@@ -31,21 +33,20 @@ public class SlotComponent implements GuiComponent {
 	
 	private GuiComponentState state;
 	
-	public SlotComponent(GuiComponent outerMenu, SItemSet set, Iterable<ContainerSlotValues> allSlots,
-			ContainerSlotValues slot, Consumer<ContainerSlotValues> changeSlot,
+	public SlotComponent(
+			GuiComponent outerMenu, SItemSet set, CustomContainerValues container, int x, int y,
 			Supplier<ContainerSlotValues> getSlotToPaste, Consumer<ContainerSlotValues> copySlot) {
 		this.outerMenu = outerMenu;
 		this.set = set;
-		this.allSlots = allSlots;
-		this.currentSlot = slot;
-		this.changeSlot = changeSlot;
+		this.container = container;
+		this.x = x;
+		this.y = y;
 		this.getSlotToPaste = getSlotToPaste;
 		this.copySlot = copySlot;
 	}
 	
 	private void setSlot(ContainerSlotValues newSlot) {
-		this.currentSlot = newSlot;
-		this.changeSlot.accept(newSlot);
+		this.container.setSlot(this.x, this.y, newSlot);
 		String topText;
 		String bottomText;
 		if (newSlot instanceof DecorationSlotValues) {
@@ -108,7 +109,7 @@ public class SlotComponent implements GuiComponent {
 
 	@Override
 	public void init() {
-		setSlot(currentSlot);
+		setSlot(this.container.getSlot(x, y));
 	}
 
 	@Override
@@ -132,9 +133,17 @@ public class SlotComponent implements GuiComponent {
 	}
 
 	@Override
-	public void click(float x, float y, int button) {
-		state.getWindow().setMainComponent(new CreateSlot(outerMenu, 
-				this::setSlot, set, allSlots, currentSlot
+	public void click(float clickX, float clickY, int button) {
+		Collection<ContainerSlotValues> otherSlots = new ArrayList<>(this.container.getWidth() * this.container.getHeight() - 1);
+		for (int slotX = 0; slotX < this.container.getWidth(); slotX++) {
+			for (int slotY = 0; slotY < this.container.getHeight(); slotY++) {
+				if (slotX != this.x || slotY != this.y) {
+					otherSlots.add(this.container.getSlot(slotX, slotY));
+				}
+			}
+		}
+		state.getWindow().setMainComponent(new CreateSlot(
+				outerMenu, set, otherSlots, this::setSlot
 		));
 	}
 
@@ -150,7 +159,7 @@ public class SlotComponent implements GuiComponent {
 	public void keyPressed(int keyCode) {
 		if (state.isMouseOver()) {
 			if (keyCode == KeyCode.KEY_C) {
-				copySlot.accept(currentSlot);
+				copySlot.accept(this.container.getSlot(this.x, this.y));
 			} else if (keyCode == KeyCode.KEY_P) {
 				ContainerSlotValues maybeNewSlot = getSlotToPaste.get();
 				if (maybeNewSlot != null) {

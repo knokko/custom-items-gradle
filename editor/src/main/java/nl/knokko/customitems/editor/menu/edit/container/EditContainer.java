@@ -1,13 +1,8 @@
 package nl.knokko.customitems.editor.menu.edit.container;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import nl.knokko.customitems.container.ContainerRecipeValues;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.VanillaContainerType;
 import nl.knokko.customitems.container.fuel.FuelMode;
-import nl.knokko.customitems.container.slot.display.SlotDisplayValues;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
@@ -20,60 +15,25 @@ import nl.knokko.customitems.itemset.ContainerReference;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
-import nl.knokko.gui.component.text.TextEditField;
+import nl.knokko.gui.component.text.EagerTextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
+
+import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class EditContainer extends GuiMenu {
 	
 	private final EditMenu menu;
+	private final CustomContainerValues currentValues;
 	private final ContainerReference toModify;
-	
-	private final List<ContainerRecipeValues> recipes;
-	private final SlotsComponent slots;
-	private final TextEditField nameField;
-	private final CheckboxComponent persistentStorage;
-	private SlotDisplayValues selectionIcon;
-	private FuelMode fuelMode;
-	private VanillaContainerType vanillaType;
 	private final DynamicTextComponent errorComponent;
 	
-	public EditContainer(EditMenu menu,
-						 CustomContainerValues oldValues, ContainerReference toModify) {
+	public EditContainer(
+			EditMenu menu, CustomContainerValues oldValues, ContainerReference toModify
+	) {
 		this.menu = menu;
+		this.currentValues = oldValues.copy(true);
 		this.toModify = toModify;
-		this.slots = new SlotsComponent(this, menu.getSet(), oldValues);
-		
-		boolean initialPersistentStorage;
-		if (oldValues != null) {
-			this.selectionIcon = oldValues.getSelectionIcon();
-			initialPersistentStorage = oldValues.hasPersistentStorage();
-			this.fuelMode = oldValues.getFuelMode();
-			this.vanillaType = oldValues.getVanillaType();
-			// Add all recipes from oldValues
-			this.recipes = oldValues.getRecipes();
-		} else {
-			this.selectionIcon = null;
-			initialPersistentStorage = true;
-			this.fuelMode = FuelMode.ALL;
-			this.vanillaType = VanillaContainerType.FURNACE;
-			this.recipes = new ArrayList<>();
-		}
-		
-		if (toModify == null) {
-			String initialText;
-			if (oldValues != null) {
-				initialText = oldValues.getName();
-			} else {
-				initialText = "";
-			}
-			this.nameField = new TextEditField(initialText, EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE);
-		} else {
-			this.nameField = null;
-		}
-		
-		
-		this.persistentStorage = new CheckboxComponent(initialPersistentStorage);
 		this.errorComponent = new DynamicTextComponent("", EditProps.ERROR);
 	}
 	
@@ -86,72 +46,80 @@ public class EditContainer extends GuiMenu {
 	@Override
 	protected void addComponents() {
 		addComponent(errorComponent, 0.025f, 0.9f, 0.975f, 1f);
-		addComponent(new DynamicTextButton("Cancel", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
+		addComponent(new DynamicTextButton("Cancel", CANCEL_BASE, CANCEL_HOVER, () -> {
 			state.getWindow().setMainComponent(new ContainerCollectionEdit(menu));
 		}), 0.025f, 0.7f, 0.2f, 0.8f);
 		
-		addComponent(new DynamicTextComponent("Name:", EditProps.LABEL), 0.05f, 0.6f, 0.15f, 0.65f);
+		addComponent(
+				new DynamicTextComponent("Name:", LABEL),
+				0.05f, 0.6f, 0.15f, 0.65f
+		);
 		
 		// Name can't be changed anymore once a container has been created
-		if (nameField != null) {
-			addComponent(nameField, 0.175f, 0.6f, 0.3f, 0.65f);
+		if (toModify == null) {
+			addComponent(
+					new EagerTextEditField(currentValues.getName(), EDIT_BASE, EDIT_ACTIVE, currentValues::setName),
+					0.175f, 0.6f, 0.3f, 0.65f
+			);
 		} else {
-			addComponent(new DynamicTextComponent(toModify.get().getName(), EditProps.LABEL), 0.175f, 0.6f, 0.3f, 0.65f);
+			addComponent(
+					new DynamicTextComponent(currentValues.getName(), LABEL),
+					0.175f, 0.6f, 0.3f, 0.65f
+			);
 		}
-		addComponent(new DynamicTextComponent("Selection icon:", EditProps.LABEL), 0.05f, 0.525f, 0.2f, 0.575f);
-		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
+		addComponent(
+				new DynamicTextComponent("Selection icon:", LABEL),
+				0.05f, 0.525f, 0.2f, 0.575f
+		);
+		addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new CreateDisplay(
-					this, 
-					newSelectionIcon -> this.selectionIcon = newSelectionIcon, 
-					true, menu.getSet().getItems().references()
+					this, menu.getSet(), currentValues::setSelectionIcon, true
 			));
 		}), 0.225f, 0.525f, 0.3f, 0.575f);
-		addComponent(new DynamicTextComponent("Fuel mode:", EditProps.LABEL), 0.05f, 0.45f, 0.175f, 0.5f);
-		addComponent(EnumSelect.createSelectButton(FuelMode.class, newFuelMode -> {
-			this.fuelMode = newFuelMode;
-		}, fuelMode), 0.2f, 0.45f, 0.3f, 0.5f);
-		addComponent(new DynamicTextComponent("Vanilla type:", EditProps.LABEL), 0.05f, 0.375f, 0.2f, 0.425f);
-		addComponent(EnumSelect.createSelectButton(VanillaContainerType.class, newVanillaType -> {
-			this.vanillaType = newVanillaType;
-		}, vanillaType), 0.225f, 0.375f, 0.35f, 0.425f);
-		addComponent(new DynamicTextComponent("Persistent storage", EditProps.LABEL), 0.05f, 0.3f, 0.25f, 0.35f);
-		addComponent(persistentStorage, 0.275f, 0.3f, 0.3f, 0.325f);
-		addComponent(new DynamicTextButton("Recipes...", EditProps.BUTTON, EditProps.HOVER, () -> {
+		addComponent(
+				new DynamicTextComponent("Fuel mode:", LABEL),
+				0.05f, 0.45f, 0.175f, 0.5f
+		);
+		addComponent(
+				EnumSelect.createSelectButton(FuelMode.class, currentValues::setFuelMode, currentValues.getFuelMode()),
+				0.2f, 0.45f, 0.3f, 0.5f
+		);
+		addComponent(
+				new DynamicTextComponent("Vanilla type:", LABEL),
+				0.05f, 0.375f, 0.2f, 0.425f
+		);
+		addComponent(
+				EnumSelect.createSelectButton(VanillaContainerType.class, currentValues::setVanillaType, currentValues.getVanillaType()),
+				0.225f, 0.375f, 0.35f, 0.425f
+		);
+		addComponent(
+				new DynamicTextComponent("Persistent storage", LABEL),
+				0.05f, 0.3f, 0.25f, 0.35f
+		);
+		addComponent(
+				new CheckboxComponent(currentValues.hasPersistentStorage(), currentValues::setPersistentStorage),
+				0.275f, 0.3f, 0.3f, 0.325f
+		);
+		addComponent(new DynamicTextButton("Recipes...", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new ContainerRecipeCollectionEdit(
-					slots.getSlots(), recipes, this, menu.getSet())
-			);
+					menu.getSet(), currentValues, this
+			));
 		}), 0.05f, 0.225f, 0.2f, 0.275f);
 		
-		addComponent(this.slots, 0.36f, 0.1f, 1f, 0.9f);
+		addComponent(
+				new SlotsComponent(this, menu.getSet(), currentValues),
+				0.36f, 0.1f, 1f, 0.9f
+		);
 		
 		if (toModify != null) {
-			addComponent(new DynamicTextButton("Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-				CustomContainerValues newValues = new CustomContainerValues(true);
-				newValues.setName(toModify.get().getName());
-				newValues.setSelectionIcon(selectionIcon);
-				newValues.setRecipes(recipes);
-				newValues.setFuelMode(fuelMode);
-				newValues.setSlots(slots.getSlots());
-				newValues.setVanillaType(vanillaType);
-				newValues.setPersistentStorage(persistentStorage.isChecked());
-				String error = Validation.toErrorString(() -> menu.getSet().changeContainer(toModify, newValues));
-				if (error != null) {
-					errorComponent.setText(error);
-				} else {
-					state.getWindow().setMainComponent(new ContainerCollectionEdit(menu));
-				}
+			addComponent(new DynamicTextButton("Apply", SAVE_BASE, SAVE_HOVER, () -> {
+				String error = Validation.toErrorString(() -> menu.getSet().changeContainer(toModify, currentValues));
+				if (error == null) state.getWindow().setMainComponent(new ContainerCollectionEdit(menu));
+				else errorComponent.setText(error);
 			}), 0.025f, 0.1f, 0.175f, 0.2f);
 		} else {
-			addComponent(new DynamicTextButton("Create", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-				CustomContainerValues newValues = new CustomContainerValues(true);
-				newValues.setName(nameField.getText());
-				newValues.setSelectionIcon(selectionIcon);
-				newValues.setRecipes(recipes);
-				newValues.setFuelMode(fuelMode);
-				newValues.setSlots(slots.getSlots());
-				newValues.setVanillaType(vanillaType);
-				newValues.setPersistentStorage(persistentStorage.isChecked());
-				String error = Validation.toErrorString(() -> menu.getSet().addContainer(newValues));
+			addComponent(new DynamicTextButton("Create", SAVE_BASE, SAVE_HOVER, () -> {
+				String error = Validation.toErrorString(() -> menu.getSet().addContainer(currentValues));
 				if (error != null) {
 					errorComponent.setText(error);
 				} else {

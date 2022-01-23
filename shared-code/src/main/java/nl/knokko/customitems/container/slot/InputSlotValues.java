@@ -95,10 +95,10 @@ public class InputSlotValues extends ContainerSlotValues {
     }
 
     @Override
-    public InputSlotValues nonConflictingCopy(ContainerSlotValues[][] currentSlots) {
+    public InputSlotValues nonConflictingCopy(CustomContainerValues container) {
         int suffixInt = 0;
         String[] pSuffix = {""};
-        while (CustomContainerValues.createSlotList(currentSlots).stream().anyMatch(
+        while (container.createSlotList().stream().anyMatch(
                 slot -> slot instanceof InputSlotValues && ((InputSlotValues) slot).getName().equals(name + pSuffix[0])
         )) {
             suffixInt += 1;

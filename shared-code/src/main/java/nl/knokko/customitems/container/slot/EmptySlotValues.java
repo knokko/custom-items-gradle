@@ -1,5 +1,6 @@
 package nl.knokko.customitems.container.slot;
 
+import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
@@ -29,7 +30,7 @@ public class EmptySlotValues extends ContainerSlotValues {
     }
 
     @Override
-    public EmptySlotValues nonConflictingCopy(ContainerSlotValues[][] currentSlots) {
+    public EmptySlotValues nonConflictingCopy(CustomContainerValues container) {
         return new EmptySlotValues();
     }
 

@@ -1,5 +1,6 @@
 package nl.knokko.customitems.container.slot;
 
+import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.IndicatorDomain;
 import nl.knokko.customitems.container.slot.display.SlotDisplayValues;
 import nl.knokko.customitems.itemset.SItemSet;
@@ -86,7 +87,7 @@ public class ProgressIndicatorSlotValues extends ContainerSlotValues {
     }
 
     @Override
-    public ProgressIndicatorSlotValues nonConflictingCopy(ContainerSlotValues[][] currentSlots) {
+    public ProgressIndicatorSlotValues nonConflictingCopy(CustomContainerValues container) {
         return this.copy(true);
     }
 
