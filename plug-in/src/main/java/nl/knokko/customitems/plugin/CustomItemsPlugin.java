@@ -101,13 +101,13 @@ public class CustomItemsPlugin extends JavaPlugin {
 		// Load the set after creating language file instance because the set needs the
 		// durability prefix
 		loadSet();
+		getCommand("customitems").setExecutor(new CommandCustomItems(this.itemSet, languageFile));
+		getCommand("customitems").setTabCompleter(new CustomItemsTabCompletions(itemSet));
+		Bukkit.getPluginManager().registerEvents(new CustomItemsEventHandler(itemSet), this);
 		debugChecks();
 		data = PluginData.loadData(this.itemSet);
 		projectileManager = new ProjectileManager();
 		itemUpdater = new ItemUpdater(itemSet);
-		getCommand("customitems").setExecutor(new CommandCustomItems(this.itemSet, languageFile));
-		getCommand("customitems").setTabCompleter(new CustomItemsTabCompletions(itemSet));
-		Bukkit.getPluginManager().registerEvents(new CustomItemsEventHandler(itemSet), this);
 		Bukkit.getPluginManager().registerEvents(new ContainerEventHandler(itemSet), this);
 		Bukkit.getPluginManager().registerEvents(projectileManager, this);
 		CustomItemPickups.start();
