@@ -1,2 +1,3 @@
 - Check the positive compatibility page to see if any third-party plug-ins will break due to this refactoring.
 - Remove the bypass checks option from the documentation
+- Update version in plugin.yml

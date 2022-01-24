@@ -2,7 +2,7 @@ name: CustomItems
 main: nl.knokko.customitems.plugin.CustomItemsPlugin
 version: 9.8
 depend: [KnokkoCore]
-softdepend: [CrazyEnchantments, ActionBarAPI]
+softdepend: [CrazyEnchantments, ActionBarAPI, Mimic]
 loadbefore: [UltraChest]
 commands:
   customitems:

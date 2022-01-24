@@ -34,6 +34,7 @@ import nl.knokko.core.plugin.block.MushroomBlocks;
 import nl.knokko.core.plugin.item.SmithingBlocker;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.plugin.command.CustomItemsTabCompletions;
+import nl.knokko.customitems.plugin.multisupport.mimic.MimicSupport;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.util.StringEncoder;
 import nl.knokko.customitems.bithelper.BitInputTracker;
@@ -80,6 +81,12 @@ public class CustomItemsPlugin extends JavaPlugin {
 		// That will have to be updated as well
 		data.saveData();
 		data = PluginData.loadData(this.itemSet);
+	}
+
+	@Override
+	public void onLoad() {
+		super.onLoad();
+		MimicSupport.onLoad(this);
 	}
 
 	@Override
