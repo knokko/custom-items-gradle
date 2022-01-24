@@ -5,6 +5,7 @@ import nl.knokko.customitems.container.VanillaContainerType;
 import nl.knokko.customitems.drops.*;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.CustomTridentValues;
 import nl.knokko.customitems.itemset.BlockDropsView;
 import nl.knokko.customitems.itemset.MobDropsView;
 import nl.knokko.customitems.itemset.SItemSet;
@@ -23,6 +24,7 @@ public class ItemSetWrapper {
     private SItemSet currentItemSet;
 
     private Map<String, CustomItemValues> itemMap;
+    private boolean hasCustomTridents;
     private Map<CIEntityType, Collection<MobDrop>> mobDropMap;
     private Map<BlockType, Collection<SBlockDrop>> blockDropMap;
     private Map<String, ContainerInfo> containerInfoMap;
@@ -39,9 +41,13 @@ public class ItemSetWrapper {
     }
 
     private void initItemMap() {
+        this.hasCustomTridents = false;
         this.itemMap = new HashMap<>(this.currentItemSet.getItems().size());
         for (CustomItemValues item : this.currentItemSet.getItems()) {
             this.itemMap.put(item.getName(), item);
+            if (item instanceof CustomTridentValues) {
+                this.hasCustomTridents = true;
+            }
         }
     }
 
@@ -90,6 +96,10 @@ public class ItemSetWrapper {
 
     public SItemSet get() {
         return currentItemSet;
+    }
+
+    public boolean hasCustomTridents() {
+        return this.hasCustomTridents;
     }
 
     public CustomItemValues getItem(String name) {

@@ -290,14 +290,16 @@ public class CustomItemsPlugin extends JavaPlugin {
 				File file = files[0];
 				loadSet(file);
 			} else if (files.length == 0) {
-				Bukkit.getLogger().log(Level.WARNING,
-						"No custom item set could be found in the Custom Items plugin data folder. It should contain a file that ends with .cis or .txt");
+				String error = "No custom item set could be found in the Custom Items plugin data folder. It should contain a file that ends with .cis or .txt";
+				Bukkit.getLogger().log(Level.WARNING, error);
 				this.itemSet.setItemSet(new SItemSet(SItemSet.Side.PLUGIN));
+				this.loadErrors.add(error);
 			} else {
 				File file = files[0];
-				Bukkit.getLogger()
-						.warning("Multiple custom item sets were found, so the item set " + file + " will be loaded.");
+				String warning = "Multiple custom item sets were found, so the item set " + file + " will be loaded.";
+				Bukkit.getLogger().warning(warning);
 				loadSet(file);
+				this.loadErrors.add(warning);
 			}
 		} else {
 			Bukkit.getLogger().warning("Something is wrong with the Custom Items Plug-in data folder");

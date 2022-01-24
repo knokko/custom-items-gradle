@@ -31,10 +31,7 @@ import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.recipe.ShapedRecipeValues;
-import nl.knokko.customitems.recipe.ingredient.CustomItemIngredientValues;
-import nl.knokko.customitems.recipe.ingredient.DataVanillaIngredientValues;
-import nl.knokko.customitems.recipe.ingredient.IngredientValues;
-import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
+import nl.knokko.customitems.recipe.ingredient.*;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
@@ -83,6 +80,8 @@ public class IngredientComponent extends DynamicTextButton {
 				state.getWindow().setMainComponent(new SelectDataVanillaItem(menu, (CIMaterial material, byte data) -> {
 					IngredientComponent.this.setIngredient(DataVanillaIngredientValues.createQuick(material, data, 1, null));
 				}));
+			} else if (character == 'e') {
+				IngredientComponent.this.setIngredient(new NoIngredientValues());
 			}
 		}
 	}

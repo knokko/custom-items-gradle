@@ -137,10 +137,10 @@ public class EditMenu extends GuiMenu {
 
 	@Override
 	protected void addComponents() {
-		addComponent(this.errorComponent, 0.305F, 0.9F, 0.95F, 1.0F);
+		addComponent(this.errorComponent, 0.255F, 0.9F, 0.995F, 1.0F);
 		addComponent(new DynamicTextButton("Quit", QUIT_BASE, QUIT_HOVER,
 						() -> this.state.getWindow().setMainComponent(MainMenu.INSTANCE)
-				), 0.1F, 0.88F, 0.3F, 0.98F);
+				), 0.05F, 0.88F, 0.25F, 0.98F);
 		addComponent(new DynamicTextButton("Save", SAVE_BASE, SAVE_HOVER, () -> {
 			try {
 				EditorFileManager.saveAndBackUp(this.set, fileName);

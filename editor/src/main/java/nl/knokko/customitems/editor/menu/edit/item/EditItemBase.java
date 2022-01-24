@@ -36,7 +36,6 @@ import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.texture.BaseTextureValues;
-import nl.knokko.customitems.texture.BowTextureValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;

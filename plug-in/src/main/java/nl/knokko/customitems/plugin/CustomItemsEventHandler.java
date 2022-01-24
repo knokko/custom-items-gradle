@@ -715,6 +715,17 @@ public class CustomItemsEventHandler implements Listener {
 			Projectile trident = event.getEntity();
 			CustomTridentValues customTrident = null;
 
+			/*
+			 * This works around a bug that causes console spam in minecraft 1.17 each time a trident is thrown. The bug
+			 * occurs because the reflection hack below no longer works in 1.17 (probably due to some internal
+			 * reorganization in Bukkit). We could try to find a way to do this in minecraft 1.17, but that would not
+			 * be useful because custom tridents aren't supported in 1.17 anyway. (And thus we can't even test it even
+			 * if we would try to fix it.)
+			 */
+			if (!itemSet.hasCustomTridents()) {
+				return;
+			}
+
 			// Not my cleanest piece of code, but it was necessary...
 			try {
 				Object handle = trident.getClass().getMethod("getHandle").invoke(trident);
@@ -1838,6 +1849,23 @@ public class CustomItemsEventHandler implements Listener {
 		}
 
 		if (type == SlotType.RESULT) {
+			if (event.getInventory().getType().name().equals("GRINDSTONE")) {
+				ItemStack[] ingredients = event.getInventory().getStorageContents();
+				boolean custom1 = itemSet.getItem(ingredients[0]) != null;
+				boolean custom2 = itemSet.getItem(ingredients[1]) != null;
+
+				/*
+				 * Without this check, it is possible to use an enchanted custom item with in one slot of a grindstone
+				 * and a vanilla item with the same internal item type in the other slot. We clearly don't want to
+				 * allow this.
+				 */
+				if (custom1 && !custom2 && !ItemUtils.isEmpty(ingredients[1])) {
+					event.setCancelled(true);
+				}
+				if (!custom1 && custom2 && !ItemUtils.isEmpty(ingredients[0])) {
+					event.setCancelled(true);
+				}
+			}
 			if (event.getInventory() instanceof MerchantInventory) {
 				MerchantInventory inv = (MerchantInventory) event.getInventory();
 				MerchantRecipe recipe = null;
@@ -2356,6 +2384,20 @@ public class CustomItemsEventHandler implements Listener {
 	public void guardInventoryEvents(InventoryClickEvent event) {
 	    // Don't mess with creative clicks
 	    if (event.getClick() != ClickType.CREATIVE) {
+
+	    	/*
+	    	 * There is 1 minecraft action that can legitimately do more than 1 inventory transaction per tick:
+	    	 * the shift + double-click while having an item on your cursor and holding the cursor over another item.
+	    	 * This can cause many move-to-other-inventory actions.
+	    	 *
+	    	 * This check gives that specific action a free pass to avoid the inventory guard, provided that the
+	    	 * clicked item and cursor item are not custom items.
+	    	 */
+	    	if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
+	    		if (itemSet.getItem(event.getCurrentItem()) == null && itemSet.getItem(event.getCursor()) == null) {
+	    			return;
+				}
+			}
 			guardInventoryEvents(event, event.getWhoClicked().getUniqueId());
 		}
 	}
@@ -2605,6 +2647,9 @@ public class CustomItemsEventHandler implements Listener {
 				ItemMeta meta = stackToDrop.getItemMeta();
 				BlockStateMeta bms = (BlockStateMeta) meta;
 				bms.setBlockState(shulker);
+				if (shulker.getCustomName() != null) {
+					bms.setDisplayName(shulker.getCustomName());
+				}
 				stackToDrop.setItemMeta(bms);
 				event.getBlock().getWorld().dropItemNaturally(event.getBlock().getLocation(), stackToDrop);
 			}
@@ -2865,5 +2910,76 @@ public class CustomItemsEventHandler implements Listener {
 		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () ->
 				plugin.getItemUpdater().updateInventory(event.getInventory(), false)
 				, 5); // Use some delay to reduce the risk of interference with other plug-ins
+	}
+
+	@EventHandler
+	public void fixCraftingCloseStacking(InventoryCloseEvent event) {
+	    if (event.getInventory() instanceof CraftingInventory) {
+
+	    	ItemStack result = ((CraftingInventory) event.getInventory()).getResult();
+
+	    	ItemStack[] craftingContents = event.getInventory().getStorageContents();
+	    	ItemStack[] inventoryContents = event.getPlayer().getInventory().getStorageContents();
+
+	    	for (int craftingIndex = 0; craftingIndex < craftingContents.length; craftingIndex++) {
+	    		CustomItemValues customItem = itemSet.getItem(craftingContents[craftingIndex]);
+	    		if (customItem != null && !craftingContents[craftingIndex].equals(result)) {
+
+					for (ItemStack currentStack : inventoryContents) {
+						if (itemSet.getItem(currentStack) == customItem) {
+							if (customItem.getMaxStacksize() - currentStack.getAmount() >= craftingContents[craftingIndex].getAmount()) {
+								currentStack.setAmount(currentStack.getAmount() + craftingContents[craftingIndex].getAmount());
+								craftingContents[craftingIndex] = null;
+							}
+						}
+					}
+
+	    			if (craftingContents[craftingIndex] != null) {
+						for (int invIndex = 0; invIndex < inventoryContents.length; invIndex++) {
+							if (ItemUtils.isEmpty(inventoryContents[invIndex])) {
+								inventoryContents[invIndex] = craftingContents[craftingIndex];
+								craftingContents[craftingIndex] = null;
+							}
+						}
+					}
+				}
+			}
+
+	    	event.getInventory().setStorageContents(craftingContents);
+	    	event.getPlayer().getInventory().setStorageContents(inventoryContents);
+		}
+	}
+
+	@EventHandler
+	public void blockSlashFix(PlayerCommandPreprocessEvent event) {
+		String command = event.getMessage();
+		if (command.startsWith("/repair") || command.startsWith("/fix") ||
+						command.startsWith("/efix") || command.startsWith("/erepair")) {
+			if (command.endsWith("all")) {
+				ItemStack[] contents = event.getPlayer().getInventory().getContents();
+				for (ItemStack candidate : contents) {
+					if (ItemUtils.isCustom(candidate)) {
+						event.getPlayer().sendMessage(ChatColor.RED + "You can't repair custom items with this command");
+						event.setCancelled(true);
+						return;
+					}
+				}
+			} else if (event.getPlayer().hasPermission("essentials.repair")) {
+				ItemStack mainItem = event.getPlayer().getInventory().getItemInMainHand();
+				CustomItemValues customMainItem = itemSet.getItem(mainItem);
+				if (customMainItem != null) {
+					event.setCancelled(true);
+					if (customMainItem instanceof CustomToolValues) {
+						CustomToolValues toRepair = (CustomToolValues) customMainItem;
+						Long maxDurability = toRepair.getMaxDurabilityNew();
+						if (maxDurability != null) {
+							event.getPlayer().getInventory().setItemInMainHand(
+									wrap(toRepair).increaseDurability(mainItem, maxDurability).stack
+							);
+						}
+					}
+				}
+			}
+		}
 	}
 }

@@ -196,7 +196,7 @@ public class CustomToolWrapper extends CustomItemWrapper {
         }
     }
 
-    public IncreaseDurabilityResult increaseDurability(ItemStack stack, int amount) {
+    public IncreaseDurabilityResult increaseDurability(ItemStack stack, long amount) {
         if (this.tool.getMaxDurabilityNew() == null || !stack.hasItemMeta()) {
             return new IncreaseDurabilityResult(stack, 0);
         }
