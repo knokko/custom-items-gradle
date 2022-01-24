@@ -34,10 +34,10 @@ import nl.knokko.core.plugin.block.MushroomBlocks;
 import nl.knokko.core.plugin.item.SmithingBlocker;
 import nl.knokko.customitems.itemset.SItemSet;
 import nl.knokko.customitems.plugin.command.CustomItemsTabCompletions;
+import nl.knokko.customitems.plugin.multisupport.itembridge.ItemBridgeSupport;
 import nl.knokko.customitems.plugin.multisupport.mimic.MimicSupport;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.util.StringEncoder;
-import nl.knokko.customitems.bithelper.BitInputTracker;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -115,6 +115,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 		
 		itemUpdater.start();
 		CrazyEnchantmentsSupport.onEnable();
+		ItemBridgeSupport.onEnable(this);
 		PluginIndicators.init();
 	}
 
