@@ -25,6 +25,8 @@ public class RecipeHelper {
     }
 
     public static boolean shouldIngredientAcceptItemStack(IngredientValues ingredient, ItemStack itemStack) {
+        if (ingredient instanceof NoIngredientValues) return ItemUtils.isEmpty(itemStack);
+
         if (ingredient.getRemainingItem() == null) {
 
             // If there is no remaining item, we can accept if the amount is large enough
