@@ -78,21 +78,21 @@ public enum EnchantmentType {
 	private final int numericID;
 	private final String minecraftName;
 	
-	private EnchantmentType(String minecraftName, int numericID, int mcVersion) {
+	EnchantmentType(String minecraftName, int numericID, int mcVersion) {
 		niceName = NameHelper.getNiceEnumName(name());
 		version = mcVersion;
 		this.numericID = numericID;
 		this.minecraftName = minecraftName;
 	}
 	
-	private EnchantmentType(String minecraftName, int numericID) {
+	EnchantmentType(String minecraftName, int numericID) {
 		this(minecraftName, numericID, VERSION1_12);
 	}
 	
 	@Override
 	public String toString() {
 		// It looks like no enchantments have been renamed or removed
-		return NameHelper.getNiceEnumName(name(), version, VERSION1_17);
+		return NameHelper.getNiceEnumName(name(), version, VERSION1_18);
 	}
 	
 	public String getName() {

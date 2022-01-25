@@ -159,22 +159,25 @@ public class EditMenu extends GuiMenu {
 		}), 0.1F, 0.59F, 0.35F, 0.69F);
 		addComponent(new DynamicTextButton("Export for 1.12", SAVE_BASE, SAVE_HOVER, () -> {
 			saveAndExport(VERSION1_12);
-		}), 0.1F, 0.50F, 0.3F, 0.58F);
+		}), 0.05F, 0.50F, 0.25F, 0.58F);
 		addComponent(new DynamicTextButton("Export for 1.13", SAVE_BASE, SAVE_HOVER, () -> {
 			saveAndExport(VERSION1_13);
-		}), 0.1F, 0.41F, 0.3F, 0.49F);
+		}), 0.05F, 0.41F, 0.25F, 0.49F);
 		addComponent(new DynamicTextButton("Export for 1.14", SAVE_BASE, SAVE_HOVER, () -> {
 			saveAndExport(VERSION1_14);
-		}), 0.1F, 0.32F, 0.3F, 0.40F);
+		}), 0.05F, 0.32F, 0.25F, 0.40F);
 		addComponent(new DynamicTextButton("Export for 1.15", SAVE_BASE, SAVE_HOVER, () -> {
 			saveAndExport(VERSION1_15);
-		}), 0.1F, 0.23F, 0.3F, 0.31F);
+		}), 0.05F, 0.23F, 0.25F, 0.31F);
 		addComponent(new DynamicTextButton("Export for 1.16", SAVE_BASE, SAVE_HOVER, () -> {
 			saveAndExport(VERSION1_16);
-		}), 0.1F, 0.14F, 0.3F, 0.22F);
+		}), 0.3F, 0.5F, 0.5F, 0.58F);
 		addComponent(new DynamicTextButton("Export for 1.17", SAVE_BASE, SAVE_HOVER, () -> {
 			saveAndExport(VERSION1_17);
-		}), 0.1F, 0.05F, 0.3F, 0.13F);
+		}), 0.3F, 0.41F, 0.5F, 0.49F);
+		addComponent(new DynamicTextButton("Export for 1.18", SAVE_BASE, SAVE_HOVER, () -> {
+			saveAndExport(VERSION1_18);
+		}), 0.3F, 0.32F, 0.5F, 0.4F);
 
 		addComponent(new DynamicTextButton("Textures", BUTTON, HOVER, () -> {
 			this.state.getWindow().setMainComponent(this.textureOverview);
