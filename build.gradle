@@ -61,9 +61,6 @@ project(':editor') {
         implementation project(':shared-code')
         implementation project(':bit-helper')
         implementation project(':gui')
-
-        testImplementation project(':safe-gui-tester')
-        testImplementation 'com.1stleg:jnativehook:2.1.0'
     }
     shadowJar {
         manifest {
@@ -78,11 +75,3 @@ project(':core-plugin-12') {
         compileOnly 'org.bukkit:craftbukkit:1.12.2-R0.1-SNAPSHOT'
     }
 }
-
-project(':safe-gui-tester') {
-    dependencies {
-        implementation project(':gui')
-        implementation 'com.1stleg:jnativehook:2.1.0'
-    }
-}
-
