@@ -1,2 +1,2 @@
 rootProject.name = 'custom-items'
-include 'bit-helper', 'gui', 'shared-code', 'plug-in', 'editor', 'core-plugin-12', 'safe-gui-tester', 'plug-in-test'
+include 'bit-helper', 'gui', 'shared-code', 'plug-in', 'editor', 'core-plugin-12', 'safe-gui-tester'

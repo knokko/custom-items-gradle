@@ -55,19 +55,6 @@ project(':plug-in') {
     }
 }
 
-project(':plug-in-test') {
-    apply plugin: 'com.github.johnrengelman.shadow'
-    dependencies {
-        compileOnly project(':plug-in')
-        compileOnly project(':shared-code')
-        compileOnly project(':bit-helper')
-        compileOnly project(':core-plugin-12')
-        compileOnly 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
-        compileOnly 'me.badbones69:crazyenchantments-plugin:1.8-Dev-Build-v8@jar'
-        implementation group: 'junit', name: 'junit', version: '4.12'
-    }
-}
-
 project(':editor') {
     apply plugin: 'com.github.johnrengelman.shadow'
     dependencies {
