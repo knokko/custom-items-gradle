@@ -28,8 +28,10 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.logging.Level;
 
+import com.google.common.collect.Lists;
 import nl.knokko.core.plugin.block.MushroomBlocks;
 import nl.knokko.core.plugin.item.SmithingBlocker;
 import nl.knokko.customitems.itemset.SItemSet;
@@ -200,9 +202,22 @@ public class CustomItemsPlugin extends JavaPlugin {
 		}
 		
 		String mcVersion = bukkitVersion.substring(indexMC + 4, indexBracket);
-		
+
 		if (!mcVersion.startsWith(coreMcVersion)) {
 			this.loadErrors.add("It looks like you are using KnokkoCore for mc " + coreMcVersion + " on a mc " + mcVersion + " server. This will probably go wrong.");
+		}
+
+		List<String> versionWhiteList = Lists.newArrayList(
+				"1.12.2",
+				"1.13.2",
+				"1.14.4",
+				"1.15.2",
+				"1.16.4", "1.16.5",
+				"1.17", "1.17.1",
+				"1.18", "1.18.1"
+		);
+		if (!versionWhiteList.contains(mcVersion)) {
+			this.loadErrors.add("Unsupported minecraft version: " + mcVersion);
 		}
 		
 		try {
