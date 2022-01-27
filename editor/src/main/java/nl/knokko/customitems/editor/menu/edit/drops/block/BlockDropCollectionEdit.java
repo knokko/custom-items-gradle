@@ -27,10 +27,10 @@ public class BlockDropCollectionEdit extends DedicatedCollectionEdit<BlockDropVa
 	protected void addComponents() {
 		super.addComponents();
 		addComponent(new DynamicTextButton("New block drop", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new EditBlockDrop(menu.getSet(), this, null, null));
+			state.getWindow().setMainComponent(new EditBlockDrop(menu.getSet(), this, new BlockDropValues(true), null));
 		}), 0.025f, 0.2f, 0.2f, 0.3f);
 		
-		HelpButtons.addHelpLink(this, "edit%20menu/drops/blocks.html");
+		HelpButtons.addHelpLink(this, "edit menu/drops/blocks.html");
 	}
 
 	@Override
