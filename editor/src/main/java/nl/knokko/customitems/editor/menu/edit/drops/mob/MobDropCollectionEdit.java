@@ -26,7 +26,7 @@ public class MobDropCollectionEdit extends DedicatedCollectionEdit<MobDropValues
 	protected void addComponents() {
 		super.addComponents();
 		addComponent(new DynamicTextButton("New mob drop", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new EditMobDrop(menu.getSet(), this, null, null));
+			state.getWindow().setMainComponent(new EditMobDrop(menu.getSet(), this, new MobDropValues(true), null));
 		}), 0.025f, 0.2f, 0.2f, 0.3f);
 		
 		HelpButtons.addHelpLink(this, "edit menu/drops/mobs.html");
