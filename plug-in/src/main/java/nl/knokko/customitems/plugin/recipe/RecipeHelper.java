@@ -81,6 +81,8 @@ public class RecipeHelper {
 
     @SuppressWarnings("deprecation")
     public static ItemStack convertResultToItemStack(ResultValues result) {
+        if (result == null) return null;
+
         if (result instanceof SimpleVanillaResultValues) {
             SimpleVanillaResultValues simpleResult = (SimpleVanillaResultValues) result;
             return ItemHelper.createStack(simpleResult.getMaterial().name(), simpleResult.getAmount());
