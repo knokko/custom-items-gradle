@@ -1,7 +1,7 @@
 package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.encoding.ItemEncoding;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
@@ -11,7 +11,7 @@ import nl.knokko.customitems.bithelper.BitOutput;
 public class CustomHoeValues extends CustomToolValues {
 
     static CustomHoeValues load(
-            BitInput input, byte encoding, SItemSet itemSet, boolean checkCustomModel
+            BitInput input, byte encoding, ItemSet itemSet, boolean checkCustomModel
     ) throws UnknownEncodingException {
         CustomHoeValues result = new CustomHoeValues(false);
 
@@ -28,7 +28,7 @@ public class CustomHoeValues extends CustomToolValues {
             throw new UnknownEncodingException("CustomHoe", encoding);
         }
 
-        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             result.loadEditorOnlyProperties1(input, itemSet, checkCustomModel);
         }
 
@@ -51,18 +51,18 @@ public class CustomHoeValues extends CustomToolValues {
         this(toCopy, toCopy.getTillDurabilityLoss(), mutable);
     }
 
-    private void load6(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load6(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadTool6(input, itemSet);
         this.tillDurabilityLoss = input.readInt();
     }
 
-    private void load9(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load9(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         load6(input, itemSet);
         loadPotionProperties9(input);
         loadRightClickProperties9(input);
     }
 
-    private void load10(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load10(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadIdentityProperties10(input);
         loadTextDisplayProperties1(input);
         loadVanillaBasedPowers4(input);
@@ -76,11 +76,11 @@ public class CustomHoeValues extends CustomToolValues {
     }
 
     @Override
-    public void save(BitOutput output, SItemSet.Side side) {
+    public void save(BitOutput output, ItemSet.Side side) {
         output.addByte(ItemEncoding.ENCODING_HOE_10);
         save10(output);
 
-        if (side == SItemSet.Side.EDITOR) {
+        if (side == ItemSet.Side.EDITOR) {
             saveEditorOnlyProperties1(output);
         }
     }

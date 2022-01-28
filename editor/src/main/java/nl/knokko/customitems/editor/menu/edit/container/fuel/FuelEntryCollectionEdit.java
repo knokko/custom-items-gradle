@@ -9,7 +9,7 @@ import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.collection.InlineCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.ChooseIngredient;
 import nl.knokko.customitems.item.CIMaterial;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerIntEditField;
@@ -17,11 +17,11 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
 public class FuelEntryCollectionEdit extends InlineCollectionEdit<FuelEntryValues> {
 	
-	private final SItemSet set;
+	private final ItemSet set;
 
 	public FuelEntryCollectionEdit(
 			Collection<FuelEntryValues> originalCollection, Consumer<List<FuelEntryValues>> changeCollection,
-			GuiComponent returnMenu, SItemSet set) {
+			GuiComponent returnMenu, ItemSet set) {
 		super(originalCollection, changeCollection, returnMenu);
 		this.set = set;
 	}

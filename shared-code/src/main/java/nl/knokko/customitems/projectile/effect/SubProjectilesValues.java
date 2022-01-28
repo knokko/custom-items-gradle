@@ -1,7 +1,7 @@
 package nl.knokko.customitems.projectile.effect;
 
 import nl.knokko.customitems.itemset.ProjectileReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
@@ -14,7 +14,7 @@ import static nl.knokko.customitems.util.Checks.isClose;
 
 public class SubProjectilesValues extends ProjectileEffectValues {
 
-    static SubProjectilesValues load(BitInput input, byte encoding, SItemSet itemSet) throws UnknownEncodingException {
+    static SubProjectilesValues load(BitInput input, byte encoding, ItemSet itemSet) throws UnknownEncodingException {
         SubProjectilesValues result = new SubProjectilesValues(false);
 
         if (encoding == ENCODING_SUB_PROJECTILE_1) {
@@ -66,7 +66,7 @@ public class SubProjectilesValues extends ProjectileEffectValues {
         return "SubProjectile(" + child.get().getName() + ")";
     }
 
-    private void load1(BitInput input, SItemSet itemSet) {
+    private void load1(BitInput input, ItemSet itemSet) {
         this.child = itemSet.getProjectileReference(input.readString());
         this.useParentLifetime = input.readBoolean();
         this.minAmount = input.readInt();
@@ -151,7 +151,7 @@ public class SubProjectilesValues extends ProjectileEffectValues {
     }
 
     @Override
-    public void validate(SItemSet itemSet) throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         if (child == null) throw new ValidationException("You need to choose a child projectile");
         if (!itemSet.isReferenceValid(child)) throw new ProgrammingValidationException("Child is no longer valid");
         if (minAmount < 0) throw new ValidationException("Minimum amount can't be negative");

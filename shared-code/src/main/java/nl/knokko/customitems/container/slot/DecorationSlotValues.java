@@ -2,7 +2,7 @@ package nl.knokko.customitems.container.slot;
 
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.slot.display.SlotDisplayValues;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -14,7 +14,7 @@ import java.util.Collection;
 
 public class DecorationSlotValues extends ContainerSlotValues {
 
-    static DecorationSlotValues load(BitInput input, byte encoding, SItemSet itemSet) throws UnknownEncodingException {
+    static DecorationSlotValues load(BitInput input, byte encoding, ItemSet itemSet) throws UnknownEncodingException {
         DecorationSlotValues result = new DecorationSlotValues(false);
 
         if (encoding == Encodings.DECORATION1) {
@@ -44,7 +44,7 @@ public class DecorationSlotValues extends ContainerSlotValues {
         this.display = toCopy.getDisplay();
     }
 
-    private void load1(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load1(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         this.display = SlotDisplayValues.load(input, itemSet);
     }
 
@@ -94,7 +94,7 @@ public class DecorationSlotValues extends ContainerSlotValues {
     }
 
     @Override
-    public void validate(SItemSet itemSet, Collection<ContainerSlotValues> otherSlots) throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet, Collection<ContainerSlotValues> otherSlots) throws ValidationException, ProgrammingValidationException {
         if (display == null) throw new ProgrammingValidationException("No slot display");
         display.validate(itemSet);
     }

@@ -7,7 +7,7 @@ import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -19,7 +19,7 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class EditContainerRecipe extends GuiMenu {
 
-	private final SItemSet itemSet;
+	private final ItemSet itemSet;
 	private final CustomContainerValues container;
 	private final GuiComponent returnMenu;
 	private final ContainerRecipeValues currentValues;
@@ -28,8 +28,8 @@ public class EditContainerRecipe extends GuiMenu {
 	private final DynamicTextComponent errorComponent;
 
 	public EditContainerRecipe(
-			SItemSet itemSet, CustomContainerValues container, GuiComponent returnMenu,
-			ContainerRecipeValues oldValues, Consumer<ContainerRecipeValues> changeValues
+            ItemSet itemSet, CustomContainerValues container, GuiComponent returnMenu,
+            ContainerRecipeValues oldValues, Consumer<ContainerRecipeValues> changeValues
 	) {
 		this.itemSet = itemSet;
 		this.container = container;

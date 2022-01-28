@@ -7,7 +7,7 @@ import java.nio.file.Files;
 
 import nl.knokko.customitems.editor.EditorFileManager;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -119,14 +119,14 @@ public class CombineMenu extends GuiMenu {
 					return;
 				}
 				
-				SItemSet primarySet;
+				ItemSet primarySet;
 				try {
 					byte[] primaryBytes = new byte[(int) primaryFile.length()];
 					DataInputStream input = new DataInputStream(Files.newInputStream(primaryFile.toPath()));
 					input.readFully(primaryBytes);
 					input.close();
 					try {
-						primarySet = new SItemSet(new ByteArrayBitInput(primaryBytes), SItemSet.Side.EDITOR);
+						primarySet = new ItemSet(new ByteArrayBitInput(primaryBytes), ItemSet.Side.EDITOR);
 					} catch (Exception ex) {
 						errorComponent.setText("Error in primary item set: " + ex.getMessage());
 						return;
@@ -136,14 +136,14 @@ public class CombineMenu extends GuiMenu {
 					return;
 				}
 				
-				SItemSet secundarySet;
+				ItemSet secundarySet;
 				try {
 					byte[] secundaryBytes = new byte[(int) secundaryFile.length()];
 					DataInputStream input = new DataInputStream(Files.newInputStream(secundaryFile.toPath()));
 					input.readFully(secundaryBytes);
 					input.close();
 					try {
-						secundarySet = new SItemSet(new ByteArrayBitInput(secundaryBytes), SItemSet.Side.EDITOR);
+						secundarySet = new ItemSet(new ByteArrayBitInput(secundaryBytes), ItemSet.Side.EDITOR);
 					} catch (Exception ex) {
 						errorComponent.setText("Error in secundary item set: " + ex.getMessage());
 						return;
@@ -154,7 +154,7 @@ public class CombineMenu extends GuiMenu {
 				}
 
 				try {
-					SItemSet combinedSet = SItemSet.combine(primarySet, secundarySet);
+					ItemSet combinedSet = ItemSet.combine(primarySet, secundarySet);
 					EditorFileManager.saveAndBackUp(combinedSet, combined.getText());
 					LoadMenu.INSTANCE.refresh();
 					state.getWindow().setMainComponent(MainMenu.INSTANCE);

@@ -1,6 +1,6 @@
 package nl.knokko.customitems.serialization;
 
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.texture.BaseTextureValues;
 import nl.knokko.customitems.bithelper.BitInputStream;
 
@@ -22,12 +22,12 @@ public class BackwardHelper {
 
     public static final float DELTA = 0.0001f;
 
-    public static SItemSet[] loadItemSet(String name) {
-        return new SItemSet[] { loadItemSet(name, SItemSet.Side.EDITOR), loadItemSet(name, SItemSet.Side.PLUGIN) };
+    public static ItemSet[] loadItemSet(String name) {
+        return new ItemSet[] { loadItemSet(name, ItemSet.Side.EDITOR), loadItemSet(name, ItemSet.Side.PLUGIN) };
     }
 
-    public static SItemSet loadItemSet(String name, SItemSet.Side side) {
-        String extension = side == SItemSet.Side.EDITOR ? ".cisb" : ".cis";
+    public static ItemSet loadItemSet(String name, ItemSet.Side side) {
+        String extension = side == ItemSet.Side.EDITOR ? ".cisb" : ".cis";
         String resourceName = "nl/knokko/customitems/serialization/" + name + extension;
         InputStream rawInput = BackwardHelper.class.getClassLoader().getResourceAsStream(resourceName);
 
@@ -36,10 +36,10 @@ public class BackwardHelper {
         }
 
         BitInputStream bitInput = new BitInputStream(new BufferedInputStream(rawInput));
-        SItemSet result;
+        ItemSet result;
         try {
-            result = new SItemSet(bitInput, side);
-            if (side == SItemSet.Side.EDITOR) {
+            result = new ItemSet(bitInput, side);
+            if (side == ItemSet.Side.EDITOR) {
                 SaveEqualityHelper.testSaveEquality(result);
             }
         } catch (Exception e) {
@@ -108,7 +108,7 @@ public class BackwardHelper {
         }
     }
 
-    public static void checkTexture(SItemSet itemSet, String expectedName) {
+    public static void checkTexture(ItemSet itemSet, String expectedName) {
         BaseTextureValues texture = itemSet.getTexture(expectedName).get();
         BufferedImage expectedImage = loadImage(texture.getName());
         BufferedImage actualImage = texture.getImage();

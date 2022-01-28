@@ -1,7 +1,7 @@
 package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.itemset.ItemReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -13,7 +13,7 @@ public class ReplacementConditionValues extends ModelValues {
 
     private final int MAX_DEFAULT_SPACE = 37 * 64; // 37 slots of 64 items at most
 
-    public static ReplacementConditionValues load1(BitInput input, SItemSet itemSet, boolean mutable) {
+    public static ReplacementConditionValues load1(BitInput input, ItemSet itemSet, boolean mutable) {
         ReplacementConditionValues result = new ReplacementConditionValues(mutable);
         result.load1(input, itemSet);
         return result;
@@ -51,7 +51,7 @@ public class ReplacementConditionValues extends ModelValues {
         this.replaceItem = toCopy.getReplaceItemReference();
     }
 
-    private void load1(BitInput input, SItemSet itemSet) {
+    private void load1(BitInput input, ItemSet itemSet) {
         this.condition = ReplacementCondition.valueOf(input.readJavaString());
         this.item = itemSet.getItemReference(input.readJavaString());
         this.operation = ReplacementOperation.valueOf(input.readJavaString());
@@ -164,7 +164,7 @@ public class ReplacementConditionValues extends ModelValues {
         }
     }
 
-    public void validateComplete(SItemSet itemSet) throws ValidationException, ProgrammingValidationException {
+    public void validateComplete(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         validateIndependent();
         if (!itemSet.isReferenceValid(item)) {
             throw new ValidationException("The item is not/no longer valid");

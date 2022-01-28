@@ -2,7 +2,7 @@ package nl.knokko.customitems.container.slot.display;
 
 import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.item.CIMaterial;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -93,7 +93,7 @@ public class DataVanillaDisplayItemValues extends SlotDisplayItemValues {
     }
 
     @Override
-    public void validate(SItemSet itemSet) throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         if (material == null) throw new ProgrammingValidationException("No material");
         if (dataValue < 0) throw new ValidationException("Data value can't be negative");
         if (dataValue > 15) throw new ValidationException("Data value can be at most 15");

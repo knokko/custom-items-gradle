@@ -34,7 +34,7 @@ import javax.imageio.ImageIO;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.Validation;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.texture.BaseTextureValues;
 import nl.knokko.customitems.editor.util.HelpButtons;
@@ -52,7 +52,7 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class TextureEdit extends GuiMenu {
 	
-	protected final SItemSet itemSet;
+	protected final ItemSet itemSet;
 	protected final GuiComponent returnMenu;
 
 	protected final DynamicTextComponent errorComponent;
@@ -65,7 +65,7 @@ public class TextureEdit extends GuiMenu {
 		this(menu.getSet(), menu.getTextureOverview(), toModify, oldValues);
 	}
 
-	public TextureEdit(SItemSet set, GuiComponent returnMenu, TextureReference toModify, BaseTextureValues oldValues) {
+	public TextureEdit(ItemSet set, GuiComponent returnMenu, TextureReference toModify, BaseTextureValues oldValues) {
 		this.itemSet = set;
 		this.returnMenu = returnMenu;
 

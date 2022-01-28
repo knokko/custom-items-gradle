@@ -7,7 +7,7 @@ import java.util.Collection;
 
 public class ArmorTextureReference extends StringBasedReference<ArmorTexture, ArmorTextureValues> {
 
-    ArmorTextureReference(String name, SItemSet itemSet) {
+    ArmorTextureReference(String name, ItemSet itemSet) {
         super(name, itemSet);
     }
 

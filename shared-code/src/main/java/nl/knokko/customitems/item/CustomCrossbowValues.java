@@ -1,7 +1,7 @@
 package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.encoding.ItemEncoding;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.texture.CrossbowTextureValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -15,7 +15,7 @@ import static nl.knokko.customitems.util.Checks.isClose;
 public class CustomCrossbowValues extends CustomToolValues {
 
     static CustomCrossbowValues load(
-            BitInput input, byte encoding, SItemSet itemSet
+            BitInput input, byte encoding, ItemSet itemSet
     ) throws UnknownEncodingException {
         CustomCrossbowValues result = new CustomCrossbowValues(false);
 
@@ -26,7 +26,7 @@ public class CustomCrossbowValues extends CustomToolValues {
             throw new UnknownEncodingException("CustomCrossbow", encoding);
         }
 
-        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             result.loadEditorOnlyProperties1(input, itemSet, true);
         }
 
@@ -71,7 +71,7 @@ public class CustomCrossbowValues extends CustomToolValues {
         this.arrowGravity = toCopy.hasArrowGravity();
     }
 
-    private void load10(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load10(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadCrossbowIdentityProperties10(input);
         loadTextDisplayProperties1(input);
         loadVanillaBasedPowers4(input);
@@ -131,11 +131,11 @@ public class CustomCrossbowValues extends CustomToolValues {
     }
 
     @Override
-    public void save(BitOutput output, SItemSet.Side side) {
+    public void save(BitOutput output, ItemSet.Side side) {
         output.addByte(ItemEncoding.ENCODING_CROSSBOW_10);
         save10(output);
 
-        if (side == SItemSet.Side.EDITOR) {
+        if (side == ItemSet.Side.EDITOR) {
             saveEditorOnlyProperties1(output);
         }
     }

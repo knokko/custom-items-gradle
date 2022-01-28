@@ -2,7 +2,7 @@ package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.encoding.ItemEncoding;
 import nl.knokko.customitems.itemset.ProjectileReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
@@ -17,7 +17,7 @@ import java.util.Objects;
 public class CustomWandValues extends CustomItemValues {
 
     public static CustomWandValues load(
-            BitInput input, byte encoding, SItemSet itemSet
+            BitInput input, byte encoding, ItemSet itemSet
     ) throws UnknownEncodingException {
         CustomWandValues result = new CustomWandValues(false);
 
@@ -31,7 +31,7 @@ public class CustomWandValues extends CustomItemValues {
             throw new UnknownEncodingException("CustomWand", encoding);
         }
 
-        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             result.loadEditorOnlyProperties1(input, itemSet, true);
         }
 
@@ -66,11 +66,11 @@ public class CustomWandValues extends CustomItemValues {
     }
 
     @Override
-    public void save(BitOutput output, SItemSet.Side side) {
+    public void save(BitOutput output, ItemSet.Side side) {
         output.addByte(ItemEncoding.ENCODING_WAND_10);
         save10(output);
 
-        if (side == SItemSet.Side.EDITOR) {
+        if (side == ItemSet.Side.EDITOR) {
             saveEditorOnlyProperties1(output);
         }
     }
@@ -117,7 +117,7 @@ public class CustomWandValues extends CustomItemValues {
         return new CustomWandValues(this, mutable);
     }
 
-    private void load9(BitInput input, SItemSet itemSet) {
+    private void load9(BitInput input, ItemSet itemSet) {
         loadIdentityProperties1(input);
         loadTextDisplayProperties1(input);
         loadVanillaBasedPowers4(input);
@@ -127,7 +127,7 @@ public class CustomWandValues extends CustomItemValues {
         loadWandOnlyProperties9(input, itemSet);
     }
 
-    private void load10(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load10(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadIdentityProperties10(input);
         loadTextDisplayProperties1(input);
         loadVanillaBasedPowers4(input);
@@ -138,7 +138,7 @@ public class CustomWandValues extends CustomItemValues {
         loadExtraProperties10(input);
     }
 
-    private void loadWandOnlyProperties9(BitInput input, SItemSet itemSet) {
+    private void loadWandOnlyProperties9(BitInput input, ItemSet itemSet) {
         this.projectile = itemSet.getProjectileReference(input.readString());
         this.cooldown = input.readInt();
         if (input.readBoolean()) {
@@ -220,7 +220,7 @@ public class CustomWandValues extends CustomItemValues {
     }
 
     @Override
-    public void validateComplete(SItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
+    public void validateComplete(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         super.validateComplete(itemSet, oldName);
 
         if (!itemSet.isReferenceValid(projectile)) throw new ProgrammingValidationException("Projectile is no longer valid");

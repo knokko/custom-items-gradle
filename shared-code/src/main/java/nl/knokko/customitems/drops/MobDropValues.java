@@ -2,7 +2,7 @@ package nl.knokko.customitems.drops;
 
 import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.encoding.DropEncoding;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
@@ -16,7 +16,7 @@ import java.util.Objects;
 
 public class MobDropValues extends ModelValues {
 
-    public static MobDropValues load(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    public static MobDropValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
         MobDropValues result = new MobDropValues(false);
 
@@ -57,13 +57,13 @@ public class MobDropValues extends ModelValues {
         this.drop = toCopy.getDrop();
     }
 
-    private void load1(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load1(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         this.entityType = CIEntityType.getByOrdinal(input.readInt());
         this.requiredName = input.readString();
         this.drop = DropValues.load1(input, itemSet, false);
     }
 
-    private void load2(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load2(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         this.entityType = CIEntityType.getByOrdinal(input.readInt());
         this.requiredName = input.readString();
         this.drop = DropValues.load2(input, itemSet, false);
@@ -130,7 +130,7 @@ public class MobDropValues extends ModelValues {
         this.drop = newDrop.copy(false);
     }
 
-    public void validate(SItemSet itemSet) throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         if (entityType == null) throw new ProgrammingValidationException("No entity type");
         // There are no invalid values for requiredName
         if (drop == null) throw new ProgrammingValidationException("No drop");

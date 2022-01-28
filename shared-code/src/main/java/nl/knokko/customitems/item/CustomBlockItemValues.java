@@ -3,7 +3,7 @@ package nl.knokko.customitems.item;
 import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.encoding.ItemEncoding;
 import nl.knokko.customitems.itemset.BlockReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -14,7 +14,7 @@ import nl.knokko.customitems.bithelper.BitOutput;
 public class CustomBlockItemValues extends CustomItemValues {
 
     public static CustomBlockItemValues load(
-            BitInput input, byte encoding, SItemSet itemSet
+            BitInput input, byte encoding, ItemSet itemSet
     ) throws UnknownEncodingException {
         CustomBlockItemValues result = new CustomBlockItemValues(false);
 
@@ -25,7 +25,7 @@ public class CustomBlockItemValues extends CustomItemValues {
             throw new UnknownEncodingException("CustomBlockItem", encoding);
         }
 
-        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             result.loadEditorOnlyProperties1(input, itemSet, true);
         }
 
@@ -49,12 +49,12 @@ public class CustomBlockItemValues extends CustomItemValues {
         this.block = source.getBlockReference();
     }
 
-    private void load10(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load10(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadBase10(input, itemSet);
         loadBlockOnlyProperties10(input, itemSet);
     }
 
-    private void loadBlockOnlyProperties10(BitInput input, SItemSet itemSet) {
+    private void loadBlockOnlyProperties10(BitInput input, ItemSet itemSet) {
         this.block = itemSet.getBlockReference(input.readInt());
         this.maxStacksize = (byte) input.readInt();
     }
@@ -69,11 +69,11 @@ public class CustomBlockItemValues extends CustomItemValues {
     }
 
     @Override
-    public void save(BitOutput output, SItemSet.Side side) {
+    public void save(BitOutput output, ItemSet.Side side) {
         output.addByte(ItemEncoding.ENCODING_BLOCK_ITEM_10);
         save10(output);
 
-        if (side == SItemSet.Side.EDITOR) {
+        if (side == ItemSet.Side.EDITOR) {
             saveEditorOnlyProperties1(output);
         }
     }
@@ -136,7 +136,7 @@ public class CustomBlockItemValues extends CustomItemValues {
     }
 
     @Override
-    public void validateComplete(SItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
+    public void validateComplete(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         super.validateComplete(itemSet, oldName);
 
         if (!itemSet.isReferenceValid(block)) throw new ProgrammingValidationException("Block is no longer valid");

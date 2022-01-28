@@ -1,6 +1,6 @@
 package nl.knokko.customitems.projectile.cover;
 
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.texture.BaseTextureValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -21,7 +21,7 @@ import static nl.knokko.customitems.util.ResourceHelper.chain;
 public class SphereProjectileCoverValues extends ProjectileCoverValues {
 
     static SphereProjectileCoverValues load(
-            BitInput input, byte encoding, SItemSet itemSet
+            BitInput input, byte encoding, ItemSet itemSet
     ) throws UnknownEncodingException {
         SphereProjectileCoverValues result = new SphereProjectileCoverValues(false);
 
@@ -52,7 +52,7 @@ public class SphereProjectileCoverValues extends ProjectileCoverValues {
         this.scale = toCopy.getScale();
     }
 
-    private void load1(BitInput input, SItemSet itemSet) {
+    private void load1(BitInput input, ItemSet itemSet) {
         loadSharedProperties1(input);
         this.texture = itemSet.getTextureReference(input.readString());
         this.slotsPerAxis = input.readInt();
@@ -115,7 +115,7 @@ public class SphereProjectileCoverValues extends ProjectileCoverValues {
     }
 
     @Override
-    public void validate(SItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         super.validate(itemSet, oldName);
         if (texture == null) throw new ValidationException("You need to choose a texture");
         if (!itemSet.isReferenceValid(texture)) throw new ProgrammingValidationException("Texture is no longer valid");

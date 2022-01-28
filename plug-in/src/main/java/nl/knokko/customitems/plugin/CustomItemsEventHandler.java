@@ -63,8 +63,8 @@ import java.util.logging.Level;
 import nl.knokko.core.plugin.block.MushroomBlocks;
 import nl.knokko.core.plugin.item.GeneralItemNBT;
 import nl.knokko.customitems.block.CustomBlockValues;
-import nl.knokko.customitems.block.drop.CustomBlockDrop;
-import nl.knokko.customitems.block.drop.RequiredItems;
+import nl.knokko.customitems.block.drop.CustomBlockDropValues;
+import nl.knokko.customitems.block.drop.RequiredItemValues;
 import nl.knokko.customitems.block.drop.SilkTouchRequirement;
 import nl.knokko.customitems.drops.BlockDropValues;
 import nl.knokko.customitems.drops.DropValues;
@@ -2845,7 +2845,7 @@ public class CustomItemsEventHandler implements Listener {
 	private void dropCustomBlockDrops(CustomBlockValues block, Location location, ItemStack usedTool) {
 		Random rng = new Random();
 
-		for (CustomBlockDrop blockDrop : block.getDrops()) {
+		for (CustomBlockDropValues blockDrop : block.getDrops()) {
 
 		    boolean usedSilkTouch = false;
 		    CIMaterial usedMaterial = CIMaterial.AIR;
@@ -2864,11 +2864,11 @@ public class CustomItemsEventHandler implements Listener {
 		    	continue;
 			}
 
-			RequiredItems ri = blockDrop.getRequiredItems();
+			RequiredItemValues ri = blockDrop.getRequiredItems();
 		    if (ri.isEnabled()) {
 
 				boolean matchesVanillaItem = false;
-				for (RequiredItems.VanillaEntry vanillaEntry : ri.getVanillaItems()) {
+				for (RequiredItemValues.VanillaEntry vanillaEntry : ri.getVanillaItems()) {
 					if (vanillaEntry.getMaterial() == usedMaterial) {
 						if (vanillaEntry.shouldAllowCustomItems() || usedCustomItem == null) {
 							matchesVanillaItem = true;

@@ -12,11 +12,11 @@ import java.util.function.Supplier;
 abstract class StringBasedReference<M extends Model<V>, V extends ModelValues> implements Supplier<V> {
 
     String name;
-    SItemSet itemSet;
+    ItemSet itemSet;
 
     M model;
 
-    StringBasedReference(String name, SItemSet itemSet) {
+    StringBasedReference(String name, ItemSet itemSet) {
         Checks.nonNull(name, itemSet);
         this.name = name;
         this.itemSet = itemSet;

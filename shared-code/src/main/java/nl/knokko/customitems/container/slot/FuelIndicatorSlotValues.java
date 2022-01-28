@@ -3,7 +3,7 @@ package nl.knokko.customitems.container.slot;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.IndicatorDomain;
 import nl.knokko.customitems.container.slot.display.SlotDisplayValues;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -16,7 +16,7 @@ import java.util.Collection;
 
 public class FuelIndicatorSlotValues extends ContainerSlotValues {
 
-    static FuelIndicatorSlotValues load(BitInput input, byte encoding, SItemSet itemSet) throws UnknownEncodingException {
+    static FuelIndicatorSlotValues load(BitInput input, byte encoding, ItemSet itemSet) throws UnknownEncodingException {
         FuelIndicatorSlotValues result = new FuelIndicatorSlotValues(false);
 
         if (encoding == Encodings.FUEL_INDICATOR1) {
@@ -60,7 +60,7 @@ public class FuelIndicatorSlotValues extends ContainerSlotValues {
         this.indicatorDomain = toCopy.getIndicatorDomain();
     }
 
-    private void load1(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load1(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         this.fuelSlotName = input.readString();
         this.display = SlotDisplayValues.load(input, itemSet);
         this.placeholder = SlotDisplayValues.load(input, itemSet);
@@ -148,7 +148,7 @@ public class FuelIndicatorSlotValues extends ContainerSlotValues {
     }
 
     @Override
-    public void validate(SItemSet itemSet, Collection<ContainerSlotValues> otherSlots) throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet, Collection<ContainerSlotValues> otherSlots) throws ValidationException, ProgrammingValidationException {
         if (fuelSlotName == null) throw new ProgrammingValidationException("No fuel slot name");
         if (fuelSlotName.isEmpty()) throw new ValidationException("Fuel slot name can't be empty");
         if (otherSlots.stream().noneMatch(slot -> slot instanceof FuelSlotValues && fuelSlotName.equals(((FuelSlotValues) slot).getName()))) {

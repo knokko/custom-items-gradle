@@ -29,7 +29,7 @@ import java.util.function.Consumer;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.itemset.ItemReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -40,13 +40,13 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 public class SelectCustomItem extends GuiMenu {
 	
 	private final GuiComponent returnMenu;
-	private final SItemSet set;
+	private final ItemSet set;
 	private final Consumer<ItemReference> onSelect;
 	
 	private final TextEditField searchField;
 	private final ItemList itemList;
 
-	public SelectCustomItem(GuiComponent returnMenu, Consumer<ItemReference> onSelect, SItemSet set) {
+	public SelectCustomItem(GuiComponent returnMenu, Consumer<ItemReference> onSelect, ItemSet set) {
 		this.returnMenu = returnMenu;
 		this.onSelect = onSelect;
 		this.set = set;

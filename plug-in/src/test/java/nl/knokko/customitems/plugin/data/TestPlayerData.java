@@ -6,7 +6,7 @@ import java.awt.image.BufferedImage;
 import java.util.logging.Logger;
 
 import nl.knokko.customitems.item.CustomWandValues;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 import nl.knokko.customitems.texture.BaseTextureValues;
@@ -24,7 +24,7 @@ public class TestPlayerData {
 	public void testSaveLoad1() {
 		
 		// Create a dummy set
-		SItemSet rawSet = new SItemSet(SItemSet.Side.EDITOR);
+		ItemSet rawSet = new ItemSet(ItemSet.Side.EDITOR);
 		CustomWandValues dummyWand = WITH.copy(true);
 		try {
 			rawSet.addTexture(BaseTextureValues.createQuick("test", new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB)));

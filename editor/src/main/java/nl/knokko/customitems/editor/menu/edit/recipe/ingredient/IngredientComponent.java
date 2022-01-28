@@ -29,7 +29,7 @@ import nl.knokko.customitems.editor.menu.edit.select.item.SelectDataVanillaItem;
 import nl.knokko.customitems.editor.menu.edit.select.item.SelectSimpleVanillaItem;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.itemset.ItemReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.ShapedRecipeValues;
 import nl.knokko.customitems.recipe.ingredient.*;
 import nl.knokko.gui.component.GuiComponent;
@@ -41,11 +41,11 @@ public class IngredientComponent extends DynamicTextButton {
 	private final int x, y;
 	private final GuiComponent menu;
 	private final String emptyText;
-	private final SItemSet set;
+	private final ItemSet set;
 
 	public IngredientComponent(
 			ShapedRecipeValues recipe, int x, int y,
-			String emptyText, GuiComponent menu, SItemSet set) {
+			String emptyText, GuiComponent menu, ItemSet set) {
 		super(recipe.getIngredientAt(x, y).toString(emptyText), EditProps.BUTTON, EditProps.HOVER, null);
 		this.clickAction = () -> {
 			state.getWindow().setMainComponent(new ChooseIngredient(menu, this::setIngredient, true, set));

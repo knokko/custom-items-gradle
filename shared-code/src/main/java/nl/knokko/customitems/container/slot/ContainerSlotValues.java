@@ -1,7 +1,7 @@
 package nl.knokko.customitems.container.slot;
 
 import nl.knokko.customitems.container.CustomContainerValues;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -36,7 +36,7 @@ public abstract class ContainerSlotValues extends ModelValues {
         public static final byte STORAGE1 = 10;
     }
 
-    public static ContainerSlotValues load(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    public static ContainerSlotValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
 
         if (encoding == Encodings.DECORATION1) return DecorationSlotValues.load(input, encoding, itemSet);
@@ -66,7 +66,7 @@ public abstract class ContainerSlotValues extends ModelValues {
     public abstract boolean canTakeItems();
 
     public abstract void validate(
-            SItemSet itemSet, Collection<ContainerSlotValues> otherSlots
+            ItemSet itemSet, Collection<ContainerSlotValues> otherSlots
     ) throws ValidationException, ProgrammingValidationException;
 
     public abstract void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException;

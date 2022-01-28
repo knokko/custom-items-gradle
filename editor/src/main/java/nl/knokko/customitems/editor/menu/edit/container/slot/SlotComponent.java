@@ -10,7 +10,7 @@ import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.slot.*;
 import nl.knokko.customitems.container.slot.display.SlotDisplayValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.SimpleGuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.state.GuiComponentState;
@@ -22,7 +22,7 @@ import nl.knokko.gui.util.TextBuilder;
 public class SlotComponent implements GuiComponent {
 	
 	private final GuiComponent outerMenu;
-	private final SItemSet set;
+	private final ItemSet set;
 	private final CustomContainerValues container;
 	private final int x, y;
 	private final Supplier<ContainerSlotValues> getSlotToPaste;
@@ -34,8 +34,8 @@ public class SlotComponent implements GuiComponent {
 	private GuiComponentState state;
 	
 	public SlotComponent(
-			GuiComponent outerMenu, SItemSet set, CustomContainerValues container, int x, int y,
-			Supplier<ContainerSlotValues> getSlotToPaste, Consumer<ContainerSlotValues> copySlot) {
+            GuiComponent outerMenu, ItemSet set, CustomContainerValues container, int x, int y,
+            Supplier<ContainerSlotValues> getSlotToPaste, Consumer<ContainerSlotValues> copySlot) {
 		this.outerMenu = outerMenu;
 		this.set = set;
 		this.container = container;

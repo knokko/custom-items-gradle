@@ -1,6 +1,6 @@
 package nl.knokko.customitems.projectile.effect;
 
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
@@ -94,7 +94,7 @@ public class PushOrPullValues extends ProjectileEffectValues {
     }
 
     @Override
-    public void validate(SItemSet itemSet) throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         if (!Float.isFinite(strength)) throw new ValidationException("Push strength must be finite");
         if (!Float.isFinite(radius)) throw new ValidationException("Radius must be finite");
         if (radius <= 0) throw new ValidationException("Radius must be positive");

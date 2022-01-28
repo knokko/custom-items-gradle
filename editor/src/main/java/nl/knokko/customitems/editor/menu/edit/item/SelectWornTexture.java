@@ -6,7 +6,7 @@ import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.texture.ArmorTexturesEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.itemset.ArmorTextureReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -19,13 +19,13 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.CHOOSE_HOVER;
 public class SelectWornTexture extends GuiMenu {
 	
 	private final GuiComponent returnMenu;
-	private final SItemSet set;
+	private final ItemSet set;
 	private final Consumer<ArmorTextureReference> onChoose;
 	
 	private int lastNumTextures;
 
 	public SelectWornTexture(
-			GuiComponent returnMenu, SItemSet set,
+			GuiComponent returnMenu, ItemSet set,
 			Consumer<ArmorTextureReference> onChoose
 	) {
 		this.returnMenu = returnMenu;

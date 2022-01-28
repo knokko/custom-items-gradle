@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.block;
 
 import nl.knokko.customitems.MCVersions;
-import nl.knokko.customitems.block.drop.RequiredItems;
+import nl.knokko.customitems.block.drop.RequiredItemValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.menu.edit.collection.InlineCollectionEdit;
@@ -14,11 +14,11 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import java.util.Collection;
 import java.util.function.Consumer;
 
-public class EditRequiredVanillaItems extends InlineCollectionEdit<RequiredItems.VanillaEntry> {
+public class EditRequiredVanillaItems extends InlineCollectionEdit<RequiredItemValues.VanillaEntry> {
 
     public EditRequiredVanillaItems(
-            Collection<RequiredItems.VanillaEntry> currentCollection,
-            Consumer<Collection<RequiredItems.VanillaEntry>> onApply,
+            Collection<RequiredItemValues.VanillaEntry> currentCollection,
+            Consumer<Collection<RequiredItemValues.VanillaEntry>> onApply,
             GuiComponent returnMenu
     ) {
         super(returnMenu, currentCollection, onApply);
@@ -26,7 +26,7 @@ public class EditRequiredVanillaItems extends InlineCollectionEdit<RequiredItems
 
     @Override
     protected void addRowComponents(int itemIndex, float minY, float maxY) {
-        RequiredItems.VanillaEntry original = ownCollection.get(itemIndex);
+        RequiredItemValues.VanillaEntry original = ownCollection.get(itemIndex);
 
         addComponent(EnumSelect.createSelectButton(
                 CIMaterial.class, newMaterial -> {
@@ -44,8 +44,8 @@ public class EditRequiredVanillaItems extends InlineCollectionEdit<RequiredItems
     }
 
     @Override
-    protected RequiredItems.VanillaEntry addNew() {
-        return new RequiredItems.VanillaEntry(true);
+    protected RequiredItemValues.VanillaEntry addNew() {
+        return new RequiredItemValues.VanillaEntry(true);
     }
 
     @Override

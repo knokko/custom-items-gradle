@@ -2,7 +2,7 @@ package nl.knokko.customitems.serialization;
 
 import nl.knokko.customitems.damage.DamageSource;
 import nl.knokko.customitems.item.*;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
 import org.junit.Test;
@@ -18,14 +18,14 @@ public class Backward5 {
 
     @Test
     public void testBackwardCompatibility5() {
-        for (SItemSet set5 : loadItemSet("backward5")) {
+        for (ItemSet set5 : loadItemSet("backward5")) {
             testTextures3(set5, 3);
             testItems5(set5, 19);
             testRecipes1(set5, 2);
         }
     }
 
-    static void testItems5(SItemSet set, int numItems) {
+    static void testItems5(ItemSet set, int numItems) {
         testItems4(set, numItems);
 
         testSimpleDefault5((SimpleCustomItemValues) set.getItem("simple_three").get());
@@ -40,7 +40,7 @@ public class Backward5 {
         testHelmet2((CustomArmorValues) set.getItem("helmet_two").get(), set.getSide());
     }
 
-    static void testHoe2(CustomHoeValues item, SItemSet.Side side) {
+    static void testHoe2(CustomHoeValues item, ItemSet.Side side) {
         assertEquals("hoe_two", item.getName());
         assertEquals(CustomItemType.IRON_HOE, item.getItemType());
         assertEquals("Battle Hoe", item.getDisplayName());
@@ -57,7 +57,7 @@ public class Backward5 {
         assertEquals(listOf(
                 false, false, true, false, true, true
         ), item.getItemFlags());
-        if (side == SItemSet.Side.EDITOR) {
+        if (side == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
         } else {
             assertNull(item.getTextureReference());
@@ -71,7 +71,7 @@ public class Backward5 {
         assertEquals(0, item.getTillDurabilityLoss());
     }
 
-    static void testShears2(CustomShearsValues item, SItemSet.Side side) {
+    static void testShears2(CustomShearsValues item, ItemSet.Side side) {
         assertEquals("shears_two", item.getName());
         assertEquals(CustomItemType.SHEARS, item.getItemType());
         assertEquals("Breakable shears", item.getDisplayName());
@@ -90,14 +90,14 @@ public class Backward5 {
         assertEquals(0, item.getEntityHitDurabilityLoss());
         assertEquals(1, item.getBlockBreakDurabilityLoss());
         assertEquals(2, item.getShearDurabilityLoss());
-        if (side == SItemSet.Side.EDITOR) {
+        if (side == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
         } else {
             assertNull(item.getTextureReference());
         }
     }
 
-    static void testBow2(CustomBowValues item, SItemSet.Side side) {
+    static void testBow2(CustomBowValues item, ItemSet.Side side) {
         assertEquals("bow_two", item.getName());
         assertEquals(CustomItemType.BOW, item.getItemType());
         assertEquals("Second Bow", item.getDisplayName());
@@ -107,7 +107,7 @@ public class Backward5 {
         assertEquals(listOf(
                 false, false, true, false, false, false
         ), item.getItemFlags());
-        if (side == SItemSet.Side.EDITOR) {
+        if (side == ItemSet.Side.EDITOR) {
             assertEquals("bow_one", item.getTexture().getName());
         } else {
             assertNull(item.getTextureReference());
@@ -125,7 +125,7 @@ public class Backward5 {
         assertTrue(item.hasGravity());
     }
 
-    static void testHelmet2(CustomArmorValues item, SItemSet.Side side) {
+    static void testHelmet2(CustomArmorValues item, ItemSet.Side side) {
         assertEquals("helmet_two", item.getName());
         assertEquals(CustomItemType.DIAMOND_HELMET, item.getItemType());
         assertEquals("Fire Helmet", item.getDisplayName());
@@ -144,7 +144,7 @@ public class Backward5 {
         assertEquals(listOf(
                 false, false, true, false, false, false
         ), item.getItemFlags());
-        if (side == SItemSet.Side.EDITOR) {
+        if (side == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
         } else {
             assertNull(item.getTextureReference());

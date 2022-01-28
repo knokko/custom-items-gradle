@@ -6,7 +6,7 @@ import nl.knokko.customitems.container.fuel.FuelRegistryValues;
 import nl.knokko.customitems.drops.BlockDropValues;
 import nl.knokko.customitems.drops.MobDropValues;
 import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 import nl.knokko.customitems.projectile.cover.ProjectileCoverValues;
 import nl.knokko.customitems.recipe.CraftingRecipeValues;
@@ -22,13 +22,13 @@ import static org.junit.Assert.assertTrue;
 
 public class SaveEqualityHelper {
 
-    public static void testSaveEquality(SItemSet originalSet) throws UnknownEncodingException, IntegrityException {
-        for (SItemSet.Side side : SItemSet.Side.values()) {
+    public static void testSaveEquality(ItemSet originalSet) throws UnknownEncodingException, IntegrityException {
+        for (ItemSet.Side side : ItemSet.Side.values()) {
             ByteArrayBitOutput bitOutput = new ByteArrayBitOutput();
             originalSet.save(bitOutput, side);
 
-            SItemSet testSet = new SItemSet(new ByteArrayBitInput(bitOutput.getBytes()), side);
-            if (side == SItemSet.Side.EDITOR) {
+            ItemSet testSet = new ItemSet(new ByteArrayBitInput(bitOutput.getBytes()), side);
+            if (side == ItemSet.Side.EDITOR) {
                 assertEquals(originalSet.getTextures().size(), testSet.getTextures().size());
                 for (BaseTextureValues originalTexture : originalSet.getTextures()) {
                     assertEquals(originalTexture, testSet.getTexture(originalTexture.getName()).get());
@@ -43,7 +43,7 @@ public class SaveEqualityHelper {
             assertEquals(originalSet.getItems().size(), testSet.getItems().size());
             for (CustomItemValues originalItem : originalSet.getItems()) {
                 assertEquals(originalItem, testSet.getItem(originalItem.getName()).get());
-                if (side == SItemSet.Side.PLUGIN) {
+                if (side == ItemSet.Side.PLUGIN) {
                     // Doesn't really belong here, but is very convenient
                     assertEquals(originalItem, CustomItemValues.loadFromBooleanRepresentation(originalItem.getBooleanRepresentation()));
                 }
@@ -65,7 +65,7 @@ public class SaveEqualityHelper {
             }
 
             assertEquals(originalSet.getProjectileCovers().size(), testSet.getProjectileCovers().size());
-            if (side == SItemSet.Side.EDITOR) {
+            if (side == ItemSet.Side.EDITOR) {
                 for (ProjectileCoverValues originalProjectileCover : originalSet.getProjectileCovers()) {
                     assertEquals(originalProjectileCover, testSet.getProjectileCover(originalProjectileCover.getName()).get());
                 }

@@ -8,7 +8,7 @@ import nl.knokko.customitems.container.slot.OutputSlotValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -21,14 +21,14 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 public class CreateOutputSlot extends GuiMenu {
 	
 	private final GuiComponent returnMenu;
-	private final SItemSet itemSet;
+	private final ItemSet itemSet;
 	private final Collection<ContainerSlotValues> existingSlots;
 	private final OutputSlotValues currentValues;
 	private final Consumer<ContainerSlotValues> submitSlot;
 	private final DynamicTextComponent errorComponent;
 	
 	public CreateOutputSlot(
-			GuiComponent returnMenu, SItemSet itemSet,
+			GuiComponent returnMenu, ItemSet itemSet,
 			Collection<ContainerSlotValues> existingSlots, Consumer<ContainerSlotValues> submitSlot
 	) {
 		this.returnMenu = returnMenu;

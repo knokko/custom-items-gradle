@@ -7,7 +7,7 @@ import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.container.recipe.EditOutputTable;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.image.CheckboxComponent;
@@ -17,14 +17,14 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 public class SelectDrop extends GuiMenu {
 	
-	private final SItemSet set;
+	private final ItemSet set;
 	private final GuiComponent returnMenu;
 	private final Consumer<DropValues> receiver;
 	private final DropValues currentValues;
 	
 	private final DynamicTextComponent errorComponent;
 	
-	public SelectDrop(SItemSet set, GuiComponent returnMenu, DropValues previous, Consumer<DropValues> receiver) {
+	public SelectDrop(ItemSet set, GuiComponent returnMenu, DropValues previous, Consumer<DropValues> receiver) {
 		this.set = set;
 		this.returnMenu = returnMenu;
 		this.receiver = receiver;

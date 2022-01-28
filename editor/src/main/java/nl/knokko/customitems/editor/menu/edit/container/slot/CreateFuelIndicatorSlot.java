@@ -10,7 +10,7 @@ import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -23,15 +23,15 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 public class CreateFuelIndicatorSlot extends GuiMenu {
 
 	private final GuiComponent returnMenu;
-	private final SItemSet itemSet;
+	private final ItemSet itemSet;
 	private final Collection<ContainerSlotValues> existingSlots;
 	private final FuelIndicatorSlotValues currentValues;
 	private final Consumer<ContainerSlotValues> submitSlot;
 	private final DynamicTextComponent errorComponent;
 	
 	public CreateFuelIndicatorSlot(
-			GuiComponent returnMenu, SItemSet itemSet, Collection<ContainerSlotValues> existingSlots,
-			Consumer<ContainerSlotValues> submitSlot
+            GuiComponent returnMenu, ItemSet itemSet, Collection<ContainerSlotValues> existingSlots,
+            Consumer<ContainerSlotValues> submitSlot
 	) {
 		this.returnMenu = returnMenu;
 		this.itemSet = itemSet;

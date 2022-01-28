@@ -4,7 +4,7 @@ import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.ChooseIngredient;
 import nl.knokko.customitems.editor.menu.edit.recipe.result.ChooseResult;
 import nl.knokko.customitems.editor.util.Validation;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.ShapedRecipeValues;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
@@ -26,11 +26,11 @@ public class CreateTemplateRecipe extends GuiMenu {
     private ResultValues selectedResult;
     private final Function<List<IngredientValues>, IngredientValues[]> shapeIngredients;
     private final GuiComponent returnMenu;
-    private final SItemSet set;
+    private final ItemSet set;
 
     public CreateTemplateRecipe(
             String[] materialNames, Function<List<IngredientValues>, IngredientValues[]> shapeIngredients, GuiComponent returnMenu,
-            SItemSet set
+            ItemSet set
     ) {
         this.materialNames = materialNames;
         this.selectedIngredients = new ArrayList<>(materialNames.length);

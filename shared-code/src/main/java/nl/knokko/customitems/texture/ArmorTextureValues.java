@@ -1,6 +1,6 @@
 package nl.knokko.customitems.texture;
 
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
@@ -135,7 +135,7 @@ public class ArmorTextureValues extends ModelValues {
         this.layer2 = newLayer2;
     }
 
-    public void validate(SItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         if (name == null) throw new ProgrammingValidationException("No name");
         if (name.isEmpty()) throw new ValidationException("Name can't be empty");
 

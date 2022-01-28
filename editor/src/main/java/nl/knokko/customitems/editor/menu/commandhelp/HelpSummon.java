@@ -4,7 +4,7 @@ import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.select.item.SelectCustomItem;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.itemset.ItemReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
@@ -16,13 +16,13 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 public class HelpSummon extends GuiMenu {
 
-	private final SItemSet set;
+	private final ItemSet set;
 	private final GuiComponent returnMenu;
 
 	private CustomItemValues selectedMainHand, selectedOffHand, selectedHelmet, selectedChestplate, selectedLeggings,
 			selectedBoots;
 
-	public HelpSummon(SItemSet set, GuiComponent returnMenu) {
+	public HelpSummon(ItemSet set, GuiComponent returnMenu) {
 		this.set = set;
 		this.returnMenu = returnMenu;
 	}

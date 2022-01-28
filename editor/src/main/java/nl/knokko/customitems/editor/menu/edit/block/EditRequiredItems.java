@@ -1,11 +1,11 @@
 package nl.knokko.customitems.editor.menu.edit.block;
 
-import nl.knokko.customitems.block.drop.RequiredItems;
+import nl.knokko.customitems.block.drop.RequiredItemValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.drops.ChooseRequiredHeldItems;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
@@ -18,15 +18,15 @@ import java.util.function.Consumer;
 
 public class EditRequiredItems extends GuiMenu  {
 
-    private final RequiredItems requiredItems;
+    private final RequiredItemValues requiredItems;
 
-    private final Consumer<RequiredItems> changeRequiredItems;
-    private final SItemSet set;
+    private final Consumer<RequiredItemValues> changeRequiredItems;
+    private final ItemSet set;
     private final GuiComponent returnMenu;
 
     public EditRequiredItems(
-            RequiredItems oldItems, Consumer<RequiredItems> changeRequiredItems,
-            SItemSet set, GuiComponent returnMenu
+            RequiredItemValues oldItems, Consumer<RequiredItemValues> changeRequiredItems,
+            ItemSet set, GuiComponent returnMenu
     ) {
         this.requiredItems = oldItems.copy(true);
         this.changeRequiredItems = changeRequiredItems;

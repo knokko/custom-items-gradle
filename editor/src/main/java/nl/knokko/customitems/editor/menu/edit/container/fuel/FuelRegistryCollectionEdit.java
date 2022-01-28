@@ -8,16 +8,16 @@ import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.FuelRegistryReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
 public class FuelRegistryCollectionEdit extends DedicatedCollectionEdit<FuelRegistryValues, FuelRegistryReference> {
 	
-	private final SItemSet set;
+	private final ItemSet set;
 
-	public FuelRegistryCollectionEdit(GuiComponent returnMenu, SItemSet set) {
+	public FuelRegistryCollectionEdit(GuiComponent returnMenu, ItemSet set) {
 		super(returnMenu, set.getFuelRegistries().references(), null);
 		this.set = set;
 	}

@@ -30,7 +30,7 @@ import nl.knokko.customitems.editor.menu.edit.select.item.SelectSimpleVanillaIte
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.itemset.ItemReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.result.CustomItemResultValues;
 import nl.knokko.customitems.recipe.result.DataVanillaResultValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
@@ -49,7 +49,7 @@ public class ChooseResult extends GuiMenu {
 	
 	private final Consumer<ResultValues> listener;
 	private final GuiComponent returnMenu;
-	private final SItemSet set;
+	private final ItemSet set;
 	
 	private final DynamicTextComponent errorComponent;
 	private final TextEditField amountField;
@@ -58,7 +58,7 @@ public class ChooseResult extends GuiMenu {
 	private Consumer<Byte> setAmount;
 
 	public ChooseResult(GuiComponent returnMenu, Consumer<ResultValues> listener,
-			SItemSet set) {
+			ItemSet set) {
 		this.listener = listener;
 		this.returnMenu = returnMenu;
 		this.set = set;

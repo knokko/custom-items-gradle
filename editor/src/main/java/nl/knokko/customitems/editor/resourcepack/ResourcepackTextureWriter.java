@@ -2,7 +2,7 @@ package nl.knokko.customitems.editor.resourcepack;
 
 import nl.knokko.customitems.item.CustomArmorValues;
 import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.texture.*;
 
 import javax.imageio.ImageIO;
@@ -17,11 +17,11 @@ import static nl.knokko.customitems.MCVersions.VERSION1_12;
 
 class ResourcepackTextureWriter {
 
-    private final SItemSet itemSet;
+    private final ItemSet itemSet;
     private final int mcVersion;
     private final ZipOutputStream zipOutput;
 
-    ResourcepackTextureWriter(SItemSet itemSet, int mcVersion, ZipOutputStream zipOutput) {
+    ResourcepackTextureWriter(ItemSet itemSet, int mcVersion, ZipOutputStream zipOutput) {
         this.itemSet = itemSet;
         this.mcVersion = mcVersion;
         this.zipOutput = zipOutput;

@@ -11,14 +11,13 @@ import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ArmorTextureReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.texture.ArmorTextureValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.FileChooserMenu;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.EagerTextEditField;
-import nl.knokko.gui.component.text.TextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
@@ -27,7 +26,7 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 public class ArmorTexturesEdit extends GuiMenu {
 	
 	private final GuiComponent returnMenu;
-	private final SItemSet set;
+	private final ItemSet set;
 
 	private final ArmorTextureReference toModify;
 	private final ArmorTextureValues currentValues;
@@ -35,7 +34,7 @@ public class ArmorTexturesEdit extends GuiMenu {
 	private final DynamicTextComponent errorComponent;
 
 	public ArmorTexturesEdit(
-			GuiComponent returnMenu, SItemSet set, ArmorTextureReference toModify, ArmorTextureValues oldValues
+            GuiComponent returnMenu, ItemSet set, ArmorTextureReference toModify, ArmorTextureValues oldValues
 	) {
 		this.returnMenu = returnMenu;
 		this.set = set;

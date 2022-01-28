@@ -1,6 +1,6 @@
 package nl.knokko.customitems.projectile.effect;
 
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
@@ -201,7 +201,7 @@ public class ColoredRedstoneValues extends ProjectileEffectValues {
     }
 
     @Override
-    public void validate(SItemSet itemSet) throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         checkColorValue("Min red", minRed);
         checkColorValue("Min green", minGreen);
         checkColorValue("Min blue", minBlue);

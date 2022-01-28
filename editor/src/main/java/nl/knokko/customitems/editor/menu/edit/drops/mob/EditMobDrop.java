@@ -9,7 +9,7 @@ import nl.knokko.customitems.editor.menu.edit.drops.SelectDrop;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.MobDropReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
@@ -23,14 +23,14 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class EditMobDrop extends GuiMenu {
 	
-	private final SItemSet set;
+	private final ItemSet set;
 	private final GuiComponent returnMenu;
 	private final MobDropReference toModify;
 	private final MobDropValues currentValues;
 	
 	private final DynamicTextComponent errorComponent;
 
-	public EditMobDrop(SItemSet set, GuiComponent returnMenu, MobDropValues oldValues, MobDropReference toModify) {
+	public EditMobDrop(ItemSet set, GuiComponent returnMenu, MobDropValues oldValues, MobDropReference toModify) {
 		this.set = set;
 		this.returnMenu = returnMenu;
 		this.toModify = toModify;

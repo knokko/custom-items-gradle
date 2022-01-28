@@ -2,8 +2,8 @@ package nl.knokko.customitems.drops;
 
 import nl.knokko.customitems.model.Model;
 
-public class SBlockDrop extends Model<BlockDropValues> {
-    public SBlockDrop(BlockDropValues values) {
+public class BlockDrop extends Model<BlockDropValues> {
+    public BlockDrop(BlockDropValues values) {
         super(values);
     }
 }

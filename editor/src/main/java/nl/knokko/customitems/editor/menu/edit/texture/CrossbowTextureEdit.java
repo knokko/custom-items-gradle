@@ -4,7 +4,7 @@ import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.texture.BowTextureEntry;
 import nl.knokko.customitems.texture.CrossbowTextureValues;
@@ -26,7 +26,7 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class CrossbowTextureEdit extends GuiMenu {
 
-    private final SItemSet set;
+    private final ItemSet set;
     private final GuiComponent returnMenu;
 
     private final TextureReference toModify;
@@ -42,7 +42,7 @@ public class CrossbowTextureEdit extends GuiMenu {
     }
 
     public CrossbowTextureEdit(
-            SItemSet set, GuiComponent returnMenu, TextureReference toModify, CrossbowTextureValues oldValues
+            ItemSet set, GuiComponent returnMenu, TextureReference toModify, CrossbowTextureValues oldValues
     ) {
         this.set = set;
         this.returnMenu = returnMenu;

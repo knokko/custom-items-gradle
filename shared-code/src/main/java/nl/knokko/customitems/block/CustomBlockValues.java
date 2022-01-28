@@ -1,7 +1,7 @@
 package nl.knokko.customitems.block;
 
-import nl.knokko.customitems.block.drop.CustomBlockDrop;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.block.drop.CustomBlockDropValues;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.model.Mutability;
@@ -21,7 +21,7 @@ public class CustomBlockValues extends ModelValues {
     private static final byte ENCODING_1 = 1;
 
     public static CustomBlockValues load(
-            BitInput input, SItemSet itemSet, int internalId
+            BitInput input, ItemSet itemSet, int internalId
     ) throws UnknownEncodingException {
         byte encoding = input.readByte();
 
@@ -40,7 +40,7 @@ public class CustomBlockValues extends ModelValues {
 
     private String name;
 
-    private Collection<CustomBlockDrop> drops;
+    private Collection<CustomBlockDropValues> drops;
 
     // Only use this in the Editor; Keep it null on the plug-in
     private TextureReference texture;
@@ -79,22 +79,22 @@ public class CustomBlockValues extends ModelValues {
     }
 
     private void loadDrops1(
-            BitInput input, SItemSet itemSet
+            BitInput input, ItemSet itemSet
     ) throws UnknownEncodingException {
         int numDrops = input.readInt();
         this.drops = new ArrayList<>(numDrops);
         for (int counter = 0; counter < numDrops; counter++) {
-            this.drops.add(CustomBlockDrop.load(input, itemSet, false));
+            this.drops.add(CustomBlockDropValues.load(input, itemSet, false));
         }
     }
 
     private void load1(
-            BitInput input, SItemSet itemSet
+            BitInput input, ItemSet itemSet
     ) throws UnknownEncodingException {
         this.name = input.readString();
         this.loadDrops1(input, itemSet);
         String textureName = input.readString();
-        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             this.texture = itemSet.getTextureReference(textureName);
         }
     }
@@ -106,7 +106,7 @@ public class CustomBlockValues extends ModelValues {
 
     private void saveDrops1(BitOutput output) {
         output.addInt(drops.size());
-        for (CustomBlockDrop drop : drops) {
+        for (CustomBlockDropValues drop : drops) {
             drop.save(output);
         }
     }
@@ -133,7 +133,7 @@ public class CustomBlockValues extends ModelValues {
         return name;
     }
 
-    public Collection<CustomBlockDrop> getDrops() {
+    public Collection<CustomBlockDropValues> getDrops() {
         return new ArrayList<>(drops);
     }
 
@@ -155,7 +155,7 @@ public class CustomBlockValues extends ModelValues {
         this.name = newName;
     }
 
-    public void setDrops(Collection<CustomBlockDrop> newDrops) {
+    public void setDrops(Collection<CustomBlockDropValues> newDrops) {
         assertMutable();
         this.drops = Mutability.createDeepCopy(newDrops, false);
     }
@@ -173,7 +173,7 @@ public class CustomBlockValues extends ModelValues {
         if (name.contains(" ")) throw new ValidationException("The name contains spaces");
 
         if (drops == null) throw new ProgrammingValidationException("No drops");
-        for (CustomBlockDrop drop : drops) {
+        for (CustomBlockDropValues drop : drops) {
             if (drop == null) throw new ProgrammingValidationException("Missing a drop");
             Validation.scope("Drop", drop::validateIndependent);
         }
@@ -182,7 +182,7 @@ public class CustomBlockValues extends ModelValues {
     }
 
     public void validateComplete(
-            SItemSet itemSet, Integer oldInternalId
+            ItemSet itemSet, Integer oldInternalId
     ) throws ValidationException, ProgrammingValidationException {
         validateIndependent();
 
@@ -196,7 +196,7 @@ public class CustomBlockValues extends ModelValues {
             throw new ValidationException("Block with name " + name + " already exists");
         }
 
-        for (CustomBlockDrop drop : drops) {
+        for (CustomBlockDropValues drop : drops) {
             if (drop == null) throw new ProgrammingValidationException("Missing a drop");
             Validation.scope("Drop", () -> drop.validateComplete(itemSet));
         }
@@ -207,7 +207,7 @@ public class CustomBlockValues extends ModelValues {
     }
 
     public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
-        for (CustomBlockDrop drop : drops) {
+        for (CustomBlockDropValues drop : drops) {
             Validation.scope("Drops", () -> drop.validateExportVersion(version));
         }
     }

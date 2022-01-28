@@ -3,7 +3,7 @@ package nl.knokko.customitems.item;
 import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.effect.PotionEffectValues;
 import nl.knokko.customitems.encoding.ItemEncoding;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.sound.CISound;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -22,7 +22,7 @@ import static nl.knokko.customitems.util.Checks.isClose;
 public class CustomFoodValues extends CustomItemValues {
 
     static CustomFoodValues load(
-            BitInput input, byte encoding, SItemSet itemSet
+            BitInput input, byte encoding, ItemSet itemSet
     ) throws UnknownEncodingException {
         CustomFoodValues result = new CustomFoodValues(false);
 
@@ -33,7 +33,7 @@ public class CustomFoodValues extends CustomItemValues {
             throw new UnknownEncodingException("CustomFood", encoding);
         }
 
-        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             result.loadEditorOnlyProperties1(input, itemSet, true);
         }
 
@@ -78,16 +78,16 @@ public class CustomFoodValues extends CustomItemValues {
     }
 
     @Override
-    public void save(BitOutput output, SItemSet.Side side) {
+    public void save(BitOutput output, ItemSet.Side side) {
         output.addByte(ItemEncoding.ENCODING_FOOD_10);
         save10(output);
 
-        if (side == SItemSet.Side.EDITOR) {
+        if (side == ItemSet.Side.EDITOR) {
             saveEditorOnlyProperties1(output);
         }
     }
 
-    private void load10(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load10(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadBase10(input, itemSet);
         loadFoodOnlyProperties10(input);
     }

@@ -1,7 +1,7 @@
 package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.encoding.ItemEncoding;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -17,7 +17,7 @@ import java.util.Objects;
 public class CustomToolValues extends CustomItemValues {
 
     static CustomToolValues load(
-            BitInput input, byte encoding, SItemSet itemSet, boolean checkModel
+            BitInput input, byte encoding, ItemSet itemSet, boolean checkModel
     ) throws UnknownEncodingException {
         // Note: it doesn't really matter which CustomItemType is used since it will be overwritten anyway
         CustomToolValues result = new CustomToolValues(false, CustomItemType.IRON_PICKAXE);
@@ -44,7 +44,7 @@ public class CustomToolValues extends CustomItemValues {
             throw new UnknownEncodingException("CustomTool", encoding);
         }
 
-        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             result.loadEditorOnlyProperties1(input, itemSet, checkModel);
         }
 
@@ -101,33 +101,33 @@ public class CustomToolValues extends CustomItemValues {
         loadToolOnlyPropertiesA2(input);
     }
 
-    protected void loadTool3(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    protected void loadTool3(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadIdentityProperties1(input);
         loadTextDisplayProperties1(input);
         loadVanillaBasedPowers2(input);
         loadToolOnlyPropertiesA3(input, itemSet);
     }
 
-    protected void loadTool4(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    protected void loadTool4(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadIdentityProperties1(input);
         loadTextDisplayProperties1(input);
         loadVanillaBasedPowers4(input);
         loadToolOnlyPropertiesA4(input, itemSet);
     }
 
-    protected void loadTool6(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    protected void loadTool6(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadTool4(input, itemSet);
         loadItemFlags6(input);
         loadToolOnlyPropertiesB6(input);
     }
 
-    protected void loadTool9(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    protected void loadTool9(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadTool6(input, itemSet);
         loadPotionProperties9(input);
         loadRightClickProperties9(input);
     }
 
-    protected void loadTool10(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    protected void loadTool10(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadIdentityProperties10(input);
         loadTextDisplayProperties1(input);
         loadVanillaBasedPowers4(input);
@@ -150,12 +150,12 @@ public class CustomToolValues extends CustomItemValues {
         this.allowAnvilActions = input.readBoolean();
     }
 
-    protected void loadToolOnlyPropertiesA3(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    protected void loadToolOnlyPropertiesA3(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadToolOnlyPropertiesA2(input);
         this.repairItem = IngredientValues.load(input, itemSet);
     }
 
-    protected void loadToolOnlyPropertiesA4(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    protected void loadToolOnlyPropertiesA4(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         long storedDurability = input.readLong();
         if (storedDurability == -1) {
             this.maxDurability = null;
@@ -185,11 +185,11 @@ public class CustomToolValues extends CustomItemValues {
     }
 
     @Override
-    public void save(BitOutput output, SItemSet.Side side) {
+    public void save(BitOutput output, ItemSet.Side side) {
         output.addByte(ItemEncoding.ENCODING_TOOL_10);
         save10(output);
 
-        if (side == SItemSet.Side.EDITOR) {
+        if (side == ItemSet.Side.EDITOR) {
             saveEditorOnlyProperties1(output);
         }
     }
@@ -383,7 +383,7 @@ public class CustomToolValues extends CustomItemValues {
     }
 
     @Override
-    public void validateComplete(SItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
+    public void validateComplete(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         super.validateComplete(itemSet, oldName);
 
         Validation.scope("Repair item", repairItem::validateComplete, itemSet);

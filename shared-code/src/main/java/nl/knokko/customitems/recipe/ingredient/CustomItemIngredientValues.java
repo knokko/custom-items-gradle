@@ -3,7 +3,7 @@ package nl.knokko.customitems.recipe.ingredient;
 import nl.knokko.customitems.encoding.RecipeEncoding;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.itemset.ItemReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
@@ -16,7 +16,7 @@ import java.util.Objects;
 
 public class CustomItemIngredientValues extends IngredientValues {
 
-    static CustomItemIngredientValues load(BitInput input, byte encoding, SItemSet itemSet) throws UnknownEncodingException {
+    static CustomItemIngredientValues load(BitInput input, byte encoding, ItemSet itemSet) throws UnknownEncodingException {
         CustomItemIngredientValues ingredient = new CustomItemIngredientValues(false);
 
         if (encoding == RecipeEncoding.Ingredient.CUSTOM) {
@@ -60,13 +60,13 @@ public class CustomItemIngredientValues extends IngredientValues {
         this.item = toCopy.getItemReference();
     }
 
-    private void load1(BitInput input, SItemSet itemSet) {
+    private void load1(BitInput input, ItemSet itemSet) {
         this.amount = 1;
         this.remainingItem = null;
         this.item = itemSet.getItemReference(input.readJavaString());
     }
 
-    private void load2(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load2(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         this.amount = input.readByte();
         loadRemainingItem(input, itemSet);
         this.item = itemSet.getItemReference(input.readJavaString());
@@ -154,7 +154,7 @@ public class CustomItemIngredientValues extends IngredientValues {
     }
 
     @Override
-    public void validateComplete(SItemSet itemSet) throws ValidationException, ProgrammingValidationException {
+    public void validateComplete(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         super.validateComplete(itemSet);
 
         if (!itemSet.isReferenceValid(item)) throw new ValidationException("Item is not or no longer valid");

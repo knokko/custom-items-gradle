@@ -4,7 +4,7 @@ import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.item.CustomItemType;
 import nl.knokko.customitems.item.SimpleCustomItemValues;
 import nl.knokko.customitems.itemset.ItemReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.ShapedRecipeValues;
 import nl.knokko.customitems.recipe.ShapelessRecipeValues;
 import nl.knokko.customitems.recipe.ingredient.*;
@@ -21,15 +21,15 @@ public class Backward1 {
 
     @Test
     public void testBackwardCompatibility1() {
-        for (SItemSet set1 : BackwardHelper.loadItemSet("backward1")) {
+        for (ItemSet set1 : BackwardHelper.loadItemSet("backward1")) {
             testTextures1(set1, 2);
             testItems1(set1, 1);
             testRecipes1(set1, 2);
         }
     }
 
-    static void testTextures1(SItemSet itemSet, int numTextures) {
-        if (itemSet.getSide() == SItemSet.Side.PLUGIN) {
+    static void testTextures1(ItemSet itemSet, int numTextures) {
+        if (itemSet.getSide() == ItemSet.Side.PLUGIN) {
             assertEquals(0, itemSet.getTextures().size());
             return;
         }
@@ -40,7 +40,7 @@ public class Backward1 {
         checkTexture(itemSet, "gun1");
     }
 
-    static void testItems1(SItemSet itemSet, int numItems) {
+    static void testItems1(ItemSet itemSet, int numItems) {
         assertEquals(numItems, itemSet.getItems().size());
 
         SimpleCustomItemValues simple1 = (SimpleCustomItemValues) itemSet.getItem("simple1").get();
@@ -48,20 +48,20 @@ public class Backward1 {
         // Internal item damage is no longer relevant
         assertEquals("Simple 1", simple1.getDisplayName());
         assertEquals(listOf("line1", "Second line"), simple1.getLore());
-        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals(itemSet.getTextureReference("test1"), simple1.getTextureReference());
         } else {
             assertNull(simple1.getTextureReference());
         }
     }
 
-    static void testRecipes1(SItemSet set, int numRecipes) {
+    static void testRecipes1(ItemSet set, int numRecipes) {
         assertEquals(numRecipes, set.getCraftingRecipes().size());
         assertTrue(set.getCraftingRecipes().stream().anyMatch(candidate -> candidate.equals(getShapedRecipe1(set))));
         assertTrue(set.getCraftingRecipes().stream().anyMatch(candidate -> candidate.equals(getShapelessRecipe1(set))));
     }
 
-    static ShapedRecipeValues getShapedRecipe1(SItemSet itemSet) {
+    static ShapedRecipeValues getShapedRecipe1(ItemSet itemSet) {
         ItemReference simple1 = itemSet.getItemReference("simple1");
         IngredientValues[] ingredients = {
                 new NoIngredientValues(), new NoIngredientValues(), new NoIngredientValues(),
@@ -75,7 +75,7 @@ public class Backward1 {
         return ShapedRecipeValues.createQuick(ingredients, CustomItemResultValues.createQuick(simple1, (byte) 1));
     }
 
-    static ShapelessRecipeValues getShapelessRecipe1(SItemSet itemSet) {
+    static ShapelessRecipeValues getShapelessRecipe1(ItemSet itemSet) {
         ItemReference simple1 = itemSet.getItemReference("simple1");
         Collection<IngredientValues> ingredients = listOf(
                 CustomItemIngredientValues.createQuick(simple1, 1, null),

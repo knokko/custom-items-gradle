@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.projectile.effect.ProjectileEffectValues;
 import nl.knokko.customitems.projectile.effect.SubProjectilesValues;
 import nl.knokko.gui.component.GuiComponent;
@@ -19,11 +19,11 @@ public class EditSubProjectiles extends EditProjectileEffect<SubProjectilesValue
 	private static final float BUTTON_X = 0.5f;
 	private static final float LABEL_X = BUTTON_X - 0.01f;
 
-	private final SItemSet itemSet;
+	private final ItemSet itemSet;
 	
 	public EditSubProjectiles(
 			SubProjectilesValues oldValues, Consumer<ProjectileEffectValues> changeValues,
-			GuiComponent returnMenu, SItemSet itemSet
+			GuiComponent returnMenu, ItemSet itemSet
 	) {
 		super(oldValues, changeValues, returnMenu);
 		this.itemSet = itemSet;

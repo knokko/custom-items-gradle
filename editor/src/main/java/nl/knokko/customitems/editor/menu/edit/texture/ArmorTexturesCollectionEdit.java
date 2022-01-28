@@ -7,7 +7,7 @@ import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ArmorTextureReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.texture.ArmorTextureValues;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
@@ -15,9 +15,9 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 public class ArmorTexturesCollectionEdit extends DedicatedCollectionEdit<ArmorTextureValues, ArmorTextureReference> {
 
-	private final SItemSet set;
+	private final ItemSet set;
 	
-	public ArmorTexturesCollectionEdit(GuiComponent returnMenu, SItemSet set) {
+	public ArmorTexturesCollectionEdit(GuiComponent returnMenu, ItemSet set) {
 		super(returnMenu, set.getArmorTextures().references(), null);
 		this.set = set;
 	}

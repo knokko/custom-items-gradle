@@ -2,18 +2,18 @@ package nl.knokko.customitems.itemset;
 
 import nl.knokko.customitems.block.*;
 import nl.knokko.customitems.container.CustomContainerValues;
-import nl.knokko.customitems.container.SCustomContainer;
+import nl.knokko.customitems.container.CustomContainer;
 import nl.knokko.customitems.container.fuel.FuelRegistryValues;
-import nl.knokko.customitems.container.fuel.SFuelRegistry;
+import nl.knokko.customitems.container.fuel.CustomFuelRegistry;
 import nl.knokko.customitems.drops.*;
 import nl.knokko.customitems.encoding.SetEncoding;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.durability.ItemDurabilityAssignments;
 import nl.knokko.customitems.item.durability.ItemDurabilityClaim;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
-import nl.knokko.customitems.projectile.SCustomProjectile;
+import nl.knokko.customitems.projectile.CustomProjectile;
 import nl.knokko.customitems.projectile.cover.ProjectileCoverValues;
-import nl.knokko.customitems.projectile.cover.SProjectileCover;
+import nl.knokko.customitems.projectile.cover.ProjectileCover;
 import nl.knokko.customitems.recipe.CraftingRecipeValues;
 import nl.knokko.customitems.recipe.CustomCraftingRecipe;
 import nl.knokko.customitems.texture.*;
@@ -28,7 +28,7 @@ import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
 import java.util.*;
 import java.util.function.Function;
 
-public class SItemSet {
+public class ItemSet {
 
     private static long generateFakeExportTime() {
         /*
@@ -47,9 +47,9 @@ public class SItemSet {
         return (long) (-1_000_000_000_000_000L * Math.random());
     }
 
-    public static SItemSet combine(SItemSet primary, SItemSet secondary) throws ValidationException {
+    public static ItemSet combine(ItemSet primary, ItemSet secondary) throws ValidationException {
 
-        SItemSet result = new SItemSet(Side.EDITOR);
+        ItemSet result = new ItemSet(Side.EDITOR);
 
         result.textures.addAll(primary.textures);
         result.textures.addAll(secondary.textures);
@@ -112,27 +112,27 @@ public class SItemSet {
 
     Collection<CustomTexture> textures;
     Collection<ArmorTexture> armorTextures;
-    Collection<SCustomItem> items;
+    Collection<CustomItem> items;
     Collection<CustomCraftingRecipe> craftingRecipes;
-    Collection<SBlockDrop> blockDrops;
+    Collection<BlockDrop> blockDrops;
     Collection<MobDrop> mobDrops;
-    Collection<SCustomContainer> containers;
-    Collection<SFuelRegistry> fuelRegistries;
-    Collection<SCustomProjectile> projectiles;
-    Collection<SProjectileCover> projectileCovers;
+    Collection<CustomContainer> containers;
+    Collection<CustomFuelRegistry> fuelRegistries;
+    Collection<CustomProjectile> projectiles;
+    Collection<ProjectileCover> projectileCovers;
     Collection<CustomBlock> blocks;
 
     Collection<String> removedItemNames;
 
     final Side side;
 
-    public SItemSet(Side side) {
+    public ItemSet(Side side) {
         Checks.notNull(side);
         this.side = side;
         initialize();
     }
 
-    public SItemSet(BitInput input, Side side) throws IntegrityException, UnknownEncodingException {
+    public ItemSet(BitInput input, Side side) throws IntegrityException, UnknownEncodingException {
         Checks.notNull(side);
         this.side = side;
         load(input);
@@ -159,7 +159,7 @@ public class SItemSet {
     public Map<CustomItemType, ItemDurabilityAssignments> assignInternalItemDamages() throws ValidationException {
         Map<CustomItemType, ItemDurabilityAssignments> assignmentMap = new EnumMap<>(CustomItemType.class);
 
-        for (SCustomItem itemModel : items) {
+        for (CustomItem itemModel : items) {
             CustomItemValues item = itemModel.cloneValues();
             CustomItemType itemType = item.getItemType();
             ItemDurabilityAssignments assignments = assignmentMap.get(itemType);
@@ -201,7 +201,7 @@ public class SItemSet {
             itemModel.setValues(item);
         }
 
-        for (SProjectileCover coverModel : projectileCovers) {
+        for (ProjectileCover coverModel : projectileCovers) {
             ProjectileCoverValues cover = coverModel.cloneValues();
             CustomItemType itemType = cover.getItemType();
 
@@ -250,17 +250,17 @@ public class SItemSet {
         }
 
         output.addInt(projectileCovers.size());
-        for (SProjectileCover projectileCover : projectileCovers) {
+        for (ProjectileCover projectileCover : projectileCovers) {
             projectileCover.getValues().save(output, targetSide);
         }
 
         output.addInt(projectiles.size());
-        for (SCustomProjectile projectile : projectiles) {
+        for (CustomProjectile projectile : projectiles) {
             projectile.getValues().save(output);
         }
 
         output.addInt(items.size());
-        for (SCustomItem item : items) {
+        for (CustomItem item : items) {
             item.getValues().save(output, targetSide);
         }
 
@@ -276,7 +276,7 @@ public class SItemSet {
         }
 
         output.addInt(blockDrops.size());
-        for (SBlockDrop drop : blockDrops) {
+        for (BlockDrop drop : blockDrops) {
             drop.getValues().save(output);
         }
 
@@ -286,12 +286,12 @@ public class SItemSet {
         }
 
         output.addInt(fuelRegistries.size());
-        for (SFuelRegistry fuelRegistry : fuelRegistries) {
+        for (CustomFuelRegistry fuelRegistry : fuelRegistries) {
             fuelRegistry.getValues().save(output);
         }
 
         output.addInt(containers.size());
-        for (SCustomContainer container : containers) {
+        for (CustomContainer container : containers) {
             container.getValues().save(output);
         }
 
@@ -433,7 +433,7 @@ public class SItemSet {
         int numItems = input.readInt();
         this.items = new ArrayList<>(numItems);
         for (int counter = 0; counter < numItems; counter++) {
-            this.items.add(new SCustomItem(CustomItemValues.load(input, this, checkCustomModel)));
+            this.items.add(new CustomItem(CustomItemValues.load(input, this, checkCustomModel)));
         }
     }
 
@@ -458,7 +458,7 @@ public class SItemSet {
         int numBlockDrops = input.readInt();
         this.blockDrops = new ArrayList<>(numBlockDrops);
         for (int counter = 0; counter < numBlockDrops; counter++) {
-            this.blockDrops.add(new SBlockDrop(BlockDropValues.load(input, this)));
+            this.blockDrops.add(new BlockDrop(BlockDropValues.load(input, this)));
         }
     }
 
@@ -474,7 +474,7 @@ public class SItemSet {
         int numProjectileCovers = input.readInt();
         this.projectileCovers = new ArrayList<>(numProjectileCovers);
         for (int counter = 0; counter < numProjectileCovers; counter++) {
-            this.projectileCovers.add(new SProjectileCover(ProjectileCoverValues.load(input, this)));
+            this.projectileCovers.add(new ProjectileCover(ProjectileCoverValues.load(input, this)));
         }
     }
 
@@ -482,7 +482,7 @@ public class SItemSet {
         int numProjectiles = input.readInt();
         this.projectiles = new ArrayList<>(numProjectiles);
         for (int counter = 0; counter < numProjectiles; counter++) {
-            this.projectiles.add(new SCustomProjectile(CustomProjectileValues.load(input, this)));
+            this.projectiles.add(new CustomProjectile(CustomProjectileValues.load(input, this)));
         }
     }
 
@@ -490,7 +490,7 @@ public class SItemSet {
         int numFuelRegistries = input.readInt();
         this.fuelRegistries = new ArrayList<>(numFuelRegistries);
         for (int counter = 0; counter < numFuelRegistries; counter++) {
-            this.fuelRegistries.add(new SFuelRegistry(FuelRegistryValues.load(input, this)));
+            this.fuelRegistries.add(new CustomFuelRegistry(FuelRegistryValues.load(input, this)));
         }
     }
 
@@ -498,7 +498,7 @@ public class SItemSet {
         int numContainers = input.readInt();
         this.containers = new ArrayList<>(numContainers);
         for (int counter = 0; counter < numContainers; counter++) {
-            this.containers.add(new SCustomContainer(CustomContainerValues.load(input, this)));
+            this.containers.add(new CustomContainer(CustomContainerValues.load(input, this)));
         }
     }
 
@@ -760,7 +760,7 @@ public class SItemSet {
     }
 
     public Optional<CustomItemValues> getItem(String itemName) {
-        return CollectionHelper.find(items, item -> item.getValues().getName(), itemName).map(SCustomItem::getValues);
+        return CollectionHelper.find(items, item -> item.getValues().getName(), itemName).map(CustomItem::getValues);
     }
 
     public Optional<CustomBlockValues> getBlock(int blockInternalId) {
@@ -772,19 +772,19 @@ public class SItemSet {
     }
 
     public Optional<CustomContainerValues> getContainer(String containerName) {
-        return CollectionHelper.find(containers, container -> container.getValues().getName(), containerName).map(SCustomContainer::getValues);
+        return CollectionHelper.find(containers, container -> container.getValues().getName(), containerName).map(CustomContainer::getValues);
     }
 
     public Optional<FuelRegistryValues> getFuelRegistry(String registryName) {
-        return CollectionHelper.find(fuelRegistries, registry -> registry.getValues().getName(), registryName).map(SFuelRegistry::getValues);
+        return CollectionHelper.find(fuelRegistries, registry -> registry.getValues().getName(), registryName).map(CustomFuelRegistry::getValues);
     }
 
     public Optional<CustomProjectileValues> getProjectile(String projectileName) {
-        return CollectionHelper.find(projectiles, projectile -> projectile.getValues().getName(), projectileName).map(SCustomProjectile::getValues);
+        return CollectionHelper.find(projectiles, projectile -> projectile.getValues().getName(), projectileName).map(CustomProjectile::getValues);
     }
 
     public Optional<ProjectileCoverValues> getProjectileCover(String coverName) {
-        return CollectionHelper.find(projectileCovers, cover -> cover.getValues().getName(), coverName).map(SProjectileCover::getValues);
+        return CollectionHelper.find(projectileCovers, cover -> cover.getValues().getName(), coverName).map(ProjectileCover::getValues);
     }
 
     private <T> boolean isReferenceValid(Collection<T> collection, T model) {
@@ -950,7 +950,7 @@ public class SItemSet {
         }
         validateUniqueIDs("armor texture name", armorTextures, armorTexture -> armorTexture.getValues().getName());
 
-        for (SCustomItem item : items) {
+        for (CustomItem item : items) {
             Validation.scope(
                     "Item " + item.getValues().getName(),
                     () -> item.getValues().validateComplete(this, item.getValues().getName())
@@ -965,7 +965,7 @@ public class SItemSet {
             );
         }
 
-        for (SBlockDrop blockDrop : blockDrops) {
+        for (BlockDrop blockDrop : blockDrops) {
             Validation.scope(
                     "Block drop for " + blockDrop.getValues().getBlockType(),
                     () -> blockDrop.getValues().validate(this)
@@ -979,7 +979,7 @@ public class SItemSet {
             );
         }
 
-        for (SCustomProjectile projectile : projectiles) {
+        for (CustomProjectile projectile : projectiles) {
             Validation.scope(
                     "Projectile " + projectile.getValues().getName(),
                     () -> projectile.getValues().validate(this, projectile.getValues().getName())
@@ -987,7 +987,7 @@ public class SItemSet {
         }
         validateUniqueIDs("projectile name", projectiles, projectile -> projectile.getValues().getName());
 
-        for (SProjectileCover projectileCover : projectileCovers) {
+        for (ProjectileCover projectileCover : projectileCovers) {
             Validation.scope(
                     "Projectile cover " + projectileCover.getValues().getName(),
                     () -> projectileCover.getValues().validate(this, projectileCover.getValues().getName())
@@ -995,7 +995,7 @@ public class SItemSet {
         }
         validateUniqueIDs("projectile cover name", projectileCovers, projectileCover -> projectileCover.getValues().getName());
 
-        for (SCustomContainer container : containers) {
+        for (CustomContainer container : containers) {
             Validation.scope(
                     "Container " + container.getValues().getName(),
                     () -> container.getValues().validate(this, container.getValues().getName())
@@ -1003,7 +1003,7 @@ public class SItemSet {
         }
         validateUniqueIDs("container name", containers, container -> container.getValues().getName());
 
-        for (SFuelRegistry fuelRegistry : fuelRegistries) {
+        for (CustomFuelRegistry fuelRegistry : fuelRegistries) {
             Validation.scope(
                     "Fuel registry " + fuelRegistry.getValues().getName(),
                     () -> fuelRegistry.getValues().validate(this, fuelRegistry.getValues().getName())
@@ -1047,7 +1047,7 @@ public class SItemSet {
 
     public void addItem(CustomItemValues newItem) throws ValidationException, ProgrammingValidationException {
         newItem.validateComplete(this, null);
-        this.items.add(new SCustomItem(newItem));
+        this.items.add(new CustomItem(newItem));
     }
 
     public void changeItem(ItemReference itemToChange, CustomItemValues newItemValues) throws ValidationException, ProgrammingValidationException {
@@ -1071,7 +1071,7 @@ public class SItemSet {
 
     public void addBlockDrop(BlockDropValues newBlockDrop) throws ValidationException, ProgrammingValidationException {
         newBlockDrop.validate(this);
-        blockDrops.add(new SBlockDrop(newBlockDrop));
+        blockDrops.add(new BlockDrop(newBlockDrop));
     }
 
     public void changeBlockDrop(
@@ -1095,7 +1095,7 @@ public class SItemSet {
 
     public void addProjectile(CustomProjectileValues projectileToAdd) throws ValidationException, ProgrammingValidationException {
         projectileToAdd.validate(this, null);
-        this.projectiles.add(new SCustomProjectile(projectileToAdd));
+        this.projectiles.add(new CustomProjectile(projectileToAdd));
     }
 
     public void changeProjectile(ProjectileReference projectileToChange, CustomProjectileValues newValues) throws ValidationException, ProgrammingValidationException {
@@ -1106,7 +1106,7 @@ public class SItemSet {
 
     public void addProjectileCover(ProjectileCoverValues coverToAdd) throws ValidationException, ProgrammingValidationException {
         coverToAdd.validate(this, null);
-        this.projectileCovers.add(new SProjectileCover(coverToAdd));
+        this.projectileCovers.add(new ProjectileCover(coverToAdd));
     }
 
     public void changeProjectileCover(
@@ -1119,7 +1119,7 @@ public class SItemSet {
 
     public void addContainer(CustomContainerValues containerToAdd) throws ValidationException, ProgrammingValidationException {
         containerToAdd.validate(this, null);
-        this.containers.add(new SCustomContainer(containerToAdd));
+        this.containers.add(new CustomContainer(containerToAdd));
     }
 
     public void changeContainer(
@@ -1132,7 +1132,7 @@ public class SItemSet {
 
     public void addFuelRegistry(FuelRegistryValues registryToAdd) throws ValidationException, ProgrammingValidationException {
         registryToAdd.validate(this, null);
-        this.fuelRegistries.add(new SFuelRegistry(registryToAdd));
+        this.fuelRegistries.add(new CustomFuelRegistry(registryToAdd));
     }
 
     public void changeFuelRegistry(

@@ -6,7 +6,7 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.projectile.effect.ProjectileEffectsValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -20,15 +20,15 @@ public class EditProjectileEffects extends GuiMenu {
 	private static final float BUTTON_X = 0.625f;
 	private static final float LABEL_X = BUTTON_X - 0.01f;
 	
-	private final SItemSet set;
+	private final ItemSet set;
 	private final GuiComponent returnMenu;
 	private final ProjectileEffectsValues currentValues;
 	private final Consumer<ProjectileEffectsValues> changeValues;
 	private final DynamicTextComponent errorComponent;
 	
 	public EditProjectileEffects(
-			SItemSet set, GuiComponent returnMenu,
-			ProjectileEffectsValues oldValues, Consumer<ProjectileEffectsValues> changeValues
+            ItemSet set, GuiComponent returnMenu,
+            ProjectileEffectsValues oldValues, Consumer<ProjectileEffectsValues> changeValues
 	) {
 		this.set = set;
 		this.returnMenu = returnMenu;

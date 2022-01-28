@@ -2,7 +2,7 @@ package nl.knokko.customitems.block.drop;
 
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.itemset.ItemReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -14,16 +14,16 @@ import nl.knokko.customitems.bithelper.BitOutput;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class RequiredItems extends ModelValues {
+public class RequiredItemValues extends ModelValues {
 
     private static final byte ENCODING_1 = 1;
 
-    public static RequiredItems load(
-            BitInput input, SItemSet itemSet, boolean mutable
+    public static RequiredItemValues load(
+            BitInput input, ItemSet itemSet, boolean mutable
     ) throws UnknownEncodingException {
         byte encoding = input.readByte();
 
-        RequiredItems result = new RequiredItems(mutable);
+        RequiredItemValues result = new RequiredItemValues(mutable);
         if (encoding == ENCODING_1) {
             result.load1(input, itemSet);
         } else {
@@ -38,7 +38,7 @@ public class RequiredItems extends ModelValues {
     private Collection<ItemReference> customItems;
     private boolean invert;
 
-    public RequiredItems(boolean mutable) {
+    public RequiredItemValues(boolean mutable) {
         super(mutable);
 
         this.enabled = false;
@@ -47,7 +47,7 @@ public class RequiredItems extends ModelValues {
         this.invert = false;
     }
 
-    public RequiredItems(RequiredItems toCopy, boolean mutable) {
+    public RequiredItemValues(RequiredItemValues toCopy, boolean mutable) {
         super(mutable);
 
         this.enabled = toCopy.isEnabled();
@@ -58,8 +58,8 @@ public class RequiredItems extends ModelValues {
 
     @Override
     public boolean equals(Object other) {
-        if (other instanceof RequiredItems) {
-            RequiredItems otherItems = (RequiredItems) other;
+        if (other instanceof RequiredItemValues) {
+            RequiredItemValues otherItems = (RequiredItemValues) other;
             return otherItems.enabled == this.enabled && otherItems.vanillaItems.equals(this.vanillaItems) &&
                     otherItems.customItems.equals(this.customItems) && otherItems.invert == this.invert;
         } else {
@@ -78,7 +78,7 @@ public class RequiredItems extends ModelValues {
         }
     }
 
-    private void loadCustomItems1(BitInput input, SItemSet itemSet) {
+    private void loadCustomItems1(BitInput input, ItemSet itemSet) {
         int numItems = input.readInt();
         this.customItems = new ArrayList<>(numItems);
         for (int counter = 0; counter < numItems; counter++) {
@@ -86,7 +86,7 @@ public class RequiredItems extends ModelValues {
         }
     }
 
-    private void load1(BitInput input, SItemSet itemSet) {
+    private void load1(BitInput input, ItemSet itemSet) {
         this.enabled = input.readBoolean();
         this.loadVanillaItems1(input);
         this.loadCustomItems1(input, itemSet);
@@ -137,8 +137,8 @@ public class RequiredItems extends ModelValues {
     }
 
     @Override
-    public RequiredItems copy(boolean mutable) {
-        return new RequiredItems(this, mutable);
+    public RequiredItemValues copy(boolean mutable) {
+        return new RequiredItemValues(this, mutable);
     }
 
     public void setEnabled(boolean newEnabled) {
@@ -175,7 +175,7 @@ public class RequiredItems extends ModelValues {
     }
 
     public void validateComplete(
-            SItemSet itemSet
+            ItemSet itemSet
     ) throws ProgrammingValidationException {
         validateIndependent();
         for (ItemReference ownItem : this.customItems) {

@@ -2,7 +2,7 @@ package nl.knokko.customitems.container.slot;
 
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.slot.display.SlotDisplayValues;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -16,7 +16,7 @@ import java.util.Objects;
 
 public class InputSlotValues extends ContainerSlotValues {
 
-    static InputSlotValues load(BitInput input, byte encoding, SItemSet itemSet) throws UnknownEncodingException {
+    static InputSlotValues load(BitInput input, byte encoding, ItemSet itemSet) throws UnknownEncodingException {
         InputSlotValues result = new InputSlotValues(false);
 
         if (encoding == Encodings.INPUT1) {
@@ -61,7 +61,7 @@ public class InputSlotValues extends ContainerSlotValues {
         this.placeholder = null;
     }
 
-    private void load2(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load2(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         load1(input);
         if (input.readBoolean()) {
             this.placeholder = SlotDisplayValues.load(input, itemSet);
@@ -137,7 +137,7 @@ public class InputSlotValues extends ContainerSlotValues {
     }
 
     @Override
-    public void validate(SItemSet itemSet, Collection<ContainerSlotValues> otherSlots) throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet, Collection<ContainerSlotValues> otherSlots) throws ValidationException, ProgrammingValidationException {
         if (name == null) throw new ProgrammingValidationException("No name");
         if (name.isEmpty()) throw new ValidationException("Name can't be empty");
         if (otherSlots.stream().anyMatch(slot -> slot instanceof InputSlotValues && name.equals(((InputSlotValues) slot).name))) {

@@ -1,7 +1,7 @@
 package nl.knokko.customitems.projectile.effect;
 
 import nl.knokko.customitems.MCVersions;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.particle.CIParticle;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
@@ -131,7 +131,7 @@ public class SimpleParticleValues extends ProjectileEffectValues {
     }
 
     @Override
-    public void validate(SItemSet itemSet) throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         if (particle == null) throw new ProgrammingValidationException("No particle");
         if (!Float.isFinite(minRadius)) throw new ValidationException("Minimum radius must be finite");
         if (minRadius < 0f) throw new ValidationException("Minimum radius can't be negative");

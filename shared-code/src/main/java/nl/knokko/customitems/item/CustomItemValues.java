@@ -3,7 +3,7 @@ package nl.knokko.customitems.item;
 import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.effect.*;
 import nl.knokko.customitems.itemset.FakeItemSet;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.model.Mutability;
@@ -33,7 +33,7 @@ public abstract class CustomItemValues extends ModelValues {
     }
 
     public static CustomItemValues load(
-            BitInput input, SItemSet itemSet, boolean checkCustomModel
+            BitInput input, ItemSet itemSet, boolean checkCustomModel
     ) throws UnknownEncodingException {
 
         BitInputTracker inputTracker = new BitInputTracker(input, 100);
@@ -43,7 +43,7 @@ public abstract class CustomItemValues extends ModelValues {
     }
 
     private static CustomItemValues loadRaw(
-            BitInput input, SItemSet itemSet, boolean checkCustomModel
+            BitInput input, ItemSet itemSet, boolean checkCustomModel
     ) throws UnknownEncodingException {
         byte encoding = input.readByte();
 
@@ -214,9 +214,9 @@ public abstract class CustomItemValues extends ModelValues {
         return getClass().getSimpleName() + "(" + name + ")";
     }
 
-    public abstract void save(BitOutput output, SItemSet.Side side);
+    public abstract void save(BitOutput output, ItemSet.Side side);
 
-    protected void loadEditorOnlyProperties1(BitInput input, SItemSet itemSet, boolean checkCustomModel) {
+    protected void loadEditorOnlyProperties1(BitInput input, ItemSet itemSet, boolean checkCustomModel) {
         String textureName = input.readJavaString();
         this.texture = itemSet.getTextureReference(textureName);
 
@@ -409,7 +409,7 @@ public abstract class CustomItemValues extends ModelValues {
         }
     }
 
-    protected void loadRightClickProperties10(BitInput input, SItemSet itemSet) {
+    protected void loadRightClickProperties10(BitInput input, ItemSet itemSet) {
         loadRightClickProperties9(input);
         loadReplacementConditions10(input, itemSet);
     }
@@ -419,7 +419,7 @@ public abstract class CustomItemValues extends ModelValues {
         saveReplacementConditions10(output);
     }
 
-    protected void loadReplacementConditions10(BitInput input, SItemSet itemSet) {
+    protected void loadReplacementConditions10(BitInput input, ItemSet itemSet) {
         int numReplacementConditions = input.readByte() & 0xFF;
         this.replaceConditions = new ArrayList<>(numReplacementConditions);
         for (int counter = 0; counter < numReplacementConditions; counter++) {
@@ -463,7 +463,7 @@ public abstract class CustomItemValues extends ModelValues {
         }
     }
 
-    protected void loadBase10(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    protected void loadBase10(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadIdentityProperties10(input);
         loadTextDisplayProperties1(input);
         loadVanillaBasedPowers4(input);
@@ -854,7 +854,7 @@ public abstract class CustomItemValues extends ModelValues {
     }
 
     public void validateComplete(
-            SItemSet itemSet, String oldName
+            ItemSet itemSet, String oldName
     ) throws ValidationException, ProgrammingValidationException {
         validateIndependent();
 

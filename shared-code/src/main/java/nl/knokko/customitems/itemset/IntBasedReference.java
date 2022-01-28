@@ -12,11 +12,11 @@ import java.util.function.Supplier;
 abstract class IntBasedReference<M extends Model<V>, V extends ModelValues> implements Supplier<V> {
 
     int id;
-    SItemSet itemSet;
+    ItemSet itemSet;
 
     M model;
 
-    IntBasedReference(int id, SItemSet itemSet) {
+    IntBasedReference(int id, ItemSet itemSet) {
         Checks.notNull(itemSet);
         this.id = id;
         this.itemSet = itemSet;

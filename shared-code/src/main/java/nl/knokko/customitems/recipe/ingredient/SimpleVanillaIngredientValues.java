@@ -2,7 +2,7 @@ package nl.knokko.customitems.recipe.ingredient;
 
 import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.item.CIMaterial;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
@@ -17,7 +17,7 @@ import static nl.knokko.customitems.encoding.RecipeEncoding.Ingredient.*;
 
 public class SimpleVanillaIngredientValues extends IngredientValues {
 
-    static SimpleVanillaIngredientValues load(BitInput input, byte encoding, SItemSet itemSet) throws UnknownEncodingException {
+    static SimpleVanillaIngredientValues load(BitInput input, byte encoding, ItemSet itemSet) throws UnknownEncodingException {
         SimpleVanillaIngredientValues result = new SimpleVanillaIngredientValues(false);
 
         if (encoding == VANILLA_SIMPLE) {
@@ -104,7 +104,7 @@ public class SimpleVanillaIngredientValues extends IngredientValues {
         this.material = CIMaterial.valueOf(input.readJavaString());
     }
 
-    private void load2(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load2(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         this.amount = input.readByte();
         loadRemainingItem(input, itemSet);
         this.material = CIMaterial.valueOf(input.readJavaString());

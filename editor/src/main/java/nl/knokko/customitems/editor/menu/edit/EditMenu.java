@@ -33,7 +33,7 @@ import nl.knokko.customitems.editor.menu.edit.recipe.RecipeCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.texture.TextureCollectionEdit;
 import nl.knokko.customitems.editor.menu.main.MainMenu;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.gui.color.GuiColor;
@@ -49,7 +49,7 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class EditMenu extends GuiMenu {
 
-	protected final SItemSet set;
+	protected final ItemSet set;
 	protected final String fileName;
 
 	protected final DynamicTextComponent errorComponent;
@@ -61,7 +61,7 @@ public class EditMenu extends GuiMenu {
 	protected final ProjectileMenu projectileMenu;
 	protected final ContainerPortal containerPortal;
 
-	public EditMenu(SItemSet set, String fileName) {
+	public EditMenu(ItemSet set, String fileName) {
 		this.set = set;
 		this.fileName = fileName;
 		itemOverview = new ItemCollectionEdit(this);
@@ -79,7 +79,7 @@ public class EditMenu extends GuiMenu {
 		errorComponent.setText("");
 	}
 
-	public SItemSet getSet() {
+	public ItemSet getSet() {
 		return set;
 	}
 

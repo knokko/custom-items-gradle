@@ -4,7 +4,7 @@ import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.item.CustomItemType;
 import nl.knokko.customitems.item.durability.ItemDurabilityAssignments;
 import nl.knokko.customitems.item.durability.ItemDurabilityClaim;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.texture.BowTextureEntry;
 import nl.knokko.customitems.util.ValidationException;
 
@@ -20,11 +20,11 @@ import static nl.knokko.customitems.editor.resourcepack.DefaultItemModels.getMin
 
 class ResourcepackItemOverrider {
 
-    private final SItemSet itemSet;
+    private final ItemSet itemSet;
     private final int mcVersion;
     private final ZipOutputStream zipOutput;
 
-    ResourcepackItemOverrider(SItemSet itemSet, int mcVersion, ZipOutputStream zipOutput) {
+    ResourcepackItemOverrider(ItemSet itemSet, int mcVersion, ZipOutputStream zipOutput) {
         this.itemSet = itemSet;
         this.mcVersion = mcVersion;
         this.zipOutput = zipOutput;

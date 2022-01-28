@@ -4,7 +4,7 @@ import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.slot.ContainerSlotValues;
 import nl.knokko.customitems.container.slot.EmptySlotValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -15,11 +15,11 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 public class SlotsComponent extends GuiMenu {
 	
 	private final GuiComponent outerMenu;
-	private final SItemSet set;
+	private final ItemSet set;
 	private final CustomContainerValues container;
 	private ContainerSlotValues clipboardSlot;
 	
-	public SlotsComponent(GuiComponent outerMenu, SItemSet set, CustomContainerValues container) {
+	public SlotsComponent(GuiComponent outerMenu, ItemSet set, CustomContainerValues container) {
 		this.outerMenu = outerMenu;
 		this.set = set;
 		this.container = container;

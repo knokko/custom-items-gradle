@@ -1,6 +1,6 @@
 package nl.knokko.customitems.projectile.cover;
 
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.CollectionHelper;
@@ -76,7 +76,7 @@ public class CustomProjectileCoverValues extends ProjectileCoverValues {
     }
 
     @Override
-    public void validate(SItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         super.validate(itemSet, oldName);
         if (customModel == null) throw new ValidationException("You need to select a custom model");
     }

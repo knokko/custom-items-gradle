@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.resourcepack;
 
 import nl.knokko.customitems.MCVersions;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
 
@@ -13,10 +13,10 @@ import java.util.zip.ZipOutputStream;
 
 public class ResourcepackGenerator {
 
-    private final SItemSet itemSet;
+    private final ItemSet itemSet;
     private final int mcVersion;
 
-    public ResourcepackGenerator(SItemSet itemSet, int mcVersion) {
+    public ResourcepackGenerator(ItemSet itemSet, int mcVersion) {
         this.itemSet = itemSet;
         this.mcVersion = mcVersion;
     }

@@ -1,6 +1,6 @@
 package nl.knokko.customitems.item.gun;
 
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.customitems.sound.CISound;
@@ -15,7 +15,7 @@ import nl.knokko.customitems.bithelper.BitOutput;
 public class IndirectGunAmmoValues extends GunAmmoValues {
 
     static IndirectGunAmmoValues load(
-            BitInput input, byte encoding, SItemSet itemSet
+            BitInput input, byte encoding, ItemSet itemSet
     ) throws UnknownEncodingException {
         IndirectGunAmmoValues result = new IndirectGunAmmoValues(false);
 
@@ -100,7 +100,7 @@ public class IndirectGunAmmoValues extends GunAmmoValues {
         }
     }
 
-    private void load1(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load1(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         this.reloadItem = IngredientValues.load(input, itemSet);
         this.cooldown = input.readInt();
         this.storedAmmo = input.readInt();
@@ -184,7 +184,7 @@ public class IndirectGunAmmoValues extends GunAmmoValues {
     }
 
     @Override
-    public void validateComplete(SItemSet itemSet) throws ValidationException, ProgrammingValidationException {
+    public void validateComplete(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         validateIndependent();
         if (reloadItem != null) Validation.scope("Reload item", () -> reloadItem.validateComplete(itemSet));
     }

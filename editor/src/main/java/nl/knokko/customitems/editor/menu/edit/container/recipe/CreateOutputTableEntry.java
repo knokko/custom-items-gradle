@@ -6,7 +6,7 @@ import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.recipe.result.ChooseResult;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.gui.color.GuiColor;
@@ -21,10 +21,10 @@ public class CreateOutputTableEntry extends GuiMenu {
 	
 	private final GuiComponent returnMenu;
 	private final Consumer<OutputTableValues.Entry> onCreate;
-	private final SItemSet set;
+	private final ItemSet set;
 	
 	public CreateOutputTableEntry(
-			GuiComponent returnMenu, Consumer<OutputTableValues.Entry> onCreate, SItemSet set) {
+			GuiComponent returnMenu, Consumer<OutputTableValues.Entry> onCreate, ItemSet set) {
 		this.returnMenu = returnMenu;
 		this.onCreate = onCreate;
 		this.set = set;

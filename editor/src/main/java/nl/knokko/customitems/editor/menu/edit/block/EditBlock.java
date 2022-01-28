@@ -8,7 +8,7 @@ import nl.knokko.customitems.editor.menu.main.MainMenu;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.BlockReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.texture.BaseTextureValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -26,9 +26,9 @@ public class EditBlock extends GuiMenu  {
     private final CustomBlockValues currentValues;
 
     private final GuiComponent returnMenu;
-    private final SItemSet set;
+    private final ItemSet set;
 
-    public EditBlock(BlockReference blockToModify, CustomBlockValues valuesToModify, GuiComponent returnMenu, SItemSet set) {
+    public EditBlock(BlockReference blockToModify, CustomBlockValues valuesToModify, GuiComponent returnMenu, ItemSet set) {
         this.toModify = blockToModify;
         this.currentValues = valuesToModify;
         this.returnMenu = returnMenu;

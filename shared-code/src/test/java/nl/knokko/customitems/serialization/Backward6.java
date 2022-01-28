@@ -5,7 +5,7 @@ import nl.knokko.customitems.effect.EffectType;
 import nl.knokko.customitems.effect.PotionEffectValues;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.itemset.ItemReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.particle.CIParticle;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 import nl.knokko.customitems.projectile.cover.CustomProjectileCoverValues;
@@ -34,7 +34,7 @@ public class Backward6 {
 
     @Test
     public void testBackwardCompatibility6() {
-        for (SItemSet oldSet : loadItemSet("backward6old")) {
+        for (ItemSet oldSet : loadItemSet("backward6old")) {
             testTextures3(oldSet, 3);
             testItemsOld6(oldSet, 21);
             testRecipesOld6(oldSet, 3);
@@ -44,15 +44,15 @@ public class Backward6 {
             testProjectilesOld6(oldSet, 1);
         }
 
-        for (SItemSet newSet : loadItemSet("backward6new")) {
+        for (ItemSet newSet : loadItemSet("backward6new")) {
             testTexturesNew6(newSet, 1);
             testItemsNew6(newSet, 1);
             testRecipesNew6(newSet, 1);
         }
     }
 
-    static void testTexturesNew6(SItemSet set, int numTextures) {
-        if (set.getSide() == SItemSet.Side.PLUGIN) {
+    static void testTexturesNew6(ItemSet set, int numTextures) {
+        if (set.getSide() == ItemSet.Side.PLUGIN) {
             assertEquals(0, set.getTextures().size());
             return;
         }
@@ -62,7 +62,7 @@ public class Backward6 {
         assertImageEqual(loadImage("quick_wand"), set.getTexture("quick_wand").get().getImage());
     }
 
-    static void testItemsNew6(SItemSet set, int numItems) {
+    static void testItemsNew6(ItemSet set, int numItems) {
         assertEquals(numItems, set.getItems().size());
 
         CustomTridentValues trident1 = (CustomTridentValues) set.getItem("trident_one").get();
@@ -86,7 +86,7 @@ public class Backward6 {
         assertEquals(listOf(
                 false, false, true, false, false, false
         ), trident1.getItemFlags());
-        if (set.getSide() == SItemSet.Side.EDITOR) {
+        if (set.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("quick_wand", trident1.getTexture().getName());
             assertStringResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", trident1.getCustomModel());
             assertStringResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", trident1.getCustomInHandModel());
@@ -119,13 +119,13 @@ public class Backward6 {
         );
     }
 
-    static void testRecipesNew6(SItemSet set, int numRecipes) {
+    static void testRecipesNew6(ItemSet set, int numRecipes) {
         assertEquals(numRecipes, set.getCraftingRecipes().size());
 
         assertTrue(set.getCraftingRecipes().stream().anyMatch(recipe -> recipe.equals(createCoralRecipe())));
     }
 
-    static void testItemsOld6(SItemSet set, int numItems) {
+    static void testItemsOld6(ItemSet set, int numItems) {
         testItems5(set, numItems);
 
         testHoeDefault6((CustomHoeValues) set.getItem("hoe_two").get());
@@ -137,7 +137,7 @@ public class Backward6 {
         testWand1((CustomWandValues) set.getItem("wand_one").get(), set.getSide());
     }
 
-    static void testRecipesOld6(SItemSet set, int numRecipes) {
+    static void testRecipesOld6(ItemSet set, int numRecipes) {
         testRecipes1(set, numRecipes);
 
         assertTrue(set.getCraftingRecipes().stream().anyMatch(recipe -> recipe.equals(createShapedRecipe2())));
@@ -152,7 +152,7 @@ public class Backward6 {
         return ShapedRecipeValues.createQuick(ingredients, SimpleVanillaResultValues.createQuick(CIMaterial.TORCH, 3));
     }
 
-    private static BlockDropValues createBlockDrop1(SItemSet itemSet) {
+    private static BlockDropValues createBlockDrop1(ItemSet itemSet) {
         ItemReference simple1 = itemSet.getItemReference("simple1");
         return BlockDropValues.createQuick(
                 BlockType.STONE, false,
@@ -168,13 +168,13 @@ public class Backward6 {
         );
     }
 
-    static void testBlockDropsOld6(SItemSet set, int numDrops) {
+    static void testBlockDropsOld6(ItemSet set, int numDrops) {
         assertEquals(numDrops, set.getBlockDrops().size());
 
         assertTrue(set.getBlockDrops().stream().anyMatch(blockDrop -> blockDrop.equals(createBlockDrop1(set))));
     }
 
-    private static MobDropValues createSwordMobDrop(SItemSet itemSet) {
+    private static MobDropValues createSwordMobDrop(ItemSet itemSet) {
         ItemReference sword1 = itemSet.getItemReference("sword1");
         return MobDropValues.createQuick(
                 CIEntityType.ZOMBIE, null,
@@ -186,7 +186,7 @@ public class Backward6 {
         );
     }
 
-    private static MobDropValues createAxeMobDrop(SItemSet itemSet) {
+    private static MobDropValues createAxeMobDrop(ItemSet itemSet) {
         ItemReference axe1 = itemSet.getItemReference("axe1");
         return MobDropValues.createQuick(
                 CIEntityType.SKELETON, "skelly",
@@ -198,20 +198,20 @@ public class Backward6 {
         );
     }
 
-    static void testMobDropsOld6(SItemSet set, int numDrops) {
+    static void testMobDropsOld6(ItemSet set, int numDrops) {
         assertEquals(set.getMobDrops().size(), numDrops);
 
         assertTrue(set.getMobDrops().stream().anyMatch(drop -> drop.equals(createSwordMobDrop(set))));
         assertTrue(set.getMobDrops().stream().anyMatch(drop -> drop.equals(createAxeMobDrop(set))));
     }
 
-    static void testProjectileCoversOld6(SItemSet set, int numProjectileCovers) {
+    static void testProjectileCoversOld6(ItemSet set, int numProjectileCovers) {
         assertEquals(numProjectileCovers, set.getProjectileCovers().size());
 
         ProjectileCoverValues cover1 = set.getProjectileCover("sphere_one").get();
         assertEquals("sphere_one", cover1.getName());
         assertEquals(CustomItemType.DIAMOND_SHOVEL, cover1.getItemType());
-        if (set.getSide() == SItemSet.Side.EDITOR) {
+        if (set.getSide() == ItemSet.Side.EDITOR) {
             SphereProjectileCoverValues sphere1 = (SphereProjectileCoverValues) cover1;
             assertEquals(13, sphere1.getSlotsPerAxis());
             assertEquals(0.65, sphere1.getScale(), 0.0);
@@ -222,13 +222,13 @@ public class Backward6 {
         assertEquals("custom_one", cover2.getName());
         assertEquals(CustomItemType.DIAMOND_SHOVEL, cover2.getItemType());
 
-        if (set.getSide() == SItemSet.Side.EDITOR) {
+        if (set.getSide() == ItemSet.Side.EDITOR) {
             CustomProjectileCoverValues custom1 = (CustomProjectileCoverValues) set.getProjectileCover("custom_one").get();
             assertResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", custom1.getCustomModel());
         }
     }
 
-    static void testProjectilesOld6(SItemSet set, int numProjectiles) {
+    static void testProjectilesOld6(ItemSet set, int numProjectiles) {
         assertEquals(numProjectiles, set.getProjectiles().size());
 
         CustomProjectileValues crazy1 = set.getProjectile("crazy1").get();
@@ -269,7 +269,7 @@ public class Backward6 {
         assertEquals("sphere_one", crazy1.getCover().getName());
     }
 
-    static void testShield1(CustomShieldValues item, SItemSet.Side side) {
+    static void testShield1(CustomShieldValues item, ItemSet.Side side) {
         assertEquals("shield_one", item.getName());
         assertEquals(CustomItemType.SHIELD, item.getItemType());
         assertEquals("Spike Shield", item.getDisplayName());
@@ -291,7 +291,7 @@ public class Backward6 {
         assertEquals(listOf(
                 true, false, true, false, false, false
         ), item.getItemFlags());
-        if (side == SItemSet.Side.EDITOR) {
+        if (side == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
             assertResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", item.getCustomModel());
             assertStringResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", item.getCustomBlockingModel());
@@ -318,7 +318,7 @@ public class Backward6 {
         assertEquals(7.0, item.getThresholdDamage(), 0.0);
     }
 
-    static void testWand1(CustomWandValues item, SItemSet.Side side) {
+    static void testWand1(CustomWandValues item, ItemSet.Side side) {
         assertEquals("wand_one", item.getName());
         assertEquals(CustomItemType.DIAMOND_HOE, item.getItemType());
         assertEquals("Crazy Wand", item.getDisplayName());
@@ -330,7 +330,7 @@ public class Backward6 {
         assertEquals(listOf(
                 true, true, true, false, false, false
         ), item.getItemFlags());
-        if (side == SItemSet.Side.EDITOR) {
+        if (side == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
             assertResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", item.getCustomModel());
         } else {

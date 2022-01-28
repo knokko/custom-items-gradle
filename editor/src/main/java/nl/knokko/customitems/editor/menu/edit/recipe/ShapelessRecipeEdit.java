@@ -6,7 +6,7 @@ import nl.knokko.customitems.editor.menu.edit.recipe.result.ResultComponent;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.CraftingRecipeReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.ShapelessRecipeValues;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.gui.color.GuiColor;
@@ -25,12 +25,12 @@ public class ShapelessRecipeEdit extends GuiMenu {
     private final ShapelessRecipeValues currentValues;
     private final CraftingRecipeReference toModify;
 
-    private final SItemSet itemSet;
+    private final ItemSet itemSet;
     private final GuiComponent returnMenu;
 
     public ShapelessRecipeEdit(
             ShapelessRecipeValues oldValues, CraftingRecipeReference toModify,
-            SItemSet itemSet, GuiComponent returnMenu
+            ItemSet itemSet, GuiComponent returnMenu
     ) {
         super();
         this.currentValues = oldValues.copy(true);

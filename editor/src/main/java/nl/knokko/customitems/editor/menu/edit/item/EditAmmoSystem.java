@@ -8,7 +8,7 @@ import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.item.gun.DirectGunAmmoValues;
 import nl.knokko.customitems.item.gun.GunAmmoValues;
 import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.sound.CISound;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -28,13 +28,13 @@ public class EditAmmoSystem extends GuiMenu {
 
     private final GuiComponent returnMenu;
     private final Consumer<GunAmmoValues> changeAmmo;
-    private final SItemSet set;
+    private final ItemSet set;
 
     private AmmoType currentAmmoType;
     private final DirectGunAmmoValues directValues;
     private final IndirectGunAmmoValues indirectValues;
 
-    public EditAmmoSystem(GuiComponent returnMenu, Consumer<GunAmmoValues> changeAmmo, SItemSet set, GunAmmoValues original) {
+    public EditAmmoSystem(GuiComponent returnMenu, Consumer<GunAmmoValues> changeAmmo, ItemSet set, GunAmmoValues original) {
         this.returnMenu = returnMenu;
         this.changeAmmo = changeAmmo;
         this.set = set;

@@ -3,7 +3,7 @@ package nl.knokko.customitems.item;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.encoding.ItemEncoding;
 import nl.knokko.customitems.itemset.ContainerReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class CustomPocketContainerValues extends CustomItemValues {
 
     static CustomPocketContainerValues load(
-            BitInput input, byte encoding, SItemSet itemSet
+            BitInput input, byte encoding, ItemSet itemSet
     ) throws UnknownEncodingException {
         CustomPocketContainerValues result = new CustomPocketContainerValues(false);
 
@@ -29,7 +29,7 @@ public class CustomPocketContainerValues extends CustomItemValues {
             throw new UnknownEncodingException("PocketContainer", encoding);
         }
 
-        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             result.loadEditorOnlyProperties1(input, itemSet, true);
         }
 
@@ -51,16 +51,16 @@ public class CustomPocketContainerValues extends CustomItemValues {
     }
 
     @Override
-    public void save(BitOutput output, SItemSet.Side side) {
+    public void save(BitOutput output, ItemSet.Side side) {
         output.addByte(ItemEncoding.ENCODING_POCKET_CONTAINER_10);
         save10(output);
 
-        if (side == SItemSet.Side.EDITOR) {
+        if (side == ItemSet.Side.EDITOR) {
             saveEditorOnlyProperties1(output);
         }
     }
 
-    private void load10(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load10(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadBase10(input, itemSet);
         loadPocketContainerOnlyProperties10(input, itemSet);
     }
@@ -70,7 +70,7 @@ public class CustomPocketContainerValues extends CustomItemValues {
         savePocketContainerOnlyProperties10(output);
     }
 
-    private void loadPocketContainerOnlyProperties10(BitInput input, SItemSet itemSet) {
+    private void loadPocketContainerOnlyProperties10(BitInput input, ItemSet itemSet) {
         int numContainers = input.readInt();
         this.containers = new HashSet<>(numContainers);
 
@@ -140,7 +140,7 @@ public class CustomPocketContainerValues extends CustomItemValues {
     }
 
     @Override
-    public void validateComplete(SItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
+    public void validateComplete(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         super.validateComplete(itemSet, oldName);
 
         for (ContainerReference reference : containers) {

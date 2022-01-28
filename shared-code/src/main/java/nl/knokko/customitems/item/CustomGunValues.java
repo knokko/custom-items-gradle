@@ -4,7 +4,7 @@ import nl.knokko.customitems.encoding.ItemEncoding;
 import nl.knokko.customitems.item.gun.DirectGunAmmoValues;
 import nl.knokko.customitems.item.gun.GunAmmoValues;
 import nl.knokko.customitems.itemset.ProjectileReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
@@ -16,7 +16,7 @@ import nl.knokko.customitems.bithelper.BitOutput;
 
 public class CustomGunValues extends CustomItemValues {
 
-    static CustomGunValues load(BitInput input, byte encoding, SItemSet itemSet) throws UnknownEncodingException {
+    static CustomGunValues load(BitInput input, byte encoding, ItemSet itemSet) throws UnknownEncodingException {
         CustomGunValues result = new CustomGunValues(false);
 
         if (encoding == ItemEncoding.ENCODING_GUN_10) {
@@ -26,7 +26,7 @@ public class CustomGunValues extends CustomItemValues {
             throw new UnknownEncodingException("CustomGun", encoding);
         }
 
-        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             result.loadEditorOnlyProperties1(input, itemSet, true);
         }
 
@@ -54,11 +54,11 @@ public class CustomGunValues extends CustomItemValues {
     }
 
     @Override
-    public void save(BitOutput output, SItemSet.Side side) {
+    public void save(BitOutput output, ItemSet.Side side) {
         output.addByte(ItemEncoding.ENCODING_GUN_10);
         save10(output);
 
-        if (side == SItemSet.Side.EDITOR) {
+        if (side == ItemSet.Side.EDITOR) {
             saveEditorOnlyProperties1(output);
         }
     }
@@ -94,12 +94,12 @@ public class CustomGunValues extends CustomItemValues {
         return new CustomGunValues(this, mutable);
     }
 
-    private void load10(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load10(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadBase10(input, itemSet);
         loadGunOnlyProperties10(input, itemSet);
     }
 
-    private void loadGunOnlyProperties10(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void loadGunOnlyProperties10(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         this.projectile = itemSet.getProjectileReference(input.readString());
         this.ammo = GunAmmoValues.load(input, itemSet);
         this.amountPerShot = input.readInt();
@@ -158,7 +158,7 @@ public class CustomGunValues extends CustomItemValues {
     }
 
     @Override
-    public void validateComplete(SItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
+    public void validateComplete(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         super.validateComplete(itemSet, oldName);
 
         if (!itemSet.isReferenceValid(projectile)) throw new ProgrammingValidationException("Projectile is no longer valid");

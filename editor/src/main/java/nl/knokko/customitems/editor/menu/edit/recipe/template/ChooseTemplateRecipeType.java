@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.recipe.template;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -14,9 +14,9 @@ import java.util.function.Function;
 public class ChooseTemplateRecipeType extends GuiMenu {
 
     private final GuiComponent returnMenu;
-    private final SItemSet set;
+    private final ItemSet set;
 
-    public ChooseTemplateRecipeType(GuiComponent returnMenu, SItemSet set) {
+    public ChooseTemplateRecipeType(GuiComponent returnMenu, ItemSet set) {
         this.returnMenu = returnMenu;
         this.set = set;
     }

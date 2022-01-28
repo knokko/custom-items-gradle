@@ -31,7 +31,7 @@ import nl.knokko.customitems.editor.menu.edit.select.item.SelectSimpleVanillaIte
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.itemset.ItemReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.ingredient.*;
 import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.gui.color.GuiColor;
@@ -48,10 +48,10 @@ public class ChooseIngredient extends GuiMenu {
 	
 	private final Consumer<IngredientValues> listener;
 	private final GuiComponent returnMenu;
-	private final SItemSet set;
+	private final ItemSet set;
 	private final boolean allowEmpty;
 
-	public ChooseIngredient(GuiComponent returnMenu, Consumer<IngredientValues> listener, boolean allowEmpty, SItemSet set) {
+	public ChooseIngredient(GuiComponent returnMenu, Consumer<IngredientValues> listener, boolean allowEmpty, ItemSet set) {
 		this.listener = listener;
 		this.returnMenu = returnMenu;
 		this.allowEmpty = allowEmpty;

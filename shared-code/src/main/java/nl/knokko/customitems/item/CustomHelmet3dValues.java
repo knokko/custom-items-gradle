@@ -1,7 +1,7 @@
 package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.encoding.ItemEncoding;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
@@ -11,7 +11,7 @@ import nl.knokko.customitems.bithelper.BitOutput;
 public class CustomHelmet3dValues extends CustomArmorValues {
 
     static CustomHelmet3dValues load(
-            BitInput input, byte encoding, SItemSet itemSet
+            BitInput input, byte encoding, ItemSet itemSet
     ) throws UnknownEncodingException {
         CustomHelmet3dValues result = new CustomHelmet3dValues(false);
 
@@ -25,7 +25,7 @@ public class CustomHelmet3dValues extends CustomArmorValues {
             throw new UnknownEncodingException("CustomHelmet3D", encoding);
         }
 
-        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             result.loadEditorOnlyProperties1(input, itemSet, true);
         }
 
@@ -51,11 +51,11 @@ public class CustomHelmet3dValues extends CustomArmorValues {
     }
 
     @Override
-    public void save(BitOutput output, SItemSet.Side side) {
+    public void save(BitOutput output, ItemSet.Side side) {
         output.addByte(ItemEncoding.ENCODING_HELMET3D_11);
         saveArmor11(output);
 
-        if (side == SItemSet.Side.EDITOR) {
+        if (side == ItemSet.Side.EDITOR) {
             saveEditorOnlyProperties1(output);
         }
     }

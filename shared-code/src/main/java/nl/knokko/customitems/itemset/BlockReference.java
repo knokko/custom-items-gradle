@@ -7,7 +7,7 @@ import java.util.Collection;
 
 public class BlockReference extends IntBasedReference<CustomBlock, CustomBlockValues> {
 
-    BlockReference(int id, SItemSet itemSet) {
+    BlockReference(int id, ItemSet itemSet) {
         super(id, itemSet);
     }
 

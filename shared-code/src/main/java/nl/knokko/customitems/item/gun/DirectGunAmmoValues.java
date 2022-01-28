@@ -1,6 +1,6 @@
 package nl.knokko.customitems.item.gun;
 
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -12,7 +12,7 @@ import nl.knokko.customitems.bithelper.BitOutput;
 
 public class DirectGunAmmoValues extends GunAmmoValues {
 
-    static DirectGunAmmoValues load(BitInput input, byte encoding, SItemSet itemSet) throws UnknownEncodingException {
+    static DirectGunAmmoValues load(BitInput input, byte encoding, ItemSet itemSet) throws UnknownEncodingException {
         DirectGunAmmoValues result = new DirectGunAmmoValues(false);
 
         if (encoding == ENCODING_DIRECT_1) {
@@ -52,7 +52,7 @@ public class DirectGunAmmoValues extends GunAmmoValues {
         output.addInt(cooldown);
     }
 
-    private void load1(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load1(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         this.ammoItem = IngredientValues.load(input, itemSet);
         this.cooldown = input.readInt();
     }
@@ -75,7 +75,7 @@ public class DirectGunAmmoValues extends GunAmmoValues {
     }
 
     @Override
-    public void validateComplete(SItemSet itemSet) throws ValidationException, ProgrammingValidationException {
+    public void validateComplete(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         validateIndependent();
 
         ammoItem.validateComplete(itemSet);

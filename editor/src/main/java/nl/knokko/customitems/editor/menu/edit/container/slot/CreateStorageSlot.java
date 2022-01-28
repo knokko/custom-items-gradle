@@ -4,7 +4,7 @@ import nl.knokko.customitems.container.slot.ContainerSlotValues;
 import nl.knokko.customitems.container.slot.StorageSlotValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -18,12 +18,12 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 public class CreateStorageSlot extends GuiMenu {
 
     private final GuiComponent returnMenu;
-    private final SItemSet itemSet;
+    private final ItemSet itemSet;
     private final StorageSlotValues currentValues;
     private final Consumer<ContainerSlotValues> submitSlot;
 
     public CreateStorageSlot(
-            GuiComponent returnMenu, SItemSet itemSet, Consumer<ContainerSlotValues> submitSlot
+            GuiComponent returnMenu, ItemSet itemSet, Consumer<ContainerSlotValues> submitSlot
     ) {
         this.returnMenu = returnMenu;
         this.itemSet = itemSet;

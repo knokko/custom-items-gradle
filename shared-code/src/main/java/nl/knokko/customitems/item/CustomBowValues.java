@@ -1,7 +1,7 @@
 package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.encoding.ItemEncoding;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.texture.BowTextureValues;
@@ -16,7 +16,7 @@ import static nl.knokko.customitems.util.Checks.isClose;
 public class CustomBowValues extends CustomToolValues {
 
     static CustomBowValues load(
-            BitInput input, byte encoding, SItemSet itemSet, boolean checkCustomModel
+            BitInput input, byte encoding, ItemSet itemSet, boolean checkCustomModel
     ) throws UnknownEncodingException {
         CustomBowValues result = new CustomBowValues(false);
 
@@ -39,7 +39,7 @@ public class CustomBowValues extends CustomToolValues {
             throw new UnknownEncodingException("CustomBow", encoding);
         }
 
-        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             result.loadEditorOnlyProperties1(input, itemSet, checkCustomModel);
         }
 
@@ -83,11 +83,11 @@ public class CustomBowValues extends CustomToolValues {
     }
 
     @Override
-    public void save(BitOutput output, SItemSet.Side side) {
+    public void save(BitOutput output, ItemSet.Side side) {
         output.addByte(ItemEncoding.ENCODING_BOW_10);
         save10(output);
 
-        if (side == SItemSet.Side.EDITOR) {
+        if (side == ItemSet.Side.EDITOR) {
             saveEditorOnlyProperties1(output);
         }
     }
@@ -102,7 +102,7 @@ public class CustomBowValues extends CustomToolValues {
         this.alias = input.readString();
     }
 
-    private void loadBowPropertiesA3(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void loadBowPropertiesA3(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         int durability = input.readInt();
         if (durability == -1) {
             this.maxDurability = null;
@@ -112,7 +112,7 @@ public class CustomBowValues extends CustomToolValues {
         loadBowPropertiesPostA(input, itemSet);
     }
 
-    private void loadBowPropertiesA4(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void loadBowPropertiesA4(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         long durability = input.readLong();
         if (durability == -1L) {
             this.maxDurability = null;
@@ -122,7 +122,7 @@ public class CustomBowValues extends CustomToolValues {
         loadBowPropertiesPostA(input, itemSet);
     }
 
-    private void loadBowPropertiesPostA(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void loadBowPropertiesPostA(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         this.damageMultiplier = input.readDouble();
         this.speedMultiplier = input.readDouble();
         this.knockbackStrength = input.readInt();
@@ -132,34 +132,34 @@ public class CustomBowValues extends CustomToolValues {
         this.repairItem = IngredientValues.load(input, itemSet);
     }
 
-    private void load3(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load3(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadBowIdentityProperties3(input);
         loadTextDisplayProperties1(input);
         loadVanillaBasedPowers2(input);
         loadBowPropertiesA3(input, itemSet);
     }
 
-    private void load4(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load4(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadBowIdentityProperties3(input);
         loadTextDisplayProperties1(input);
         loadVanillaBasedPowers4(input);
         loadBowPropertiesA4(input, itemSet);
     }
 
-    private void load6(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load6(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         load4(input, itemSet);
         loadItemFlags6(input);
         loadToolOnlyPropertiesB6(input);
         this.shootDurabilityLoss = input.readInt();
     }
 
-    private void load9(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load9(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         load6(input, itemSet);
         loadPotionProperties9(input);
         loadRightClickProperties9(input);
     }
 
-    private void load10(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load10(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadBowIdentityProperties10(input);
         loadTextDisplayProperties1(input);
         loadVanillaBasedPowers4(input);
@@ -331,7 +331,7 @@ public class CustomBowValues extends CustomToolValues {
     }
 
     @Override
-    public void validateComplete(SItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
+    public void validateComplete(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         super.validateComplete(itemSet, oldName);
 
         if (!(texture.get() instanceof BowTextureValues)) throw new ProgrammingValidationException("Texture must be a bow texture");

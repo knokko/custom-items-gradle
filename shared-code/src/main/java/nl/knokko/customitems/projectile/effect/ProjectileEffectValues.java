@@ -1,6 +1,6 @@
 package nl.knokko.customitems.projectile.effect;
 
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -22,7 +22,7 @@ public abstract class ProjectileEffectValues extends ModelValues {
     static final byte ENCODING_FIREWORK_1 = 9;
     static final byte ENCODING_POTION_AURA_1 = 10;
 
-    public static ProjectileEffectValues load(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    public static ProjectileEffectValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
 
         if (encoding == ENCODING_COLORED_REDSTONE_1) {
@@ -61,7 +61,7 @@ public abstract class ProjectileEffectValues extends ModelValues {
     @Override
     public abstract ProjectileEffectValues copy(boolean mutable);
 
-    public abstract void validate(SItemSet itemSet) throws ValidationException, ProgrammingValidationException;
+    public abstract void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException;
 
     public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
         // Most projectile effects don't need this

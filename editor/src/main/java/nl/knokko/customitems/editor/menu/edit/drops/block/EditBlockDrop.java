@@ -9,7 +9,7 @@ import nl.knokko.customitems.editor.menu.edit.drops.SelectDrop;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.BlockDropReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.image.CheckboxComponent;
@@ -22,14 +22,14 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.CHOOSE_HOVER;
 
 public class EditBlockDrop extends GuiMenu {
 	
-	private final SItemSet set;
+	private final ItemSet set;
 	private final GuiComponent returnMenu;
 	private final BlockDropValues currentValues;
 	private final BlockDropReference toModify;
 	
 	private final DynamicTextComponent errorComponent;
 	
-	public EditBlockDrop(SItemSet set, GuiComponent returnMenu, BlockDropValues oldValues, BlockDropReference toModify) {
+	public EditBlockDrop(ItemSet set, GuiComponent returnMenu, BlockDropValues oldValues, BlockDropReference toModify) {
 		this.set = set;
 		this.returnMenu = returnMenu;
 		this.currentValues = oldValues.copy(true);

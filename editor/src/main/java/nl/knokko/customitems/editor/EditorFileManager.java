@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor;
 
 import nl.knokko.customitems.editor.resourcepack.ResourcepackGenerator;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.StringEncoder;
 import nl.knokko.customitems.util.ValidationException;
@@ -35,7 +35,7 @@ public class EditorFileManager {
     }
 
     public static void export(
-            SItemSet itemSet, int mcVersion, String fileName
+            ItemSet itemSet, int mcVersion, String fileName
     ) throws IOException, ValidationException, ProgrammingValidationException {
 
         FOLDER.mkdirs();
@@ -47,7 +47,7 @@ public class EditorFileManager {
         }
 
         ByteArrayBitOutput output = new ByteArrayBitOutput();
-        itemSet.save(output, SItemSet.Side.PLUGIN);
+        itemSet.save(output, ItemSet.Side.PLUGIN);
         output.terminate();
 
         byte[] bytes = output.getBytes();
@@ -75,7 +75,7 @@ public class EditorFileManager {
         fileOutput.close();
     }
 
-    public static void saveAndBackUp(SItemSet itemSet, String fileName) throws IOException {
+    public static void saveAndBackUp(ItemSet itemSet, String fileName) throws IOException {
         FOLDER.mkdirs();
         BACKUPS_FOLDER.mkdirs();
 
@@ -83,7 +83,7 @@ public class EditorFileManager {
         File file = new File(FOLDER + "/" + fileName + ".cisb");
 
         ByteArrayBitOutput output = new ByteArrayBitOutput();
-        itemSet.save(output, SItemSet.Side.EDITOR);
+        itemSet.save(output, ItemSet.Side.EDITOR);
         output.terminate();
         byte[] bytes = output.getBytes();
 

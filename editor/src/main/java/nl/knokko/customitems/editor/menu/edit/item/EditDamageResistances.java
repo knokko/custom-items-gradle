@@ -3,7 +3,7 @@ package nl.knokko.customitems.editor.menu.edit.item;
 import nl.knokko.customitems.damage.DamageSource;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.item.SDamageResistances;
+import nl.knokko.customitems.item.DamageResistanceValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.EagerIntEditField;
@@ -18,13 +18,13 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
 public class EditDamageResistances extends GuiMenu {
 	
 	private final Runnable onCancel;
-	private final Consumer<SDamageResistances> onApply;
+	private final Consumer<DamageResistanceValues> onApply;
 	
-	private final SDamageResistances resistances;
+	private final DamageResistanceValues resistances;
 	
 	private final DynamicTextComponent errorComponent;
 	
-	public EditDamageResistances(SDamageResistances oldResistances, Runnable onCancel, Consumer<SDamageResistances> onApply) {
+	public EditDamageResistances(DamageResistanceValues oldResistances, Runnable onCancel, Consumer<DamageResistanceValues> onApply) {
 		this.resistances = oldResistances.copy(true);
 		this.errorComponent = new DynamicTextComponent("", EditProps.ERROR);
 		

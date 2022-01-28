@@ -4,7 +4,7 @@ import nl.knokko.customitems.container.ContainerRecipeValues;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.slot.*;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -12,12 +12,12 @@ import nl.knokko.gui.component.menu.GuiMenu;
 public class RecipeSlotsGrid extends GuiMenu {
 	
 	private final GuiComponent outerMenu;
-	private final SItemSet itemSet;
+	private final ItemSet itemSet;
 	private final CustomContainerValues container;
 	private final ContainerRecipeValues recipe;
 
 	public RecipeSlotsGrid(
-			GuiComponent outerMenu, SItemSet itemSet,
+			GuiComponent outerMenu, ItemSet itemSet,
 			CustomContainerValues container, ContainerRecipeValues recipe
 	) {
 		this.outerMenu = outerMenu;

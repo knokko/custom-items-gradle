@@ -2,7 +2,7 @@ package nl.knokko.customitems.projectile;
 
 import nl.knokko.customitems.effect.PotionEffectValues;
 import nl.knokko.customitems.itemset.ProjectileCoverReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.projectile.cover.ProjectileCoverValues;
@@ -26,7 +26,7 @@ public class CustomProjectileValues extends ModelValues {
     private static final byte ENCODING_1 = 0;
     private static final byte ENCODING_2 = 1;
 
-    public static CustomProjectileValues load(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    public static CustomProjectileValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
         CustomProjectileValues result = new CustomProjectileValues(false);
 
@@ -92,7 +92,7 @@ public class CustomProjectileValues extends ModelValues {
         this.cover = toCopy.getCoverReference();
     }
 
-    private void loadProjectileEffects(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void loadProjectileEffects(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         int numFlightEffects = input.readByte() & 0xFF;
         this.inFlightEffects = new ArrayList<>(numFlightEffects);
         for (int counter = 0; counter < numFlightEffects; counter++) {
@@ -106,7 +106,7 @@ public class CustomProjectileValues extends ModelValues {
         }
     }
 
-    private void load1(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load1(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         this.name = input.readString();
         this.damage = input.readFloat();
         this.minLaunchAngle = input.readFloat();
@@ -124,7 +124,7 @@ public class CustomProjectileValues extends ModelValues {
         }
     }
 
-    private void load2(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load2(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         this.name = input.readString();
         this.damage = input.readFloat();
         this.minLaunchAngle = input.readFloat();
@@ -341,7 +341,7 @@ public class CustomProjectileValues extends ModelValues {
         this.cover = newCover;
     }
 
-    public void validate(SItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         if (name == null) throw new ProgrammingValidationException("No name");
         if (name.isEmpty()) throw new ValidationException("You need to choose a name");
         if (!name.equals(oldName) && itemSet.getProjectile(name).isPresent())

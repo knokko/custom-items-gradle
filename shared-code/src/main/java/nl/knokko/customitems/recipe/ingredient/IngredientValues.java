@@ -1,6 +1,6 @@
 package nl.knokko.customitems.recipe.ingredient;
 
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -14,7 +14,7 @@ import static nl.knokko.customitems.encoding.RecipeEncoding.Ingredient.*;
 
 public abstract class IngredientValues extends ModelValues {
 
-    public static IngredientValues load(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    public static IngredientValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
 
         if (encoding == VANILLA_SIMPLE || encoding == VANILLA_SIMPLE_2) {
@@ -69,7 +69,7 @@ public abstract class IngredientValues extends ModelValues {
 
     public abstract boolean conflictsWith(IngredientValues other);
 
-    protected void loadRemainingItem(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    protected void loadRemainingItem(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         if (input.readBoolean()) {
             this.remainingItem = ResultValues.load(input, itemSet);
         } else {
@@ -103,7 +103,7 @@ public abstract class IngredientValues extends ModelValues {
         if (remainingItem != null) Validation.scope("Remaining item", remainingItem::validateIndependent);
     }
 
-    public void validateComplete(SItemSet itemSet) throws ValidationException, ProgrammingValidationException {
+    public void validateComplete(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         validateIndependent();
 
         if (remainingItem != null) {

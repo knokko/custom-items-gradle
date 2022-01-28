@@ -9,10 +9,10 @@ import java.util.Arrays;
 
 import static nl.knokko.customitems.damage.DamageSource.*;
 
-public class SDamageResistances extends ModelValues {
+public class DamageResistanceValues extends ModelValues {
 
-    private static SDamageResistances load(BitInput input, int amount) {
-        SDamageResistances result = new SDamageResistances(false);
+    private static DamageResistanceValues load(BitInput input, int amount) {
+        DamageResistanceValues result = new DamageResistanceValues(false);
         for (int ordinal = 0; ordinal < amount; ordinal++) {
             if (input.readBoolean()) {
                 result.resistanceMap[ordinal] = input.readShort();
@@ -21,27 +21,27 @@ public class SDamageResistances extends ModelValues {
         return result;
     }
 
-    public static SDamageResistances load12(BitInput input) {
+    public static DamageResistanceValues load12(BitInput input) {
         return load(input, AMOUNT_12);
     }
 
-    public static SDamageResistances load14(BitInput input) {
+    public static DamageResistanceValues load14(BitInput input) {
         return load(input, AMOUNT_14);
     }
 
-    public static SDamageResistances load17(BitInput input) {
+    public static DamageResistanceValues load17(BitInput input) {
         return load(input, AMOUNT_17);
     }
 
     private final short[] resistanceMap;
 
-    public SDamageResistances(boolean mutable) {
+    public DamageResistanceValues(boolean mutable) {
         super(mutable);
 
         this.resistanceMap = new short[DamageSource.values().length];
     }
 
-    public SDamageResistances(SDamageResistances toCopy, boolean mutable) {
+    public DamageResistanceValues(DamageResistanceValues toCopy, boolean mutable) {
         this(mutable);
 
         System.arraycopy(toCopy.resistanceMap, 0, this.resistanceMap, 0, this.resistanceMap.length);
@@ -49,12 +49,12 @@ public class SDamageResistances extends ModelValues {
 
     @Override
     public boolean equals(Object other) {
-        return other.getClass() == SDamageResistances.class && Arrays.equals(this.resistanceMap, ((SDamageResistances) other).resistanceMap);
+        return other.getClass() == DamageResistanceValues.class && Arrays.equals(this.resistanceMap, ((DamageResistanceValues) other).resistanceMap);
     }
 
     @Override
-    public SDamageResistances copy(boolean mutable) {
-        return new SDamageResistances(this, mutable);
+    public DamageResistanceValues copy(boolean mutable) {
+        return new DamageResistanceValues(this, mutable);
     }
 
     public short getResistance(DamageSource damageSource) {

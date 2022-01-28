@@ -30,7 +30,7 @@ import nl.knokko.customitems.editor.EditorFileManager;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
@@ -68,7 +68,7 @@ public class CreateMenu extends GuiMenu {
 		addComponent(new DynamicTextButton("Create", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
 			String error = testFileName(fileName.getText() + ".cisb");
 			if (error != null) errorComponent.setText(error);
-			else state.getWindow().setMainComponent(new EditMenu(new SItemSet(SItemSet.Side.EDITOR), fileName.getText()));
+			else state.getWindow().setMainComponent(new EditMenu(new ItemSet(ItemSet.Side.EDITOR), fileName.getText()));
 		}), 0.35f, 0.25f, 0.65f, 0.35f);
 		
 		HelpButtons.addHelpLink(this, "main%20menu/create.html");

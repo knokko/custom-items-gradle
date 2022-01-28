@@ -2,7 +2,7 @@ package nl.knokko.customitems.editor.resourcepack;
 
 import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.block.MushroomBlockMapping;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,10 +17,10 @@ import static nl.knokko.customitems.block.BlockConstants.MIN_BLOCK_ID;
 
 class ResourcepackBlockOverrider {
 
-    private final SItemSet itemSet;
+    private final ItemSet itemSet;
     private final ZipOutputStream zipOutput;
 
-    ResourcepackBlockOverrider(SItemSet itemSet, ZipOutputStream zipOutput) {
+    ResourcepackBlockOverrider(ItemSet itemSet, ZipOutputStream zipOutput) {
         this.itemSet = itemSet;
         this.zipOutput = zipOutput;
     }

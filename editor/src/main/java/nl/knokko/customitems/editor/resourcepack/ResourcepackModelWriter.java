@@ -2,7 +2,7 @@ package nl.knokko.customitems.editor.resourcepack;
 
 import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.item.*;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.projectile.cover.ProjectileCoverValues;
 import nl.knokko.customitems.texture.BowTextureEntry;
 
@@ -16,10 +16,10 @@ import static nl.knokko.customitems.editor.resourcepack.DefaultItemModels.*;
 
 class ResourcepackModelWriter {
 
-    private final SItemSet itemSet;
+    private final ItemSet itemSet;
     private final ZipOutputStream zipOutput;
 
-    ResourcepackModelWriter(SItemSet itemSet, ZipOutputStream zipOutput) {
+    ResourcepackModelWriter(ItemSet itemSet, ZipOutputStream zipOutput) {
         this.itemSet = itemSet;
         this.zipOutput = zipOutput;
     }

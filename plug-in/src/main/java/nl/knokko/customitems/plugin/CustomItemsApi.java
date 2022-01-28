@@ -1,7 +1,7 @@
 package nl.knokko.customitems.plugin;
 
 import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import org.bukkit.inventory.ItemStack;
 
@@ -13,7 +13,7 @@ import static nl.knokko.customitems.plugin.set.item.CustomItemWrapper.wrap;
 public class CustomItemsApi {
 
     public static Collection<String> getAllItemNames() {
-        SItemSet itemSet = CustomItemsPlugin.getInstance().getSet().get();
+        ItemSet itemSet = CustomItemsPlugin.getInstance().getSet().get();
 
         Collection<String> itemNames = new ArrayList<>(itemSet.getItems().size());
         for (CustomItemValues item : itemSet.getItems()) {

@@ -10,7 +10,7 @@ import nl.knokko.customitems.editor.menu.edit.select.item.SelectDataVanillaItem;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.item.CIMaterial;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -25,14 +25,14 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 public class CreateDisplay extends GuiMenu {
 	
 	private final GuiComponent returnMenu;
-	private final SItemSet itemSet;
+	private final ItemSet itemSet;
 	private final SlotDisplayValues currentValues;
 	private final Consumer<SlotDisplayValues> setDisplay;
 	private final boolean selectAmount;
 	private final DynamicTextComponent errorComponent;
 	
 	public CreateDisplay(
-			GuiComponent returnMenu, SItemSet itemSet,
+			GuiComponent returnMenu, ItemSet itemSet,
 			Consumer<SlotDisplayValues> setDisplay, boolean selectAmount
 	) {
 		this.returnMenu = returnMenu;

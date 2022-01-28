@@ -2,7 +2,7 @@ package nl.knokko.customitems.editor.menu.edit.container.recipe;
 
 import nl.knokko.customitems.container.ContainerRecipeValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.color.SimpleGuiColor;
@@ -19,7 +19,7 @@ public class OutputSlotComponent implements GuiComponent {
 	
 	private final String name;
 	private final GuiComponent outerMenu;
-	private final SItemSet set;
+	private final ItemSet set;
 	private final ContainerRecipeValues recipe;
 	
 	private GuiComponentState state;
@@ -27,7 +27,7 @@ public class OutputSlotComponent implements GuiComponent {
 	private GuiTexture bottomTextTexture;
 	
 	public OutputSlotComponent(String name, GuiComponent outerMenu, 
-			ContainerRecipeValues recipe, SItemSet set) {
+			ContainerRecipeValues recipe, ItemSet set) {
 		this.name = name;
 		this.outerMenu = outerMenu;
 		this.recipe = recipe;

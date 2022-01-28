@@ -5,7 +5,7 @@ import nl.knokko.customitems.container.fuel.FuelMode;
 import nl.knokko.customitems.container.slot.ContainerSlotValues;
 import nl.knokko.customitems.container.slot.EmptySlotValues;
 import nl.knokko.customitems.container.slot.display.SlotDisplayValues;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -27,7 +27,7 @@ public class CustomContainerValues extends ModelValues {
         static final byte ENCODING1 = 1;
     }
 
-    public static CustomContainerValues load(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    public static CustomContainerValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
         CustomContainerValues result = new CustomContainerValues(false);
 
@@ -77,7 +77,7 @@ public class CustomContainerValues extends ModelValues {
         this.persistentStorage = toCopy.hasPersistentStorage();
     }
 
-    private void load1(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load1(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         this.name = input.readString();
         this.selectionIcon = SlotDisplayValues.load(input, itemSet);
         int numRecipes = input.readInt();
@@ -282,7 +282,7 @@ public class CustomContainerValues extends ModelValues {
         this.persistentStorage = persistentStorage;
     }
 
-    public void validate(SItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         if (name == null) throw new ProgrammingValidationException("No name");
         if (name.isEmpty()) throw new ValidationException("Name can't be empty");
         if (!name.equals(oldName) && itemSet.getContainer(name).isPresent()) {

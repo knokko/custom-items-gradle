@@ -1,6 +1,6 @@
 package nl.knokko.customitems.block.drop;
 
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -9,16 +9,19 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 
-public class CustomBlockDrop extends ModelValues {
+/**
+ * Represents a (potential) drop of a custom block.
+ */
+public class CustomBlockDropValues extends ModelValues {
 
     private static final byte ENCODING_1 = 1;
 
-    public static CustomBlockDrop load(
-            BitInput input, SItemSet itemSet, boolean mutable
+    public static CustomBlockDropValues load(
+            BitInput input, ItemSet itemSet, boolean mutable
     ) throws UnknownEncodingException {
         byte encoding = input.readByte();
 
-        CustomBlockDrop result = new CustomBlockDrop(mutable);
+        CustomBlockDropValues result = new CustomBlockDropValues(mutable);
         if (encoding == ENCODING_1) {
             result.load1(input, itemSet);
         } else {
@@ -28,19 +31,19 @@ public class CustomBlockDrop extends ModelValues {
         return result;
     }
 
-    private RequiredItems requiredItems;
+    private RequiredItemValues requiredItems;
     private SilkTouchRequirement silkTouch;
     private OutputTableValues itemsToDrop;
 
-    public CustomBlockDrop(boolean mutable) {
+    public CustomBlockDropValues(boolean mutable) {
         super(mutable);
 
-        this.requiredItems = new RequiredItems(false);
+        this.requiredItems = new RequiredItemValues(false);
         this.silkTouch = SilkTouchRequirement.OPTIONAL;
         this.itemsToDrop = new OutputTableValues(false);
     }
 
-    public CustomBlockDrop(CustomBlockDrop toCopy, boolean mutable) {
+    public CustomBlockDropValues(CustomBlockDropValues toCopy, boolean mutable) {
         super(mutable);
 
         this.requiredItems = toCopy.getRequiredItems();
@@ -48,15 +51,15 @@ public class CustomBlockDrop extends ModelValues {
         this.itemsToDrop = toCopy.getItemsToDrop();
     }
     
-    public CustomBlockDrop copy(boolean mutable) {
-        return new CustomBlockDrop(this, mutable);
+    public CustomBlockDropValues copy(boolean mutable) {
+        return new CustomBlockDropValues(this, mutable);
     }
 
     @Override
     public boolean equals(Object other) {
-        if (other instanceof CustomBlockDrop) {
+        if (other instanceof CustomBlockDropValues) {
 
-            CustomBlockDrop otherDrop = (CustomBlockDrop) other;
+            CustomBlockDropValues otherDrop = (CustomBlockDropValues) other;
             return otherDrop.requiredItems.equals(this.requiredItems) &&
                     otherDrop.silkTouch == this.silkTouch &&
                     otherDrop.itemsToDrop.equals(this.itemsToDrop);
@@ -66,9 +69,9 @@ public class CustomBlockDrop extends ModelValues {
     }
 
     private void load1(
-            BitInput input, SItemSet itemSet
+            BitInput input, ItemSet itemSet
     ) throws UnknownEncodingException {
-        this.requiredItems = RequiredItems.load(input, itemSet, false);
+        this.requiredItems = RequiredItemValues.load(input, itemSet, false);
         this.silkTouch = SilkTouchRequirement.valueOf(input.readString());
         this.itemsToDrop = OutputTableValues.load1(input, itemSet);
     }
@@ -84,7 +87,7 @@ public class CustomBlockDrop extends ModelValues {
         itemsToDrop.save1(output);
     }
 
-    public RequiredItems getRequiredItems() {
+    public RequiredItemValues getRequiredItems() {
         return requiredItems;
     }
 
@@ -96,9 +99,9 @@ public class CustomBlockDrop extends ModelValues {
         return itemsToDrop.copy(false);
     }
 
-    public void setRequiredItems(RequiredItems newRequiredItems) {
+    public void setRequiredItems(RequiredItemValues newRequiredItems) {
         assertMutable();
-        this.requiredItems = new RequiredItems(newRequiredItems, false);
+        this.requiredItems = new RequiredItemValues(newRequiredItems, false);
     }
 
     public void setSilkTouchRequirement(SilkTouchRequirement newRequirement) {
@@ -124,7 +127,7 @@ public class CustomBlockDrop extends ModelValues {
     }
 
     public void validateComplete(
-            SItemSet itemSet
+            ItemSet itemSet
     ) throws ValidationException, ProgrammingValidationException {
         validateIndependent();
 

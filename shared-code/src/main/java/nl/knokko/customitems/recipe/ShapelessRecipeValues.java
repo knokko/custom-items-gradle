@@ -2,7 +2,7 @@ package nl.knokko.customitems.recipe;
 
 import nl.knokko.customitems.encoding.RecipeEncoding;
 import nl.knokko.customitems.itemset.CraftingRecipeReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
@@ -20,7 +20,7 @@ import java.util.*;
 public class ShapelessRecipeValues extends CraftingRecipeValues {
 
     static ShapelessRecipeValues load(
-            BitInput input, byte encoding, SItemSet itemSet
+            BitInput input, byte encoding, ItemSet itemSet
     ) throws UnknownEncodingException {
         ShapelessRecipeValues result = new ShapelessRecipeValues(false);
 
@@ -54,7 +54,7 @@ public class ShapelessRecipeValues extends CraftingRecipeValues {
         this.ingredients = toCopy.getIngredients();
     }
 
-    private void load1(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load1(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         this.result = ResultValues.load(input, itemSet);
 
         int numIngredients = (int) input.readNumber((byte) 4, false);
@@ -111,7 +111,7 @@ public class ShapelessRecipeValues extends CraftingRecipeValues {
     }
 
     @Override
-    public void validate(SItemSet itemSet, CraftingRecipeReference selfReference) throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet, CraftingRecipeReference selfReference) throws ValidationException, ProgrammingValidationException {
         super.validate(itemSet, selfReference);
 
         if (ingredients == null) throw new ProgrammingValidationException("No ingredients");

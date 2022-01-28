@@ -9,7 +9,7 @@ import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.collection.SelfDedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.result.CustomItemResultValues;
 import nl.knokko.gui.color.GuiColor;
@@ -18,11 +18,11 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
 public class ContainerRecipeCollectionEdit extends SelfDedicatedCollectionEdit<ContainerRecipeValues> {
 	
-	private final SItemSet itemSet;
+	private final ItemSet itemSet;
 	private final CustomContainerValues container;
 
 	public ContainerRecipeCollectionEdit(
-			SItemSet itemSet, CustomContainerValues container, GuiComponent returnMenu
+            ItemSet itemSet, CustomContainerValues container, GuiComponent returnMenu
 	) {
 		super(container.getRecipes(), container::setRecipes, returnMenu);
 		this.itemSet = itemSet;

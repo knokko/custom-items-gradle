@@ -3,7 +3,7 @@ package nl.knokko.customitems.recipe;
 import nl.knokko.customitems.encoding.RecipeEncoding;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.itemset.CraftingRecipeReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
@@ -18,7 +18,7 @@ import nl.knokko.customitems.bithelper.BitOutput;
 public abstract class CraftingRecipeValues extends ModelValues {
 
     public static CraftingRecipeValues load(
-            BitInput input, SItemSet itemSet
+            BitInput input, ItemSet itemSet
     ) throws UnknownEncodingException {
         byte encoding = input.readByte();
 
@@ -63,7 +63,7 @@ public abstract class CraftingRecipeValues extends ModelValues {
         this.result = newResult.copy(false);
     }
 
-    public void validate(SItemSet itemSet, CraftingRecipeReference selfReference) throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet, CraftingRecipeReference selfReference) throws ValidationException, ProgrammingValidationException {
         if (result == null) throw new ProgrammingValidationException("No result");
         Validation.scope("Result", () -> result.validateComplete(itemSet));
     }

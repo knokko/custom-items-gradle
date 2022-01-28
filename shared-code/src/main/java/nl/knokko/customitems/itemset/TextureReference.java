@@ -7,7 +7,7 @@ import java.util.Collection;
 
 public class TextureReference extends StringBasedReference<CustomTexture, BaseTextureValues> {
 
-    TextureReference(String name, SItemSet itemSet) {
+    TextureReference(String name, ItemSet itemSet) {
         super(name, itemSet);
     }
 

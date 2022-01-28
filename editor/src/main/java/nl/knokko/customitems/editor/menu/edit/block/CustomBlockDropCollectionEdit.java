@@ -1,13 +1,13 @@
 package nl.knokko.customitems.editor.menu.edit.block;
 
-import nl.knokko.customitems.block.drop.CustomBlockDrop;
+import nl.knokko.customitems.block.drop.CustomBlockDropValues;
 import nl.knokko.customitems.block.drop.SilkTouchRequirement;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.collection.SelfDedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.itemset.ItemReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.result.CustomItemResultValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
@@ -19,14 +19,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class CustomBlockDropCollectionEdit extends SelfDedicatedCollectionEdit<CustomBlockDrop> {
+public class CustomBlockDropCollectionEdit extends SelfDedicatedCollectionEdit<CustomBlockDropValues> {
 
-    private final SItemSet set;
+    private final ItemSet set;
 
     public CustomBlockDropCollectionEdit(
-            Collection<CustomBlockDrop> oldCollection,
-            Consumer<List<CustomBlockDrop>> changeCollection,
-            SItemSet set, GuiComponent returnMenu
+            Collection<CustomBlockDropValues> oldCollection,
+            Consumer<List<CustomBlockDropValues>> changeCollection,
+            ItemSet set, GuiComponent returnMenu
     ) {
         super(oldCollection, changeCollection, returnMenu);
         this.set = set;
@@ -38,7 +38,7 @@ public class CustomBlockDropCollectionEdit extends SelfDedicatedCollectionEdit<C
 
         addComponent(new DynamicTextButton("Add drop", EditProps.BUTTON, EditProps.HOVER, () ->
                 state.getWindow().setMainComponent(new EditCustomBlockDrop(
-                        new CustomBlockDrop(false), set, this, this::addModel
+                        new CustomBlockDropValues(false), set, this, this::addModel
                 ))
         ), 0.025f, 0.3f, 0.2f, 0.4f);
 
@@ -46,7 +46,7 @@ public class CustomBlockDropCollectionEdit extends SelfDedicatedCollectionEdit<C
     }
 
     @Override
-    public BufferedImage getModelIcon(CustomBlockDrop drop) {
+    public BufferedImage getModelIcon(CustomBlockDropValues drop) {
 
         /*
          * This operation is not so trivial because there can be any number of custom items to be dropped
@@ -85,7 +85,7 @@ public class CustomBlockDropCollectionEdit extends SelfDedicatedCollectionEdit<C
     }
 
     @Override
-    public String getModelLabel(CustomBlockDrop drop) {
+    public String getModelLabel(CustomBlockDropValues drop) {
         StringBuilder result = new StringBuilder();
         if (drop.getSilkTouchRequirement() == SilkTouchRequirement.REQUIRED) {
             result.append("[Silk] ");
@@ -112,17 +112,17 @@ public class CustomBlockDropCollectionEdit extends SelfDedicatedCollectionEdit<C
     }
 
     @Override
-    public boolean canEditModel(CustomBlockDrop model) {
+    public boolean canEditModel(CustomBlockDropValues model) {
         return true;
     }
 
     @Override
-    public GuiComponent createEditMenu(CustomBlockDrop dropToEdit, Consumer<CustomBlockDrop> applyChanges) {
+    public GuiComponent createEditMenu(CustomBlockDropValues dropToEdit, Consumer<CustomBlockDropValues> applyChanges) {
         return new EditCustomBlockDrop(dropToEdit, set, this, applyChanges);
     }
 
     @Override
-    public CopyMode getCopyMode(CustomBlockDrop drop) {
+    public CopyMode getCopyMode(CustomBlockDropValues drop) {
         return CopyMode.INSTANT;
     }
 

@@ -33,7 +33,7 @@ import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.texture.BowTextureEntry;
 import nl.knokko.customitems.texture.BowTextureValues;
@@ -53,7 +53,7 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class BowTextureEdit extends GuiMenu {
 
-	protected final SItemSet set;
+	protected final ItemSet set;
 	protected final GuiComponent returnMenu;
 
 	protected final PullTextures pullTextures;
@@ -66,7 +66,7 @@ public class BowTextureEdit extends GuiMenu {
 		this(menu.getSet(), menu.getTextureOverview(), toModify, oldValues);
 	}
 
-	public BowTextureEdit(SItemSet set, GuiComponent returnMenu, TextureReference toModify, BowTextureValues oldValues) {
+	public BowTextureEdit(ItemSet set, GuiComponent returnMenu, TextureReference toModify, BowTextureValues oldValues) {
 		this.set = set;
 		this.returnMenu = returnMenu;
 

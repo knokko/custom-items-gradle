@@ -1,7 +1,7 @@
 package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.encoding.ItemEncoding;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.CollectionHelper;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -14,7 +14,7 @@ import static nl.knokko.customitems.util.Checks.isClose;
 public class CustomShieldValues extends CustomToolValues {
 
     static CustomShieldValues load(
-            BitInput input, byte encoding, SItemSet itemSet
+            BitInput input, byte encoding, ItemSet itemSet
     ) throws UnknownEncodingException {
         CustomShieldValues result = new CustomShieldValues(false);
 
@@ -31,7 +31,7 @@ public class CustomShieldValues extends CustomToolValues {
             throw new UnknownEncodingException("CustomShield", encoding);
         }
 
-        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             result.loadShieldEditorOnlyProperties7(input, itemSet);
         }
 
@@ -55,7 +55,7 @@ public class CustomShieldValues extends CustomToolValues {
         this.customBlockingModel = toCopy.getCustomBlockingModel();
     }
 
-    private void load7(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load7(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadIdentityProperties1(input);
         loadTextDisplayProperties1(input);
         loadVanillaBasedPowers4(input);
@@ -65,7 +65,7 @@ public class CustomShieldValues extends CustomToolValues {
         this.thresholdDamage = input.readDouble();
     }
 
-    private void load9(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load9(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         load7(input, itemSet);
         loadPotionProperties9(input);
         loadRightClickProperties9(input);
@@ -84,16 +84,16 @@ public class CustomShieldValues extends CustomToolValues {
     }
 
     @Override
-    public void save(BitOutput output, SItemSet.Side side) {
+    public void save(BitOutput output, ItemSet.Side side) {
         output.addByte(ItemEncoding.ENCODING_SHIELD_10);
         save10(output);
 
-        if (side == SItemSet.Side.EDITOR) {
+        if (side == ItemSet.Side.EDITOR) {
             saveShieldEditorOnlyProperties7(output);
         }
     }
 
-    private void load10(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load10(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadShieldEditorOnlyProperties10(input);
         loadTextDisplayProperties1(input);
         loadVanillaBasedPowers4(input);
@@ -119,7 +119,7 @@ public class CustomShieldValues extends CustomToolValues {
         saveExtraProperties10(output);
     }
 
-    private void loadShieldEditorOnlyProperties7(BitInput input, SItemSet itemSet) {
+    private void loadShieldEditorOnlyProperties7(BitInput input, ItemSet itemSet) {
         loadEditorOnlyProperties1(input, itemSet, true);
         if (input.readBoolean()) {
             this.customBlockingModel = input.readByteArray();

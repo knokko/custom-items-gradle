@@ -1,11 +1,11 @@
 package nl.knokko.customitems.editor.menu.edit.block;
 
-import nl.knokko.customitems.block.drop.CustomBlockDrop;
+import nl.knokko.customitems.block.drop.CustomBlockDropValues;
 import nl.knokko.customitems.block.drop.SilkTouchRequirement;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.menu.edit.container.recipe.EditOutputTable;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
@@ -19,14 +19,14 @@ import java.util.function.Consumer;
 
 public class EditCustomBlockDrop extends GuiMenu  {
 
-    private final CustomBlockDrop currentDrop;
+    private final CustomBlockDropValues currentDrop;
 
-    private final SItemSet set;
+    private final ItemSet set;
     private final GuiComponent returnMenu;
-    private final Consumer<CustomBlockDrop> onDone;
+    private final Consumer<CustomBlockDropValues> onDone;
 
     public EditCustomBlockDrop(
-            CustomBlockDrop startValues, SItemSet set, GuiComponent returnMenu, Consumer<CustomBlockDrop> onDone
+            CustomBlockDropValues startValues, ItemSet set, GuiComponent returnMenu, Consumer<CustomBlockDropValues> onDone
     ) {
         Checks.nonNull(startValues, set, returnMenu);
         this.currentDrop = startValues.copy(true);

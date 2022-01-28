@@ -1,7 +1,7 @@
 package nl.knokko.customitems.recipe;
 
 import nl.knokko.customitems.item.CIMaterial;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.recipe.result.ResultValues;
@@ -21,7 +21,7 @@ import java.util.Random;
 
 public class OutputTableValues extends ModelValues {
 
-    public static OutputTableValues load1(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    public static OutputTableValues load1(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         OutputTableValues result = new OutputTableValues(false);
         int numEntries = input.readByte();
         result.entries = new ArrayList<>(numEntries);
@@ -118,7 +118,7 @@ public class OutputTableValues extends ModelValues {
         this.entries = Mutability.createDeepCopy(newEntries, false);
     }
 
-    public void validate(SItemSet itemSet) throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         if (entries == null) throw new ProgrammingValidationException("No entries");
         if (entries.isEmpty()) throw new ValidationException("You need at least 1 entry");
         for (Entry entry : entries) {
@@ -166,7 +166,7 @@ public class OutputTableValues extends ModelValues {
             this.chance = toCopy.getChance();
         }
 
-        private void load1(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+        private void load1(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
             this.chance = input.readByte();
             this.result = ResultValues.load(input, itemSet);
         }
@@ -215,7 +215,7 @@ public class OutputTableValues extends ModelValues {
             this.chance = newChance;
         }
 
-        public void validate(SItemSet itemSet) throws ValidationException, ProgrammingValidationException {
+        public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
             if (result == null) throw new ProgrammingValidationException("No result");
             Validation.scope("Result", () -> result.validateComplete(itemSet));
             if (chance <= 0) throw new ValidationException("Chance must be positive");

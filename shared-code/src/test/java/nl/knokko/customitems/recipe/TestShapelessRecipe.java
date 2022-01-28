@@ -1,7 +1,7 @@
 package nl.knokko.customitems.recipe;
 
 import nl.knokko.customitems.item.CIMaterial;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
@@ -21,7 +21,7 @@ public class TestShapelessRecipe {
 
         ResultValues testResult = SimpleVanillaResultValues.createQuick(CIMaterial.DIAMOND, 3);
 
-        SItemSet itemSet = new SItemSet(SItemSet.Side.EDITOR);
+        ItemSet itemSet = new ItemSet(ItemSet.Side.EDITOR);
         // Recipe 1: no conflict possible since it is the first recipe
         itemSet.addRecipe(ShapelessRecipeValues.createQuick(listOf(stone1), testResult));
         // Recipe 2: no conflict with recipe 1 because the number of ingredients is different
@@ -37,7 +37,7 @@ public class TestShapelessRecipe {
         IngredientValues stone1 = SimpleVanillaIngredientValues.createQuick(CIMaterial.STONE, 1, null);
         ResultValues testResult = SimpleVanillaResultValues.createQuick(CIMaterial.DIAMOND, 3);
 
-        SItemSet itemSet = new SItemSet(SItemSet.Side.EDITOR);
+        ItemSet itemSet = new ItemSet(ItemSet.Side.EDITOR);
         itemSet.addRecipe(ShapelessRecipeValues.createQuick(listOf(stone1), testResult));
         itemSet.addRecipe(ShapelessRecipeValues.createQuick(listOf(stone1), testResult));
     }
@@ -48,7 +48,7 @@ public class TestShapelessRecipe {
         IngredientValues stone2 = SimpleVanillaIngredientValues.createQuick(CIMaterial.STONE, 2, null);
         ResultValues testResult = SimpleVanillaResultValues.createQuick(CIMaterial.DIAMOND, 3);
 
-        SItemSet itemSet = new SItemSet(SItemSet.Side.EDITOR);
+        ItemSet itemSet = new ItemSet(ItemSet.Side.EDITOR);
         itemSet.addRecipe(ShapelessRecipeValues.createQuick(listOf(stone1), testResult));
         itemSet.addRecipe(ShapelessRecipeValues.createQuick(listOf(stone2), testResult));
     }
@@ -59,7 +59,7 @@ public class TestShapelessRecipe {
         IngredientValues log1 = SimpleVanillaIngredientValues.createQuick(CIMaterial.LOG, 1, null);
         ResultValues testResult = SimpleVanillaResultValues.createQuick(CIMaterial.DIAMOND, 3);
 
-        SItemSet itemSet = new SItemSet(SItemSet.Side.EDITOR);
+        ItemSet itemSet = new ItemSet(ItemSet.Side.EDITOR);
         itemSet.addRecipe(ShapelessRecipeValues.createQuick(listOf(stone1, log1), testResult));
         itemSet.addRecipe(ShapelessRecipeValues.createQuick(listOf(log1, stone1), testResult));
     }
@@ -70,7 +70,7 @@ public class TestShapelessRecipe {
         IngredientValues log1 = SimpleVanillaIngredientValues.createQuick(CIMaterial.LOG, 1, null);
         ResultValues testResult = SimpleVanillaResultValues.createQuick(CIMaterial.DIAMOND, 3);
 
-        SItemSet itemSet = new SItemSet(SItemSet.Side.EDITOR);
+        ItemSet itemSet = new ItemSet(ItemSet.Side.EDITOR);
         itemSet.addRecipe(ShapelessRecipeValues.createQuick(listOf(stone1, stone1, stone1, log1), testResult));
         itemSet.addRecipe(ShapelessRecipeValues.createQuick(listOf(stone1, stone1, log1, stone1), testResult));
     }

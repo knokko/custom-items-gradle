@@ -8,18 +8,18 @@ import java.util.function.Consumer;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.collection.SelfDedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.projectile.effect.ProjectileEffectsValues;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
 public class ProjectileEffectsCollectionEdit extends SelfDedicatedCollectionEdit<ProjectileEffectsValues> {
 	
-	private final SItemSet set;
+	private final ItemSet set;
 
 	public ProjectileEffectsCollectionEdit(
-			SItemSet set, Collection<ProjectileEffectsValues> oldCollection,
-			Consumer<List<ProjectileEffectsValues>> changeCollection, GuiComponent returnMenu
+            ItemSet set, Collection<ProjectileEffectsValues> oldCollection,
+            Consumer<List<ProjectileEffectsValues>> changeCollection, GuiComponent returnMenu
 	){
 		super(oldCollection, changeCollection, returnMenu);
 		this.set = set;

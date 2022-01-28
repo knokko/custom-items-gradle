@@ -1,6 +1,6 @@
 package nl.knokko.customitems.projectile.effect;
 
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -99,7 +99,7 @@ public class ShowFireworkValues extends ProjectileEffectValues {
     }
 
     @Override
-    public void validate(SItemSet itemSet) throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         if (effects == null) throw new ProgrammingValidationException("No effects");
         if (effects.isEmpty()) throw new ValidationException("You need at least 1 effect");
         for (EffectValues effect : effects) {

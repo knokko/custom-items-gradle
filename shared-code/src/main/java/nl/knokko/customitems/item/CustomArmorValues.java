@@ -4,7 +4,7 @@ import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.damage.DamageSource;
 import nl.knokko.customitems.encoding.ItemEncoding;
 import nl.knokko.customitems.itemset.ArmorTextureReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.texture.ArmorTextureValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -15,7 +15,7 @@ import nl.knokko.customitems.bithelper.BitOutput;
 public class CustomArmorValues extends CustomToolValues {
 
     static CustomArmorValues load(
-            BitInput input, byte encoding, SItemSet itemSet, boolean checkCustomModel
+            BitInput input, byte encoding, ItemSet itemSet, boolean checkCustomModel
     ) throws UnknownEncodingException {
         // Note: Initial item type will be overwritten during loading, so its value doesn't matter
         CustomArmorValues result = new CustomArmorValues(false, CustomItemType.IRON_HELMET);
@@ -45,7 +45,7 @@ public class CustomArmorValues extends CustomToolValues {
             throw new UnknownEncodingException("CustomArmor", encoding);
         }
 
-        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             result.loadEditorOnlyProperties1(input, itemSet, checkCustomModel);
         }
 
@@ -54,7 +54,7 @@ public class CustomArmorValues extends CustomToolValues {
 
     private int red, green, blue;
 
-    private SDamageResistances damageResistances;
+    private DamageResistanceValues damageResistances;
     private ArmorTextureReference armorTexture;
 
     public CustomArmorValues(boolean mutable, CustomItemType initialItemType) {
@@ -63,7 +63,7 @@ public class CustomArmorValues extends CustomToolValues {
         this.red = 160;
         this.green = 101;
         this.blue = 64;
-        this.damageResistances = new SDamageResistances(false);
+        this.damageResistances = new DamageResistanceValues(false);
         this.armorTexture = null;
     }
 
@@ -89,34 +89,34 @@ public class CustomArmorValues extends CustomToolValues {
         }
     }
 
-    private void load4(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load4(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadTool4(input, itemSet);
         loadLeatherColors(input);
     }
 
-    private void load6(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load6(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         load4(input, itemSet);
         loadItemFlags6(input);
         loadToolOnlyPropertiesB6(input);
     }
 
-    private void load7(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load7(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         load6(input, itemSet);
-        this.damageResistances = SDamageResistances.load12(input);
+        this.damageResistances = DamageResistanceValues.load12(input);
     }
 
-    private void load8(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load8(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         load6(input, itemSet);
-        this.damageResistances = SDamageResistances.load14(input);
+        this.damageResistances = DamageResistanceValues.load14(input);
     }
 
-    private void load9(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load9(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         load8(input, itemSet);
         loadPotionProperties9(input);
         loadRightClickProperties9(input);
     }
 
-    private void loadPre10(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void loadPre10(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadIdentityProperties10(input);
         loadTextDisplayProperties1(input);
         loadVanillaBasedPowers4(input);
@@ -126,13 +126,13 @@ public class CustomArmorValues extends CustomToolValues {
         loadToolOnlyPropertiesB6(input);
     }
 
-    private void loadPost10(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void loadPost10(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadPotionProperties10(input);
         loadRightClickProperties10(input, itemSet);
         this.extraItemNbt = ExtraItemNbtValues.load(input, false);
         if (input.readBoolean()) {
             String armorTextureName = input.readString();
-            if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+            if (itemSet.getSide() == ItemSet.Side.EDITOR) {
                 this.armorTexture = itemSet.getArmorTextureReference(armorTextureName);
             } else {
                 this.armorTexture = null;
@@ -143,15 +143,15 @@ public class CustomArmorValues extends CustomToolValues {
         this.attackRange = input.readFloat();
     }
 
-    protected void load10(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    protected void load10(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadPre10(input, itemSet);
-        this.damageResistances = SDamageResistances.load14(input);
+        this.damageResistances = DamageResistanceValues.load14(input);
         loadPost10(input, itemSet);
     }
 
-    protected void load11(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    protected void load11(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadPre10(input, itemSet);
-        this.damageResistances = SDamageResistances.load17(input);
+        this.damageResistances = DamageResistanceValues.load17(input);
         loadPost10(input, itemSet);
     }
 
@@ -167,11 +167,11 @@ public class CustomArmorValues extends CustomToolValues {
     }
 
     @Override
-    public void save(BitOutput output, SItemSet.Side side) {
+    public void save(BitOutput output, ItemSet.Side side) {
         output.addByte(ItemEncoding.ENCODING_ARMOR_11);
         saveArmor11(output);
 
-        if (side == SItemSet.Side.EDITOR) {
+        if (side == ItemSet.Side.EDITOR) {
             saveEditorOnlyProperties1(output);
         }
     }
@@ -214,7 +214,7 @@ public class CustomArmorValues extends CustomToolValues {
 
     private void initArmorOnlyDefaults6() {
         initArmorOnlyDefaults7();
-        this.damageResistances = new SDamageResistances(false);
+        this.damageResistances = new DamageResistanceValues(false);
     }
 
     private void initDefaults7() {
@@ -283,7 +283,7 @@ public class CustomArmorValues extends CustomToolValues {
         return blue;
     }
 
-    public SDamageResistances getDamageResistances() {
+    public DamageResistanceValues getDamageResistances() {
         return damageResistances;
     }
 
@@ -310,7 +310,7 @@ public class CustomArmorValues extends CustomToolValues {
         this.blue = newBlue;
     }
 
-    public void setDamageResistances(SDamageResistances newDamageResistances) {
+    public void setDamageResistances(DamageResistanceValues newDamageResistances) {
         assertMutable();
         this.damageResistances = newDamageResistances.copy(false);
     }
@@ -335,7 +335,7 @@ public class CustomArmorValues extends CustomToolValues {
     }
 
     @Override
-    public void validateComplete(SItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
+    public void validateComplete(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         super.validateComplete(itemSet, oldName);
 
         if (armorTexture != null && !itemSet.isReferenceValid(armorTexture)) {

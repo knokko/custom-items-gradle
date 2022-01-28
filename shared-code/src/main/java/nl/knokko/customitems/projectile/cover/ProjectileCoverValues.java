@@ -2,7 +2,7 @@ package nl.knokko.customitems.projectile.cover;
 
 import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.item.CustomItemType;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
@@ -20,9 +20,9 @@ public class ProjectileCoverValues extends ModelValues {
     static final byte ENCODING_SPHERE1 = 0;
     static final byte ENCODING_CUSTOM1 = 1;
 
-    public static ProjectileCoverValues load(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    public static ProjectileCoverValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
 
-        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             byte encoding = input.readByte();
             if (encoding == ENCODING_SPHERE1) {
                 return SphereProjectileCoverValues.load(input, encoding, itemSet);
@@ -76,8 +76,8 @@ public class ProjectileCoverValues extends ModelValues {
         throw new UnsupportedOperationException("This is only for Editor projectile covers");
     }
 
-    public final void save(BitOutput output, SItemSet.Side side) {
-        if (side == SItemSet.Side.EDITOR) {
+    public final void save(BitOutput output, ItemSet.Side side) {
+        if (side == ItemSet.Side.EDITOR) {
             save(output);
         } else {
             export(output);
@@ -130,7 +130,7 @@ public class ProjectileCoverValues extends ModelValues {
         throw new UnsupportedOperationException("This can only be done on the Editor side");
     }
 
-    public void validate(SItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         if (itemType == null) throw new ProgrammingValidationException("No item type");
         if (!itemType.canServe(CustomItemType.Category.PROJECTILE_COVER)) {
             throw new ProgrammingValidationException("Item type can't be used for projectile covers");

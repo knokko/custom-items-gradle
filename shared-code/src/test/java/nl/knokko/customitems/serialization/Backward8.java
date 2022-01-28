@@ -10,7 +10,7 @@ import nl.knokko.customitems.damage.DamageSource;
 import nl.knokko.customitems.drops.*;
 import nl.knokko.customitems.effect.*;
 import nl.knokko.customitems.item.*;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.ShapedRecipeValues;
 import nl.knokko.customitems.recipe.ingredient.CustomItemIngredientValues;
@@ -38,7 +38,7 @@ public class Backward8 {
 
     @Test
     public void testBackwardCompatibility8() {
-        for (SItemSet oldSet : loadItemSet("backward8old")) {
+        for (ItemSet oldSet : loadItemSet("backward8old")) {
             testTextures3(oldSet, 3);
             testArmorTexturesOld8(oldSet, 1);
             testItemsOld8(oldSet, 30);
@@ -51,7 +51,7 @@ public class Backward8 {
             testContainersOld8(oldSet, 2);
         }
 
-        for (SItemSet newSet : loadItemSet("backward8new")) {
+        for (ItemSet newSet : loadItemSet("backward8new")) {
             testTexturesNew6(newSet, 1);
             testItemsNew8(newSet, 2);
             testRecipesNew6(newSet, 1);
@@ -69,7 +69,7 @@ public class Backward8 {
         return result;
     }
 
-    static void testItemsNew8(SItemSet set, int numItems) {
+    static void testItemsNew8(ItemSet set, int numItems) {
         testItemsNew6(set, numItems);
 
         testTridentDefault8((CustomTridentValues) set.getItem("trident_one").get());
@@ -85,7 +85,7 @@ public class Backward8 {
         assertEquals(listOf(
                 false, false, true, false, false, false
         ), item.getItemFlags());
-        if (set.getSide() == SItemSet.Side.EDITOR) {
+        if (set.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("quick_wand", item.getTexture().getName());
         } else {
             assertNull(item.getTextureReference());
@@ -124,7 +124,7 @@ public class Backward8 {
         assertNull(item.getCustomThrowingModel());
     }
 
-    static void testContainersOld8(SItemSet set, int numContainers) {
+    static void testContainersOld8(ItemSet set, int numContainers) {
         testContainers7(set, numContainers);
 
         CustomContainerValues container2 = set.getContainer("container2").get();
@@ -160,7 +160,7 @@ public class Backward8 {
         assertEquals(DataVanillaDisplayItemValues.createQuick(CIMaterial.WOOL, (byte) 8), fuelPlaceholder.getDisplayItem());
     }
 
-    static void testFuelRegistriesOld8(SItemSet set, int numFuelRegistries) {
+    static void testFuelRegistriesOld8(ItemSet set, int numFuelRegistries) {
         assertEquals(numFuelRegistries, set.getFuelRegistries().size());
 
         FuelRegistryValues registry1 = set.getFuelRegistry("registry1").get();
@@ -171,7 +171,7 @@ public class Backward8 {
         ), registry1.getEntries());
     }
 
-    static void testMobDropsOld8(SItemSet set, int numBlockDrops) {
+    static void testMobDropsOld8(ItemSet set, int numBlockDrops) {
         testMobDropsOld6(set, numBlockDrops);
 
         Iterator<MobDropValues> mobDropIterator = set.getMobDrops().iterator();
@@ -179,7 +179,7 @@ public class Backward8 {
         testDefaultMobDrop8(mobDropIterator.next());
     }
 
-    static void testBlockDropsOld8(SItemSet set, int numBlockDrops) {
+    static void testBlockDropsOld8(ItemSet set, int numBlockDrops) {
         testBlockDropsOld6(set, numBlockDrops);
 
         Iterator<BlockDropValues> blockDropIterator = set.getBlockDrops().iterator();
@@ -222,13 +222,13 @@ public class Backward8 {
         // TODO Call testDefaultDrop9
     }
 
-    static void testRecipesOld8(SItemSet set, int numRecipes) {
+    static void testRecipesOld8(ItemSet set, int numRecipes) {
         testRecipesOld6(set, numRecipes);
 
         assertTrue(set.getCraftingRecipes().stream().anyMatch(recipe -> recipe.equals(createShapedRecipe3(set))));
     }
 
-    static ShapedRecipeValues createShapedRecipe3(SItemSet set) {
+    static ShapedRecipeValues createShapedRecipe3(ItemSet set) {
         IngredientValues[] ingredients = {
                 CustomItemIngredientValues.createQuick(set.getItemReference("simple1"), 1, null), new NoIngredientValues(), new NoIngredientValues(),
                 new NoIngredientValues(), CustomItemIngredientValues.createQuick(set.getItemReference("simple2"), 1, null), new NoIngredientValues(),
@@ -237,8 +237,8 @@ public class Backward8 {
         return ShapedRecipeValues.createQuick(ingredients, CopiedResultValues.createQuick(copiedFromServerString()));
     }
 
-    static void testArmorTexturesOld8(SItemSet set, int numArmorTextures) {
-        if (set.getSide() == SItemSet.Side.PLUGIN) {
+    static void testArmorTexturesOld8(ItemSet set, int numArmorTextures) {
+        if (set.getSide() == ItemSet.Side.PLUGIN) {
             assertEquals(0, set.getArmorTextures().size());
             return;
         }
@@ -251,7 +251,7 @@ public class Backward8 {
         assertImageEqual(loadImage("armor1layer2"), armorTexture1.getLayer2());
     }
 
-    static void testItemsOld8(SItemSet set, int numItems) {
+    static void testItemsOld8(ItemSet set, int numItems) {
         testItemsOld6(set, numItems);
 
         testShieldDefault8((CustomShieldValues) set.getItem("shield_one").get());
@@ -269,7 +269,7 @@ public class Backward8 {
         testShield2((CustomShieldValues) set.getItem("shield2").get(), set);
     }
 
-    static void testWand2(CustomWandValues item, SItemSet itemSet) {
+    static void testWand2(CustomWandValues item, ItemSet itemSet) {
         assertEquals("wand2", item.getName());
         assertEquals(CustomItemType.DIAMOND_HOE, item.getItemType());
         assertEquals("wand2", item.getAlias());
@@ -280,7 +280,7 @@ public class Backward8 {
         assertEquals(listOf(
                 false, false, true, false, false, false
         ), item.getItemFlags());
-        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
         } else {
             assertNull(item.getTextureReference());
@@ -315,7 +315,7 @@ public class Backward8 {
         assertEquals(40, item.getCooldown());
     }
 
-    static void testSimple4(SimpleCustomItemValues item, SItemSet itemSet) {
+    static void testSimple4(SimpleCustomItemValues item, ItemSet itemSet) {
         assertEquals("simple3", item.getName());
         assertEquals(CustomItemType.DIAMOND_HOE, item.getItemType());
         assertEquals("sim3", item.getAlias());
@@ -326,7 +326,7 @@ public class Backward8 {
         assertEquals(listOf(
                 false, false, true, false, false, false
         ), item.getItemFlags());
-        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
         } else {
             assertNull(item.getTextureReference());
@@ -355,7 +355,7 @@ public class Backward8 {
         assertEquals(64, item.getMaxStacksize());
     }
 
-    static void testShovel2(CustomToolValues item, SItemSet itemSet) {
+    static void testShovel2(CustomToolValues item, ItemSet itemSet) {
         assertEquals("shovel2", item.getName());
         assertEquals(CustomItemType.IRON_SHOVEL, item.getItemType());
         assertEquals("shov2", item.getAlias());
@@ -366,7 +366,7 @@ public class Backward8 {
         assertEquals(listOf(
                 false, false, true, false, false, false
         ), item.getItemFlags());
-        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
         } else {
             assertNull(item.getTextureReference());
@@ -400,7 +400,7 @@ public class Backward8 {
         assertEquals(1, item.getBlockBreakDurabilityLoss());
     }
 
-    static void testHoe3(CustomHoeValues item, SItemSet itemSet) {
+    static void testHoe3(CustomHoeValues item, ItemSet itemSet) {
         assertEquals("hoe3", item.getName());
         assertEquals(CustomItemType.IRON_HOE, item.getItemType());
         assertEquals("h3", item.getAlias());
@@ -411,7 +411,7 @@ public class Backward8 {
         assertEquals(listOf(
                 false, false, true, false, false, false
         ), item.getItemFlags());
-        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
         } else {
             assertNull(item.getTextureReference());
@@ -446,7 +446,7 @@ public class Backward8 {
         assertEquals(1, item.getTillDurabilityLoss());
     }
 
-    static void testShears3(CustomShearsValues item, SItemSet itemSet) {
+    static void testShears3(CustomShearsValues item, ItemSet itemSet) {
         assertEquals("shears3", item.getName());
         assertEquals(CustomItemType.SHEARS, item.getItemType());
         assertEquals("sh3", item.getAlias());
@@ -457,7 +457,7 @@ public class Backward8 {
         assertEquals(listOf(
                 false, false, true, false, false, false
         ), item.getItemFlags());
-        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
         } else {
             assertNull(item.getTextureReference());
@@ -492,7 +492,7 @@ public class Backward8 {
         assertEquals(1, item.getShearDurabilityLoss());
     }
 
-    static void test3dHelmet1(CustomHelmet3dValues item, SItemSet itemSet) {
+    static void test3dHelmet1(CustomHelmet3dValues item, ItemSet itemSet) {
         assertEquals("3dhelmet1", item.getName());
         assertEquals(CustomItemType.IRON_HOE, item.getItemType());
         assertEquals("3d1", item.getAlias());
@@ -515,7 +515,7 @@ public class Backward8 {
         assertEquals(listOf(
                 true, false, true, false, false, false
         ), item.getItemFlags());
-        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
             assertResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", item.getCustomModel());
         } else {
@@ -563,7 +563,7 @@ public class Backward8 {
         }
     }
 
-    static void testBow3(CustomBowValues item, SItemSet itemSet) {
+    static void testBow3(CustomBowValues item, ItemSet itemSet) {
         assertEquals("bow3", item.getName());
         assertEquals(CustomItemType.BOW, item.getItemType());
         assertEquals("b3", item.getAlias());
@@ -574,7 +574,7 @@ public class Backward8 {
         assertEquals(listOf(
                 false, false, true, false, false, false
         ), item.getItemFlags());
-        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("bow_one", item.getTexture().getName());
         } else {
             assertNull(item.getTextureReference());
@@ -617,7 +617,7 @@ public class Backward8 {
         assertTrue(item.hasGravity());
     }
 
-    static void testChestplate2(CustomArmorValues item, SItemSet itemSet) {
+    static void testChestplate2(CustomArmorValues item, ItemSet itemSet) {
         assertEquals("chestplate2", item.getName());
         assertEquals(CustomItemType.IRON_CHESTPLATE, item.getItemType());
         assertEquals("chess2", item.getAlias());
@@ -628,7 +628,7 @@ public class Backward8 {
         assertEquals(listOf(
                 false, false, true, false, false, false
         ), item.getItemFlags());
-        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
         } else {
             assertNull(item.getTextureReference());
@@ -663,14 +663,14 @@ public class Backward8 {
         for (DamageSource source : DamageSource.values()) {
             assertEquals(0, item.getDamageResistances().getResistance(source));
         }
-        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("armor_texture1", item.getArmorTexture().getName());
         } else {
             assertNull(item.getArmorTextureReference());
         }
     }
 
-    static void testShield2(CustomShieldValues item, SItemSet itemSet) {
+    static void testShield2(CustomShieldValues item, ItemSet itemSet) {
         assertEquals("shield2", item.getName());
         assertEquals(CustomItemType.SHIELD, item.getItemType());
         assertEquals("s2", item.getAlias());
@@ -681,7 +681,7 @@ public class Backward8 {
         assertEquals(listOf(
                 false, false, true, false, false, false
         ), item.getItemFlags());
-        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
         } else {
             assertNull(item.getTextureReference());

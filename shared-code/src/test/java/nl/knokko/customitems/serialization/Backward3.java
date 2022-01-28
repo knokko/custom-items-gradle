@@ -2,7 +2,7 @@ package nl.knokko.customitems.serialization;
 
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.itemset.ItemReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.ingredient.CustomItemIngredientValues;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
@@ -19,17 +19,17 @@ public class Backward3 {
 
     @Test
     public void testBackwardCompatibility3() {
-        for (SItemSet set3 : loadItemSet("backward3")) {
+        for (ItemSet set3 : loadItemSet("backward3")) {
             testTextures3(set3, 3);
             testItems3(set3, 9);
             testRecipes1(set3, 2);
         }
     }
 
-    static void testTextures3(SItemSet set, int numTextures) {
+    static void testTextures3(ItemSet set, int numTextures) {
         testTextures1(set, numTextures);
 
-        if (set.getSide() == SItemSet.Side.PLUGIN) return;
+        if (set.getSide() == ItemSet.Side.PLUGIN) return;
 
         BowTextureValues bow1 = (BowTextureValues) set.getTexture("bow_one").get();
         assertEquals("bow_one", bow1.getName());
@@ -49,7 +49,7 @@ public class Backward3 {
         assertImageEqual(loadImage("test4"), bow1.getPullTextures().get(3).getImage());
     }
 
-    static void testItems3(SItemSet set, int numItems) {
+    static void testItems3(ItemSet set, int numItems) {
         testItems2(set, numItems);
 
         testSimpleDefault3((SimpleCustomItemValues) set.getItem("simple1").get());
@@ -64,13 +64,13 @@ public class Backward3 {
         testBow1((CustomBowValues) set.getItem("bow_one").get(), set.getItemReference("simple1"), set.getSide());
     }
 
-    static void testHoe1(CustomHoeValues item, SItemSet.Side side) {
+    static void testHoe1(CustomHoeValues item, ItemSet.Side side) {
         assertEquals("hoe_one", item.getName());
         assertEquals(CustomItemType.WOOD_HOE, item.getItemType());
         assertEquals("Old Hoe", item.getDisplayName());
         assertEquals(0, item.getLore().size());
         assertEquals(0, item.getAttributeModifiers().size());
-        if (side == SItemSet.Side.EDITOR) {
+        if (side == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
         } else {
             assertNull(item.getTextureReference());
@@ -81,7 +81,7 @@ public class Backward3 {
         assertEquals(SimpleVanillaIngredientValues.createQuick(CIMaterial.STICK, 1, null), item.getRepairItem());
     }
 
-    static void testShears1(CustomShearsValues item, SItemSet.Side side) {
+    static void testShears1(CustomShearsValues item, ItemSet.Side side) {
         assertEquals("shears_one", item.getName());
         assertEquals(CustomItemType.SHEARS, item.getItemType());
         assertEquals("Unbreakable shears", item.getDisplayName());
@@ -90,7 +90,7 @@ public class Backward3 {
                 "as you want!"
         ), item.getLore());
         assertEquals(0, item.getAttributeModifiers().size());
-        if (side == SItemSet.Side.EDITOR) {
+        if (side == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
         } else {
             assertNull(item.getTextureReference());
@@ -101,7 +101,7 @@ public class Backward3 {
         assertTrue(item.getRepairItem() instanceof NoIngredientValues);
     }
 
-    static void testBow1(CustomBowValues item, ItemReference simple1, SItemSet.Side side) {
+    static void testBow1(CustomBowValues item, ItemReference simple1, ItemSet.Side side) {
         assertEquals("bow_one", item.getName());
         assertEquals(CustomItemType.BOW, item.getItemType());
         assertEquals("Weird Bow", item.getDisplayName());
@@ -110,7 +110,7 @@ public class Backward3 {
                 "pulling animation"
         ), item.getLore());
         assertEquals(0, item.getAttributeModifiers().size());
-        if (side == SItemSet.Side.EDITOR) {
+        if (side == ItemSet.Side.EDITOR) {
             assertEquals("bow_one", item.getTexture().getName());
         } else {
             assertNull(item.getTextureReference());

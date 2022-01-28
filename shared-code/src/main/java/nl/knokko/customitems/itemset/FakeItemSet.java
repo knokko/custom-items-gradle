@@ -6,7 +6,7 @@ import java.util.ArrayList;
  * This is a dirty subclass of SItemSet that overrides all reference getter methods
  * (getItemReference, getBlockReference, ...) such that they always return uninitialized references.
  */
-public class FakeItemSet extends SItemSet {
+public class FakeItemSet extends ItemSet {
     public FakeItemSet() {
         super(Side.PLUGIN);
 

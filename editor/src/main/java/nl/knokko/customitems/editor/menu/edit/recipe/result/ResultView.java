@@ -24,7 +24,7 @@
 package nl.knokko.customitems.editor.menu.edit.recipe.result;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
@@ -35,9 +35,9 @@ import java.util.List;
 public class ResultView extends GuiMenu {
 	
 	private final ResultComponent component;
-	private final SItemSet set;
+	private final ItemSet set;
 
-	public ResultView(ResultComponent component, SItemSet set) {
+	public ResultView(ResultComponent component, ItemSet set) {
 		this.component = component;
 		this.set = set;
 	}

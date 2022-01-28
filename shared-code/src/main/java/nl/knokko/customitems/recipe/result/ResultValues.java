@@ -1,7 +1,7 @@
 package nl.knokko.customitems.recipe.result;
 
 import nl.knokko.customitems.encoding.RecipeEncoding;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -13,7 +13,7 @@ import java.util.List;
 
 public abstract class ResultValues extends ModelValues  {
 
-    public static ResultValues load(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    public static ResultValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
 
         if (encoding == RecipeEncoding.Result.VANILLA_SIMPLE) {
@@ -52,7 +52,7 @@ public abstract class ResultValues extends ModelValues  {
 
     public abstract void validateIndependent() throws ValidationException, ProgrammingValidationException;
 
-    public abstract void validateComplete(SItemSet itemSet) throws ValidationException, ProgrammingValidationException;
+    public abstract void validateComplete(ItemSet itemSet) throws ValidationException, ProgrammingValidationException;
 
     public abstract void validateExportVersion(int version) throws ValidationException;
 }

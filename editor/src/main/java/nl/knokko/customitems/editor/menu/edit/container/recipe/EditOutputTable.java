@@ -8,7 +8,7 @@ import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.SafeCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.result.CustomItemResultValues;
@@ -20,14 +20,14 @@ public class EditOutputTable extends SafeCollectionEdit<OutputTableValues.Entry>
 	
 	private final Consumer<OutputTableValues> onApply;
 	private final boolean isCreatingNew;
-	private final SItemSet set;
+	private final ItemSet set;
 	
 	// 101 is an impossible value, so this will trigger a recompute right away
 	private int previousNothingChance = 101;
 	private final DynamicTextComponent nothingChanceComponent;
 
 	public EditOutputTable(GuiComponent returnMenu, OutputTableValues original,
-			Consumer<OutputTableValues> onApply, SItemSet set) {
+			Consumer<OutputTableValues> onApply, ItemSet set) {
 		super(returnMenu, original == null ? new ArrayList<>() : Mutability.createDeepCopy(original.getEntries(), true));
 		this.onApply = onApply;
 		this.isCreatingNew = original == null;

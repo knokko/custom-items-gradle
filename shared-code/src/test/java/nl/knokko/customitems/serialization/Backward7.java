@@ -5,7 +5,7 @@ import nl.knokko.customitems.container.fuel.*;
 import nl.knokko.customitems.container.slot.*;
 import nl.knokko.customitems.container.slot.display.*;
 import nl.knokko.customitems.item.*;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.ingredient.CustomItemIngredientValues;
 import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
@@ -25,7 +25,7 @@ public class Backward7 {
 
     @Test
     public void testBackwardCompatibility7() {
-        for (SItemSet set7 : loadItemSet("backward7")) {
+        for (ItemSet set7 : loadItemSet("backward7")) {
             testTextures3(set7, 3);
             testItemsOld6(set7, 21);
             testRecipesOld6(set7, 3);
@@ -38,7 +38,7 @@ public class Backward7 {
         }
     }
 
-    static void testFuelRegistries7(SItemSet set, int numFuelRegistries) {
+    static void testFuelRegistries7(ItemSet set, int numFuelRegistries) {
         assertEquals(numFuelRegistries, set.getFuelRegistries().size());
 
         FuelRegistryValues registry1 = set.getFuelRegistry("registry1").get();
@@ -53,7 +53,7 @@ public class Backward7 {
         assertEquals(CustomItemIngredientValues.createQuick(set.getItemReference("simple1"), 1, null), entry2.getFuel());
     }
 
-    static void testContainers7(SItemSet set, int numContainers) {
+    static void testContainers7(ItemSet set, int numContainers) {
         assertEquals(numContainers, set.getContainers().size());
 
         CustomContainerValues container1 = set.getContainer("container1").get();

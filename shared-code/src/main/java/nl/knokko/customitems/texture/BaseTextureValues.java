@@ -1,6 +1,6 @@
 package nl.knokko.customitems.texture;
 
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
@@ -200,7 +200,7 @@ public class BaseTextureValues extends ModelValues {
         Validation.scope("Image", () -> validateImage(this.image));
     }
 
-    public void validateComplete(SItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
+    public void validateComplete(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         this.validateIndependent();
 
         boolean nameConflict = false;

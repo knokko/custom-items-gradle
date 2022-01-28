@@ -1,16 +1,16 @@
 package nl.knokko.customitems.itemset;
 
 import nl.knokko.customitems.projectile.cover.ProjectileCoverValues;
-import nl.knokko.customitems.projectile.cover.SProjectileCover;
+import nl.knokko.customitems.projectile.cover.ProjectileCover;
 
 import java.util.Collection;
 
-public class ProjectileCoverReference extends StringBasedReference<SProjectileCover, ProjectileCoverValues> {
-    ProjectileCoverReference(String name, SItemSet itemSet) {
+public class ProjectileCoverReference extends StringBasedReference<ProjectileCover, ProjectileCoverValues> {
+    ProjectileCoverReference(String name, ItemSet itemSet) {
         super(name, itemSet);
     }
 
-    ProjectileCoverReference(SProjectileCover model) {
+    ProjectileCoverReference(ProjectileCover model) {
         super(model);
     }
 
@@ -20,7 +20,7 @@ public class ProjectileCoverReference extends StringBasedReference<SProjectileCo
     }
 
     @Override
-    Collection<SProjectileCover> getCollection() {
+    Collection<ProjectileCover> getCollection() {
         return itemSet.projectileCovers;
     }
 

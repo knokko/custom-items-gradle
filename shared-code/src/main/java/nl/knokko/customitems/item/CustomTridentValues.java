@@ -2,7 +2,7 @@ package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.encoding.ItemEncoding;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.CollectionHelper;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -15,7 +15,7 @@ import static nl.knokko.customitems.util.Checks.isClose;
 public class CustomTridentValues extends CustomToolValues {
 
     static CustomTridentValues load(
-            BitInput input, byte encoding, SItemSet itemSet
+            BitInput input, byte encoding, ItemSet itemSet
     ) throws UnknownEncodingException {
         CustomTridentValues result = new CustomTridentValues(false);
 
@@ -32,7 +32,7 @@ public class CustomTridentValues extends CustomToolValues {
             throw new UnknownEncodingException("CustomTrident", encoding);
         }
 
-        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             result.loadTridentEditorOnlyProperties8(input, itemSet);
         }
 
@@ -69,7 +69,7 @@ public class CustomTridentValues extends CustomToolValues {
         this.customThrowingModel = toCopy.getCustomThrowingModel();
     }
 
-    private void loadTridentEditorOnlyProperties8(BitInput input, SItemSet itemSet) {
+    private void loadTridentEditorOnlyProperties8(BitInput input, ItemSet itemSet) {
         loadEditorOnlyProperties1(input, itemSet, true);
 
         if (input.readBoolean()) {
@@ -85,7 +85,7 @@ public class CustomTridentValues extends CustomToolValues {
         }
     }
 
-    private void load8(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load8(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadTridentIdentityProperties8(input);
         loadTextDisplayProperties1(input);
         loadVanillaBasedPowers4(input);
@@ -95,13 +95,13 @@ public class CustomTridentValues extends CustomToolValues {
         loadTridentOnlyProperties8(input);
     }
 
-    private void load9(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load9(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         load8(input, itemSet);
         loadPotionProperties9(input);
         loadRightClickProperties9(input);
     }
 
-    private void load10(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load10(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadTridentIdentityProperties10(input);
         loadTextDisplayProperties1(input);
         loadVanillaBasedPowers4(input);
@@ -174,11 +174,11 @@ public class CustomTridentValues extends CustomToolValues {
     }
 
     @Override
-    public void save(BitOutput output, SItemSet.Side side) {
+    public void save(BitOutput output, ItemSet.Side side) {
         output.addByte(ItemEncoding.ENCODING_TRIDENT_10);
         save10(output);
 
-        if (side == SItemSet.Side.EDITOR) {
+        if (side == ItemSet.Side.EDITOR) {
             saveTridentEditorOnlyProperties8(output);
         }
     }

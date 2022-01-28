@@ -1,6 +1,6 @@
 package nl.knokko.customitems.container.fuel;
 
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
@@ -14,7 +14,7 @@ import nl.knokko.customitems.bithelper.BitOutput;
 
 public class FuelEntryValues extends ModelValues {
 
-    public static FuelEntryValues load1(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    public static FuelEntryValues load1(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         FuelEntryValues result = new FuelEntryValues(false);
         result.fuel = IngredientValues.load(input, itemSet);
         result.burnTime = input.readInt();
@@ -87,7 +87,7 @@ public class FuelEntryValues extends ModelValues {
         this.burnTime = burnTime;
     }
 
-    public void validate(SItemSet itemSet) throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         if (fuel == null) throw new ProgrammingValidationException("No fuel");
         Validation.scope("Fuel", fuel::validateComplete, itemSet);
 

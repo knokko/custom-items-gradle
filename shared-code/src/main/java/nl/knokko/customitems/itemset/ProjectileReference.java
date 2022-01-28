@@ -1,17 +1,17 @@
 package nl.knokko.customitems.itemset;
 
 import nl.knokko.customitems.projectile.CustomProjectileValues;
-import nl.knokko.customitems.projectile.SCustomProjectile;
+import nl.knokko.customitems.projectile.CustomProjectile;
 
 import java.util.Collection;
 
-public class ProjectileReference extends StringBasedReference<SCustomProjectile, CustomProjectileValues> {
+public class ProjectileReference extends StringBasedReference<CustomProjectile, CustomProjectileValues> {
 
-    ProjectileReference(String name, SItemSet itemSet) {
+    ProjectileReference(String name, ItemSet itemSet) {
         super(name, itemSet);
     }
 
-    ProjectileReference(SCustomProjectile model) {
+    ProjectileReference(CustomProjectile model) {
         super(model);
     }
 
@@ -21,7 +21,7 @@ public class ProjectileReference extends StringBasedReference<SCustomProjectile,
     }
 
     @Override
-    Collection<SCustomProjectile> getCollection() {
+    Collection<CustomProjectile> getCollection() {
         return itemSet.projectiles;
     }
 

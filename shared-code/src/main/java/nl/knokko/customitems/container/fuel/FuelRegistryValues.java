@@ -1,6 +1,6 @@
 package nl.knokko.customitems.container.fuel;
 
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -21,7 +21,7 @@ public class FuelRegistryValues extends ModelValues {
         static final byte ENCODING1 = 1;
     }
 
-    public static FuelRegistryValues load(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    public static FuelRegistryValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
         FuelRegistryValues result = new FuelRegistryValues(false);
 
@@ -56,7 +56,7 @@ public class FuelRegistryValues extends ModelValues {
         this.entries = toCopy.getEntries();
     }
 
-    private void load1(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load1(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         this.name = input.readString();
         int numEntries = input.readInt();
         this.entries = new ArrayList<>(numEntries);
@@ -109,7 +109,7 @@ public class FuelRegistryValues extends ModelValues {
         this.entries = Mutability.createDeepCopy(entries, false);
     }
 
-    public void validate(SItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         if (name == null) throw new ProgrammingValidationException("No name");
         if (name.isEmpty()) throw new ValidationException("Name can't be empty");
         if (!name.equals(oldName) && itemSet.getFuelRegistry(name).isPresent()) {

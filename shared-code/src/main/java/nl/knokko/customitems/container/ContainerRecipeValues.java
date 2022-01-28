@@ -3,7 +3,7 @@ package nl.knokko.customitems.container;
 import nl.knokko.customitems.container.slot.ContainerSlotValues;
 import nl.knokko.customitems.container.slot.InputSlotValues;
 import nl.knokko.customitems.container.slot.OutputSlotValues;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
@@ -30,7 +30,7 @@ public class ContainerRecipeValues extends ModelValues {
         static final byte ENCODING2 = 2;
     }
 
-    public static ContainerRecipeValues load(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    public static ContainerRecipeValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
         ContainerRecipeValues result = new ContainerRecipeValues(false);
 
@@ -67,7 +67,7 @@ public class ContainerRecipeValues extends ModelValues {
         this.experience = toCopy.getExperience();
     }
 
-    private void loadInputs(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void loadInputs(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         int numInputs = input.readInt();
         this.inputs = new HashMap<>(numInputs);
         for (int counter = 0; counter < numInputs; counter++) {
@@ -82,7 +82,7 @@ public class ContainerRecipeValues extends ModelValues {
         }
     }
 
-    private void load1(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load1(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadInputs(input, itemSet);
 
         int numOutputs = input.readInt();
@@ -106,7 +106,7 @@ public class ContainerRecipeValues extends ModelValues {
         this.experience = input.readInt();
     }
 
-    private void load2(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load2(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadInputs(input, itemSet);
 
         int numOutputs = input.readInt();
@@ -214,7 +214,7 @@ public class ContainerRecipeValues extends ModelValues {
         this.experience = experience;
     }
 
-    public void validate(SItemSet itemSet, CustomContainerValues container) throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet, CustomContainerValues container) throws ValidationException, ProgrammingValidationException {
         if (inputs == null) throw new ProgrammingValidationException("No inputs");
         Collection<ContainerSlotValues> slots = container.createSlotList();
         for (Map.Entry<String, IngredientValues> inputEntry : inputs.entrySet()) {

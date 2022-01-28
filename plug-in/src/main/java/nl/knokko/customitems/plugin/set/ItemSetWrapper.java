@@ -8,7 +8,7 @@ import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomTridentValues;
 import nl.knokko.customitems.itemset.BlockDropsView;
 import nl.knokko.customitems.itemset.MobDropsView;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.plugin.container.ContainerInfo;
 import nl.knokko.customitems.plugin.set.item.CustomItemNBT;
 import nl.knokko.customitems.plugin.util.ItemUtils;
@@ -21,16 +21,16 @@ import java.util.*;
 
 public class ItemSetWrapper {
 
-    private SItemSet currentItemSet;
+    private ItemSet currentItemSet;
 
     private Map<String, CustomItemValues> itemMap;
     private boolean hasCustomTridents;
     private Map<CIEntityType, Collection<MobDrop>> mobDropMap;
-    private Map<BlockType, Collection<SBlockDrop>> blockDropMap;
+    private Map<BlockType, Collection<BlockDrop>> blockDropMap;
     private Map<String, ContainerInfo> containerInfoMap;
     private Map<VanillaContainerType, List<CustomContainerValues>> containerTypeMap;
 
-    public void setItemSet(SItemSet newItemSet) {
+    public void setItemSet(ItemSet newItemSet) {
         this.currentItemSet = newItemSet;
 
         this.initItemMap();
@@ -71,7 +71,7 @@ public class ItemSetWrapper {
                 this.blockDropMap.put(blockDrop.getBlockType(), new ArrayList<>());
             }
 
-            this.blockDropMap.get(blockDrop.getBlockType()).add(new SBlockDrop(blockDrop));
+            this.blockDropMap.get(blockDrop.getBlockType()).add(new BlockDrop(blockDrop));
         }
     }
 
@@ -94,7 +94,7 @@ public class ItemSetWrapper {
         }
     }
 
-    public SItemSet get() {
+    public ItemSet get() {
         return currentItemSet;
     }
 
@@ -165,7 +165,7 @@ public class ItemSetWrapper {
     }
 
     public BlockDropsView getBlockDrops(BlockType blockType) {
-        Collection<SBlockDrop> rawCollection = this.blockDropMap.get(blockType);
+        Collection<BlockDrop> rawCollection = this.blockDropMap.get(blockType);
         return new BlockDropsView(rawCollection == null ? Collections.emptyList() : rawCollection);
     }
 

@@ -3,7 +3,7 @@ package nl.knokko.customitems.recipe;
 import static org.junit.Assert.*;
 
 import nl.knokko.customitems.item.CIMaterial;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.result.DataVanillaResultValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
@@ -39,14 +39,14 @@ public class TestOutputTable {
 
 	@Test(expected = ValidationException.class)
 	public void testValidateEmpty() throws ValidationException, ProgrammingValidationException {
-		new OutputTableValues(false).validate(new SItemSet(SItemSet.Side.EDITOR));
+		new OutputTableValues(false).validate(new ItemSet(ItemSet.Side.EDITOR));
 	}
 
 	@Test(expected = ValidationException.class)
 	public void testValidateNegativeChance() throws ValidationException, ProgrammingValidationException {
 		OutputTableValues.createQuick(
 				OutputTableValues.Entry.createQuick(SIMPLE_RESULT, -10)
-		).validate(new SItemSet(SItemSet.Side.EDITOR));
+		).validate(new ItemSet(ItemSet.Side.EDITOR));
 	}
 
 	@Test(expected = ValidationException.class)
@@ -54,14 +54,14 @@ public class TestOutputTable {
 		OutputTableValues.createQuick(
 				OutputTableValues.Entry.createQuick(SIMPLE_RESULT, 80),
 				OutputTableValues.Entry.createQuick(SIMPLE_RESULT, 40)
-		).validate(new SItemSet(SItemSet.Side.EDITOR));
+		).validate(new ItemSet(ItemSet.Side.EDITOR));
 	}
 
 	@Test
 	public void testValidateNotFull() throws ValidationException, ProgrammingValidationException {
 		OutputTableValues.createQuick(
 				OutputTableValues.Entry.createQuick(SIMPLE_RESULT, 60)
-		).validate(new SItemSet(SItemSet.Side.EDITOR));
+		).validate(new ItemSet(ItemSet.Side.EDITOR));
 	}
 
 	@Test
@@ -69,7 +69,7 @@ public class TestOutputTable {
 		OutputTableValues.createQuick(
 				OutputTableValues.Entry.createQuick(SIMPLE_RESULT, 30),
 				OutputTableValues.Entry.createQuick(SIMPLE_RESULT, 70)
-		).validate(new SItemSet(SItemSet.Side.EDITOR));
+		).validate(new ItemSet(ItemSet.Side.EDITOR));
 	}
 
 	@Test

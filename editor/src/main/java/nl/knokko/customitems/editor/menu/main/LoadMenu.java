@@ -31,7 +31,7 @@ import nl.knokko.customitems.editor.EditorFileManager;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.IntegrityException;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.gui.color.GuiColor;
@@ -172,7 +172,7 @@ public class LoadMenu extends GuiMenu {
 					addComponent(new DynamicTextButton(displayName, EditProps.BUTTON, EditProps.HOVER, () -> {
 						try {
 							BitInput input = ByteArrayBitInput.fromFile(file);
-							SItemSet set = new SItemSet(input, SItemSet.Side.EDITOR);
+							ItemSet set = new ItemSet(input, ItemSet.Side.EDITOR);
 							input.terminate();
 							state.getWindow().setMainComponent(new EditMenu(set, finalSetName));
 						} catch(IOException ioex) {
@@ -211,7 +211,7 @@ public class LoadMenu extends GuiMenu {
 						try {
 							BitInput input = ByteArrayBitInput.fromFile(file);
 							String fileName = file.getName().substring(0, file.getName().length() - 5);
-							SItemSet set = new SItemSet(input, SItemSet.Side.EDITOR);
+							ItemSet set = new ItemSet(input, ItemSet.Side.EDITOR);
 							input.terminate();
 							state.getWindow().setMainComponent(new EditMenu(set, fileName));
 						} catch(IOException ioex) {

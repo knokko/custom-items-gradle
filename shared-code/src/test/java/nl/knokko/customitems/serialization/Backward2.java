@@ -1,7 +1,7 @@
 package nl.knokko.customitems.serialization;
 
 import nl.knokko.customitems.item.*;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import org.junit.Test;
 
 import static nl.knokko.customitems.serialization.Backward1.*;
@@ -12,14 +12,14 @@ public class Backward2 {
 
     @Test
     public void testBackwardCompatibility2() {
-        for (SItemSet set2 : BackwardHelper.loadItemSet("backward2")) {
+        for (ItemSet set2 : BackwardHelper.loadItemSet("backward2")) {
             testTextures1(set2, 2);
             testItems2(set2, 6);
             testRecipes1(set2, 2);
         }
     }
 
-    static void testItems2(SItemSet set, int numItems) {
+    static void testItems2(ItemSet set, int numItems) {
         testItems1(set, numItems);
 
         testSimpleDefault2((SimpleCustomItemValues) set.getItem("simple1").get());
@@ -31,7 +31,7 @@ public class Backward2 {
         testShovel1((CustomToolValues) set.getItem("shovel1").get(), set.getSide());
     }
 
-    private static void testSimpleItem2(CustomItemValues item, SItemSet.Side side) {
+    private static void testSimpleItem2(CustomItemValues item, ItemSet.Side side) {
         assertEquals("simple2", item.getName());
         assertEquals(CustomItemType.DIAMOND_HOE, item.getItemType());
         // Internal item damage is no longer relevant
@@ -48,14 +48,14 @@ public class Backward2 {
                         1.0
                 )
         ), item.getAttributeModifiers());
-        if (side == SItemSet.Side.EDITOR) {
+        if (side == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
         } else {
             assertNull(item.getTextureReference());
         }
     }
 
-    private static void testSword1(CustomToolValues item, SItemSet.Side side) {
+    private static void testSword1(CustomToolValues item, ItemSet.Side side) {
         assertEquals("sword1", item.getName());
         assertEquals(CustomItemType.STONE_SWORD, item.getItemType());
         // Internal item damage is no longer relevant
@@ -71,7 +71,7 @@ public class Backward2 {
                         3.0
                 )
         ), item.getAttributeModifiers());
-        if (side == SItemSet.Side.EDITOR) {
+        if (side == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
         } else {
             assertNull(item.getTextureReference());
@@ -80,7 +80,7 @@ public class Backward2 {
         assertEquals(53L, (long) item.getMaxDurabilityNew());
     }
 
-    private static void testPickaxe1(CustomToolValues item, SItemSet.Side side) {
+    private static void testPickaxe1(CustomToolValues item, ItemSet.Side side) {
         assertEquals("pickaxe1", item.getName());
         // It looks like a bug in Editor 2.0 somehow turned the type from GOLD to IRON conditionally...
         //assertEquals(CustomItemType.IRON_PICKAXE, item.getItemType());
@@ -89,7 +89,7 @@ public class Backward2 {
                 "A pickaxe... but made of gold!"
         ), item.getLore());
         assertEquals(0, item.getAttributeModifiers().size());
-        if (side == SItemSet.Side.EDITOR) {
+        if (side == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
         } else {
             assertNull(item.getTextureReference());
@@ -98,7 +98,7 @@ public class Backward2 {
         assertNull(item.getMaxDurabilityNew());
     }
 
-    private static void testAxe1(CustomToolValues item, SItemSet.Side side) {
+    private static void testAxe1(CustomToolValues item, ItemSet.Side side) {
         assertEquals("axe1", item.getName());
         assertEquals(CustomItemType.IRON_AXE, item.getItemType());
         assertEquals("Sharp Iron Axe", item.getDisplayName());
@@ -111,7 +111,7 @@ public class Backward2 {
                         7.0
                 )
         ), item.getAttributeModifiers());
-        if (side == SItemSet.Side.EDITOR) {
+        if (side == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
         } else {
             assertNull(item.getTextureReference());
@@ -120,13 +120,13 @@ public class Backward2 {
         assertEquals(500, (long) item.getMaxDurabilityNew());
     }
 
-    private static void testShovel1(CustomToolValues item, SItemSet.Side side) {
+    private static void testShovel1(CustomToolValues item, ItemSet.Side side) {
         assertEquals("shovel1", item.getName());
         assertEquals(CustomItemType.DIAMOND_SHOVEL, item.getItemType());
         assertEquals("Crystal Shovel", item.getDisplayName());
         assertEquals(0, item.getLore().size());
         assertEquals(0, item.getAttributeModifiers().size());
-        if (side == SItemSet.Side.EDITOR) {
+        if (side == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
         } else {
             assertNull(item.getTextureReference());

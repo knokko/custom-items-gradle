@@ -1,7 +1,7 @@
 package nl.knokko.customitems.drops;
 
 import nl.knokko.customitems.itemset.ItemReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.result.CustomItemResultValues;
@@ -18,13 +18,13 @@ import java.util.Collection;
 
 public class DropValues extends ModelValues {
 
-    public static DropValues load1(BitInput input, SItemSet itemSet, boolean mutable) throws UnknownEncodingException {
+    public static DropValues load1(BitInput input, ItemSet itemSet, boolean mutable) throws UnknownEncodingException {
         DropValues result = new DropValues(mutable);
         result.load1(input, itemSet);
         return result;
     }
 
-    public static DropValues load2(BitInput input, SItemSet itemSet, boolean mutable) throws UnknownEncodingException {
+    public static DropValues load2(BitInput input, ItemSet itemSet, boolean mutable) throws UnknownEncodingException {
         DropValues result = new DropValues(mutable);
         result.load2(input, itemSet);
         return result;
@@ -58,7 +58,7 @@ public class DropValues extends ModelValues {
         this.requiredHeldItems = toCopy.getRequiredHeldItems();
     }
 
-    private void load1(BitInput input, SItemSet itemSet) {
+    private void load1(BitInput input, ItemSet itemSet) {
         String itemName = input.readString();
         int minDropAmount = input.readInt();
         int maxDropAmount = input.readInt();
@@ -102,7 +102,7 @@ public class DropValues extends ModelValues {
         this.outputTable = mutableOutputTable.copy(false);
     }
 
-    private void load2(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load2(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         this.outputTable = OutputTableValues.load1(input, itemSet);
         this.cancelNormalDrops = input.readBoolean();
 
@@ -172,7 +172,7 @@ public class DropValues extends ModelValues {
         this.requiredHeldItems = new ArrayList<>(newRequiredHeldItems);
     }
 
-    public void validate(SItemSet itemSet) throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         if (outputTable == null) throw new ProgrammingValidationException("No output table");
         Validation.scope("Output table", () -> outputTable.validate(itemSet));
         if (requiredHeldItems == null) throw new ProgrammingValidationException("No required held items");

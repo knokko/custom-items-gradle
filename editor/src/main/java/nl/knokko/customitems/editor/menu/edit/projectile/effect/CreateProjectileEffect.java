@@ -4,7 +4,7 @@ import java.util.function.Consumer;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.projectile.effect.*;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -14,10 +14,10 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 public class CreateProjectileEffect extends GuiMenu {
 
 	private final Consumer<ProjectileEffectValues> addEffect;
-	private final SItemSet set;
+	private final ItemSet set;
 	private final GuiComponent returnMenu;
 
-	public CreateProjectileEffect(Consumer<ProjectileEffectValues> addEffect, SItemSet set, GuiComponent returnMenu) {
+	public CreateProjectileEffect(Consumer<ProjectileEffectValues> addEffect, ItemSet set, GuiComponent returnMenu) {
 		this.addEffect = addEffect;
 		this.set = set;
 		this.returnMenu = returnMenu;

@@ -3,7 +3,7 @@ package nl.knokko.customitems.recipe.result;
 import nl.knokko.customitems.encoding.RecipeEncoding;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.itemset.ItemReference;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -16,7 +16,7 @@ import java.util.List;
 
 public class CustomItemResultValues extends ResultValues {
 
-    static CustomItemResultValues load(BitInput input, byte encoding, SItemSet itemSet) throws UnknownEncodingException {
+    static CustomItemResultValues load(BitInput input, byte encoding, ItemSet itemSet) throws UnknownEncodingException {
         CustomItemResultValues result = new CustomItemResultValues(false);
 
         if (encoding == RecipeEncoding.Result.CUSTOM) {
@@ -72,7 +72,7 @@ public class CustomItemResultValues extends ResultValues {
         return amount + 237 * item.get().getName().hashCode();
     }
 
-    private void load1(BitInput input, SItemSet itemSet) {
+    private void load1(BitInput input, ItemSet itemSet) {
         this.amount = loadAmount(input);
         this.item = itemSet.getItemReference(input.readJavaString());
     }
@@ -135,7 +135,7 @@ public class CustomItemResultValues extends ResultValues {
     }
 
     @Override
-    public void validateComplete(SItemSet itemSet) throws ValidationException, ProgrammingValidationException {
+    public void validateComplete(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         validateIndependent();
 
         if (!itemSet.isReferenceValid(item)) throw new ProgrammingValidationException("The item is not or no longer valid");

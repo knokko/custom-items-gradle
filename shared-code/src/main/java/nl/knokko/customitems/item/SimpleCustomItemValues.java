@@ -1,7 +1,7 @@
 package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.encoding.ItemEncoding;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
@@ -11,7 +11,7 @@ import nl.knokko.customitems.bithelper.BitOutput;
 public class SimpleCustomItemValues extends CustomItemValues {
 
     public static SimpleCustomItemValues load(
-            BitInput input, byte encoding, SItemSet itemSet, boolean checkCustomModel
+            BitInput input, byte encoding, ItemSet itemSet, boolean checkCustomModel
     ) throws UnknownEncodingException {
         SimpleCustomItemValues simpleItem = new SimpleCustomItemValues(false);
 
@@ -40,7 +40,7 @@ public class SimpleCustomItemValues extends CustomItemValues {
             throw new UnknownEncodingException("SimpleCustomItemValues", encoding);
         }
 
-        if (itemSet.getSide() == SItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             simpleItem.loadEditorOnlyProperties1(input, itemSet, checkCustomModel);
         }
 
@@ -92,7 +92,7 @@ public class SimpleCustomItemValues extends CustomItemValues {
         loadRightClickProperties9(input);
     }
 
-    private void load10(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load10(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadIdentityProperties10(input);
         loadTextDisplayProperties1(input);
         loadVanillaBasedPowers4(input);
@@ -104,11 +104,11 @@ public class SimpleCustomItemValues extends CustomItemValues {
     }
 
     @Override
-    public void save(BitOutput output, SItemSet.Side side) {
+    public void save(BitOutput output, ItemSet.Side side) {
         output.addByte(ItemEncoding.ENCODING_SIMPLE_10);
         save10(output);
 
-        if (side == SItemSet.Side.EDITOR) {
+        if (side == ItemSet.Side.EDITOR) {
             saveEditorOnlyProperties1(output);
         }
     }

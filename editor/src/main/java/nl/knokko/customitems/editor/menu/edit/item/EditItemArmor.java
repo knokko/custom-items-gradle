@@ -29,7 +29,7 @@ import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.AttributeModifierValues;
 import nl.knokko.customitems.item.CustomArmorValues;
 import nl.knokko.customitems.item.CustomItemType;
-import nl.knokko.customitems.item.SDamageResistances;
+import nl.knokko.customitems.item.DamageResistanceValues;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.gui.component.WrapperComponent;
 import nl.knokko.gui.component.text.ConditionalTextButton;
@@ -146,7 +146,7 @@ public class EditItemArmor<V extends CustomArmorValues> extends EditItemTool<V> 
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new EditDamageResistances(currentValues.getDamageResistances(), () -> {
 				state.getWindow().setMainComponent(this);
-			}, (SDamageResistances newResistances) -> {
+			}, (DamageResistanceValues newResistances) -> {
 				state.getWindow().setMainComponent(this);
 				currentValues.setDamageResistances(newResistances);
 			}));

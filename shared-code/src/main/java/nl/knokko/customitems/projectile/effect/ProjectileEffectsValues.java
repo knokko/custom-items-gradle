@@ -1,6 +1,6 @@
 package nl.knokko.customitems.projectile.effect;
 
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -18,7 +18,7 @@ public class ProjectileEffectsValues extends ModelValues {
 
     private static final byte ENCODING_1 = 0;
 
-    public static ProjectileEffectsValues load(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    public static ProjectileEffectsValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
         ProjectileEffectsValues result = new ProjectileEffectsValues(false);
 
@@ -48,7 +48,7 @@ public class ProjectileEffectsValues extends ModelValues {
         this.effects = toCopy.getEffects();
     }
 
-    private void load1(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load1(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         this.delay = input.readInt();
         this.period = input.readInt();
         int numEffects = input.readByte() & 0xFF;
@@ -116,7 +116,7 @@ public class ProjectileEffectsValues extends ModelValues {
         this.effects = Mutability.createDeepCopy(effects, false);
     }
 
-    public void validate(SItemSet itemSet) throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         if (delay < 0) throw new ValidationException("Delay can't be negative");
         if (period <= 0) throw new ValidationException("Period must be positive");
         if (effects == null) throw new ProgrammingValidationException("No effects");

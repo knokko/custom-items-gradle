@@ -2,7 +2,7 @@ package nl.knokko.customitems.drops;
 
 import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.encoding.DropEncoding;
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
@@ -12,9 +12,12 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 
+/**
+ * Represents a (potential) custom drop of a vanilla block.
+ */
 public class BlockDropValues extends ModelValues {
 
-    public static BlockDropValues load(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    public static BlockDropValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
         BlockDropValues result = new BlockDropValues(false);
 
@@ -56,13 +59,13 @@ public class BlockDropValues extends ModelValues {
         this.drop = toCopy.getDrop();
     }
 
-    private void load1(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load1(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         this.blockType = BlockType.getByOrdinal(input.readInt());
         this.allowSilkTouch = false;
         this.drop = DropValues.load1(input, itemSet, false);
     }
 
-    private void load2(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load2(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         this.blockType = BlockType.getByOrdinal(input.readInt());
         this.allowSilkTouch = input.readBoolean();
         this.drop = DropValues.load2(input, itemSet, false);
@@ -121,7 +124,7 @@ public class BlockDropValues extends ModelValues {
         this.drop = newDrop.copy(false);
     }
 
-    public void validate(SItemSet itemSet) throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         if (blockType == null) throw new ProgrammingValidationException("No block type");
         if (drop == null) throw new ProgrammingValidationException("No drop");
         Validation.scope("Drop", () -> drop.validate(itemSet));

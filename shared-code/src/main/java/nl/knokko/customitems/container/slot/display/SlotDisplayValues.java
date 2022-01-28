@@ -1,6 +1,6 @@
 package nl.knokko.customitems.container.slot.display;
 
-import nl.knokko.customitems.itemset.SItemSet;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
@@ -19,7 +19,7 @@ public class SlotDisplayValues extends ModelValues {
         static final byte ENCODING1 = 1;
     }
 
-    public static SlotDisplayValues load(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    public static SlotDisplayValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         SlotDisplayValues result = new SlotDisplayValues(false);
         byte encoding = input.readByte();
 
@@ -65,7 +65,7 @@ public class SlotDisplayValues extends ModelValues {
         this.amount = toCopy.getAmount();
     }
 
-    private void load1(BitInput input, SItemSet itemSet) throws UnknownEncodingException {
+    private void load1(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         this.displayName = input.readString();
         int numLoreLines = input.readInt();
         this.lore = new ArrayList<>(numLoreLines);
@@ -141,7 +141,7 @@ public class SlotDisplayValues extends ModelValues {
         this.amount = amount;
     }
 
-    public void validate(SItemSet itemSet) throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         if (displayItem == null) throw new ProgrammingValidationException("No display item");
         Validation.scope("Display item", () -> displayItem.validate(itemSet));
         if (displayName == null) throw new ProgrammingValidationException("No display name");
