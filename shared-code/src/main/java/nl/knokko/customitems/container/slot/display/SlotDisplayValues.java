@@ -99,6 +99,15 @@ public class SlotDisplayValues extends ModelValues {
     }
 
     @Override
+    public String toString() {
+        if (this.displayName.isEmpty()) {
+            return this.displayItem + " x " + amount;
+        } else {
+            return this.displayName + " x " + amount;
+        }
+    }
+
+    @Override
     public SlotDisplayValues copy(boolean mutable) {
         return new SlotDisplayValues(this, mutable);
     }

@@ -62,6 +62,11 @@ public class CustomDisplayItemValues extends SlotDisplayItemValues {
     }
 
     @Override
+    public String toString() {
+        return this.customItem.get().getName();
+    }
+
+    @Override
     public CustomDisplayItemValues copy(boolean mutable) {
         return new CustomDisplayItemValues(this, mutable);
     }

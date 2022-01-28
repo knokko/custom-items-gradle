@@ -1,6 +1,7 @@
 package nl.knokko.customitems.container.slot.display;
 
 import nl.knokko.customitems.MCVersions;
+import nl.knokko.customitems.NameHelper;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -66,6 +67,11 @@ public class DataVanillaDisplayItemValues extends SlotDisplayItemValues {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public String toString() {
+        return NameHelper.getNiceEnumName(this.material.name()) + "[" + this.dataValue + "]";
     }
 
     @Override

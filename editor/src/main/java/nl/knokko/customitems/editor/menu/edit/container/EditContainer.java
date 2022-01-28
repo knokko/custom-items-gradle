@@ -68,7 +68,7 @@ public class EditContainer extends GuiMenu {
 			);
 		}
 		addComponent(
-				new DynamicTextComponent("Selection icon:", LABEL),
+				new DynamicTextComponent("Selection icon: ", LABEL),
 				0.01f, 0.525f, 0.16f, 0.575f
 		);
 		DynamicTextComponent selectionIconInfo = new DynamicTextComponent(
