@@ -9,6 +9,7 @@ import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.collection.SelfDedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
+import nl.knokko.customitems.editor.util.StringLength;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.result.CustomItemResultValues;
@@ -58,12 +59,7 @@ public class ContainerRecipeCollectionEdit extends SelfDedicatedCollectionEdit<C
 
 		// Don't make it too long; that will get unreadable
 		int maxLength = 30;
-		String asString = result.toString();
-		if (asString.length() < maxLength) {
-			return asString;
-		} else {
-			return asString.substring(0, maxLength);
-		}
+		return StringLength.fixLength(result.toString(), 30);
 	}
 
 	@Override

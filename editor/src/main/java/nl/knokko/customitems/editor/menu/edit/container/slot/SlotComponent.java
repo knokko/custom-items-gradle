@@ -10,6 +10,7 @@ import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.slot.*;
 import nl.knokko.customitems.container.slot.display.SlotDisplayValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
+import nl.knokko.customitems.editor.util.StringLength;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.SimpleGuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -93,13 +94,9 @@ public class SlotComponent implements GuiComponent {
 		}
 		
 		int maxLength = 15;
-		if (topText.length() > maxLength) {
-			topText = topText.substring(0, maxLength);
-		}
-		if (bottomText.length() > maxLength) {
-			bottomText = bottomText.substring(0, maxLength);
-		}
-		
+		topText = StringLength.fixLength(topText, maxLength);
+		bottomText = StringLength.fixLength(bottomText, maxLength);
+
 		BufferedImage topTextImage = TextBuilder.createTexture(topText, EditProps.LABEL);
 		BufferedImage bottomTextImage = TextBuilder.createTexture(bottomText, EditProps.LABEL);
 		topTextTexture = state.getWindow().getTextureLoader().loadTexture(topTextImage);

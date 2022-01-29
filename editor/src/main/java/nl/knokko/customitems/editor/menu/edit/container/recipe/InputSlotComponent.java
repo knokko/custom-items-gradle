@@ -3,6 +3,7 @@ package nl.knokko.customitems.editor.menu.edit.container.recipe;
 import nl.knokko.customitems.container.ContainerRecipeValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.ChooseIngredient;
+import nl.knokko.customitems.editor.util.StringLength;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
@@ -57,13 +58,7 @@ public class InputSlotComponent implements GuiComponent {
 		}
 		
 		// Update text
-		String bottomText = newIngredient == null ? "" : newIngredient.toString("");
-		
-		int maxLength = 18;
-		if (bottomText.length() > maxLength) {
-			bottomText = bottomText.substring(0, maxLength);
-		}
-		
+		String bottomText = newIngredient == null ? "" : StringLength.fixLength(newIngredient.toString(""), 18);
 		this.bottomTextTexture = state.getWindow().getTextureLoader().loadTexture(
 				TextBuilder.createTexture(bottomText, EditProps.LABEL)
 		);
