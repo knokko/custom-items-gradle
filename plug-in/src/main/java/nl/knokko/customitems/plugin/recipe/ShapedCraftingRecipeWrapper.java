@@ -65,7 +65,7 @@ public class ShapedCraftingRecipeWrapper implements CraftingRecipeWrapper {
 				int x = index % 3;
 				int y = index / 3;
 				if (shouldIngredientAcceptItemStack(this.recipe.getIngredientAt(x, y), ingredients[index])) {
-					if (this.recipe.getIngredientAt(x, y).getAmount() > 0) {
+					if (!(this.recipe.getIngredientAt(x, y) instanceof NoIngredientValues)) {
 						result.add(new IngredientEntry(this.recipe.getIngredientAt(x, y), index));
 					}
 				} else {
