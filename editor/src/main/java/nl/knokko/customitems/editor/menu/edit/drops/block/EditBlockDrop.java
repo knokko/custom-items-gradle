@@ -7,6 +7,7 @@ import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.menu.edit.drops.SelectDrop;
 import nl.knokko.customitems.editor.util.HelpButtons;
+import nl.knokko.customitems.editor.util.StringLength;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.BlockDropReference;
 import nl.knokko.customitems.itemset.ItemSet;
@@ -69,7 +70,7 @@ public class EditBlockDrop extends GuiMenu {
 			currentValues.setDrop(newDrop);
 			pSelectDrop[0].setText(newDrop.toString());
 		});
-		pSelectDrop[0] = new DynamicTextButton(currentValues.getDrop().toString(), CHOOSE_BASE, CHOOSE_HOVER, () -> {
+		pSelectDrop[0] = new DynamicTextButton(StringLength.fixLength(currentValues.getDrop().toString(), 60), CHOOSE_BASE, CHOOSE_HOVER, () -> {
 			state.getWindow().setMainComponent(dropSelect);
 		});
 		addComponent(pSelectDrop[0], 0.5f, 0.4f, 0.8f, 0.5f);
