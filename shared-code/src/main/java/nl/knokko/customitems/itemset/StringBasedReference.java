@@ -42,6 +42,12 @@ abstract class StringBasedReference<M extends Model<V>, V extends ModelValues> i
     }
 
     @Override
+    public String toString() {
+        if (this.name == null) return this.extractIdentity(this.model.getValues());
+        else return this.name;
+    }
+
+    @Override
     public int hashCode() {
         if (model != null) return extractIdentity(model.getValues()).hashCode();
         return name.hashCode();

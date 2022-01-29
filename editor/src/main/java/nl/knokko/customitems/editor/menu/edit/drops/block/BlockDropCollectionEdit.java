@@ -35,7 +35,9 @@ public class BlockDropCollectionEdit extends DedicatedCollectionEdit<BlockDropVa
 
 	@Override
 	protected String getModelLabel(BlockDropValues model) {
-		return model.getDrop().toString() + " for " + model.getBlockType();
+		String fullLabel = model.getDrop().toString() + " for " + model.getBlockType();
+		if (fullLabel.length() <= 50) return fullLabel;
+		else return fullLabel.substring(0, 47) + "...";
 	}
 
 	@Override

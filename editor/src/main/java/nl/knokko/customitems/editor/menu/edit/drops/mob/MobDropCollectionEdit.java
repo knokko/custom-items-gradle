@@ -34,11 +34,12 @@ public class MobDropCollectionEdit extends DedicatedCollectionEdit<MobDropValues
 
 	@Override
 	protected String getModelLabel(MobDropValues model) {
-		if (model.getRequiredName() == null) {
-			return model.getDrop() + " for " + model.getEntityType();
-		} else {
-			return model.getDrop() + " for " + model.getRequiredName();
-		}
+		String fullLabel;
+		if (model.getRequiredName() == null) fullLabel = model.getDrop() + " for " + model.getEntityType();
+		else fullLabel = model.getDrop() + " for " + model.getRequiredName();
+
+		if (fullLabel.length() <= 50) return fullLabel;
+		else return fullLabel.substring(0, 47) + "...";
 	}
 
 	@Override
