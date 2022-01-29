@@ -7,6 +7,7 @@ import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
+import nl.knokko.customitems.editor.util.StringLength;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.BlockDropReference;
 import nl.knokko.customitems.recipe.OutputTableValues;
@@ -36,8 +37,7 @@ public class BlockDropCollectionEdit extends DedicatedCollectionEdit<BlockDropVa
 	@Override
 	protected String getModelLabel(BlockDropValues model) {
 		String fullLabel = model.getDrop().toString() + " for " + model.getBlockType();
-		if (fullLabel.length() <= 50) return fullLabel;
-		else return fullLabel.substring(0, 47) + "...";
+		return StringLength.fixLength(fullLabel, 50);
 	}
 
 	@Override

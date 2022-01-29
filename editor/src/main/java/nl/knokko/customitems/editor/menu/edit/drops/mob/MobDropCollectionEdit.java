@@ -6,6 +6,7 @@ import nl.knokko.customitems.drops.MobDropValues;
 import nl.knokko.customitems.editor.menu.edit.*;
 import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
+import nl.knokko.customitems.editor.util.StringLength;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.MobDropReference;
 import nl.knokko.customitems.recipe.OutputTableValues;
@@ -37,9 +38,7 @@ public class MobDropCollectionEdit extends DedicatedCollectionEdit<MobDropValues
 		String fullLabel;
 		if (model.getRequiredName() == null) fullLabel = model.getDrop() + " for " + model.getEntityType();
 		else fullLabel = model.getDrop() + " for " + model.getRequiredName();
-
-		if (fullLabel.length() <= 50) return fullLabel;
-		else return fullLabel.substring(0, 47) + "...";
+		return StringLength.fixLength(fullLabel, 50);
 	}
 
 	@Override
