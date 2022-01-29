@@ -87,7 +87,9 @@ public class EditMobDrop extends GuiMenu {
 				0.3f, 0.3f, 0.55f, 0.4f
 		);
 		addComponent(
-				new WrapperComponent<EagerTextEditField>(new EagerTextEditField(currentValues.getRequiredName(), EDIT_BASE, EDIT_ACTIVE, currentValues::setRequiredName)) {
+				new WrapperComponent<EagerTextEditField>(new EagerTextEditField(
+						currentValues.getRequiredName() == null ? "" : currentValues.getRequiredName(), EDIT_BASE, EDIT_ACTIVE, currentValues::setRequiredName
+				)) {
 					@Override
 					public boolean isActive() {
 						return requiresName.isChecked();
