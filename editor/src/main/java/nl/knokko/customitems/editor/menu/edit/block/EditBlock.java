@@ -28,9 +28,9 @@ public class EditBlock extends GuiMenu  {
     private final GuiComponent returnMenu;
     private final ItemSet set;
 
-    public EditBlock(BlockReference blockToModify, CustomBlockValues valuesToModify, GuiComponent returnMenu, ItemSet set) {
+    public EditBlock(BlockReference blockToModify, CustomBlockValues oldValues, GuiComponent returnMenu, ItemSet set) {
         this.toModify = blockToModify;
-        this.currentValues = valuesToModify;
+        this.currentValues = oldValues.copy(true);
         this.returnMenu = returnMenu;
         this.set = set;
     }
