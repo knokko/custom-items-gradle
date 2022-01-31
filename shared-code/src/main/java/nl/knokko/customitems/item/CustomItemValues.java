@@ -18,6 +18,7 @@ import nl.knokko.customitems.bithelper.ByteArrayBitInput;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static nl.knokko.customitems.encoding.ItemEncoding.*;
 import static nl.knokko.customitems.util.Checks.isClose;
@@ -683,7 +684,7 @@ public abstract class CustomItemValues extends ModelValues {
     public void setLore(List<String> newLore) {
         assertMutable();
         Checks.nonNull(newLore);
-        this.lore = new ArrayList<>(newLore);
+        this.lore = newLore.stream().map(newLine -> newLine.replace('&', (char) 167)).collect(Collectors.toList());
     }
 
     public void setItemFlags(List<Boolean> newItemFlags) {
