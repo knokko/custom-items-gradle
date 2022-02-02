@@ -2930,6 +2930,7 @@ public class CustomItemsEventHandler implements Listener {
 							if (customItem.getMaxStacksize() - currentStack.getAmount() >= craftingContents[craftingIndex].getAmount()) {
 								currentStack.setAmount(currentStack.getAmount() + craftingContents[craftingIndex].getAmount());
 								craftingContents[craftingIndex] = null;
+								break;
 							}
 						}
 					}
