@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static nl.knokko.customitems.encoding.ItemEncoding.*;
 import static nl.knokko.customitems.util.Checks.isClose;
@@ -674,17 +675,34 @@ public abstract class CustomItemValues extends ModelValues {
         this.alias = newAlias;
     }
 
+    private String transformToColorCodes(String original) {
+        int[] codePoints = original.codePoints().toArray();
+        for (int index = 0; index < codePoints.length - 1; index++) {
+
+            // I will consider every occurrence of &x a color code if and only if x is a letter or digit
+            if (codePoints[index] == '&') {
+                int nextChar = codePoints[index + 1];
+                if ((nextChar >= '0' && nextChar <= '9') || (nextChar >= 'a' && nextChar <= 'z')) {
+                    // 167 is the code for the color code character
+                    codePoints[index] = 167;
+                }
+            }
+        }
+        return IntStream.of(codePoints).collect(
+                StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append
+        ).toString();
+    }
+
     public void setDisplayName(String newDisplayName) {
         assertMutable();
         Checks.notNull(newDisplayName);
-        // 167 is the code for the color code character
-        this.displayName = newDisplayName.replace('&', (char) 167);
+        this.displayName = transformToColorCodes(newDisplayName);
     }
 
     public void setLore(List<String> newLore) {
         assertMutable();
         Checks.nonNull(newLore);
-        this.lore = newLore.stream().map(newLine -> newLine.replace('&', (char) 167)).collect(Collectors.toList());
+        this.lore = newLore.stream().map(this::transformToColorCodes).collect(Collectors.toList());
     }
 
     public void setItemFlags(List<Boolean> newItemFlags) {
