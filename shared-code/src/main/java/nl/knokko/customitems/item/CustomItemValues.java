@@ -127,7 +127,7 @@ public abstract class CustomItemValues extends ModelValues {
     protected Collection<EquippedPotionEffectValues> equippedEffects;
 
     // Right-click properties
-    protected List<String> commands;
+    protected List<String> legacyCommands;
     protected ReplacementConditionValues.ConditionOperation conditionOp;
     protected List<ReplacementConditionValues> replaceConditions;
 
@@ -162,7 +162,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.targetEffects = new ArrayList<>(0);
         this.equippedEffects = new ArrayList<>(0);
 
-        this.commands = new ArrayList<>(0);
+        this.legacyCommands = new ArrayList<>(0);
         this.conditionOp = ReplacementConditionValues.ConditionOperation.NONE;
         this.replaceConditions = new ArrayList<>(0);
 
@@ -188,7 +188,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.playerEffects = source.getOnHitPlayerEffects();
         this.targetEffects = source.getOnHitTargetEffects();
         this.equippedEffects = source.getEquippedEffects();
-        this.commands = source.getCommands();
+        this.legacyCommands = source.getLegacyCommands();
         this.replaceConditions = source.getReplacementConditions();
         this.conditionOp = source.getConditionOp();
         this.extraItemNbt = source.getExtraNbt();
@@ -209,7 +209,7 @@ public abstract class CustomItemValues extends ModelValues {
                 && this.itemFlags.equals(other.itemFlags) && this.attributeModifiers.equals(other.attributeModifiers)
                 && this.defaultEnchantments.equals(other.defaultEnchantments) && this.playerEffects.equals(other.playerEffects)
                 && this.targetEffects.equals(other.targetEffects) && this.equippedEffects.equals(other.equippedEffects)
-                && this.commands.equals(other.commands) && this.replaceConditions.equals(other.replaceConditions)
+                && this.legacyCommands.equals(other.legacyCommands) && this.replaceConditions.equals(other.replaceConditions)
                 && this.conditionOp == other.conditionOp && this.extraItemNbt.equals(other.extraItemNbt)
                 && isClose(this.attackRange, other.attackRange);
     }
@@ -448,15 +448,15 @@ public abstract class CustomItemValues extends ModelValues {
 
     protected void loadCommands9(BitInput input) {
         int numCommands = input.readByte() & 0xFF;
-        this.commands = new ArrayList<>(numCommands);
+        this.legacyCommands = new ArrayList<>(numCommands);
         for (int counter = 0; counter < numCommands; counter++) {
-            this.commands.add(input.readJavaString());
+            this.legacyCommands.add(input.readJavaString());
         }
     }
 
     protected void saveCommands9(BitOutput output) {
-        output.addByte((byte) commands.size());
-        for (String command : commands) {
+        output.addByte((byte) legacyCommands.size());
+        for (String command : legacyCommands) {
             output.addJavaString(command);
         }
     }
@@ -559,7 +559,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.playerEffects = new ArrayList<>(0);
         this.targetEffects = new ArrayList<>(0);
 
-        this.commands = new ArrayList<>(0);
+        this.legacyCommands = new ArrayList<>(0);
     }
 
     protected void initBaseDefaults7() {
@@ -658,8 +658,8 @@ public abstract class CustomItemValues extends ModelValues {
         return new ArrayList<>(equippedEffects);
     }
 
-    public List<String> getCommands() {
-        return new ArrayList<>(commands);
+    public List<String> getLegacyCommands() {
+        return new ArrayList<>(legacyCommands);
     }
 
     public List<ReplacementConditionValues> getReplacementConditions() {
@@ -791,10 +791,10 @@ public abstract class CustomItemValues extends ModelValues {
         this.equippedEffects = Mutability.createDeepCopy(equippedEffects, false);
     }
 
-    public void setCommands(List<String> newCommands) {
+    public void setLegacyCommands(List<String> newCommands) {
         assertMutable();
         Checks.nonNull(newCommands);
-        this.commands = new ArrayList<>(newCommands);
+        this.legacyCommands = new ArrayList<>(newCommands);
     }
 
     public void setConditionOp(ReplacementConditionValues.ConditionOperation newConditionOp) {
@@ -886,9 +886,9 @@ public abstract class CustomItemValues extends ModelValues {
             Validation.scope("Equipped effect", effect::validate);
         }
 
-        if (commands == null) throw new ProgrammingValidationException("No commands");
-        if (commands.size() > Byte.MAX_VALUE) throw new ValidationException("Too many commands");
-        for (String command : commands) {
+        if (legacyCommands == null) throw new ProgrammingValidationException("No commands");
+        if (legacyCommands.size() > Byte.MAX_VALUE) throw new ValidationException("Too many commands");
+        for (String command : legacyCommands) {
             if (command == null) throw new ProgrammingValidationException("Missing a command");
         }
 

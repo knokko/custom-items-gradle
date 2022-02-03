@@ -161,7 +161,7 @@ public class Backward9 {
         ), item.getOnHitTargetEffects());
         assertEquals(listOf(
                 "kill @a"
-        ), item.getCommands());
+        ), item.getLegacyCommands());
         assertEquals(ReplacementConditionValues.ConditionOperation.NONE, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -218,7 +218,7 @@ public class Backward9 {
         ), item.getOnHitTargetEffects());
         assertEquals(listOf(
                 "effect @p night_vision 5"
-        ), item.getCommands());
+        ), item.getLegacyCommands());
         assertEquals(ReplacementConditionValues.ConditionOperation.OR, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -371,7 +371,7 @@ public class Backward9 {
         ), item.getOnHitTargetEffects());
         assertEquals(listOf(
                 "summon arrow"
-        ), item.getCommands());
+        ), item.getLegacyCommands());
         assertEquals(ReplacementConditionValues.ConditionOperation.OR, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -436,7 +436,7 @@ public class Backward9 {
         ), item.getOnHitTargetEffects());
         assertEquals(listOf(
                 "setblock ~ ~ ~ stone"
-        ), item.getCommands());
+        ), item.getLegacyCommands());
         assertEquals(ReplacementConditionValues.ConditionOperation.NONE, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -497,7 +497,7 @@ public class Backward9 {
         ), item.getOnHitTargetEffects());
         assertEquals(listOf(
                 "effect @p clear"
-        ), item.getCommands());
+        ), item.getLegacyCommands());
         assertEquals(ReplacementConditionValues.ConditionOperation.AND, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(

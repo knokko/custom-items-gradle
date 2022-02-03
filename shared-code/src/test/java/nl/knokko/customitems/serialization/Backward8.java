@@ -93,7 +93,7 @@ public class Backward8 {
         assertNull(item.getCustomModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
-        assertEquals(0, item.getCommands().size());
+        assertEquals(0, item.getLegacyCommands().size());
         assertEquals(ReplacementConditionValues.ConditionOperation.NONE, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -288,7 +288,7 @@ public class Backward8 {
         assertNull(item.getCustomModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
-        assertEquals(0, item.getCommands().size());
+        assertEquals(0, item.getLegacyCommands().size());
         assertEquals(ReplacementConditionValues.ConditionOperation.AND, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -334,7 +334,7 @@ public class Backward8 {
         assertNull(item.getCustomModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
-        assertEquals(0, item.getCommands().size());
+        assertEquals(0, item.getLegacyCommands().size());
         assertEquals(ReplacementConditionValues.ConditionOperation.NONE, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -374,7 +374,7 @@ public class Backward8 {
         assertNull(item.getCustomModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
-        assertEquals(0, item.getCommands().size());
+        assertEquals(0, item.getLegacyCommands().size());
         assertEquals(ReplacementConditionValues.ConditionOperation.OR, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -419,7 +419,7 @@ public class Backward8 {
         assertNull(item.getCustomModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
-        assertEquals(0, item.getCommands().size());
+        assertEquals(0, item.getLegacyCommands().size());
         assertEquals(ReplacementConditionValues.ConditionOperation.NONE, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -465,7 +465,7 @@ public class Backward8 {
         assertNull(item.getCustomModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
-        assertEquals(0, item.getCommands().size());
+        assertEquals(0, item.getLegacyCommands().size());
         assertEquals(ReplacementConditionValues.ConditionOperation.NONE, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -530,7 +530,7 @@ public class Backward8 {
         ), item.getOnHitTargetEffects());
         assertEquals(listOf(
                 "summon sheep"
-        ), item.getCommands());
+        ), item.getLegacyCommands());
         assertEquals(ReplacementConditionValues.ConditionOperation.NONE, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -586,7 +586,7 @@ public class Backward8 {
         assertEquals(listOf(
                 PotionEffectValues.createQuick(EffectType.WITHER, 100, 2)
         ), item.getOnHitTargetEffects());
-        assertEquals(0, item.getCommands().size());
+        assertEquals(0, item.getLegacyCommands().size());
         assertEquals(ReplacementConditionValues.ConditionOperation.NONE, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -636,7 +636,7 @@ public class Backward8 {
         assertNull(item.getCustomModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
-        assertEquals(0, item.getCommands().size());
+        assertEquals(0, item.getLegacyCommands().size());
         assertEquals(ReplacementConditionValues.ConditionOperation.NONE, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -689,7 +689,7 @@ public class Backward8 {
         assertNull(item.getCustomModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
-        assertEquals(0, item.getCommands().size());
+        assertEquals(0, item.getLegacyCommands().size());
         assertEquals(ReplacementConditionValues.ConditionOperation.AND, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(

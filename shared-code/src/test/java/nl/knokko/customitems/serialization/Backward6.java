@@ -99,7 +99,7 @@ public class Backward6 {
         assertEquals(listOf(
                 PotionEffectValues.createQuick(EffectType.SLOW, 40, 3)
         ), trident1.getOnHitTargetEffects());
-        assertEquals(0, trident1.getCommands().size());
+        assertEquals(0, trident1.getLegacyCommands().size());
         assertNull(trident1.getCustomThrowingModel());
         assertFalse(trident1.allowEnchanting());
         assertFalse(trident1.allowAnvilActions());
@@ -308,7 +308,7 @@ public class Backward6 {
         ), item.getOnHitTargetEffects());
         assertEquals(listOf(
                 "summon bat"
-        ), item.getCommands());
+        ), item.getLegacyCommands());
         assertFalse(item.allowEnchanting());
         assertTrue(item.allowAnvilActions());
         assertEquals(234, (long) item.getMaxDurabilityNew());
@@ -341,7 +341,7 @@ public class Backward6 {
                 PotionEffectValues.createQuick(EffectType.REGENERATION, 100, 1)
         ), item.getOnHitPlayerEffects());
         assertEquals(0, item.getOnHitTargetEffects().size());
-        assertEquals(0, item.getCommands().size());
+        assertEquals(0, item.getLegacyCommands().size());
         assertEquals("crazy1", item.getProjectile().getName());
         assertEquals(2, item.getCharges().getMaxCharges());
         assertEquals(30, item.getCharges().getRechargeTime());
@@ -353,7 +353,7 @@ public class Backward6 {
         assertNull(item.getCustomModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
-        assertEquals(0, item.getCommands().size());
+        assertEquals(0, item.getLegacyCommands().size());
 
         Backward7.testBaseDefault7(item);
     }

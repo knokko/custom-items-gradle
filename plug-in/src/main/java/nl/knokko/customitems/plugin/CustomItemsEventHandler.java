@@ -346,7 +346,7 @@ public class CustomItemsEventHandler implements Listener {
 			CustomItemValues custom = itemSet.getItem(item);
 			if (custom != null) {
 				Player player = event.getPlayer();
-				List<String> commands = custom.getCommands();
+				List<String> commands = custom.getLegacyCommands();
 				for (String command : commands) {
 					player.performCommand(command);
 				}
