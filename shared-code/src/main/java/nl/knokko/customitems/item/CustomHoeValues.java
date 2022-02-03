@@ -24,6 +24,9 @@ public class CustomHoeValues extends CustomToolValues {
         } else if (encoding == ItemEncoding.ENCODING_HOE_10) {
             result.load10(input, itemSet);
             result.initDefaults10();
+        } else if (encoding == ItemEncoding.ENCODING_HOE_12) {
+            result.loadHoePropertiesNew(input, itemSet);
+            return result;
         } else {
             throw new UnknownEncodingException("CustomHoe", encoding);
         }
@@ -49,6 +52,23 @@ public class CustomHoeValues extends CustomToolValues {
 
     public CustomHoeValues(CustomHoeValues toCopy, boolean mutable) {
         this(toCopy, toCopy.getTillDurabilityLoss(), mutable);
+    }
+
+    protected void loadHoePropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        this.loadToolPropertiesNew(input, itemSet);
+
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("CustomHoeNew", encoding);
+
+        this.tillDurabilityLoss = input.readInt();
+    }
+
+    protected void saveHoePropertiesNew(BitOutput output, ItemSet.Side targetSide) {
+        this.saveToolPropertiesNew(output, targetSide);
+
+        output.addByte((byte) 1);
+
+        output.addInt(this.tillDurabilityLoss);
     }
 
     private void load6(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
@@ -77,25 +97,8 @@ public class CustomHoeValues extends CustomToolValues {
 
     @Override
     public void save(BitOutput output, ItemSet.Side side) {
-        output.addByte(ItemEncoding.ENCODING_HOE_10);
-        save10(output);
-
-        if (side == ItemSet.Side.EDITOR) {
-            saveEditorOnlyProperties1(output);
-        }
-    }
-
-    private void save10(BitOutput output) {
-        saveIdentityProperties10(output);
-        saveTextDisplayProperties1(output);
-        saveVanillaBasedPowers4(output);
-        saveToolOnlyPropertiesA4(output);
-        saveItemFlags6(output);
-        saveToolOnlyPropertiesB6(output);
-        output.addInt(tillDurabilityLoss);
-        savePotionProperties10(output);
-        saveRightClickProperties10(output);
-        saveExtraProperties10(output);
+        output.addByte(ItemEncoding.ENCODING_HOE_12);
+        this.saveHoePropertiesNew(output, side);
     }
 
     private void initDefaults6() {

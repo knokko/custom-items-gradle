@@ -24,6 +24,9 @@ public class CustomShearsValues extends CustomToolValues {
         } else if (encoding == ItemEncoding.ENCODING_SHEAR_10) {
             result.load10(input, itemSet);
             result.initDefaults10();
+        } else if (encoding == ItemEncoding.ENCODING_SHEARS_12) {
+            result.loadShearsPropertiesNew(input, itemSet);
+            return result;
         } else {
             throw new UnknownEncodingException("CustomShears", encoding);
         }
@@ -49,6 +52,23 @@ public class CustomShearsValues extends CustomToolValues {
 
     public CustomShearsValues(CustomShearsValues toCopy, boolean mutable) {
         this(toCopy, toCopy.getShearDurabilityLoss(), mutable);
+    }
+
+    protected void loadShearsPropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        this.loadToolPropertiesNew(input, itemSet);
+
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("CustomShearsNew", encoding);
+
+        this.shearDurabilityLoss = input.readInt();
+    }
+
+    protected void saveShearsPropertiesNew(BitOutput output, ItemSet.Side targetSide) {
+        this.saveToolPropertiesNew(output, targetSide);
+
+        output.addByte((byte) 1);
+
+        output.addInt(this.shearDurabilityLoss);
     }
 
     private void load6(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
@@ -97,31 +117,8 @@ public class CustomShearsValues extends CustomToolValues {
 
     @Override
     public void save(BitOutput output, ItemSet.Side side) {
-        output.addByte(ItemEncoding.ENCODING_SHEAR_10);
-        save10(output);
-
-        if (side == ItemSet.Side.EDITOR) {
-            saveEditorOnlyProperties1(output);
-        }
-    }
-
-    private void saveShearsIdentityProperties10(BitOutput output) {
-        output.addShort(itemDamage);
-        output.addJavaString(name);
-        output.addString(alias);
-    }
-
-    private void save10(BitOutput output) {
-        saveShearsIdentityProperties10(output);
-        saveTextDisplayProperties1(output);
-        saveVanillaBasedPowers4(output);
-        saveToolOnlyPropertiesA4(output);
-        saveItemFlags6(output);
-        saveToolOnlyPropertiesB6(output);
-        output.addInt(shearDurabilityLoss);
-        savePotionProperties10(output);
-        saveRightClickProperties10(output);
-        saveExtraProperties10(output);
+        output.addByte(ItemEncoding.ENCODING_SHEARS_12);
+        saveShearsPropertiesNew(output, side);
     }
 
     private void initDefaults6() {

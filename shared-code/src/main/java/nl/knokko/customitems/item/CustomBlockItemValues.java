@@ -21,6 +21,9 @@ public class CustomBlockItemValues extends CustomItemValues {
         if (encoding == ItemEncoding.ENCODING_BLOCK_ITEM_10) {
             result.load10(input, itemSet);
             result.initDefaults10();
+        } else if (encoding == ItemEncoding.ENCODING_BLOCK_ITEM_12) {
+            result.loadBlockItemPropertiesNew(input, itemSet);
+            return result;
         } else {
             throw new UnknownEncodingException("CustomBlockItem", encoding);
         }
@@ -49,6 +52,25 @@ public class CustomBlockItemValues extends CustomItemValues {
         this.block = source.getBlockReference();
     }
 
+    protected void loadBlockItemPropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        this.loadSharedPropertiesNew(input, itemSet);
+
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("BlockItemNew", encoding);
+
+        this.maxStacksize = input.readByte();
+        this.block = itemSet.getBlockReference(input.readInt());
+    }
+
+    protected void saveBlockItemPropertiesNew(BitOutput output, ItemSet.Side targetSide) {
+        this.saveSharedPropertiesNew(output, targetSide);
+
+        output.addByte((byte) 1);
+
+        output.addByte(this.maxStacksize);
+        output.addInt(this.block.get().getInternalID());
+    }
+
     private void load10(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadBase10(input, itemSet);
         loadBlockOnlyProperties10(input, itemSet);
@@ -70,22 +92,8 @@ public class CustomBlockItemValues extends CustomItemValues {
 
     @Override
     public void save(BitOutput output, ItemSet.Side side) {
-        output.addByte(ItemEncoding.ENCODING_BLOCK_ITEM_10);
-        save10(output);
-
-        if (side == ItemSet.Side.EDITOR) {
-            saveEditorOnlyProperties1(output);
-        }
-    }
-
-    private void save10(BitOutput output) {
-        saveBase10(output);
-        saveBlockOnlyProperties10(output);
-    }
-
-    private void saveBlockOnlyProperties10(BitOutput output) {
-        output.addInt(block.get().getInternalID());
-        output.addInt(maxStacksize);
+        output.addByte(ItemEncoding.ENCODING_BLOCK_ITEM_12);
+        saveBlockItemPropertiesNew(output, side);
     }
 
     @Override

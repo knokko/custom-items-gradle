@@ -27,6 +27,9 @@ public class CustomWandValues extends CustomItemValues {
         } else if (encoding == ItemEncoding.ENCODING_WAND_10) {
             result.load10(input, itemSet);
             result.initDefaults10();
+        } else if (encoding == ItemEncoding.ENCODING_WAND_12) {
+            result.loadWandPropertiesNew(input, itemSet);
+            return result;
         } else {
             throw new UnknownEncodingException("CustomWand", encoding);
         }
@@ -65,35 +68,39 @@ public class CustomWandValues extends CustomItemValues {
         this.amountPerShot = toCopy.getAmountPerShot();
     }
 
+    protected void loadWandPropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        this.loadSharedPropertiesNew(input, itemSet);
+
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("WandNew", encoding);
+
+        this.projectile = itemSet.getProjectileReference(input.readString());
+        if (input.readBoolean()) {
+            this.charges = WandChargeValues.load1(input);
+        } else {
+            this.charges = null;
+        }
+        this.cooldown = input.readInt();
+        this.amountPerShot = input.readInt();
+    }
+
+    protected void saveWandPropertiesNew(BitOutput output, ItemSet.Side side) {
+        this.saveSharedPropertiesNew(output, side);
+
+        output.addByte((byte) 1);
+
+        output.addString(this.projectile.get().getName());
+        output.addBoolean(this.charges != null);
+        if (this.charges != null) {
+            this.charges.save1(output);
+        }
+        output.addInts(this.cooldown, this.amountPerShot);
+    }
+
     @Override
     public void save(BitOutput output, ItemSet.Side side) {
-        output.addByte(ItemEncoding.ENCODING_WAND_10);
-        save10(output);
-
-        if (side == ItemSet.Side.EDITOR) {
-            saveEditorOnlyProperties1(output);
-        }
-    }
-
-    private void save10(BitOutput output) {
-        saveIdentityProperties10(output);
-        saveTextDisplayProperties1(output);
-        saveVanillaBasedPowers4(output);
-        saveItemFlags6(output);
-        savePotionProperties10(output);
-        saveRightClickProperties10(output);
-        saveWandOnlyProperties9(output);
-        saveExtraProperties10(output);
-    }
-
-    private void saveWandOnlyProperties9(BitOutput output) {
-        output.addString(projectile.get().getName());
-        output.addInt(cooldown);
-        output.addBoolean(charges != null);
-        if (charges != null) {
-            charges.save1(output);
-        }
-        output.addInt(amountPerShot);
+        output.addByte(ItemEncoding.ENCODING_WAND_12);
+        this.saveWandPropertiesNew(output, side);
     }
 
     @Override

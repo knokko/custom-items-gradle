@@ -25,6 +25,9 @@ public class CustomPocketContainerValues extends CustomItemValues {
         if (encoding == ItemEncoding.ENCODING_POCKET_CONTAINER_10) {
             result.load10(input, itemSet);
             result.initDefaults10();
+        } else if (encoding == ItemEncoding.ENCODING_POCKET_CONTAINER_12) {
+            result.loadPocketContainerPropertiesNew(input, itemSet);
+            return result;
         } else {
             throw new UnknownEncodingException("PocketContainer", encoding);
         }
@@ -50,24 +53,39 @@ public class CustomPocketContainerValues extends CustomItemValues {
         this.containers = toCopy.getContainerReferences();
     }
 
+    protected void loadPocketContainerPropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        this.loadSharedPropertiesNew(input, itemSet);
+
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("PocketContainerNew", encoding);
+
+        int numContainers = input.readInt();
+        this.containers = new HashSet<>(numContainers);
+        for (int counter = 0; counter < numContainers; counter++) {
+            this.containers.add(itemSet.getContainerReference(input.readString()));
+        }
+    }
+
+    protected void savePocketContainerPropertiesNew(BitOutput output, ItemSet.Side targetSide) {
+        this.saveSharedPropertiesNew(output, targetSide);
+
+        output.addByte((byte) 1);
+
+        output.addInt(this.containers.size());
+        for (ContainerReference containerRef : this.containers) {
+            output.addString(containerRef.get().getName());
+        }
+    }
+
     @Override
     public void save(BitOutput output, ItemSet.Side side) {
-        output.addByte(ItemEncoding.ENCODING_POCKET_CONTAINER_10);
-        save10(output);
-
-        if (side == ItemSet.Side.EDITOR) {
-            saveEditorOnlyProperties1(output);
-        }
+        output.addByte(ItemEncoding.ENCODING_POCKET_CONTAINER_12);
+        this.savePocketContainerPropertiesNew(output, side);
     }
 
     private void load10(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadBase10(input, itemSet);
         loadPocketContainerOnlyProperties10(input, itemSet);
-    }
-
-    private void save10(BitOutput output) {
-        saveBase10(output);
-        savePocketContainerOnlyProperties10(output);
     }
 
     private void loadPocketContainerOnlyProperties10(BitInput input, ItemSet itemSet) {
@@ -76,13 +94,6 @@ public class CustomPocketContainerValues extends CustomItemValues {
 
         for (int counter = 0; counter < numContainers; counter++) {
             this.containers.add(itemSet.getContainerReference(input.readString()));
-        }
-    }
-
-    private void savePocketContainerOnlyProperties10(BitOutput output) {
-        output.addInt(containers.size());
-        for (ContainerReference reference : containers) {
-            output.addString(reference.get().getName());
         }
     }
 

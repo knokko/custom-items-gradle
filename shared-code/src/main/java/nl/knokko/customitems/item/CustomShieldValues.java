@@ -27,6 +27,9 @@ public class CustomShieldValues extends CustomToolValues {
         } else if (encoding == ItemEncoding.ENCODING_SHIELD_10) {
             result.load10(input, itemSet);
             result.initDefaults10();
+        } else if (encoding == ItemEncoding.ENCODING_SHIELD_12) {
+            result.loadShieldPropertiesNew(input, itemSet);
+            return result;
         } else {
             throw new UnknownEncodingException("CustomShield", encoding);
         }
@@ -55,6 +58,32 @@ public class CustomShieldValues extends CustomToolValues {
         this.customBlockingModel = toCopy.getCustomBlockingModel();
     }
 
+    protected void loadShieldPropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        this.loadToolPropertiesNew(input, itemSet);
+
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("CustomShieldNew", encoding);
+
+        this.thresholdDamage = input.readDouble();
+        if (itemSet.getSide() == ItemSet.Side.EDITOR && input.readBoolean()) {
+            this.customBlockingModel = input.readByteArray();
+        }
+    }
+
+    protected void saveShieldPropertiesNew(BitOutput output, ItemSet.Side targetSide) {
+        this.saveToolPropertiesNew(output, targetSide);
+
+        output.addByte((byte) 1);
+
+        output.addDouble(this.thresholdDamage);
+        if (targetSide == ItemSet.Side.EDITOR) {
+            output.addBoolean(this.customBlockingModel != null);
+            if (this.customBlockingModel != null) {
+                output.addByteArray(this.customBlockingModel);
+            }
+        }
+    }
+
     private void load7(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadIdentityProperties1(input);
         loadTextDisplayProperties1(input);
@@ -77,20 +106,10 @@ public class CustomShieldValues extends CustomToolValues {
         this.alias = input.readString();
     }
 
-    private void saveShieldIdentityProperties10(BitOutput output) {
-        output.addShort(itemDamage);
-        output.addJavaString(name);
-        output.addString(alias);
-    }
-
     @Override
     public void save(BitOutput output, ItemSet.Side side) {
-        output.addByte(ItemEncoding.ENCODING_SHIELD_10);
-        save10(output);
-
-        if (side == ItemSet.Side.EDITOR) {
-            saveShieldEditorOnlyProperties7(output);
-        }
+        output.addByte(ItemEncoding.ENCODING_SHIELD_12);
+        this.saveShieldPropertiesNew(output, side);
     }
 
     private void load10(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
@@ -106,33 +125,12 @@ public class CustomShieldValues extends CustomToolValues {
         loadExtraProperties10(input);
     }
 
-    private void save10(BitOutput output) {
-        saveShieldIdentityProperties10(output);
-        saveTextDisplayProperties1(output);
-        saveVanillaBasedPowers4(output);
-        saveToolOnlyPropertiesA4(output);
-        saveItemFlags6(output);
-        saveToolOnlyPropertiesB6(output);
-        output.addDouble(thresholdDamage);
-        savePotionProperties10(output);
-        saveRightClickProperties10(output);
-        saveExtraProperties10(output);
-    }
-
     private void loadShieldEditorOnlyProperties7(BitInput input, ItemSet itemSet) {
         loadEditorOnlyProperties1(input, itemSet, true);
         if (input.readBoolean()) {
             this.customBlockingModel = input.readByteArray();
         } else {
             this.customBlockingModel = null;
-        }
-    }
-
-    private void saveShieldEditorOnlyProperties7(BitOutput output) {
-        saveEditorOnlyProperties1(output);
-        output.addBoolean(customBlockingModel != null);
-        if (customBlockingModel != null) {
-            output.addByteArray(customBlockingModel);
         }
     }
 

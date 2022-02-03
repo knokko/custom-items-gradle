@@ -40,6 +40,9 @@ public class CustomToolValues extends CustomItemValues {
         } else if (encoding == ItemEncoding.ENCODING_TOOL_10) {
             result.loadTool10(input, itemSet);
             result.initToolDefaults10();
+        } else if (encoding == ItemEncoding.ENCODING_TOOL_12) {
+            result.loadToolPropertiesNew(input, itemSet);
+            return result;
         } else {
             throw new UnknownEncodingException("CustomTool", encoding);
         }
@@ -92,6 +95,41 @@ public class CustomToolValues extends CustomItemValues {
         this.repairItem = toCopy.getRepairItem();
         this.entityHitDurabilityLoss = toCopy.getEntityHitDurabilityLoss();
         this.blockBreakDurabilityLoss = toCopy.getBlockBreakDurabilityLoss();
+    }
+
+    protected void loadToolPropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        this.loadSharedPropertiesNew(input, itemSet);
+
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("CustomToolNew", encoding);
+
+        if (input.readBoolean()) {
+            this.maxDurability = input.readLong();
+        } else {
+            this.maxDurability = null;
+        }
+
+        this.allowEnchanting = input.readBoolean();
+        this.allowAnvilActions = input.readBoolean();
+        this.repairItem = IngredientValues.load(input, itemSet);
+        this.entityHitDurabilityLoss = input.readInt();
+        this.blockBreakDurabilityLoss = input.readInt();
+    }
+
+    protected void saveToolPropertiesNew(BitOutput output, ItemSet.Side targetSide) {
+        this.saveSharedPropertiesNew(output, targetSide);
+
+        output.addByte((byte) 1);
+        output.addBoolean(this.maxDurability != null);
+        if (this.maxDurability != null) {
+            output.addLong(this.maxDurability);
+        }
+
+        output.addBoolean(this.allowEnchanting);
+        output.addBoolean(this.allowAnvilActions);
+        this.repairItem.save(output);
+        output.addInt(this.entityHitDurabilityLoss);
+        output.addInt(this.blockBreakDurabilityLoss);
     }
 
     protected void loadTool2(BitInput input) {
@@ -186,24 +224,8 @@ public class CustomToolValues extends CustomItemValues {
 
     @Override
     public void save(BitOutput output, ItemSet.Side side) {
-        output.addByte(ItemEncoding.ENCODING_TOOL_10);
-        save10(output);
-
-        if (side == ItemSet.Side.EDITOR) {
-            saveEditorOnlyProperties1(output);
-        }
-    }
-
-    private void save10(BitOutput output) {
-        saveIdentityProperties10(output);
-        saveTextDisplayProperties1(output);
-        saveVanillaBasedPowers4(output);
-        saveToolOnlyPropertiesA4(output);
-        saveItemFlags6(output);
-        saveToolOnlyPropertiesB6(output);
-        savePotionProperties10(output);
-        saveRightClickProperties10(output);
-        saveExtraProperties10(output);
+        output.addByte(ItemEncoding.ENCODING_TOOL_12);
+        this.saveToolPropertiesNew(output, side);
     }
 
     protected void initToolOnlyDefaults10() {

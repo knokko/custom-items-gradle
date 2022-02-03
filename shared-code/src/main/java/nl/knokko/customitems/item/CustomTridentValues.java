@@ -28,6 +28,9 @@ public class CustomTridentValues extends CustomToolValues {
         } else if (encoding == ItemEncoding.ENCODING_TRIDENT_10) {
             result.load10(input, itemSet);
             result.initTridentDefaults10();
+        } else if (encoding == ItemEncoding.ENCODING_TRIDENT_12) {
+            result.loadTridentPropertiesNew(input, itemSet);
+            return result;
         } else {
             throw new UnknownEncodingException("CustomTrident", encoding);
         }
@@ -67,6 +70,46 @@ public class CustomTridentValues extends CustomToolValues {
         this.throwSpeedMultiplier = toCopy.getThrowSpeedMultiplier();
         this.customInHandModel = toCopy.getCustomInHandModel();
         this.customThrowingModel = toCopy.getCustomThrowingModel();
+    }
+
+    protected void loadTridentPropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        this.loadToolPropertiesNew(input, itemSet);
+
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("CustomTridentNew", encoding);
+
+        this.throwDurabilityLoss = input.readInt();
+        this.throwDamageMultiplier = input.readDouble();
+        this.throwSpeedMultiplier = input.readDouble();
+        this.customInHandModel = null;
+        this.customThrowingModel = null;
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
+            if (input.readBoolean()) {
+                this.customInHandModel = input.readByteArray();
+            }
+            if (input.readBoolean()) {
+                this.customThrowingModel = input.readByteArray();
+            }
+        }
+    }
+
+    protected void saveTridentPropertiesNew(BitOutput output, ItemSet.Side side) {
+        this.saveToolPropertiesNew(output, side);
+
+        output.addByte((byte) 1);
+
+        output.addInt(this.throwDurabilityLoss);
+        output.addDoubles(this.throwDamageMultiplier, this.throwSpeedMultiplier);
+        if (side == ItemSet.Side.EDITOR) {
+            output.addBoolean(this.customInHandModel != null);
+            if (this.customInHandModel != null) {
+                output.addByteArray(this.customInHandModel);
+            }
+            output.addBoolean(this.customThrowingModel != null);
+            if (this.customThrowingModel != null) {
+                output.addByteArray(this.customThrowingModel);
+            }
+        }
     }
 
     private void loadTridentEditorOnlyProperties8(BitInput input, ItemSet itemSet) {
@@ -175,48 +218,8 @@ public class CustomTridentValues extends CustomToolValues {
 
     @Override
     public void save(BitOutput output, ItemSet.Side side) {
-        output.addByte(ItemEncoding.ENCODING_TRIDENT_10);
-        save10(output);
-
-        if (side == ItemSet.Side.EDITOR) {
-            saveTridentEditorOnlyProperties8(output);
-        }
-    }
-
-    private void saveTridentEditorOnlyProperties8(BitOutput output) {
-        saveEditorOnlyProperties1(output);
-        output.addBoolean(customInHandModel != null);
-        if (customInHandModel != null) {
-            output.addByteArray(customInHandModel);
-        }
-        output.addBoolean(customThrowingModel != null);
-        if (customThrowingModel != null) {
-            output.addByteArray(customThrowingModel);
-        }
-    }
-
-    private void save10(BitOutput output) {
-        saveTridentIdentityProperties10(output);
-        saveTextDisplayProperties1(output);
-        saveVanillaBasedPowers4(output);
-        saveToolOnlyPropertiesA4(output);
-        saveItemFlags6(output);
-        saveToolOnlyPropertiesB6(output);
-        saveTridentOnlyProperties8(output);
-        savePotionProperties10(output);
-        saveRightClickProperties10(output);
-        saveExtraProperties10(output);
-    }
-
-    private void saveTridentIdentityProperties10(BitOutput output) {
-        output.addShort(itemDamage);
-        output.addJavaString(name);
-        output.addString(alias);
-    }
-
-    private void saveTridentOnlyProperties8(BitOutput output) {
-        output.addInt(throwDurabilityLoss);
-        output.addDoubles(throwDamageMultiplier, throwSpeedMultiplier);
+        output.addByte(ItemEncoding.ENCODING_TRIDENT_12);
+        this.saveTridentPropertiesNew(output, side);
     }
 
     public int getThrowDurabilityLoss() {

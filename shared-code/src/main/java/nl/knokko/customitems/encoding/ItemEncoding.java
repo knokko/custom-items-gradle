@@ -165,4 +165,24 @@ public class ItemEncoding {
 	 */
 	public static final byte ENCODING_ARMOR_11 = 44;
 	public static final byte ENCODING_HELMET3D_11 = 45;
+
+	/*
+	 * All encodings below this block comment use the 'new' style of serialization. This means that
+	 * each class will have its own internal encoding system that can update independently.
+	 */
+	public static final byte ENCODING_ARMOR_12 = 46;
+	public static final byte ENCODING_BLOCK_ITEM_12 = 47;
+	public static final byte ENCODING_BOW_12 = 48;
+	public static final byte ENCODING_CROSSBOW_12 = 49;
+	public static final byte ENCODING_FOOD_12 = 50;
+	public static final byte ENCODING_GUN_12 = 51;
+	public static final byte ENCODING_HELMET3D_12 = 52;
+	public static final byte ENCODING_HOE_12 = 53;
+	public static final byte ENCODING_POCKET_CONTAINER_12 = 54;
+	public static final byte ENCODING_SHEARS_12 = 55;
+	public static final byte ENCODING_SHIELD_12 = 56;
+	public static final byte ENCODING_TOOL_12 = 57;
+	public static final byte ENCODING_TRIDENT_12 = 58;
+	public static final byte ENCODING_WAND_12 = 59;
+	public static final byte ENCODING_SIMPLE_12 = 60;
 }

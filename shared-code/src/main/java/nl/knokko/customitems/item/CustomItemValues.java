@@ -52,45 +52,51 @@ public abstract class CustomItemValues extends ModelValues {
         if (
                 encoding == ENCODING_ARMOR_4 || encoding == ENCODING_ARMOR_6 || encoding == ENCODING_ARMOR_7
                 || encoding == ENCODING_ARMOR_8 || encoding == ENCODING_ARMOR_9 || encoding == ENCODING_ARMOR_10
-                || encoding == ENCODING_ARMOR_11
+                || encoding == ENCODING_ARMOR_11 || encoding == ENCODING_ARMOR_12
         ) {
             return CustomArmorValues.load(input, encoding, itemSet, checkCustomModel);
-        } else if (encoding == ENCODING_BLOCK_ITEM_10) {
+        } else if (encoding == ENCODING_BLOCK_ITEM_10 || encoding == ENCODING_BLOCK_ITEM_12) {
             return CustomBlockItemValues.load(input, encoding, itemSet);
         } else if (
                 encoding == ENCODING_BOW_3 || encoding == ENCODING_BOW_4 || encoding == ENCODING_BOW_6
-                || encoding == ENCODING_BOW_9 || encoding == ENCODING_BOW_10
+                || encoding == ENCODING_BOW_9 || encoding == ENCODING_BOW_10 || encoding == ENCODING_BOW_12
         ) {
             return CustomBowValues.load(input, encoding, itemSet, checkCustomModel);
-        } else if (encoding == ENCODING_CROSSBOW_10) {
+        } else if (encoding == ENCODING_CROSSBOW_10 || encoding == ENCODING_CROSSBOW_12) {
             return CustomCrossbowValues.load(input, encoding, itemSet);
-        } else if (encoding == ENCODING_FOOD_10) {
+        } else if (encoding == ENCODING_FOOD_10 || encoding == ENCODING_FOOD_12) {
             return CustomFoodValues.load(input, encoding, itemSet);
-        } else if (encoding == ENCODING_GUN_10) {
+        } else if (encoding == ENCODING_GUN_10 || encoding == ENCODING_GUN_12) {
             return CustomGunValues.load(input, encoding, itemSet);
-        } else if (encoding == ENCODING_HELMET3D_10 || encoding == ENCODING_HELMET3D_11) {
+        } else if (encoding == ENCODING_HELMET3D_10 || encoding == ENCODING_HELMET3D_11 ||
+                encoding == ENCODING_HELMET3D_12) {
             return CustomHelmet3dValues.load(input, encoding, itemSet);
-        } else if (encoding == ENCODING_HOE_6 || encoding == ENCODING_HOE_9 || encoding == ENCODING_HOE_10) {
+        } else if (encoding == ENCODING_HOE_6 || encoding == ENCODING_HOE_9 ||
+                encoding == ENCODING_HOE_10 || encoding == ENCODING_HOE_12) {
             return CustomHoeValues.load(input, encoding, itemSet, checkCustomModel);
-        } else if (encoding == ENCODING_POCKET_CONTAINER_10) {
+        } else if (encoding == ENCODING_POCKET_CONTAINER_10 || encoding == ENCODING_POCKET_CONTAINER_12) {
             return CustomPocketContainerValues.load(input, encoding, itemSet);
-        } else if (encoding == ENCODING_SHEAR_6 || encoding == ENCODING_SHEAR_9 || encoding == ENCODING_SHEAR_10) {
+        } else if (encoding == ENCODING_SHEAR_6 || encoding == ENCODING_SHEAR_9 ||
+                encoding == ENCODING_SHEAR_10 || encoding == ENCODING_SHEARS_12) {
             return CustomShearsValues.load(input, encoding, itemSet, checkCustomModel);
-        } else if (encoding == ENCODING_SHIELD_7 || encoding == ENCODING_SHIELD_9 || encoding == ENCODING_SHIELD_10) {
+        } else if (encoding == ENCODING_SHIELD_7 || encoding == ENCODING_SHIELD_9 ||
+                encoding == ENCODING_SHIELD_10 || encoding == ENCODING_SHIELD_12) {
             return CustomShieldValues.load(input, encoding, itemSet);
         } else if (
                 encoding == ENCODING_TOOL_2 || encoding == ENCODING_TOOL_3 || encoding == ENCODING_TOOL_4
                 || encoding == ENCODING_TOOL_6 || encoding == ENCODING_TOOL_9 || encoding == ENCODING_TOOL_10
+                || encoding == ENCODING_TOOL_12
         ) {
             return CustomToolValues.load(input, encoding, itemSet, checkCustomModel);
-        } else if (encoding == ENCODING_TRIDENT_8 || encoding == ENCODING_TRIDENT_9 || encoding == ENCODING_TRIDENT_10) {
+        } else if (encoding == ENCODING_TRIDENT_8 || encoding == ENCODING_TRIDENT_9 ||
+                encoding == ENCODING_TRIDENT_10 || encoding == ENCODING_TRIDENT_12) {
             return CustomTridentValues.load(input, encoding, itemSet);
-        } else if (encoding == ENCODING_WAND_9 || encoding == ENCODING_WAND_10) {
+        } else if (encoding == ENCODING_WAND_9 || encoding == ENCODING_WAND_10 || encoding == ENCODING_WAND_12) {
             return CustomWandValues.load(input, encoding, itemSet);
         } else if (
                 encoding == ENCODING_SIMPLE_1 || encoding == ENCODING_SIMPLE_2 || encoding == ENCODING_SIMPLE_4
                 || encoding == ENCODING_SIMPLE_5 || encoding == ENCODING_SIMPLE_6 || encoding == ENCODING_SIMPLE_9
-                || encoding == ENCODING_SIMPLE_10
+                || encoding == ENCODING_SIMPLE_10 || encoding == ENCODING_SIMPLE_12
         ) {
             return SimpleCustomItemValues.load(input, encoding, itemSet, checkCustomModel);
         } else {
@@ -226,6 +232,50 @@ public abstract class CustomItemValues extends ModelValues {
             this.customModel = input.readByteArray();
         } else {
             this.customModel = null;
+        }
+    }
+
+    protected void loadSharedPropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("CustomItemBaseNew", encoding);
+
+        this.loadIdentityProperties10(input);
+        this.loadTextDisplayProperties1(input);
+
+        int numItemFlags = input.readInt();
+        this.itemFlags = new ArrayList<>(numItemFlags);
+        for (int counter = 0; counter < numItemFlags; counter++) {
+            this.itemFlags.add(input.readBoolean());
+        }
+
+        this.loadVanillaBasedPowers4(input);
+        this.loadPotionProperties10(input);
+        this.loadRightClickProperties10(input, itemSet);
+        this.loadExtraProperties10(input);
+
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
+            this.loadEditorOnlyProperties1(input, itemSet, true);
+        }
+    }
+
+    protected void saveSharedPropertiesNew(BitOutput output, ItemSet.Side targetSide) {
+        output.addByte((byte) 1);
+
+        this.saveIdentityProperties10(output);
+        this.saveTextDisplayProperties1(output);
+
+        output.addInt(this.itemFlags.size());
+        for (Boolean itemFlag : this.itemFlags) {
+            output.addBoolean(itemFlag);
+        }
+
+        this.saveVanillaBasedPowers4(output);
+        this.savePotionProperties10(output);
+        this.saveRightClickProperties10(output);
+        this.saveExtraProperties10(output);
+
+        if (targetSide == ItemSet.Side.EDITOR) {
+            this.saveEditorOnlyProperties1(output);
         }
     }
 
