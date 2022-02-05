@@ -4,6 +4,9 @@ import nl.knokko.customitems.drops.*;
 import nl.knokko.customitems.effect.EffectType;
 import nl.knokko.customitems.effect.PotionEffectValues;
 import nl.knokko.customitems.item.*;
+import nl.knokko.customitems.item.command.ItemCommand;
+import nl.knokko.customitems.item.command.ItemCommandEvent;
+import nl.knokko.customitems.item.command.ItemCommandSystem;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.particle.CIParticle;
@@ -99,7 +102,7 @@ public class Backward6 {
         assertEquals(listOf(
                 PotionEffectValues.createQuick(EffectType.SLOW, 40, 3)
         ), trident1.getOnHitTargetEffects());
-        assertEquals(0, trident1.getLegacyCommands().size());
+        assertEquals(new ItemCommandSystem(false), trident1.getCommandSystem());
         assertNull(trident1.getCustomThrowingModel());
         assertFalse(trident1.allowEnchanting());
         assertFalse(trident1.allowAnvilActions());
@@ -306,9 +309,9 @@ public class Backward6 {
         assertEquals(listOf(
                 PotionEffectValues.createQuick(EffectType.INVISIBILITY, 30, 1)
         ), item.getOnHitTargetEffects());
-        assertEquals(listOf(
-                "summon bat"
-        ), item.getLegacyCommands());
+        ItemCommandSystem batSystem = new ItemCommandSystem(true);
+        batSystem.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_GENERAL, listOf(ItemCommand.createFromLegacy("summon bat")));
+        assertEquals(batSystem, item.getCommandSystem());
         assertFalse(item.allowEnchanting());
         assertTrue(item.allowAnvilActions());
         assertEquals(234, (long) item.getMaxDurabilityNew());
@@ -341,7 +344,7 @@ public class Backward6 {
                 PotionEffectValues.createQuick(EffectType.REGENERATION, 100, 1)
         ), item.getOnHitPlayerEffects());
         assertEquals(0, item.getOnHitTargetEffects().size());
-        assertEquals(0, item.getLegacyCommands().size());
+        assertEquals(new ItemCommandSystem(false), item.getCommandSystem());
         assertEquals("crazy1", item.getProjectile().getName());
         assertEquals(2, item.getCharges().getMaxCharges());
         assertEquals(30, item.getCharges().getRechargeTime());
@@ -353,7 +356,7 @@ public class Backward6 {
         assertNull(item.getCustomModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
-        assertEquals(0, item.getLegacyCommands().size());
+        assertEquals(new ItemCommandSystem(false), item.getCommandSystem());
 
         Backward7.testBaseDefault7(item);
     }

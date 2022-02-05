@@ -10,6 +10,9 @@ import nl.knokko.customitems.container.slot.display.SimpleVanillaDisplayItemValu
 import nl.knokko.customitems.container.slot.display.SlotDisplayValues;
 import nl.knokko.customitems.effect.*;
 import nl.knokko.customitems.item.*;
+import nl.knokko.customitems.item.command.ItemCommand;
+import nl.knokko.customitems.item.command.ItemCommandEvent;
+import nl.knokko.customitems.item.command.ItemCommandSystem;
 import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
@@ -159,9 +162,9 @@ public class Backward9 {
         assertEquals(listOf(
                 PotionEffectValues.createQuick(EffectType.POISON, 100, 2)
         ), item.getOnHitTargetEffects());
-        assertEquals(listOf(
-                "kill @a"
-        ), item.getLegacyCommands());
+        ItemCommandSystem killAllSystem = new ItemCommandSystem(true);
+        killAllSystem.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_GENERAL, listOf(ItemCommand.createFromLegacy("kill @a")));
+        assertEquals(killAllSystem, item.getCommandSystem());
         assertEquals(ReplacementConditionValues.ConditionOperation.NONE, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -216,9 +219,11 @@ public class Backward9 {
         assertEquals(listOf(
                 PotionEffectValues.createQuick(EffectType.WITHER, 50, 2)
         ), item.getOnHitTargetEffects());
-        assertEquals(listOf(
+        ItemCommandSystem nightVisionSystem = new ItemCommandSystem(true);
+        nightVisionSystem.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_GENERAL, listOf(ItemCommand.createFromLegacy(
                 "effect @p night_vision 5"
-        ), item.getLegacyCommands());
+        )));
+        assertEquals(nightVisionSystem, item.getCommandSystem());
         assertEquals(ReplacementConditionValues.ConditionOperation.OR, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -369,9 +374,9 @@ public class Backward9 {
         assertEquals(listOf(
                 PotionEffectValues.createQuick(EffectType.SLOW, 20, 1)
         ), item.getOnHitTargetEffects());
-        assertEquals(listOf(
-                "summon arrow"
-        ), item.getLegacyCommands());
+        ItemCommandSystem arrowSystem = new ItemCommandSystem(true);
+        arrowSystem.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_GENERAL, listOf(ItemCommand.createFromLegacy("summon arrow")));
+        assertEquals(arrowSystem, item.getCommandSystem());
         assertEquals(ReplacementConditionValues.ConditionOperation.OR, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -434,9 +439,9 @@ public class Backward9 {
         assertEquals(listOf(
                 PotionEffectValues.createQuick(EffectType.HARM, 1, 1)
         ), item.getOnHitTargetEffects());
-        assertEquals(listOf(
-                "setblock ~ ~ ~ stone"
-        ), item.getLegacyCommands());
+        ItemCommandSystem stoneSystem = new ItemCommandSystem(true);
+        stoneSystem.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_GENERAL, listOf(ItemCommand.createFromLegacy("setblock ~ ~ ~ stone")));
+        assertEquals(stoneSystem, item.getCommandSystem());
         assertEquals(ReplacementConditionValues.ConditionOperation.NONE, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -495,9 +500,9 @@ public class Backward9 {
         assertEquals(listOf(
                 PotionEffectValues.createQuick(EffectType.HUNGER, 100, 3)
         ), item.getOnHitTargetEffects());
-        assertEquals(listOf(
-                "effect @p clear"
-        ), item.getLegacyCommands());
+        ItemCommandSystem clearSystem = new ItemCommandSystem(true);
+        clearSystem.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_GENERAL, listOf(ItemCommand.createFromLegacy("effect @p clear")));
+        assertEquals(clearSystem, item.getCommandSystem());
         assertEquals(ReplacementConditionValues.ConditionOperation.AND, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(

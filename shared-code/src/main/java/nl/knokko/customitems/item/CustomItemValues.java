@@ -2,6 +2,9 @@ package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.effect.*;
+import nl.knokko.customitems.item.command.ItemCommand;
+import nl.knokko.customitems.item.command.ItemCommandEvent;
+import nl.knokko.customitems.item.command.ItemCommandSystem;
 import nl.knokko.customitems.itemset.FakeItemSet;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
@@ -127,11 +130,11 @@ public abstract class CustomItemValues extends ModelValues {
     protected Collection<EquippedPotionEffectValues> equippedEffects;
 
     // Right-click properties
-    protected List<String> legacyCommands;
     protected ReplacementConditionValues.ConditionOperation conditionOp;
     protected List<ReplacementConditionValues> replaceConditions;
 
     // Other properties
+    protected ItemCommandSystem commandSystem;
     protected ExtraItemNbtValues extraItemNbt;
     protected float attackRange;
 
@@ -162,10 +165,10 @@ public abstract class CustomItemValues extends ModelValues {
         this.targetEffects = new ArrayList<>(0);
         this.equippedEffects = new ArrayList<>(0);
 
-        this.legacyCommands = new ArrayList<>(0);
         this.conditionOp = ReplacementConditionValues.ConditionOperation.NONE;
         this.replaceConditions = new ArrayList<>(0);
 
+        this.commandSystem = new ItemCommandSystem(false);
         this.extraItemNbt = new ExtraItemNbtValues(false);
         this.attackRange = 1f;
 
@@ -188,9 +191,9 @@ public abstract class CustomItemValues extends ModelValues {
         this.playerEffects = source.getOnHitPlayerEffects();
         this.targetEffects = source.getOnHitTargetEffects();
         this.equippedEffects = source.getEquippedEffects();
-        this.legacyCommands = source.getLegacyCommands();
         this.replaceConditions = source.getReplacementConditions();
         this.conditionOp = source.getConditionOp();
+        this.commandSystem = source.getCommandSystem();
         this.extraItemNbt = source.getExtraNbt();
         this.attackRange = source.getAttackRange();
         this.texture = source.getTextureReference();
@@ -209,7 +212,7 @@ public abstract class CustomItemValues extends ModelValues {
                 && this.itemFlags.equals(other.itemFlags) && this.attributeModifiers.equals(other.attributeModifiers)
                 && this.defaultEnchantments.equals(other.defaultEnchantments) && this.playerEffects.equals(other.playerEffects)
                 && this.targetEffects.equals(other.targetEffects) && this.equippedEffects.equals(other.equippedEffects)
-                && this.legacyCommands.equals(other.legacyCommands) && this.replaceConditions.equals(other.replaceConditions)
+                && this.commandSystem.equals(other.commandSystem) && this.replaceConditions.equals(other.replaceConditions)
                 && this.conditionOp == other.conditionOp && this.extraItemNbt.equals(other.extraItemNbt)
                 && isClose(this.attackRange, other.attackRange);
     }
@@ -250,7 +253,8 @@ public abstract class CustomItemValues extends ModelValues {
 
         this.loadVanillaBasedPowers4(input);
         this.loadPotionProperties10(input);
-        this.loadRightClickProperties10(input, itemSet);
+        this.loadReplacementConditions10(input, itemSet);
+        this.commandSystem = ItemCommandSystem.load(input);
         this.loadExtraProperties10(input);
 
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
@@ -271,7 +275,8 @@ public abstract class CustomItemValues extends ModelValues {
 
         this.saveVanillaBasedPowers4(output);
         this.savePotionProperties10(output);
-        this.saveRightClickProperties10(output);
+        this.saveReplacementConditions10(output);
+        this.commandSystem.save(output);
         this.saveExtraProperties10(output);
 
         if (targetSide == ItemSet.Side.EDITOR) {
@@ -314,12 +319,6 @@ public abstract class CustomItemValues extends ModelValues {
         this.itemFlags = new ArrayList<>(numItemFlags);
         for (int counter = 0; counter < numItemFlags; counter++) {
             this.itemFlags.add(input.readBoolean());
-        }
-    }
-
-    protected void saveItemFlags6(BitOutput output) {
-        for (boolean itemFlag : itemFlags) {
-            output.addBooleans(itemFlag);
         }
     }
 
@@ -442,33 +441,21 @@ public abstract class CustomItemValues extends ModelValues {
         loadCommands9(input);
     }
 
-    protected void saveRightClickProperties9(BitOutput output) {
-        saveCommands9(output);
-    }
-
     protected void loadCommands9(BitInput input) {
-        int numCommands = input.readByte() & 0xFF;
-        this.legacyCommands = new ArrayList<>(numCommands);
-        for (int counter = 0; counter < numCommands; counter++) {
-            this.legacyCommands.add(input.readJavaString());
+        int numLegacyCommands = input.readByte() & 0xFF;
+        List<ItemCommand> legacyCommands = new ArrayList<>(numLegacyCommands);
+        for (int counter = 0; counter < numLegacyCommands; counter++) {
+            legacyCommands.add(ItemCommand.createFromLegacy(input.readJavaString()));
         }
-    }
 
-    protected void saveCommands9(BitOutput output) {
-        output.addByte((byte) legacyCommands.size());
-        for (String command : legacyCommands) {
-            output.addJavaString(command);
-        }
+        ItemCommandSystem loadedCommandSystem = new ItemCommandSystem(true);
+        loadedCommandSystem.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_GENERAL, legacyCommands);
+        this.commandSystem = loadedCommandSystem.copy(false);
     }
 
     protected void loadRightClickProperties10(BitInput input, ItemSet itemSet) {
         loadRightClickProperties9(input);
         loadReplacementConditions10(input, itemSet);
-    }
-
-    protected void saveRightClickProperties10(BitOutput output) {
-        saveRightClickProperties9(output);
-        saveReplacementConditions10(output);
     }
 
     protected void loadReplacementConditions10(BitInput input, ItemSet itemSet) {
@@ -525,16 +512,6 @@ public abstract class CustomItemValues extends ModelValues {
         loadExtraProperties10(input);
     }
 
-    protected void saveBase10(BitOutput output) {
-        saveIdentityProperties10(output);
-        saveTextDisplayProperties1(output);
-        saveVanillaBasedPowers4(output);
-        saveItemFlags6(output);
-        savePotionProperties10(output);
-        saveRightClickProperties10(output);
-        saveExtraProperties10(output);
-    }
-
     protected void initBaseDefaults10() {
         // Nothing to be done until the next encoding is known
     }
@@ -559,7 +536,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.playerEffects = new ArrayList<>(0);
         this.targetEffects = new ArrayList<>(0);
 
-        this.legacyCommands = new ArrayList<>(0);
+        this.commandSystem = new ItemCommandSystem(false);
     }
 
     protected void initBaseDefaults7() {
@@ -658,8 +635,8 @@ public abstract class CustomItemValues extends ModelValues {
         return new ArrayList<>(equippedEffects);
     }
 
-    public List<String> getLegacyCommands() {
-        return new ArrayList<>(legacyCommands);
+    public ItemCommandSystem getCommandSystem() {
+        return this.commandSystem;
     }
 
     public List<ReplacementConditionValues> getReplacementConditions() {
@@ -791,10 +768,10 @@ public abstract class CustomItemValues extends ModelValues {
         this.equippedEffects = Mutability.createDeepCopy(equippedEffects, false);
     }
 
-    public void setLegacyCommands(List<String> newCommands) {
+    public void setCommandSystem(ItemCommandSystem newCommandSystem) {
         assertMutable();
-        Checks.nonNull(newCommands);
-        this.legacyCommands = new ArrayList<>(newCommands);
+        Checks.nonNull(newCommandSystem);
+        this.commandSystem = newCommandSystem;
     }
 
     public void setConditionOp(ReplacementConditionValues.ConditionOperation newConditionOp) {
@@ -886,11 +863,8 @@ public abstract class CustomItemValues extends ModelValues {
             Validation.scope("Equipped effect", effect::validate);
         }
 
-        if (legacyCommands == null) throw new ProgrammingValidationException("No commands");
-        if (legacyCommands.size() > Byte.MAX_VALUE) throw new ValidationException("Too many commands");
-        for (String command : legacyCommands) {
-            if (command == null) throw new ProgrammingValidationException("Missing a command");
-        }
+        if (commandSystem == null) throw new ProgrammingValidationException("No command system");
+        Validation.scope("Command system", commandSystem::validate);
 
         if (conditionOp == null) throw new ProgrammingValidationException("No condition OP");
         if (replaceConditions == null) throw new ProgrammingValidationException("No replace conditions");
