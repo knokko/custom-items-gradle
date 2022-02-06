@@ -27,7 +27,7 @@ public class FloatEditField extends TextEditField {
 	
 	@Override
 	public void keyPressed(char character) {
-		if ((character >= '0' && character <= '9') || character == '.' || (text.isEmpty() && character == '-')) {
+		if ((character >= '0' && character <= '9') || character == '.' || (text.isEmpty() && character == '-' && minValue < 0.0)) {
 			super.keyPressed(character);
 		}
 	}
