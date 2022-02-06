@@ -56,14 +56,20 @@ public abstract class InlineCollectionEdit<T extends ModelValues> extends GuiMen
         deleteBase = loader.loadTexture("nl/knokko/gui/images/icons/delete.png");
         deleteHover = loader.loadTexture("nl/knokko/gui/images/icons/delete_hover.png");
 
+        addComponent(errorComponent, 0.1f, 0.9f, 1f, 1f);
         addItemComponents();
 
         addComponent(new DynamicTextButton("Cancel", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
             state.getWindow().setMainComponent(returnMenu);
         }), 0.025f, 0.8f, 0.175f, 0.9f);
         addComponent(new DynamicTextButton("Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-            onApply.accept(ownCollection);
-            state.getWindow().setMainComponent(returnMenu);
+            String error = validate();
+            if (error == null) {
+                onApply.accept(ownCollection);
+                state.getWindow().setMainComponent(returnMenu);
+            } else {
+                errorComponent.setText(error);
+            }
         }), 0.025f, 0.1f, 0.175f, 0.2f);
 
         addComponent(new DynamicTextButton("Add new", EditProps.BUTTON, EditProps.HOVER, () -> {
@@ -109,6 +115,10 @@ public abstract class InlineCollectionEdit<T extends ModelValues> extends GuiMen
     protected abstract void addRowComponents(int itemIndex, float minY, float maxY);
 
     protected abstract T addNew();
+
+    protected String validate() {
+        return null;
+    }
 
     protected abstract String getHelpPage();
 }

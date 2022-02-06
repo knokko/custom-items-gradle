@@ -29,6 +29,7 @@ import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
+import nl.knokko.customitems.editor.menu.edit.item.command.EditCommandSystem;
 import nl.knokko.customitems.editor.menu.edit.texture.TextureEdit;
 import nl.knokko.customitems.editor.resourcepack.DefaultItemModels;
 import nl.knokko.customitems.editor.util.Validation;
@@ -326,10 +327,8 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 	
 	private void addCommandsComponent() {
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new TextListEditMenu(
-					EditItemBase.this, currentValues::setLegacyCommands,
-					BACKGROUND, CANCEL_BASE, CANCEL_HOVER, SAVE_BASE, SAVE_HOVER, EDIT_BASE, EDIT_ACTIVE,
-					currentValues.getLegacyCommands()
+			state.getWindow().setMainComponent(new EditCommandSystem(
+					this, currentValues.getCommandSystem(), currentValues::setCommandSystem
 			));
 		}), BUTTON_X, 0.08f, BUTTON_X + 0.1f, 0.13f);
 	}
