@@ -56,15 +56,15 @@ public enum ItemCommandEvent {
     public final String description;
     public final List<CommandSubstitution> substitutions;
 
-    private ItemCommandEvent(String displayName, String description, CommandSubstitution[]... substitutions) {
+    ItemCommandEvent(String displayName, String description, CommandSubstitution[]... substitutions) {
         this.displayName = displayName;
         this.description = description;
 
         List<CommandSubstitution> substitutionList = new ArrayList<>();
+        Collections.addAll(substitutionList, IMPLICIT_SUBSTITUTIONS);
         for (CommandSubstitution[] substitutionsArray : substitutions) {
             Collections.addAll(substitutionList, substitutionsArray);
         }
-        Collections.addAll(substitutionList, IMPLICIT_SUBSTITUTIONS);
         this.substitutions = Collections.unmodifiableList(substitutionList);
 
         Set<String> substitutionNames = new HashSet<>(substitutionList.size());

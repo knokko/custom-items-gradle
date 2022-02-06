@@ -90,6 +90,4 @@ public enum CommandSubstitution {
     public String getTextToSubstitute() {
         return "%" + name + "%";
     }
-
-
 }
