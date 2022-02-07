@@ -8,10 +8,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomWandValues;
+import nl.knokko.customitems.item.SimpleCustomItemValues;
+import nl.knokko.customitems.item.command.ItemCommand;
+import nl.knokko.customitems.item.command.ItemCommandEvent;
+import nl.knokko.customitems.item.command.ItemCommandSystem;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
@@ -144,6 +150,24 @@ public class TestPlayerData {
 		assertFalse(data.clean(205));
 		assertTrue(data.clean(220));
 
-		// TODO Test when command cooldowns are non-empty
+		// Now try the command cooldowns
+		ItemCommand dummyCommand = new ItemCommand(true);
+		dummyCommand.setRawCommand("say hello");
+		dummyCommand.setCooldown(12);
+
+		List<ItemCommand> dummyCommands = new ArrayList<>(1);
+		dummyCommands.add(dummyCommand);
+
+		ItemCommandSystem dummyCommandSystem = new ItemCommandSystem(true);
+		dummyCommandSystem.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_GENERAL, dummyCommands);
+
+		CustomItemValues dummyItem = new SimpleCustomItemValues(true);
+		dummyItem.setName("dummy_item");
+		dummyItem.setCommandSystem(dummyCommandSystem);
+
+		data.commandCooldowns.setOnCooldown(dummyItem, ItemCommandEvent.RIGHT_CLICK_GENERAL, 0, 250);
+		assertFalse(data.clean(250));
+		assertFalse(data.clean(260));
+		assertTrue(data.clean(270));
 	}
 }

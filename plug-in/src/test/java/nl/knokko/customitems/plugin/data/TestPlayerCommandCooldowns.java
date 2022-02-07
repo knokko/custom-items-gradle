@@ -3,7 +3,9 @@ package nl.knokko.customitems.plugin.data;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.ByteArrayBitInput;
 import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
+import nl.knokko.customitems.item.CustomItemType;
 import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.CustomToolValues;
 import nl.knokko.customitems.item.SimpleCustomItemValues;
 import nl.knokko.customitems.item.command.ItemCommand;
 import nl.knokko.customitems.item.command.ItemCommandEvent;
@@ -218,5 +220,59 @@ public class TestPlayerCommandCooldowns {
         assertTrue(loadedCooldowns.isOnCooldown(newItem, ItemCommandEvent.LEFT_CLICK_GENERAL, 1, baseTime));
     }
 
-    // TODO Test clean
+    // TODO Test full discard
+
+    @Test
+    public void testClean() {
+        PlayerCommandCooldowns cooldowns = new PlayerCommandCooldowns();
+        assertTrue(cooldowns.clean(10));
+
+        List<ItemCommand> commands1 = new ArrayList<>(2);
+        commands1.add(createTestCommand("say hi", 10));
+        commands1.add(createTestCommand("say hello", 20));
+
+        List<ItemCommand> commands2 = new ArrayList<>(1);
+        commands2.add(createTestCommand("say ehm", 15));
+
+        ItemCommandSystem commandSystem1 = new ItemCommandSystem(true);
+        commandSystem1.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_PLAYER, commands1);
+        commandSystem1.setCommandsFor(ItemCommandEvent.MELEE_ATTACK_ENTITY, commands2);
+
+        CustomItemValues item1 = new SimpleCustomItemValues(true);
+        item1.setName("item1");
+        item1.setCommandSystem(commandSystem1);
+
+        List<ItemCommand> commands3 = new ArrayList<>(1);
+        commands3.add(createTestCommand("summon bat", 5));
+
+        ItemCommandSystem commandSystem2 = new ItemCommandSystem(true);
+        commandSystem2.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_ENTITY, commands3);
+
+        CustomItemValues item2 = new CustomToolValues(true, CustomItemType.DIAMOND_PICKAXE);
+        item2.setName("item2");
+        item2.setCommandSystem(commandSystem2);
+
+        cooldowns.setOnCooldown(item1, ItemCommandEvent.RIGHT_CLICK_PLAYER, 0, 10);
+        cooldowns.setOnCooldown(item1, ItemCommandEvent.RIGHT_CLICK_PLAYER, 1, 10);
+        cooldowns.setOnCooldown(item1, ItemCommandEvent.MELEE_ATTACK_ENTITY, 0, 10);
+        cooldowns.setOnCooldown(item2, ItemCommandEvent.RIGHT_CLICK_ENTITY, 0, 10);
+
+        assertFalse(cooldowns.clean(12));
+        assertEquals(2, cooldowns.itemMap.size());
+
+        assertFalse(cooldowns.clean(17));
+        assertEquals(1, cooldowns.itemMap.size());
+        assertEquals(2, cooldowns.itemMap.get(item1.getName()).commandMap.size());
+        assertEquals(2, cooldowns.itemMap.get(item1.getName()).commandMap.get(ItemCommandEvent.RIGHT_CLICK_PLAYER).cooldownsPerCommandIndex.size());
+
+        assertFalse(cooldowns.clean(22));
+        assertEquals(2, cooldowns.itemMap.get(item1.getName()).commandMap.size());
+        assertEquals(1, cooldowns.itemMap.get(item1.getName()).commandMap.get(ItemCommandEvent.RIGHT_CLICK_PLAYER).cooldownsPerCommandIndex.size());
+
+        assertFalse(cooldowns.clean(28));
+        assertEquals(1, cooldowns.itemMap.get(item1.getName()).commandMap.size());
+        assertEquals(1, cooldowns.itemMap.get(item1.getName()).commandMap.get(ItemCommandEvent.RIGHT_CLICK_PLAYER).cooldownsPerCommandIndex.size());
+
+        assertTrue(cooldowns.clean(33));
+    }
 }
