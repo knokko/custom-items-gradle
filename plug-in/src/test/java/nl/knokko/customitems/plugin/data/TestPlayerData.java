@@ -1,10 +1,16 @@
 package nl.knokko.customitems.plugin.data;
 
+import static nl.knokko.customitems.plugin.data.IOHelper.getResourceBitInput;
 import static org.junit.Assert.*;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.logging.Logger;
 
+import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomWandValues;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
@@ -20,10 +26,7 @@ import static nl.knokko.customitems.plugin.data.TestPlayerWandData.*;
 
 public class TestPlayerData {
 
-	@Test
-	public void testSaveLoad1() {
-		
-		// Create a dummy set
+	private ItemSetWrapper createDummyItemSet1() {
 		ItemSet rawSet = new ItemSet(ItemSet.Side.EDITOR);
 		CustomWandValues dummyWand = WITH.copy(true);
 		try {
@@ -43,6 +46,16 @@ public class TestPlayerData {
 		ItemSetWrapper wrappedSet = new ItemSetWrapper();
 		wrappedSet.setItemSet(rawSet);
 
+		return wrappedSet;
+	}
+
+	@Test
+	public void testSaveLoad1() {
+		
+		// Create a dummy set
+		ItemSetWrapper wrappedSet = createDummyItemSet1();
+		CustomItemValues dummyWand = wrappedSet.getItem("with_charges_one");
+
 		// This currently prints stupid messages in the console, but doesn't cause problems
 		Logger dummyLogger = Logger.getGlobal();
 		
@@ -59,7 +72,7 @@ public class TestPlayerData {
 		data.save1(output, 17);
 		data.save1(output, 20);
 		output.terminate();
-		
+
 		// Convert it back to player data
 		BitInput input = new ByteArrayBitInput(output.getBytes());
 		PlayerData beforeShoot = PlayerData.load1(input, wrappedSet, dummyLogger);
@@ -67,6 +80,25 @@ public class TestPlayerData {
 		PlayerData afterShoot = PlayerData.load1(input, wrappedSet, dummyLogger);
 		input.terminate();
 		
+		assertTrue(beforeShoot.shootIfAllowed(dummyWand, 10, true));
+		assertFalse(rightAfterShoot.shootIfAllowed(dummyWand, 17, true));
+		assertTrue(afterShoot.shootIfAllowed(dummyWand, 20, true));
+	}
+
+	@Test
+	public void testBackwardCompatibility1() {
+		ItemSetWrapper wrappedSet = createDummyItemSet1();
+		CustomItemValues dummyWand = wrappedSet.getItem("with_charges_one");
+
+		// This currently prints stupid messages in the console, but doesn't cause problems
+		Logger dummyLogger = Logger.getGlobal();
+
+		BitInput input = getResourceBitInput("data/player/backward1.bin", 143);
+
+		PlayerData beforeShoot = PlayerData.load1(input, wrappedSet, dummyLogger);
+		PlayerData rightAfterShoot = PlayerData.load1(input, wrappedSet, dummyLogger);
+		PlayerData afterShoot = PlayerData.load1(input, wrappedSet, dummyLogger);
+
 		assertTrue(beforeShoot.shootIfAllowed(dummyWand, 10, true));
 		assertFalse(rightAfterShoot.shootIfAllowed(dummyWand, 17, true));
 		assertTrue(afterShoot.shootIfAllowed(dummyWand, 20, true));
@@ -111,5 +143,7 @@ public class TestPlayerData {
 		assertFalse(data.clean(201));
 		assertFalse(data.clean(205));
 		assertTrue(data.clean(220));
+
+		// TODO Test when command cooldowns are non-empty
 	}
 }

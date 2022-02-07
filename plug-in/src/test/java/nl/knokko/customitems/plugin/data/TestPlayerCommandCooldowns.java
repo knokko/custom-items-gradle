@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static nl.knokko.customitems.plugin.data.IOHelper.getResourceBitInput;
 import static org.junit.Assert.*;
 
 public class TestPlayerCommandCooldowns {
@@ -145,21 +146,6 @@ public class TestPlayerCommandCooldowns {
         }
     }
 
-    private BitInput getResourceBitInput(String resourcePath, int resourceSize) {
-        try {
-            DataInputStream dataInput = new DataInputStream(Objects.requireNonNull(
-                    TestPlayerCommandCooldowns.class.getClassLoader().getResourceAsStream(resourcePath)
-            ));
-            byte[] dataBytes = new byte[resourceSize];
-            dataInput.readFully(dataBytes);
-            dataInput.close();
-
-            return new ByteArrayBitInput(dataBytes);
-        } catch (IOException io) {
-            throw new RuntimeException(io);
-        }
-    }
-
     @Test
     public void testBackwardCompatibility1() throws UnknownEncodingException {
         PlayerCommandCooldowns loadedCooldowns = new PlayerCommandCooldowns();
@@ -231,4 +217,6 @@ public class TestPlayerCommandCooldowns {
         assertFalse(loadedCooldowns.isOnCooldown(newItem, ItemCommandEvent.LEFT_CLICK_GENERAL, 0, baseTime));
         assertTrue(loadedCooldowns.isOnCooldown(newItem, ItemCommandEvent.LEFT_CLICK_GENERAL, 1, baseTime));
     }
+
+    // TODO Test clean
 }
