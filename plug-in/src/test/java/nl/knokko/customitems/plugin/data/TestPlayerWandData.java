@@ -1,5 +1,6 @@
 package nl.knokko.customitems.plugin.data;
 
+import static nl.knokko.customitems.plugin.data.IOHelper.getResourceBitInput;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -58,6 +59,41 @@ public class TestPlayerWandData {
 	
 	static final CustomWandValues WITHOUT = createWithout();
 
+	private void checkLoadedData1(BitInput input) {
+		PlayerWandData.discard1(input);
+		PlayerWandData withNoCD = PlayerWandData.load1(input, WITH);
+		PlayerWandData.discard1(input);
+		PlayerWandData withCD = PlayerWandData.load1(input, WITH);
+		PlayerWandData.discard1(input);
+		PlayerWandData withoutNoCD = PlayerWandData.load1(input, WITHOUT);
+		PlayerWandData.discard1(input);
+		PlayerWandData withoutCD = PlayerWandData.load1(input, WITHOUT);
+		input.terminate();
+
+		// Check if they were saved successfully
+		assertFalse(withNoCD.isMissingCharges(WITH, 95));
+		assertFalse(withNoCD.isOnCooldown(95));
+		assertTrue(withNoCD.canShootNow(WITH, 95));
+
+		assertTrue(withCD.isMissingCharges(WITH, 95));
+		assertFalse(withCD.isOnCooldown(95));
+		assertTrue(withCD.canShootNow(WITH, 95));
+
+		assertFalse(withoutNoCD.isMissingCharges(WITHOUT, 30));
+		assertFalse(withoutNoCD.isOnCooldown(30));
+		assertTrue(withoutNoCD.canShootNow(WITHOUT, 30));
+
+		assertFalse(withoutCD.isMissingCharges(WITHOUT, 30));
+		assertTrue(withoutCD.isOnCooldown(30));
+		assertFalse(withoutCD.canShootNow(WITHOUT, 30));
+	}
+
+	@Test
+	public void testBackwardCompatibility1() {
+		BitInput bitInput = getResourceBitInput("data/wand/backward1.bin", 42);
+		checkLoadedData1(bitInput);
+	}
+
 	@Test
 	public void testSaveLoadDiscard() {
 		
@@ -78,35 +114,10 @@ public class TestPlayerWandData {
 		without.save1(output, WITHOUT, 30);
 		without.save1(output, WITHOUT, 30);
 		output.terminate();
-		
+
 		// Convert them back
 		BitInput input = new ByteArrayBitInput(output.getBytes());
-		PlayerWandData.discard1(input);
-		PlayerWandData withNoCD = PlayerWandData.load1(input, WITH);
-		PlayerWandData.discard1(input);
-		PlayerWandData withCD = PlayerWandData.load1(input, WITH);
-		PlayerWandData.discard1(input);
-		PlayerWandData withoutNoCD = PlayerWandData.load1(input, WITHOUT);
-		PlayerWandData.discard1(input);
-		PlayerWandData withoutCD = PlayerWandData.load1(input, WITHOUT);
-		input.terminate();
-		
-		// Check if they were saved successfully
-		assertFalse(withNoCD.isMissingCharges(WITH, 95));
-		assertFalse(withNoCD.isOnCooldown(95));
-		assertTrue(withNoCD.canShootNow(WITH, 95));
-		
-		assertTrue(withCD.isMissingCharges(WITH, 95));
-		assertFalse(withCD.isOnCooldown(95));
-		assertTrue(withCD.canShootNow(WITH, 95));
-		
-		assertFalse(withoutNoCD.isMissingCharges(WITHOUT, 30));
-		assertFalse(withoutNoCD.isOnCooldown(30));
-		assertTrue(withoutNoCD.canShootNow(WITHOUT, 30));
-		
-		assertFalse(withoutCD.isMissingCharges(WITHOUT, 30));
-		assertTrue(withoutCD.isOnCooldown(30));
-		assertFalse(withoutCD.canShootNow(WITHOUT, 30));
+		checkLoadedData1(input);
 	}
 	
 	@Test
