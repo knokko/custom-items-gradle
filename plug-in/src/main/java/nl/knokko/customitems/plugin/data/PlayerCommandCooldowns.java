@@ -47,6 +47,17 @@ public class PlayerCommandCooldowns {
         }
     }
 
+    public void discard(BitInput input) throws UnknownEncodingException {
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("PlayerCommandCooldowns", encoding);
+
+        int numEntries = input.readInt();
+        for (int counter = 0; counter < numEntries; counter++) {
+            input.readString();
+            new ItemEntry().discard(input);
+        }
+    }
+
     public void save(BitOutput output, ItemSetWrapper itemSet) {
         output.addByte((byte) 1);
 
@@ -74,7 +85,7 @@ public class PlayerCommandCooldowns {
         return entry != null && entry.isOnCooldown(event, commandIndex, currentTick);
     }
 
-    private static class ItemEntry {
+    static class ItemEntry {
 
         final Map<ItemCommandEvent, ItemEventEntry> commandMap = new EnumMap<>(ItemCommandEvent.class);
 
@@ -141,7 +152,7 @@ public class PlayerCommandCooldowns {
         }
     }
 
-    private static class ItemEventEntry {
+    static class ItemEventEntry {
 
         final Map<Integer, Long> cooldownsPerCommandIndex = new HashMap<>();
 

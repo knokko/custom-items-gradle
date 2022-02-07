@@ -220,7 +220,19 @@ public class TestPlayerCommandCooldowns {
         assertTrue(loadedCooldowns.isOnCooldown(newItem, ItemCommandEvent.LEFT_CLICK_GENERAL, 1, baseTime));
     }
 
-    // TODO Test full discard
+    @Test
+    public void testDiscard() throws UnknownEncodingException {
+        PlayerCommandCooldowns cooldowns = new PlayerCommandCooldowns();
+        setTestCooldowns(cooldowns);
+
+        ByteArrayBitOutput bitOutput = new ByteArrayBitOutput();
+        cooldowns.save(bitOutput, createSingleItemSet(generateOriginalTestItem()));
+        bitOutput.addInt(12345);
+
+        ByteArrayBitInput bitInput = new ByteArrayBitInput(bitOutput.getBytes());
+        cooldowns.discard(bitInput);
+        assertEquals(12345, bitInput.readInt());
+    }
 
     @Test
     public void testClean() {
