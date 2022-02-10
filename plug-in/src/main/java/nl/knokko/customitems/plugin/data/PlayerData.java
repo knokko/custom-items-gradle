@@ -45,6 +45,9 @@ class PlayerData {
 	}
 
 	public static PlayerData load2(BitInput input, ItemSetWrapper set, Logger logger) throws UnknownEncodingException {
+		byte encoding = input.readByte();
+		if (encoding != 2) throw new UnknownEncodingException("PlayerData2", encoding);
+
 		PlayerData result = load1(input, set, logger);
 		result.commandCooldowns.load(input, set);
 		return result;
@@ -121,6 +124,7 @@ class PlayerData {
 	}
 
 	public void save2(BitOutput output, ItemSetWrapper itemSet, long currentTick) {
+		output.addByte((byte) 2);
 		save1(output, currentTick);
 		commandCooldowns.save(output, itemSet);
 	}

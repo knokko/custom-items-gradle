@@ -155,7 +155,7 @@ public class TestPlayerData {
 		ItemSetWrapper wrappedSet = createTestItemSet2();
 		CustomItemValues dummyWand = wrappedSet.getItem("dummy_wand");
 
-		BitInput input = IOHelper.getResourceBitInput("data/player/backward2.bin", 119);
+		BitInput input = IOHelper.getResourceBitInput("data/player/backward2.bin", 120);
 		PlayerData loadedPlayerData = PlayerData.load2(input, wrappedSet, Logger.getGlobal());
 		assertEquals(-1234, input.readInt());
 		input.terminate();
