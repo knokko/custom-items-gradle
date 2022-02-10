@@ -71,9 +71,13 @@ import nl.knokko.customitems.drops.DropValues;
 import nl.knokko.customitems.drops.MobDropValues;
 import nl.knokko.customitems.effect.PotionEffectValues;
 import nl.knokko.customitems.item.*;
+import nl.knokko.customitems.item.command.CommandSubstitution;
+import nl.knokko.customitems.item.command.ItemCommand;
+import nl.knokko.customitems.item.command.ItemCommandEvent;
 import nl.knokko.customitems.itemset.BlockDropsView;
 import nl.knokko.customitems.itemset.CustomRecipesView;
 import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.plugin.data.PluginData;
 import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
 import nl.knokko.customitems.plugin.recipe.IngredientEntry;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
@@ -88,6 +92,8 @@ import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.*;
@@ -339,18 +345,153 @@ public class CustomItemsEventHandler implements Listener {
 		}
 	}
 
-	@EventHandler
-	public void handleCommands (PlayerInteractEvent event) {
-		if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-			ItemStack item = event.getItem();
-			CustomItemValues custom = itemSet.getItem(item);
-			if (custom != null) {
-				Player player = event.getPlayer();
-				List<String> commands = custom.getLegacyCommands();
-				for (String command : commands) {
-					player.performCommand(command);
+	private Map<CommandSubstitution, String> createGeneralSubstitutionMap(Player player) {
+		Map<CommandSubstitution, String> result = new EnumMap<>(CommandSubstitution.class);
+		result.put(CommandSubstitution.WORLD_NAME, player.getWorld().getName());
+		result.put(CommandSubstitution.PLAYER_NAME, player.getName());
+		result.put(CommandSubstitution.PLAYER_X, Double.toString(player.getLocation().getX()));
+		result.put(CommandSubstitution.PLAYER_Y, Double.toString(player.getLocation().getY()));
+		result.put(CommandSubstitution.PLAYER_Z, Double.toString(player.getLocation().getZ()));
+		result.put(CommandSubstitution.PLAYER_BLOCK_X, Integer.toString(player.getLocation().getBlockX()));
+		result.put(CommandSubstitution.PLAYER_BLOCK_Y, Integer.toString(player.getLocation().getBlockY() - 1));
+		result.put(CommandSubstitution.PLAYER_BLOCK_Z, Integer.toString(player.getLocation().getBlockZ()));
+		return result;
+	}
+
+	private Map<CommandSubstitution, String> createBlockSubstitutionMap(Player player, Block block) {
+		Map<CommandSubstitution, String> result = createGeneralSubstitutionMap(player);
+		result.put(CommandSubstitution.BLOCK_X, Integer.toString(block.getX()));
+		result.put(CommandSubstitution.BLOCK_Y, Integer.toString(block.getY()));
+		result.put(CommandSubstitution.BLOCK_Z, Integer.toString(block.getZ()));
+		return result;
+	}
+
+	private Map<CommandSubstitution, String> createEntitySubstitutionMap(Player player, Entity target) {
+		Map<CommandSubstitution, String> result = createGeneralSubstitutionMap(player);
+		result.put(CommandSubstitution.TARGET_X, Double.toString(target.getLocation().getX()));
+		result.put(CommandSubstitution.TARGET_Y, Double.toString(target.getLocation().getY()));
+		result.put(CommandSubstitution.TARGET_Z, Double.toString(target.getLocation().getZ()));
+		result.put(CommandSubstitution.TARGET_BLOCK_X, Integer.toString(target.getLocation().getBlockX()));
+		result.put(CommandSubstitution.TARGET_BLOCK_Y, Integer.toString(target.getLocation().getBlockY() - 1));
+		result.put(CommandSubstitution.TARGET_BLOCK_Z, Integer.toString(target.getLocation().getBlockZ()));
+		return result;
+	}
+
+	private Map<CommandSubstitution, String> createPlayerSubstitutionMap(Player player, Player target) {
+		Map<CommandSubstitution, String> result = createEntitySubstitutionMap(player, target);
+		result.put(CommandSubstitution.TARGET_NAME, target.getName());
+		return result;
+	}
+
+	private void executeItemCommands(
+			ItemCommandEvent event, Player player, CustomItemValues item,
+			Map<CommandSubstitution, String> substitutionMap
+	) {
+		Random rng = new Random();
+		PluginData pluginData = CustomItemsPlugin.getInstance().getData();
+		List<ItemCommand> commands = item.getCommandSystem().getCommandsFor(event);
+		for (int commandIndex = 0; commandIndex < commands.size(); commandIndex++) {
+			ItemCommand command = commands.get(commandIndex);
+			if (!pluginData.isOnCooldown(player, item, event, commandIndex)) {
+				if (command.getChance().apply(rng)) {
+					String finalCommand = event.performSubstitutions(command.getRawCommand(), substitutionMap);
+					CommandSender executor;
+					if (command.getExecutor() == ItemCommand.Executor.CONSOLE) {
+						executor = Bukkit.getConsoleSender();
+					} else if (command.getExecutor() == ItemCommand.Executor.PLAYER) {
+						executor = player;
+					} else {
+						throw new UnsupportedOperationException("Unknown command executor: " + command.getExecutor());
+					}
+					Bukkit.dispatchCommand(executor, finalCommand);
+					pluginData.setOnCooldown(player, item, event, commandIndex);
+				} else if (command.activateCooldownWhenChanceFails()) {
+					pluginData.setOnCooldown(player, item, event, commandIndex);
 				}
 			}
+		}
+	}
+
+	@EventHandler
+	public void handleCommands(PlayerInteractEvent event) {
+		ItemStack item = event.getItem();
+		CustomItemValues custom = itemSet.getItem(item);
+		if (custom != null) {
+			if (event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) {
+				executeItemCommands(
+						ItemCommandEvent.LEFT_CLICK_GENERAL, event.getPlayer(), custom,
+						createGeneralSubstitutionMap(event.getPlayer())
+				);
+			}
+			if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+				executeItemCommands(
+						ItemCommandEvent.RIGHT_CLICK_GENERAL, event.getPlayer(), custom,
+						createGeneralSubstitutionMap(event.getPlayer())
+				);
+			}
+			if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
+				executeItemCommands(
+						ItemCommandEvent.LEFT_CLICK_BLOCK, event.getPlayer(), custom,
+						createBlockSubstitutionMap(event.getPlayer(), event.getClickedBlock())
+				);
+			}
+			if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+				executeItemCommands(
+						ItemCommandEvent.RIGHT_CLICK_BLOCK, event.getPlayer(), custom,
+						createBlockSubstitutionMap(event.getPlayer(), event.getClickedBlock())
+				);
+			}
+		}
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void handleCommands(PlayerInteractEntityEvent event) {
+		ItemStack item = event.getPlayer().getInventory().getItemInMainHand();
+		CustomItemValues custom = itemSet.getItem(item);
+		if (event.getHand() == EquipmentSlot.HAND && custom != null) {
+			executeItemCommands(
+					ItemCommandEvent.RIGHT_CLICK_ENTITY, event.getPlayer(), custom,
+					createEntitySubstitutionMap(event.getPlayer(), event.getRightClicked())
+			);
+			if (event.getRightClicked() instanceof Player) {
+				executeItemCommands(
+						ItemCommandEvent.RIGHT_CLICK_PLAYER, event.getPlayer(), custom,
+						createPlayerSubstitutionMap(event.getPlayer(), (Player) event.getRightClicked())
+				);
+			}
+		}
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void handleCommands(EntityDamageByEntityEvent event) {
+		if (event.getDamager() instanceof Player) {
+			Player player = (Player) event.getDamager();
+			ItemStack item = player.getInventory().getItemInMainHand();
+			CustomItemValues custom = itemSet.getItem(item);
+			if (custom != null) {
+				executeItemCommands(
+						ItemCommandEvent.MELEE_ATTACK_ENTITY, player, custom,
+						createEntitySubstitutionMap(player, event.getEntity())
+				);
+				if (event.getEntity() instanceof Player) {
+					executeItemCommands(
+							ItemCommandEvent.MELEE_ATTACK_PLAYER, player, custom,
+							createPlayerSubstitutionMap(player, (Player) event.getEntity())
+					);
+				}
+			}
+		}
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void handleCommands(BlockBreakEvent event) {
+		ItemStack item = event.getPlayer().getInventory().getItemInMainHand();
+		CustomItemValues custom = itemSet.getItem(item);
+		if (custom != null) {
+			executeItemCommands(
+					ItemCommandEvent.BREAK_BLOCK, event.getPlayer(), custom,
+					createBlockSubstitutionMap(event.getPlayer(), event.getBlock())
+			);
 		}
 	}
 	
