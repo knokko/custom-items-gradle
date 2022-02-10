@@ -45,7 +45,6 @@ public class CommandCollectionEdit extends InlineCollectionEdit<ItemCommand> {
         ItemCommand command = this.ownCollection.get(itemIndex);
         float height = maxY - minY;
         float midY = minY + 0.5f * height;
-        // TODO Remove button
         addComponent(
                 new EagerTextEditField(command.getRawCommand(), EDIT_BASE, EDIT_ACTIVE, command::setRawCommand),
                 0.25f, midY, 1f, maxY
@@ -88,7 +87,6 @@ public class CommandCollectionEdit extends InlineCollectionEdit<ItemCommand> {
 
     @Override
     protected String getHelpPage() {
-        // TODO Create help pages
-        return null;
+        return "edit menu/items/edit/command/list.html";
     }
 }

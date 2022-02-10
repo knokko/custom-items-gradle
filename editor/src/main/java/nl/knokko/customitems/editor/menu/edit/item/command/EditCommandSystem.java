@@ -1,6 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.item.command;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.item.command.ItemCommand;
 import nl.knokko.customitems.item.command.ItemCommandEvent;
@@ -29,6 +30,8 @@ public class EditCommandSystem extends GuiMenu {
 
     @Override
     protected void addComponents() {
+        HelpButtons.addHelpLink(this, "edit menu/items/edit/command/events.html");
+
         DynamicTextComponent errorComponent = new DynamicTextComponent("", ERROR);
         addComponent(errorComponent, 0.1f, 0.9f, 1f, 1f);
 

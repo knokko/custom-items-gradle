@@ -1,5 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.item.command;
 
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.command.CommandSubstitution;
 import nl.knokko.customitems.item.command.ItemCommand;
 import nl.knokko.customitems.item.command.ItemCommandEvent;
