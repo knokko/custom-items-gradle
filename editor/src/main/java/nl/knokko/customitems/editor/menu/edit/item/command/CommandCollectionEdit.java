@@ -69,7 +69,7 @@ public class CommandCollectionEdit extends InlineCollectionEdit<ItemCommand> {
                 new CheckboxComponent(command.activateCooldownWhenChanceFails(), command::setActivateCooldownWhenChanceFails),
                 0.665f, minY + 0.125f * height, 0.685f, minY + 0.375f * height
         );
-        addComponent(new DynamicTextComponent("Active cooldown when chance fails", LABEL), 0.69f, minY, 0.97f, midY);
+        addComponent(new DynamicTextComponent("Activate cooldown when chance fails", LABEL), 0.69f, minY, 0.97f, midY);
         addComponent(
                 new ImageButton(deleteBase, deleteHover, () -> removeItem(itemIndex)),
                 0.97f, minY, 1f, midY
