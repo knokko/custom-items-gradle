@@ -19,17 +19,15 @@ import nl.knokko.customitems.util.ValidationException;
 import org.junit.Test;
 
 import java.awt.image.BufferedImage;
-import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static nl.knokko.customitems.plugin.data.IOHelper.getResourceBitInput;
 import static org.junit.Assert.*;
 
 public class TestPlayerCommandCooldowns {
 
-    private ItemSetWrapper createSingleItemSet(CustomItemValues item) {
+    static ItemSetWrapper createSingleItemSet(CustomItemValues item) {
         try {
             ItemSet itemSet = new ItemSet(ItemSet.Side.EDITOR);
 
@@ -52,7 +50,7 @@ public class TestPlayerCommandCooldowns {
         }
     }
 
-    private ItemCommand createTestCommand(String rawCommand, int cooldown) {
+    static ItemCommand createTestCommand(String rawCommand, int cooldown) {
         ItemCommand command = new ItemCommand(true);
         command.setRawCommand(rawCommand);
         command.setCooldown(cooldown);
