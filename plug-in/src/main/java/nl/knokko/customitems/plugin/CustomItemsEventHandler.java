@@ -436,7 +436,7 @@ public class CustomItemsEventHandler implements Listener {
 											player.getInventory().setItemInMainHand(stack);
 										}
 									} else {
-										player.getInventory().addItem(stack);
+										addItemToInventory(player, stack);
 									}
 								} else {
 									Bukkit.getLogger().log(Level.WARNING, "The item: " + custom.getDisplayName() + " tried to replace itself with nothing. This indicates an error during exporting or a bug in the plugin.");
@@ -466,7 +466,7 @@ public class CustomItemsEventHandler implements Listener {
 											player.getInventory().setItemInMainHand(stack);
 										}
 									} else {
-										player.getInventory().addItem(stack);
+										addItemToInventory(player, stack);
 									}
 								} else {
 									Bukkit.getLogger().log(Level.WARNING, "The item: " + custom.getDisplayName() + " tried to replace itself with nothing. This indicates an error during exporting or a bug in the plugin.");
@@ -498,7 +498,7 @@ public class CustomItemsEventHandler implements Listener {
 											player.getInventory().setItemInMainHand(stack);
 										}
 									} else {
-										player.getInventory().addItem(stack);
+										addItemToInventory(player, stack);
 									}
 								} else {
 									Bukkit.getLogger().log(Level.WARNING, "The item: " + custom.getDisplayName() + " tried to replace itself with nothing. This indicates an error during exporting or a bug in the plugin.");
@@ -512,6 +512,12 @@ public class CustomItemsEventHandler implements Listener {
 					}
 				}, 10L);
 			}
+		}
+	}
+
+	private void addItemToInventory(Player player, ItemStack item) {
+		for (ItemStack didntFit : player.getInventory().addItem(item).values()) {
+			player.getWorld().dropItem(player.getLocation(), didntFit);
 		}
 	}
 	
@@ -1381,7 +1387,7 @@ public class CustomItemsEventHandler implements Listener {
 						if (helmet instanceof CustomArmorValues) {
 							String newItemName = checkBrokenCondition(helmet.getReplacementConditions());
 							if (newItemName != null) {
-								player.getInventory().addItem(wrap(itemSet.getItem(newItemName)).create(1));
+								addItemToInventory(player, wrap(itemSet.getItem(newItemName)).create(1));
 							}
 						}
 						playBreakSound(player);
@@ -1397,7 +1403,7 @@ public class CustomItemsEventHandler implements Listener {
 						if (plate instanceof CustomArmorValues) {
 							String newItemName = checkBrokenCondition(plate.getReplacementConditions());
 							if (newItemName != null) {
-								player.getInventory().addItem(wrap(itemSet.getItem(newItemName)).create(1));
+								addItemToInventory(player, wrap(itemSet.getItem(newItemName)).create(1));
 							}
 						}
 						playBreakSound(player);
@@ -1413,7 +1419,7 @@ public class CustomItemsEventHandler implements Listener {
 						if (leggings instanceof CustomArmorValues) {
 							String newItemName = checkBrokenCondition(leggings.getReplacementConditions());
 							if (newItemName != null) {
-								player.getInventory().addItem(wrap(itemSet.getItem(newItemName)).create(1));
+								addItemToInventory(player, wrap(itemSet.getItem(newItemName)).create(1));
 							}
 						}
 						playBreakSound(player);
@@ -1429,7 +1435,7 @@ public class CustomItemsEventHandler implements Listener {
 						if (boots instanceof CustomArmorValues) {
 							String newItemName = checkBrokenCondition(boots.getReplacementConditions());
 							if (newItemName != null) {
-								player.getInventory().addItem(wrap(itemSet.getItem(newItemName)).create(1));
+								addItemToInventory(player, wrap(itemSet.getItem(newItemName)).create(1));
 							}
 						}
 						playBreakSound(player);
@@ -1948,8 +1954,12 @@ public class CustomItemsEventHandler implements Listener {
 									}
 
 									ItemStack result = recipe.getResult();
+									Collection<ItemStack> itemsThatDidntFit = new ArrayList<>(0);
 									for (int counter = 0; counter < trades; counter++) {
-										event.getWhoClicked().getInventory().addItem(result);
+										itemsThatDidntFit.addAll(event.getWhoClicked().getInventory().addItem(result).values());
+									}
+									for (ItemStack didntFit : itemsThatDidntFit) {
+										event.getWhoClicked().getWorld().dropItem(event.getInventory().getLocation(), didntFit);
 									}
 
 									inv.setContents(contents);
@@ -2056,9 +2066,10 @@ public class CustomItemsEventHandler implements Listener {
 									CustomItemValues customResult = itemSet.getItem(result);
 									int amountToGive = baseAmountsToRemove * result.getAmount();
 
+									Collection<ItemStack> itemsThatDidntFit = new ArrayList<>(0);
 									if (customResult != null && !customResult.canStack()) {
 										for (int counter = 0; counter < amountToGive; counter++) {
-											event.getWhoClicked().getInventory().addItem(result.clone());
+											itemsThatDidntFit.addAll(event.getWhoClicked().getInventory().addItem(result.clone()).values());
 										}
 									} else {
 										int maxStacksize = customResult == null ? 64 : customResult.getMaxStacksize();
@@ -2067,13 +2078,17 @@ public class CustomItemsEventHandler implements Listener {
 											ItemStack clonedResult = result.clone();
 											if (left > maxStacksize) {
 												clonedResult.setAmount(maxStacksize);
-												event.getWhoClicked().getInventory().addItem(clonedResult);
+												itemsThatDidntFit.addAll(event.getWhoClicked().getInventory().addItem(clonedResult).values());
 											} else {
 												clonedResult.setAmount(left);
-												event.getWhoClicked().getInventory().addItem(clonedResult);
+												itemsThatDidntFit.addAll(event.getWhoClicked().getInventory().addItem(clonedResult).values());
 												break;
 											}
 										}
+									}
+
+									for (ItemStack didntFit : itemsThatDidntFit) {
+										event.getWhoClicked().getWorld().dropItem(event.getWhoClicked().getLocation(), didntFit);
 									}
 								}
 
