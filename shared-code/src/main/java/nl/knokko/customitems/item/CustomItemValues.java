@@ -738,7 +738,7 @@ public abstract class CustomItemValues extends ModelValues {
     public void setEquippedEffects(Collection<EquippedPotionEffectValues> newEquippedEffects) {
         assertMutable();
         Checks.nonNull(newEquippedEffects);
-        this.equippedEffects = Mutability.createDeepCopy(equippedEffects, false);
+        this.equippedEffects = Mutability.createDeepCopy(newEquippedEffects, false);
     }
 
     public void setCommands(List<String> newCommands) {
