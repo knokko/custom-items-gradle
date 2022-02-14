@@ -125,8 +125,8 @@ public abstract class CustomItemValues extends ModelValues {
     protected Collection<EnchantmentValues> defaultEnchantments;
 
     // Potion properties
-    protected Collection<PotionEffectValues> playerEffects;
-    protected Collection<PotionEffectValues> targetEffects;
+    protected Collection<ChancePotionEffectValues> playerEffects;
+    protected Collection<ChancePotionEffectValues> targetEffects;
     protected Collection<EquippedPotionEffectValues> equippedEffects;
 
     // Right-click properties
@@ -252,7 +252,9 @@ public abstract class CustomItemValues extends ModelValues {
         }
 
         this.loadVanillaBasedPowers4(input);
-        this.loadPotionProperties10(input);
+        this.playerEffects = this.loadChanceEffects(input);
+        this.targetEffects = this.loadChanceEffects(input);
+        this.loadEquippedPotionEffects10(input);
         this.loadReplacementConditions10(input, itemSet);
         this.commandSystem = ItemCommandSystem.load(input);
         this.loadExtraProperties10(input);
@@ -274,7 +276,9 @@ public abstract class CustomItemValues extends ModelValues {
         }
 
         this.saveVanillaBasedPowers4(output);
-        this.savePotionProperties10(output);
+        this.saveChanceEffects(output, this.playerEffects);
+        this.saveChanceEffects(output, this.targetEffects);
+        this.saveEquippedPotionEffects10(output);
         this.saveReplacementConditions10(output);
         this.commandSystem.save(output);
         this.saveExtraProperties10(output);
@@ -370,30 +374,39 @@ public abstract class CustomItemValues extends ModelValues {
         }
     }
 
+    protected void saveChanceEffects(BitOutput output, Collection<ChancePotionEffectValues> effects) {
+        output.addInt(effects.size());
+        for (ChancePotionEffectValues effect : effects) {
+            effect.save(output);
+        }
+    }
+
+    protected Collection<ChancePotionEffectValues> loadChanceEffects(BitInput input) throws UnknownEncodingException {
+        int numEffects = input.readInt();
+        Collection<ChancePotionEffectValues> result = new ArrayList<>(numEffects);
+        for (int counter = 0; counter < numEffects; counter++) {
+            result.add(ChancePotionEffectValues.load(input));
+        }
+        return result;
+    }
+
     protected void loadPotionProperties9(BitInput input) {
         loadOnHitPlayerEffects9(input);
         loadOnHitTargetEffects9(input);
     }
 
-    protected void savePotionProperties9(BitOutput output) {
-        saveOnHitPlayerEffects9(output);
-        saveOnHitTargetEffects9(output);
-    }
-
     protected void loadOnHitPlayerEffects9(BitInput input) {
-        this.playerEffects = loadPotionEffectList(input);
-    }
-
-    protected void saveOnHitPlayerEffects9(BitOutput output) {
-        savePotionEffectList(playerEffects, output);
+        Collection<PotionEffectValues> rawEffectList = loadPotionEffectList(input);
+        this.playerEffects = rawEffectList.stream().map(
+                rawEffect -> ChancePotionEffectValues.createQuick(rawEffect, Chance.percentage(100))
+        ).collect(Collectors.toList());
     }
 
     protected void loadOnHitTargetEffects9(BitInput input) {
-        this.targetEffects = loadPotionEffectList(input);
-    }
-
-    protected void saveOnHitTargetEffects9(BitOutput output) {
-        savePotionEffectList(targetEffects, output);
+        Collection<PotionEffectValues> rawEffectList = loadPotionEffectList(input);
+        this.targetEffects = rawEffectList.stream().map(
+                rawEffect -> ChancePotionEffectValues.createQuick(rawEffect, Chance.percentage(100))
+        ).collect(Collectors.toList());
     }
 
     protected Collection<PotionEffectValues> loadPotionEffectList(BitInput input) {
@@ -415,11 +428,6 @@ public abstract class CustomItemValues extends ModelValues {
     protected void loadPotionProperties10(BitInput input) {
         loadPotionProperties9(input);
         loadEquippedPotionEffects10(input);
-    }
-
-    protected void savePotionProperties10(BitOutput output) {
-        savePotionProperties9(output);
-        saveEquippedPotionEffects10(output);
     }
 
     protected void loadEquippedPotionEffects10(BitInput input) {
@@ -623,11 +631,11 @@ public abstract class CustomItemValues extends ModelValues {
         return new ArrayList<>(defaultEnchantments);
     }
 
-    public Collection<PotionEffectValues> getOnHitPlayerEffects() {
+    public Collection<ChancePotionEffectValues> getOnHitPlayerEffects() {
         return new ArrayList<>(playerEffects);
     }
 
-    public Collection<PotionEffectValues> getOnHitTargetEffects() {
+    public Collection<ChancePotionEffectValues> getOnHitTargetEffects() {
         return new ArrayList<>(targetEffects);
     }
 
@@ -750,13 +758,13 @@ public abstract class CustomItemValues extends ModelValues {
         this.defaultEnchantments = Mutability.createDeepCopy(newDefaultEnchantments, false);
     }
 
-    public void setPlayerEffects(Collection<PotionEffectValues> newPlayerEffects) {
+    public void setPlayerEffects(Collection<ChancePotionEffectValues> newPlayerEffects) {
         assertMutable();
         Checks.nonNull(newPlayerEffects);
         this.playerEffects = Mutability.createDeepCopy(newPlayerEffects, false);
     }
 
-    public void setTargetEffects(Collection<PotionEffectValues> newTargetEffects) {
+    public void setTargetEffects(Collection<ChancePotionEffectValues> newTargetEffects) {
         assertMutable();
         Checks.nonNull(newTargetEffects);
         this.targetEffects = Mutability.createDeepCopy(newTargetEffects, false);
@@ -845,14 +853,14 @@ public abstract class CustomItemValues extends ModelValues {
 
         if (playerEffects == null) throw new ProgrammingValidationException("No on-hit player effects");
         if (playerEffects.size() > Byte.MAX_VALUE) throw new ValidationException("Too many on-hit player effects");
-        for (PotionEffectValues effect : playerEffects) {
+        for (ChancePotionEffectValues effect : playerEffects) {
             if (effect == null) throw new ProgrammingValidationException("Missing an on-hit player effect");
             Validation.scope("On-hit player effect", effect::validate);
         }
 
         if (targetEffects == null) throw new ProgrammingValidationException("No on-hit target effects");
         if (targetEffects.size() > Byte.MAX_VALUE) throw new ValidationException("Too many on-hit target effects");
-        for (PotionEffectValues effect : targetEffects) {
+        for (ChancePotionEffectValues effect : targetEffects) {
             if (effect == null) throw new ProgrammingValidationException("Missing an on-hit target effect");
             Validation.scope("On-hit target effect", effect::validate);
         }
@@ -933,11 +941,11 @@ public abstract class CustomItemValues extends ModelValues {
             Validation.scope("Default enchantment", () -> enchantment.validateExportVersion(version));
         }
 
-        for (PotionEffectValues effect : playerEffects) {
+        for (ChancePotionEffectValues effect : playerEffects) {
             Validation.scope("On-hit player effect", () -> effect.validateExportVersion(version));
         }
 
-        for (PotionEffectValues effect : targetEffects) {
+        for (ChancePotionEffectValues effect : targetEffects) {
             Validation.scope("On-hit target effect", () -> effect.validateExportVersion(version));
         }
 

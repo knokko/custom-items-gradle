@@ -33,6 +33,15 @@ public class Chance {
         return other instanceof Chance && this.rawValue == ((Chance) other).rawValue;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder backPart = new StringBuilder(Integer.toString(this.rawValue % ONE_PERCENT));
+        while (backPart.length() < NUM_BACK_DIGITS) {
+            backPart.insert(0, "0");
+        }
+        return (this.rawValue / ONE_PERCENT) + "." + backPart + "%";
+    }
+
     public int getRawValue() {
         return rawValue;
     }

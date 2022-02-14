@@ -25,6 +25,7 @@ import nl.knokko.customitems.recipe.result.CustomItemResultValues;
 import nl.knokko.customitems.recipe.result.DataVanillaResultValues;
 import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
 import nl.knokko.customitems.texture.ArmorTextureValues;
+import nl.knokko.customitems.util.Chance;
 import org.junit.Test;
 
 import java.util.Iterator;
@@ -526,10 +527,10 @@ public class Backward8 {
             assertNull(item.getCustomModel());
         }
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.INVISIBILITY, 30, 1)
+                ChancePotionEffectValues.createQuick(EffectType.INVISIBILITY, 30, 1, Chance.percentage(100))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.POISON, 100, 1)
+                ChancePotionEffectValues.createQuick(EffectType.POISON, 100, 1, Chance.percentage(100))
         ), item.getOnHitTargetEffects());
         ItemCommandSystem summonSheepSystem = new ItemCommandSystem(true);
         summonSheepSystem.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_GENERAL, listOf(ItemCommand.createFromLegacy("summon sheep")));
@@ -584,10 +585,10 @@ public class Backward8 {
         }
         assertNull(item.getCustomModel());
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.NIGHT_VISION, 1000, 1)
+                ChancePotionEffectValues.createQuick(EffectType.NIGHT_VISION, 1000, 1, Chance.percentage(100))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.WITHER, 100, 2)
+                ChancePotionEffectValues.createQuick(EffectType.WITHER, 100, 2, Chance.percentage(100))
         ), item.getOnHitTargetEffects());
         assertEquals(new ItemCommandSystem(true), item.getCommandSystem());
         assertEquals(ReplacementConditionValues.ConditionOperation.NONE, item.getConditionOp());

@@ -314,13 +314,13 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 
 	private void addEffectsComponent() {
 		addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
-			state.getWindow().setMainComponent(new EffectsCollectionEdit(
-					currentValues.getOnHitPlayerEffects(), currentValues::setPlayerEffects, EditItemBase.this
+			state.getWindow().setMainComponent(new ChanceEffectsCollectionEdit(
+					EditItemBase.this, currentValues.getOnHitPlayerEffects(), currentValues::setPlayerEffects
 			));
 		}), BUTTON_X, 0.2f, BUTTON_X + 0.1f, 0.25f);
 		addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
-			state.getWindow().setMainComponent(new EffectsCollectionEdit(
-					currentValues.getOnHitTargetEffects(), currentValues::setTargetEffects, EditItemBase.this
+			state.getWindow().setMainComponent(new ChanceEffectsCollectionEdit(
+					EditItemBase.this, currentValues.getOnHitTargetEffects(), currentValues::setTargetEffects
 			));
 		}), BUTTON_X, 0.14f, BUTTON_X + 0.1f, 0.19f);
 	}

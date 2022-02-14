@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import nl.knokko.core.plugin.CorePlugin;
 import nl.knokko.core.plugin.item.GeneralItemNBT;
 import nl.knokko.core.plugin.item.attributes.ItemAttributes;
+import nl.knokko.customitems.effect.ChancePotionEffectValues;
 import nl.knokko.customitems.effect.PotionEffectValues;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.nbt.NbtValueType;
@@ -22,6 +23,7 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Random;
 
 public abstract class CustomItemWrapper {
 
@@ -170,21 +172,26 @@ public abstract class CustomItemWrapper {
     public void onEntityHit(LivingEntity attacker, ItemStack weapon, Entity target) {
 
         Collection<PotionEffect> pe = new ArrayList<>();
-        for (PotionEffectValues effect : this.item.getOnHitPlayerEffects()) {
-            pe.add(new PotionEffect(
-                    PotionEffectType.getByName(effect.getType().name()),
-                    effect.getDuration() * 20,
-                    effect.getLevel() - 1)
-            );
+        Random rng = new Random();
+        for (ChancePotionEffectValues effect : this.item.getOnHitPlayerEffects()) {
+            if (effect.getChance().apply(rng)) {
+                pe.add(new PotionEffect(
+                        PotionEffectType.getByName(effect.getType().name()),
+                        effect.getDuration() * 20,
+                        effect.getLevel() - 1)
+                );
+            }
         }
 
         Collection<PotionEffect> te = new ArrayList<>();
-        for (PotionEffectValues effect : this.item.getOnHitTargetEffects()) {
-            te.add(new PotionEffect(
-                    PotionEffectType.getByName(effect.getType().name()),
-                    effect.getDuration() * 20,
-                    effect.getLevel() - 1)
-            );
+        for (ChancePotionEffectValues effect : this.item.getOnHitTargetEffects()) {
+            if (effect.getChance().apply(rng)) {
+                te.add(new PotionEffect(
+                        PotionEffectType.getByName(effect.getType().name()),
+                        effect.getDuration() * 20,
+                        effect.getLevel() - 1)
+                );
+            }
         }
 
         attacker.addPotionEffects(pe);

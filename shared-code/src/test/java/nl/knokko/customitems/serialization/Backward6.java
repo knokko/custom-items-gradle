@@ -1,8 +1,8 @@
 package nl.knokko.customitems.serialization;
 
 import nl.knokko.customitems.drops.*;
+import nl.knokko.customitems.effect.ChancePotionEffectValues;
 import nl.knokko.customitems.effect.EffectType;
-import nl.knokko.customitems.effect.PotionEffectValues;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.command.ItemCommand;
 import nl.knokko.customitems.item.command.ItemCommandEvent;
@@ -23,6 +23,7 @@ import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
 import nl.knokko.customitems.recipe.result.CustomItemResultValues;
 import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
+import nl.knokko.customitems.util.Chance;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -100,7 +101,7 @@ public class Backward6 {
         }
         assertEquals(0, trident1.getOnHitPlayerEffects().size());
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.SLOW, 40, 3)
+                ChancePotionEffectValues.createQuick(EffectType.SLOW, 40, 3, Chance.percentage(100))
         ), trident1.getOnHitTargetEffects());
         assertEquals(new ItemCommandSystem(false), trident1.getCommandSystem());
         assertNull(trident1.getCustomThrowingModel());
@@ -304,10 +305,10 @@ public class Backward6 {
             assertNull(item.getCustomBlockingModel());
         }
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.SPEED, 40, 1)
+                ChancePotionEffectValues.createQuick(EffectType.SPEED, 40, 1, Chance.percentage(100))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.INVISIBILITY, 30, 1)
+                ChancePotionEffectValues.createQuick(EffectType.INVISIBILITY, 30, 1, Chance.percentage(100))
         ), item.getOnHitTargetEffects());
         ItemCommandSystem batSystem = new ItemCommandSystem(true);
         batSystem.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_GENERAL, listOf(ItemCommand.createFromLegacy("summon bat")));
@@ -341,7 +342,7 @@ public class Backward6 {
             assertNull(item.getCustomModel());
         }
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.REGENERATION, 100, 1)
+                ChancePotionEffectValues.createQuick(EffectType.REGENERATION, 100, 1, Chance.percentage(100))
         ), item.getOnHitPlayerEffects());
         assertEquals(0, item.getOnHitTargetEffects().size());
         assertEquals(new ItemCommandSystem(false), item.getCommandSystem());

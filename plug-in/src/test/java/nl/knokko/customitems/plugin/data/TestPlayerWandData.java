@@ -4,8 +4,9 @@ import static nl.knokko.customitems.plugin.data.IOHelper.getResourceBitInput;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import nl.knokko.customitems.effect.PotionEffectValues;
+import nl.knokko.customitems.effect.ChancePotionEffectValues;
 import nl.knokko.customitems.item.*;
+import nl.knokko.customitems.util.Chance;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -35,7 +36,7 @@ public class TestPlayerWandData {
 				EnchantmentValues.createQuick(EnchantmentType.FIRE_ASPECT, 1)
 		));
 		with.setPlayerEffects(Lists.newArrayList(
-				PotionEffectValues.createQuick(EffectType.ABSORPTION, 15, 1)
+				ChancePotionEffectValues.createQuick(EffectType.ABSORPTION, 15, 1, Chance.percentage(100))
 		));
 		with.setCooldown(5);
 		with.setCharges(WandChargeValues.createQuick(5, 20));

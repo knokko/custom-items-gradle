@@ -27,6 +27,7 @@ import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
 import nl.knokko.customitems.sound.CISound;
 import nl.knokko.customitems.texture.BowTextureEntry;
 import nl.knokko.customitems.texture.CrossbowTextureValues;
+import nl.knokko.customitems.util.Chance;
 import org.junit.Test;
 
 import java.awt.Color;
@@ -157,10 +158,10 @@ public class Backward9 {
                 false, false, true, true, false, false
         ), item.getItemFlags());
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.REGENERATION, 100, 1)
+                ChancePotionEffectValues.createQuick(EffectType.REGENERATION, 100, 1, Chance.percentage(100))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.POISON, 100, 2)
+                ChancePotionEffectValues.createQuick(EffectType.POISON, 100, 2, Chance.percentage(100))
         ), item.getOnHitTargetEffects());
         ItemCommandSystem killAllSystem = new ItemCommandSystem(true);
         killAllSystem.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_GENERAL, listOf(ItemCommand.createFromLegacy("kill @a")));
@@ -214,10 +215,10 @@ public class Backward9 {
             assertNull(item.getTextureReference());
         }
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.SPEED, 20, 1)
+                ChancePotionEffectValues.createQuick(EffectType.SPEED, 20, 1, Chance.percentage(100))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.WITHER, 50, 2)
+                ChancePotionEffectValues.createQuick(EffectType.WITHER, 50, 2, Chance.percentage(100))
         ), item.getOnHitTargetEffects());
         ItemCommandSystem nightVisionSystem = new ItemCommandSystem(true);
         nightVisionSystem.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_GENERAL, listOf(ItemCommand.createFromLegacy(
@@ -369,10 +370,10 @@ public class Backward9 {
         }
         assertNull(item.getCustomModel());
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.SPEED, 10, 1)
+                ChancePotionEffectValues.createQuick(EffectType.SPEED, 10, 1, Chance.percentage(100))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.SLOW, 20, 1)
+                ChancePotionEffectValues.createQuick(EffectType.SLOW, 20, 1, Chance.percentage(100))
         ), item.getOnHitTargetEffects());
         ItemCommandSystem arrowSystem = new ItemCommandSystem(true);
         arrowSystem.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_GENERAL, listOf(ItemCommand.createFromLegacy("summon arrow")));
@@ -434,10 +435,10 @@ public class Backward9 {
             assertNull(item.getCustomModel());
         }
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.HEAL, 1, 1)
+                ChancePotionEffectValues.createQuick(EffectType.HEAL, 1, 1, Chance.percentage(100))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.HARM, 1, 1)
+                ChancePotionEffectValues.createQuick(EffectType.HARM, 1, 1, Chance.percentage(100))
         ), item.getOnHitTargetEffects());
         ItemCommandSystem stoneSystem = new ItemCommandSystem(true);
         stoneSystem.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_GENERAL, listOf(ItemCommand.createFromLegacy("setblock ~ ~ ~ stone")));
@@ -495,10 +496,10 @@ public class Backward9 {
             assertNull(item.getCustomModel());
         }
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.SATURATION, 100, 1)
+                ChancePotionEffectValues.createQuick(EffectType.SATURATION, 100, 1, Chance.percentage(100))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.HUNGER, 100, 3)
+                ChancePotionEffectValues.createQuick(EffectType.HUNGER, 100, 3, Chance.percentage(100))
         ), item.getOnHitTargetEffects());
         ItemCommandSystem clearSystem = new ItemCommandSystem(true);
         clearSystem.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_GENERAL, listOf(ItemCommand.createFromLegacy("effect @p clear")));
