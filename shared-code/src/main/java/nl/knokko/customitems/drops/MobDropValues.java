@@ -1,7 +1,6 @@
 package nl.knokko.customitems.drops;
 
 import nl.knokko.customitems.MCVersions;
-import nl.knokko.customitems.encoding.DropEncoding;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -20,10 +19,12 @@ public class MobDropValues extends ModelValues {
         byte encoding = input.readByte();
         MobDropValues result = new MobDropValues(false);
 
-        if (encoding == DropEncoding.Entity.ENCODING1) {
+        if (encoding == 0) {
             result.load1(input, itemSet);
-        } else if (encoding == DropEncoding.Entity.ENCODING2) {
+        } else if (encoding == 1) {
             result.load2(input, itemSet);
+        } else if (encoding == 2) {
+            result.load3(input, itemSet);
         } else {
             throw new UnknownEncodingException("MobDrop", encoding);
         }
@@ -69,12 +70,18 @@ public class MobDropValues extends ModelValues {
         this.drop = DropValues.load2(input, itemSet, false);
     }
 
+    private void load3(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        this.entityType = CIEntityType.getByOrdinal(input.readInt());
+        this.requiredName = input.readString();
+        this.drop = DropValues.load(input, itemSet, false);
+    }
+
     public void save(BitOutput output) {
-        output.addByte(DropEncoding.Entity.ENCODING2);
+        output.addByte((byte) 2);
 
         output.addInt(entityType.ordinal());
         output.addString(requiredName);
-        drop.save2(output);
+        drop.save(output);
     }
 
     @Override

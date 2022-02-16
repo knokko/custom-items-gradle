@@ -1,7 +1,6 @@
 package nl.knokko.customitems.drops;
 
 import nl.knokko.customitems.MCVersions;
-import nl.knokko.customitems.encoding.DropEncoding;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -21,10 +20,12 @@ public class BlockDropValues extends ModelValues {
         byte encoding = input.readByte();
         BlockDropValues result = new BlockDropValues(false);
 
-        if (encoding == DropEncoding.Block.ENCODING1) {
+        if (encoding == 0) {
             result.load1(input, itemSet);
-        } else if (encoding == DropEncoding.Block.ENCODING2) {
+        } else if (encoding == 1) {
             result.load2(input, itemSet);
+        } else if (encoding == 2) {
+            result.load3(input, itemSet);
         } else {
             throw new UnknownEncodingException("BlockDrop", encoding);
         }
@@ -71,12 +72,18 @@ public class BlockDropValues extends ModelValues {
         this.drop = DropValues.load2(input, itemSet, false);
     }
 
+    private void load3(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        this.blockType = BlockType.getByOrdinal(input.readInt());
+        this.allowSilkTouch = input.readBoolean();
+        this.drop = DropValues.load(input, itemSet, false);
+    }
+
     public void save(BitOutput output) {
-        output.addByte(DropEncoding.Block.ENCODING2);
+        output.addByte((byte) 2);
 
         output.addInt(blockType.ordinal());
         output.addBoolean(allowSilkTouch);
-        drop.save2(output);
+        drop.save(output);
     }
 
     @Override

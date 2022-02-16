@@ -42,7 +42,7 @@ public class Backward6 {
             testTextures3(oldSet, 3);
             testItemsOld6(oldSet, 21);
             testRecipesOld6(oldSet, 3);
-            testBlockDropsOld6(oldSet, 1);
+            testBlockDropsOld6(oldSet, 1, false);
             testMobDropsOld6(oldSet, 2);
             testProjectileCoversOld6(oldSet, 2);
             testProjectilesOld6(oldSet, 1);
@@ -156,26 +156,38 @@ public class Backward6 {
         return ShapedRecipeValues.createQuick(ingredients, SimpleVanillaResultValues.createQuick(CIMaterial.TORCH, 3));
     }
 
-    private static BlockDropValues createBlockDrop1(ItemSet itemSet) {
+    private static BlockDropValues createBlockDrop1(ItemSet itemSet, boolean useFlatChance) {
         ItemReference simple1 = itemSet.getItemReference("simple1");
         return BlockDropValues.createQuick(
                 BlockType.STONE, false,
                 DropValues.createQuick(
                         OutputTableValues.createQuick(
-                                OutputTableValues.Entry.createQuick(CustomItemResultValues.createQuick(simple1, 2), 2),
-                                OutputTableValues.Entry.createQuick(CustomItemResultValues.createQuick(simple1, 3), 2),
-                                OutputTableValues.Entry.createQuick(CustomItemResultValues.createQuick(simple1, 4), 2),
-                                OutputTableValues.Entry.createQuick(CustomItemResultValues.createQuick(simple1, 5), 4)
+                                OutputTableValues.Entry.createQuick(
+                                        CustomItemResultValues.createQuick(simple1, 2),
+                                        useFlatChance ? Chance.percentage(2) : Chance.nonIntegerPercentage(2.5)
+                                ),
+                                OutputTableValues.Entry.createQuick(
+                                        CustomItemResultValues.createQuick(simple1, 3),
+                                        useFlatChance ? Chance.percentage(2) : Chance.nonIntegerPercentage(2.5)
+                                ),
+                                OutputTableValues.Entry.createQuick(
+                                        CustomItemResultValues.createQuick(simple1, 4),
+                                        useFlatChance ? Chance.percentage(2) : Chance.nonIntegerPercentage(2.5)
+                                ),
+                                OutputTableValues.Entry.createQuick(
+                                        CustomItemResultValues.createQuick(simple1, 5),
+                                        useFlatChance ? Chance.percentage(4) : Chance.nonIntegerPercentage(2.5)
+                                )
                         ),
                         true, new ArrayList<>()
                 )
         );
     }
 
-    static void testBlockDropsOld6(ItemSet set, int numDrops) {
+    static void testBlockDropsOld6(ItemSet set, int numDrops, boolean useFlatChance) {
         assertEquals(numDrops, set.getBlockDrops().size());
 
-        assertTrue(set.getBlockDrops().stream().anyMatch(blockDrop -> blockDrop.equals(createBlockDrop1(set))));
+        assertTrue(set.getBlockDrops().stream().anyMatch(blockDrop -> blockDrop.equals(createBlockDrop1(set, useFlatChance))));
     }
 
     private static MobDropValues createSwordMobDrop(ItemSet itemSet) {

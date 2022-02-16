@@ -29,7 +29,7 @@ public class Backward7 {
             testTextures3(set7, 3);
             testItemsOld6(set7, 21);
             testRecipesOld6(set7, 3);
-            testBlockDropsOld6(set7, 1);
+            testBlockDropsOld6(set7, 1, false);
             testMobDropsOld6(set7, 2);
             testProjectileCoversOld6(set7, 2);
             testProjectilesOld6(set7, 1);

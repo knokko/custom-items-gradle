@@ -2,6 +2,7 @@ package nl.knokko.customitems.editor.menu.edit.container.recipe;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
@@ -12,6 +13,7 @@ import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.result.CustomItemResultValues;
+import nl.knokko.customitems.util.Chance;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
@@ -22,8 +24,7 @@ public class EditOutputTable extends SafeCollectionEdit<OutputTableValues.Entry>
 	private final boolean isCreatingNew;
 	private final ItemSet set;
 	
-	// 101 is an impossible value, so this will trigger a recompute right away
-	private int previousNothingChance = 101;
+	private Chance previousNothingChance = null;
 	private final DynamicTextComponent nothingChanceComponent;
 
 	public EditOutputTable(GuiComponent returnMenu, OutputTableValues original,
@@ -40,9 +41,13 @@ public class EditOutputTable extends SafeCollectionEdit<OutputTableValues.Entry>
 	public void update() {
 		super.update();
 		
-		int currentNothingChance = OutputTableValues.createQuick(currentCollection).getNothingChance();
-		if (currentNothingChance != previousNothingChance) {
-			nothingChanceComponent.setText("Chance to get nothing: " + currentNothingChance + "%");
+		Chance currentNothingChance = OutputTableValues.createQuick(currentCollection).getNothingChance();
+		if (!Objects.equals(currentNothingChance, previousNothingChance)) {
+			if (currentNothingChance != null) {
+				nothingChanceComponent.setText("Chance to get nothing: " + currentNothingChance);
+			} else {
+				nothingChanceComponent.setText("Error: total chance > 100%");
+			}
 			previousNothingChance = currentNothingChance;
 		}
 	}
@@ -64,7 +69,7 @@ public class EditOutputTable extends SafeCollectionEdit<OutputTableValues.Entry>
 
 	@Override
 	protected String getItemLabel(OutputTableValues.Entry item) {
-		return item.getChance() + "% " + item.getResult();
+		return item.getChance() + " " + item.getResult();
 	}
 
 	@Override

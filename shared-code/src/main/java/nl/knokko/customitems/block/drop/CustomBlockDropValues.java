@@ -14,16 +14,16 @@ import nl.knokko.customitems.bithelper.BitOutput;
  */
 public class CustomBlockDropValues extends ModelValues {
 
-    private static final byte ENCODING_1 = 1;
-
     public static CustomBlockDropValues load(
             BitInput input, ItemSet itemSet, boolean mutable
     ) throws UnknownEncodingException {
         byte encoding = input.readByte();
 
         CustomBlockDropValues result = new CustomBlockDropValues(mutable);
-        if (encoding == ENCODING_1) {
+        if (encoding == 1) {
             result.load1(input, itemSet);
+        } else if (encoding == 2) {
+            result.load2(input, itemSet);
         } else {
             throw new UnknownEncodingException("CustomBlockDrop", encoding);
         }
@@ -76,15 +76,23 @@ public class CustomBlockDropValues extends ModelValues {
         this.itemsToDrop = OutputTableValues.load1(input, itemSet);
     }
 
-    public void save(BitOutput output) {
-        output.addByte(ENCODING_1);
-        save1(output);
+    private void load2(
+            BitInput input, ItemSet itemSet
+    ) throws UnknownEncodingException {
+        this.requiredItems = RequiredItemValues.load(input, itemSet, false);
+        this.silkTouch = SilkTouchRequirement.valueOf(input.readString());
+        this.itemsToDrop = OutputTableValues.load(input, itemSet);
     }
 
-    private void save1(BitOutput output) {
+    public void save(BitOutput output) {
+        output.addByte((byte) 2);
+        save2(output);
+    }
+
+    private void save2(BitOutput output) {
         requiredItems.save(output);
         output.addString(silkTouch.name());
-        itemsToDrop.save1(output);
+        itemsToDrop.save(output);
     }
 
     public RequiredItemValues getRequiredItems() {

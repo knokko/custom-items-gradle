@@ -184,7 +184,7 @@ public class Backward8 {
     }
 
     static void testBlockDropsOld8(ItemSet set, int numBlockDrops) {
-        testBlockDropsOld6(set, numBlockDrops);
+        testBlockDropsOld6(set, numBlockDrops, true);
 
         Iterator<BlockDropValues> blockDropIterator = set.getBlockDrops().iterator();
         BlockDropValues firstBlockDrop = blockDropIterator.next();
@@ -201,7 +201,7 @@ public class Backward8 {
         ), drop.getRequiredHeldItems());
 
         OutputTableValues dropTable = drop.getOutputTable();
-        assertEquals(35, dropTable.getNothingChance());
+        assertEquals(Chance.percentage(35), dropTable.getNothingChance());
         assertEquals(listOf(
                 OutputTableValues.Entry.createQuick(CustomItemResultValues.createQuick(set.getItemReference("simple1"), (byte) 1), 30),
                 OutputTableValues.Entry.createQuick(SimpleVanillaResultValues.createQuick(CIMaterial.ACACIA_DOOR, 2), 20),

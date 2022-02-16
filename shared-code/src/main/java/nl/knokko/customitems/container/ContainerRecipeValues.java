@@ -10,10 +10,7 @@ import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
-import nl.knokko.customitems.util.Checks;
-import nl.knokko.customitems.util.ProgrammingValidationException;
-import nl.knokko.customitems.util.Validation;
-import nl.knokko.customitems.util.ValidationException;
+import nl.knokko.customitems.util.*;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 
@@ -24,20 +21,16 @@ import java.util.Map;
 
 public class ContainerRecipeValues extends ModelValues {
 
-    private static class Encodings {
-
-        static final byte ENCODING1 = 1;
-        static final byte ENCODING2 = 2;
-    }
-
     public static ContainerRecipeValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
         ContainerRecipeValues result = new ContainerRecipeValues(false);
 
-        if (encoding == Encodings.ENCODING1) {
+        if (encoding == 1) {
             result.load1(input, itemSet);
-        } else if (encoding == Encodings.ENCODING2) {
+        } else if (encoding == 2) {
             result.load2(input, itemSet);
+        } else if (encoding == 3) {
+            result.load3(input, itemSet);
         } else {
             throw new UnknownEncodingException("ContainerRecipe", encoding);
         }
@@ -93,7 +86,7 @@ public class ContainerRecipeValues extends ModelValues {
 
             Collection<OutputTableValues.Entry> singleOutputList = new ArrayList<>(1);
             OutputTableValues.Entry theResultEntry = new OutputTableValues.Entry(true);
-            theResultEntry.setChance(100);
+            theResultEntry.setChance(Chance.percentage(100));
             theResultEntry.setResult(result);
             singleOutputList.add(theResultEntry);
             OutputTableValues outputTable = new OutputTableValues(true);
@@ -121,8 +114,23 @@ public class ContainerRecipeValues extends ModelValues {
         this.experience = input.readInt();
     }
 
+    private void load3(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        loadInputs(input, itemSet);
+
+        int numOutputs = input.readInt();
+        this.outputs = new HashMap<>(numOutputs);
+        for (int counter = 0; counter < numOutputs; counter++) {
+            String outputSlotName = input.readString();
+            OutputTableValues resultTable = OutputTableValues.load(input, itemSet);
+            this.outputs.put(outputSlotName, resultTable);
+        }
+
+        this.duration = input.readInt();
+        this.experience = input.readInt();
+    }
+
     public void save(BitOutput output) {
-        output.addByte(Encodings.ENCODING2);
+        output.addByte((byte) 3);
 
         output.addInt(inputs.size());
         for (Map.Entry<String, IngredientValues> inputEntry : inputs.entrySet()) {
@@ -133,7 +141,7 @@ public class ContainerRecipeValues extends ModelValues {
         output.addInt(outputs.size());
         for (Map.Entry<String, OutputTableValues> outputEntry : outputs.entrySet()) {
             output.addString(outputEntry.getKey());
-            outputEntry.getValue().save1(output);
+            outputEntry.getValue().save(output);
         }
 
         output.addInt(duration);

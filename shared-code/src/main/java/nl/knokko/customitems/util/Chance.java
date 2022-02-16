@@ -7,13 +7,26 @@ import java.util.Random;
 
 public class Chance {
 
-    private static final int ONE_PERCENT = 1_000_000;
+    public static final int ONE_PERCENT = 1_000_000;
+    public static final int HUNDRED_PERCENT = 100 * ONE_PERCENT;
     public static final int NUM_BACK_DIGITS = 6;
 
     public static Chance percentage(int percentage) {
         if (percentage < 0) throw new IllegalArgumentException("Percentage (" + percentage + ") can't be negative");
         if (percentage > 100) throw new IllegalArgumentException("Percentage (" + percentage + ") can be at most 100");
         return new Chance(percentage * ONE_PERCENT);
+    }
+
+    public static Chance nonIntegerPercentage(double percentage) {
+        if (percentage < 0) throw new IllegalArgumentException("Percentage (" + percentage + ") can't be negative");
+        if (percentage > 100) throw new IllegalArgumentException("Percentage (" + percentage + ") can be at most 100");
+        return new Chance((int) Math.round(percentage * ONE_PERCENT));
+    }
+
+    public static Chance subtract(Chance left, Chance right) {
+        int rawResult = left.getRawValue() - right.getRawValue();
+        if (rawResult < 0) return null;
+        else return new Chance(rawResult);
     }
 
     public static Chance load(BitInput input) {
@@ -24,7 +37,7 @@ public class Chance {
 
     public Chance(int rawValue) {
         if (rawValue < 0) throw new IllegalArgumentException("Raw value (" + rawValue + ") can't be negative");
-        if (rawValue > 100 * ONE_PERCENT) throw new IllegalArgumentException("Raw value (" + rawValue + ") can be at most " + 100 * ONE_PERCENT);
+        if (rawValue > HUNDRED_PERCENT) throw new IllegalArgumentException("Raw value (" + rawValue + ") can be at most " + HUNDRED_PERCENT);
         this.rawValue = rawValue;
     }
 
@@ -39,7 +52,13 @@ public class Chance {
         while (backPart.length() < NUM_BACK_DIGITS) {
             backPart.insert(0, "0");
         }
-        return (this.rawValue / ONE_PERCENT) + "." + backPart + "%";
+        while (backPart.length() > 0 && backPart.charAt(backPart.length() - 1) == '0') {
+            backPart.deleteCharAt(backPart.length() - 1);
+        }
+        if (backPart.length() > 0) {
+            backPart.insert(0, '.');
+        }
+        return (this.rawValue / ONE_PERCENT) + backPart.toString() + "%";
     }
 
     public int getRawValue() {

@@ -6,10 +6,7 @@ import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.result.CustomItemResultValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
-import nl.knokko.customitems.util.Checks;
-import nl.knokko.customitems.util.ProgrammingValidationException;
-import nl.knokko.customitems.util.Validation;
-import nl.knokko.customitems.util.ValidationException;
+import nl.knokko.customitems.util.*;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 
@@ -27,6 +24,12 @@ public class DropValues extends ModelValues {
     public static DropValues load2(BitInput input, ItemSet itemSet, boolean mutable) throws UnknownEncodingException {
         DropValues result = new DropValues(mutable);
         result.load2(input, itemSet);
+        return result;
+    }
+
+    public static DropValues load(BitInput input, ItemSet itemSet, boolean mutable) throws UnknownEncodingException {
+        DropValues result = new DropValues(mutable);
+        result.load(input, itemSet);
         return result;
     }
 
@@ -62,15 +65,15 @@ public class DropValues extends ModelValues {
         String itemName = input.readString();
         int minDropAmount = input.readInt();
         int maxDropAmount = input.readInt();
-        int dropChance = input.readInt();
+        int rawDropChance = input.readInt() * Chance.ONE_PERCENT;
         this.cancelNormalDrops = input.readBoolean();
         this.requiredHeldItems = new ArrayList<>(0);
 
         int numAmounts = 1 + maxDropAmount - minDropAmount;
-        int chancePerAmount = dropChance / numAmounts;
+        int rawChancePerAmount = rawDropChance / numAmounts;
 
         // Resolve rounding errors as best as we can
-        int lastChance = chancePerAmount + dropChance - numAmounts * chancePerAmount;
+        int rawLastChance = rawChancePerAmount + rawDropChance - numAmounts * rawChancePerAmount;
 
         OutputTableValues mutableOutputTable = new OutputTableValues(true);
         Collection<OutputTableValues.Entry> tableEntries = new ArrayList<>(numAmounts);
@@ -80,7 +83,7 @@ public class DropValues extends ModelValues {
             mutableResult.setAmount(amount);
 
             OutputTableValues.Entry mutableEntry = new OutputTableValues.Entry(true);
-            mutableEntry.setChance(chancePerAmount);
+            mutableEntry.setChance(new Chance(rawChancePerAmount));
             mutableEntry.setResult(mutableResult);
 
             tableEntries.add(mutableEntry);
@@ -92,7 +95,7 @@ public class DropValues extends ModelValues {
             mutableResult.setAmount((byte) maxDropAmount);
 
             OutputTableValues.Entry mutableEntry = new OutputTableValues.Entry(true);
-            mutableEntry.setChance(lastChance);
+            mutableEntry.setChance(new Chance(rawLastChance));
             mutableEntry.setResult(mutableResult);
 
             tableEntries.add(mutableEntry);
@@ -113,8 +116,24 @@ public class DropValues extends ModelValues {
         }
     }
 
-    public void save2(BitOutput output) {
-        outputTable.save1(output);
+    private void load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("Drop", encoding);
+
+        this.outputTable = OutputTableValues.load(input, itemSet);
+        this.cancelNormalDrops = input.readBoolean();
+
+        int numRequiredItems = input.readInt();
+        this.requiredHeldItems = new ArrayList<>(numRequiredItems);
+        for (int counter = 0; counter < numRequiredItems; counter++) {
+            this.requiredHeldItems.add(itemSet.getItemReference(input.readString()));
+        }
+    }
+
+    public void save(BitOutput output) {
+        output.addByte((byte) 1);
+
+        outputTable.save(output);
         output.addBoolean(cancelNormalDrops);
         output.addInt(requiredHeldItems.size());
         for (ItemReference reference : requiredHeldItems) {
