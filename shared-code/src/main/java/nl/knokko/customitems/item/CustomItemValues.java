@@ -900,7 +900,7 @@ public abstract class CustomItemValues extends ModelValues {
         if (attackRange < 0f) throw new ValidationException("Attack range can't be negative");
         if (attackRange != attackRange) throw new ValidationException("Attack range can't be NaN");
 
-        if (texture == null) throw new ProgrammingValidationException("No texture");
+        if (texture == null) throw new ValidationException("No texture");
         // customModel doesn't have any invalid values
     }
 

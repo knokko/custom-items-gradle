@@ -210,6 +210,7 @@ public class CustomCrossbowValues extends CustomToolValues {
         if (!(newTexture.get() instanceof CrossbowTextureValues)) {
             throw new IllegalArgumentException("Only crossbow textures are allowed");
         }
+        super.setTexture(newTexture);
     }
 
     public void setArrowDurabilityLoss(int newArrowDurabilityLoss) {
