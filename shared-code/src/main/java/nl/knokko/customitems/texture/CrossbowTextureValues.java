@@ -22,6 +22,11 @@ public class CrossbowTextureValues extends BaseTextureValues {
 
     public CrossbowTextureValues(boolean mutable) {
         super(mutable);
+
+        this.pullTextures = new ArrayList<>(3);
+        this.pullTextures.add(BowTextureEntry.createQuick(null, 0.0).copy(false));
+        this.pullTextures.add(BowTextureEntry.createQuick(null, 0.58).copy(false));
+        this.pullTextures.add(BowTextureEntry.createQuick(null, 1.0).copy(false));
     }
 
     public CrossbowTextureValues(CrossbowTextureValues toCopy, boolean mutable) {
