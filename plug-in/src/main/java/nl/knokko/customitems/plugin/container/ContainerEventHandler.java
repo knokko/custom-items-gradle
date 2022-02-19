@@ -1,11 +1,15 @@
 package nl.knokko.customitems.plugin.container;
 
+import nl.knokko.customitems.block.CustomBlockValues;
+import nl.knokko.customitems.container.CustomContainerHost;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.slot.ContainerSlotValues;
 import nl.knokko.customitems.container.slot.OutputSlotValues;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomPocketContainerValues;
+import nl.knokko.customitems.itemset.BlockReference;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
+import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.entity.HumanEntity;
@@ -354,15 +358,42 @@ public class ContainerEventHandler implements Listener {
 			} catch (IllegalArgumentException unknownBlockTpe) {
 				blockType = null;
 			}
-			
+
 			VanillaContainerType vanillaType = VanillaContainerType.fromMaterial(blockType);
-			Inventory menu = pluginData().getCustomContainerMenu(
-					event.getClickedBlock().getLocation(), 
-					event.getPlayer(), vanillaType
-			);
-			
-			if (menu != null) {
-				event.getPlayer().openInventory(menu);
+			if (vanillaType != null) {
+				Inventory menu = pluginData().getCustomContainerMenu(
+						event.getClickedBlock().getLocation(),
+						event.getPlayer(), new CustomContainerHost(vanillaType)
+				);
+
+				if (menu != null) {
+					event.getPlayer().openInventory(menu);
+				}
+			}
+		} else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && !event.getPlayer().isSneaking()) {
+			try {
+				String blockName = ItemHelper.getMaterialName(event.getClickedBlock());
+				CIMaterial blockType = CIMaterial.valueOf(blockName);
+				Inventory maybeMenu = pluginData().getCustomContainerMenu(
+						event.getClickedBlock().getLocation(), event.getPlayer(), new CustomContainerHost(blockType)
+				);
+
+				if (maybeMenu != null) {
+					event.getPlayer().openInventory(maybeMenu);
+				}
+			} catch (IllegalArgumentException unknownBlockTpe) {
+				// There is no need to do anything in this case
+			}
+
+			CustomBlockValues maybeCustomBlock = MushroomBlockHelper.getMushroomBlock(event.getClickedBlock());
+			if (maybeCustomBlock != null) {
+				BlockReference customBlockReference = itemSet.get().getBlockReference(maybeCustomBlock.getInternalID());
+				Inventory maybeMenu = pluginData().getCustomContainerMenu(
+						event.getClickedBlock().getLocation(), event.getPlayer(), new CustomContainerHost(customBlockReference)
+				);
+				if (maybeMenu != null) {
+					event.getPlayer().openInventory(maybeMenu);
+				}
 			}
 		}
 	}

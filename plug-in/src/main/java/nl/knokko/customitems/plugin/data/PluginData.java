@@ -10,6 +10,8 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 
 import nl.knokko.core.plugin.item.GeneralItemNBT;
+import nl.knokko.customitems.block.CustomBlockValues;
+import nl.knokko.customitems.container.CustomContainerHost;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.slot.*;
 import nl.knokko.customitems.encoding.ContainerEncoding;
@@ -18,6 +20,7 @@ import nl.knokko.customitems.item.command.ItemCommandEvent;
 import nl.knokko.customitems.item.gun.DirectGunAmmoValues;
 import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
+import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
 import nl.knokko.customitems.plugin.set.item.CustomGunWrapper;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
@@ -236,7 +239,7 @@ public class PluginData {
 	private Collection<TempContainerInstance> tempContainers;
 	private List<Player> shootingPlayers;
 	private List<Player> eatingPlayers;
-	private Map<VanillaContainerType, Inventory> containerSelectionMap;
+	private Map<CustomContainerHost, Inventory> containerSelectionMap;
 	private Map<String, Inventory> pocketContainerSelectionMap;
 
 	private PluginData(ItemSetWrapper itemSet) {
@@ -272,13 +275,10 @@ public class PluginData {
 	}
 	
 	private void initContainerTypeMap() {
-		containerSelectionMap = new EnumMap<>(VanillaContainerType.class);
-
-		for (VanillaContainerType vanillaType : VanillaContainerType.values()) {
-			
-			Collection<CustomContainerValues> containersForType = itemSet.getContainers(vanillaType);
-			if (containersForType.size() > 1) {
-				containerSelectionMap.put(vanillaType, createContainerSelectionMenu(containersForType));
+		containerSelectionMap = new HashMap<>();
+		for (Map.Entry<CustomContainerHost, List<CustomContainerValues>> hostEntry : itemSet.getContainerHostMap().entrySet()) {
+			if (hostEntry.getValue().size() > 1) {
+				containerSelectionMap.put(hostEntry.getKey(), createContainerSelectionMenu(hostEntry.getValue()));
 			}
 		}
 	}
@@ -1127,16 +1127,12 @@ public class PluginData {
 			return tempInstance.instance;
 		}
 	}
-	
+
 	public Inventory getCustomContainerMenu(
-			Location location, Player player, VanillaContainerType containerType
+			Location location, Player player, CustomContainerHost host
 	) {
-		
-		if (containerType == null) {
-			return null;
-		}
-		
-		Collection<CustomContainerValues> correspondingContainers = itemSet.getContainers(containerType);
+
+		Collection<CustomContainerValues> correspondingContainers = itemSet.getContainers(host);
 		if (correspondingContainers.isEmpty()) {
 			return null;
 		} else if (correspondingContainers.size() == 1) {
@@ -1146,7 +1142,7 @@ public class PluginData {
 		} else {
 			PlayerData pd = getPlayerData(player);
 			pd.containerSelectionLocation = new PassiveLocation(location);
-			return containerSelectionMap.get(containerType);
+			return containerSelectionMap.get(host);
 		}
 	}
 
@@ -1163,7 +1159,7 @@ public class PluginData {
 	}
 	
 	public List<CustomContainerValues> getCustomContainerSelection(HumanEntity player) {
-		for (Entry<VanillaContainerType, Inventory> entry : containerSelectionMap.entrySet()) {
+		for (Entry<CustomContainerHost, Inventory> entry : containerSelectionMap.entrySet()) {
 			if (entry.getValue().getViewers().contains(player)) {
 				return itemSet.getContainers(entry.getKey());
 			}
@@ -1189,10 +1185,25 @@ public class PluginData {
 		if (pd.containerSelectionLocation != null) {
 			Location containerLocation = pd.containerSelectionLocation.toBukkitLocation();
 			pd.containerSelectionLocation = null;
-			CIMaterial blockMaterial = CIMaterial.valueOf(
-					ItemHelper.getMaterialName(containerLocation.getBlock())
-			);
-			VanillaContainerType vanillaType = VanillaContainerType.fromMaterial(blockMaterial);
+
+			boolean hostBlockStillValid;
+			if (selected.getHost().getVanillaType() != null) {
+				CIMaterial blockMaterial = CIMaterial.valueOf(
+						ItemHelper.getMaterialName(containerLocation.getBlock())
+				);
+				VanillaContainerType vanillaType = VanillaContainerType.fromMaterial(blockMaterial);
+				hostBlockStillValid = selected.getHost().getVanillaType() == vanillaType;
+			} else if (selected.getHost().getVanillaMaterial() != null) {
+				CIMaterial blockMaterial = CIMaterial.valueOf(
+						ItemHelper.getMaterialName(containerLocation.getBlock())
+				);
+				hostBlockStillValid = selected.getHost().getVanillaMaterial() == blockMaterial;
+			} else if (selected.getHost().getCustomBlockReference() != null) {
+				CustomBlockValues customBlock = MushroomBlockHelper.getMushroomBlock(containerLocation.getBlock());
+				hostBlockStillValid = customBlock != null && customBlock.getInternalID() == selected.getHost().getCustomBlockReference().get().getInternalID();
+			} else {
+				throw new IllegalStateException("Custom container " + selected.getName() + " has an invalid host");
+			}
 
 			/*
 			 * It may happen that a player opens the container selection, but that the
@@ -1200,7 +1211,7 @@ public class PluginData {
 			 * cause a somewhat corrupted state, which is avoided by simply closing the
 			 * players inventory.
 			 */
-			if (vanillaType == selected.getVanillaType()) {
+			if (hostBlockStillValid) {
 				player.openInventory(getCustomContainer(
 						containerLocation, player, selected
 				).getInventory());

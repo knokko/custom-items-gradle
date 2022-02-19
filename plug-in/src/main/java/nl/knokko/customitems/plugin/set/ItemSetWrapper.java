@@ -1,7 +1,7 @@
 package nl.knokko.customitems.plugin.set;
 
+import nl.knokko.customitems.container.CustomContainerHost;
 import nl.knokko.customitems.container.CustomContainerValues;
-import nl.knokko.customitems.container.VanillaContainerType;
 import nl.knokko.customitems.drops.*;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.item.CustomItemValues;
@@ -28,7 +28,7 @@ public class ItemSetWrapper {
     private Map<CIEntityType, Collection<MobDrop>> mobDropMap;
     private Map<BlockType, Collection<BlockDrop>> blockDropMap;
     private Map<String, ContainerInfo> containerInfoMap;
-    private Map<VanillaContainerType, List<CustomContainerValues>> containerTypeMap;
+    private Map<CustomContainerHost, List<CustomContainerValues>> containerHostMap;
 
     public void setItemSet(ItemSet newItemSet) {
         this.currentItemSet = newItemSet;
@@ -83,14 +83,12 @@ public class ItemSetWrapper {
     }
 
     private void initContainerTypeMap() {
-        this.containerTypeMap = new EnumMap<>(VanillaContainerType.class);
-        for (VanillaContainerType vanillaType : VanillaContainerType.values()) {
-            this.containerTypeMap.put(vanillaType, new ArrayList<>());
-        }
+        this.containerHostMap = new HashMap<>();
         for (CustomContainerValues container : this.currentItemSet.getContainers()) {
-            if (container.getVanillaType() != null) {
-                this.containerTypeMap.get(container.getVanillaType()).add(container);
-            }
+            List<CustomContainerValues> hostContainers = this.containerHostMap.computeIfAbsent(
+                    container.getHost(), k -> new ArrayList<>()
+            );
+            hostContainers.add(container);
         }
     }
 
@@ -185,7 +183,12 @@ public class ItemSetWrapper {
         return this.getContainerInfo(container.getName());
     }
 
-    public List<CustomContainerValues> getContainers(VanillaContainerType vanillaType) {
-        return this.containerTypeMap.get(vanillaType);
+    public List<CustomContainerValues> getContainers(CustomContainerHost host) {
+        List<CustomContainerValues> maybeContainerList = this.containerHostMap.get(host);
+        return maybeContainerList != null ? Collections.unmodifiableList(maybeContainerList) : Collections.emptyList();
+    }
+
+    public Map<CustomContainerHost, List<CustomContainerValues>> getContainerHostMap() {
+        return Collections.unmodifiableMap(this.containerHostMap);
     }
 }
