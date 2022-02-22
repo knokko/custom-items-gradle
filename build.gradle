@@ -47,8 +47,8 @@ project(':plug-in') {
         compileOnly project(':core-plugin-12')
         compileOnly 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
         compileOnly 'me.badbones69:crazyenchantments-plugin:1.8-Dev-Build-v8@jar'
-        compileOnly 'ru.endlesscode.mimic:mimic-bukkit-api:0.6.3'
         compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.0'
+        compileOnly 'ru.endlesscode.mimic:mimic-bukkit-api:0.7.1'
         compileOnly 'com.github.jojodmo:ItemBridge:master-SNAPSHOT'
 
         testImplementation project(':bit-helper')
