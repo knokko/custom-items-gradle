@@ -5,21 +5,37 @@ import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.ServicePriority;
+import ru.endlesscode.mimic.Mimic;
+import ru.endlesscode.mimic.MimicApiLevel;
 import ru.endlesscode.mimic.items.BukkitItemsRegistry;
 
 import java.util.Collection;
 
-public class MimicItemRegistry implements BukkitItemsRegistry {
+class MimicItemRegistry implements BukkitItemsRegistry {
 
     static void load(CustomItemsPlugin plugin) {
+        try {
+            loadModern(plugin);
+            Bukkit.getLogger().info("Enabling modern Mimic integration");
+        } catch (NoSuchMethodError useLegacy) {
+            loadLegacy(plugin);
+            Bukkit.getLogger().info("Enabling legacy Mimic integration");
+        }
+    }
+
+    private static void loadLegacy(CustomItemsPlugin plugin) {
         plugin.getServer().getServicesManager().register(
                 BukkitItemsRegistry.class, new MimicItemRegistry(), plugin, ServicePriority.Normal
         );
     }
 
+    private static void loadModern(CustomItemsPlugin plugin) {
+        Mimic.getInstance().registerItemsRegistry(new MimicItemRegistry(), MimicApiLevel.VERSION_0_7, plugin);
+    }
+
     @Override
     public String getId() {
-        return "KnokkosCustomItems";
+        return "knokkoscustomitems";
     }
 
     @Override

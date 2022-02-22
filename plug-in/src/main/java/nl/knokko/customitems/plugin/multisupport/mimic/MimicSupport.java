@@ -9,7 +9,6 @@ public class MimicSupport {
         try {
             Class.forName("ru.endlesscode.mimic.items.BukkitItemsRegistry");
             MimicItemRegistry.load(plugin);
-            Bukkit.getLogger().info("Enabled support for the Mimic plug-in");
         } catch (ClassNotFoundException noMimic) {
             Bukkit.getLogger().info("It looks like the Mimic plug-in is not installed, so support for it won't be enabled.");
         }
