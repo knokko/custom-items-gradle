@@ -119,6 +119,10 @@ public class CustomItemResultValues extends ResultValues {
         this.amount = newAmount;
     }
 
+    public void setAmount(int newAmount) {
+        this.setAmount((byte) newAmount);
+    }
+
     public void setItem(ItemReference newItem) {
         assertMutable();
         Checks.notNull(newItem);

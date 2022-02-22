@@ -13,6 +13,42 @@ import java.util.Collection;
 
 class MimicItemRegistry implements BukkitItemsRegistry {
 
+    static boolean isMimicItem(ItemStack candidate, String id) {
+        try {
+            return isModernMimicItem(candidate, id);
+        } catch (NoSuchMethodError tryLegacy) {
+            return isLegacyMimicItem(candidate, id);
+        }
+    }
+
+    static ItemStack fetchMimicItem(String id, int amount) {
+        try {
+            return fetchModernMimicItem(id, amount);
+        } catch (NoSuchMethodError tryLegacy) {
+            return fetchLegacyMimicItem(id, amount);
+        }
+    }
+
+    private static boolean isModernMimicItem(ItemStack candidate, String id) {
+        return id.equals(Mimic.getInstance().getItemsRegistry().getItemId(candidate));
+    }
+
+    private static boolean isLegacyMimicItem(ItemStack candidate, String id) {
+        return id.equals(Bukkit.getServicesManager().getRegistration(
+                BukkitItemsRegistry.class
+        ).getProvider().getItemId(candidate));
+    }
+
+    private static ItemStack fetchModernMimicItem(String id, int amount) {
+        return Mimic.getInstance().getItemsRegistry().getItem(id, amount);
+    }
+
+    private static ItemStack fetchLegacyMimicItem(String id, int amount) {
+        return Bukkit.getServicesManager().getRegistration(
+                BukkitItemsRegistry.class
+        ).getProvider().getItem(id, null, amount);
+    }
+
     static void load(CustomItemsPlugin plugin) {
         try {
             loadModern(plugin);

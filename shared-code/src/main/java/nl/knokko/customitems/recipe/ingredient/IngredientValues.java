@@ -23,6 +23,10 @@ public abstract class IngredientValues extends ModelValues {
             return DataVanillaIngredientValues.load(input, encoding, itemSet);
         } else if (encoding == CUSTOM || encoding == CUSTOM_2) {
             return CustomItemIngredientValues.load(input, encoding, itemSet);
+        } else if (encoding == MIMIC) {
+            return MimicIngredientValues.load(input);
+        } else if (encoding == ITEM_BRIDGE) {
+            return ItemBridgeIngredientValues.load(input);
         } else if (encoding == NONE) {
             return new NoIngredientValues();
         } else {

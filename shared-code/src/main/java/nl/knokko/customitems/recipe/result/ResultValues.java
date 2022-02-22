@@ -24,6 +24,10 @@ public abstract class ResultValues extends ModelValues  {
             return CustomItemResultValues.load(input, encoding, itemSet);
         } else if (encoding == RecipeEncoding.Result.COPIED) {
             return CopiedResultValues.load(input, encoding);
+        } else if (encoding == RecipeEncoding.Result.MIMIC) {
+            return MimicResultValues.load(input);
+        } else if (encoding == RecipeEncoding.Result.ITEM_BRIDGE) {
+            return ItemBridgeResultValues.load(input);
         } else {
             throw new UnknownEncodingException("Result", encoding);
         }

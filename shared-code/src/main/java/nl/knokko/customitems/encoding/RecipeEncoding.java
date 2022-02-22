@@ -41,6 +41,8 @@ public class RecipeEncoding {
 		public static final byte VANILLA_SIMPLE_2 = 5;
 		public static final byte VANILLA_DATA_2 = 6;
 		public static final byte CUSTOM_2 = 7;
+		public static final byte MIMIC = 8;
+		public static final byte ITEM_BRIDGE = 9;
 	}
 	
 	public static class Result {
@@ -51,6 +53,8 @@ public class RecipeEncoding {
 		//public static final byte VANILLA_ADVANCED_1 = 2;
 		public static final byte CUSTOM = 3;
 		public static final byte COPIED = 4;
+		public static final byte MIMIC = 5;
+		public static final byte ITEM_BRIDGE = 6;
 		
 	}
 }

@@ -24,25 +24,21 @@
 package nl.knokko.customitems.editor.menu.edit.recipe.ingredient;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.menu.edit.recipe.result.ChooseResult;
-import nl.knokko.customitems.editor.menu.edit.select.item.SelectCustomItem;
-import nl.knokko.customitems.editor.menu.edit.select.item.SelectDataVanillaItem;
-import nl.knokko.customitems.editor.menu.edit.select.item.SelectSimpleVanillaItem;
+import nl.knokko.customitems.editor.menu.edit.recipe.result.*;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.item.CIMaterial;
-import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.ingredient.*;
 import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
-import nl.knokko.gui.component.text.IntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
-import nl.knokko.gui.util.Option;
 
 import java.util.function.Consumer;
+
+import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
+import static nl.knokko.customitems.editor.menu.edit.EditProps.HOVER;
 
 public class ChooseIngredient extends GuiMenu {
 	
@@ -62,60 +58,71 @@ public class ChooseIngredient extends GuiMenu {
 	protected void addComponents() {
 		addComponent(new DynamicTextButton("Cancel", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
 			state.getWindow().setMainComponent(returnMenu);
-		}), 0.05f, 0.7f, 0.2f, 0.8f);
+		}), 0.05f, 0.7f, 0.15f, 0.8f);
 
 		DynamicTextComponent errorComponent = new DynamicTextComponent("", EditProps.ERROR);
 		addComponent(errorComponent, 0.05f, 0.9f, 0.95f, 1f);
 
-		IntEditField amountField = new IntEditField(1, 1, 64, EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE);
-		addComponent(new DynamicTextComponent("Amount:", EditProps.LABEL),
-				0.15f, 0.5f, 0.25f, 0.6f);
-		addComponent(amountField, 0.3f, 0.5f, 0.4f, 0.6f);
-
 		ResultValues[] pRemaining = {null};
 		addComponent(new DynamicTextComponent("Remaining item:", EditProps.LABEL),
-				0.15f, 0.35f, 0.34f, 0.45f);
+				0.15f, 0.15f, 0.34f, 0.25f);
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new ChooseResult(
 					this, newRemainingItem -> pRemaining[0] = newRemainingItem, set
 			));
-		}), 0.35f, 0.35f, 0.45f, 0.45f);
+		}), 0.35f, 0.15f, 0.45f, 0.25f);
 		addComponent(new DynamicTextButton("Clear", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
 			pRemaining[0] = null;
-		}), 0.475f, 0.35f, 0.575f, 0.45f);
+		}), 0.475f, 0.15f, 0.575f, 0.25f);
 
-		addComponent(new DynamicTextButton("Custom Item", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new SelectCustomItem(returnMenu, (ItemReference item) -> {
-				Option.Int amount = amountField.getInt();
-				if (amount.hasValue()) {
-					listener.accept(CustomItemIngredientValues.createQuick(item, amount.getValue(), pRemaining[0]));
-				} else {
-					errorComponent.setText("The amount must be an integer between 1 and 64");
-				}
-				//the SelectCustomItem will go the the returnGui automatically
+
+		addComponent(
+				new DynamicTextComponent("Custom item...", LABEL),
+				0.175f, 0.8f, 0.3f, 0.9f
+		);
+		addComponent(new DynamicTextButton("from this plug-in", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new ChooseCustomResult(returnMenu, customResult -> {
+				listener.accept(CustomItemIngredientValues.createQuick(
+						customResult.getItemReference(), customResult.getAmount(), pRemaining[0]
+				));
+				state.getWindow().setMainComponent(returnMenu);
 			}, set));
-		}), 0.6f, 0.7f, 0.8f, 0.8f);
-		addComponent(new DynamicTextButton("Simple vanilla item", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new SelectSimpleVanillaItem(returnMenu, (CIMaterial material) -> {
-			    Option.Int amount = amountField.getInt();
-			    if (amount.hasValue()) {
-					listener.accept(SimpleVanillaIngredientValues.createQuick(material, amount.getValue(), pRemaining[0]));
-				} else {
-					errorComponent.setText("The amount must be an integer between 1 and 64");
-				}
-				//the SelectSimpleVanillaItem will go to the returnGui automatically
-			}, false));
-		}), 0.6f, 0.55f, 0.8f, 0.65f);
-		addComponent(new DynamicTextButton("Vanilla item with datavalue", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new SelectDataVanillaItem(returnMenu, (CIMaterial material, byte data) -> {
-				Option.Int amount = amountField.getInt();
-				if (amount.hasValue()) {
-					listener.accept(DataVanillaIngredientValues.createQuick(material, data, amount.getValue(), pRemaining[0]));
-				} else {
-					errorComponent.setText("The amount must be an integer between 1 and 64");
-				}
+		}), 0.175f, 0.65f, 0.3f, 0.75f);
+		addComponent(new DynamicTextButton("from another plug-in with Mimic integration", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new ChooseMimicResult(returnMenu, mimicResult -> {
+				listener.accept(MimicIngredientValues.createQuick(
+						mimicResult.getItemId(), mimicResult.getAmount(), pRemaining[0]
+				));
+				state.getWindow().setMainComponent(returnMenu);
 			}));
-		}), 0.6f, 0.4f, 0.8f, 0.5f);
+		}), 0.175f, 0.5f, 0.5f, 0.6f);
+		addComponent(new DynamicTextButton("from another plug-in with ItemBridge integration", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new ChooseItemBridgeResult(returnMenu, itemBridgeResult -> {
+				listener.accept(ItemBridgeIngredientValues.createQuick(
+						itemBridgeResult.getItemId(), itemBridgeResult.getAmount(), pRemaining[0]
+				));
+				state.getWindow().setMainComponent(returnMenu);
+			}));
+		}), 0.175f, 0.35f, 0.525f, 0.45f);
+
+		addComponent(new DynamicTextComponent("Vanilla item...", LABEL), 0.55f, 0.8f, 0.7f, 0.9f);
+		addComponent(new DynamicTextButton("simple", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new ChooseSimpleVanillaResult(returnMenu, vanillaResult -> {
+				listener.accept(SimpleVanillaIngredientValues.createQuick(
+						vanillaResult.getMaterial(), vanillaResult.getAmount(), pRemaining[0]
+				));
+				state.getWindow().setMainComponent(returnMenu);
+			}));
+		}), 0.55f, 0.65f, 0.65f, 0.75f);
+		addComponent(new DynamicTextButton("with data value", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new ChooseDataVanillaResult(returnMenu, vanillaResult -> {
+				listener.accept(DataVanillaIngredientValues.createQuick(
+						vanillaResult.getMaterial(), vanillaResult.getDataValue(), vanillaResult.getAmount(), pRemaining[0]
+				));
+				state.getWindow().setMainComponent(returnMenu);
+			}));
+		}), 0.55f, 0.5f, 0.75f, 0.6f);
+
 		if (allowEmpty) {
 			addComponent(new DynamicTextButton("Empty", EditProps.BUTTON, EditProps.HOVER, () -> {
 				if (pRemaining[0] == null) {
@@ -124,9 +131,10 @@ public class ChooseIngredient extends GuiMenu {
 				} else {
 					errorComponent.setText("You can't have a remaining item when selecting Empty");
 				}
-			}), 0.6f, 0.25f, 0.8f, 0.35f);
+			}), 0.775f, 0.8f, 0.9f, 0.9f);
 		}
 
+		// TODO Update documentation and test this
 		HelpButtons.addHelpLink(this, "edit%20menu/recipes/choose ingredient.html");
 	}
 	

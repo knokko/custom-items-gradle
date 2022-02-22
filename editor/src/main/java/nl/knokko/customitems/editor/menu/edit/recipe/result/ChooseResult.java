@@ -24,26 +24,18 @@
 package nl.knokko.customitems.editor.menu.edit.recipe.result;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.menu.edit.select.item.SelectCustomItem;
-import nl.knokko.customitems.editor.menu.edit.select.item.SelectDataVanillaItem;
-import nl.knokko.customitems.editor.menu.edit.select.item.SelectSimpleVanillaItem;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.item.CIMaterial;
-import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.recipe.result.CustomItemResultValues;
-import nl.knokko.customitems.recipe.result.DataVanillaResultValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
-import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
-import nl.knokko.gui.component.text.ConditionalTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
-import nl.knokko.gui.component.text.TextEditField;
 
 import java.util.function.Consumer;
+
+import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class ChooseResult extends GuiMenu {
 	
@@ -51,78 +43,50 @@ public class ChooseResult extends GuiMenu {
 	private final GuiComponent returnMenu;
 	private final ItemSet set;
 	
-	private final DynamicTextComponent errorComponent;
-	private final TextEditField amountField;
-	
-	private ResultValues current;
-	private Consumer<Byte> setAmount;
-
-	public ChooseResult(GuiComponent returnMenu, Consumer<ResultValues> listener,
-			ItemSet set) {
+	public ChooseResult(
+			GuiComponent returnMenu, Consumer<ResultValues> listener, ItemSet set
+	) {
 		this.listener = listener;
 		this.returnMenu = returnMenu;
 		this.set = set;
-		errorComponent = new DynamicTextComponent("", EditProps.ERROR);
-		amountField = new TextEditField("1", EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE);
-	}
-	
-	@Override
-	public void init() {
-		super.init();
-		errorComponent.setText("");
 	}
 
 	@Override
 	protected void addComponents() {
 		addComponent(new DynamicTextButton("Cancel", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
 			state.getWindow().setMainComponent(returnMenu);
-		}), 0.2f, 0.3f, 0.35f, 0.4f);
-		addComponent(new DynamicTextButton("Custom Item", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new SelectCustomItem(this, (ItemReference item) -> {
-				// Fix the amount with the Choose button
-				current = CustomItemResultValues.createQuick(item, 1);
-				setAmount = ((CustomItemResultValues)current)::setAmount;
-			}, set));
-		}), 0.6f, 0.7f, 0.8f, 0.8f);
-		addComponent(new DynamicTextButton("Simple vanilla item", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new SelectSimpleVanillaItem(this, (CIMaterial material) -> {
-				// Fix the amount with the Choose button
-				current = SimpleVanillaResultValues.createQuick(material, 1);
-				setAmount = ((SimpleVanillaResultValues)current)::setAmount;
-			}, false));
-		}), 0.6f, 0.55f, 0.8f, 0.65f);
-		addComponent(new DynamicTextButton("Vanilla item with datavalue", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new SelectDataVanillaItem(this, (CIMaterial material, byte data) -> {
-				// Fix the amount with the Choose button
-				current = DataVanillaResultValues.createQuick(material, data, 1);
-				setAmount = ((DataVanillaResultValues)current)::setAmount;
-			}));
-		}), 0.6f, 0.4f, 0.8f, 0.5f);
-		addComponent(new DynamicTextButton("Copy from server", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new ChooseCopyResult(this, chosenResult -> {
-				listener.accept(chosenResult);
+		}), 0.05f, 0.7f, 0.15f, 0.8f);
+
+		addComponent(
+				new DynamicTextComponent("Custom item...", LABEL),
+				0.175f, 0.8f, 0.3f, 0.9f
+		);
+		addComponent(new DynamicTextButton("from this plug-in", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new ChooseCustomResult(returnMenu, listener::accept, set));
+		}), 0.175f, 0.65f, 0.3f, 0.75f);
+		addComponent(new DynamicTextButton("from another plug-in with Mimic integration", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new ChooseMimicResult(returnMenu, listener::accept));
+		}), 0.175f, 0.5f, 0.5f, 0.6f);
+		addComponent(new DynamicTextButton("from another plug-in with ItemBridge integration", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new ChooseItemBridgeResult(returnMenu, listener::accept));
+		}), 0.175f, 0.35f, 0.525f, 0.45f);
+
+		addComponent(new DynamicTextComponent("Vanilla item...", LABEL), 0.55f, 0.8f, 0.7f, 0.9f);
+		addComponent(new DynamicTextButton("simple", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new ChooseSimpleVanillaResult(returnMenu, listener::accept));
+		}), 0.55f, 0.65f, 0.65f, 0.75f);
+		addComponent(new DynamicTextButton("with data value", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new ChooseDataVanillaResult(returnMenu, listener::accept));
+		}), 0.55f, 0.5f, 0.75f, 0.6f);
+
+		addComponent(new DynamicTextButton("Copied from server", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new ChooseCopyResult(this, result -> {
+				listener.accept(result);
 				state.getWindow().setMainComponent(returnMenu);
 			}));
-		}), 0.6f, 0.25f, 0.8f, 0.35f);
-		addComponent(new DynamicTextComponent("Amount: ", EditProps.LABEL), 0.4f, 0.1f, 0.55f, 0.2f);
-		addComponent(amountField, 0.6f, 0.1f, 0.7f, 0.2f);
-		addComponent(new ConditionalTextButton("Select", EditProps.BUTTON, EditProps.HOVER, () -> {
-			try {
-				int amount = Integer.parseInt(amountField.getText());
-				if (amount > 0 && amount <= 64) {
-					setAmount.accept((byte) amount);
-					listener.accept(current);
-					state.getWindow().setMainComponent(returnMenu);
-				} else {
-					errorComponent.setText("The amount must be between 1 and 64");
-				}
-			} catch (NumberFormatException nfe) {
-				errorComponent.setText("The amount must be an integer.");
-			}
-		}, () -> current != null && setAmount != null
-		), 0.2f, 0.1f, 0.35f, 0.2f);
-		addComponent(errorComponent, 0.05f, 0.85f, 0.95f, 0.95f);
-		
+		}), 0.775f, 0.8f, 0.9f, 0.9f);
+
+		// TODO Update documentation
 		HelpButtons.addHelpLink(this, "edit%20menu/recipes/output%20type%20select.html");
 	}
 	
