@@ -19,6 +19,7 @@ import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.command.ItemCommandEvent;
 import nl.knokko.customitems.item.gun.DirectGunAmmoValues;
 import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
+import nl.knokko.customitems.plugin.multisupport.worldguard.WorldGuardSupport;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
 import nl.knokko.customitems.plugin.set.item.CustomGunWrapper;
@@ -1131,6 +1132,10 @@ public class PluginData {
 	public Inventory getCustomContainerMenu(
 			Location location, Player player, CustomContainerHost host
 	) {
+
+		if (!WorldGuardSupport.canInteract(location.getBlock(), player)) {
+			return null;
+		}
 
 		Collection<CustomContainerValues> correspondingContainers = itemSet.getContainers(host);
 		if (correspondingContainers.isEmpty()) {

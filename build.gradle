@@ -22,6 +22,7 @@ allprojects {
         maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
         maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
         maven { url = 'https://nexus.badbones69.com/repository/maven-releases' }
+        maven { url = 'https://maven.enginehub.org/repo/' }
         maven { url = 'https://jitpack.io' }
 
         mavenLocal()
@@ -47,6 +48,7 @@ project(':plug-in') {
         compileOnly 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
         compileOnly 'me.badbones69:crazyenchantments-plugin:1.8-Dev-Build-v8@jar'
         compileOnly 'ru.endlesscode.mimic:mimic-bukkit-api:0.6.3'
+        compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.0'
         compileOnly 'com.github.jojodmo:ItemBridge:master-SNAPSHOT'
 
         testImplementation project(':bit-helper')
