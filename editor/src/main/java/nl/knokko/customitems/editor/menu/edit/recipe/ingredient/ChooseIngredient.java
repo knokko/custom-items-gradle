@@ -115,7 +115,7 @@ public class ChooseIngredient extends GuiMenu {
 			}));
 		}), 0.55f, 0.65f, 0.65f, 0.75f);
 		addComponent(new DynamicTextButton("with data value", BUTTON, HOVER, () -> {
-			state.getWindow().setMainComponent(new ChooseDataVanillaResult(returnMenu, vanillaResult -> {
+			state.getWindow().setMainComponent(new ChooseDataVanillaResult(returnMenu, true, vanillaResult -> {
 				listener.accept(DataVanillaIngredientValues.createQuick(
 						vanillaResult.getMaterial(), vanillaResult.getDataValue(), vanillaResult.getAmount(), pRemaining[0]
 				));
@@ -134,8 +134,7 @@ public class ChooseIngredient extends GuiMenu {
 			}), 0.775f, 0.8f, 0.9f, 0.9f);
 		}
 
-		// TODO Update documentation and test this
-		HelpButtons.addHelpLink(this, "edit%20menu/recipes/choose ingredient.html");
+		HelpButtons.addHelpLink(this, "edit menu/recipes/choose ingredient.html");
 	}
 	
 	@Override

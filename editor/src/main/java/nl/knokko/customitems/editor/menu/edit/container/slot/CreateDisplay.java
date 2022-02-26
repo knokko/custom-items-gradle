@@ -6,7 +6,7 @@ import nl.knokko.customitems.container.slot.display.*;
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
-import nl.knokko.customitems.editor.menu.edit.select.item.SelectDataVanillaItem;
+import nl.knokko.customitems.editor.menu.edit.recipe.result.ChooseDataVanillaResult;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.item.CIMaterial;
@@ -111,12 +111,13 @@ public class CreateDisplay extends GuiMenu {
 			));
 		}), 0.6f, 0.525f, 0.85f, 0.575f);
 		addComponent(new DynamicTextButton("Data vanilla item", BUTTON, HOVER, () -> {
-			state.getWindow().setMainComponent(new SelectDataVanillaItem(
-					this, (chosenMaterial, chosenData) -> {
-						selectedItemDisplay.setText(chosenMaterial + " [" + chosenData + "]");
-						currentValues.setDisplayItem(DataVanillaDisplayItemValues.createQuick(chosenMaterial, chosenData));
-					}
-			));
+			state.getWindow().setMainComponent(new ChooseDataVanillaResult(this, false, dataResult -> {
+				selectedItemDisplay.setText(dataResult.getMaterial() + " [" + dataResult.getDataValue() + "]");
+				currentValues.setDisplayItem(DataVanillaDisplayItemValues.createQuick(
+						dataResult.getMaterial(), dataResult.getDataValue()
+				));
+				currentValues.setAmount(dataResult.getAmount());
+			}));
 		}), 0.6f, 0.45f, 0.8f, 0.5f);
 		
 		addComponent(new DynamicTextButton("Done", SAVE_BASE, SAVE_HOVER, () -> {

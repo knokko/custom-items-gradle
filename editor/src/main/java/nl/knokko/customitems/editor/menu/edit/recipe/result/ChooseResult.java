@@ -76,7 +76,7 @@ public class ChooseResult extends GuiMenu {
 			state.getWindow().setMainComponent(new ChooseSimpleVanillaResult(returnMenu, listener::accept));
 		}), 0.55f, 0.65f, 0.65f, 0.75f);
 		addComponent(new DynamicTextButton("with data value", BUTTON, HOVER, () -> {
-			state.getWindow().setMainComponent(new ChooseDataVanillaResult(returnMenu, listener::accept));
+			state.getWindow().setMainComponent(new ChooseDataVanillaResult(returnMenu, true, listener::accept));
 		}), 0.55f, 0.5f, 0.75f, 0.6f);
 
 		addComponent(new DynamicTextButton("Copied from server", BUTTON, HOVER, () -> {
@@ -86,8 +86,7 @@ public class ChooseResult extends GuiMenu {
 			}));
 		}), 0.775f, 0.8f, 0.9f, 0.9f);
 
-		// TODO Update documentation
-		HelpButtons.addHelpLink(this, "edit%20menu/recipes/output%20type%20select.html");
+		HelpButtons.addHelpLink(this, "edit menu/recipes/choose result.html");
 	}
 	
 	@Override

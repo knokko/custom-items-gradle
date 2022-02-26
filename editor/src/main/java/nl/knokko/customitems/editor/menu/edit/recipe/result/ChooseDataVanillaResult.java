@@ -17,12 +17,14 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 public class ChooseDataVanillaResult extends GuiMenu {
 
     private final GuiComponent returnMenu;
+    private final boolean chooseAmount;
     private final Consumer<DataVanillaResultValues> onSelect;
 
     private final DataVanillaResultValues result;
 
-    public ChooseDataVanillaResult(GuiComponent returnMenu, Consumer<DataVanillaResultValues> onSelect) {
+    public ChooseDataVanillaResult(GuiComponent returnMenu, boolean chooseAmount, Consumer<DataVanillaResultValues> onSelect) {
         this.returnMenu = returnMenu;
+        this.chooseAmount = chooseAmount;
         this.onSelect = onSelect;
         this.result = new DataVanillaResultValues(true);
     }
@@ -43,18 +45,18 @@ public class ChooseDataVanillaResult extends GuiMenu {
                 new EagerIntEditField(result.getDataValue(), 0, 16, EDIT_BASE, EDIT_ACTIVE, result::setDataValue),
                 0.45f, 0.5f, 0.55f, 0.6f
         );
-        addComponent(new DynamicTextComponent("Amount:", LABEL), 0.3f, 0.4f, 0.4f, 0.5f);
-        addComponent(
-                new EagerIntEditField(result.getAmount(), 1, 64, EDIT_BASE, EDIT_ACTIVE, result::setAmount),
-                0.45f, 0.4f, 0.55f, 0.5f
-        );
+        if (chooseAmount) {
+            addComponent(new DynamicTextComponent("Amount:", LABEL), 0.3f, 0.4f, 0.4f, 0.5f);
+            addComponent(
+                    new EagerIntEditField(result.getAmount(), 1, 64, EDIT_BASE, EDIT_ACTIVE, result::setAmount),
+                    0.45f, 0.4f, 0.55f, 0.5f
+            );
+        }
 
         addComponent(new DynamicTextButton("Done", SAVE_BASE, SAVE_HOVER, () -> {
             onSelect.accept(result);
             state.getWindow().setMainComponent(returnMenu);
         }), 0.05f, 0.2f, 0.15f, 0.3f);
-
-        // TODO Help button
     }
 
     @Override

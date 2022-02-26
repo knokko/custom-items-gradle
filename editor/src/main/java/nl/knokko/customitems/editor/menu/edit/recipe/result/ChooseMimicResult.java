@@ -57,8 +57,6 @@ public class ChooseMimicResult extends GuiMenu {
                 errorComponent.setText(error);
             }
         }), 0.05f, 0.2f, 0.15f, 0.3f);
-
-        // TODO Help button
     }
 
     @Override

@@ -54,8 +54,6 @@ public class ChooseCustomResult extends GuiMenu {
             onSelect.accept(result);
             state.getWindow().setMainComponent(returnMenu);
         }), 0.05f, 0.2f, 0.15f, 0.3f);
-
-        // TODO Help button
     }
 
     @Override
