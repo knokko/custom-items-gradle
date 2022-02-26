@@ -23,7 +23,7 @@ public class CustomItemsTabCompletions implements TabCompleter {
     }
 
     private static List<String> getRootCompletions(CommandSender sender) {
-        return Lists.newArrayList("give", "list", "debug", "encode", "reload", "repair", "damage", "setblock")
+        return Lists.newArrayList("give", "take", "list", "debug", "encode", "reload", "repair", "damage", "setblock")
                 .stream().filter(element -> sender.hasPermission("customitems." + element))
                 .collect(Collectors.toList()
         );
@@ -57,6 +57,10 @@ public class CustomItemsTabCompletions implements TabCompleter {
                 return filter(result, prefix);
             }
 
+            if (first.equals("take") && sender.hasPermission("customitems.take")) {
+                return Lists.newArrayList("1", "2", "3", "4");
+            }
+
             if (
                     (first.equals("repair") && sender.hasPermission("customitems.repair"))
                             || (first.equals("damage") && sender.hasPermission("customitems.damage"))
@@ -76,8 +80,9 @@ public class CustomItemsTabCompletions implements TabCompleter {
             String prefix = args[2];
             if (
                     (first.equals("give") && sender.hasPermission("customitems.give"))
-                    || (first.equals("damage") && sender.hasPermission("customitems.damage"))
-                    || (first.equals("repair") && sender.hasPermission("customitems.repair"))
+                            || first.equals("take") && sender.hasPermission("customitems.take")
+                            || (first.equals("damage") && sender.hasPermission("customitems.damage"))
+                            || (first.equals("repair") && sender.hasPermission("customitems.repair"))
             ) {
                 List<String> names = Bukkit.getOnlinePlayers().stream().map(HumanEntity::getName).collect(Collectors.toList());
                 return filter(names, prefix);

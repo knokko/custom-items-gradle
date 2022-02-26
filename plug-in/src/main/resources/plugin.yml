@@ -6,5 +6,5 @@ loadbefore: [UltraChest]
 commands:
   customitems:
     description: Commands for the CustomItems plugin
-    usage: /kci give <item> [player] or /kci list or /kci reload or /kci debug or /kci repair <amount> [player] /kci damage <amount> [player] or /kci setblock <block> [x] [y] [z] [world]
+    usage: /kci give/take/list/damage/repair/debug/setblock/encode/reload
     aliases: [ci, kci]
