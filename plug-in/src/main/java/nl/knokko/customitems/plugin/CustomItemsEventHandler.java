@@ -2344,7 +2344,7 @@ public class CustomItemsEventHandler implements Listener {
 			CustomItemValues customCurrent = itemSet.getItem(current);
 			
 			// This block makes custom items stackable
-			if (customCursor != null && customCursor == customCurrent && customCursor.canStack()) {
+			if (customCursor != null && customCursor == customCurrent && wrap(customCursor).needsStackingHelp()) {
 				
 				event.setResult(Result.DENY);
 				if (event.isLeftClick()) {
@@ -2369,7 +2369,7 @@ public class CustomItemsEventHandler implements Listener {
 			}
 		} else if (action == InventoryAction.COLLECT_TO_CURSOR) {
 			CustomItemValues customItem = itemSet.getItem(event.getCursor());
-			if (customItem != null && customItem.canStack()) {
+			if (customItem != null && wrap(customItem).needsStackingHelp()) {
 				int currentStacksize = event.getCursor().getAmount();
 				InventoryView view = event.getView();
 				/*
@@ -2424,7 +2424,7 @@ public class CustomItemsEventHandler implements Listener {
 			ItemStack clickedItem = event.getCurrentItem();
 			CustomItemValues customClicked = itemSet.getItem(clickedItem);
 
-			if (customClicked != null && customClicked.canStack()) {
+			if (customClicked != null && wrap(customClicked).needsStackingHelp()) {
 				event.setCancelled(true);
 				boolean clickedTopInv = event.getRawSlot() == event.getSlot();
 
@@ -2579,7 +2579,7 @@ public class CustomItemsEventHandler implements Listener {
 	    if (event.getType() == DragType.EVEN) {
 			ItemStack remainingCursor = event.getCursor();
 			CustomItemValues customItem = itemSet.getItem(remainingCursor);
-			if (customItem != null && customItem.canStack()) {
+			if (customItem != null && wrap(customItem).needsStackingHelp()) {
 			    int numSlots = event.getNewItems().size();
 			    int remainingSize = remainingCursor.getAmount();
 			    int extraPerSlot = remainingSize / numSlots;

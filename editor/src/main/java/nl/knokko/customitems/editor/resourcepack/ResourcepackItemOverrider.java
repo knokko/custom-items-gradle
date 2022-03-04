@@ -1,7 +1,9 @@
 package nl.knokko.customitems.editor.resourcepack;
 
 import nl.knokko.customitems.MCVersions;
+import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.item.CustomItemType;
+import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.durability.ItemDurabilityAssignments;
 import nl.knokko.customitems.item.durability.ItemDurabilityClaim;
 import nl.knokko.customitems.itemset.ItemSet;
@@ -10,8 +12,7 @@ import nl.knokko.customitems.util.ValidationException;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -40,38 +41,109 @@ class ResourcepackItemOverrider {
 
             if (!damageAssignments.claimList.isEmpty()) {
 
-                String modelName;
-                String textureName;
-                if (mcVersion <= MCVersions.VERSION1_12) {
-                    modelName = itemType.getModelName12();
-                    textureName = itemType.getTextureName12();
+                if (itemType == CustomItemType.OTHER) {
+                    overrideOtherItems(zipOutput, damageAssignments);
                 } else {
-                    modelName = itemType.getModelName14();
-                    textureName = itemType.getTextureName14();
+
+                    String modelName;
+                    String textureName;
+                    if (mcVersion <= MCVersions.VERSION1_12) {
+                        modelName = itemType.getModelName12();
+                        textureName = itemType.getTextureName12();
+                    } else {
+                        modelName = itemType.getModelName14();
+                        textureName = itemType.getTextureName14();
+                    }
+
+                    ZipEntry zipEntry = new ZipEntry("assets/minecraft/models/item/" + modelName + ".json");
+                    zipOutput.putNextEntry(zipEntry);
+                    final PrintWriter jsonWriter = new PrintWriter(zipOutput);
+
+                    if (itemType == CustomItemType.BOW) {
+                        overrideBow(jsonWriter, damageAssignments);
+                    } else if (itemType == CustomItemType.CROSSBOW) {
+                        overrideCrossBow(jsonWriter, damageAssignments);
+                    } else if (itemType == CustomItemType.SHIELD) {
+                        overrideShield(jsonWriter, damageAssignments);
+                    } else {
+                        overrideItem(jsonWriter, damageAssignments, itemType, modelName, textureName);
+                    }
+                    jsonWriter.flush();
+
+                    // The trident base model is not special, but it does need a special in-hand model
+                    if (itemType == CustomItemType.TRIDENT) {
+                        overrideTridentInHand(jsonWriter, damageAssignments);
+                    }
+
+                    zipOutput.closeEntry();
                 }
-
-                ZipEntry zipEntry = new ZipEntry("assets/minecraft/models/item/" + modelName + ".json");
-                zipOutput.putNextEntry(zipEntry);
-                final PrintWriter jsonWriter = new PrintWriter(zipOutput);
-
-                if (itemType == CustomItemType.BOW) {
-                    overrideBow(jsonWriter, damageAssignments);
-                } else if (itemType == CustomItemType.CROSSBOW) {
-                    overrideCrossBow(jsonWriter, damageAssignments);
-                } else if (itemType == CustomItemType.SHIELD) {
-                    overrideShield(jsonWriter, damageAssignments);
-                } else {
-                    overrideItem(jsonWriter, damageAssignments, itemType, modelName, textureName);
-                }
-                jsonWriter.flush();
-
-                // The trident base model is not special, but it does need a special in-hand model
-                if (itemType == CustomItemType.TRIDENT) {
-                    overrideTridentInHand(jsonWriter, damageAssignments);
-                }
-
-                zipOutput.closeEntry();
             }
+        }
+    }
+
+    private void overrideOtherItems(
+            ZipOutputStream zipOutput, ItemDurabilityAssignments dataAssignments
+    ) throws IOException {
+        Set<CIMaterial> usedOtherMaterials = EnumSet.noneOf(CIMaterial.class);
+
+        for (CustomItemValues item : itemSet.getItems()) {
+            if (item.getItemType() == CustomItemType.OTHER) {
+                usedOtherMaterials.add(item.getOtherMaterial());
+            }
+        }
+
+        for (CIMaterial currentOtherMaterial : usedOtherMaterials) {
+            // TODO I'm not sure this will always be the right model name. If not, I will have to add case distinctions later
+            String modelName = currentOtherMaterial.name().toLowerCase(Locale.ROOT);
+            String textureName = modelName;
+
+            ZipEntry zipEntry = new ZipEntry("assets/minecraft/models/item/" + modelName + ".json");
+            zipOutput.putNextEntry(zipEntry);
+            final PrintWriter jsonWriter = new PrintWriter(zipOutput);
+
+            // Begin of the json file
+            jsonWriter.println("{");
+            jsonWriter.println("    \"parent\": \"item/handheld\",");
+            jsonWriter.println("    \"textures\": {");
+            jsonWriter.print("        \"layer0\": \"item/" + textureName + "\"");
+            jsonWriter.println();
+            jsonWriter.println("    },");
+            jsonWriter.println("    \"overrides\": [");
+
+            // Some bookkeeping
+            int maxItemDamage = 0;
+            for (CustomItemValues item : itemSet.getItems()) {
+                if (item.getItemType() == CustomItemType.OTHER && item.getOtherMaterial() == currentOtherMaterial && item.getItemDamage() > maxItemDamage) {
+                    maxItemDamage = item.getItemDamage();
+                }
+            }
+
+            // The interesting part...
+            for (CustomItemValues item : itemSet.getItems()) {
+                if (item.getItemType() == CustomItemType.OTHER && item.getOtherMaterial() == currentOtherMaterial) {
+
+                    // Find the corresponding claim
+                    ItemDurabilityClaim claim = null;
+                    for (ItemDurabilityClaim candidateClaim : dataAssignments.claimList) {
+                        if (candidateClaim.itemDamage == item.getItemDamage()) {
+                            claim = candidateClaim;
+                        }
+                    }
+
+                    jsonWriter.print("        { \"predicate\": { \"custom_model_data\": " + claim.itemDamage + " }, \"model\": \"" + claim.resourcePath + "\" }");
+                    if (item.getItemDamage() != maxItemDamage) {
+                        jsonWriter.print(",");
+                    }
+                    jsonWriter.println();
+                }
+            }
+
+            // End of the json file
+            jsonWriter.println("    ]");
+            jsonWriter.println("}");
+            jsonWriter.flush();
+
+            zipOutput.closeEntry();
         }
     }
 

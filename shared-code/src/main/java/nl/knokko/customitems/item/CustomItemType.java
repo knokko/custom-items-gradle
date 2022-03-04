@@ -95,7 +95,8 @@ public enum CustomItemType {
 	NETHERITE_CHESTPLATE(592, true, VERSION1_16, LAST_VERSION, CHESTPLATE, PROJECTILE_COVER),
 	NETHERITE_LEGGINGS(555, true, VERSION1_16, LAST_VERSION, LEGGINGS, PROJECTILE_COVER),
 	NETHERITE_BOOTS(481, true, VERSION1_16, LAST_VERSION, BOOTS, PROJECTILE_COVER),
-	CROSSBOW(326, false, VERSION1_14, LAST_VERSION, Category.CROSSBOW);
+	CROSSBOW(326, false, VERSION1_14, LAST_VERSION, Category.CROSSBOW),
+	OTHER(-1, true, VERSION1_14, LAST_VERSION, DEFAULT, FOOD, BLOCK);
 	
 	private final short maxDurability;
 	private final Category[] categories;
@@ -196,6 +197,7 @@ public enum CustomItemType {
 	}
 	
 	public short getMaxDurability() {
+		if (maxDurability == -1) throw new UnsupportedOperationException("OTHER CustomItemType doesn't have max durability");
 		return maxDurability;
 	}
 	

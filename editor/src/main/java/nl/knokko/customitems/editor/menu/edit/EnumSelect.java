@@ -13,7 +13,7 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 public class EnumSelect<T extends Enum<?>> extends GuiMenu {
 	
-	public static <T extends Enum<?>> GuiComponent createSelectButton(Class<T> enumClass, Consumer<T> receiver, Predicate<T> filter, T current) {
+	public static <T extends Enum<?>> DynamicTextButton createSelectButton(Class<T> enumClass, Consumer<T> receiver, Predicate<T> filter, T current) {
 		String text = current == null ? "None" : current.toString();
 		return new DynamicTextButton(text, EditProps.BUTTON, EditProps.HOVER, null) {
 			
@@ -27,7 +27,7 @@ public class EnumSelect<T extends Enum<?>> extends GuiMenu {
 		};
 	}
 	
-	public static <T extends Enum<?>> GuiComponent createSelectButton(
+	public static <T extends Enum<?>> DynamicTextButton createSelectButton(
 			Class<T> enumClass, Consumer<T> receiver, T current
 	) {
 		return createSelectButton(enumClass, receiver, (T option) -> { return true; } , current);

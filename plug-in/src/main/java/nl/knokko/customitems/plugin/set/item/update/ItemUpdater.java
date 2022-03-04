@@ -371,23 +371,31 @@ public class ItemUpdater {
 				throw new Error("Unknown nbt value type: " + newValue.type);
 			}
 		}
+		if (newItem.getItemType() == CustomItemType.OTHER) {
+			String[] customModelDataKey = { "CustomModelData" };
+			generalNbt.set(customModelDataKey, newItem.getItemDamage());
+		}
 		
 		newStack = generalNbt.backToBukkit();
 		
 		upgradeEnchantments(newStack, oldItem, newItem);
-		
-		ItemHelper.setMaterial(newStack, CustomItemWrapper.getMaterial(newItem.getItemType()).name());
+
+		ItemHelper.setMaterial(newStack, CustomItemWrapper.getMaterial(newItem.getItemType(), newItem.getOtherMaterial()).name());
 		
 		ItemMeta meta = newStack.getItemMeta();
 		
 		upgradeDisplayName(meta, oldItem, newItem);
 		upgradeLore(meta, oldItem, newItem, pOldDurability[0], pNewDurability[0]);
 		upgradeItemFlags(meta, oldItem, newItem);
-		
-		meta.setUnbreakable(true);
+
+		if (newItem.getItemType() != CustomItemType.OTHER) {
+			meta.setUnbreakable(true);
+		}
 		newStack.setItemMeta(meta);
-		
-		newStack.setDurability(newItem.getItemDamage());
+
+		if (newItem.getItemType() != CustomItemType.OTHER) {
+			newStack.setDurability(newItem.getItemDamage());
+		}
 		
 		return newStack;
 	}

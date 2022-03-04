@@ -39,6 +39,7 @@ import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.texture.BaseTextureValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
+import nl.knokko.gui.component.WrapperComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.menu.TextListEditMenu;
 import nl.knokko.gui.component.text.EagerFloatEditField;
@@ -202,11 +203,27 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 					BUTTON_X, 0.8f, BUTTON_X + 0.1f, 0.85f
 			);
 		}
+		DynamicTextButton otherMaterialButton = EnumSelect.createSelectButton(
+				CIMaterial.class, currentValues::setOtherMaterial, currentValues.getOtherMaterial()
+		);
 		addComponent(EnumSelect.createSelectButton(
 				CustomItemType.class, 
-				currentValues::setItemType, (CustomItemType maybe) -> {
+				newItemType -> {
+					currentValues.setItemType(newItemType);
+					if (newItemType == CustomItemType.OTHER) {
+						otherMaterialButton.setText(currentValues.getOtherMaterial().toString());
+					}
+				}, (CustomItemType maybe) -> {
 			return maybe.canServe(getCategory());
 		}, currentValues.getItemType()), BUTTON_X, 0.74f, BUTTON_X + 0.1f, 0.79f);
+		addComponent(new WrapperComponent<DynamicTextButton>(
+				otherMaterialButton
+		) {
+			@Override
+			public boolean isActive() {
+				return currentValues.getItemType() == CustomItemType.OTHER;
+			}
+		}, BUTTON_X + 0.11f, 0.74f, BUTTON_X + 0.2f, 0.79f);
 		addComponent(
 				new EagerTextEditField(currentValues.getAlias(), EDIT_BASE, EDIT_ACTIVE, currentValues::setAlias),
 				BUTTON_X, 0.68f, BUTTON_X + 0.1f, 0.73f

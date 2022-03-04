@@ -109,6 +109,7 @@ public abstract class CustomItemValues extends ModelValues {
 
     // Identity properties
     protected CustomItemType itemType;
+    protected CIMaterial otherMaterial;
     protected short itemDamage;
     protected String name;
     protected String alias;
@@ -149,6 +150,11 @@ public abstract class CustomItemValues extends ModelValues {
         super(mutable);
 
         this.itemType = initialItemType;
+        if (initialItemType == CustomItemType.OTHER) {
+            this.otherMaterial = CIMaterial.FLINT;
+        } else {
+            this.otherMaterial = null;
+        }
         this.itemDamage = 0; // This will be taken care of later
         this.name = "";
         this.alias = "";
@@ -180,6 +186,7 @@ public abstract class CustomItemValues extends ModelValues {
         super(mutable);
 
         this.itemType = source.getItemType();
+        this.otherMaterial = source.getOtherMaterial();
         this.itemDamage = source.getItemDamage();
         this.name = source.getName();
         this.alias = source.getAlias();
@@ -207,7 +214,8 @@ public abstract class CustomItemValues extends ModelValues {
     }
 
     protected boolean areBaseItemPropertiesEqual(CustomItemValues other) {
-        return this.itemType == other.itemType && this.name.equals(other.name) && this.alias.equals(other.alias)
+        return this.itemType == other.itemType && this.otherMaterial == other.otherMaterial
+                && this.name.equals(other.name) && this.alias.equals(other.alias)
                 && this.displayName.equals(other.displayName) && this.lore.equals(other.lore)
                 && this.itemFlags.equals(other.itemFlags) && this.attributeModifiers.equals(other.attributeModifiers)
                 && this.defaultEnchantments.equals(other.defaultEnchantments) && this.playerEffects.equals(other.playerEffects)
@@ -243,6 +251,9 @@ public abstract class CustomItemValues extends ModelValues {
         if (encoding != 1) throw new UnknownEncodingException("CustomItemBaseNew", encoding);
 
         this.loadIdentityProperties10(input);
+        if (this.itemType == CustomItemType.OTHER) {
+            this.otherMaterial = CIMaterial.valueOf(input.readString());
+        }
         this.loadTextDisplayProperties1(input);
 
         int numItemFlags = input.readInt();
@@ -268,6 +279,9 @@ public abstract class CustomItemValues extends ModelValues {
         output.addByte((byte) 1);
 
         this.saveIdentityProperties10(output);
+        if (this.itemType == CustomItemType.OTHER) {
+            output.addString(this.otherMaterial.name());
+        }
         this.saveTextDisplayProperties1(output);
 
         output.addInt(this.itemFlags.size());
@@ -593,6 +607,10 @@ public abstract class CustomItemValues extends ModelValues {
         return itemType;
     }
 
+    public CIMaterial getOtherMaterial() {
+        return otherMaterial;
+    }
+
     public short getItemDamage() {
         return itemDamage;
     }
@@ -690,7 +708,28 @@ public abstract class CustomItemValues extends ModelValues {
     public void setItemType(CustomItemType newItemType) {
         assertMutable();
         Checks.nonNull(newItemType);
-        this.itemType = newItemType;
+        if (newItemType != this.itemType) {
+            if (newItemType == CustomItemType.OTHER) {
+                this.otherMaterial = CIMaterial.FLINT;
+            } else {
+                this.otherMaterial = null;
+            }
+            this.itemType = newItemType;
+        }
+    }
+
+    public void setOtherMaterial(CIMaterial newOtherMaterial) {
+        assertMutable();
+        if (newOtherMaterial == null) {
+            if (this.itemType == CustomItemType.OTHER) {
+                throw new UnsupportedOperationException("newOtherMaterial can't be null when itemType is OTHER");
+            }
+        } else {
+            if (this.itemType != CustomItemType.OTHER) {
+                throw new IllegalArgumentException("newOtherMaterial must be null when itemType is not OTHER");
+            }
+        }
+        this.otherMaterial = newOtherMaterial;
     }
 
     public void setItemDamage(short newItemDamage) {
@@ -822,6 +861,12 @@ public abstract class CustomItemValues extends ModelValues {
 
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {
         if (itemType == null) throw new ProgrammingValidationException("No item type");
+        if (itemType == CustomItemType.OTHER && otherMaterial == null) {
+            throw new ProgrammingValidationException("Other material can't be null when itemType is OTHER");
+        }
+        if (itemType != CustomItemType.OTHER && otherMaterial != null) {
+            throw new ProgrammingValidationException("Other material must be null when itemType is not OTHER");
+        }
 
         Validation.safeName(name);
         
@@ -935,6 +980,14 @@ public abstract class CustomItemValues extends ModelValues {
         }
         if (itemType.lastVersion < version) {
             throw new ValidationException(itemType + " is no longer supported in mc " + MCVersions.createString(version));
+        }
+        if (otherMaterial != null) {
+            if (otherMaterial.firstVersion > version) {
+                throw new ValidationException(otherMaterial + " doesn't exist yet in mc " + MCVersions.createString(version));
+            }
+            if (otherMaterial.lastVersion < version) {
+                throw new ValidationException(otherMaterial + " doesn't exist anymore in mc " + MCVersions.createString(version));
+            }
         }
 
         for (EnchantmentValues enchantment : defaultEnchantments) {

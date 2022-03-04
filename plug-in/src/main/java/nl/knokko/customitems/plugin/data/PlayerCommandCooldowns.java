@@ -16,7 +16,6 @@ import java.util.Map;
 
 public class PlayerCommandCooldowns {
 
-    // TODO Write unit tests for serialization
     final Map<String, ItemEntry> itemMap = new HashMap<>();
 
     @Override

@@ -42,6 +42,8 @@ import org.bukkit.inventory.PlayerInventory;
 
 import java.util.List;
 
+import static nl.knokko.customitems.plugin.set.item.CustomItemWrapper.wrap;
+
 public class ContainerEventHandler implements Listener {
 	
 	private static PluginData pluginData() {
@@ -188,7 +190,7 @@ public class ContainerEventHandler implements Listener {
 
 							// If it is a stackable custom item, we can improve the action by attempting to merge
 							// the item stack with an existing item stack in the destination inventory
-							if (customTransfer != null && customTransfer.canStack()) {
+							if (customTransfer != null && wrap(customTransfer).needsStackingHelp()) {
 								event.setCancelled(true);
 
 								int remainingAmount = toTransfer.getAmount();
