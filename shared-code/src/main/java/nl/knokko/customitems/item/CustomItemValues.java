@@ -138,6 +138,7 @@ public abstract class CustomItemValues extends ModelValues {
     protected ItemCommandSystem commandSystem;
     protected ExtraItemNbtValues extraItemNbt;
     protected float attackRange;
+    protected boolean updateAutomatically;
 
     // Editor-only properties
     protected TextureReference texture;
@@ -177,6 +178,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.commandSystem = new ItemCommandSystem(false);
         this.extraItemNbt = new ExtraItemNbtValues(false);
         this.attackRange = 1f;
+        this.updateAutomatically = true;
 
         this.texture = null;
         this.customModel = null;
@@ -203,6 +205,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.commandSystem = source.getCommandSystem();
         this.extraItemNbt = source.getExtraNbt();
         this.attackRange = source.getAttackRange();
+        this.updateAutomatically = source.shouldUpdateAutomatically();
         this.texture = source.getTextureReference();
         this.customModel = source.getCustomModel();
         this.booleanRepresentation = source.getBooleanRepresentation();
@@ -222,7 +225,7 @@ public abstract class CustomItemValues extends ModelValues {
                 && this.targetEffects.equals(other.targetEffects) && this.equippedEffects.equals(other.equippedEffects)
                 && this.commandSystem.equals(other.commandSystem) && this.replaceConditions.equals(other.replaceConditions)
                 && this.conditionOp == other.conditionOp && this.extraItemNbt.equals(other.extraItemNbt)
-                && isClose(this.attackRange, other.attackRange);
+                && isClose(this.attackRange, other.attackRange) && this.updateAutomatically == other.updateAutomatically;
     }
 
     @Override
@@ -248,7 +251,7 @@ public abstract class CustomItemValues extends ModelValues {
 
     protected void loadSharedPropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
-        if (encoding != 1) throw new UnknownEncodingException("CustomItemBaseNew", encoding);
+        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("CustomItemBaseNew", encoding);
 
         this.loadIdentityProperties10(input);
         if (this.itemType == CustomItemType.OTHER) {
@@ -269,6 +272,11 @@ public abstract class CustomItemValues extends ModelValues {
         this.loadReplacementConditions10(input, itemSet);
         this.commandSystem = ItemCommandSystem.load(input);
         this.loadExtraProperties10(input);
+        if (encoding >= 2) {
+            this.updateAutomatically = input.readBoolean();
+        } else {
+            this.updateAutomatically = true;
+        }
 
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             this.loadEditorOnlyProperties1(input, itemSet, true);
@@ -276,7 +284,7 @@ public abstract class CustomItemValues extends ModelValues {
     }
 
     protected void saveSharedPropertiesNew(BitOutput output, ItemSet.Side targetSide) {
-        output.addByte((byte) 1);
+        output.addByte((byte) 2);
 
         this.saveIdentityProperties10(output);
         if (this.itemType == CustomItemType.OTHER) {
@@ -296,6 +304,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.saveReplacementConditions10(output);
         this.commandSystem.save(output);
         this.saveExtraProperties10(output);
+        output.addBoolean(this.updateAutomatically);
 
         if (targetSide == ItemSet.Side.EDITOR) {
             this.saveEditorOnlyProperties1(output);
@@ -681,6 +690,10 @@ public abstract class CustomItemValues extends ModelValues {
         return attackRange;
     }
 
+    public boolean shouldUpdateAutomatically() {
+        return updateAutomatically;
+    }
+
     public BaseTextureValues getTexture() {
         return texture.get();
     }
@@ -842,6 +855,11 @@ public abstract class CustomItemValues extends ModelValues {
     public void setAttackRange(float newAttackRange) {
         assertMutable();
         this.attackRange = newAttackRange;
+    }
+
+    public void setUpdateAutomatically(boolean updateAutomatically) {
+        assertMutable();
+        this.updateAutomatically = updateAutomatically;
     }
 
     public void setTexture(TextureReference newTexture) {

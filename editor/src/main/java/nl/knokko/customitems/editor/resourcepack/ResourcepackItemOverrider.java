@@ -13,6 +13,7 @@ import nl.knokko.customitems.util.ValidationException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -119,7 +120,7 @@ class ResourcepackItemOverrider {
             }
 
             // The interesting part...
-            for (CustomItemValues item : itemSet.getItems()) {
+            for (CustomItemValues item : itemSet.getItems().stream().sorted(Comparator.comparingInt(CustomItemValues::getItemDamage)).collect(Collectors.toList())) {
                 if (item.getItemType() == CustomItemType.OTHER && item.getOtherMaterial() == currentOtherMaterial) {
 
                     // Find the corresponding claim

@@ -40,6 +40,7 @@ import nl.knokko.customitems.texture.BaseTextureValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
+import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.menu.TextListEditMenu;
 import nl.knokko.gui.component.text.EagerFloatEditField;
@@ -167,6 +168,10 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 				new DynamicTextComponent("Attack range multiplier: ", EditProps.LABEL),
 				LABEL_X, -0.16f, LABEL_X + 0.2f, -0.11f
 		);
+		addComponent(
+				new DynamicTextComponent("Update automatically", LABEL),
+				LABEL_X + 0.02f, -0.22f, LABEL_X + 0.2f, -0.17f
+		);
 		
 
 		if (toModify != null) {
@@ -258,6 +263,10 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 				new EagerFloatEditField(
 						currentValues.getAttackRange(), 0f, EDIT_BASE, EDIT_ACTIVE, currentValues::setAttackRange
 				), BUTTON_X, -0.16f, BUTTON_X + 0.1f, -0.11f
+		);
+		addComponent(
+				new CheckboxComponent(currentValues.shouldUpdateAutomatically(), currentValues::setUpdateAutomatically),
+				LABEL_X, -0.21f, LABEL_X + 0.015f, -0.19f
 		);
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new ItemFlagMenu(this, currentValues));

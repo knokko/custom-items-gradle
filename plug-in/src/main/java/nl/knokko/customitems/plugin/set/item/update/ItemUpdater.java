@@ -156,64 +156,69 @@ public class ItemUpdater {
 				} else {
 					CustomItemValues currentItem = this.itemSet.getItem(itemName);
 					if (currentItem != null) {
-						
-						BooleanRepresentation oldBoolRepresentation = nbt.getBooleanRepresentation();
-						BooleanRepresentation newBoolRepresentation = new BooleanRepresentation(currentItem.getBooleanRepresentation());
-						if (oldBoolRepresentation.equals(newBoolRepresentation)) {
-							/*
-							 * This case will happen when the item set is updated,
-							 * but the current custom item stayed the same. If this
-							 * happens, we don't need to upgrade the item stack,
-							 * but we should update the LastExportTime to prevent the
-							 * need for comparing the boolean representations over
-							 * and over.
-							 */
-							pAction[0] = UpdateAction.UPDATE_LAST_EXPORT_TIME;
-						} else {
-							
-							/*
-							 * This case will happen when a custom item stack is
-							 * given to a player, but the admin changes some stats
-							 * of that custom item (using the Editor). Unfortunately,
-							 * some stats of the custom item stack in that player
-							 * inventory will keep the old values.
-							 * 
-							 * To update these stats, we need to take action (this is
-							 * the primary purpose of this class). This case is more
-							 * complicated than it seems because we can't just
-							 * completely recreate the item stack (that would for
-							 * instance erase the enchantments and durability).
-							 */
-							try {
-								//CustomItem oldItem = ItemSet.loadOldItem(oldBoolRepresentation, currentItem);
-								CustomItemValues oldItem = CustomItemValues.loadFromBooleanRepresentation(oldBoolRepresentation.getAsBytes());
-								pOldItem[0] = oldItem;
-								pNewItem[0] = currentItem;
-								pAction[0] = UpdateAction.UPGRADE;
 
-							} catch (UnknownEncodingException bigProblem) {
+						if (currentItem.shouldUpdateAutomatically()) {
+							BooleanRepresentation oldBoolRepresentation = nbt.getBooleanRepresentation();
+							BooleanRepresentation newBoolRepresentation = new BooleanRepresentation(currentItem.getBooleanRepresentation());
+							if (oldBoolRepresentation.equals(newBoolRepresentation)) {
+								/*
+								 * This case will happen when the item set is updated,
+								 * but the current custom item stayed the same. If this
+								 * happens, we don't need to upgrade the item stack,
+								 * but we should update the LastExportTime to prevent the
+								 * need for comparing the boolean representations over
+								 * and over.
+								 */
+								pAction[0] = UpdateAction.UPDATE_LAST_EXPORT_TIME;
+							} else {
 
 								/*
-								 * There are 2 possible causes for this
-								 * situation:
+								 * This case will happen when a custom item stack is
+								 * given to a player, but the admin changes some stats
+								 * of that custom item (using the Editor). Unfortunately,
+								 * some stats of the custom item stack in that player
+								 * inventory will keep the old values.
 								 *
-								 * 1) This item stack was created by a newer version
-								 *    of this plug-in. This must mean that someone
-								 *    downgraded to an older version of the plug-in.
-								 * 2) The nbt of the item got corrupted somehow.
-								 *
-								 * I don't think there is a good solution for this
-								 * situation, but I think doing nothing is best.
+								 * To update these stats, we need to take action (this is
+								 * the primary purpose of this class). This case is more
+								 * complicated than it seems because we can't just
+								 * completely recreate the item stack (that would for
+								 * instance erase the enchantments and durability).
 								 */
-								pAction[0] = UpdateAction.DO_NOTHING;
+								try {
+									//CustomItem oldItem = ItemSet.loadOldItem(oldBoolRepresentation, currentItem);
+									CustomItemValues oldItem = CustomItemValues.loadFromBooleanRepresentation(oldBoolRepresentation.getAsBytes());
+									pOldItem[0] = oldItem;
+									pNewItem[0] = currentItem;
+									pAction[0] = UpdateAction.UPGRADE;
 
-								Bukkit.getLogger().log(Level.SEVERE,
-										"Encountered an unknown encoding while deserializing the" +
-												"boolean representation stored in the nbt of the " +
-												"following itemstack: " + originalStack
-								);
-								Bukkit.getLogger().log(Level.SEVERE, "The bad encoding was " + bigProblem.domain + "." + bigProblem.encoding);
+								} catch (UnknownEncodingException bigProblem) {
+
+									/*
+									 * There are 2 possible causes for this
+									 * situation:
+									 *
+									 * 1) This item stack was created by a newer version
+									 *    of this plug-in. This must mean that someone
+									 *    downgraded to an older version of the plug-in.
+									 * 2) The nbt of the item got corrupted somehow.
+									 *
+									 * I don't think there is a good solution for this
+									 * situation, but I think doing nothing is best.
+									 */
+									pAction[0] = UpdateAction.DO_NOTHING;
+
+									Bukkit.getLogger().log(Level.SEVERE,
+											"Encountered an unknown encoding while deserializing the" +
+													"boolean representation stored in the nbt of the " +
+													"following itemstack: " + originalStack
+									);
+									Bukkit.getLogger().log(Level.SEVERE, "The bad encoding was " + bigProblem.domain + "." + bigProblem.encoding);
+								}
 							}
+						} else {
+							// Do nothing if the item must not be updated automatically
+							pAction[0] = UpdateAction.DO_NOTHING;
 						}
 					} else {
 						/*
