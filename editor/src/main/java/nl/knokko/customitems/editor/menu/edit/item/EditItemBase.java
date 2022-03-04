@@ -133,6 +133,12 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 					LABEL_X, 0.32f, LABEL_X + 0.125f, 0.37f
 			);
 		}
+		if (canHaveCustomModel()) {
+			addComponent(
+					new DynamicTextComponent("Model: ", EditProps.LABEL),
+					LABEL_X, 0.26f, LABEL_X + 0.11f, 0.31f
+			);
+		}
 		addComponent(
 				new DynamicTextComponent("On-Hit Player effects: ", EditProps.LABEL),
 				LABEL_X, 0.2f, LABEL_X + 0.2f, 0.25f
@@ -162,12 +168,6 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 				LABEL_X, -0.16f, LABEL_X + 0.2f, -0.11f
 		);
 		
-		if (canHaveCustomModel()) {
-			addComponent(
-					new DynamicTextComponent("Model: ", EditProps.LABEL),
-					LABEL_X, 0.26f, LABEL_X + 0.11f, 0.31f
-			);
-		}
 
 		if (toModify != null) {
 			addComponent(new DynamicTextButton("Apply", SAVE_BASE, EditProps.SAVE_HOVER, () -> {
