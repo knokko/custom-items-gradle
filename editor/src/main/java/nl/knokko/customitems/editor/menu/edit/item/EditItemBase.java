@@ -37,6 +37,7 @@ import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.texture.BaseTextureValues;
+import nl.knokko.customitems.texture.animated.AnimatedTextureValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
@@ -390,6 +391,6 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 	protected boolean allowTexture(TextureReference texture) {
 		
 		// No subclasses such as bow textures
-		return texture.get().getClass() == BaseTextureValues.class;
+		return texture.get().getClass() == BaseTextureValues.class || texture.get().getClass() == AnimatedTextureValues.class;
 	}
 }

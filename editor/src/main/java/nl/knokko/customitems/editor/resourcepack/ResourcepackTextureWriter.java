@@ -4,12 +4,18 @@ import nl.knokko.customitems.item.CustomArmorValues;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.texture.*;
+import nl.knokko.customitems.texture.animated.AnimatedTextureValues;
+import nl.knokko.customitems.texture.animated.AnimationFrameValues;
+import nl.knokko.customitems.texture.animated.AnimationImageValues;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.MemoryCacheImageOutputStream;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -66,9 +72,59 @@ class ResourcepackTextureWriter {
                 }
             }
 
+            BufferedImage imageToExport;
+            if (texture instanceof AnimatedTextureValues) {
+
+                List<AnimationImageValues> images = ((AnimatedTextureValues) texture).copyImages(false);
+
+                // Note that validation checks ensure that all images in the same animation have the same size
+                int baseWidth = images.get(0).getImageReference().getWidth();
+                int baseHeight = images.get(0).getImageReference().getHeight();
+
+                int totalHeight = images.size() * baseHeight;
+                imageToExport = new BufferedImage(baseWidth, totalHeight, BufferedImage.TYPE_INT_ARGB);
+                for (int x = 0; x < baseWidth; x++) {
+                    for (int y = 0; y < totalHeight; y++) {
+                        int imageIndex = y / baseHeight;
+                        int baseY = y % baseHeight;
+                        imageToExport.setRGB(x, y, images.get(imageIndex).getImageReference().getRGB(x, baseY));
+                    }
+                }
+
+                Map<String, Integer> imageIndices = new HashMap<>(images.size());
+                for (int index = 0; index < images.size(); index++) {
+                    imageIndices.put(images.get(index).getLabel(), index);
+                }
+
+                ZipEntry entry = new ZipEntry("assets/minecraft/textures/customitems/" + baseTextureName + ".png.mcmeta");
+                zipOutput.putNextEntry(entry);
+
+                PrintWriter metaWriter = new PrintWriter(zipOutput);
+                metaWriter.println("{");
+                metaWriter.println("    \"animation\": {");
+                metaWriter.println("        \"frames\": [");
+                List<AnimationFrameValues> frames = ((AnimatedTextureValues) texture).getFrames();
+                for (int index = 0; index < frames.size(); index++) {
+                    AnimationFrameValues frame = frames.get(index);
+                    metaWriter.print("            { \"index\": " + imageIndices.get(frame.getImageLabel()) + ", \"time\": " + frame.getDuration() + "}");
+                    if (index != frames.size() - 1) {
+                        metaWriter.print(",");
+                    }
+                    metaWriter.println();
+                }
+                metaWriter.println("        ]");
+                metaWriter.println("    }");
+                metaWriter.println("}");
+                metaWriter.flush();
+
+                zipOutput.closeEntry();
+            } else {
+                imageToExport = texture.getImage();
+            }
+
             ZipEntry entry = new ZipEntry("assets/minecraft/textures/customitems/" + baseTextureName + ".png");
             zipOutput.putNextEntry(entry);
-            ImageIO.write(texture.getImage(), "PNG", new MemoryCacheImageOutputStream(zipOutput));
+            ImageIO.write(imageToExport, "PNG", new MemoryCacheImageOutputStream(zipOutput));
             zipOutput.closeEntry();
         }
     }

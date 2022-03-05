@@ -2,6 +2,7 @@ package nl.knokko.customitems.texture;
 
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
+import nl.knokko.customitems.texture.animated.AnimatedTextureValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -22,6 +23,7 @@ public class BaseTextureValues extends ModelValues {
     public static final byte ENCODING_SIMPLE_1 = 0;
     public static final byte ENCODING_BOW_1 = 1;
     public static final byte ENCODING_CROSSBOW_1 = 2;
+    public static final byte ENCODING_ANIMATED = 3;
 
     public static boolean areImagesEqual(BufferedImage a, BufferedImage b) {
         if (a == null && b == null) return true;
@@ -73,6 +75,8 @@ public class BaseTextureValues extends ModelValues {
         } else if (encoding == ENCODING_CROSSBOW_1) {
             result = new CrossbowTextureValues(false);
             ((CrossbowTextureValues) result).loadCrossbow1(input);
+        } else if (encoding == ENCODING_ANIMATED) {
+            result = AnimatedTextureValues.load(input);
         } else {
             throw new UnknownEncodingException("Texture", encoding);
         }
@@ -192,8 +196,6 @@ public class BaseTextureValues extends ModelValues {
         Checks.notNull(newImage);
         this.image = newImage;
     }
-
-
 
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {
         Validation.safeName(name);

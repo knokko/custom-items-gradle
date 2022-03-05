@@ -10,7 +10,7 @@ public class Mutability {
         return new ArrayList<>(original);
     }
 
-    public static <T extends ModelValues> Collection<T> createDeepCopy(Collection<T> original, boolean mutable) {
+    public static <T extends ModelValues> List<T> createDeepCopy(Collection<T> original, boolean mutable) {
         List<T> result = new ArrayList<>(original.size());
 
         for (T originalItem : original) {
