@@ -214,7 +214,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 				"1.15.2",
 				"1.16.4", "1.16.5",
 				"1.17", "1.17.1",
-				"1.18", "1.18.1"
+				"1.18.2"
 		);
 		if (!versionWhiteList.contains(mcVersion)) {
 			this.loadErrors.add("Unsupported minecraft version: " + mcVersion);
