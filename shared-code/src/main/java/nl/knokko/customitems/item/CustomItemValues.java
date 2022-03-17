@@ -1,6 +1,7 @@
 package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.MCVersions;
+import nl.knokko.customitems.damage.SpecialMeleeDamageValues;
 import nl.knokko.customitems.effect.*;
 import nl.knokko.customitems.item.command.ItemCommand;
 import nl.knokko.customitems.item.command.ItemCommandEvent;
@@ -21,6 +22,7 @@ import nl.knokko.customitems.bithelper.ByteArrayBitInput;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -138,6 +140,7 @@ public abstract class CustomItemValues extends ModelValues {
     protected ItemCommandSystem commandSystem;
     protected ExtraItemNbtValues extraItemNbt;
     protected float attackRange;
+    protected SpecialMeleeDamageValues specialMeleeDamage;
     protected boolean updateAutomatically;
 
     // Editor-only properties
@@ -178,6 +181,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.commandSystem = new ItemCommandSystem(false);
         this.extraItemNbt = new ExtraItemNbtValues(false);
         this.attackRange = 1f;
+        this.specialMeleeDamage = null;
         this.updateAutomatically = true;
 
         this.texture = null;
@@ -205,6 +209,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.commandSystem = source.getCommandSystem();
         this.extraItemNbt = source.getExtraNbt();
         this.attackRange = source.getAttackRange();
+        this.specialMeleeDamage = source.getSpecialMeleeDamage();
         this.updateAutomatically = source.shouldUpdateAutomatically();
         this.texture = source.getTextureReference();
         this.customModel = source.getCustomModel();
@@ -225,7 +230,8 @@ public abstract class CustomItemValues extends ModelValues {
                 && this.targetEffects.equals(other.targetEffects) && this.equippedEffects.equals(other.equippedEffects)
                 && this.commandSystem.equals(other.commandSystem) && this.replaceConditions.equals(other.replaceConditions)
                 && this.conditionOp == other.conditionOp && this.extraItemNbt.equals(other.extraItemNbt)
-                && isClose(this.attackRange, other.attackRange) && this.updateAutomatically == other.updateAutomatically;
+                && isClose(this.attackRange, other.attackRange) && Objects.equals(this.specialMeleeDamage, other.specialMeleeDamage)
+                && this.updateAutomatically == other.updateAutomatically;
     }
 
     @Override
@@ -273,9 +279,15 @@ public abstract class CustomItemValues extends ModelValues {
         this.commandSystem = ItemCommandSystem.load(input);
         this.loadExtraProperties10(input);
         if (encoding >= 2) {
+            if (input.readBoolean()) {
+                this.specialMeleeDamage = SpecialMeleeDamageValues.load(input);
+            } else {
+                this.specialMeleeDamage = null;
+            }
             this.updateAutomatically = input.readBoolean();
         } else {
             this.updateAutomatically = true;
+            this.specialMeleeDamage = null;
         }
 
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
@@ -304,6 +316,10 @@ public abstract class CustomItemValues extends ModelValues {
         this.saveReplacementConditions10(output);
         this.commandSystem.save(output);
         this.saveExtraProperties10(output);
+        output.addBoolean(this.specialMeleeDamage != null);
+        if (this.specialMeleeDamage != null) {
+            this.specialMeleeDamage.save(output);
+        }
         output.addBoolean(this.updateAutomatically);
 
         if (targetSide == ItemSet.Side.EDITOR) {
@@ -690,6 +706,10 @@ public abstract class CustomItemValues extends ModelValues {
         return attackRange;
     }
 
+    public SpecialMeleeDamageValues getSpecialMeleeDamage() {
+        return specialMeleeDamage;
+    }
+
     public boolean shouldUpdateAutomatically() {
         return updateAutomatically;
     }
@@ -857,6 +877,11 @@ public abstract class CustomItemValues extends ModelValues {
         this.attackRange = newAttackRange;
     }
 
+    public void setSpecialMeleeDamage(SpecialMeleeDamageValues newSpecialDamage) {
+        assertMutable();
+        this.specialMeleeDamage = newSpecialDamage;
+    }
+
     public void setUpdateAutomatically(boolean updateAutomatically) {
         assertMutable();
         this.updateAutomatically = updateAutomatically;
@@ -963,6 +988,8 @@ public abstract class CustomItemValues extends ModelValues {
         if (attackRange < 0f) throw new ValidationException("Attack range can't be negative");
         if (attackRange != attackRange) throw new ValidationException("Attack range can't be NaN");
 
+        if (specialMeleeDamage != null) Validation.scope("Special melee damage", specialMeleeDamage::validate);
+
         if (texture == null) throw new ValidationException("No texture");
         // customModel doesn't have any invalid values
     }
@@ -1022,6 +1049,15 @@ public abstract class CustomItemValues extends ModelValues {
 
         for (EquippedPotionEffectValues effect : equippedEffects) {
             Validation.scope("Equipped effect", () -> effect.validateExportVersion(version));
+        }
+
+        if (specialMeleeDamage != null && specialMeleeDamage.getDamageSource() != null) {
+            if (specialMeleeDamage.getDamageSource().minVersion > version) {
+                throw new ValidationException("Special melee damage: " + specialMeleeDamage.getDamageSource() + " doesn't exist yet");
+            }
+            if (specialMeleeDamage.getDamageSource().maxVersion < version) {
+                throw new ValidationException("Special melee damage: " + specialMeleeDamage.getDamageSource() + " no longer exists");
+            }
         }
     }
 }

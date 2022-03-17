@@ -173,6 +173,10 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 				new DynamicTextComponent("Update automatically", LABEL),
 				LABEL_X + 0.02f, -0.22f, LABEL_X + 0.2f, -0.17f
 		);
+		addComponent(
+				new DynamicTextComponent("Special melee damage source:", LABEL),
+				LABEL_X, -0.28f, LABEL_X + 0.2f, -0.23f
+		);
 		
 
 		if (toModify != null) {
@@ -269,6 +273,11 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 				new CheckboxComponent(currentValues.shouldUpdateAutomatically(), currentValues::setUpdateAutomatically),
 				LABEL_X, -0.21f, LABEL_X + 0.015f, -0.19f
 		);
+		addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new EditSpecialMeleeDamage(
+					this, currentValues.getSpecialMeleeDamage(), currentValues::setSpecialMeleeDamage
+			));
+		}), BUTTON_X, -0.28f, BUTTON_X + 0.1f, -0.23f);
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new ItemFlagMenu(this, currentValues));
 		}), BUTTON_X, 0.38f, BUTTON_X + 0.1f, 0.43f);

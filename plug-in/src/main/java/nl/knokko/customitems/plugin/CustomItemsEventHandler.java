@@ -61,11 +61,13 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 
 import nl.knokko.core.plugin.block.MushroomBlocks;
+import nl.knokko.core.plugin.entity.EntityDamageHelper;
 import nl.knokko.core.plugin.item.GeneralItemNBT;
 import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.block.drop.CustomBlockDropValues;
 import nl.knokko.customitems.block.drop.RequiredItemValues;
 import nl.knokko.customitems.block.drop.SilkTouchRequirement;
+import nl.knokko.customitems.damage.SpecialMeleeDamageValues;
 import nl.knokko.customitems.drops.BlockDropValues;
 import nl.knokko.customitems.drops.DropValues;
 import nl.knokko.customitems.drops.MobDropValues;
@@ -1374,6 +1376,64 @@ public class CustomItemsEventHandler implements Listener {
 		}
 		
 		event.getDrops().addAll(stacksToDrop);
+	}
+
+	private boolean doesEntityTypeResistFireDamage(EntityType candidate) {
+		EntityType[] fireResistingEntities = {
+				EntityType.WITHER_SKELETON,
+				EntityType.GHAST,
+				EntityType.PIG_ZOMBIE,
+				EntityType.BLAZE,
+				EntityType.MAGMA_CUBE,
+				EntityType.WITHER,
+		};
+		for (EntityType resistingType : fireResistingEntities) {
+			if (resistingType == candidate) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean isPerformingCustomDamage;
+
+	@EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+	public void applyCustomDamageSource(EntityDamageByEntityEvent event) {
+		if (event.getDamager() instanceof LivingEntity) {
+			LivingEntity damager = (LivingEntity) event.getDamager();
+			EntityEquipment equipment = damager.getEquipment();
+			if (equipment != null) {
+
+				CustomItemValues customWeapon = itemSet.getItem(equipment.getItemInMainHand());
+				if (customWeapon != null && customWeapon.getSpecialMeleeDamage() != null) {
+					SpecialMeleeDamageValues specialDamage = customWeapon.getSpecialMeleeDamage();
+					if (!isPerformingCustomDamage) {
+						event.setCancelled(true);
+
+						// For some reason, this needs to be done manually. Fire resistance potion effect
+						// works out-of-the-box though, so I don't need to check for that.
+						if (!specialDamage.isFire() || !doesEntityTypeResistFireDamage(event.getEntityType())) {
+							isPerformingCustomDamage = true;
+							String rawDamageSourceName;
+							if (specialDamage.getDamageSource() != null) {
+								rawDamageSourceName = specialDamage.getDamageSource().rawName;
+							} else {
+								if (event.getDamager() instanceof Player) {
+									rawDamageSourceName = "player";
+								} else {
+									rawDamageSourceName = "mob";
+								}
+							}
+							EntityDamageHelper.causeCustomPhysicalAttack(
+									damager, event.getEntity(), (float) event.getDamage(),
+									rawDamageSourceName, specialDamage.shouldIgnoreArmor(), specialDamage.isFire()
+							);
+							isPerformingCustomDamage = false;
+						}
+					}
+				}
+			}
+		}
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
