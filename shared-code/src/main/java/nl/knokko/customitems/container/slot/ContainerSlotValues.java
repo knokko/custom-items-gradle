@@ -34,6 +34,8 @@ public abstract class ContainerSlotValues extends ModelValues {
 
         /** The first general storage slot encoding */
         public static final byte STORAGE1 = 10;
+
+        public static final byte MANUAL_OUTPUT = 11;
     }
 
     public static ContainerSlotValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
@@ -47,6 +49,7 @@ public abstract class ContainerSlotValues extends ModelValues {
         else if (encoding == Encodings.OUTPUT1 || encoding == Encodings.OUTPUT2) return OutputSlotValues.load(input, encoding, itemSet);
         else if (encoding == Encodings.PROGRESS_INDICATOR1) return ProgressIndicatorSlotValues.load(input, encoding, itemSet);
         else if (encoding == Encodings.STORAGE1) return StorageSlotValues.load(input, encoding, itemSet);
+        else if (encoding == Encodings.MANUAL_OUTPUT) return ManualOutputSlotValues.loadManual(input, itemSet);
         else throw new UnknownEncodingException("ContainerSlot", encoding);
     }
 

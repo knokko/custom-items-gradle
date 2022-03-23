@@ -714,6 +714,13 @@ public class ContainerInstance {
 	public void setFuel(String fuelSlotName, ItemStack newStack) {
 		inventory.setItem(typeInfo.getFuelSlot(fuelSlotName).getSlotIndex(), newStack);
 	}
+
+	/**
+	 * NOTE: This might be out of date. Confirm with determineCurrentRecipe to be certain!
+	 */
+	ContainerRecipeValues getCurrentRecipe() {
+		return this.currentRecipe;
+	}
 	
 	public int getCurrentCraftingProgress() {
 		return currentCraftingProgress;
@@ -740,6 +747,19 @@ public class ContainerInstance {
 				}
 			}
 		});
+
+		for (Entry<String, ContainerInfo.PlaceholderProps> manualSlot : typeInfo.getManualOutputSlots()) {
+			int slotIndex = manualSlot.getValue().getSlotIndex();
+			if (currentRecipe == null || !manualSlot.getKey().equals(currentRecipe.getManualOutputSlotName())) {
+				if (manualSlot.getValue().getPlaceholder() == null) {
+					inventory.setItem(slotIndex, null);
+				} else {
+					inventory.setItem(slotIndex, fromDisplay(manualSlot.getValue().getPlaceholder()));
+				}
+			} else {
+				inventory.setItem(slotIndex, convertResultToItemStack(currentRecipe.getManualOutput()));
+			}
+		}
 
 		Stream.concat(Stream.concat(
 				StreamSupport.stream(typeInfo.getInputSlots().spliterator(), false),
@@ -816,10 +836,12 @@ public class ContainerInstance {
 			}
 		}
 
+		// No special check is needed for manual output slots, since their content can simply be overwritten
+
 		return true;
 	}
 
-	private ContainerRecipeValues determineCurrentRecipe(ContainerRecipeValues mostLikely) {
+	ContainerRecipeValues determineCurrentRecipe(ContainerRecipeValues mostLikely) {
 
 		// Performance trick: first check the recipe that is most likely. If we can perform that recipe,
 		// we don't need to waste time with checking the other recipes.
@@ -849,12 +871,12 @@ public class ContainerInstance {
 		// Also, all containers are *hot* right after this plugin is enabled (so that each container can
 		// check whether it has to do recipes).
 		if (isHot()) {
-			ContainerRecipeValues oldRecipe = currentRecipe;
-			currentRecipe = null;
-
 			if (hasViewers) {
 				updatePlaceholders();
 			}
+
+			ContainerRecipeValues oldRecipe = currentRecipe;
+			currentRecipe = null;
 
 			// Performance improvement: rather than always checking current recipe 20 times per second,
 			// we should only check 20 times per second when either there is no current recipe (and at
@@ -868,7 +890,7 @@ public class ContainerInstance {
 				currentRecipe = oldRecipe;
 			}
 
-			if (currentRecipe != null) {
+			if (currentRecipe != null && currentRecipe.getManualOutput() == null) {
 				markHot();
 			}
 
@@ -877,12 +899,12 @@ public class ContainerInstance {
 				currentCraftingProgress = 0;
 			}
 
-			if (currentRecipe != null) {
+			if (currentRecipe != null && currentRecipe.getManualOutput() == null) {
 				maybeStartBurning();
 			}
 
 			if (isBurning()) {
-				if (currentRecipe != null) {
+				if (currentRecipe != null && currentRecipe.getManualOutput() == null) {
 					currentCraftingProgress++;
 					if (currentCraftingProgress >= currentRecipe.getDuration()) {
 
@@ -890,24 +912,7 @@ public class ContainerInstance {
 						// that all inputs are still present before producing a result.
 					    if (currentRecipe == determineCurrentRecipe(currentRecipe)) {
 							// Decrease the stacksize of all relevant input slots
-							for (Map.Entry<String, IngredientValues> input : currentRecipe.getInputs().entrySet()) {
-
-								int invIndex = typeInfo.getInputSlot(input.getKey()).getSlotIndex();
-
-								ItemStack remainingItem = convertResultToItemStack(input.getValue().getRemainingItem());
-								if (remainingItem != null) {
-									inventory.setItem(invIndex, remainingItem);
-								} else {
-									ItemStack inputItem = inventory.getItem(invIndex);
-									inputItem.setAmount(inputItem.getAmount() - input.getValue().getAmount());
-
-									if (inputItem.getAmount() == 0) {
-										inputItem = null;
-									}
-
-									inventory.setItem(invIndex, inputItem);
-								}
-							}
+							this.consumeIngredientsOfCurrentRecipe();
 
 							// Add the results to the output slots
 							for (Map.Entry<String, OutputTableValues> output : currentRecipe.getOutputs().entrySet()) {
@@ -960,8 +965,8 @@ public class ContainerInstance {
 						} else {
 							inventory.setItem(
 									indicator.getInventoryIndex(),
-									fromDisplay(indicator.getPlaceholder()
-									));
+									fromDisplay(indicator.getPlaceholder())
+							);
 						}
 					}
 				}
@@ -972,6 +977,27 @@ public class ContainerInstance {
 
 		// Always decrease the burn times
 		decrementBurnTimes();
+	}
+
+	void consumeIngredientsOfCurrentRecipe() {
+		for (Map.Entry<String, IngredientValues> input : currentRecipe.getInputs().entrySet()) {
+
+			int invIndex = typeInfo.getInputSlot(input.getKey()).getSlotIndex();
+
+			ItemStack remainingItem = convertResultToItemStack(input.getValue().getRemainingItem());
+			if (remainingItem != null) {
+				inventory.setItem(invIndex, remainingItem);
+			} else {
+				ItemStack inputItem = inventory.getItem(invIndex);
+				inputItem.setAmount(inputItem.getAmount() - input.getValue().getAmount());
+
+				if (inputItem.getAmount() == 0) {
+					inputItem = null;
+				}
+
+				inventory.setItem(invIndex, inputItem);
+			}
+		}
 	}
 	
 	private void updateFuelIndicator(String fuelSlotName) {

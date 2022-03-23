@@ -81,6 +81,12 @@ public class CreateSlot extends GuiMenu {
 					returnMenu, itemSet, changeSlot
 			));
 		}), 0.6f, 0.075f, 0.75f, 0.125f);
+		addComponent(new DynamicTextButton("Manual output", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new CreateManualOutputSlot(
+					returnMenu, itemSet, existingSlots, changeSlot
+			));
+		}), 0.6f, 0f, 0.8f, 0.05f);
+
 		HelpButtons.addHelpLink(this, "edit menu/containers/slots/create.html");
 	}
 

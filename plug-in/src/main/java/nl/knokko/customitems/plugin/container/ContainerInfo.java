@@ -22,6 +22,7 @@ public class ContainerInfo {
 	
 	private final Map<String, PlaceholderProps> inputSlots;
 	private final Map<String, PlaceholderProps> outputSlots;
+	private final Map<String, PlaceholderProps> manualOutputSlots;
 	private final Map<String, FuelProps> fuelSlots;
 	private final Collection<PlaceholderProps> storageSlots;
 	
@@ -34,6 +35,7 @@ public class ContainerInfo {
 		
 		this.inputSlots = new HashMap<>();
 		this.outputSlots = new HashMap<>();
+		this.manualOutputSlots = new HashMap<>();
 		this.fuelSlots = new HashMap<>();
 		this.storageSlots = new ArrayList<>();
 		this.craftingIndicators = new ArrayList<>();
@@ -76,6 +78,12 @@ public class ContainerInfo {
 							outputSlot.getName(), 
 							new PlaceholderProps(invIndex, outputSlot.getPlaceholder())
 					);
+				} else if (slot instanceof ManualOutputSlotValues) {
+					ManualOutputSlotValues outputSlot = (ManualOutputSlotValues) slot;
+					manualOutputSlots.put(
+							outputSlot.getName(),
+							new PlaceholderProps(invIndex, outputSlot.getPlaceholder())
+					);
 				} else if (slot instanceof ProgressIndicatorSlotValues) {
 					
 					ProgressIndicatorSlotValues indicatorSlot = (ProgressIndicatorSlotValues) slot;
@@ -110,6 +118,10 @@ public class ContainerInfo {
 	public PlaceholderProps getOutputSlot(String slotName) {
 		return outputSlots.get(slotName);
 	}
+
+	public PlaceholderProps getManualOutputSlot(String slotName) {
+		return manualOutputSlots.get(slotName);
+	}
 	
 	public Iterable<IndicatorProps> getCraftingIndicators() {
 		return craftingIndicators;
@@ -129,6 +141,10 @@ public class ContainerInfo {
 	
 	public Iterable<Entry<String, PlaceholderProps>> getOutputSlots() {
 		return outputSlots.entrySet();
+	}
+
+	public Iterable<Entry<String, PlaceholderProps>> getManualOutputSlots() {
+		return manualOutputSlots.entrySet();
 	}
 	
 	public Iterable<Entry<String, FuelProps>> getFuelSlots() {

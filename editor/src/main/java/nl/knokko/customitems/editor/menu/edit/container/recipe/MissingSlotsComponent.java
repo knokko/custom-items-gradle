@@ -56,6 +56,20 @@ public class MissingSlotsComponent extends GuiMenu {
 			}
 			missingOutputSlots.add(outputSlotName);
 		}
+
+		boolean missingManualOutputSlot = false;
+		if (recipe.getManualOutputSlotName() != null) {
+			missingManualOutputSlot = true;
+			for (ContainerSlotValues slot : slots) {
+				if (slot instanceof OutputSlotValues) {
+					OutputSlotValues outputSlot = (OutputSlotValues) slot;
+					if (outputSlot.getName().equals(recipe.getManualOutputSlotName())) {
+						missingManualOutputSlot = false;
+						break;
+					}
+				}
+			}
+		}
 		
 		if (!missingInputSlots.isEmpty()) {
 			addComponent(new DynamicTextComponent("Missing input slots:", EditProps.ERROR), 0f, 0.7f, 0.45f, 1f);
@@ -91,6 +105,10 @@ public class MissingSlotsComponent extends GuiMenu {
 				}), 0.81f, 0.5f - 0.25f * index, 0.84f, 0.6f - 0.25f * index);
 				index++;
 			}
+		}
+
+		if (missingManualOutputSlot) {
+			addComponent(new DynamicTextComponent("Missing manual output slot", EditProps.ERROR), 0.55f, 0.7f, 1f, 1f);
 		}
 	}
 	

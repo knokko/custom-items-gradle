@@ -1,15 +1,18 @@
 package nl.knokko.customitems.plugin.container;
 
 import nl.knokko.customitems.block.CustomBlockValues;
+import nl.knokko.customitems.container.ContainerRecipeValues;
 import nl.knokko.customitems.container.CustomContainerHost;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.slot.ContainerSlotValues;
+import nl.knokko.customitems.container.slot.ManualOutputSlotValues;
 import nl.knokko.customitems.container.slot.OutputSlotValues;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomPocketContainerValues;
 import nl.knokko.customitems.itemset.BlockReference;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
+import nl.knokko.customitems.recipe.result.CustomItemResultValues;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.entity.HumanEntity;
@@ -42,6 +45,7 @@ import org.bukkit.inventory.PlayerInventory;
 
 import java.util.List;
 
+import static nl.knokko.customitems.plugin.recipe.RecipeHelper.convertResultToItemStack;
 import static nl.knokko.customitems.plugin.set.item.CustomItemWrapper.wrap;
 
 public class ContainerEventHandler implements Listener {
@@ -154,14 +158,61 @@ public class ContainerEventHandler implements Listener {
 						player.giveExp(customContainer.getStoredExperience());
 						customContainer.clearStoredExperience();
 					}
+
+					ContainerRecipeValues currentManualRecipe = null;
+					boolean stackManualResultOnCursor = false;
+
+					if (slot instanceof ManualOutputSlotValues) {
+						currentManualRecipe = customContainer.getCurrentRecipe();
+						if (currentManualRecipe != null && currentManualRecipe.getManualOutput() == null) {
+							currentManualRecipe = null;
+						}
+
+						// This extra check is needed because the customContainer.getCurrentRecipe() can be outdated
+						if (currentManualRecipe != null && customContainer.determineCurrentRecipe(currentManualRecipe) != currentManualRecipe) {
+							currentManualRecipe = null;
+						}
+
+						if (currentManualRecipe != null && !ItemUtils.isEmpty(event.getCursor())) {
+							CustomItemValues customCursor = itemSet.getItem(event.getCursor());
+							if (customCursor == null) {
+								ItemStack manualOutputStack = convertResultToItemStack(currentManualRecipe.getManualOutput());
+								if (!event.getCursor().isSimilar(manualOutputStack) || event.getCursor().getAmount() + manualOutputStack.getAmount() > event.getCursor().getMaxStackSize()) {
+									currentManualRecipe = null;
+								}
+							} else {
+								if (currentManualRecipe.getManualOutput() instanceof CustomItemResultValues) {
+
+									CustomItemResultValues customResult = (CustomItemResultValues) currentManualRecipe.getManualOutput();
+									if (customResult.getItem() != customCursor || customResult.getAmount() + event.getCursor().getAmount() > customCursor.getMaxStacksize()) {
+										currentManualRecipe = null;
+									}
+								} else {
+									currentManualRecipe = null;
+								}
+							}
+
+							if (currentManualRecipe != null) {
+								stackManualResultOnCursor = true;
+							}
+						}
+					}
+
+					boolean consumeManualRecipeOnce = false;
 					
 					// Make sure slots can only be used the way they should be used
 					if (isTake(event.getAction())) {
 						if (!slot.canTakeItems() || ItemUtils.isEmpty(event.getCurrentItem())) {
+							if (currentManualRecipe != null) {
+								consumeManualRecipeOnce = true;
+							}
 							event.setCancelled(true);
 						}
 					} else if (isInsert(event.getAction())) {
 						if (!slot.canInsertItems()) {
+							if (currentManualRecipe != null) {
+								consumeManualRecipeOnce = true;
+							}
 							event.setCancelled(true);
 						}
 					} else if (
@@ -181,6 +232,9 @@ public class ContainerEventHandler implements Listener {
 								(!slot.canTakeItems() && !ItemUtils.isEmpty(event.getCurrentItem()))
 										|| !slot.canInsertItems()) {
 							event.setCancelled(true);
+						}
+						if (currentManualRecipe != null) {
+							consumeManualRecipeOnce = true;
 						}
 					} else if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
 					    if (slot.canTakeItems()) {
@@ -234,6 +288,77 @@ public class ContainerEventHandler implements Listener {
 							}
 							// If not, the default move to other inventory behavior is fine
 						} else {
+							if (currentManualRecipe != null) {
+
+								int numRecipeExecutions = 0;
+								while (customContainer.determineCurrentRecipe(currentManualRecipe) == currentManualRecipe) {
+									customContainer.consumeIngredientsOfCurrentRecipe();
+									numRecipeExecutions += 1;
+								}
+
+								if (currentManualRecipe.getExperience() > 0) {
+									player.giveExp(numRecipeExecutions * currentManualRecipe.getExperience());
+								}
+
+								ItemStack baseResultStack = convertResultToItemStack(currentManualRecipe.getManualOutput());
+								CustomItemValues customResult = currentManualRecipe.getManualOutput() instanceof CustomItemResultValues ?
+										((CustomItemResultValues) currentManualRecipe.getManualOutput()).getItem() : null;
+								int maxStackSize = customResult != null ? customResult.getMaxStacksize() : baseResultStack.getMaxStackSize();
+
+								int finalNumRecipeExecutions = numRecipeExecutions;
+								ContainerRecipeValues finalManualRecipe = currentManualRecipe;
+								Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
+
+									int remainingAmount = finalNumRecipeExecutions * baseResultStack.getAmount();
+
+									// First merge with existing item stacks in the player inventory
+									ItemStack[] contents = player.getInventory().getStorageContents();
+									for (ItemStack content : contents) {
+										if (remainingAmount <= 0) {
+											break;
+										}
+
+										CustomItemValues customContent = itemSet.getItem(content);
+										boolean canMerge;
+										if (customResult == null) {
+											canMerge = customContent == null && baseResultStack.isSimilar(content);
+										} else {
+											canMerge = customContent == customResult;
+										}
+										if (canMerge) {
+											int amountToPut = Math.min(remainingAmount, maxStackSize - content.getAmount());
+											if (amountToPut > 0) {
+												content.setAmount(content.getAmount() + amountToPut);
+												remainingAmount -= amountToPut;
+											}
+										}
+									}
+
+									// Then place the remaining items in empty slots in the inventory
+									for (int index = 0; index < contents.length; index++) {
+										if (remainingAmount <= 0) {
+											break;
+										}
+										if (ItemUtils.isEmpty(contents[index])) {
+											int amountToPut = Math.min(remainingAmount, maxStackSize);
+											contents[index] = baseResultStack.clone();
+											contents[index].setAmount(amountToPut);
+											remainingAmount -= amountToPut;
+										}
+									}
+
+									player.getInventory().setStorageContents(contents);
+
+									// If not everything fits in the inventory, the leftovers will be dropped on the floor
+									while (remainingAmount > 0) {
+										int amountToDrop = Math.min(remainingAmount, maxStackSize);
+										ItemStack stackToDrop = baseResultStack.clone();
+										stackToDrop.setAmount(amountToDrop);
+										player.getWorld().dropItem(player.getLocation(), stackToDrop);
+										remainingAmount -= amountToDrop;
+									}
+								});
+							}
 					    	event.setCancelled(true);
 						}
 					} else {
@@ -242,6 +367,22 @@ public class ContainerEventHandler implements Listener {
 						// I don't know whether or not this should be allowed
 						// But better safe than sorry
 						event.setCancelled(true);
+					}
+
+					if (consumeManualRecipeOnce) {
+						customContainer.consumeIngredientsOfCurrentRecipe();
+						if (currentManualRecipe.getExperience() > 0) {
+							player.giveExp(currentManualRecipe.getExperience());
+						}
+						ContainerRecipeValues finalManualRecipe = currentManualRecipe;
+						boolean finalStackResultOnCursor = stackManualResultOnCursor;
+						Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
+							ItemStack cursor = convertResultToItemStack(finalManualRecipe.getManualOutput());
+							if (finalStackResultOnCursor) {
+								cursor.setAmount(cursor.getAmount() + event.getCursor().getAmount());
+							}
+							player.setItemOnCursor(cursor);
+						});
 					}
 				} else {
 					

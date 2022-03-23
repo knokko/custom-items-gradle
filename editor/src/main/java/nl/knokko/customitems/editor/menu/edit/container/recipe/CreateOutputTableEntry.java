@@ -41,7 +41,7 @@ public class CreateOutputTableEntry extends GuiMenu {
 			state.getWindow().setMainComponent(returnMenu);
 		}), 0.025f, 0.7f, 0.15f, 0.8f);
 
-		Chance[] pChance = { null };
+		Chance[] pChance = { Chance.percentage(50) };
 		addComponent(new DynamicTextComponent("Chance: ", EditProps.LABEL), 0.2f, 0.6f, 0.3f, 0.7f);
 		addComponent(
 				new FixedPointEditField(
