@@ -29,10 +29,12 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.logging.Level;
 
 import com.google.common.collect.Lists;
 import nl.knokko.core.plugin.block.MushroomBlocks;
+import nl.knokko.core.plugin.entity.EntityDamageHelper;
 import nl.knokko.core.plugin.item.SmithingBlocker;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.plugin.command.CustomItemsTabCompletions;
@@ -42,6 +44,7 @@ import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.util.StringEncoder;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -225,8 +228,11 @@ public class CustomItemsPlugin extends JavaPlugin {
 			SmithingBlocker.blockSmithingTableUpgrades(itemStack -> this.getSet().getItem(itemStack) != null);
 
 			// Use a method introduced in the newest KnokkoCore update to check if it is up-to-date
-			MushroomBlocks.areEnabled();
-		} catch (NoClassDefFoundError outdated) {
+			EntityDamageHelper.class.getMethod(
+					"causeCustomPhysicalAttack", Entity.class, Entity.class, float.class,
+					String.class, boolean.class, boolean.class
+			);
+		} catch (NoClassDefFoundError | NoSuchMethodException outdated) {
 			this.loadErrors.add("It looks like your KnokkoCore is outdated. Please install a newer version.");
 		}
 	}
