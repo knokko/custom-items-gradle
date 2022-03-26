@@ -1,6 +1,7 @@
 package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.MCVersions;
+import nl.knokko.customitems.attack.effect.AttackEffectGroupValues;
 import nl.knokko.customitems.damage.SpecialMeleeDamageValues;
 import nl.knokko.customitems.effect.*;
 import nl.knokko.customitems.item.command.ItemCommand;
@@ -141,6 +142,7 @@ public abstract class CustomItemValues extends ModelValues {
     protected ExtraItemNbtValues extraItemNbt;
     protected float attackRange;
     protected SpecialMeleeDamageValues specialMeleeDamage;
+    protected Collection<AttackEffectGroupValues> attackEffects;
     protected boolean updateAutomatically;
 
     // Editor-only properties
@@ -182,6 +184,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.extraItemNbt = new ExtraItemNbtValues(false);
         this.attackRange = 1f;
         this.specialMeleeDamage = null;
+        this.attackEffects = new ArrayList<>();
         this.updateAutomatically = true;
 
         this.texture = null;
@@ -210,6 +213,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.extraItemNbt = source.getExtraNbt();
         this.attackRange = source.getAttackRange();
         this.specialMeleeDamage = source.getSpecialMeleeDamage();
+        this.attackEffects = source.getAttackEffects();
         this.updateAutomatically = source.shouldUpdateAutomatically();
         this.texture = source.getTextureReference();
         this.customModel = source.getCustomModel();
@@ -231,7 +235,7 @@ public abstract class CustomItemValues extends ModelValues {
                 && this.commandSystem.equals(other.commandSystem) && this.replaceConditions.equals(other.replaceConditions)
                 && this.conditionOp == other.conditionOp && this.extraItemNbt.equals(other.extraItemNbt)
                 && isClose(this.attackRange, other.attackRange) && Objects.equals(this.specialMeleeDamage, other.specialMeleeDamage)
-                && this.updateAutomatically == other.updateAutomatically;
+                && this.attackEffects.equals(other.attackEffects) && this.updateAutomatically == other.updateAutomatically;
     }
 
     @Override
@@ -284,10 +288,16 @@ public abstract class CustomItemValues extends ModelValues {
             } else {
                 this.specialMeleeDamage = null;
             }
+            int numAttackEffectGroups = input.readInt();
+            this.attackEffects = new ArrayList<>(numAttackEffectGroups);
+            for (int counter = 0; counter < numAttackEffectGroups; counter++) {
+                this.attackEffects.add(AttackEffectGroupValues.load(input));
+            }
             this.updateAutomatically = input.readBoolean();
         } else {
-            this.updateAutomatically = true;
             this.specialMeleeDamage = null;
+            this.attackEffects = new ArrayList<>();
+            this.updateAutomatically = true;
         }
 
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
@@ -319,6 +329,10 @@ public abstract class CustomItemValues extends ModelValues {
         output.addBoolean(this.specialMeleeDamage != null);
         if (this.specialMeleeDamage != null) {
             this.specialMeleeDamage.save(output);
+        }
+        output.addInt(this.attackEffects.size());
+        for (AttackEffectGroupValues attackEffectGroup : this.attackEffects) {
+            attackEffectGroup.save(output);
         }
         output.addBoolean(this.updateAutomatically);
 
@@ -560,7 +574,9 @@ public abstract class CustomItemValues extends ModelValues {
     }
 
     protected void initBaseDefaults10() {
-        // Nothing to be done until the next encoding is known
+        this.specialMeleeDamage = null;
+        this.attackEffects = new ArrayList<>(0);
+        this.updateAutomatically = true;
     }
 
     protected void initBaseDefaults9() {
@@ -708,6 +724,10 @@ public abstract class CustomItemValues extends ModelValues {
 
     public SpecialMeleeDamageValues getSpecialMeleeDamage() {
         return specialMeleeDamage;
+    }
+
+    public Collection<AttackEffectGroupValues> getAttackEffects() {
+        return new ArrayList<>(attackEffects);
     }
 
     public boolean shouldUpdateAutomatically() {
@@ -882,6 +902,12 @@ public abstract class CustomItemValues extends ModelValues {
         this.specialMeleeDamage = newSpecialDamage;
     }
 
+    public void setAttackEffects(Collection<AttackEffectGroupValues> attackEffects) {
+        assertMutable();
+        Checks.nonNull(attackEffects);
+        this.attackEffects = Mutability.createDeepCopy(attackEffects, false);
+    }
+
     public void setUpdateAutomatically(boolean updateAutomatically) {
         assertMutable();
         this.updateAutomatically = updateAutomatically;
@@ -990,6 +1016,11 @@ public abstract class CustomItemValues extends ModelValues {
 
         if (specialMeleeDamage != null) Validation.scope("Special melee damage", specialMeleeDamage::validate);
 
+        if (attackEffects == null) throw new ProgrammingValidationException("No attack effects");
+        for (AttackEffectGroupValues attackEffectGroup : this.attackEffects) {
+            Validation.scope("Attack effects", attackEffectGroup::validate);
+        }
+
         if (texture == null) throw new ValidationException("No texture");
         // customModel doesn't have any invalid values
     }
@@ -1058,6 +1089,10 @@ public abstract class CustomItemValues extends ModelValues {
             if (specialMeleeDamage.getDamageSource().maxVersion < version) {
                 throw new ValidationException("Special melee damage: " + specialMeleeDamage.getDamageSource() + " no longer exists");
             }
+        }
+
+        for (AttackEffectGroupValues attackEffectGroup : attackEffects) {
+            Validation.scope("Attack effects", () -> attackEffectGroup.validateExportVersion(version));
         }
     }
 }
