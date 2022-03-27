@@ -2,6 +2,7 @@ package nl.knokko.customitems.attack.effect;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
+import nl.knokko.customitems.effect.EffectType;
 import nl.knokko.customitems.effect.PotionEffectValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
@@ -69,6 +70,24 @@ public class AttackPotionEffectValues extends AttackEffectValues {
         assertMutable();
         Checks.notNull(potionEffect);
         this.potionEffect = potionEffect.copy(false);
+    }
+
+    public void setPotionEffectType(EffectType newType) {
+        PotionEffectValues newEffect = getPotionEffect().copy(true);
+        newEffect.setType(newType);
+        setPotionEffect(newEffect);
+    }
+
+    public void setDuration(int newDuration) {
+        PotionEffectValues newEffect = getPotionEffect().copy(true);
+        newEffect.setDuration(newDuration);
+        setPotionEffect(newEffect);
+    }
+
+    public void setLevel(int newLevel) {
+        PotionEffectValues newEffect = getPotionEffect().copy(true);
+        newEffect.setLevel(newLevel);
+        setPotionEffect(newEffect);
     }
 
     @Override

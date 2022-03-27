@@ -29,6 +29,7 @@ import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
+import nl.knokko.customitems.editor.menu.edit.attack.effect.AttackEffectGroupCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.item.command.EditCommandSystem;
 import nl.knokko.customitems.editor.menu.edit.texture.TextureEdit;
 import nl.knokko.customitems.editor.resourcepack.DefaultItemModels;
@@ -177,7 +178,11 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 				new DynamicTextComponent("Special melee damage source:", LABEL),
 				LABEL_X, -0.28f, LABEL_X + 0.2f, -0.23f
 		);
-		
+		addComponent(
+				new DynamicTextComponent("Attack effects:", LABEL),
+				LABEL_X, -0.34f, LABEL_X + 0.15f, -0.29f
+		);
+		// TODO Update documentation
 
 		if (toModify != null) {
 			addComponent(new DynamicTextButton("Apply", SAVE_BASE, EditProps.SAVE_HOVER, () -> {
@@ -278,6 +283,11 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 					this, currentValues.getSpecialMeleeDamage(), currentValues::setSpecialMeleeDamage
 			));
 		}), BUTTON_X, -0.28f, BUTTON_X + 0.1f, -0.23f);
+		addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new AttackEffectGroupCollectionEdit(
+					currentValues.getAttackEffects(), currentValues::setAttackEffects, false, this
+			));
+		}), BUTTON_X, -0.34f, BUTTON_X + 0.1f, -0.29f);
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new ItemFlagMenu(this, currentValues));
 		}), BUTTON_X, 0.38f, BUTTON_X + 0.1f, 0.43f);
