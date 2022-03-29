@@ -2,8 +2,6 @@ package nl.knokko.customitems.editor.menu.edit.attack.effect;
 
 import nl.knokko.customitems.attack.effect.AttackDealDamageValues;
 import nl.knokko.customitems.attack.effect.AttackEffectValues;
-import nl.knokko.customitems.damage.DamageSource;
-import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerFloatEditField;
 import nl.knokko.gui.component.text.EagerIntEditField;
@@ -27,11 +25,6 @@ public class EditAttackDealDamage extends EditAttackEffect {
     @Override
     protected void addComponents() {
         super.addComponents();
-
-        addComponent(new DynamicTextComponent("Damage source:", LABEL), 0.4f, 0.7f, 0.6f, 0.8f);
-        addComponent(
-                EnumSelect.createSelectButton(DamageSource.class, currentValues::setDamageSource, currentValues.getDamageSource()
-        ), 0.65f, 0.7f, 0.85f, 0.8f);
 
         addComponent(new DynamicTextComponent("Damage:", LABEL), 0.4f, 0.5f, 0.5f, 0.6f);
         addComponent(new EagerFloatEditField(
