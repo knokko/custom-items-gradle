@@ -2,6 +2,7 @@ package nl.knokko.customitems.editor.menu.edit.attack.effect;
 
 import nl.knokko.customitems.attack.effect.AttackEffectGroupValues;
 import nl.knokko.customitems.editor.util.FixedPointEditField;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.util.Chance;
 import nl.knokko.customitems.util.Validation;
 import nl.knokko.gui.color.GuiColor;
@@ -73,6 +74,7 @@ public class EditAttackEffectGroup extends GuiMenu {
                 Chance.NUM_BACK_DIGITS, currentValues.getChance().getRawValue(), 0, 100,
                 newRawChance -> currentValues.setChance(new Chance(newRawChance))
         ), 0.325f, 0.4f, 0.45f, 0.5f);
+        addComponent(new DynamicTextComponent("%", LABEL), 0.45f, 0.4f, 0.48f, 0.5f);
 
         addComponent(new DynamicTextComponent("Original damage threshold:", LABEL), 0.2f, 0.29f, 0.5f, 0.39f);
         addComponent(new EagerFloatEditField(
@@ -86,8 +88,8 @@ public class EditAttackEffectGroup extends GuiMenu {
                     currentValues.getFinalDamageThreshold(), 0f, EDIT_BASE, EDIT_ACTIVE, currentValues::setFinalDamageThreshold
             ), 0.525f, 0.18f, 0.6f, 0.28f);
         }
-        
-        // TODO Add documentation
+
+        HelpButtons.addHelpLink(this, "edit menu/attack/effect/group edit.html");
     }
 
     @Override

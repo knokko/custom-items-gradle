@@ -35,8 +35,7 @@ public class AttackEffectGroupCollectionEdit extends SelfDedicatedCollectionEdit
             ));
         }), 0.025f, 0.2f, 0.2f, 0.3f);
 
-        // TODO Add help link
-        HelpButtons.addHelpLink(this, "");
+        HelpButtons.addHelpLink(this, "edit menu/attack/effect/group list.html");
     }
 
     @Override

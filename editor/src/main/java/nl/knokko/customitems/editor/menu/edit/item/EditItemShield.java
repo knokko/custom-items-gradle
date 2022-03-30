@@ -51,7 +51,6 @@ public class EditItemShield extends EditItemTool<CustomShieldValues> {
 			));
 		}), 0.85f, 0.15f, 0.95f, 0.225f);
 
-		// TODO Update documentation
 		HelpButtons.addHelpLink(this, "edit%20menu/items/edit/shield.html");
 	}
 }

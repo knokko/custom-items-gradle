@@ -3,6 +3,7 @@ package nl.knokko.customitems.editor.menu.edit.attack.effect;
 import nl.knokko.customitems.attack.effect.AttackEffectValues;
 import nl.knokko.customitems.attack.effect.AttackPlaySoundValues;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.sound.CISound;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerFloatEditField;
@@ -42,7 +43,7 @@ public class EditAttackPlaySound extends EditAttackEffect {
                 currentValues.getPitch(), 0f, EDIT_BASE, EDIT_ACTIVE, currentValues::setPitch
         ), 0.525f, 0.4f, 0.6f, 0.5f);
 
-        // TODO Add documentation
+        HelpButtons.addHelpLink(this, "edit menu/attack/effect/play sound.html");
     }
 
     @Override

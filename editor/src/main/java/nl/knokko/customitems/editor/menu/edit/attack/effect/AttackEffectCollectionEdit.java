@@ -32,8 +32,7 @@ public class AttackEffectCollectionEdit extends SelfDedicatedCollectionEdit<Atta
             ));
         }), 0.025f, 0.2f, 0.2f, 0.3f);
 
-        // TODO Add help link
-        HelpButtons.addHelpLink(this, "");
+        HelpButtons.addHelpLink(this, "edit menu/attack/effect/list.html");
     }
 
     @Override

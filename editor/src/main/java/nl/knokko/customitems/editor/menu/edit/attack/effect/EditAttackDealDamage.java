@@ -2,6 +2,7 @@ package nl.knokko.customitems.editor.menu.edit.attack.effect;
 
 import nl.knokko.customitems.attack.effect.AttackDealDamageValues;
 import nl.knokko.customitems.attack.effect.AttackEffectValues;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerFloatEditField;
 import nl.knokko.gui.component.text.EagerIntEditField;
@@ -36,7 +37,7 @@ public class EditAttackDealDamage extends EditAttackEffect {
                 currentValues.getDelay(), 1, EDIT_BASE, EDIT_ACTIVE, currentValues::setDelay
         ), 0.525f, 0.3f, 0.6f, 0.4f);
 
-        // TODO Add documentation
+        HelpButtons.addHelpLink(this, "edit menu/attack/effect/deal damage.html");
     }
 
     @Override

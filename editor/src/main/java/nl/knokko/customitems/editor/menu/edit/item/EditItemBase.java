@@ -182,7 +182,6 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 				new DynamicTextComponent("Attack effects:", LABEL),
 				LABEL_X, -0.34f, LABEL_X + 0.15f, -0.29f
 		);
-		// TODO Update documentation
 
 		if (toModify != null) {
 			addComponent(new DynamicTextButton("Apply", SAVE_BASE, EditProps.SAVE_HOVER, () -> {

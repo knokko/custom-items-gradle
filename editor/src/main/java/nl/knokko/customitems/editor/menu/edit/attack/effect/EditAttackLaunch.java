@@ -3,6 +3,7 @@ package nl.knokko.customitems.editor.menu.edit.attack.effect;
 import nl.knokko.customitems.attack.effect.AttackEffectValues;
 import nl.knokko.customitems.attack.effect.AttackLaunchValues;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerFloatEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
@@ -36,7 +37,7 @@ public class EditAttackLaunch extends EditAttackEffect {
                 currentValues.getSpeed(), -100f, 100f, EDIT_BASE, EDIT_ACTIVE, currentValues::setSpeed
         ), 0.525f, 0.5f, 0.6f, 0.6f);
 
-        // TODO Documentation
+        HelpButtons.addHelpLink(this, "edit menu/attack/effect/launch.html");
     }
 
     @Override

@@ -2,6 +2,7 @@ package nl.knokko.customitems.editor.menu.edit.attack.effect;
 
 import nl.knokko.customitems.attack.effect.AttackEffectValues;
 import nl.knokko.customitems.attack.effect.AttackIgniteValues;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
@@ -30,7 +31,7 @@ public class EditAttackIgnite extends EditAttackEffect {
                 currentValues.getDuration(), 1, EDIT_BASE, EDIT_ACTIVE, currentValues::setDuration
         ), 0.6f, 0.6f, 0.7f, 0.7f);
 
-        // TODO Add documentation
+        HelpButtons.addHelpLink(this, "edit menu/attack/effect/ignite.html");
     }
 
     @Override

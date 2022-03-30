@@ -1,6 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.attack.effect;
 
 import nl.knokko.customitems.attack.effect.*;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -69,7 +70,7 @@ public class CreateAttackEffect extends GuiMenu {
             ));
         }), 0.4f, 0.05f, 0.55f, 0.15f);
 
-        // TODO Documentation
+        HelpButtons.addHelpLink(this, "edit menu/attack/effect/create.html");
     }
 
     @Override

@@ -3,6 +3,7 @@ package nl.knokko.customitems.editor.menu.edit.attack.effect;
 import nl.knokko.customitems.attack.effect.AttackEffectValues;
 import nl.knokko.customitems.attack.effect.AttackPotionEffectValues;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.effect.EffectType;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerIntEditField;
@@ -41,7 +42,7 @@ public class EditAttackPotionEffect extends EditAttackEffect {
                 currentValues.getPotionEffect().getLevel(), 1, EDIT_BASE, EDIT_ACTIVE, currentValues::setLevel
         ), 0.525f, 0.4f, 0.6f, 0.5f);
 
-        // TODO Add documentation
+        HelpButtons.addHelpLink(this, "edit menu/attack/effect/potion effect.html");
     }
 
     @Override
