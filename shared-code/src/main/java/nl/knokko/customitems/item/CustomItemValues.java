@@ -144,6 +144,7 @@ public abstract class CustomItemValues extends ModelValues {
     protected SpecialMeleeDamageValues specialMeleeDamage;
     protected Collection<AttackEffectGroupValues> attackEffects;
     protected boolean updateAutomatically;
+    protected boolean keepOnDeath;
 
     // Editor-only properties
     protected TextureReference texture;
@@ -186,6 +187,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.specialMeleeDamage = null;
         this.attackEffects = new ArrayList<>();
         this.updateAutomatically = true;
+        this.keepOnDeath = false;
 
         this.texture = null;
         this.customModel = null;
@@ -215,6 +217,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.specialMeleeDamage = source.getSpecialMeleeDamage();
         this.attackEffects = source.getAttackEffects();
         this.updateAutomatically = source.shouldUpdateAutomatically();
+        this.keepOnDeath = source.shouldKeepOnDeath();
         this.texture = source.getTextureReference();
         this.customModel = source.getCustomModel();
         this.booleanRepresentation = source.getBooleanRepresentation();
@@ -235,7 +238,8 @@ public abstract class CustomItemValues extends ModelValues {
                 && this.commandSystem.equals(other.commandSystem) && this.replaceConditions.equals(other.replaceConditions)
                 && this.conditionOp == other.conditionOp && this.extraItemNbt.equals(other.extraItemNbt)
                 && isClose(this.attackRange, other.attackRange) && Objects.equals(this.specialMeleeDamage, other.specialMeleeDamage)
-                && this.attackEffects.equals(other.attackEffects) && this.updateAutomatically == other.updateAutomatically;
+                && this.attackEffects.equals(other.attackEffects) && this.updateAutomatically == other.updateAutomatically
+                && this.keepOnDeath == other.keepOnDeath;
     }
 
     @Override
@@ -294,10 +298,12 @@ public abstract class CustomItemValues extends ModelValues {
                 this.attackEffects.add(AttackEffectGroupValues.load(input));
             }
             this.updateAutomatically = input.readBoolean();
+            this.keepOnDeath = input.readBoolean();
         } else {
             this.specialMeleeDamage = null;
             this.attackEffects = new ArrayList<>();
             this.updateAutomatically = true;
+            this.keepOnDeath = false;
         }
 
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
@@ -335,6 +341,7 @@ public abstract class CustomItemValues extends ModelValues {
             attackEffectGroup.save(output);
         }
         output.addBoolean(this.updateAutomatically);
+        output.addBoolean(this.keepOnDeath);
 
         if (targetSide == ItemSet.Side.EDITOR) {
             this.saveEditorOnlyProperties1(output);
@@ -577,6 +584,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.specialMeleeDamage = null;
         this.attackEffects = new ArrayList<>(0);
         this.updateAutomatically = true;
+        this.keepOnDeath = false;
     }
 
     protected void initBaseDefaults9() {
@@ -732,6 +740,10 @@ public abstract class CustomItemValues extends ModelValues {
 
     public boolean shouldUpdateAutomatically() {
         return updateAutomatically;
+    }
+
+    public boolean shouldKeepOnDeath() {
+        return keepOnDeath;
     }
 
     public BaseTextureValues getTexture() {
@@ -911,6 +923,11 @@ public abstract class CustomItemValues extends ModelValues {
     public void setUpdateAutomatically(boolean updateAutomatically) {
         assertMutable();
         this.updateAutomatically = updateAutomatically;
+    }
+
+    public void setKeepOnDeath(boolean keepOnDeath) {
+        assertMutable();
+        this.keepOnDeath = keepOnDeath;
     }
 
     public void setTexture(TextureReference newTexture) {

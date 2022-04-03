@@ -182,6 +182,10 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 				new DynamicTextComponent("Attack effects:", LABEL),
 				LABEL_X, -0.34f, LABEL_X + 0.15f, -0.29f
 		);
+		addComponent(
+				new DynamicTextComponent("Keep on death", LABEL),
+				LABEL_X + 0.02f, -0.4f, LABEL_X + 0.18f, -0.35f
+		);
 
 		if (toModify != null) {
 			addComponent(new DynamicTextButton("Apply", SAVE_BASE, EditProps.SAVE_HOVER, () -> {
@@ -252,6 +256,40 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 		addEffectsComponent();
 		addCommandsComponent();
 		addReplaceComponent();
+
+		if (!(this instanceof EditItemBlock)) {
+			addComponent(
+					new DynamicTextButton("Load texture...", BUTTON, HOVER, () -> {
+						state.getWindow().setMainComponent(createLoadTextureMenu());
+					}), 0.025f, 0.32f, 0.125f, 0.37f
+			);
+			addComponent(
+					CollectionSelect.createButton(
+							menu.getSet().getTextures().references(),
+							currentValues::setTexture,
+							this::allowTexture,
+							textureReference -> textureReference.get().getName(),
+							currentValues.getTextureReference()
+					),
+					BUTTON_X, 0.32f, BUTTON_X + 0.1f, 0.37f
+			);
+		}
+		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
+			state.getWindow().setMainComponent(new ItemFlagMenu(this, currentValues));
+		}), BUTTON_X, 0.38f, BUTTON_X + 0.1f, 0.43f);
+
+
+		if (canHaveCustomModel()) {
+			addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
+				state.getWindow().setMainComponent(new EditCustomModel(DefaultItemModels.getDefaultModel(
+						currentValues.getItemType(),
+						currentValues.getTextureReference() != null ? currentValues.getTexture().getName()
+								: "%TEXTURE_NAME%", currentValues.getItemType().isLeatherArmor(),
+						!(this instanceof EditItemHelmet3D))
+						, this, currentValues::setCustomModel, currentValues.getCustomModel()));
+			}), BUTTON_X, 0.26f, BUTTON_X + 0.1f, 0.31f);
+		}
+
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new EquippedEffectsCollectionEdit(
 					currentValues.getEquippedEffects(), currentValues::setEquippedEffects, this
@@ -287,37 +325,10 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 					currentValues.getAttackEffects(), currentValues::setAttackEffects, false, this
 			));
 		}), BUTTON_X, -0.34f, BUTTON_X + 0.1f, -0.29f);
-		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new ItemFlagMenu(this, currentValues));
-		}), BUTTON_X, 0.38f, BUTTON_X + 0.1f, 0.43f);
-		if (!(this instanceof EditItemBlock)) {
-			addComponent(
-					new DynamicTextButton("Load texture...", BUTTON, HOVER, () -> {
-						state.getWindow().setMainComponent(createLoadTextureMenu());
-					}), 0.025f, 0.32f, 0.125f, 0.37f
-			);
-			addComponent(
-					CollectionSelect.createButton(
-							menu.getSet().getTextures().references(),
-							currentValues::setTexture,
-							this::allowTexture,
-							textureReference -> textureReference.get().getName(),
-							currentValues.getTextureReference()
-					),
-					BUTTON_X, 0.32f, BUTTON_X + 0.1f, 0.37f
-			);
-		}
-
-		if (canHaveCustomModel()) {
-			addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
-				state.getWindow().setMainComponent(new EditCustomModel(DefaultItemModels.getDefaultModel(
-						currentValues.getItemType(),
-						currentValues.getTextureReference() != null ? currentValues.getTexture().getName()
-								: "%TEXTURE_NAME%", currentValues.getItemType().isLeatherArmor(),
-								!(this instanceof EditItemHelmet3D))
-								, this, currentValues::setCustomModel, currentValues.getCustomModel()));
-			}), BUTTON_X, 0.26f, BUTTON_X + 0.1f, 0.31f);
-		}
+		addComponent(
+				new CheckboxComponent(currentValues.shouldKeepOnDeath(), currentValues::setKeepOnDeath),
+				LABEL_X, -0.39f, LABEL_X + 0.015f, -0.37f
+		);
 	}
 
 	protected GuiComponent createLoadTextureMenu() {

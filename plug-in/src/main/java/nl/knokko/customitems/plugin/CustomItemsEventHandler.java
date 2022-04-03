@@ -1376,6 +1376,25 @@ public class CustomItemsEventHandler implements Listener {
 		
 		if (cancelDefaultDrops) {
 			event.getDrops().clear();
+		} else if (event.getEntity() instanceof Player) {
+			Player player = (Player) event.getEntity();
+			Collection<ItemStack> stacksToKeep = new ArrayList<>();
+			event.getDrops().removeIf(droppedItem -> {
+				CustomItemValues droppedCustomItem = itemSet.getItem(droppedItem);
+				if (droppedCustomItem != null && droppedCustomItem.shouldKeepOnDeath()) {
+					stacksToKeep.add(droppedItem);
+					return true;
+				} else {
+					return false;
+				}
+			});
+			if (!stacksToKeep.isEmpty()) {
+				Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
+					for (ItemStack stackToKeep : stacksToKeep) {
+						player.getInventory().addItem(stackToKeep);
+					}
+				});
+			}
 		}
 		
 		event.getDrops().addAll(stacksToDrop);
