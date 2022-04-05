@@ -34,24 +34,28 @@ public class DropValues extends ModelValues {
     }
 
     public static DropValues createQuick(
-            OutputTableValues outputTable, boolean cancelNormalDrops, Collection<ItemReference> requiredHeldItems
+            OutputTableValues outputTable, boolean cancelNormalDrops,
+            Collection<ItemReference> requiredHeldItems, AllowedBiomesValues allowedBiomes
     ) {
         DropValues result = new DropValues(true);
         result.setOutputTable(outputTable);
         result.setCancelNormalDrops(cancelNormalDrops);
         result.setRequiredHeldItems(requiredHeldItems);
+        result.setAllowedBiomes(allowedBiomes);
         return result;
     }
 
     private OutputTableValues outputTable;
     private boolean cancelNormalDrops;
     private Collection<ItemReference> requiredHeldItems;
+    private AllowedBiomesValues allowedBiomes;
 
     public DropValues(boolean mutable) {
         super(mutable);
         this.outputTable = new OutputTableValues(false);
         this.cancelNormalDrops = false;
         this.requiredHeldItems = new ArrayList<>();
+        this.allowedBiomes = new AllowedBiomesValues(false);
     }
 
     public DropValues(DropValues toCopy, boolean mutable) {
@@ -59,6 +63,7 @@ public class DropValues extends ModelValues {
         this.outputTable = toCopy.getOutputTable();
         this.cancelNormalDrops = toCopy.shouldCancelNormalDrops();
         this.requiredHeldItems = toCopy.getRequiredHeldItems();
+        this.allowedBiomes = toCopy.getAllowedBiomes();
     }
 
     private void load1(BitInput input, ItemSet itemSet) {
@@ -68,6 +73,7 @@ public class DropValues extends ModelValues {
         int rawDropChance = input.readInt() * Chance.ONE_PERCENT;
         this.cancelNormalDrops = input.readBoolean();
         this.requiredHeldItems = new ArrayList<>(0);
+        this.allowedBiomes = new AllowedBiomesValues(false);
 
         int numAmounts = 1 + maxDropAmount - minDropAmount;
         int rawChancePerAmount = rawDropChance / numAmounts;
@@ -114,11 +120,12 @@ public class DropValues extends ModelValues {
         for (int counter = 0; counter < numRequiredItems; counter++) {
             this.requiredHeldItems.add(itemSet.getItemReference(input.readString()));
         }
+        this.allowedBiomes = new AllowedBiomesValues(false);
     }
 
     private void load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
-        if (encoding != 1) throw new UnknownEncodingException("Drop", encoding);
+        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("Drop", encoding);
 
         this.outputTable = OutputTableValues.load(input, itemSet);
         this.cancelNormalDrops = input.readBoolean();
@@ -128,10 +135,15 @@ public class DropValues extends ModelValues {
         for (int counter = 0; counter < numRequiredItems; counter++) {
             this.requiredHeldItems.add(itemSet.getItemReference(input.readString()));
         }
+        if (encoding >= 2) {
+            this.allowedBiomes = AllowedBiomesValues.load(input);
+        } else {
+            this.allowedBiomes = new AllowedBiomesValues(false);
+        }
     }
 
     public void save(BitOutput output) {
-        output.addByte((byte) 1);
+        output.addByte((byte) 2);
 
         outputTable.save(output);
         output.addBoolean(cancelNormalDrops);
@@ -139,6 +151,7 @@ public class DropValues extends ModelValues {
         for (ItemReference reference : requiredHeldItems) {
             output.addString(reference.get().getName());
         }
+        allowedBiomes.save(output);
     }
 
     @Override
@@ -151,7 +164,7 @@ public class DropValues extends ModelValues {
         if (other.getClass() == DropValues.class) {
             DropValues otherDrop = (DropValues) other;
             return this.outputTable.equals(otherDrop.outputTable) && this.cancelNormalDrops == otherDrop.cancelNormalDrops
-                    && this.requiredHeldItems.equals(otherDrop.requiredHeldItems);
+                    && this.requiredHeldItems.equals(otherDrop.requiredHeldItems) && this.allowedBiomes.equals(otherDrop.allowedBiomes);
         } else {
             return false;
         }
@@ -174,6 +187,10 @@ public class DropValues extends ModelValues {
         return new ArrayList<>(requiredHeldItems);
     }
 
+    public AllowedBiomesValues getAllowedBiomes() {
+        return allowedBiomes;
+    }
+
     public void setOutputTable(OutputTableValues newOutputTable) {
         assertMutable();
         Checks.notNull(newOutputTable);
@@ -191,6 +208,12 @@ public class DropValues extends ModelValues {
         this.requiredHeldItems = new ArrayList<>(newRequiredHeldItems);
     }
 
+    public void setAllowedBiomes(AllowedBiomesValues allowedBiomes) {
+        assertMutable();
+        Checks.notNull(allowedBiomes);
+        this.allowedBiomes = allowedBiomes.copy(false);
+    }
+
     public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         if (outputTable == null) throw new ProgrammingValidationException("No output table");
         Validation.scope("Output table", () -> outputTable.validate(itemSet));
@@ -201,9 +224,12 @@ public class DropValues extends ModelValues {
                 throw new ProgrammingValidationException("Required item " + requiredItem.get().getName() + " is no longer valid");
             }
         }
+        if (allowedBiomes == null) throw new ProgrammingValidationException("No allowed biomes");
+        Validation.scope("Allowed biomes", allowedBiomes::validate);
     }
 
     public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
         outputTable.validateExportVersion(version);
+        allowedBiomes.validateExportVersion(version);
     }
 }

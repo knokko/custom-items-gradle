@@ -179,7 +179,7 @@ public class Backward6 {
                                         useFlatChance ? Chance.percentage(4) : Chance.nonIntegerPercentage(2.5)
                                 )
                         ),
-                        true, new ArrayList<>()
+                        true, new ArrayList<>(), new AllowedBiomesValues(false)
                 )
         );
     }
@@ -197,7 +197,7 @@ public class Backward6 {
                 DropValues.createQuick(
                         OutputTableValues.createQuick(
                             OutputTableValues.Entry.createQuick(CustomItemResultValues.createQuick(sword1, 1), 10)
-                        ), false, new ArrayList<>()
+                        ), false, new ArrayList<>(), new AllowedBiomesValues(false)
                 )
         );
     }
@@ -209,7 +209,7 @@ public class Backward6 {
                 DropValues.createQuick(
                         OutputTableValues.createQuick(
                             OutputTableValues.Entry.createQuick(CustomItemResultValues.createQuick(axe1, 1), 100)
-                        ), true, new ArrayList<>()
+                        ), true, new ArrayList<>(), new AllowedBiomesValues(false)
                 )
         );
     }

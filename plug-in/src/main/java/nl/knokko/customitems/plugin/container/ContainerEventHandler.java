@@ -492,6 +492,11 @@ public class ContainerEventHandler implements Listener {
 	
 	@EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
 	public void onPlayerInteract(PlayerInteractEvent event) {
+
+		if (event.getClickedBlock() != null && !CustomItemsPlugin.getInstance().getEnabledAreas().isEnabled(event.getClickedBlock().getLocation())) {
+			return;
+		}
+
 		if (event.getAction() == Action.LEFT_CLICK_BLOCK && event.getPlayer().isSneaking()) {
 			
 			String blockName = ItemHelper.getMaterialName(event.getClickedBlock());

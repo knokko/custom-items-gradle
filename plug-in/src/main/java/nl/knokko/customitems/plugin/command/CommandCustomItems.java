@@ -157,6 +157,10 @@ public class CommandCustomItems implements CommandExecutor {
 								sender.sendMessage(ChatColor.RED + "The amount must be positive");
 								return true;
 							}
+							if (receiver != null && !CustomItemsPlugin.getInstance().getEnabledAreas().isEnabled(receiver.getLocation())) {
+								receiver = null;
+								sender.sendMessage(lang.getCommandWorldDisabled());
+							}
 							if (receiver != null) {
 								receiver.getInventory().addItem(wrap(item).create(amount));
 								sender.sendMessage(lang.getCommandItemGiven());

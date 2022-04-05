@@ -70,6 +70,7 @@ import nl.knokko.customitems.block.drop.RequiredItemValues;
 import nl.knokko.customitems.block.drop.SilkTouchRequirement;
 import nl.knokko.customitems.damage.SpecialMeleeDamageValues;
 import nl.knokko.customitems.drops.BlockDropValues;
+import nl.knokko.customitems.drops.CIBiome;
 import nl.knokko.customitems.drops.DropValues;
 import nl.knokko.customitems.drops.MobDropValues;
 import nl.knokko.customitems.effect.ChancePotionEffectValues;
@@ -1182,7 +1183,9 @@ public class CustomItemsEventHandler implements Listener {
 		}
 	}
 	
-	private boolean collectDrops(Collection<ItemStack> stacksToDrop, DropValues drop, Random random, CustomItemValues mainItem) {
+	private boolean collectDrops(
+			Collection<ItemStack> stacksToDrop, DropValues drop, Location location, Random random, CustomItemValues mainItem
+	) {
 		
 		// Make sure the required held items of drops are really required
 		boolean shouldDrop = true;
@@ -1194,6 +1197,10 @@ public class CustomItemsEventHandler implements Listener {
 					break;
 				}
 			}
+		}
+
+		if (!drop.getAllowedBiomes().isAllowed(CIBiome.valueOf(location.getBlock().getBiome().name()))) {
+			shouldDrop = false;
 		}
 		
 		if (!shouldDrop) {
@@ -1249,6 +1256,11 @@ public class CustomItemsEventHandler implements Listener {
 	// and we may need to modify the setDropItems flag of the event
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onBlockBreak(BlockBreakEvent event) {
+
+		if (!CustomItemsPlugin.getInstance().getEnabledAreas().isEnabled(event.getBlock().getLocation())) {
+			return;
+		}
+
 		ItemStack mainItem = event.getPlayer().getInventory().getItemInMainHand();
 		boolean usedSilkTouch = mainItem != null && mainItem.containsEnchantment(Enchantment.SILK_TOUCH);
 		CustomItemValues custom = itemSet.getItem(mainItem);
@@ -1264,7 +1276,7 @@ public class CustomItemsEventHandler implements Listener {
 		for (BlockDropValues blockDrop : customDrops) {
 			if (!usedSilkTouch || blockDrop.shouldAllowSilkTouch()) {
 				DropValues drop = blockDrop.getDrop();
-				if (collectDrops(stacksToDrop, drop, random, custom)) {
+				if (collectDrops(stacksToDrop, drop, event.getBlock().getLocation(), random, custom)) {
 					cancelDefaultDrops = true;
 				}
 			}
@@ -1426,6 +1438,11 @@ public class CustomItemsEventHandler implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onEntityDeath(EntityDeathEvent event) {
+
+		if (!CustomItemsPlugin.getInstance().getEnabledAreas().isEnabled(event.getEntity().getLocation())) {
+			return;
+		}
+
 		Collection<MobDropValues> drops = itemSet.getMobDrops(event.getEntity());
 		Random random = new Random();
 		
@@ -1453,7 +1470,7 @@ public class CustomItemsEventHandler implements Listener {
 		boolean cancelDefaultDrops = false;
 		Collection<ItemStack> stacksToDrop = new ArrayList<>();
 		for (MobDropValues mobDrop : drops) {
-			if (collectDrops(stacksToDrop, mobDrop.getDrop(), random, usedItem)) {
+			if (collectDrops(stacksToDrop, mobDrop.getDrop(), event.getEntity().getLocation(), random, usedItem)) {
 				cancelDefaultDrops = true;
 			}
 		}
@@ -2968,7 +2985,7 @@ public class CustomItemsEventHandler implements Listener {
 
 		// Check if there are any custom recipes matching the ingredients
 		CustomRecipesView recipes = itemSet.get().getCraftingRecipes();
-		if (recipes.size() > 0) {
+		if (recipes.size() > 0 && CustomItemsPlugin.getInstance().getEnabledAreas().isEnabled(owner.getLocation())) {
 			// Determine ingredients
 			ItemStack[] ingredients = inventory.getStorageContents();
 			ingredients = Arrays.copyOfRange(ingredients, 1, ingredients.length);

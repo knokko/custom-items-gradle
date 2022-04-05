@@ -69,6 +69,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 	private PluginData data;
 	private ProjectileManager projectileManager;
 	private ItemUpdater itemUpdater;
+	private EnabledAreas enabledAreas;
 	
 	private int maxFlyingProjectiles;
 
@@ -97,6 +98,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		super.onEnable();
+		this.enabledAreas = new EnabledAreas();
 		this.loadErrors = new ArrayList<>();
 		this.itemSet = new ItemSetWrapper();
 		instance = this;
@@ -128,6 +130,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 	public void onDisable() {
 		data.saveData();
 		projectileManager.destroyCustomProjectiles();
+		enabledAreas = null;
 		instance = null;
 		super.onDisable();
 	}
@@ -143,7 +146,11 @@ public class CustomItemsPlugin extends JavaPlugin {
 	public int getMaxFlyingProjectiles() {
 		return maxFlyingProjectiles;
 	}
-	
+
+	public EnabledAreas getEnabledAreas() {
+		return enabledAreas;
+	}
+
 	private static final String KEY_MAX_PROJECTILES = "Maximum number of flying projectiles";
 	
 	private void debugChecks() {
@@ -238,6 +245,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 	}
 	
 	private void loadConfig() {
+		reloadConfig();
 		FileConfiguration config = getConfig();
 		if (config.contains(KEY_MAX_PROJECTILES)) {
 			this.maxFlyingProjectiles = config.getInt(KEY_MAX_PROJECTILES);
@@ -246,6 +254,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 			config.set(KEY_MAX_PROJECTILES, maxFlyingProjectiles);
 			saveConfig();
 		}
+		this.enabledAreas.update(config);
 	}
 	
 	private void loadSet(File file) {
