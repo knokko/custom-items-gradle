@@ -80,7 +80,9 @@ public abstract class CustomItemWrapper {
         this.item = item;
     }
 
-    public void onBlockBreak(Player player, ItemStack item, boolean wasSolid, boolean wasFakeMainHand) {}
+    public void onBlockBreak(
+            Player player, ItemStack item, boolean wasSolid, boolean wasFakeMainHand, int numBrokenBlocks
+    ) {}
 
     protected List<String> createLore(){
         return item.getLore();

@@ -186,6 +186,10 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 				new DynamicTextComponent("Keep on death", LABEL),
 				LABEL_X + 0.02f, -0.4f, LABEL_X + 0.18f, -0.35f
 		);
+		addComponent(
+				new DynamicTextComponent("Multi block break:", LABEL),
+				LABEL_X, -0.45f, LABEL_X + 0.17f, -0.4f
+		);
 
 		if (toModify != null) {
 			addComponent(new DynamicTextButton("Apply", SAVE_BASE, EditProps.SAVE_HOVER, () -> {
@@ -329,6 +333,11 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 				new CheckboxComponent(currentValues.shouldKeepOnDeath(), currentValues::setKeepOnDeath),
 				LABEL_X, -0.39f, LABEL_X + 0.015f, -0.37f
 		);
+		addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new EditMultiBlockBreak(
+					currentValues.getMultiBlockBreak(), currentValues::setMultiBlockBreak, this
+			));
+		}), BUTTON_X, -0.45f, BUTTON_X + 0.1f, -0.4f);
 	}
 
 	protected GuiComponent createLoadTextureMenu() {

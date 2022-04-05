@@ -145,6 +145,7 @@ public abstract class CustomItemValues extends ModelValues {
     protected Collection<AttackEffectGroupValues> attackEffects;
     protected boolean updateAutomatically;
     protected boolean keepOnDeath;
+    protected MultiBlockBreakValues multiBlockBreak;
 
     // Editor-only properties
     protected TextureReference texture;
@@ -188,6 +189,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.attackEffects = new ArrayList<>();
         this.updateAutomatically = true;
         this.keepOnDeath = false;
+        this.multiBlockBreak = new MultiBlockBreakValues(false);
 
         this.texture = null;
         this.customModel = null;
@@ -218,6 +220,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.attackEffects = source.getAttackEffects();
         this.updateAutomatically = source.shouldUpdateAutomatically();
         this.keepOnDeath = source.shouldKeepOnDeath();
+        this.multiBlockBreak = source.getMultiBlockBreak();
         this.texture = source.getTextureReference();
         this.customModel = source.getCustomModel();
         this.booleanRepresentation = source.getBooleanRepresentation();
@@ -239,7 +242,7 @@ public abstract class CustomItemValues extends ModelValues {
                 && this.conditionOp == other.conditionOp && this.extraItemNbt.equals(other.extraItemNbt)
                 && isClose(this.attackRange, other.attackRange) && Objects.equals(this.specialMeleeDamage, other.specialMeleeDamage)
                 && this.attackEffects.equals(other.attackEffects) && this.updateAutomatically == other.updateAutomatically
-                && this.keepOnDeath == other.keepOnDeath;
+                && this.keepOnDeath == other.keepOnDeath && this.multiBlockBreak.equals(other.multiBlockBreak);
     }
 
     @Override
@@ -299,11 +302,13 @@ public abstract class CustomItemValues extends ModelValues {
             }
             this.updateAutomatically = input.readBoolean();
             this.keepOnDeath = input.readBoolean();
+            this.multiBlockBreak = MultiBlockBreakValues.load(input);
         } else {
             this.specialMeleeDamage = null;
             this.attackEffects = new ArrayList<>();
             this.updateAutomatically = true;
             this.keepOnDeath = false;
+            this.multiBlockBreak = new MultiBlockBreakValues(false);
         }
 
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
@@ -342,6 +347,7 @@ public abstract class CustomItemValues extends ModelValues {
         }
         output.addBoolean(this.updateAutomatically);
         output.addBoolean(this.keepOnDeath);
+        this.multiBlockBreak.save(output);
 
         if (targetSide == ItemSet.Side.EDITOR) {
             this.saveEditorOnlyProperties1(output);
@@ -585,6 +591,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.attackEffects = new ArrayList<>(0);
         this.updateAutomatically = true;
         this.keepOnDeath = false;
+        this.multiBlockBreak = new MultiBlockBreakValues(false);
     }
 
     protected void initBaseDefaults9() {
@@ -744,6 +751,10 @@ public abstract class CustomItemValues extends ModelValues {
 
     public boolean shouldKeepOnDeath() {
         return keepOnDeath;
+    }
+
+    public MultiBlockBreakValues getMultiBlockBreak() {
+        return multiBlockBreak;
     }
 
     public BaseTextureValues getTexture() {
@@ -930,6 +941,12 @@ public abstract class CustomItemValues extends ModelValues {
         this.keepOnDeath = keepOnDeath;
     }
 
+    public void setMultiBlockBreak(MultiBlockBreakValues newBlockBreak) {
+        assertMutable();
+        Checks.notNull(newBlockBreak);
+        this.multiBlockBreak = newBlockBreak.copy(false);
+    }
+
     public void setTexture(TextureReference newTexture) {
         assertMutable();
         Checks.notNull(newTexture);
@@ -1037,6 +1054,8 @@ public abstract class CustomItemValues extends ModelValues {
         for (AttackEffectGroupValues attackEffectGroup : this.attackEffects) {
             Validation.scope("Attack effects", attackEffectGroup::validate);
         }
+        if (multiBlockBreak == null) throw new ProgrammingValidationException("No multi block break");
+        Validation.scope("Multi block break", multiBlockBreak::validate);
 
         if (texture == null) throw new ValidationException("No texture");
         // customModel doesn't have any invalid values

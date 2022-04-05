@@ -1243,6 +1243,8 @@ public class CustomItemsEventHandler implements Listener {
 		return cancelDefaultDrops;
 	}
 
+	private boolean isPerformingMultiBlockBreak = false;
+
 	// Use the highest priority because we want to ignore the event in case it is cancelled
 	// and we may need to modify the setDropItems flag of the event
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -1267,15 +1269,97 @@ public class CustomItemsEventHandler implements Listener {
 				}
 			}
 		}
-		
-		if (custom != null) {
+
+		// To avoid endless recursion, don't enter this branch while performing a multi block break
+		if (custom != null && !this.isPerformingMultiBlockBreak) {
 			boolean wasSolid = ItemHelper.isMaterialSolid(event.getBlock());
 			boolean wasFakeMainHand = DualWieldSupport.isFakeMainHand(event);
+
+			MultiBlockBreakValues mbb = custom.getMultiBlockBreak();
+			Collection<Block> extraBlocksToBreak = new ArrayList<>();
+
+			if (mbb.getSize() > 1) {
+
+				int coreX = event.getBlock().getX();
+				int coreY = event.getBlock().getY();
+				int coreZ = event.getBlock().getZ();
+
+				String blockType = ItemHelper.getMaterialName(event.getBlock());
+				CustomBlockValues customBlock = MushroomBlockHelper.getMushroomBlock(event.getBlock());
+
+				for (int x = 1 + coreX - mbb.getSize(); x < coreX + mbb.getSize(); x++) {
+					for (int y = 1 + coreY - mbb.getSize(); y < coreY + mbb.getSize(); y++) {
+						for (int z = 1 + coreZ - mbb.getSize(); z < coreZ + mbb.getSize(); z++) {
+							if (x != coreX || y != coreY || z != coreZ) {
+								boolean isCloseEnough;
+								if (mbb.getShape() == MultiBlockBreakValues.Shape.CUBE) {
+									isCloseEnough = true;
+								} else if (mbb.getShape() == MultiBlockBreakValues.Shape.MANHATTAN) {
+									int dx = Math.abs(x - coreX);
+									int dy = Math.abs(y - coreY);
+									int dz = Math.abs(z - coreZ);
+									isCloseEnough = dx + dy + dz < mbb.getSize();
+								} else {
+									throw new UnsupportedOperationException("Unsupported shape " + mbb.getShape());
+								}
+								if (isCloseEnough) {
+									boolean isSameBlock;
+									Block candidateBlock = event.getBlock().getWorld().getBlockAt(x, y, z);
+									if (customBlock != null) {
+										CustomBlockValues candidateCustomBlock = MushroomBlockHelper.getMushroomBlock(candidateBlock);
+										isSameBlock = candidateCustomBlock != null && candidateCustomBlock.getInternalID() == customBlock.getInternalID();
+									} else {
+										String candidateBlockType = ItemHelper.getMaterialName(candidateBlock);
+										isSameBlock = candidateBlockType.equals(blockType);
+									}
+
+									if (isSameBlock) {
+										extraBlocksToBreak.add(candidateBlock);
+									}
+								}
+							}
+						}
+					}
+				}
+
+				this.isPerformingMultiBlockBreak = true;
+
+				for (Block extraBlockToBreak : extraBlocksToBreak) {
+					BlockBreakEvent extraBreakEvent = new BlockBreakEvent(
+							extraBlockToBreak, event.getPlayer()
+					);
+					Bukkit.getPluginManager().callEvent(extraBreakEvent);
+					if (!extraBreakEvent.isCancelled()) {
+
+						Collection<ItemStack> drops = extraBlockToBreak.getDrops(mainItem);
+
+						extraBlockToBreak.setType(Material.AIR);
+
+						if (extraBreakEvent.isDropItems()) {
+							for (ItemStack itemToDrop : drops) {
+								extraBlockToBreak.getWorld().dropItemNaturally(
+										extraBlockToBreak.getLocation(), itemToDrop
+								);
+							}
+						}
+
+						if (extraBreakEvent.getExpToDrop() > 0) {
+							ExperienceOrb expOrb = (ExperienceOrb) extraBlockToBreak.getWorld().spawnEntity(
+									extraBlockToBreak.getLocation(), EntityType.EXPERIENCE_ORB
+							);
+							expOrb.setExperience(extraBreakEvent.getExpToDrop());
+						}
+					}
+				}
+
+				this.isPerformingMultiBlockBreak = false;
+			}
+
 			
 			// Delay this to avoid messing around with other plug-ins
-			Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () ->
-				wrap(custom).onBlockBreak(event.getPlayer(), mainItem, wasSolid, wasFakeMainHand)
-			);
+			Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
+				wrap(custom).onBlockBreak(event.getPlayer(), mainItem, wasSolid, wasFakeMainHand, 1 + extraBlocksToBreak.size());
+			});
 		}
 		
 		Location dropLocation = event.getBlock().getLocation().add(0.5, 0.5, 0.5);
