@@ -10,6 +10,7 @@ import nl.knokko.customitems.editor.menu.edit.collection.InlineCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.ExtraItemNbtValues;
 import nl.knokko.customitems.item.nbt.NbtValueType;
+import nl.knokko.customitems.model.Mutability;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.image.ImageButton;
@@ -78,21 +79,16 @@ public class ItemNbtMenu extends GuiMenu {
 		addComponent(new DynamicTextButton("Add integer",
 				EditProps.BUTTON, EditProps.HOVER, () -> {
 
-			Collection<ExtraItemNbtValues.Entry> newEntries = currentValues.getEntries();
-			newEntries.add(ExtraItemNbtValues.Entry.createQuick(INITIAL_KEY, new ExtraItemNbtValues.Value(1)));
-			currentValues.setEntries(newEntries);
+			pairList.addEntry(ExtraItemNbtValues.Entry.createQuick(INITIAL_KEY, new ExtraItemNbtValues.Value(1)));
 			pairList.refresh();
 		}), 0.1f, 0.25f, 0.3f, 0.3f);
 		addComponent(new DynamicTextButton("Add string",
 				EditProps.BUTTON, EditProps.HOVER, () -> {
-
-			Collection<ExtraItemNbtValues.Entry> newEntries = currentValues.getEntries();
-			newEntries.add(ExtraItemNbtValues.Entry.createQuick(INITIAL_KEY, new ExtraItemNbtValues.Value("")));
-			currentValues.setEntries(newEntries);
+			pairList.addEntry(ExtraItemNbtValues.Entry.createQuick(INITIAL_KEY, new ExtraItemNbtValues.Value("")));
 			pairList.refresh();
 		}), 0.35f, 0.25f, 0.55f, 0.3f);
 
-		addComponent(new NewPairList(), 0f, 0f, 1f, 0.25f);
+		addComponent(pairList, 0f, 0f, 1f, 0.25f);
 		
 		HelpButtons.addHelpLink(this, "edit%20menu/items/edit/nbt.html");
 	}
@@ -111,15 +107,26 @@ public class ItemNbtMenu extends GuiMenu {
 			}, ItemNbtMenu.this.returnMenu);
 		}
 
+		void addEntry(ExtraItemNbtValues.Entry newEntry) {
+			ownCollection.add(newEntry);
+		}
+
 		@Override
-		public void refresh() {
+		protected void refresh() {
 			super.refresh();
+		}
+
+		@Override
+		protected boolean showAddNewButton() {
+			return false;
 		}
 
 		@Override
 		protected void addRowComponents(int itemIndex, float minY, float maxY) {
 			ExtraItemNbtValues.Entry entry = ownCollection.get(itemIndex);
 			List<String> oldKey = entry.getKey();
+
+			float stride = 0.16f;
 
 			for (int keyIndex = 0; keyIndex < oldKey.size(); keyIndex++) {
 				int rememberKeyIndex = keyIndex;
@@ -128,7 +135,7 @@ public class ItemNbtMenu extends GuiMenu {
 							List<String> currentKey = entry.getKey();
 							currentKey.set(rememberKeyIndex, newText);
 							entry.setKey(currentKey);
-						}), 0.05f + 0.2f * keyIndex, minY, 0.2f + 0.2f * keyIndex, maxY
+						}), 0.2f + stride * keyIndex, minY, 0.35f + stride * keyIndex, maxY
 				);
 			}
 
@@ -138,10 +145,10 @@ public class ItemNbtMenu extends GuiMenu {
 				newKey.add("");
 				entry.setKey(newKey);
 				refresh();
-			}), 0.1f + 0.2f * oldKey.size(), minY, 0.15f + 0.2f * oldKey.size(), maxY);
+			}), 0.21f + stride * oldKey.size(), minY, 0.26f + stride * oldKey.size(), maxY);
 			addComponent(new ImageButton(deleteBase, deleteHover, () -> {
 				removeItem(itemIndex);
-			}), 0.2f + 0.2f * oldKey.size(), minY, 0.25f + 0.2f * oldKey.size(), maxY);
+			}), 0.27f + stride * oldKey.size(), minY, 0.32f + stride * oldKey.size(), maxY);
 
 			GuiComponent valueField;
 			if (entry.getValue().type == NbtValueType.INTEGER) {
@@ -160,16 +167,16 @@ public class ItemNbtMenu extends GuiMenu {
 			}
 
 			addComponent(new DynamicTextComponent("Value:", EditProps.LABEL),
-					0.3f + 0.2f * oldKey.size(), minY, 0.4f + 0.2f * oldKey.size(), maxY
+					0.34f + stride * oldKey.size(), minY, 0.44f + stride * oldKey.size(), maxY
 			);
-			addComponent(valueField, 0.45f + 0.2f * oldKey.size(), minY,
-					0.6f + 0.2f * oldKey.size(), maxY
+			addComponent(valueField, 0.45f + stride * oldKey.size(), minY,
+					0.6f + stride * oldKey.size(), maxY
 			);
 		}
 
 		@Override
 		protected ExtraItemNbtValues.Entry addNew() {
-			return new ExtraItemNbtValues.Entry(true);
+			throw new UnsupportedOperationException("Use the 'Add integer' or 'Add string' button");
 		}
 
 		@Override

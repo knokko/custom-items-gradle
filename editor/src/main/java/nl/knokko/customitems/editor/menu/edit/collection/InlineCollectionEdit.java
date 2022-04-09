@@ -66,10 +66,12 @@ public abstract class InlineCollectionEdit<T extends ModelValues> extends GuiMen
             state.getWindow().setMainComponent(returnMenu);
         }), 0.025f, 0.1f, 0.175f, 0.2f);
 
-        addComponent(new DynamicTextButton("Add new", EditProps.BUTTON, EditProps.HOVER, () -> {
-            ownCollection.add(addNew());
-            refresh();
-        }), 0.025f, 0.6f, 0.2f, 0.7f);
+        if (showAddNewButton()) {
+            addComponent(new DynamicTextButton("Add new", EditProps.BUTTON, EditProps.HOVER, () -> {
+                ownCollection.add(addNew());
+                refresh();
+            }), 0.025f, 0.6f, 0.2f, 0.7f);
+        }
 
         String helpPage = getHelpPage();
         if (helpPage != null) HelpButtons.addHelpLink(this, helpPage);
@@ -107,6 +109,10 @@ public abstract class InlineCollectionEdit<T extends ModelValues> extends GuiMen
     }
 
     protected abstract void addRowComponents(int itemIndex, float minY, float maxY);
+
+    protected boolean showAddNewButton() {
+        return true;
+    }
 
     protected abstract T addNew();
 
