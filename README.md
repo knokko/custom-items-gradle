@@ -78,7 +78,7 @@ on the background, and you should wait for that to complete. It may happen that 
 on my computer). You can fix it by restarting Intellij.
 
 #### Testing
-Run `./gradlew shadowJar` to execute the unit tests.
+Run `./gradlew test` to execute the unit tests.
 
 #### Deployment
 For production deployment, make sure you are using Java 8! This is necessary because most minecraft server hosts don't like updating and only
