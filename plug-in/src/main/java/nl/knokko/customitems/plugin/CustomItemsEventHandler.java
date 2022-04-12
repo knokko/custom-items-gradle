@@ -233,7 +233,7 @@ public class CustomItemsEventHandler implements Listener {
 		CustomItemValues custom = itemSet.getItem(item);
 		
 		// Equip 3d custom helmets upon right click
-		if (custom instanceof CustomHelmet3dValues) {
+		if ((event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR) && custom instanceof CustomHelmet3dValues) {
 			PlayerInventory inv = event.getPlayer().getInventory();
 			
 			EquipmentSlot hand = event.getHand();
