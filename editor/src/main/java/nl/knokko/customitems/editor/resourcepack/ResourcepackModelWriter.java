@@ -46,9 +46,9 @@ class ResourcepackModelWriter {
             zipOutput.closeEntry();
 
             if (item instanceof CustomBowValues) {
-                writeExtraBowModels(item, ((CustomBowValues) item).getTexture().getPullTextures());
+                writeExtraBowModels(item, ((CustomBowValues) item).getTexture().getPullTextures(), false);
             } else if (item instanceof CustomCrossbowValues) {
-                writeExtraBowModels(item, ((CustomCrossbowValues) item).getTexture().getPullTextures());
+                writeExtraBowModels(item, ((CustomCrossbowValues) item).getTexture().getPullTextures(), true);
                 writeExtraCrossbowModels((CustomCrossbowValues) item);
             } else if (item instanceof CustomShieldValues) {
                 writeExtraShieldModels((CustomShieldValues) item);
@@ -76,7 +76,7 @@ class ResourcepackModelWriter {
     }
 
     private void writeExtraBowModels(
-            CustomItemValues bow, List<BowTextureEntry> pullTextures
+            CustomItemValues bow, List<BowTextureEntry> pullTextures, boolean isForCrossbow
     ) throws IOException {
         String textureName = bow.getTexture().getName() + "_pulling_";
         for (int index = 0; index < pullTextures.size(); index++) {
@@ -85,7 +85,11 @@ class ResourcepackModelWriter {
             zipOutput.putNextEntry(entry);
             PrintWriter jsonWriter = new PrintWriter(zipOutput);
             jsonWriter.println("{");
-            jsonWriter.println("    \"parent\": \"item/bow\",");
+            if (isForCrossbow) {
+                jsonWriter.println("    \"parent\": \"item/crossbow\",");
+            } else {
+                jsonWriter.println("    \"parent\": \"item/bow\",");
+            }
             jsonWriter.println("    \"textures\": {");
             jsonWriter.println("        \"layer0\": \"customitems/" + textureName + index + "\"");
             jsonWriter.println("    }");
