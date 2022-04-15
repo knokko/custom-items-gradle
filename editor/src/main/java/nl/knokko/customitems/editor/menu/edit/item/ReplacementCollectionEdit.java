@@ -25,6 +25,7 @@ public class ReplacementCollectionEdit extends InlineCollectionEdit<ReplacementC
 	
 	public ReplacementCollectionEdit(
 			Collection<ReplacementConditionValues> currentCollection,
+			ReplacementConditionValues.ConditionOperation currentOp,
 			Consumer<Collection<ReplacementConditionValues>> onApply,
 			GuiComponent returnMenu,
 			ReplacementConditionValues exampleCondition,
@@ -34,6 +35,7 @@ public class ReplacementCollectionEdit extends InlineCollectionEdit<ReplacementC
 		this.exampleCondition = exampleCondition;
 		this.backingItems = backingItems;
 		this.changeOperation = changeOperation;
+		this.op = currentOp;
 	}
 	
 	@Override

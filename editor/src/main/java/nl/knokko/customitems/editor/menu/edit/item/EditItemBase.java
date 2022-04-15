@@ -349,6 +349,7 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 			if (menu.getSet().getItems().size() > 0) {
 				state.getWindow().setMainComponent(new ReplacementCollectionEdit(
 						currentValues.getReplacementConditions(),
+						currentValues.getConditionOp(),
 						newConditions -> currentValues.setReplaceConditions(new ArrayList<>(newConditions)),
 						EditItemBase.this,
 						getExampleReplaceCondition(),
