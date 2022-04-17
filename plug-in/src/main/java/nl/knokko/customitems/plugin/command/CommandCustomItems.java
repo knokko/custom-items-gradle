@@ -259,7 +259,7 @@ public class CommandCustomItems implements CommandExecutor {
 					}
 
 					ItemStack item = target.getInventory().getItemInMainHand();
-					if (item == null) {
+					if (ItemUtils.isEmpty(item)) {
 						sender.sendMessage(ChatColor.RED + target.getName() + " should hold the item to " + args[0] + "in the main hand");
 						return true;
 					}
@@ -352,7 +352,13 @@ public class CommandCustomItems implements CommandExecutor {
 							}
 							scanner.close();
 
+							boolean usesResourcePackPlugin = Bukkit.getPluginManager().getPlugin("ResourcePack") != null;
+
 							if (!resourcePackUrl.isEmpty()) {
+								if (usesResourcePackPlugin) {
+									sender.sendMessage(ChatColor.YELLOW + "You are using a ResourcePack plug-in, but the " +
+											"resource-pack in your server.properties is NOT empty.");
+								}
 								sender.sendMessage(ChatColor.BLUE + "Downloading server resourcepack, "
 										+ "this could take a while...");
 								try {
@@ -498,8 +504,15 @@ public class CommandCustomItems implements CommandExecutor {
 									}
 								}
 							} else {
-								sender.sendMessage(ChatColor.RED + "The resource-pack in "
-										+ "the server.properties is not set");
+								if (usesResourcePackPlugin) {
+									sender.sendMessage(ChatColor.AQUA + "It looks like you are using my experimental resource pack " +
+											"plug-in. Use '/rpack status' and/or '/rpack sync' to check if it encounters any errors.");
+								} else {
+									sender.sendMessage(ChatColor.RED + "The resource-pack in the server.properties is " +
+											"not set and my resource pack plug-in doesn't seem to be installed. You " +
+											"should either configure the resource pack in the server.properties or use" +
+											" a resource pack plug-in.");
+								}
 							}
 						} catch (IOException serverPropsTrouble) {
 							sender.sendMessage(ChatColor.RED + "Failed to read "
