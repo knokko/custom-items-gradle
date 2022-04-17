@@ -34,6 +34,12 @@ public class ItemCommandSystem extends ModelValues {
         return result.copy(false);
     }
 
+    public static ItemCommandSystem createQuick(ItemCommandEvent event, List<ItemCommand> commands) {
+        ItemCommandSystem result = new ItemCommandSystem(true);
+        result.setCommandsFor(event, commands);
+        return result;
+    }
+
     private final Map<ItemCommandEvent, List<ItemCommand>> eventMap;
 
     public ItemCommandSystem(boolean mutable) {

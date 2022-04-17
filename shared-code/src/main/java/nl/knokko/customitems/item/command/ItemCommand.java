@@ -34,6 +34,18 @@ public class ItemCommand extends ModelValues {
         return command;
     }
 
+    public static ItemCommand createQuick(
+            String rawCommand, Executor executor, Chance chance, int cooldown, boolean activateCooldownWhenChanceFails
+    ) {
+        ItemCommand result = new ItemCommand(true);
+        result.setRawCommand(rawCommand);
+        result.setExecutor(executor);
+        result.setChance(chance);
+        result.setCooldown(cooldown);
+        result.setActivateCooldownWhenChanceFails(activateCooldownWhenChanceFails);
+        return result;
+    }
+
     private String rawCommand;
     private Executor executor;
     private Chance chance;

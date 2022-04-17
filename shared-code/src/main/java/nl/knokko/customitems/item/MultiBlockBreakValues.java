@@ -22,6 +22,14 @@ public class MultiBlockBreakValues extends ModelValues {
         return result;
     }
 
+    public static MultiBlockBreakValues createQuick(Shape shape, int size, boolean stackDurabilityCost) {
+        MultiBlockBreakValues result = new MultiBlockBreakValues(true);
+        result.setShape(shape);
+        result.setSize(size);
+        result.setStackDurabilityCost(stackDurabilityCost);
+        return result;
+    }
+
     private Shape shape;
     private int size;
     private boolean stackDurabilityCost;
