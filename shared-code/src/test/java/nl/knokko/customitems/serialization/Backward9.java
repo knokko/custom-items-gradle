@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import static nl.knokko.customitems.serialization.Backward10.*;
 import static nl.knokko.customitems.serialization.Backward3.testTextures3;
 import static nl.knokko.customitems.serialization.Backward6.*;
 import static nl.knokko.customitems.serialization.Backward8.*;
@@ -534,55 +535,55 @@ public class Backward9 {
     }
 
     static void testBaseDefault9(CustomItemValues item) {
-        // TODO Call testBaseDefault10
+        testBaseDefault10(item);
     }
 
     static void testSimpleDefault9(SimpleCustomItemValues item) {
         testBaseDefault9(item);
-        // TODO Call testSimpleDefault10
+        testSimpleDefault10(item);
     }
 
     static void testToolDefault9(CustomToolValues item) {
         testBaseDefault9(item);
-        // TODO Call testToolDefault10
+        testToolDefault10(item);
     }
 
     static void testArmorDefault9(CustomArmorValues item) {
         testToolDefault9(item);
-        // TODO Call testArmorDefault10
+        testArmorDefault10(item);
     }
 
     static void testHoeDefault9(CustomHoeValues item) {
         testToolDefault9(item);
-        // TODO Call testHoeDefault10
+        testHoeDefault10(item);
     }
 
     static void testShearsDefault9(CustomShearsValues item) {
         testToolDefault9(item);
-        // TODO Call testShearsDefault10
+        testShearsDefault10(item);
     }
 
     static void testBowDefault9(CustomBowValues item) {
         testToolDefault9(item);
-        // TODO Call testBowDefault10
+        testBowDefault10(item);
     }
 
     static void testShieldDefault9(CustomShieldValues item) {
         testToolDefault9(item);
-        // TODO Call testShieldDefault10
+        testShieldDefault10(item);
     }
     static void testWandDefault9(CustomWandValues item) {
         testBaseDefault9(item);
-        // TODO Call testWandDefault10
+        testWandDefault10(item);
     }
 
     static void test3dHelmetDefault9(CustomHelmet3dValues item) {
         testArmorDefault9(item);
-        // TODO Call test3dHelmetDefault10
+        test3dHelmetDefault10(item);
     }
 
     static void testTridentDefault9(CustomTridentValues item) {
         testToolDefault9(item);
-        // TODO Call testTridentDefault10
+        testTridentDefault10(item);
     }
 }
