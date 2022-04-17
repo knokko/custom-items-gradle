@@ -5,6 +5,7 @@ import nl.knokko.customitems.texture.animated.AnimationFrameValues;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.EagerTextEditField;
+import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 import java.util.Collection;
@@ -27,6 +28,9 @@ public class AnimationFrameCollectionEdit extends InlineCollectionEdit<Animation
     protected void addRowComponents(int itemIndex, float minY, float maxY) {
         AnimationFrameValues frame = this.ownCollection.get(itemIndex);
 
+        addComponent(new DynamicTextButton("X", QUIT_BASE, QUIT_HOVER, () -> {
+            this.removeItem(itemIndex);
+        }), 0.21f, minY, 0.27f, maxY);
         addComponent(new DynamicTextComponent("Image label:", LABEL), 0.3f, minY, 0.45f, maxY);
         addComponent(
                 new EagerTextEditField(frame.getImageLabel(), EDIT_BASE, EDIT_ACTIVE, frame::setImageLabel),

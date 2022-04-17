@@ -6,6 +6,7 @@ import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
 import nl.knokko.gui.component.image.SimpleImageComponent;
 import nl.knokko.gui.component.text.EagerTextEditField;
+import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import nl.knokko.gui.texture.loader.GuiTextureLoader;
 
@@ -30,6 +31,9 @@ public class AnimationImageCollectionEdit extends InlineCollectionEdit<Animation
         AnimationImageValues image = this.ownCollection.get(itemIndex);
         GuiTextureLoader textureLoader = this.state.getWindow().getTextureLoader();
 
+        addComponent(new DynamicTextButton("X", QUIT_BASE, QUIT_HOVER, () -> {
+            this.removeItem(itemIndex);
+        }), 0.21f, minY, 0.27f, maxY);
         EagerTextEditField labelField = new EagerTextEditField(image.getLabel(), EDIT_BASE, EDIT_ACTIVE, image::setLabel);
 
         addComponent(new DynamicTextComponent("Image:", LABEL), 0.3f, minY, 0.39f, maxY);
