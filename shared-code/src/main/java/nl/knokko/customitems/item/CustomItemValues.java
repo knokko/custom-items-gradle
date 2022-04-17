@@ -922,7 +922,7 @@ public abstract class CustomItemValues extends ModelValues {
 
     public void setSpecialMeleeDamage(SpecialMeleeDamageValues newSpecialDamage) {
         assertMutable();
-        this.specialMeleeDamage = newSpecialDamage;
+        this.specialMeleeDamage = newSpecialDamage != null ? newSpecialDamage.copy(false) : null;
     }
 
     public void setAttackEffects(Collection<AttackEffectGroupValues> attackEffects) {
