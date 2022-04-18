@@ -1,5 +1,7 @@
 package nl.knokko.customitems.damage;
 
+import nl.knokko.customitems.NameHelper;
+
 import static nl.knokko.customitems.MCVersions.*;
 
 public enum RawDamageSource {
@@ -39,5 +41,10 @@ public enum RawDamageSource {
         this.rawName = rawName;
         this.minVersion = minVersion;
         this.maxVersion = maxVersion;
+    }
+
+    @Override
+    public String toString() {
+        return NameHelper.getNiceEnumName(name(), minVersion, maxVersion);
     }
 }
