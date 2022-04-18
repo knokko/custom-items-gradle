@@ -156,7 +156,7 @@ public class ItemSet {
         finishedLoading = true;
     }
 
-    public Map<CustomItemType, ItemDurabilityAssignments> assignInternalItemDamages() throws ValidationException {
+    public Map<CustomItemType, ItemDurabilityAssignments> assignInternalItemDamages(int mcVersion) throws ValidationException {
         Map<CustomItemType, ItemDurabilityAssignments> assignmentMap = new EnumMap<>(CustomItemType.class);
 
         Map<CustomItemType, Set<Short>> lockedDamageAssignments = new EnumMap<>(CustomItemType.class);
@@ -203,11 +203,11 @@ public class ItemSet {
                 }
 
                 if (!reuseExistingModel) {
-                    short nextItemDamage = assignments.getNextItemDamage(itemType);
+                    short nextItemDamage = assignments.getNextItemDamage(itemType, mcVersion);
                     Set<Short> lockedDamages = lockedDamageAssignments.get(item.getItemType());
                     if (lockedDamages != null) {
                         while (lockedDamages.contains(nextItemDamage)) {
-                            nextItemDamage = assignments.getNextItemDamage(itemType);
+                            nextItemDamage = assignments.getNextItemDamage(itemType, mcVersion);
                         }
                     }
 
@@ -243,7 +243,7 @@ public class ItemSet {
                 assignmentMap.put(itemType, assignments);
             }
 
-            short itemDamage = assignments.getNextItemDamage(itemType);
+            short itemDamage = assignments.getNextItemDamage(itemType, mcVersion);
             cover.setItemDamage(itemDamage);
             String resourcePath = "customprojectiles/" + cover.getName();
             assignments.claimList.add(new ItemDurabilityClaim(resourcePath, itemDamage, null));

@@ -34,7 +34,7 @@ class ResourcepackItemOverrider {
 
     void overrideItems() throws IOException, ValidationException {
 
-        Map<CustomItemType, ItemDurabilityAssignments> allDamageAssignments = itemSet.assignInternalItemDamages();
+        Map<CustomItemType, ItemDurabilityAssignments> allDamageAssignments = itemSet.assignInternalItemDamages(this.mcVersion);
         for (Map.Entry<CustomItemType, ItemDurabilityAssignments> typeEntry : allDamageAssignments.entrySet()) {
 
             CustomItemType itemType = typeEntry.getKey();
@@ -188,7 +188,7 @@ class ResourcepackItemOverrider {
         jsonWriter.println("        { \"predicate\": { \"pulling\": 1, \"pull\": 0.9 }, \"model\": \"item/bow_pulling_2\"},");
 
         for (ItemDurabilityClaim claim : damageAssignments.claimList) {
-            double damage = (double) claim.itemDamage / CustomItemType.BOW.getMaxDurability();
+            double damage = (double) claim.itemDamage / CustomItemType.BOW.getMaxDurability(this.mcVersion);
             jsonWriter.println("        { \"predicate\": {\"damaged\": 0, \"damage\": " + damage + "}, \"model\": \"" + claim.resourcePath + "\"},");
             List<BowTextureEntry> pullTextures = claim.pullTextures;
 
@@ -249,7 +249,7 @@ class ResourcepackItemOverrider {
         // This is where things get interesting...
         for (ItemDurabilityClaim claim : assignments.claimList) {
 
-            double damageFraction = (double) claim.itemDamage / CustomItemType.CROSSBOW.getMaxDurability();
+            double damageFraction = (double) claim.itemDamage / CustomItemType.CROSSBOW.getMaxDurability(this.mcVersion);
             jsonWriter.println("        { \"predicate\": { \"damaged\": 0, \"damage\": "
                     + damageFraction + " }, \"model\": \"" + claim.resourcePath + "\" },");
 
@@ -332,7 +332,7 @@ class ResourcepackItemOverrider {
 
         // Now the part for the custom shield predicates...
         for (ItemDurabilityClaim claim : damageAssignments.claimList) {
-            double damage = (double) claim.itemDamage / CustomItemType.SHIELD.getMaxDurability();
+            double damage = (double) claim.itemDamage / CustomItemType.SHIELD.getMaxDurability(this.mcVersion);
             jsonWriter.println("        { \"predicate\": { \"blocking\": 0, \"damaged\": 0, \"damage\": "
                     + damage + " }, \"model\": \"" + claim.resourcePath + "\" },");
             jsonWriter.println("        { \"predicate\": { \"blocking\": 1, \"damaged\": 0, \"damage\": "
@@ -371,7 +371,7 @@ class ResourcepackItemOverrider {
 
         // Now the interesting part
         for (ItemDurabilityClaim claim : damageAssignments.claimList) {
-            double damage = (double) claim.itemDamage / itemType.getMaxDurability();
+            double damage = (double) claim.itemDamage / itemType.getMaxDurability(this.mcVersion);
             jsonWriter.println("        { \"predicate\": {\"damaged\": 0, \"damage\": " + damage + "}, \"model\": \"" + claim.resourcePath + "\"},");
         }
 
@@ -395,7 +395,7 @@ class ResourcepackItemOverrider {
         }
 
         for (ItemDurabilityClaim claim : damageAssignments.claimList) {
-            double damage = (double) claim.itemDamage / CustomItemType.TRIDENT.getMaxDurability();
+            double damage = (double) claim.itemDamage / CustomItemType.TRIDENT.getMaxDurability(this.mcVersion);
             jsonWriter.println("        { \"predicate\": { \"throwing\": 0, \"damaged\": 0, \"damage\": "
                     + damage + " }, \"model\": \"" + claim.resourcePath + "_in_hand\" },");
             jsonWriter.println("        { \"predicate\": { \"throwing\": 1, \"damaged\": 0, \"damage\": "

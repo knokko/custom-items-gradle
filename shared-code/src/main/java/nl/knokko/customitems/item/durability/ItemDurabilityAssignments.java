@@ -15,9 +15,9 @@ public class ItemDurabilityAssignments {
     public final List<ItemDurabilityClaim> claimList = new ArrayList<>();
     public final Map<String, Short> textureReuseMap = new HashMap<>();
 
-    public short getNextItemDamage(CustomItemType itemType) throws ValidationException {
+    public short getNextItemDamage(CustomItemType itemType, int mcVersion) throws ValidationException {
         short nextItemDamage = (short) (previousItemDamage + 1);
-        if (itemType != CustomItemType.OTHER && nextItemDamage > itemType.getMaxDurability()) {
+        if (itemType != CustomItemType.OTHER && nextItemDamage > itemType.getMaxDurability(mcVersion)) {
             throw new ValidationException("Too many items have internal item type " + itemType);
         }
         this.previousItemDamage = nextItemDamage;
