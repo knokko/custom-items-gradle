@@ -12,6 +12,7 @@ import nl.knokko.customitems.util.Validation;
 import nl.knokko.customitems.util.ValidationException;
 
 import java.util.Collection;
+import java.util.Objects;
 
 public class ManualOutputSlotValues extends ContainerSlotValues {
 
@@ -79,6 +80,16 @@ public class ManualOutputSlotValues extends ContainerSlotValues {
             pSuffix[0] = Integer.toString(suffixInt);
         }
         return createQuick(name + pSuffix[0], placeholder);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof ManualOutputSlotValues) {
+            ManualOutputSlotValues otherSlot = (ManualOutputSlotValues) other;
+            return this.name.equals(otherSlot.name) && Objects.equals(this.placeholder, otherSlot.placeholder);
+        } else {
+            return false;
+        }
     }
 
     @Override
