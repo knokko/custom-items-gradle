@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.Scanner;
 
+import static nl.knokko.customitems.serialization.Backward10.*;
 import static nl.knokko.customitems.serialization.Backward3.testTextures3;
 import static nl.knokko.customitems.serialization.Backward6.*;
 import static nl.knokko.customitems.serialization.Backward7.testContainers7;
@@ -213,17 +214,17 @@ public class Backward8 {
     static void testDefaultBlockDrop8(BlockDropValues blockDrop) {
         assertFalse(blockDrop.shouldAllowSilkTouch());
         testDefaultDrop8(blockDrop.getDrop());
-        // TODO Call testDefaultBlockDrop9
+        testDefaultBlockDrop10(blockDrop);
     }
 
     static void testDefaultMobDrop8(MobDropValues mobDrop) {
         testDefaultDrop8(mobDrop.getDrop());
-        // TODO Call testDefaultMobDrop9
+        testDefaultMobDrop10(mobDrop);
     }
 
     static void testDefaultDrop8(DropValues drop) {
         assertEquals(0, drop.getRequiredHeldItems().size());
-        // TODO Call testDefaultDrop9
+        testDefaultDrop10(drop);
     }
 
     static void testRecipesOld8(ItemSet set, int numRecipes) {

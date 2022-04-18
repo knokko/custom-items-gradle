@@ -169,6 +169,11 @@ public class ContainerRecipeValues extends ModelValues {
     }
 
     @Override
+    public String toString() {
+        return "ContainerRecipe(inputs=" + this.inputs + ",outputs=" + this.outputs + ",manual output=" + this.manualOutput;
+    }
+
+    @Override
     public boolean equals(Object other) {
         if (other.getClass() == ContainerRecipeValues.class) {
             ContainerRecipeValues otherRecipe = (ContainerRecipeValues) other;

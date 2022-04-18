@@ -81,6 +81,11 @@ public class ItemCommandSystem extends ModelValues {
     }
 
     @Override
+    public String toString() {
+        return "ItemCommandSystem(" + eventMap + ")";
+    }
+
+    @Override
     public ItemCommandSystem copy(boolean mutable) {
         return new ItemCommandSystem(this, mutable);
     }

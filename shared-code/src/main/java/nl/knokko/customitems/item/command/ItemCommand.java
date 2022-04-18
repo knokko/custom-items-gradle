@@ -95,6 +95,11 @@ public class ItemCommand extends ModelValues {
     }
 
     @Override
+    public String toString() {
+        return "ItemCommand(" + rawCommand + "," + executor + "," + chance + "," + cooldown + "," + activateCooldownWhenChanceFails + ")";
+    }
+
+    @Override
     public ItemCommand copy(boolean mutable) {
         return new ItemCommand(this, mutable);
     }

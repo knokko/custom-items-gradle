@@ -68,6 +68,11 @@ public class MultiBlockBreakValues extends ModelValues {
     }
 
     @Override
+    public String toString() {
+        return "MultiBlockBreak(" + this.shape + "," + this.size + "," + this.stackDurabilityCost + ")";
+    }
+
+    @Override
     public MultiBlockBreakValues copy(boolean mutable) {
         return new MultiBlockBreakValues(this, mutable);
     }

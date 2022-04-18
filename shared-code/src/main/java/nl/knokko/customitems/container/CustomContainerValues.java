@@ -126,6 +126,11 @@ public class CustomContainerValues extends ModelValues {
     }
 
     @Override
+    public String toString() {
+        return "Container " + name;
+    }
+
+    @Override
     public CustomContainerValues copy(boolean mutable) {
         return new CustomContainerValues(this, mutable);
     }
