@@ -3,8 +3,9 @@ package nl.knokko.customitems.plugin.set.item;
 import com.google.common.collect.Lists;
 import nl.knokko.core.plugin.CorePlugin;
 import nl.knokko.core.plugin.item.GeneralItemNBT;
+import nl.knokko.core.plugin.item.ItemHelper;
 import nl.knokko.core.plugin.item.attributes.ItemAttributes;
-import nl.knokko.customitems.effect.PotionEffectValues;
+import nl.knokko.customitems.effect.ChancePotionEffectValues;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.nbt.NbtValueType;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
@@ -22,10 +23,13 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Random;
 
 public abstract class CustomItemWrapper {
 
-    public static CIMaterial getMaterial(CustomItemType itemType) {
+    public static CIMaterial getMaterial(CustomItemType itemType, CIMaterial otherMaterial) {
+        if (itemType == CustomItemType.OTHER) return otherMaterial;
+
         String materialName = itemType.name();
 
         // This method distinguishes minecraft 1.12 and before from minecraft 1.13 and later
@@ -76,7 +80,9 @@ public abstract class CustomItemWrapper {
         this.item = item;
     }
 
-    public void onBlockBreak(Player player, ItemStack item, boolean wasSolid, boolean wasFakeMainHand) {}
+    public void onBlockBreak(
+            Player player, ItemStack item, boolean wasSolid, boolean wasFakeMainHand, int numBrokenBlocks
+    ) {}
 
     protected List<String> createLore(){
         return item.getLore();
@@ -91,7 +97,9 @@ public abstract class CustomItemWrapper {
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(this.item.getDisplayName());
         meta.setLore(lore);
-        meta.setUnbreakable(true);
+        if (this.item.getItemType() != CustomItemType.OTHER) {
+            meta.setUnbreakable(true);
+        }
 
         ItemFlag[] allFlags = ItemFlag.values();
         List<Boolean> ownItemFlags = this.item.getItemFlags();
@@ -105,11 +113,13 @@ public abstract class CustomItemWrapper {
 
     public ItemStack create(int amount, List<String> lore){
         ItemStack item = ItemAttributes.createWithAttributes(
-                getMaterial(this.item.getItemType()).name(),
+                getMaterial(this.item.getItemType(), this.item.getOtherMaterial()).name(),
                 amount, convertAttributeModifiers(this.item.getAttributeModifiers())
         );
         item.setItemMeta(createItemMeta(item, lore));
-        item.setDurability(this.item.getItemDamage());
+        if (this.item.getItemType() != CustomItemType.OTHER) {
+            item.setDurability(this.item.getItemDamage());
+        }
         for (EnchantmentValues enchantment : this.item.getDefaultEnchantments()) {
             item.addUnsafeEnchantment(Enchantment.getByName(enchantment.getType().name()), enchantment.getLevel());
         }
@@ -123,7 +133,7 @@ public abstract class CustomItemWrapper {
 
         // Give it the extra nbt, if needed
         Collection<ExtraItemNbtValues.Entry> extraNbtPairs = this.item.getExtraNbt().getEntries();
-        if (!extraNbtPairs.isEmpty()) {
+        if (!extraNbtPairs.isEmpty() || this.item.getItemType() == CustomItemType.OTHER) {
             GeneralItemNBT nbt = GeneralItemNBT.readWriteInstance(pResult[0]);
             for (ExtraItemNbtValues.Entry extraPair : extraNbtPairs) {
                 ExtraItemNbtValues.Value value = extraPair.getValue();
@@ -134,6 +144,11 @@ public abstract class CustomItemWrapper {
                 } else {
                     throw new Error("Unknown nbt value type: " + value.type);
                 }
+            }
+
+            if (this.item.getItemType() == CustomItemType.OTHER) {
+                String[] customModelDataKey = { "CustomModelData" };
+                nbt.set(customModelDataKey, this.item.getItemDamage());
             }
 
             pResult[0] = nbt.backToBukkit();
@@ -149,6 +164,14 @@ public abstract class CustomItemWrapper {
     }
 
     public abstract boolean forbidDefaultUse(ItemStack item);
+
+    public boolean needsStackingHelp() {
+        if (item.getItemType() == CustomItemType.OTHER) {
+            return item.getMaxStacksize() != ItemHelper.createStack(item.getOtherMaterial().name(), 1).getMaxStackSize();
+        } else {
+            return item.canStack();
+        }
+    }
 
     public boolean is(ItemStack item){
         if (!ItemUtils.isEmpty(item)) {
@@ -170,21 +193,26 @@ public abstract class CustomItemWrapper {
     public void onEntityHit(LivingEntity attacker, ItemStack weapon, Entity target) {
 
         Collection<PotionEffect> pe = new ArrayList<>();
-        for (PotionEffectValues effect : this.item.getOnHitPlayerEffects()) {
-            pe.add(new PotionEffect(
-                    PotionEffectType.getByName(effect.getType().name()),
-                    effect.getDuration() * 20,
-                    effect.getLevel() - 1)
-            );
+        Random rng = new Random();
+        for (ChancePotionEffectValues effect : this.item.getOnHitPlayerEffects()) {
+            if (effect.getChance().apply(rng)) {
+                pe.add(new PotionEffect(
+                        PotionEffectType.getByName(effect.getType().name()),
+                        effect.getDuration() * 20,
+                        effect.getLevel() - 1)
+                );
+            }
         }
 
         Collection<PotionEffect> te = new ArrayList<>();
-        for (PotionEffectValues effect : this.item.getOnHitTargetEffects()) {
-            te.add(new PotionEffect(
-                    PotionEffectType.getByName(effect.getType().name()),
-                    effect.getDuration() * 20,
-                    effect.getLevel() - 1)
-            );
+        for (ChancePotionEffectValues effect : this.item.getOnHitTargetEffects()) {
+            if (effect.getChance().apply(rng)) {
+                te.add(new PotionEffect(
+                        PotionEffectType.getByName(effect.getType().name()),
+                        effect.getDuration() * 20,
+                        effect.getLevel() - 1)
+                );
+            }
         }
 
         attacker.addPotionEffects(pe);

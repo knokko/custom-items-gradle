@@ -10,6 +10,9 @@ import nl.knokko.customitems.container.slot.display.SimpleVanillaDisplayItemValu
 import nl.knokko.customitems.container.slot.display.SlotDisplayValues;
 import nl.knokko.customitems.effect.*;
 import nl.knokko.customitems.item.*;
+import nl.knokko.customitems.item.command.ItemCommand;
+import nl.knokko.customitems.item.command.ItemCommandEvent;
+import nl.knokko.customitems.item.command.ItemCommandSystem;
 import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
@@ -24,6 +27,7 @@ import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
 import nl.knokko.customitems.sound.CISound;
 import nl.knokko.customitems.texture.BowTextureEntry;
 import nl.knokko.customitems.texture.CrossbowTextureValues;
+import nl.knokko.customitems.util.Chance;
 import org.junit.Test;
 
 import java.awt.Color;
@@ -31,6 +35,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import static nl.knokko.customitems.serialization.Backward10.*;
 import static nl.knokko.customitems.serialization.Backward3.testTextures3;
 import static nl.knokko.customitems.serialization.Backward6.*;
 import static nl.knokko.customitems.serialization.Backward8.*;
@@ -154,14 +159,14 @@ public class Backward9 {
                 false, false, true, true, false, false
         ), item.getItemFlags());
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.REGENERATION, 100, 1)
+                ChancePotionEffectValues.createQuick(EffectType.REGENERATION, 100, 1, Chance.percentage(100))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.POISON, 100, 2)
+                ChancePotionEffectValues.createQuick(EffectType.POISON, 100, 2, Chance.percentage(100))
         ), item.getOnHitTargetEffects());
-        assertEquals(listOf(
-                "kill @a"
-        ), item.getCommands());
+        ItemCommandSystem killAllSystem = new ItemCommandSystem(true);
+        killAllSystem.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_GENERAL, listOf(ItemCommand.createFromLegacy("kill @a")));
+        assertEquals(killAllSystem, item.getCommandSystem());
         assertEquals(ReplacementConditionValues.ConditionOperation.NONE, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -211,14 +216,16 @@ public class Backward9 {
             assertNull(item.getTextureReference());
         }
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.SPEED, 20, 1)
+                ChancePotionEffectValues.createQuick(EffectType.SPEED, 20, 1, Chance.percentage(100))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.WITHER, 50, 2)
+                ChancePotionEffectValues.createQuick(EffectType.WITHER, 50, 2, Chance.percentage(100))
         ), item.getOnHitTargetEffects());
-        assertEquals(listOf(
+        ItemCommandSystem nightVisionSystem = new ItemCommandSystem(true);
+        nightVisionSystem.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_GENERAL, listOf(ItemCommand.createFromLegacy(
                 "effect @p night_vision 5"
-        ), item.getCommands());
+        )));
+        assertEquals(nightVisionSystem, item.getCommandSystem());
         assertEquals(ReplacementConditionValues.ConditionOperation.OR, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -364,14 +371,14 @@ public class Backward9 {
         }
         assertNull(item.getCustomModel());
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.SPEED, 10, 1)
+                ChancePotionEffectValues.createQuick(EffectType.SPEED, 10, 1, Chance.percentage(100))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.SLOW, 20, 1)
+                ChancePotionEffectValues.createQuick(EffectType.SLOW, 20, 1, Chance.percentage(100))
         ), item.getOnHitTargetEffects());
-        assertEquals(listOf(
-                "summon arrow"
-        ), item.getCommands());
+        ItemCommandSystem arrowSystem = new ItemCommandSystem(true);
+        arrowSystem.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_GENERAL, listOf(ItemCommand.createFromLegacy("summon arrow")));
+        assertEquals(arrowSystem, item.getCommandSystem());
         assertEquals(ReplacementConditionValues.ConditionOperation.OR, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -429,14 +436,14 @@ public class Backward9 {
             assertNull(item.getCustomModel());
         }
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.HEAL, 1, 1)
+                ChancePotionEffectValues.createQuick(EffectType.HEAL, 1, 1, Chance.percentage(100))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.HARM, 1, 1)
+                ChancePotionEffectValues.createQuick(EffectType.HARM, 1, 1, Chance.percentage(100))
         ), item.getOnHitTargetEffects());
-        assertEquals(listOf(
-                "setblock ~ ~ ~ stone"
-        ), item.getCommands());
+        ItemCommandSystem stoneSystem = new ItemCommandSystem(true);
+        stoneSystem.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_GENERAL, listOf(ItemCommand.createFromLegacy("setblock ~ ~ ~ stone")));
+        assertEquals(stoneSystem, item.getCommandSystem());
         assertEquals(ReplacementConditionValues.ConditionOperation.NONE, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -490,14 +497,14 @@ public class Backward9 {
             assertNull(item.getCustomModel());
         }
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.SATURATION, 100, 1)
+                ChancePotionEffectValues.createQuick(EffectType.SATURATION, 100, 1, Chance.percentage(100))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.HUNGER, 100, 3)
+                ChancePotionEffectValues.createQuick(EffectType.HUNGER, 100, 3, Chance.percentage(100))
         ), item.getOnHitTargetEffects());
-        assertEquals(listOf(
-                "effect @p clear"
-        ), item.getCommands());
+        ItemCommandSystem clearSystem = new ItemCommandSystem(true);
+        clearSystem.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_GENERAL, listOf(ItemCommand.createFromLegacy("effect @p clear")));
+        assertEquals(clearSystem, item.getCommandSystem());
         assertEquals(ReplacementConditionValues.ConditionOperation.AND, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -528,55 +535,55 @@ public class Backward9 {
     }
 
     static void testBaseDefault9(CustomItemValues item) {
-        // TODO Call testBaseDefault10
+        testBaseDefault10(item);
     }
 
     static void testSimpleDefault9(SimpleCustomItemValues item) {
         testBaseDefault9(item);
-        // TODO Call testSimpleDefault10
+        testSimpleDefault10(item);
     }
 
     static void testToolDefault9(CustomToolValues item) {
         testBaseDefault9(item);
-        // TODO Call testToolDefault10
+        testToolDefault10(item);
     }
 
     static void testArmorDefault9(CustomArmorValues item) {
         testToolDefault9(item);
-        // TODO Call testArmorDefault10
+        testArmorDefault10(item);
     }
 
     static void testHoeDefault9(CustomHoeValues item) {
         testToolDefault9(item);
-        // TODO Call testHoeDefault10
+        testHoeDefault10(item);
     }
 
     static void testShearsDefault9(CustomShearsValues item) {
         testToolDefault9(item);
-        // TODO Call testShearsDefault10
+        testShearsDefault10(item);
     }
 
     static void testBowDefault9(CustomBowValues item) {
         testToolDefault9(item);
-        // TODO Call testBowDefault10
+        testBowDefault10(item);
     }
 
     static void testShieldDefault9(CustomShieldValues item) {
         testToolDefault9(item);
-        // TODO Call testShieldDefault10
+        testShieldDefault10(item);
     }
     static void testWandDefault9(CustomWandValues item) {
         testBaseDefault9(item);
-        // TODO Call testWandDefault10
+        testWandDefault10(item);
     }
 
     static void test3dHelmetDefault9(CustomHelmet3dValues item) {
         testArmorDefault9(item);
-        // TODO Call test3dHelmetDefault10
+        test3dHelmetDefault10(item);
     }
 
     static void testTridentDefault9(CustomTridentValues item) {
         testToolDefault9(item);
-        // TODO Call testTridentDefault10
+        testTridentDefault10(item);
     }
 }

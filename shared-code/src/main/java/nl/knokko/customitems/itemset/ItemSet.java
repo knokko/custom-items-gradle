@@ -159,46 +159,78 @@ public class ItemSet {
     public Map<CustomItemType, ItemDurabilityAssignments> assignInternalItemDamages() throws ValidationException {
         Map<CustomItemType, ItemDurabilityAssignments> assignmentMap = new EnumMap<>(CustomItemType.class);
 
+        Map<CustomItemType, Set<Short>> lockedDamageAssignments = new EnumMap<>(CustomItemType.class);
+        for (CustomItemValues item : getItems()) {
+            if (!item.shouldUpdateAutomatically() && item.getItemDamage() > 0) {
+                Set<Short> lockedAssignments = lockedDamageAssignments.computeIfAbsent(item.getItemType(), k -> new HashSet<>());
+                if (!lockedAssignments.contains(item.getItemDamage())) {
+                    ItemDurabilityAssignments assignments = assignmentMap.computeIfAbsent(item.getItemType(), k -> new ItemDurabilityAssignments());
+
+                    List<BowTextureEntry> pullTextures = null;
+                    if (item.getTexture() instanceof BowTextureValues) {
+                        pullTextures = ((BowTextureValues) item.getTexture()).getPullTextures();
+                    } else if (item.getTexture() instanceof CrossbowTextureValues) {
+                        pullTextures = ((CrossbowTextureValues) item.getTexture()).getPullTextures();
+                    }
+
+                    ItemDurabilityClaim lockedClaim = new ItemDurabilityClaim(
+                            "customitems/" + item.getName(), item.getItemDamage(), pullTextures
+                    );
+                    assignments.claimList.add(lockedClaim);
+                    lockedAssignments.add(item.getItemDamage());
+                }
+            }
+        }
+
         for (CustomItem itemModel : items) {
             CustomItemValues item = itemModel.cloneValues();
-            CustomItemType itemType = item.getItemType();
-            ItemDurabilityAssignments assignments = assignmentMap.get(itemType);
-            if (assignments == null) {
-                assignments = new ItemDurabilityAssignments();
-                assignmentMap.put(itemType, assignments);
-            }
-
-            boolean canReuseModel = item.getCustomModel() == null && itemType.hasSimpleModel;
-            boolean reuseExistingModel = false;
-            if (canReuseModel) {
-                Short existingItemDamage = assignments.textureReuseMap.get(item.getTexture().getName());
-                if (existingItemDamage != null) {
-                    item.setItemDamage(existingItemDamage);
-                    reuseExistingModel = true;
-                }
-            }
-
-            if (!reuseExistingModel) {
-                short nextItemDamage = assignments.getNextItemDamage(itemType);
-                item.setItemDamage(nextItemDamage);
-
-                String resourcePath = "customitems/" + item.getName();
-
-                List<BowTextureEntry> pullTextures = null;
-                if (itemType == CustomItemType.BOW) {
-                    pullTextures = ((BowTextureValues) item.getTexture()).getPullTextures();
-                } else if (itemType == CustomItemType.CROSSBOW) {
-                    pullTextures = ((CrossbowTextureValues) item.getTexture()).getPullTextures();
+            if (item.shouldUpdateAutomatically() || item.getItemDamage() <= 0) {
+                CustomItemType itemType = item.getItemType();
+                ItemDurabilityAssignments assignments = assignmentMap.get(itemType);
+                if (assignments == null) {
+                    assignments = new ItemDurabilityAssignments();
+                    assignmentMap.put(itemType, assignments);
                 }
 
-                assignments.claimList.add(new ItemDurabilityClaim(resourcePath, nextItemDamage, pullTextures));
-
+                boolean canReuseModel = item.getCustomModel() == null && itemType.hasSimpleModel;
+                boolean reuseExistingModel = false;
                 if (canReuseModel) {
-                    assignments.textureReuseMap.put(item.getTexture().getName(), nextItemDamage);
+                    Short existingItemDamage = assignments.textureReuseMap.get(item.getTexture().getName());
+                    if (existingItemDamage != null) {
+                        item.setItemDamage(existingItemDamage);
+                        reuseExistingModel = true;
+                    }
                 }
-            }
 
-            itemModel.setValues(item);
+                if (!reuseExistingModel) {
+                    short nextItemDamage = assignments.getNextItemDamage(itemType);
+                    Set<Short> lockedDamages = lockedDamageAssignments.get(item.getItemType());
+                    if (lockedDamages != null) {
+                        while (lockedDamages.contains(nextItemDamage)) {
+                            nextItemDamage = assignments.getNextItemDamage(itemType);
+                        }
+                    }
+
+                    item.setItemDamage(nextItemDamage);
+
+                    String resourcePath = "customitems/" + item.getName();
+
+                    List<BowTextureEntry> pullTextures = null;
+                    if (itemType == CustomItemType.BOW) {
+                        pullTextures = ((BowTextureValues) item.getTexture()).getPullTextures();
+                    } else if (itemType == CustomItemType.CROSSBOW) {
+                        pullTextures = ((CrossbowTextureValues) item.getTexture()).getPullTextures();
+                    }
+
+                    assignments.claimList.add(new ItemDurabilityClaim(resourcePath, nextItemDamage, pullTextures));
+
+                    if (canReuseModel) {
+                        assignments.textureReuseMap.put(item.getTexture().getName(), nextItemDamage);
+                    }
+                }
+
+                itemModel.setValues(item);
+            }
         }
 
         for (ProjectileCover coverModel : projectileCovers) {
@@ -217,6 +249,10 @@ public class ItemSet {
             assignments.claimList.add(new ItemDurabilityClaim(resourcePath, itemDamage, null));
 
             coverModel.setValues(cover);
+        }
+
+        for (ItemDurabilityAssignments assignments : assignmentMap.values()) {
+            assignments.claimList.sort(Comparator.comparingInt(a -> a.itemDamage));
         }
 
         return assignmentMap;
@@ -1218,10 +1254,6 @@ public class ItemSet {
 
     public void removeFuelRegistry(FuelRegistryReference registryToRemove) throws ValidationException, ProgrammingValidationException {
         removeModel(this.fuelRegistries, registryToRemove.getModel());
-    }
-
-    public void removeBlock(BlockReference blockToRemove) throws ValidationException, ProgrammingValidationException {
-        removeModel(this.blocks, blockToRemove.getModel());
     }
 
     public enum Side {

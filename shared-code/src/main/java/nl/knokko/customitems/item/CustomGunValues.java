@@ -22,6 +22,9 @@ public class CustomGunValues extends CustomItemValues {
         if (encoding == ItemEncoding.ENCODING_GUN_10) {
             result.load10(input, itemSet);
             result.initDefaults10();
+        } else if (encoding == ItemEncoding.ENCODING_GUN_12) {
+            result.loadGunPropertiesNew(input, itemSet);
+            return result;
         } else {
             throw new UnknownEncodingException("CustomGun", encoding);
         }
@@ -53,25 +56,31 @@ public class CustomGunValues extends CustomItemValues {
         this.amountPerShot = toCopy.getAmountPerShot();
     }
 
+    protected void loadGunPropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        this.loadSharedPropertiesNew(input, itemSet);
+
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("CustomGunNew", encoding);
+
+        this.projectile = itemSet.getProjectileReference(input.readString());
+        this.ammo = GunAmmoValues.load(input, itemSet);
+        this.amountPerShot = input.readInt();
+    }
+
+    protected void saveGunPropertiesNew(BitOutput output, ItemSet.Side targetSide) {
+        this.saveSharedPropertiesNew(output, targetSide);
+
+        output.addByte((byte) 1);
+
+        output.addString(this.projectile.get().getName());
+        this.ammo.save(output);
+        output.addInt(this.amountPerShot);
+    }
+
     @Override
     public void save(BitOutput output, ItemSet.Side side) {
-        output.addByte(ItemEncoding.ENCODING_GUN_10);
-        save10(output);
-
-        if (side == ItemSet.Side.EDITOR) {
-            saveEditorOnlyProperties1(output);
-        }
-    }
-
-    private void save10(BitOutput output) {
-        saveBase10(output);
-        saveGunOnlyProperties10(output);
-    }
-
-    private void saveGunOnlyProperties10(BitOutput output) {
-        output.addString(projectile.get().getName());
-        ammo.save(output);
-        output.addInt(amountPerShot);
+        output.addByte(ItemEncoding.ENCODING_GUN_12);
+        this.saveGunPropertiesNew(output, side);
     }
 
     @Override

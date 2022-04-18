@@ -33,6 +33,10 @@ public class DamageResistanceValues extends ModelValues {
         return load(input, AMOUNT_17);
     }
 
+    public static DamageResistanceValues loadNew(BitInput input) {
+        return load(input, input.readInt());
+    }
+
     private final short[] resistanceMap;
 
     public DamageResistanceValues(boolean mutable) {
@@ -88,5 +92,10 @@ public class DamageResistanceValues extends ModelValues {
 
     public void save17(BitOutput output) {
         save(output, AMOUNT_17);
+    }
+
+    public void saveNew(BitOutput output) {
+        output.addInt(resistanceMap.length);
+        save(output, resistanceMap.length);
     }
 }

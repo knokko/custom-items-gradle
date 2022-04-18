@@ -29,6 +29,8 @@ import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
+import nl.knokko.customitems.editor.menu.edit.attack.effect.AttackEffectGroupCollectionEdit;
+import nl.knokko.customitems.editor.menu.edit.item.command.EditCommandSystem;
 import nl.knokko.customitems.editor.menu.edit.texture.TextureEdit;
 import nl.knokko.customitems.editor.resourcepack.DefaultItemModels;
 import nl.knokko.customitems.editor.util.Validation;
@@ -36,8 +38,11 @@ import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.texture.BaseTextureValues;
+import nl.knokko.customitems.texture.animated.AnimatedTextureValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
+import nl.knokko.gui.component.WrapperComponent;
+import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.menu.TextListEditMenu;
 import nl.knokko.gui.component.text.EagerFloatEditField;
@@ -131,6 +136,12 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 					LABEL_X, 0.32f, LABEL_X + 0.125f, 0.37f
 			);
 		}
+		if (canHaveCustomModel()) {
+			addComponent(
+					new DynamicTextComponent("Model: ", EditProps.LABEL),
+					LABEL_X, 0.26f, LABEL_X + 0.11f, 0.31f
+			);
+		}
 		addComponent(
 				new DynamicTextComponent("On-Hit Player effects: ", EditProps.LABEL),
 				LABEL_X, 0.2f, LABEL_X + 0.2f, 0.25f
@@ -159,13 +170,26 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 				new DynamicTextComponent("Attack range multiplier: ", EditProps.LABEL),
 				LABEL_X, -0.16f, LABEL_X + 0.2f, -0.11f
 		);
-		
-		if (canHaveCustomModel()) {
-			addComponent(
-					new DynamicTextComponent("Model: ", EditProps.LABEL),
-					LABEL_X, 0.26f, LABEL_X + 0.11f, 0.31f
-			);
-		}
+		addComponent(
+				new DynamicTextComponent("Update automatically", LABEL),
+				LABEL_X + 0.02f, -0.22f, LABEL_X + 0.2f, -0.17f
+		);
+		addComponent(
+				new DynamicTextComponent("Special melee damage source:", LABEL),
+				LABEL_X, -0.28f, LABEL_X + 0.2f, -0.23f
+		);
+		addComponent(
+				new DynamicTextComponent("Attack effects:", LABEL),
+				LABEL_X, -0.34f, LABEL_X + 0.15f, -0.29f
+		);
+		addComponent(
+				new DynamicTextComponent("Keep on death", LABEL),
+				LABEL_X + 0.02f, -0.4f, LABEL_X + 0.18f, -0.35f
+		);
+		addComponent(
+				new DynamicTextComponent("Multi block break:", LABEL),
+				LABEL_X, -0.45f, LABEL_X + 0.17f, -0.4f
+		);
 
 		if (toModify != null) {
 			addComponent(new DynamicTextButton("Apply", SAVE_BASE, EditProps.SAVE_HOVER, () -> {
@@ -201,11 +225,27 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 					BUTTON_X, 0.8f, BUTTON_X + 0.1f, 0.85f
 			);
 		}
+		DynamicTextButton otherMaterialButton = EnumSelect.createSelectButton(
+				CIMaterial.class, currentValues::setOtherMaterial, currentValues.getOtherMaterial()
+		);
 		addComponent(EnumSelect.createSelectButton(
 				CustomItemType.class, 
-				currentValues::setItemType, (CustomItemType maybe) -> {
+				newItemType -> {
+					currentValues.setItemType(newItemType);
+					if (newItemType == CustomItemType.OTHER) {
+						otherMaterialButton.setText(currentValues.getOtherMaterial().toString());
+					}
+				}, (CustomItemType maybe) -> {
 			return maybe.canServe(getCategory());
 		}, currentValues.getItemType()), BUTTON_X, 0.74f, BUTTON_X + 0.1f, 0.79f);
+		addComponent(new WrapperComponent<DynamicTextButton>(
+				otherMaterialButton
+		) {
+			@Override
+			public boolean isActive() {
+				return currentValues.getItemType() == CustomItemType.OTHER;
+			}
+		}, BUTTON_X + 0.11f, 0.74f, BUTTON_X + 0.2f, 0.79f);
 		addComponent(
 				new EagerTextEditField(currentValues.getAlias(), EDIT_BASE, EDIT_ACTIVE, currentValues::setAlias),
 				BUTTON_X, 0.68f, BUTTON_X + 0.1f, 0.73f
@@ -220,6 +260,40 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 		addEffectsComponent();
 		addCommandsComponent();
 		addReplaceComponent();
+
+		if (!(this instanceof EditItemBlock)) {
+			addComponent(
+					new DynamicTextButton("Load texture...", BUTTON, HOVER, () -> {
+						state.getWindow().setMainComponent(createLoadTextureMenu());
+					}), 0.025f, 0.32f, 0.125f, 0.37f
+			);
+			addComponent(
+					CollectionSelect.createButton(
+							menu.getSet().getTextures().references(),
+							currentValues::setTexture,
+							this::allowTexture,
+							textureReference -> textureReference.get().getName(),
+							currentValues.getTextureReference()
+					),
+					BUTTON_X, 0.32f, BUTTON_X + 0.1f, 0.37f
+			);
+		}
+		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
+			state.getWindow().setMainComponent(new ItemFlagMenu(this, currentValues));
+		}), BUTTON_X, 0.38f, BUTTON_X + 0.1f, 0.43f);
+
+
+		if (canHaveCustomModel()) {
+			addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
+				state.getWindow().setMainComponent(new EditCustomModel(DefaultItemModels.getDefaultModel(
+						currentValues.getItemType(),
+						currentValues.getTextureReference() != null ? currentValues.getTexture().getName()
+								: "%TEXTURE_NAME%", currentValues.getItemType().isLeatherArmor(),
+						!(this instanceof EditItemHelmet3D))
+						, this, currentValues::setCustomModel, currentValues.getCustomModel()));
+			}), BUTTON_X, 0.26f, BUTTON_X + 0.1f, 0.31f);
+		}
+
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new EquippedEffectsCollectionEdit(
 					currentValues.getEquippedEffects(), currentValues::setEquippedEffects, this
@@ -241,37 +315,29 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 						currentValues.getAttackRange(), 0f, EDIT_BASE, EDIT_ACTIVE, currentValues::setAttackRange
 				), BUTTON_X, -0.16f, BUTTON_X + 0.1f, -0.11f
 		);
-		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new ItemFlagMenu(this, currentValues));
-		}), BUTTON_X, 0.38f, BUTTON_X + 0.1f, 0.43f);
-		if (!(this instanceof EditItemBlock)) {
-			addComponent(
-					new DynamicTextButton("Load texture...", BUTTON, HOVER, () -> {
-						state.getWindow().setMainComponent(createLoadTextureMenu());
-					}), 0.025f, 0.32f, 0.125f, 0.37f
-			);
-			addComponent(
-					CollectionSelect.createButton(
-							menu.getSet().getTextures().references(),
-							currentValues::setTexture,
-							this::allowTexture,
-							textureReference -> textureReference.get().getName(),
-							currentValues.getTextureReference()
-					),
-					BUTTON_X, 0.32f, BUTTON_X + 0.1f, 0.37f
-			);
-		}
-
-		if (canHaveCustomModel()) {
-			addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
-				state.getWindow().setMainComponent(new EditCustomModel(DefaultItemModels.getDefaultModel(
-						currentValues.getItemType(),
-						currentValues.getTextureReference() != null ? currentValues.getTexture().getName()
-								: "%TEXTURE_NAME%", currentValues.getItemType().isLeatherArmor(),
-								!(this instanceof EditItemHelmet3D))
-								, this, currentValues::setCustomModel, currentValues.getCustomModel()));
-			}), BUTTON_X, 0.26f, BUTTON_X + 0.1f, 0.31f);
-		}
+		addComponent(
+				new CheckboxComponent(currentValues.shouldUpdateAutomatically(), currentValues::setUpdateAutomatically),
+				LABEL_X, -0.21f, LABEL_X + 0.015f, -0.19f
+		);
+		addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new EditSpecialMeleeDamage(
+					this, currentValues.getSpecialMeleeDamage(), currentValues::setSpecialMeleeDamage
+			));
+		}), BUTTON_X, -0.28f, BUTTON_X + 0.1f, -0.23f);
+		addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new AttackEffectGroupCollectionEdit(
+					currentValues.getAttackEffects(), currentValues::setAttackEffects, false, this
+			));
+		}), BUTTON_X, -0.34f, BUTTON_X + 0.1f, -0.29f);
+		addComponent(
+				new CheckboxComponent(currentValues.shouldKeepOnDeath(), currentValues::setKeepOnDeath),
+				LABEL_X, -0.39f, LABEL_X + 0.015f, -0.37f
+		);
+		addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new EditMultiBlockBreak(
+					currentValues.getMultiBlockBreak(), currentValues::setMultiBlockBreak, this
+			));
+		}), BUTTON_X, -0.45f, BUTTON_X + 0.1f, -0.4f);
 	}
 
 	protected GuiComponent createLoadTextureMenu() {
@@ -313,23 +379,21 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 
 	private void addEffectsComponent() {
 		addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
-			state.getWindow().setMainComponent(new EffectsCollectionEdit(
-					currentValues.getOnHitPlayerEffects(), currentValues::setPlayerEffects, EditItemBase.this
+			state.getWindow().setMainComponent(new ChanceEffectsCollectionEdit(
+					EditItemBase.this, currentValues.getOnHitPlayerEffects(), currentValues::setPlayerEffects
 			));
 		}), BUTTON_X, 0.2f, BUTTON_X + 0.1f, 0.25f);
 		addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
-			state.getWindow().setMainComponent(new EffectsCollectionEdit(
-					currentValues.getOnHitTargetEffects(), currentValues::setTargetEffects, EditItemBase.this
+			state.getWindow().setMainComponent(new ChanceEffectsCollectionEdit(
+					EditItemBase.this, currentValues.getOnHitTargetEffects(), currentValues::setTargetEffects
 			));
 		}), BUTTON_X, 0.14f, BUTTON_X + 0.1f, 0.19f);
 	}
 	
 	private void addCommandsComponent() {
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new TextListEditMenu(
-					EditItemBase.this, currentValues::setCommands,
-					BACKGROUND, CANCEL_BASE, CANCEL_HOVER, SAVE_BASE, SAVE_HOVER, EDIT_BASE, EDIT_ACTIVE,
-					currentValues.getCommands()
+			state.getWindow().setMainComponent(new EditCommandSystem(
+					this, currentValues.getCommandSystem(), currentValues::setCommandSystem
 			));
 		}), BUTTON_X, 0.08f, BUTTON_X + 0.1f, 0.13f);
 	}
@@ -366,6 +430,6 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 	protected boolean allowTexture(TextureReference texture) {
 		
 		// No subclasses such as bow textures
-		return texture.get().getClass() == BaseTextureValues.class;
+		return texture.get().getClass() == BaseTextureValues.class || texture.get().getClass() == AnimatedTextureValues.class;
 	}
 }

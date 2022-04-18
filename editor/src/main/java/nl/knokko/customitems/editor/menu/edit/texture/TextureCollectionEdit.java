@@ -12,6 +12,7 @@ import nl.knokko.customitems.texture.BaseTextureValues;
 import nl.knokko.customitems.texture.BowTextureValues;
 import nl.knokko.customitems.texture.CrossbowTextureValues;
 import nl.knokko.customitems.editor.util.HelpButtons;
+import nl.knokko.customitems.texture.animated.AnimatedTextureValues;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.DirectoryChooserMenu;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
@@ -81,6 +82,8 @@ public class TextureCollectionEdit extends DedicatedCollectionEdit<BaseTextureVa
 			return new CrossbowTextureEdit(menu, toModify, (CrossbowTextureValues) oldValues);
 		} else if (oldValues instanceof BowTextureValues) {
 			return new BowTextureEdit(menu, toModify, (BowTextureValues) oldValues);
+		} else if (oldValues instanceof AnimatedTextureValues) {
+			return new AnimatedTextureEdit(menu, toModify, (AnimatedTextureValues) oldValues);
 		} else {
 			return new TextureEdit(menu, toModify, oldValues);
 		}

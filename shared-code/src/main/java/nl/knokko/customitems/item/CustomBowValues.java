@@ -35,6 +35,9 @@ public class CustomBowValues extends CustomToolValues {
         } else if (encoding == ItemEncoding.ENCODING_BOW_10) {
             result.load10(input, itemSet);
             result.initDefaults10();
+        } else if (encoding == ItemEncoding.ENCODING_BOW_12) {
+            result.loadBowPropertiesNew(input, itemSet);
+            return result;
         } else {
             throw new UnknownEncodingException("CustomBow", encoding);
         }
@@ -71,6 +74,31 @@ public class CustomBowValues extends CustomToolValues {
         this.shootDurabilityLoss = toCopy.getShootDurabilityLoss();
     }
 
+    protected void loadBowPropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        this.loadToolPropertiesNew(input, itemSet);
+
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("CustomBowNew", encoding);
+
+        this.damageMultiplier = input.readDouble();
+        this.speedMultiplier = input.readDouble();
+        this.knockbackStrength = input.readInt();
+        this.hasGravity = input.readBoolean();
+        this.shootDurabilityLoss = input.readInt();
+    }
+
+    protected void saveBowPropertiesNew(BitOutput output, ItemSet.Side targetSide) {
+        this.saveToolPropertiesNew(output, targetSide);
+
+        output.addByte((byte) 1);
+
+        output.addDouble(this.damageMultiplier);
+        output.addDouble(this.speedMultiplier);
+        output.addInt(this.knockbackStrength);
+        output.addBoolean(this.hasGravity);
+        output.addInt(this.shootDurabilityLoss);
+    }
+
     protected boolean areBowPropertiesEqual(CustomBowValues other) {
         return areToolPropertiesEqual(other) && isClose(this.damageMultiplier, other.damageMultiplier)
                 && isClose(this.speedMultiplier, other.speedMultiplier) && this.knockbackStrength == other.knockbackStrength
@@ -84,12 +112,8 @@ public class CustomBowValues extends CustomToolValues {
 
     @Override
     public void save(BitOutput output, ItemSet.Side side) {
-        output.addByte(ItemEncoding.ENCODING_BOW_10);
-        save10(output);
-
-        if (side == ItemSet.Side.EDITOR) {
-            saveEditorOnlyProperties1(output);
-        }
+        output.addByte(ItemEncoding.ENCODING_BOW_12);
+        this.saveBowPropertiesNew(output, side);
     }
 
     private void loadBowIdentityProperties3(BitInput input) {
@@ -170,19 +194,6 @@ public class CustomBowValues extends CustomToolValues {
         loadPotionProperties10(input);
         loadRightClickProperties10(input, itemSet);
         loadExtraProperties10(input);
-    }
-
-    private void save10(BitOutput output) {
-        saveBowIdentityProperties10(output);
-        saveTextDisplayProperties1(output);
-        saveVanillaBasedPowers4(output);
-        saveBowPropertiesA4(output);
-        saveItemFlags6(output);
-        saveToolOnlyPropertiesB6(output);
-        output.addInt(shootDurabilityLoss);
-        savePotionProperties10(output);
-        saveRightClickProperties10(output);
-        saveExtraProperties10(output);
     }
 
     private void saveBowIdentityProperties10(BitOutput output) {

@@ -10,6 +10,9 @@ import nl.knokko.customitems.damage.DamageSource;
 import nl.knokko.customitems.drops.*;
 import nl.knokko.customitems.effect.*;
 import nl.knokko.customitems.item.*;
+import nl.knokko.customitems.item.command.ItemCommand;
+import nl.knokko.customitems.item.command.ItemCommandEvent;
+import nl.knokko.customitems.item.command.ItemCommandSystem;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.ShapedRecipeValues;
@@ -22,12 +25,14 @@ import nl.knokko.customitems.recipe.result.CustomItemResultValues;
 import nl.knokko.customitems.recipe.result.DataVanillaResultValues;
 import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
 import nl.knokko.customitems.texture.ArmorTextureValues;
+import nl.knokko.customitems.util.Chance;
 import org.junit.Test;
 
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.Scanner;
 
+import static nl.knokko.customitems.serialization.Backward10.*;
 import static nl.knokko.customitems.serialization.Backward3.testTextures3;
 import static nl.knokko.customitems.serialization.Backward6.*;
 import static nl.knokko.customitems.serialization.Backward7.testContainers7;
@@ -93,7 +98,7 @@ public class Backward8 {
         assertNull(item.getCustomModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
-        assertEquals(0, item.getCommands().size());
+        assertEquals(new ItemCommandSystem(true), item.getCommandSystem());
         assertEquals(ReplacementConditionValues.ConditionOperation.NONE, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -180,7 +185,7 @@ public class Backward8 {
     }
 
     static void testBlockDropsOld8(ItemSet set, int numBlockDrops) {
-        testBlockDropsOld6(set, numBlockDrops);
+        testBlockDropsOld6(set, numBlockDrops, true);
 
         Iterator<BlockDropValues> blockDropIterator = set.getBlockDrops().iterator();
         BlockDropValues firstBlockDrop = blockDropIterator.next();
@@ -197,7 +202,7 @@ public class Backward8 {
         ), drop.getRequiredHeldItems());
 
         OutputTableValues dropTable = drop.getOutputTable();
-        assertEquals(35, dropTable.getNothingChance());
+        assertEquals(Chance.percentage(35), dropTable.getNothingChance());
         assertEquals(listOf(
                 OutputTableValues.Entry.createQuick(CustomItemResultValues.createQuick(set.getItemReference("simple1"), (byte) 1), 30),
                 OutputTableValues.Entry.createQuick(SimpleVanillaResultValues.createQuick(CIMaterial.ACACIA_DOOR, 2), 20),
@@ -209,17 +214,17 @@ public class Backward8 {
     static void testDefaultBlockDrop8(BlockDropValues blockDrop) {
         assertFalse(blockDrop.shouldAllowSilkTouch());
         testDefaultDrop8(blockDrop.getDrop());
-        // TODO Call testDefaultBlockDrop9
+        testDefaultBlockDrop10(blockDrop);
     }
 
     static void testDefaultMobDrop8(MobDropValues mobDrop) {
         testDefaultDrop8(mobDrop.getDrop());
-        // TODO Call testDefaultMobDrop9
+        testDefaultMobDrop10(mobDrop);
     }
 
     static void testDefaultDrop8(DropValues drop) {
         assertEquals(0, drop.getRequiredHeldItems().size());
-        // TODO Call testDefaultDrop9
+        testDefaultDrop10(drop);
     }
 
     static void testRecipesOld8(ItemSet set, int numRecipes) {
@@ -288,7 +293,7 @@ public class Backward8 {
         assertNull(item.getCustomModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
-        assertEquals(0, item.getCommands().size());
+        assertEquals(new ItemCommandSystem(false), item.getCommandSystem());
         assertEquals(ReplacementConditionValues.ConditionOperation.AND, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -334,7 +339,7 @@ public class Backward8 {
         assertNull(item.getCustomModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
-        assertEquals(0, item.getCommands().size());
+        assertEquals(new ItemCommandSystem(false), item.getCommandSystem());
         assertEquals(ReplacementConditionValues.ConditionOperation.NONE, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -374,7 +379,7 @@ public class Backward8 {
         assertNull(item.getCustomModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
-        assertEquals(0, item.getCommands().size());
+        assertEquals(new ItemCommandSystem(false), item.getCommandSystem());
         assertEquals(ReplacementConditionValues.ConditionOperation.OR, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -419,7 +424,7 @@ public class Backward8 {
         assertNull(item.getCustomModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
-        assertEquals(0, item.getCommands().size());
+        assertEquals(new ItemCommandSystem(false), item.getCommandSystem());
         assertEquals(ReplacementConditionValues.ConditionOperation.NONE, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -465,7 +470,7 @@ public class Backward8 {
         assertNull(item.getCustomModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
-        assertEquals(0, item.getCommands().size());
+        assertEquals(new ItemCommandSystem(true), item.getCommandSystem());
         assertEquals(ReplacementConditionValues.ConditionOperation.NONE, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -523,14 +528,14 @@ public class Backward8 {
             assertNull(item.getCustomModel());
         }
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.INVISIBILITY, 30, 1)
+                ChancePotionEffectValues.createQuick(EffectType.INVISIBILITY, 30, 1, Chance.percentage(100))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.POISON, 100, 1)
+                ChancePotionEffectValues.createQuick(EffectType.POISON, 100, 1, Chance.percentage(100))
         ), item.getOnHitTargetEffects());
-        assertEquals(listOf(
-                "summon sheep"
-        ), item.getCommands());
+        ItemCommandSystem summonSheepSystem = new ItemCommandSystem(true);
+        summonSheepSystem.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_GENERAL, listOf(ItemCommand.createFromLegacy("summon sheep")));
+        assertEquals(summonSheepSystem, item.getCommandSystem());
         assertEquals(ReplacementConditionValues.ConditionOperation.NONE, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -581,12 +586,12 @@ public class Backward8 {
         }
         assertNull(item.getCustomModel());
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.NIGHT_VISION, 1000, 1)
+                ChancePotionEffectValues.createQuick(EffectType.NIGHT_VISION, 1000, 1, Chance.percentage(100))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.WITHER, 100, 2)
+                ChancePotionEffectValues.createQuick(EffectType.WITHER, 100, 2, Chance.percentage(100))
         ), item.getOnHitTargetEffects());
-        assertEquals(0, item.getCommands().size());
+        assertEquals(new ItemCommandSystem(true), item.getCommandSystem());
         assertEquals(ReplacementConditionValues.ConditionOperation.NONE, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -636,7 +641,7 @@ public class Backward8 {
         assertNull(item.getCustomModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
-        assertEquals(0, item.getCommands().size());
+        assertEquals(new ItemCommandSystem(false), item.getCommandSystem());
         assertEquals(ReplacementConditionValues.ConditionOperation.NONE, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
@@ -689,7 +694,7 @@ public class Backward8 {
         assertNull(item.getCustomModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
-        assertEquals(0, item.getCommands().size());
+        assertEquals(new ItemCommandSystem(true), item.getCommandSystem());
         assertEquals(ReplacementConditionValues.ConditionOperation.AND, item.getConditionOp());
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(

@@ -36,6 +36,9 @@ public class SimpleCustomItemValues extends CustomItemValues {
         } else if (encoding == ItemEncoding.ENCODING_SIMPLE_10) {
             simpleItem.load10(input, itemSet);
             simpleItem.initDefaults10();
+        } else if (encoding == ItemEncoding.ENCODING_SIMPLE_12) {
+            simpleItem.loadSimplePropertiesNew(input, itemSet);
+            return simpleItem;
         } else {
             throw new UnknownEncodingException("SimpleCustomItemValues", encoding);
         }
@@ -59,6 +62,23 @@ public class SimpleCustomItemValues extends CustomItemValues {
         super(toCopy, mutable);
 
         this.maxStacksize = toCopy.getMaxStacksize();
+    }
+
+    protected void loadSimplePropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        this.loadSharedPropertiesNew(input, itemSet);
+
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("SimpleCustomItemNew", encoding);
+
+        this.maxStacksize = input.readByte();
+    }
+
+    protected void saveSimplePropertiesNew(BitOutput output, ItemSet.Side targetSide) {
+        this.saveSharedPropertiesNew(output, targetSide);
+
+        output.addByte((byte) 1);
+
+        output.addByte(this.maxStacksize);
     }
 
     private void load1(BitInput input) {
@@ -105,23 +125,8 @@ public class SimpleCustomItemValues extends CustomItemValues {
 
     @Override
     public void save(BitOutput output, ItemSet.Side side) {
-        output.addByte(ItemEncoding.ENCODING_SIMPLE_10);
-        save10(output);
-
-        if (side == ItemSet.Side.EDITOR) {
-            saveEditorOnlyProperties1(output);
-        }
-    }
-
-    private void save10(BitOutput output) {
-        saveIdentityProperties10(output);
-        saveTextDisplayProperties1(output);
-        saveVanillaBasedPowers4(output);
-        output.addByte(maxStacksize);
-        saveItemFlags6(output);
-        savePotionProperties10(output);
-        saveRightClickProperties10(output);
-        saveExtraProperties10(output);
+        output.addByte(ItemEncoding.ENCODING_SIMPLE_12);
+        this.saveSimplePropertiesNew(output, side);
     }
 
     private void initSimpleOnlyDefaults10() {

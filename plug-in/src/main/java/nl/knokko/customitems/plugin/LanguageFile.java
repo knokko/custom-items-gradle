@@ -45,6 +45,7 @@ public class LanguageFile {
 	private static final String DEFAULT_COMMAND_NO_ACCESS = ChatColor.DARK_RED + "Only operators can use this command.";
 	private static final String DEFAULT_COMMAND_NO_PLAYER_SPECIFIED = "Non-player operators need to specify a player name";
 	private static final String DEFAULT_COMMAND_PLAYER_NOT_FOUND = ChatColor.RED + "Can't find player PLAYER_NAME. This can only be used on online players.";
+	private static final String DEFAULT_COMMAND_WORLD_DISABLED = ChatColor.RED + "This plug-in is disabled in the world of this player";
 	private static final String DEFAULT_COMMAND_ITEM_GIVEN = ChatColor.GREEN + "Custom item has been given.";
 	private static final String DEFAULT_COMMAND_NO_SUCH_ITEM = ChatColor.RED + "There is no custom item with name ITEM_NAME";
 	
@@ -64,6 +65,7 @@ public class LanguageFile {
 	private static final String KEY_COMMAND_NO_ACCESS = "command-no-access";
 	private static final String KEY_COMMAND_NO_PLAYER_SPECIFIED = "command-no-player-specified";
 	private static final String KEY_COMMAND_PLAYER_NOT_FOUND = "command-player-not-found";
+	private static final String KEY_COMMAND_WORLD_DISABLED = "command-world-disabled";
 	private static final String KEY_COMMAND_ITEM_GIVEN = "command-item-given";
 	private static final String KEY_COMMAND_NO_SUCH_ITEM = "command-no-such-item";
 	
@@ -83,6 +85,7 @@ public class LanguageFile {
 	private String commandNoAccess;
 	private String commandNoPlayerSpecified;
 	private String commandPlayerNotFound;
+	private String commandWorldDisabled;
 	private String commandItemGiven;
 	private String commandNoSuchItem;
 	
@@ -150,6 +153,10 @@ public class LanguageFile {
 	public String getCommandPlayerNotFound(String name) {
 		return commandPlayerNotFound.replaceAll("PLAYER_NAME", name);
 	}
+
+	public String getCommandWorldDisabled() {
+		return commandWorldDisabled;
+	}
 	
 	public String getCommandItemGiven() {
 		return commandItemGiven;
@@ -183,6 +190,7 @@ public class LanguageFile {
 		commandNoAccess = config.getString(KEY_COMMAND_NO_ACCESS, DEFAULT_COMMAND_NO_ACCESS);
 		commandNoPlayerSpecified = config.getString(KEY_COMMAND_NO_PLAYER_SPECIFIED, DEFAULT_COMMAND_NO_PLAYER_SPECIFIED);
 		commandPlayerNotFound = config.getString(KEY_COMMAND_PLAYER_NOT_FOUND, DEFAULT_COMMAND_PLAYER_NOT_FOUND);
+		commandWorldDisabled = config.getString(KEY_COMMAND_WORLD_DISABLED, DEFAULT_COMMAND_WORLD_DISABLED);
 		commandItemGiven = config.getString(KEY_COMMAND_ITEM_GIVEN, DEFAULT_COMMAND_ITEM_GIVEN);
 		commandNoSuchItem =config.getString(KEY_COMMAND_NO_SUCH_ITEM, DEFAULT_COMMAND_NO_SUCH_ITEM);
 		commandDamageItem = config.getString(KEY_COMMAND_DAMAGE_ITEM, DEFAULT_COMMAND_DAMAGE_ITEM);
@@ -202,6 +210,7 @@ public class LanguageFile {
 		commandNoAccess = DEFAULT_COMMAND_NO_ACCESS;
 		commandNoPlayerSpecified = DEFAULT_COMMAND_NO_PLAYER_SPECIFIED;
 		commandPlayerNotFound = DEFAULT_COMMAND_PLAYER_NOT_FOUND;
+		commandWorldDisabled = DEFAULT_COMMAND_WORLD_DISABLED;
 		commandItemGiven = DEFAULT_COMMAND_ITEM_GIVEN;
 		commandNoSuchItem = DEFAULT_COMMAND_NO_SUCH_ITEM;
 		commandDamageItem = DEFAULT_COMMAND_DAMAGE_ITEM;
@@ -221,6 +230,7 @@ public class LanguageFile {
 		config.set(KEY_COMMAND_NO_ACCESS, commandNoAccess);
 		config.set(KEY_COMMAND_NO_PLAYER_SPECIFIED, commandNoPlayerSpecified);
 		config.set(KEY_COMMAND_PLAYER_NOT_FOUND, commandPlayerNotFound);
+		config.set(KEY_COMMAND_WORLD_DISABLED, commandWorldDisabled);
 		config.set(KEY_COMMAND_ITEM_GIVEN, commandItemGiven);
 		config.set(KEY_COMMAND_NO_SUCH_ITEM, commandNoSuchItem);
 		config.set(KEY_COMMAND_DAMAGE_ITEM, commandDamageItem);

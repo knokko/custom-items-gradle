@@ -2,6 +2,8 @@ package nl.knokko.customitems.plugin.recipe;
 
 import nl.knokko.core.plugin.item.ItemHelper;
 import nl.knokko.customitems.item.CIMaterial;
+import nl.knokko.customitems.plugin.multisupport.itembridge.ItemBridgeSupport;
+import nl.knokko.customitems.plugin.multisupport.mimic.MimicSupport;
 import nl.knokko.customitems.plugin.set.item.CustomItemWrapper;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import nl.knokko.customitems.recipe.CraftingRecipeValues;
@@ -76,6 +78,14 @@ public class RecipeHelper {
             return CustomItemWrapper.wrap(((CustomItemIngredientValues) ingredient).getItem()).is(item);
         }
 
+        if (ingredient instanceof MimicIngredientValues) {
+            return MimicSupport.isItem(item, ((MimicIngredientValues) ingredient).getItemId());
+        }
+
+        if (ingredient instanceof ItemBridgeIngredientValues) {
+            return ItemBridgeSupport.isItem(item, ((ItemBridgeIngredientValues) ingredient).getItemId());
+        }
+
         throw new IllegalArgumentException("Unknown ingredient class: " + ingredient.getClass());
     }
 
@@ -114,6 +124,16 @@ public class RecipeHelper {
                 Bukkit.getLogger().warning("A copied item stack result is invalid");
                 return null;
             }
+        }
+
+        if (result instanceof MimicResultValues) {
+            MimicResultValues mimicResult = (MimicResultValues) result;
+            return MimicSupport.fetchItem(mimicResult.getItemId(), mimicResult.getAmount());
+        }
+
+        if (result instanceof ItemBridgeResultValues) {
+            ItemBridgeResultValues itemBridgeResult = (ItemBridgeResultValues) result;
+            return ItemBridgeSupport.fetchItem(itemBridgeResult.getItemId(), itemBridgeResult.getAmount());
         }
 
         throw new IllegalArgumentException("Unknown result class: " + result.getClass());

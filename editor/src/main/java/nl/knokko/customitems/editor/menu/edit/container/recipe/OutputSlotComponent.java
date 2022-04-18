@@ -9,6 +9,7 @@ import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.color.SimpleGuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.state.GuiComponentState;
+import nl.knokko.gui.mousecode.MouseCode;
 import nl.knokko.gui.render.GuiRenderer;
 import nl.knokko.gui.texture.GuiTexture;
 import nl.knokko.gui.util.TextBuilder;
@@ -90,10 +91,14 @@ public class OutputSlotComponent implements GuiComponent {
 
 	@Override
 	public void click(float x, float y, int button) {
-		OutputTableValues ownTable = recipe.getOutput(name);
-		state.getWindow().setMainComponent(new EditOutputTable(
-				outerMenu, ownTable == null ? new OutputTableValues(true) : ownTable, this::setResultTable, set
-		));
+		if (button == MouseCode.BUTTON_LEFT) {
+			OutputTableValues ownTable = recipe.getOutput(name);
+			state.getWindow().setMainComponent(new EditOutputTable(
+					outerMenu, ownTable == null ? new OutputTableValues(true) : ownTable, this::setResultTable, set
+			));
+		} else if (button == MouseCode.BUTTON_RIGHT) {
+			this.setResultTable(null);
+		}
 	}
 
 	@Override

@@ -1,7 +1,12 @@
 package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.MCVersions;
+import nl.knokko.customitems.attack.effect.AttackEffectGroupValues;
+import nl.knokko.customitems.damage.SpecialMeleeDamageValues;
 import nl.knokko.customitems.effect.*;
+import nl.knokko.customitems.item.command.ItemCommand;
+import nl.knokko.customitems.item.command.ItemCommandEvent;
+import nl.knokko.customitems.item.command.ItemCommandSystem;
 import nl.knokko.customitems.itemset.FakeItemSet;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
@@ -18,6 +23,7 @@ import nl.knokko.customitems.bithelper.ByteArrayBitInput;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -52,45 +58,51 @@ public abstract class CustomItemValues extends ModelValues {
         if (
                 encoding == ENCODING_ARMOR_4 || encoding == ENCODING_ARMOR_6 || encoding == ENCODING_ARMOR_7
                 || encoding == ENCODING_ARMOR_8 || encoding == ENCODING_ARMOR_9 || encoding == ENCODING_ARMOR_10
-                || encoding == ENCODING_ARMOR_11
+                || encoding == ENCODING_ARMOR_11 || encoding == ENCODING_ARMOR_12
         ) {
             return CustomArmorValues.load(input, encoding, itemSet, checkCustomModel);
-        } else if (encoding == ENCODING_BLOCK_ITEM_10) {
+        } else if (encoding == ENCODING_BLOCK_ITEM_10 || encoding == ENCODING_BLOCK_ITEM_12) {
             return CustomBlockItemValues.load(input, encoding, itemSet);
         } else if (
                 encoding == ENCODING_BOW_3 || encoding == ENCODING_BOW_4 || encoding == ENCODING_BOW_6
-                || encoding == ENCODING_BOW_9 || encoding == ENCODING_BOW_10
+                || encoding == ENCODING_BOW_9 || encoding == ENCODING_BOW_10 || encoding == ENCODING_BOW_12
         ) {
             return CustomBowValues.load(input, encoding, itemSet, checkCustomModel);
-        } else if (encoding == ENCODING_CROSSBOW_10) {
+        } else if (encoding == ENCODING_CROSSBOW_10 || encoding == ENCODING_CROSSBOW_12) {
             return CustomCrossbowValues.load(input, encoding, itemSet);
-        } else if (encoding == ENCODING_FOOD_10) {
+        } else if (encoding == ENCODING_FOOD_10 || encoding == ENCODING_FOOD_12) {
             return CustomFoodValues.load(input, encoding, itemSet);
-        } else if (encoding == ENCODING_GUN_10) {
+        } else if (encoding == ENCODING_GUN_10 || encoding == ENCODING_GUN_12) {
             return CustomGunValues.load(input, encoding, itemSet);
-        } else if (encoding == ENCODING_HELMET3D_10 || encoding == ENCODING_HELMET3D_11) {
+        } else if (encoding == ENCODING_HELMET3D_10 || encoding == ENCODING_HELMET3D_11 ||
+                encoding == ENCODING_HELMET3D_12) {
             return CustomHelmet3dValues.load(input, encoding, itemSet);
-        } else if (encoding == ENCODING_HOE_6 || encoding == ENCODING_HOE_9 || encoding == ENCODING_HOE_10) {
+        } else if (encoding == ENCODING_HOE_6 || encoding == ENCODING_HOE_9 ||
+                encoding == ENCODING_HOE_10 || encoding == ENCODING_HOE_12) {
             return CustomHoeValues.load(input, encoding, itemSet, checkCustomModel);
-        } else if (encoding == ENCODING_POCKET_CONTAINER_10) {
+        } else if (encoding == ENCODING_POCKET_CONTAINER_10 || encoding == ENCODING_POCKET_CONTAINER_12) {
             return CustomPocketContainerValues.load(input, encoding, itemSet);
-        } else if (encoding == ENCODING_SHEAR_6 || encoding == ENCODING_SHEAR_9 || encoding == ENCODING_SHEAR_10) {
+        } else if (encoding == ENCODING_SHEAR_6 || encoding == ENCODING_SHEAR_9 ||
+                encoding == ENCODING_SHEAR_10 || encoding == ENCODING_SHEARS_12) {
             return CustomShearsValues.load(input, encoding, itemSet, checkCustomModel);
-        } else if (encoding == ENCODING_SHIELD_7 || encoding == ENCODING_SHIELD_9 || encoding == ENCODING_SHIELD_10) {
+        } else if (encoding == ENCODING_SHIELD_7 || encoding == ENCODING_SHIELD_9 ||
+                encoding == ENCODING_SHIELD_10 || encoding == ENCODING_SHIELD_12) {
             return CustomShieldValues.load(input, encoding, itemSet);
         } else if (
                 encoding == ENCODING_TOOL_2 || encoding == ENCODING_TOOL_3 || encoding == ENCODING_TOOL_4
                 || encoding == ENCODING_TOOL_6 || encoding == ENCODING_TOOL_9 || encoding == ENCODING_TOOL_10
+                || encoding == ENCODING_TOOL_12
         ) {
             return CustomToolValues.load(input, encoding, itemSet, checkCustomModel);
-        } else if (encoding == ENCODING_TRIDENT_8 || encoding == ENCODING_TRIDENT_9 || encoding == ENCODING_TRIDENT_10) {
+        } else if (encoding == ENCODING_TRIDENT_8 || encoding == ENCODING_TRIDENT_9 ||
+                encoding == ENCODING_TRIDENT_10 || encoding == ENCODING_TRIDENT_12) {
             return CustomTridentValues.load(input, encoding, itemSet);
-        } else if (encoding == ENCODING_WAND_9 || encoding == ENCODING_WAND_10) {
+        } else if (encoding == ENCODING_WAND_9 || encoding == ENCODING_WAND_10 || encoding == ENCODING_WAND_12) {
             return CustomWandValues.load(input, encoding, itemSet);
         } else if (
                 encoding == ENCODING_SIMPLE_1 || encoding == ENCODING_SIMPLE_2 || encoding == ENCODING_SIMPLE_4
                 || encoding == ENCODING_SIMPLE_5 || encoding == ENCODING_SIMPLE_6 || encoding == ENCODING_SIMPLE_9
-                || encoding == ENCODING_SIMPLE_10
+                || encoding == ENCODING_SIMPLE_10 || encoding == ENCODING_SIMPLE_12
         ) {
             return SimpleCustomItemValues.load(input, encoding, itemSet, checkCustomModel);
         } else {
@@ -100,6 +112,7 @@ public abstract class CustomItemValues extends ModelValues {
 
     // Identity properties
     protected CustomItemType itemType;
+    protected CIMaterial otherMaterial;
     protected short itemDamage;
     protected String name;
     protected String alias;
@@ -116,18 +129,23 @@ public abstract class CustomItemValues extends ModelValues {
     protected Collection<EnchantmentValues> defaultEnchantments;
 
     // Potion properties
-    protected Collection<PotionEffectValues> playerEffects;
-    protected Collection<PotionEffectValues> targetEffects;
+    protected Collection<ChancePotionEffectValues> playerEffects;
+    protected Collection<ChancePotionEffectValues> targetEffects;
     protected Collection<EquippedPotionEffectValues> equippedEffects;
 
     // Right-click properties
-    protected List<String> commands;
     protected ReplacementConditionValues.ConditionOperation conditionOp;
     protected List<ReplacementConditionValues> replaceConditions;
 
     // Other properties
+    protected ItemCommandSystem commandSystem;
     protected ExtraItemNbtValues extraItemNbt;
     protected float attackRange;
+    protected SpecialMeleeDamageValues specialMeleeDamage;
+    protected Collection<AttackEffectGroupValues> attackEffects;
+    protected boolean updateAutomatically;
+    protected boolean keepOnDeath;
+    protected MultiBlockBreakValues multiBlockBreak;
 
     // Editor-only properties
     protected TextureReference texture;
@@ -140,6 +158,11 @@ public abstract class CustomItemValues extends ModelValues {
         super(mutable);
 
         this.itemType = initialItemType;
+        if (initialItemType == CustomItemType.OTHER) {
+            this.otherMaterial = CIMaterial.FLINT;
+        } else {
+            this.otherMaterial = null;
+        }
         this.itemDamage = 0; // This will be taken care of later
         this.name = "";
         this.alias = "";
@@ -156,12 +179,17 @@ public abstract class CustomItemValues extends ModelValues {
         this.targetEffects = new ArrayList<>(0);
         this.equippedEffects = new ArrayList<>(0);
 
-        this.commands = new ArrayList<>(0);
         this.conditionOp = ReplacementConditionValues.ConditionOperation.NONE;
         this.replaceConditions = new ArrayList<>(0);
 
+        this.commandSystem = new ItemCommandSystem(false);
         this.extraItemNbt = new ExtraItemNbtValues(false);
         this.attackRange = 1f;
+        this.specialMeleeDamage = null;
+        this.attackEffects = new ArrayList<>();
+        this.updateAutomatically = true;
+        this.keepOnDeath = false;
+        this.multiBlockBreak = new MultiBlockBreakValues(false);
 
         this.texture = null;
         this.customModel = null;
@@ -171,6 +199,7 @@ public abstract class CustomItemValues extends ModelValues {
         super(mutable);
 
         this.itemType = source.getItemType();
+        this.otherMaterial = source.getOtherMaterial();
         this.itemDamage = source.getItemDamage();
         this.name = source.getName();
         this.alias = source.getAlias();
@@ -182,11 +211,16 @@ public abstract class CustomItemValues extends ModelValues {
         this.playerEffects = source.getOnHitPlayerEffects();
         this.targetEffects = source.getOnHitTargetEffects();
         this.equippedEffects = source.getEquippedEffects();
-        this.commands = source.getCommands();
         this.replaceConditions = source.getReplacementConditions();
         this.conditionOp = source.getConditionOp();
+        this.commandSystem = source.getCommandSystem();
         this.extraItemNbt = source.getExtraNbt();
         this.attackRange = source.getAttackRange();
+        this.specialMeleeDamage = source.getSpecialMeleeDamage();
+        this.attackEffects = source.getAttackEffects();
+        this.updateAutomatically = source.shouldUpdateAutomatically();
+        this.keepOnDeath = source.shouldKeepOnDeath();
+        this.multiBlockBreak = source.getMultiBlockBreak();
         this.texture = source.getTextureReference();
         this.customModel = source.getCustomModel();
         this.booleanRepresentation = source.getBooleanRepresentation();
@@ -198,14 +232,17 @@ public abstract class CustomItemValues extends ModelValues {
     }
 
     protected boolean areBaseItemPropertiesEqual(CustomItemValues other) {
-        return this.itemType == other.itemType && this.name.equals(other.name) && this.alias.equals(other.alias)
+        return this.itemType == other.itemType && this.otherMaterial == other.otherMaterial
+                && this.name.equals(other.name) && this.alias.equals(other.alias)
                 && this.displayName.equals(other.displayName) && this.lore.equals(other.lore)
                 && this.itemFlags.equals(other.itemFlags) && this.attributeModifiers.equals(other.attributeModifiers)
                 && this.defaultEnchantments.equals(other.defaultEnchantments) && this.playerEffects.equals(other.playerEffects)
                 && this.targetEffects.equals(other.targetEffects) && this.equippedEffects.equals(other.equippedEffects)
-                && this.commands.equals(other.commands) && this.replaceConditions.equals(other.replaceConditions)
+                && this.commandSystem.equals(other.commandSystem) && this.replaceConditions.equals(other.replaceConditions)
                 && this.conditionOp == other.conditionOp && this.extraItemNbt.equals(other.extraItemNbt)
-                && isClose(this.attackRange, other.attackRange);
+                && isClose(this.attackRange, other.attackRange) && Objects.equals(this.specialMeleeDamage, other.specialMeleeDamage)
+                && this.attackEffects.equals(other.attackEffects) && this.updateAutomatically == other.updateAutomatically
+                && this.keepOnDeath == other.keepOnDeath && this.multiBlockBreak.equals(other.multiBlockBreak);
     }
 
     @Override
@@ -226,6 +263,94 @@ public abstract class CustomItemValues extends ModelValues {
             this.customModel = input.readByteArray();
         } else {
             this.customModel = null;
+        }
+    }
+
+    protected void loadSharedPropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        byte encoding = input.readByte();
+        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("CustomItemBaseNew", encoding);
+
+        this.loadIdentityProperties10(input);
+        if (this.itemType == CustomItemType.OTHER) {
+            this.otherMaterial = CIMaterial.valueOf(input.readString());
+        }
+        this.loadTextDisplayProperties1(input);
+
+        int numItemFlags = input.readInt();
+        this.itemFlags = new ArrayList<>(numItemFlags);
+        for (int counter = 0; counter < numItemFlags; counter++) {
+            this.itemFlags.add(input.readBoolean());
+        }
+
+        this.loadVanillaBasedPowers4(input);
+        this.playerEffects = this.loadChanceEffects(input);
+        this.targetEffects = this.loadChanceEffects(input);
+        this.loadEquippedPotionEffects10(input);
+        this.loadReplacementConditions10(input, itemSet);
+        this.commandSystem = ItemCommandSystem.load(input);
+        this.loadExtraProperties10(input);
+        if (encoding >= 2) {
+            if (input.readBoolean()) {
+                this.specialMeleeDamage = SpecialMeleeDamageValues.load(input);
+            } else {
+                this.specialMeleeDamage = null;
+            }
+            int numAttackEffectGroups = input.readInt();
+            this.attackEffects = new ArrayList<>(numAttackEffectGroups);
+            for (int counter = 0; counter < numAttackEffectGroups; counter++) {
+                this.attackEffects.add(AttackEffectGroupValues.load(input));
+            }
+            this.updateAutomatically = input.readBoolean();
+            this.keepOnDeath = input.readBoolean();
+            this.multiBlockBreak = MultiBlockBreakValues.load(input);
+        } else {
+            this.specialMeleeDamage = null;
+            this.attackEffects = new ArrayList<>();
+            this.updateAutomatically = true;
+            this.keepOnDeath = false;
+            this.multiBlockBreak = new MultiBlockBreakValues(false);
+        }
+
+        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
+            this.loadEditorOnlyProperties1(input, itemSet, true);
+        }
+    }
+
+    protected void saveSharedPropertiesNew(BitOutput output, ItemSet.Side targetSide) {
+        output.addByte((byte) 2);
+
+        this.saveIdentityProperties10(output);
+        if (this.itemType == CustomItemType.OTHER) {
+            output.addString(this.otherMaterial.name());
+        }
+        this.saveTextDisplayProperties1(output);
+
+        output.addInt(this.itemFlags.size());
+        for (Boolean itemFlag : this.itemFlags) {
+            output.addBoolean(itemFlag);
+        }
+
+        this.saveVanillaBasedPowers4(output);
+        this.saveChanceEffects(output, this.playerEffects);
+        this.saveChanceEffects(output, this.targetEffects);
+        this.saveEquippedPotionEffects10(output);
+        this.saveReplacementConditions10(output);
+        this.commandSystem.save(output);
+        this.saveExtraProperties10(output);
+        output.addBoolean(this.specialMeleeDamage != null);
+        if (this.specialMeleeDamage != null) {
+            this.specialMeleeDamage.save(output);
+        }
+        output.addInt(this.attackEffects.size());
+        for (AttackEffectGroupValues attackEffectGroup : this.attackEffects) {
+            attackEffectGroup.save(output);
+        }
+        output.addBoolean(this.updateAutomatically);
+        output.addBoolean(this.keepOnDeath);
+        this.multiBlockBreak.save(output);
+
+        if (targetSide == ItemSet.Side.EDITOR) {
+            this.saveEditorOnlyProperties1(output);
         }
     }
 
@@ -264,12 +389,6 @@ public abstract class CustomItemValues extends ModelValues {
         this.itemFlags = new ArrayList<>(numItemFlags);
         for (int counter = 0; counter < numItemFlags; counter++) {
             this.itemFlags.add(input.readBoolean());
-        }
-    }
-
-    protected void saveItemFlags6(BitOutput output) {
-        for (boolean itemFlag : itemFlags) {
-            output.addBooleans(itemFlag);
         }
     }
 
@@ -321,30 +440,39 @@ public abstract class CustomItemValues extends ModelValues {
         }
     }
 
+    protected void saveChanceEffects(BitOutput output, Collection<ChancePotionEffectValues> effects) {
+        output.addInt(effects.size());
+        for (ChancePotionEffectValues effect : effects) {
+            effect.save(output);
+        }
+    }
+
+    protected Collection<ChancePotionEffectValues> loadChanceEffects(BitInput input) throws UnknownEncodingException {
+        int numEffects = input.readInt();
+        Collection<ChancePotionEffectValues> result = new ArrayList<>(numEffects);
+        for (int counter = 0; counter < numEffects; counter++) {
+            result.add(ChancePotionEffectValues.load(input));
+        }
+        return result;
+    }
+
     protected void loadPotionProperties9(BitInput input) {
         loadOnHitPlayerEffects9(input);
         loadOnHitTargetEffects9(input);
     }
 
-    protected void savePotionProperties9(BitOutput output) {
-        saveOnHitPlayerEffects9(output);
-        saveOnHitTargetEffects9(output);
-    }
-
     protected void loadOnHitPlayerEffects9(BitInput input) {
-        this.playerEffects = loadPotionEffectList(input);
-    }
-
-    protected void saveOnHitPlayerEffects9(BitOutput output) {
-        savePotionEffectList(playerEffects, output);
+        Collection<PotionEffectValues> rawEffectList = loadPotionEffectList(input);
+        this.playerEffects = rawEffectList.stream().map(
+                rawEffect -> ChancePotionEffectValues.createQuick(rawEffect, Chance.percentage(100))
+        ).collect(Collectors.toList());
     }
 
     protected void loadOnHitTargetEffects9(BitInput input) {
-        this.targetEffects = loadPotionEffectList(input);
-    }
-
-    protected void saveOnHitTargetEffects9(BitOutput output) {
-        savePotionEffectList(targetEffects, output);
+        Collection<PotionEffectValues> rawEffectList = loadPotionEffectList(input);
+        this.targetEffects = rawEffectList.stream().map(
+                rawEffect -> ChancePotionEffectValues.createQuick(rawEffect, Chance.percentage(100))
+        ).collect(Collectors.toList());
     }
 
     protected Collection<PotionEffectValues> loadPotionEffectList(BitInput input) {
@@ -368,11 +496,6 @@ public abstract class CustomItemValues extends ModelValues {
         loadEquippedPotionEffects10(input);
     }
 
-    protected void savePotionProperties10(BitOutput output) {
-        savePotionProperties9(output);
-        saveEquippedPotionEffects10(output);
-    }
-
     protected void loadEquippedPotionEffects10(BitInput input) {
         int numEquippedEffects = input.readInt();
         this.equippedEffects = new ArrayList<>(numEquippedEffects);
@@ -392,33 +515,21 @@ public abstract class CustomItemValues extends ModelValues {
         loadCommands9(input);
     }
 
-    protected void saveRightClickProperties9(BitOutput output) {
-        saveCommands9(output);
-    }
-
     protected void loadCommands9(BitInput input) {
-        int numCommands = input.readByte() & 0xFF;
-        this.commands = new ArrayList<>(numCommands);
-        for (int counter = 0; counter < numCommands; counter++) {
-            this.commands.add(input.readJavaString());
+        int numLegacyCommands = input.readByte() & 0xFF;
+        List<ItemCommand> legacyCommands = new ArrayList<>(numLegacyCommands);
+        for (int counter = 0; counter < numLegacyCommands; counter++) {
+            legacyCommands.add(ItemCommand.createFromLegacy(input.readJavaString()));
         }
-    }
 
-    protected void saveCommands9(BitOutput output) {
-        output.addByte((byte) commands.size());
-        for (String command : commands) {
-            output.addJavaString(command);
-        }
+        ItemCommandSystem loadedCommandSystem = new ItemCommandSystem(true);
+        loadedCommandSystem.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_GENERAL, legacyCommands);
+        this.commandSystem = loadedCommandSystem.copy(false);
     }
 
     protected void loadRightClickProperties10(BitInput input, ItemSet itemSet) {
         loadRightClickProperties9(input);
         loadReplacementConditions10(input, itemSet);
-    }
-
-    protected void saveRightClickProperties10(BitOutput output) {
-        saveRightClickProperties9(output);
-        saveReplacementConditions10(output);
     }
 
     protected void loadReplacementConditions10(BitInput input, ItemSet itemSet) {
@@ -475,18 +586,12 @@ public abstract class CustomItemValues extends ModelValues {
         loadExtraProperties10(input);
     }
 
-    protected void saveBase10(BitOutput output) {
-        saveIdentityProperties10(output);
-        saveTextDisplayProperties1(output);
-        saveVanillaBasedPowers4(output);
-        saveItemFlags6(output);
-        savePotionProperties10(output);
-        saveRightClickProperties10(output);
-        saveExtraProperties10(output);
-    }
-
     protected void initBaseDefaults10() {
-        // Nothing to be done until the next encoding is known
+        this.specialMeleeDamage = null;
+        this.attackEffects = new ArrayList<>(0);
+        this.updateAutomatically = true;
+        this.keepOnDeath = false;
+        this.multiBlockBreak = new MultiBlockBreakValues(false);
     }
 
     protected void initBaseDefaults9() {
@@ -509,7 +614,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.playerEffects = new ArrayList<>(0);
         this.targetEffects = new ArrayList<>(0);
 
-        this.commands = new ArrayList<>(0);
+        this.commandSystem = new ItemCommandSystem(false);
     }
 
     protected void initBaseDefaults7() {
@@ -558,6 +663,10 @@ public abstract class CustomItemValues extends ModelValues {
         return itemType;
     }
 
+    public CIMaterial getOtherMaterial() {
+        return otherMaterial;
+    }
+
     public short getItemDamage() {
         return itemDamage;
     }
@@ -596,11 +705,11 @@ public abstract class CustomItemValues extends ModelValues {
         return new ArrayList<>(defaultEnchantments);
     }
 
-    public Collection<PotionEffectValues> getOnHitPlayerEffects() {
+    public Collection<ChancePotionEffectValues> getOnHitPlayerEffects() {
         return new ArrayList<>(playerEffects);
     }
 
-    public Collection<PotionEffectValues> getOnHitTargetEffects() {
+    public Collection<ChancePotionEffectValues> getOnHitTargetEffects() {
         return new ArrayList<>(targetEffects);
     }
 
@@ -608,8 +717,8 @@ public abstract class CustomItemValues extends ModelValues {
         return new ArrayList<>(equippedEffects);
     }
 
-    public List<String> getCommands() {
-        return new ArrayList<>(commands);
+    public ItemCommandSystem getCommandSystem() {
+        return this.commandSystem;
     }
 
     public List<ReplacementConditionValues> getReplacementConditions() {
@@ -626,6 +735,26 @@ public abstract class CustomItemValues extends ModelValues {
 
     public float getAttackRange() {
         return attackRange;
+    }
+
+    public SpecialMeleeDamageValues getSpecialMeleeDamage() {
+        return specialMeleeDamage;
+    }
+
+    public Collection<AttackEffectGroupValues> getAttackEffects() {
+        return new ArrayList<>(attackEffects);
+    }
+
+    public boolean shouldUpdateAutomatically() {
+        return updateAutomatically;
+    }
+
+    public boolean shouldKeepOnDeath() {
+        return keepOnDeath;
+    }
+
+    public MultiBlockBreakValues getMultiBlockBreak() {
+        return multiBlockBreak;
     }
 
     public BaseTextureValues getTexture() {
@@ -655,7 +784,28 @@ public abstract class CustomItemValues extends ModelValues {
     public void setItemType(CustomItemType newItemType) {
         assertMutable();
         Checks.nonNull(newItemType);
-        this.itemType = newItemType;
+        if (newItemType != this.itemType) {
+            if (newItemType == CustomItemType.OTHER) {
+                this.otherMaterial = CIMaterial.FLINT;
+            } else {
+                this.otherMaterial = null;
+            }
+            this.itemType = newItemType;
+        }
+    }
+
+    public void setOtherMaterial(CIMaterial newOtherMaterial) {
+        assertMutable();
+        if (newOtherMaterial == null) {
+            if (this.itemType == CustomItemType.OTHER) {
+                throw new UnsupportedOperationException("newOtherMaterial can't be null when itemType is OTHER");
+            }
+        } else {
+            if (this.itemType != CustomItemType.OTHER) {
+                throw new IllegalArgumentException("newOtherMaterial must be null when itemType is not OTHER");
+            }
+        }
+        this.otherMaterial = newOtherMaterial;
     }
 
     public void setItemDamage(short newItemDamage) {
@@ -723,13 +873,13 @@ public abstract class CustomItemValues extends ModelValues {
         this.defaultEnchantments = Mutability.createDeepCopy(newDefaultEnchantments, false);
     }
 
-    public void setPlayerEffects(Collection<PotionEffectValues> newPlayerEffects) {
+    public void setPlayerEffects(Collection<ChancePotionEffectValues> newPlayerEffects) {
         assertMutable();
         Checks.nonNull(newPlayerEffects);
         this.playerEffects = Mutability.createDeepCopy(newPlayerEffects, false);
     }
 
-    public void setTargetEffects(Collection<PotionEffectValues> newTargetEffects) {
+    public void setTargetEffects(Collection<ChancePotionEffectValues> newTargetEffects) {
         assertMutable();
         Checks.nonNull(newTargetEffects);
         this.targetEffects = Mutability.createDeepCopy(newTargetEffects, false);
@@ -741,10 +891,10 @@ public abstract class CustomItemValues extends ModelValues {
         this.equippedEffects = Mutability.createDeepCopy(newEquippedEffects, false);
     }
 
-    public void setCommands(List<String> newCommands) {
+    public void setCommandSystem(ItemCommandSystem newCommandSystem) {
         assertMutable();
-        Checks.nonNull(newCommands);
-        this.commands = new ArrayList<>(newCommands);
+        Checks.nonNull(newCommandSystem);
+        this.commandSystem = newCommandSystem;
     }
 
     public void setConditionOp(ReplacementConditionValues.ConditionOperation newConditionOp) {
@@ -770,6 +920,33 @@ public abstract class CustomItemValues extends ModelValues {
         this.attackRange = newAttackRange;
     }
 
+    public void setSpecialMeleeDamage(SpecialMeleeDamageValues newSpecialDamage) {
+        assertMutable();
+        this.specialMeleeDamage = newSpecialDamage != null ? newSpecialDamage.copy(false) : null;
+    }
+
+    public void setAttackEffects(Collection<AttackEffectGroupValues> attackEffects) {
+        assertMutable();
+        Checks.nonNull(attackEffects);
+        this.attackEffects = Mutability.createDeepCopy(attackEffects, false);
+    }
+
+    public void setUpdateAutomatically(boolean updateAutomatically) {
+        assertMutable();
+        this.updateAutomatically = updateAutomatically;
+    }
+
+    public void setKeepOnDeath(boolean keepOnDeath) {
+        assertMutable();
+        this.keepOnDeath = keepOnDeath;
+    }
+
+    public void setMultiBlockBreak(MultiBlockBreakValues newBlockBreak) {
+        assertMutable();
+        Checks.notNull(newBlockBreak);
+        this.multiBlockBreak = newBlockBreak.copy(false);
+    }
+
     public void setTexture(TextureReference newTexture) {
         assertMutable();
         Checks.notNull(newTexture);
@@ -787,6 +964,12 @@ public abstract class CustomItemValues extends ModelValues {
 
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {
         if (itemType == null) throw new ProgrammingValidationException("No item type");
+        if (itemType == CustomItemType.OTHER && otherMaterial == null) {
+            throw new ProgrammingValidationException("Other material can't be null when itemType is OTHER");
+        }
+        if (itemType != CustomItemType.OTHER && otherMaterial != null) {
+            throw new ProgrammingValidationException("Other material must be null when itemType is not OTHER");
+        }
 
         Validation.safeName(name);
         
@@ -818,14 +1001,14 @@ public abstract class CustomItemValues extends ModelValues {
 
         if (playerEffects == null) throw new ProgrammingValidationException("No on-hit player effects");
         if (playerEffects.size() > Byte.MAX_VALUE) throw new ValidationException("Too many on-hit player effects");
-        for (PotionEffectValues effect : playerEffects) {
+        for (ChancePotionEffectValues effect : playerEffects) {
             if (effect == null) throw new ProgrammingValidationException("Missing an on-hit player effect");
             Validation.scope("On-hit player effect", effect::validate);
         }
 
         if (targetEffects == null) throw new ProgrammingValidationException("No on-hit target effects");
         if (targetEffects.size() > Byte.MAX_VALUE) throw new ValidationException("Too many on-hit target effects");
-        for (PotionEffectValues effect : targetEffects) {
+        for (ChancePotionEffectValues effect : targetEffects) {
             if (effect == null) throw new ProgrammingValidationException("Missing an on-hit target effect");
             Validation.scope("On-hit target effect", effect::validate);
         }
@@ -836,11 +1019,8 @@ public abstract class CustomItemValues extends ModelValues {
             Validation.scope("Equipped effect", effect::validate);
         }
 
-        if (commands == null) throw new ProgrammingValidationException("No commands");
-        if (commands.size() > Byte.MAX_VALUE) throw new ValidationException("Too many commands");
-        for (String command : commands) {
-            if (command == null) throw new ProgrammingValidationException("Missing a command");
-        }
+        if (commandSystem == null) throw new ProgrammingValidationException("No command system");
+        Validation.scope("Command system", commandSystem::validate);
 
         if (conditionOp == null) throw new ProgrammingValidationException("No condition OP");
         if (replaceConditions == null) throw new ProgrammingValidationException("No replace conditions");
@@ -867,6 +1047,15 @@ public abstract class CustomItemValues extends ModelValues {
 
         if (attackRange < 0f) throw new ValidationException("Attack range can't be negative");
         if (attackRange != attackRange) throw new ValidationException("Attack range can't be NaN");
+
+        if (specialMeleeDamage != null) Validation.scope("Special melee damage", specialMeleeDamage::validate);
+
+        if (attackEffects == null) throw new ProgrammingValidationException("No attack effects");
+        for (AttackEffectGroupValues attackEffectGroup : this.attackEffects) {
+            Validation.scope("Attack effects", attackEffectGroup::validate);
+        }
+        if (multiBlockBreak == null) throw new ProgrammingValidationException("No multi block break");
+        Validation.scope("Multi block break", multiBlockBreak::validate);
 
         if (texture == null) throw new ValidationException("No texture");
         // customModel doesn't have any invalid values
@@ -904,21 +1093,42 @@ public abstract class CustomItemValues extends ModelValues {
         if (itemType.lastVersion < version) {
             throw new ValidationException(itemType + " is no longer supported in mc " + MCVersions.createString(version));
         }
+        if (otherMaterial != null) {
+            if (otherMaterial.firstVersion > version) {
+                throw new ValidationException(otherMaterial + " doesn't exist yet in mc " + MCVersions.createString(version));
+            }
+            if (otherMaterial.lastVersion < version) {
+                throw new ValidationException(otherMaterial + " doesn't exist anymore in mc " + MCVersions.createString(version));
+            }
+        }
 
         for (EnchantmentValues enchantment : defaultEnchantments) {
             Validation.scope("Default enchantment", () -> enchantment.validateExportVersion(version));
         }
 
-        for (PotionEffectValues effect : playerEffects) {
+        for (ChancePotionEffectValues effect : playerEffects) {
             Validation.scope("On-hit player effect", () -> effect.validateExportVersion(version));
         }
 
-        for (PotionEffectValues effect : targetEffects) {
+        for (ChancePotionEffectValues effect : targetEffects) {
             Validation.scope("On-hit target effect", () -> effect.validateExportVersion(version));
         }
 
         for (EquippedPotionEffectValues effect : equippedEffects) {
             Validation.scope("Equipped effect", () -> effect.validateExportVersion(version));
+        }
+
+        if (specialMeleeDamage != null && specialMeleeDamage.getDamageSource() != null) {
+            if (specialMeleeDamage.getDamageSource().minVersion > version) {
+                throw new ValidationException("Special melee damage: " + specialMeleeDamage.getDamageSource() + " doesn't exist yet");
+            }
+            if (specialMeleeDamage.getDamageSource().maxVersion < version) {
+                throw new ValidationException("Special melee damage: " + specialMeleeDamage.getDamageSource() + " no longer exists");
+            }
+        }
+
+        for (AttackEffectGroupValues attackEffectGroup : attackEffects) {
+            Validation.scope("Attack effects", () -> attackEffectGroup.validateExportVersion(version));
         }
     }
 }

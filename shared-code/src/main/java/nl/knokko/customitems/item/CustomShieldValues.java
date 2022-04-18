@@ -1,13 +1,16 @@
 package nl.knokko.customitems.item;
 
+import nl.knokko.customitems.attack.effect.AttackEffectGroupValues;
 import nl.knokko.customitems.encoding.ItemEncoding;
 import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
-import nl.knokko.customitems.util.CollectionHelper;
-import nl.knokko.customitems.util.ProgrammingValidationException;
-import nl.knokko.customitems.util.ValidationException;
+import nl.knokko.customitems.util.*;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 import static nl.knokko.customitems.util.Checks.isClose;
 
@@ -27,6 +30,9 @@ public class CustomShieldValues extends CustomToolValues {
         } else if (encoding == ItemEncoding.ENCODING_SHIELD_10) {
             result.load10(input, itemSet);
             result.initDefaults10();
+        } else if (encoding == ItemEncoding.ENCODING_SHIELD_12) {
+            result.loadShieldPropertiesNew(input, itemSet);
+            return result;
         } else {
             throw new UnknownEncodingException("CustomShield", encoding);
         }
@@ -39,12 +45,14 @@ public class CustomShieldValues extends CustomToolValues {
     }
 
     private double thresholdDamage;
+    private Collection<AttackEffectGroupValues> blockingEffects;
     private byte[] customBlockingModel;
 
     public CustomShieldValues(boolean mutable) {
         super(mutable, CustomItemType.SHIELD);
 
         this.thresholdDamage = 4.0;
+        this.blockingEffects = new ArrayList<>();
         this.customBlockingModel = null;
     }
 
@@ -52,7 +60,45 @@ public class CustomShieldValues extends CustomToolValues {
         super(toCopy, mutable);
 
         this.thresholdDamage = toCopy.getThresholdDamage();
+        this.blockingEffects = toCopy.getBlockingEffects();
         this.customBlockingModel = toCopy.getCustomBlockingModel();
+    }
+
+    protected void loadShieldPropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        this.loadToolPropertiesNew(input, itemSet);
+
+        byte encoding = input.readByte();
+        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("CustomShieldNew", encoding);
+
+        this.thresholdDamage = input.readDouble();
+        if (encoding >= 2) {
+            int numBlockingEffects = input.readInt();
+            this.blockingEffects = new ArrayList<>(numBlockingEffects);
+            for (int counter = 0; counter < numBlockingEffects; counter++) {
+                this.blockingEffects.add(AttackEffectGroupValues.load(input));
+            }
+        }
+        if (itemSet.getSide() == ItemSet.Side.EDITOR && input.readBoolean()) {
+            this.customBlockingModel = input.readByteArray();
+        }
+    }
+
+    protected void saveShieldPropertiesNew(BitOutput output, ItemSet.Side targetSide) {
+        this.saveToolPropertiesNew(output, targetSide);
+
+        output.addByte((byte) 2);
+
+        output.addDouble(this.thresholdDamage);
+        output.addInt(this.blockingEffects.size());
+        for (AttackEffectGroupValues blockingEffectGroup : this.blockingEffects) {
+            blockingEffectGroup.save(output);
+        }
+        if (targetSide == ItemSet.Side.EDITOR) {
+            output.addBoolean(this.customBlockingModel != null);
+            if (this.customBlockingModel != null) {
+                output.addByteArray(this.customBlockingModel);
+            }
+        }
     }
 
     private void load7(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
@@ -77,20 +123,10 @@ public class CustomShieldValues extends CustomToolValues {
         this.alias = input.readString();
     }
 
-    private void saveShieldIdentityProperties10(BitOutput output) {
-        output.addShort(itemDamage);
-        output.addJavaString(name);
-        output.addString(alias);
-    }
-
     @Override
     public void save(BitOutput output, ItemSet.Side side) {
-        output.addByte(ItemEncoding.ENCODING_SHIELD_10);
-        save10(output);
-
-        if (side == ItemSet.Side.EDITOR) {
-            saveShieldEditorOnlyProperties7(output);
-        }
+        output.addByte(ItemEncoding.ENCODING_SHIELD_12);
+        this.saveShieldPropertiesNew(output, side);
     }
 
     private void load10(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
@@ -106,33 +142,12 @@ public class CustomShieldValues extends CustomToolValues {
         loadExtraProperties10(input);
     }
 
-    private void save10(BitOutput output) {
-        saveShieldIdentityProperties10(output);
-        saveTextDisplayProperties1(output);
-        saveVanillaBasedPowers4(output);
-        saveToolOnlyPropertiesA4(output);
-        saveItemFlags6(output);
-        saveToolOnlyPropertiesB6(output);
-        output.addDouble(thresholdDamage);
-        savePotionProperties10(output);
-        saveRightClickProperties10(output);
-        saveExtraProperties10(output);
-    }
-
     private void loadShieldEditorOnlyProperties7(BitInput input, ItemSet itemSet) {
         loadEditorOnlyProperties1(input, itemSet, true);
         if (input.readBoolean()) {
             this.customBlockingModel = input.readByteArray();
         } else {
             this.customBlockingModel = null;
-        }
-    }
-
-    private void saveShieldEditorOnlyProperties7(BitOutput output) {
-        saveEditorOnlyProperties1(output);
-        output.addBoolean(customBlockingModel != null);
-        if (customBlockingModel != null) {
-            output.addByteArray(customBlockingModel);
         }
     }
 
@@ -162,11 +177,12 @@ public class CustomShieldValues extends CustomToolValues {
     }
 
     private void initShieldOnlyDefaults10() {
-        // There is nothing to be done until the next encoding is known
+        this.blockingEffects = new ArrayList<>();
     }
 
     protected boolean areShieldPropertiesEqual(CustomShieldValues other) {
-        return areToolPropertiesEqual(other) && isClose(this.thresholdDamage, other.thresholdDamage);
+        return areToolPropertiesEqual(other) && isClose(this.thresholdDamage, other.thresholdDamage)
+                && this.blockingEffects.equals(other.blockingEffects);
     }
 
     @Override
@@ -183,6 +199,10 @@ public class CustomShieldValues extends CustomToolValues {
         return thresholdDamage;
     }
 
+    public Collection<AttackEffectGroupValues> getBlockingEffects() {
+        return new ArrayList<>(blockingEffects);
+    }
+
     public byte[] getCustomBlockingModel() {
         return CollectionHelper.arrayCopy(customBlockingModel);
     }
@@ -190,6 +210,12 @@ public class CustomShieldValues extends CustomToolValues {
     public void setThresholdDamage(double newThresholdDamage) {
         assertMutable();
         this.thresholdDamage = newThresholdDamage;
+    }
+
+    public void setBlockingEffects(Collection<AttackEffectGroupValues> newBlockingEffects) {
+        assertMutable();
+        Checks.nonNull(newBlockingEffects);
+        this.blockingEffects = Mutability.createDeepCopy(newBlockingEffects, false);
     }
 
     public void setCustomBlockingModel(byte[] newBlockingModel) {
@@ -202,5 +228,18 @@ public class CustomShieldValues extends CustomToolValues {
         super.validateIndependent();
 
         if (thresholdDamage < 0.0) throw new ValidationException("Threshold damage can't be negative");
+        if (blockingEffects == null) throw new ProgrammingValidationException("No blocking effects");
+        for (AttackEffectGroupValues blockingEffectGroup : blockingEffects) {
+            Validation.scope("Blocking effects", blockingEffectGroup::validate);
+        }
+    }
+
+    @Override
+    public void validateExportVersion(int mcVersion) throws ValidationException, ProgrammingValidationException {
+        super.validateExportVersion(mcVersion);
+
+        for (AttackEffectGroupValues blockingEffectGroup : blockingEffects) {
+            Validation.scope("Blocking effects", () -> blockingEffectGroup.validateExportVersion(mcVersion));
+        }
     }
 }

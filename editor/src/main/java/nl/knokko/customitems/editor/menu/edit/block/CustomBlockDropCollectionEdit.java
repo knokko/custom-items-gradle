@@ -11,6 +11,7 @@ import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.result.CustomItemResultValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
+import nl.knokko.customitems.util.Chance;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
@@ -63,14 +64,14 @@ public class CustomBlockDropCollectionEdit extends SelfDedicatedCollectionEdit<C
          * If there are no required custom held items either, we give up and return null (don't show
          * an image).
          */
-        int bestDropChance = 0;
+        int rawBestDropChance = 0;
         CustomItemValues bestDropItem = null;
         for (OutputTableValues.Entry dropEntry : drop.getItemsToDrop().getEntries()) {
             ResultValues droppedItem = dropEntry.getResult();
-            if (dropEntry.getChance() > bestDropChance && droppedItem instanceof CustomItemResultValues) {
+            if (dropEntry.getChance().getRawValue() > rawBestDropChance && droppedItem instanceof CustomItemResultValues) {
                 CustomItemResultValues droppedCustomItem = (CustomItemResultValues) droppedItem;
                 bestDropItem = droppedCustomItem.getItem();
-                bestDropChance = dropEntry.getChance();
+                rawBestDropChance = dropEntry.getChance().getRawValue();
             }
         }
         if (bestDropItem != null) {
@@ -94,15 +95,15 @@ public class CustomBlockDropCollectionEdit extends SelfDedicatedCollectionEdit<C
         }
 
         Object likelyResult = null;
-        int bestChance = 0;
+        int rawBestChance = 0;
         for (OutputTableValues.Entry entry : drop.getItemsToDrop().getEntries()) {
-            if (entry.getChance() > bestChance) {
+            if (entry.getChance().getRawValue() > rawBestChance) {
                 likelyResult = entry.getResult();
-                bestChance = entry.getChance();
+                rawBestChance = entry.getChance().getRawValue();
             }
         }
         if (likelyResult != null) {
-            result.append(bestChance).append("% ").append(likelyResult);
+            result.append(new Chance(rawBestChance)).append(" ").append(likelyResult);
         }
         if (drop.getItemsToDrop().getEntries().size() > 1) {
             result.append(", ...");

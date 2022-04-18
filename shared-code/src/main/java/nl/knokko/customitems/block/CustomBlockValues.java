@@ -72,10 +72,21 @@ public class CustomBlockValues extends ModelValues {
     public boolean equals(Object other) {
         if (other instanceof CustomBlockValues) {
             CustomBlockValues otherBlock = (CustomBlockValues) other;
-            return otherBlock.name.equals(this.name) && otherBlock.drops.equals(this.drops);
+            return otherBlock.internalId == this.internalId && otherBlock.name.equals(this.name)
+                    && otherBlock.drops.equals(this.drops);
         } else {
             return false;
         }
+    }
+
+    @Override
+    public String toString() {
+        return this.name + "[" + this.internalId + "]";
+    }
+
+    @Override
+    public int hashCode() {
+        return this.internalId;
     }
 
     private void loadDrops1(

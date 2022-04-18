@@ -1,9 +1,12 @@
 package nl.knokko.customitems.serialization;
 
 import nl.knokko.customitems.drops.*;
+import nl.knokko.customitems.effect.ChancePotionEffectValues;
 import nl.knokko.customitems.effect.EffectType;
-import nl.knokko.customitems.effect.PotionEffectValues;
 import nl.knokko.customitems.item.*;
+import nl.knokko.customitems.item.command.ItemCommand;
+import nl.knokko.customitems.item.command.ItemCommandEvent;
+import nl.knokko.customitems.item.command.ItemCommandSystem;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.particle.CIParticle;
@@ -20,6 +23,7 @@ import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
 import nl.knokko.customitems.recipe.result.CustomItemResultValues;
 import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
+import nl.knokko.customitems.util.Chance;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -38,7 +42,7 @@ public class Backward6 {
             testTextures3(oldSet, 3);
             testItemsOld6(oldSet, 21);
             testRecipesOld6(oldSet, 3);
-            testBlockDropsOld6(oldSet, 1);
+            testBlockDropsOld6(oldSet, 1, false);
             testMobDropsOld6(oldSet, 2);
             testProjectileCoversOld6(oldSet, 2);
             testProjectilesOld6(oldSet, 1);
@@ -97,9 +101,9 @@ public class Backward6 {
         }
         assertEquals(0, trident1.getOnHitPlayerEffects().size());
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.SLOW, 40, 3)
+                ChancePotionEffectValues.createQuick(EffectType.SLOW, 40, 3, Chance.percentage(100))
         ), trident1.getOnHitTargetEffects());
-        assertEquals(0, trident1.getCommands().size());
+        assertEquals(new ItemCommandSystem(false), trident1.getCommandSystem());
         assertNull(trident1.getCustomThrowingModel());
         assertFalse(trident1.allowEnchanting());
         assertFalse(trident1.allowAnvilActions());
@@ -152,26 +156,38 @@ public class Backward6 {
         return ShapedRecipeValues.createQuick(ingredients, SimpleVanillaResultValues.createQuick(CIMaterial.TORCH, 3));
     }
 
-    private static BlockDropValues createBlockDrop1(ItemSet itemSet) {
+    private static BlockDropValues createBlockDrop1(ItemSet itemSet, boolean useFlatChance) {
         ItemReference simple1 = itemSet.getItemReference("simple1");
         return BlockDropValues.createQuick(
                 BlockType.STONE, false,
                 DropValues.createQuick(
                         OutputTableValues.createQuick(
-                                OutputTableValues.Entry.createQuick(CustomItemResultValues.createQuick(simple1, 2), 2),
-                                OutputTableValues.Entry.createQuick(CustomItemResultValues.createQuick(simple1, 3), 2),
-                                OutputTableValues.Entry.createQuick(CustomItemResultValues.createQuick(simple1, 4), 2),
-                                OutputTableValues.Entry.createQuick(CustomItemResultValues.createQuick(simple1, 5), 4)
+                                OutputTableValues.Entry.createQuick(
+                                        CustomItemResultValues.createQuick(simple1, 2),
+                                        useFlatChance ? Chance.percentage(2) : Chance.nonIntegerPercentage(2.5)
+                                ),
+                                OutputTableValues.Entry.createQuick(
+                                        CustomItemResultValues.createQuick(simple1, 3),
+                                        useFlatChance ? Chance.percentage(2) : Chance.nonIntegerPercentage(2.5)
+                                ),
+                                OutputTableValues.Entry.createQuick(
+                                        CustomItemResultValues.createQuick(simple1, 4),
+                                        useFlatChance ? Chance.percentage(2) : Chance.nonIntegerPercentage(2.5)
+                                ),
+                                OutputTableValues.Entry.createQuick(
+                                        CustomItemResultValues.createQuick(simple1, 5),
+                                        useFlatChance ? Chance.percentage(4) : Chance.nonIntegerPercentage(2.5)
+                                )
                         ),
-                        true, new ArrayList<>()
+                        true, new ArrayList<>(), new AllowedBiomesValues(false)
                 )
         );
     }
 
-    static void testBlockDropsOld6(ItemSet set, int numDrops) {
+    static void testBlockDropsOld6(ItemSet set, int numDrops, boolean useFlatChance) {
         assertEquals(numDrops, set.getBlockDrops().size());
 
-        assertTrue(set.getBlockDrops().stream().anyMatch(blockDrop -> blockDrop.equals(createBlockDrop1(set))));
+        assertTrue(set.getBlockDrops().stream().anyMatch(blockDrop -> blockDrop.equals(createBlockDrop1(set, useFlatChance))));
     }
 
     private static MobDropValues createSwordMobDrop(ItemSet itemSet) {
@@ -181,7 +197,7 @@ public class Backward6 {
                 DropValues.createQuick(
                         OutputTableValues.createQuick(
                             OutputTableValues.Entry.createQuick(CustomItemResultValues.createQuick(sword1, 1), 10)
-                        ), false, new ArrayList<>()
+                        ), false, new ArrayList<>(), new AllowedBiomesValues(false)
                 )
         );
     }
@@ -193,7 +209,7 @@ public class Backward6 {
                 DropValues.createQuick(
                         OutputTableValues.createQuick(
                             OutputTableValues.Entry.createQuick(CustomItemResultValues.createQuick(axe1, 1), 100)
-                        ), true, new ArrayList<>()
+                        ), true, new ArrayList<>(), new AllowedBiomesValues(false)
                 )
         );
     }
@@ -301,14 +317,14 @@ public class Backward6 {
             assertNull(item.getCustomBlockingModel());
         }
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.SPEED, 40, 1)
+                ChancePotionEffectValues.createQuick(EffectType.SPEED, 40, 1, Chance.percentage(100))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.INVISIBILITY, 30, 1)
+                ChancePotionEffectValues.createQuick(EffectType.INVISIBILITY, 30, 1, Chance.percentage(100))
         ), item.getOnHitTargetEffects());
-        assertEquals(listOf(
-                "summon bat"
-        ), item.getCommands());
+        ItemCommandSystem batSystem = new ItemCommandSystem(true);
+        batSystem.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_GENERAL, listOf(ItemCommand.createFromLegacy("summon bat")));
+        assertEquals(batSystem, item.getCommandSystem());
         assertFalse(item.allowEnchanting());
         assertTrue(item.allowAnvilActions());
         assertEquals(234, (long) item.getMaxDurabilityNew());
@@ -338,10 +354,10 @@ public class Backward6 {
             assertNull(item.getCustomModel());
         }
         assertEquals(listOf(
-                PotionEffectValues.createQuick(EffectType.REGENERATION, 100, 1)
+                ChancePotionEffectValues.createQuick(EffectType.REGENERATION, 100, 1, Chance.percentage(100))
         ), item.getOnHitPlayerEffects());
         assertEquals(0, item.getOnHitTargetEffects().size());
-        assertEquals(0, item.getCommands().size());
+        assertEquals(new ItemCommandSystem(false), item.getCommandSystem());
         assertEquals("crazy1", item.getProjectile().getName());
         assertEquals(2, item.getCharges().getMaxCharges());
         assertEquals(30, item.getCharges().getRechargeTime());
@@ -353,7 +369,7 @@ public class Backward6 {
         assertNull(item.getCustomModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
-        assertEquals(0, item.getCommands().size());
+        assertEquals(new ItemCommandSystem(false), item.getCommandSystem());
 
         Backward7.testBaseDefault7(item);
     }

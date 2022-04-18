@@ -1,9 +1,7 @@
 package nl.knokko.customitems.editor.menu.commandhelp;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.menu.edit.select.item.SelectCustomItem;
 import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -47,11 +45,7 @@ public class HelpGive extends GuiMenu {
 				0.1f, 0.4f, 0.95f, 0.5f);
 		addComponent(selectedItemImage, 0.55f, 0.8f, 0.65f, 0.9f);
 		addComponent(new DynamicTextButton("Select item...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new SelectCustomItem(this, (ItemReference chosen) -> {
-				selectedItem = chosen.get();
-				selectedItemImage.setComponent(new SimpleImageComponent(
-						state.getWindow().getTextureLoader().loadTexture(selectedItem.getTexture().getImage())));
-			}, set));
+			HelpMobSpawner.goToItemSelectMenu(state, set, newItem -> this.selectedItem = newItem, selectedItemImage, this);
 		}), 0.7f, 0.8f, 0.85f, 0.9f);
 		addComponent(new DynamicTextButton("Generate for minecraft 1.12", EditProps.BUTTON, EditProps.HOVER, () -> {
 			String command = "/give @p stick 1 0 {KnokkosCustomItems:{Name:" + selectedItem.getName() + "}}";

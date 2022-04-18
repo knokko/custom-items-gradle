@@ -10,16 +10,22 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 
 import nl.knokko.core.plugin.item.GeneralItemNBT;
+import nl.knokko.customitems.block.CustomBlockValues;
+import nl.knokko.customitems.container.CustomContainerHost;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.slot.*;
 import nl.knokko.customitems.encoding.ContainerEncoding;
 import nl.knokko.customitems.item.*;
+import nl.knokko.customitems.item.command.ItemCommandEvent;
 import nl.knokko.customitems.item.gun.DirectGunAmmoValues;
 import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
+import nl.knokko.customitems.plugin.multisupport.worldguard.WorldGuardSupport;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
+import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
 import nl.knokko.customitems.plugin.set.item.CustomGunWrapper;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
+import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.StringEncoder;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -52,6 +58,7 @@ public class PluginData {
 	private static final byte ENCODING_1 = 1;
 	private static final byte ENCODING_2 = 2;
 	private static final byte ENCODING_3 = 3;
+	private static final byte ENCODING_4 = 4;
 	
 	private static File getDataFile() {
 		return new File(CustomItemsPlugin.getInstance().getDataFolder() + "/gamedata.bin");
@@ -79,11 +86,17 @@ public class PluginData {
 						return load2(input, itemSet);
 					case ENCODING_3:
 						return load3(input, itemSet);
+					case ENCODING_4:
+						return load4(input, itemSet);
 					default:
 						throw new IllegalArgumentException("Unknown data encoding: " + encoding);
 				}
 			} catch (IOException e) {
 				Bukkit.getLogger().log(Level.SEVERE, "Failed to open the data file for CustomItems", e);
+				Bukkit.getLogger().severe("The current data for CustomItems won't be overwritten when you stop the server.");
+				return new CarefulPluginData(itemSet);
+			} catch (UnknownEncodingException outdated) {
+				Bukkit.getLogger().log(Level.SEVERE, "Failed to open the data file for CustomItems because it was created by a newer version of the plug-in.");
 				Bukkit.getLogger().severe("The current data for CustomItems won't be overwritten when you stop the server.");
 				return new CarefulPluginData(itemSet);
 			}
@@ -102,6 +115,18 @@ public class PluginData {
 			playersMap.put(id, data);
 		}
 		
+		return playersMap;
+	}
+
+	private static Map<UUID, PlayerData> loadPlayerData2(BitInput input, ItemSetWrapper set) throws UnknownEncodingException {
+		int numPlayers = input.readInt();
+		Map<UUID,PlayerData> playersMap = new HashMap<>(numPlayers);
+		for (int counter = 0; counter < numPlayers; counter++) {
+			UUID id = new UUID(input.readLong(), input.readLong());
+			PlayerData data = PlayerData.load2(input, set, Bukkit.getLogger());
+			playersMap.put(id, data);
+		}
+
 		return playersMap;
 	}
 	
@@ -174,6 +199,36 @@ public class PluginData {
 		return new PluginData(itemSet, currentTick, playersMap, persistentContainers);
 	}
 
+	private static PluginData load4(BitInput input, ItemSetWrapper itemSet) throws UnknownEncodingException {
+		long currentTick = input.readLong();
+
+		Map<UUID, PlayerData> playersMap = loadPlayerData2(input, itemSet);
+
+		int numPersistentContainers = input.readInt();
+		Map<ContainerLocation, ContainerInstance> persistentContainers = new HashMap<>(numPersistentContainers);
+
+		for (int counter = 0; counter < numPersistentContainers; counter++) {
+
+			UUID worldId = new UUID(input.readLong(), input.readLong());
+			int x = input.readInt();
+			int y = input.readInt();
+			int z = input.readInt();
+			String typeName = input.readString();
+
+			ContainerInfo typeInfo = itemSet.getContainerInfo(typeName);
+
+			if (typeInfo != null) {
+				ContainerInstance instance = ContainerInstance.load2(input, typeInfo);
+				ContainerLocation location = new ContainerLocation(new PassiveLocation(worldId, x, y, z), typeInfo.getContainer());
+				persistentContainers.put(location, instance);
+			} else {
+				ContainerInstance.discard2(input);
+			}
+		}
+
+		return new PluginData(itemSet, currentTick, playersMap, persistentContainers);
+	}
+
 	// Persisting data
 	private final Map<UUID,PlayerData> playerData;
 	private final Map<ContainerLocation,ContainerInstance> persistentContainers;
@@ -185,7 +240,7 @@ public class PluginData {
 	private Collection<TempContainerInstance> tempContainers;
 	private List<Player> shootingPlayers;
 	private List<Player> eatingPlayers;
-	private Map<VanillaContainerType, Inventory> containerSelectionMap;
+	private Map<CustomContainerHost, Inventory> containerSelectionMap;
 	private Map<String, Inventory> pocketContainerSelectionMap;
 
 	private PluginData(ItemSetWrapper itemSet) {
@@ -221,13 +276,10 @@ public class PluginData {
 	}
 	
 	private void initContainerTypeMap() {
-		containerSelectionMap = new EnumMap<>(VanillaContainerType.class);
-
-		for (VanillaContainerType vanillaType : VanillaContainerType.values()) {
-			
-			Collection<CustomContainerValues> containersForType = itemSet.getContainers(vanillaType);
-			if (containersForType.size() > 1) {
-				containerSelectionMap.put(vanillaType, createContainerSelectionMenu(containersForType));
+		containerSelectionMap = new HashMap<>();
+		for (Map.Entry<CustomContainerHost, List<CustomContainerValues>> hostEntry : itemSet.getContainerHostMap().entrySet()) {
+			if (hostEntry.getValue().size() > 1) {
+				containerSelectionMap.put(hostEntry.getKey(), createContainerSelectionMenu(hostEntry.getValue()));
 			}
 		}
 	}
@@ -578,6 +630,15 @@ public class PluginData {
 		}
 	}
 
+	public boolean isOnCooldown(Player player, CustomItemValues customItem, ItemCommandEvent event, int commandIndex) {
+		PlayerData pd = playerData.get(player.getUniqueId());
+		return pd != null && pd.commandCooldowns.isOnCooldown(customItem, event, commandIndex, currentTick);
+	}
+
+	public void setOnCooldown(Player player, CustomItemValues customItem, ItemCommandEvent event, int commandIndex) {
+		getPlayerData(player).commandCooldowns.setOnCooldown(customItem, event, commandIndex, currentTick);
+	}
+
 	public void onPlayerQuit(Player player) {
 		PlayerData pd = playerData.get(player.getUniqueId());
 		if (pd != null) {
@@ -810,8 +871,8 @@ public class PluginData {
 	 */
 	public void saveData() {
 		ByteArrayBitOutput output = new ByteArrayBitOutput();
-		output.addByte(ENCODING_3);
-		save3(output);
+		output.addByte(ENCODING_4);
+		save4(output);
 		try {
 			OutputStream fileOutput = Files.newOutputStream(getDataFile().toPath());
 			fileOutput.write(output.getBytes());
@@ -894,8 +955,52 @@ public class PluginData {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private void save3(BitOutput output) {
 		save1(output);
+
+		cleanEmptyContainers();
+		output.addInt(persistentContainers.size());
+		for (Entry<ContainerLocation, ContainerInstance> entry : persistentContainers.entrySet()) {
+
+			// Save container location
+			ContainerLocation loc = entry.getKey();
+			output.addLong(loc.location.getWorldId().getMostSignificantBits());
+			output.addLong(loc.location.getWorldId().getLeastSignificantBits());
+			output.addInts(loc.location.getX(), loc.location.getY(), loc.location.getZ());
+			output.addString(loc.type.getName());
+
+			// Save container state
+			ContainerInstance state = entry.getValue();
+			state.save2(output);
+		}
+
+		playerData.forEach((playerId, pd) -> {
+			if (pd.openPocketContainer != null) {
+				Player player = Bukkit.getPlayer(playerId);
+
+				if (player == null) {
+					Bukkit.getLogger().log(Level.SEVERE, "Lost pocket container for player " + Bukkit.getOfflinePlayer(playerId).getName());
+					return;
+				}
+
+				maybeClosePocketContainer(pd, player, true);
+			}
+		});
+
+		tempContainers.forEach(entry -> entry.instance.dropAllItems(entry.viewer.getLocation()));
+		tempContainers.clear();
+	}
+
+	private void save4(BitOutput output) {
+		output.addLong(currentTick);
+
+		output.addInt(playerData.size());
+		for (Entry<UUID,PlayerData> entry : playerData.entrySet()) {
+			output.addLong(entry.getKey().getMostSignificantBits());
+			output.addLong(entry.getKey().getLeastSignificantBits());
+			entry.getValue().save2(output, itemSet, currentTick);
+		}
 
 		cleanEmptyContainers();
 		output.addInt(persistentContainers.size());
@@ -1023,16 +1128,16 @@ public class PluginData {
 			return tempInstance.instance;
 		}
 	}
-	
+
 	public Inventory getCustomContainerMenu(
-			Location location, Player player, VanillaContainerType containerType
+			Location location, Player player, CustomContainerHost host
 	) {
-		
-		if (containerType == null) {
+
+		if (!WorldGuardSupport.canInteract(location.getBlock(), player)) {
 			return null;
 		}
-		
-		Collection<CustomContainerValues> correspondingContainers = itemSet.getContainers(containerType);
+
+		Collection<CustomContainerValues> correspondingContainers = itemSet.getContainers(host);
 		if (correspondingContainers.isEmpty()) {
 			return null;
 		} else if (correspondingContainers.size() == 1) {
@@ -1042,7 +1147,7 @@ public class PluginData {
 		} else {
 			PlayerData pd = getPlayerData(player);
 			pd.containerSelectionLocation = new PassiveLocation(location);
-			return containerSelectionMap.get(containerType);
+			return containerSelectionMap.get(host);
 		}
 	}
 
@@ -1059,7 +1164,7 @@ public class PluginData {
 	}
 	
 	public List<CustomContainerValues> getCustomContainerSelection(HumanEntity player) {
-		for (Entry<VanillaContainerType, Inventory> entry : containerSelectionMap.entrySet()) {
+		for (Entry<CustomContainerHost, Inventory> entry : containerSelectionMap.entrySet()) {
 			if (entry.getValue().getViewers().contains(player)) {
 				return itemSet.getContainers(entry.getKey());
 			}
@@ -1085,10 +1190,25 @@ public class PluginData {
 		if (pd.containerSelectionLocation != null) {
 			Location containerLocation = pd.containerSelectionLocation.toBukkitLocation();
 			pd.containerSelectionLocation = null;
-			CIMaterial blockMaterial = CIMaterial.valueOf(
-					ItemHelper.getMaterialName(containerLocation.getBlock())
-			);
-			VanillaContainerType vanillaType = VanillaContainerType.fromMaterial(blockMaterial);
+
+			boolean hostBlockStillValid;
+			if (selected.getHost().getVanillaType() != null) {
+				CIMaterial blockMaterial = CIMaterial.valueOf(
+						ItemHelper.getMaterialName(containerLocation.getBlock())
+				);
+				VanillaContainerType vanillaType = VanillaContainerType.fromMaterial(blockMaterial);
+				hostBlockStillValid = selected.getHost().getVanillaType() == vanillaType;
+			} else if (selected.getHost().getVanillaMaterial() != null) {
+				CIMaterial blockMaterial = CIMaterial.valueOf(
+						ItemHelper.getMaterialName(containerLocation.getBlock())
+				);
+				hostBlockStillValid = selected.getHost().getVanillaMaterial() == blockMaterial;
+			} else if (selected.getHost().getCustomBlockReference() != null) {
+				CustomBlockValues customBlock = MushroomBlockHelper.getMushroomBlock(containerLocation.getBlock());
+				hostBlockStillValid = customBlock != null && customBlock.getInternalID() == selected.getHost().getCustomBlockReference().get().getInternalID();
+			} else {
+				throw new IllegalStateException("Custom container " + selected.getName() + " has an invalid host");
+			}
 
 			/*
 			 * It may happen that a player opens the container selection, but that the
@@ -1096,7 +1216,7 @@ public class PluginData {
 			 * cause a somewhat corrupted state, which is avoided by simply closing the
 			 * players inventory.
 			 */
-			if (vanillaType == selected.getVanillaType()) {
+			if (hostBlockStillValid) {
 				player.openInventory(getCustomContainer(
 						containerLocation, player, selected
 				).getInventory());
@@ -1255,7 +1375,7 @@ public class PluginData {
 		@Override
 		public void saveData() {
 			File dataFile = getDataFile();
-			if (dataFile.exists()) {
+			if (!dataFile.exists()) {
 				super.saveData();
 			} else {
 				Bukkit.getLogger().warning("The CustomItems data wasn't saved to protect the original data");

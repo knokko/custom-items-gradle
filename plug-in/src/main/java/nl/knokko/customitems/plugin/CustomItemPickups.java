@@ -13,6 +13,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
+import static nl.knokko.customitems.plugin.set.item.CustomItemWrapper.wrap;
+
 public class CustomItemPickups {
 
 	static void start() {
@@ -41,7 +43,7 @@ public class CustomItemPickups {
 								
 							CustomItemValues custom = set.getItem(stack);
 							if (custom != null) {
-								if (custom.canStack() && stack.getAmount() < custom.getMaxStacksize()) {
+								if (wrap(custom).needsStackingHelp() && stack.getAmount() < custom.getMaxStacksize()) {
 									interestingPlayers.add(player);
 									continue playerLoop;
 								}
@@ -80,7 +82,7 @@ public class CustomItemPickups {
 								ItemStack stack = inv[index];
 									
 								CustomItemValues custom = set.getItem(stack);
-								if (custom != null && custom.canStack() && stack.getAmount() < custom.getMaxStacksize()) {
+								if (custom != null && wrap(custom).needsStackingHelp() && stack.getAmount() < custom.getMaxStacksize()) {
 									customSlots.add(index);
 								}
 							}

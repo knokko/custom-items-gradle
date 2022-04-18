@@ -23,12 +23,11 @@
  *******************************************************************************/
 package nl.knokko.customitems.editor.menu.edit.recipe.ingredient;
 
+import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.menu.edit.select.item.SelectCustomItem;
-import nl.knokko.customitems.editor.menu.edit.select.item.SelectDataVanillaItem;
-import nl.knokko.customitems.editor.menu.edit.select.item.SelectSimpleVanillaItem;
+import nl.knokko.customitems.editor.menu.edit.EnumSelect;
+import nl.knokko.customitems.editor.menu.edit.recipe.result.ChooseDataVanillaResult;
 import nl.knokko.customitems.item.CIMaterial;
-import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.ShapedRecipeValues;
 import nl.knokko.customitems.recipe.ingredient.*;
@@ -67,18 +66,22 @@ public class IngredientComponent extends DynamicTextButton {
 	public void keyPressed(char character) {
 		if (state.isMouseOver()) {
 			if (character == 'v') {
-				state.getWindow().setMainComponent(new SelectSimpleVanillaItem(menu, (CIMaterial material) -> {
-					IngredientComponent.this.setIngredient(SimpleVanillaIngredientValues.createQuick(material, 1, null));
-					//the SelectSimpleVanillaItem will go to the returnGui automatically
-				},false));
+				state.getWindow().setMainComponent(new EnumSelect<>(CIMaterial.class, vanillaMaterial -> {
+					IngredientComponent.this.setIngredient(SimpleVanillaIngredientValues.createQuick(
+							vanillaMaterial, 1, null
+					));
+				}, candidateMaterial -> true, menu));
 			} else if (character == 'c') {
-				state.getWindow().setMainComponent(new SelectCustomItem(menu, (ItemReference item) -> {
-					IngredientComponent.this.setIngredient(CustomItemIngredientValues.createQuick(item, 1, null));
-					//the SelectCustomItem will go the the returnGui automatically
-				}, set));
+				state.getWindow().setMainComponent(new CollectionSelect<>(set.getItems().references(), customItem -> {
+					IngredientComponent.this.setIngredient(CustomItemIngredientValues.createQuick(
+							customItem, 1, null
+					));
+				}, candidateItem -> true, itemRef -> itemRef.get().getName(), menu));
 			} else if (character == 'd') {
-				state.getWindow().setMainComponent(new SelectDataVanillaItem(menu, (CIMaterial material, byte data) -> {
-					IngredientComponent.this.setIngredient(DataVanillaIngredientValues.createQuick(material, data, 1, null));
+				state.getWindow().setMainComponent(new ChooseDataVanillaResult(menu, true, dataResult -> {
+					IngredientComponent.this.setIngredient(DataVanillaIngredientValues.createQuick(
+							dataResult.getMaterial(), dataResult.getDataValue(), dataResult.getAmount(), null
+					));
 				}));
 			} else if (character == 'e') {
 				IngredientComponent.this.setIngredient(new NoIngredientValues());

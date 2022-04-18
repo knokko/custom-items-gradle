@@ -29,10 +29,12 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.logging.Level;
 
 import com.google.common.collect.Lists;
 import nl.knokko.core.plugin.block.MushroomBlocks;
+import nl.knokko.core.plugin.entity.EntityDamageHelper;
 import nl.knokko.core.plugin.item.SmithingBlocker;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.plugin.command.CustomItemsTabCompletions;
@@ -42,6 +44,7 @@ import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.util.StringEncoder;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -66,6 +69,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 	private PluginData data;
 	private ProjectileManager projectileManager;
 	private ItemUpdater itemUpdater;
+	private EnabledAreas enabledAreas;
 	
 	private int maxFlyingProjectiles;
 
@@ -94,6 +98,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		super.onEnable();
+		this.enabledAreas = new EnabledAreas();
 		this.loadErrors = new ArrayList<>();
 		this.itemSet = new ItemSetWrapper();
 		instance = this;
@@ -125,6 +130,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 	public void onDisable() {
 		data.saveData();
 		projectileManager.destroyCustomProjectiles();
+		enabledAreas = null;
 		instance = null;
 		super.onDisable();
 	}
@@ -140,7 +146,11 @@ public class CustomItemsPlugin extends JavaPlugin {
 	public int getMaxFlyingProjectiles() {
 		return maxFlyingProjectiles;
 	}
-	
+
+	public EnabledAreas getEnabledAreas() {
+		return enabledAreas;
+	}
+
 	private static final String KEY_MAX_PROJECTILES = "Maximum number of flying projectiles";
 	
 	private void debugChecks() {
@@ -225,13 +235,17 @@ public class CustomItemsPlugin extends JavaPlugin {
 			SmithingBlocker.blockSmithingTableUpgrades(itemStack -> this.getSet().getItem(itemStack) != null);
 
 			// Use a method introduced in the newest KnokkoCore update to check if it is up-to-date
-			MushroomBlocks.areEnabled();
-		} catch (NoClassDefFoundError outdated) {
+			EntityDamageHelper.class.getMethod(
+					"causeCustomPhysicalAttack", Entity.class, Entity.class, float.class,
+					String.class, boolean.class, boolean.class
+			);
+		} catch (NoClassDefFoundError | NoSuchMethodException outdated) {
 			this.loadErrors.add("It looks like your KnokkoCore is outdated. Please install a newer version.");
 		}
 	}
 	
 	private void loadConfig() {
+		reloadConfig();
 		FileConfiguration config = getConfig();
 		if (config.contains(KEY_MAX_PROJECTILES)) {
 			this.maxFlyingProjectiles = config.getInt(KEY_MAX_PROJECTILES);
@@ -240,6 +254,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 			config.set(KEY_MAX_PROJECTILES, maxFlyingProjectiles);
 			saveConfig();
 		}
+		this.enabledAreas.update(config);
 	}
 	
 	private void loadSet(File file) {

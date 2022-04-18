@@ -14,12 +14,13 @@ import nl.knokko.customitems.plugin.container.ContainerInstance;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
+import nl.knokko.customitems.trouble.UnknownEncodingException;
 
 class PlayerData {
 
 	/**
 	 * The number of ticks players remain in the shooting state after right clicking with a wand or gun.
-	 * Right clicking again will 'reset' the timer to this number of ticks again.
+	 * Right-clicking again will 'reset' the timer to this number of ticks again.
 	 */
 	static final int SHOOT_TIME = 10;
 
@@ -40,7 +41,16 @@ class PlayerData {
 			}
 		}
 		
-		return new PlayerData(wandsData);
+		return new PlayerData(wandsData, new PlayerCommandCooldowns());
+	}
+
+	public static PlayerData load2(BitInput input, ItemSetWrapper set, Logger logger) throws UnknownEncodingException {
+		byte encoding = input.readByte();
+		if (encoding != 2) throw new UnknownEncodingException("PlayerData2", encoding);
+
+		PlayerData result = load1(input, set, logger);
+		result.commandCooldowns.load(input, set);
+		return result;
 	}
 	
 	// Persisting data
@@ -52,6 +62,7 @@ class PlayerData {
 	 * cooldown and has all charges available (if the wand uses charges).
 	 */
 	final Map<CustomWandValues, PlayerWandData> wandsData;
+	final PlayerCommandCooldowns commandCooldowns;
 	
 	// Non-persisting data
 
@@ -79,12 +90,14 @@ class PlayerData {
 	
 	public PlayerData() {
 		wandsData = new HashMap<>();
+		commandCooldowns = new PlayerCommandCooldowns();
 		
 		init();
 	}
 	
-	private PlayerData(Map<CustomWandValues, PlayerWandData> wandsData){
+	private PlayerData(Map<CustomWandValues, PlayerWandData> wandsData, PlayerCommandCooldowns commandCooldowns){
 		this.wandsData = wandsData;
+		this.commandCooldowns = commandCooldowns;
 		
 		init();
 	}
@@ -108,6 +121,12 @@ class PlayerData {
 			output.addString(entry.getKey().getName());
 			entry.getValue().save1(output, entry.getKey(), currentTick);
 		}
+	}
+
+	public void save2(BitOutput output, ItemSetWrapper itemSet, long currentTick) {
+		output.addByte((byte) 2);
+		save1(output, currentTick);
+		commandCooldowns.save(output, itemSet);
 	}
 	
 	public void setShooting(long currentTick) {
@@ -244,6 +263,8 @@ class PlayerData {
 
 		// Check if the player is currently eating
 		if (lastEatTick != -1 || mainhandFood != null || offhandFood != null) return false;
+
+		if (!commandCooldowns.clean(currentTick)) return false;
 
 		/*
 		 * If the player is not shooting and doesn't have any remaining cooldowns or missing wand

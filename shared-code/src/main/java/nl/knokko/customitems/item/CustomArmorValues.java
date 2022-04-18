@@ -41,6 +41,9 @@ public class CustomArmorValues extends CustomToolValues {
         } else if (encoding == ItemEncoding.ENCODING_ARMOR_11) {
             result.load11(input, itemSet);
             result.initDefaults11();
+        } else if (encoding == ItemEncoding.ENCODING_ARMOR_12) {
+            result.loadArmorPropertiesNew(input, itemSet);
+            return result;
         } else {
             throw new UnknownEncodingException("CustomArmor", encoding);
         }
@@ -75,6 +78,37 @@ public class CustomArmorValues extends CustomToolValues {
         this.blue = toCopy.getBlue();
         this.damageResistances = toCopy.getDamageResistances();
         this.armorTexture = toCopy.getArmorTextureReference();
+    }
+
+    protected void loadArmorPropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        this.loadToolPropertiesNew(input, itemSet);
+
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("CustomArmorNew", encoding);
+
+        this.loadLeatherColors(input);
+        this.damageResistances = DamageResistanceValues.loadNew(input);
+        if (itemSet.getSide() == ItemSet.Side.EDITOR && input.readBoolean()) {
+            this.armorTexture = itemSet.getArmorTextureReference(input.readString());
+        } else {
+            this.armorTexture = null;
+        }
+    }
+
+    protected void saveArmorPropertiesNew(BitOutput output, ItemSet.Side targetSide) {
+        this.saveToolPropertiesNew(output, targetSide);
+
+        output.addByte((byte) 1);
+        if (this.itemType.isLeatherArmor()) {
+            output.addBytes((byte) this.red, (byte) this.green, (byte) this.blue);
+        }
+        this.damageResistances.saveNew(output);
+        if (targetSide == ItemSet.Side.EDITOR) {
+            output.addBoolean(this.armorTexture != null);
+            if (this.armorTexture != null) {
+                output.addString(this.armorTexture.get().getName());
+            }
+        }
     }
 
     private void loadLeatherColors(BitInput input) {
@@ -168,33 +202,8 @@ public class CustomArmorValues extends CustomToolValues {
 
     @Override
     public void save(BitOutput output, ItemSet.Side side) {
-        output.addByte(ItemEncoding.ENCODING_ARMOR_11);
-        saveArmor11(output);
-
-        if (side == ItemSet.Side.EDITOR) {
-            saveEditorOnlyProperties1(output);
-        }
-    }
-
-    protected void saveArmor11(BitOutput output) {
-        saveIdentityProperties10(output);
-        saveTextDisplayProperties1(output);
-        saveVanillaBasedPowers4(output);
-        saveToolOnlyPropertiesA4(output);
-        if (itemType.isLeatherArmor()) {
-            output.addBytes((byte) red, (byte) green, (byte) blue);
-        }
-        saveItemFlags6(output);
-        saveToolOnlyPropertiesB6(output);
-        damageResistances.save17(output);
-        savePotionProperties10(output);
-        saveRightClickProperties10(output);
-        extraItemNbt.save(output);
-        output.addBoolean(armorTexture != null);
-        if (armorTexture != null) {
-            output.addString(armorTexture.get().getName());
-        }
-        output.addFloat(attackRange);
+        output.addByte(ItemEncoding.ENCODING_ARMOR_12);
+        saveArmorPropertiesNew(output, side);
     }
 
     private void initDefaults4() {

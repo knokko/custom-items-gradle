@@ -22,6 +22,9 @@ public class CustomCrossbowValues extends CustomToolValues {
         if (encoding == ItemEncoding.ENCODING_CROSSBOW_10) {
             result.load10(input, itemSet);
             result.initDefaults10();
+        } else if (encoding == ItemEncoding.ENCODING_CROSSBOW_12) {
+            result.loadCrossbowPropertiesNew(input, itemSet);
+            return result;
         } else {
             throw new UnknownEncodingException("CustomCrossbow", encoding);
         }
@@ -69,6 +72,35 @@ public class CustomCrossbowValues extends CustomToolValues {
         this.fireworkSpeedMultiplier = toCopy.getFireworkSpeedMultiplier();
         this.arrowKnockbackStrength = toCopy.getArrowKnockbackStrength();
         this.arrowGravity = toCopy.hasArrowGravity();
+    }
+
+    protected void loadCrossbowPropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        this.loadToolPropertiesNew(input, itemSet);
+
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("CustomCrossbowNew" , encoding);
+
+        this.arrowDurabilityLoss = input.readInt();
+        this.fireworkDurabilityLoss = input.readInt();
+        this.arrowKnockbackStrength = input.readInt();
+        this.arrowDamageMultiplier = input.readFloat();
+        this.fireworkDamageMultiplier = input.readFloat();
+        this.arrowSpeedMultiplier = input.readFloat();
+        this.fireworkSpeedMultiplier = input.readFloat();
+        this.arrowGravity = input.readBoolean();
+    }
+
+    protected void saveCrossbowPropertiesNew(BitOutput output, ItemSet.Side side) {
+        this.saveToolPropertiesNew(output, side);
+
+        output.addByte((byte) 1);
+
+        output.addInts(this.arrowDurabilityLoss, this.fireworkDurabilityLoss, this.arrowKnockbackStrength);
+        output.addFloats(
+                this.arrowDamageMultiplier, this.fireworkDamageMultiplier,
+                this.arrowSpeedMultiplier, this.fireworkSpeedMultiplier
+        );
+        output.addBoolean(this.arrowGravity);
     }
 
     private void load10(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
@@ -132,38 +164,8 @@ public class CustomCrossbowValues extends CustomToolValues {
 
     @Override
     public void save(BitOutput output, ItemSet.Side side) {
-        output.addByte(ItemEncoding.ENCODING_CROSSBOW_10);
-        save10(output);
-
-        if (side == ItemSet.Side.EDITOR) {
-            saveEditorOnlyProperties1(output);
-        }
-    }
-
-    private void save10(BitOutput output) {
-        saveCrossbowIdentityProperties10(output);
-        saveTextDisplayProperties1(output);
-        saveVanillaBasedPowers4(output);
-        saveToolOnlyPropertiesA4(output);
-        saveItemFlags6(output);
-        saveToolOnlyPropertiesB6(output);
-        savePotionProperties10(output);
-        saveRightClickProperties10(output);
-        saveExtraProperties10(output);
-        saveCrossbowOnlyProperties10(output);
-    }
-
-    private void saveCrossbowIdentityProperties10(BitOutput output) {
-        output.addShort(itemDamage);
-        output.addJavaString(name);
-        output.addString(alias);
-    }
-
-    private void saveCrossbowOnlyProperties10(BitOutput output) {
-        output.addInts(arrowDurabilityLoss, fireworkDurabilityLoss);
-        output.addFloats(arrowDamageMultiplier, fireworkDamageMultiplier, arrowSpeedMultiplier, fireworkSpeedMultiplier);
-        output.addInt(arrowKnockbackStrength);
-        output.addBoolean(arrowGravity);
+        output.addByte(ItemEncoding.ENCODING_CROSSBOW_12);
+        saveCrossbowPropertiesNew(output, side);
     }
 
     @Override

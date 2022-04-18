@@ -42,6 +42,11 @@ public class RecipeSlotsGrid extends GuiMenu {
 					slotComponent = new OutputSlotComponent(
 							outputSlot.getName(), outerMenu, recipe, itemSet
 					);
+				} else if (slot instanceof ManualOutputSlotValues) {
+					ManualOutputSlotValues outputSlot = (ManualOutputSlotValues) slot;
+					slotComponent = new ManualOutputSlotComponent(
+							outputSlot.getName(), outerMenu, recipe, itemSet
+					);
 				} else {
 					slotComponent = new OtherSlotComponent();
 				}

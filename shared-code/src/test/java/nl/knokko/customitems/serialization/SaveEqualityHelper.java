@@ -42,10 +42,11 @@ public class SaveEqualityHelper {
 
             assertEquals(originalSet.getItems().size(), testSet.getItems().size());
             for (CustomItemValues originalItem : originalSet.getItems()) {
-                assertEquals(originalItem, testSet.getItem(originalItem.getName()).get());
+                CustomItemValues testItem = testSet.getItem(originalItem.getName()).get();
+                assertEquals(originalItem, testItem);
                 if (side == ItemSet.Side.PLUGIN) {
                     // Doesn't really belong here, but is very convenient
-                    assertEquals(originalItem, CustomItemValues.loadFromBooleanRepresentation(originalItem.getBooleanRepresentation()));
+                    assertEquals(originalItem, CustomItemValues.loadFromBooleanRepresentation(testItem.getBooleanRepresentation()));
                 }
             }
 

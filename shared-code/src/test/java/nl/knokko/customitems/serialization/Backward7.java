@@ -29,7 +29,7 @@ public class Backward7 {
             testTextures3(set7, 3);
             testItemsOld6(set7, 21);
             testRecipesOld6(set7, 3);
-            testBlockDropsOld6(set7, 1);
+            testBlockDropsOld6(set7, 1, false);
             testMobDropsOld6(set7, 2);
             testProjectileCoversOld6(set7, 2);
             testProjectilesOld6(set7, 1);
@@ -63,7 +63,7 @@ public class Backward7 {
                 "First Container", listOf("Just", "some", "lore"), 3
         ), container1.getSelectionIcon());
         assertEquals(FuelMode.ANY, container1.getFuelMode());
-        assertEquals(VanillaContainerType.ENCHANTING_TABLE, container1.getVanillaType());
+        assertEquals(new CustomContainerHost(VanillaContainerType.ENCHANTING_TABLE), container1.getHost());
         assertFalse(container1.hasPersistentStorage());
 
         assertEquals(2, container1.getHeight());

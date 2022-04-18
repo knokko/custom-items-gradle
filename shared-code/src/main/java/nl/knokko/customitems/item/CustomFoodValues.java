@@ -29,6 +29,9 @@ public class CustomFoodValues extends CustomItemValues {
         if (encoding == ItemEncoding.ENCODING_FOOD_10) {
             result.load10(input, itemSet);
             result.initDefaults10();
+        } else if (encoding == ItemEncoding.ENCODING_FOOD_12) {
+            result.loadFoodPropertiesNew(input, itemSet);
+            return result;
         } else {
             throw new UnknownEncodingException("CustomFood", encoding);
         }
@@ -77,24 +80,43 @@ public class CustomFoodValues extends CustomItemValues {
         this.maxStacksize = toCopy.getMaxStacksize();
     }
 
+    protected void loadFoodPropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        this.loadSharedPropertiesNew(input, itemSet);
+
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("CustomFoodNew", encoding);
+
+        this.eatEffects = this.loadPotionEffectList(input);
+        this.eatSound = CISound.valueOf(input.readString());
+        this.foodValue = input.readInt();
+        this.eatTime = input.readInt();
+        this.soundPeriod = input.readInt();
+        this.soundVolume = input.readFloat();
+        this.soundPitch = input.readFloat();
+        this.maxStacksize = input.readByte();
+    }
+
+    protected void saveFoodPropertiesNew(BitOutput output, ItemSet.Side targetSide) {
+        this.saveSharedPropertiesNew(output, targetSide);
+
+        output.addByte((byte) 1);
+
+        this.savePotionEffectList(this.eatEffects, output);
+        output.addString(this.eatSound.name());
+        output.addInts(this.foodValue, this.eatTime, this.soundPeriod);
+        output.addFloats(this.soundVolume, this.soundPitch);
+        output.addByte(this.maxStacksize);
+    }
+
     @Override
     public void save(BitOutput output, ItemSet.Side side) {
-        output.addByte(ItemEncoding.ENCODING_FOOD_10);
-        save10(output);
-
-        if (side == ItemSet.Side.EDITOR) {
-            saveEditorOnlyProperties1(output);
-        }
+        output.addByte(ItemEncoding.ENCODING_FOOD_12);
+        this.saveFoodPropertiesNew(output, side);
     }
 
     private void load10(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadBase10(input, itemSet);
         loadFoodOnlyProperties10(input);
-    }
-
-    private void save10(BitOutput output) {
-        saveBase10(output);
-        saveFoodOnlyProperties10(output);
     }
 
     private void loadFoodOnlyProperties10(BitInput input) {
@@ -110,19 +132,6 @@ public class CustomFoodValues extends CustomItemValues {
         this.soundPitch = input.readFloat();
         this.soundPeriod = input.readInt();
         this.maxStacksize = (byte) input.readInt();
-    }
-
-    private void saveFoodOnlyProperties10(BitOutput output) {
-        output.addInt(foodValue);
-        output.addInt(eatEffects.size());
-        for (PotionEffectValues eatEffect : eatEffects) {
-            eatEffect.save2(output);
-        }
-        output.addInt(eatTime);
-        output.addString(eatSound.name());
-        output.addFloats(soundVolume, soundPitch);
-        output.addInt(soundPeriod);
-        output.addInt(maxStacksize);
     }
 
     private void initDefaults10() {

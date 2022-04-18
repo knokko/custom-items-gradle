@@ -40,7 +40,7 @@ public class DataVanillaResultValues extends ResultValues {
     private CIMaterial material;
     private byte data;
 
-    DataVanillaResultValues(boolean mutable) {
+    public DataVanillaResultValues(boolean mutable) {
         super(mutable);
 
         this.amount = 1;
@@ -48,7 +48,7 @@ public class DataVanillaResultValues extends ResultValues {
         this.data = 0;
     }
 
-    DataVanillaResultValues(DataVanillaResultValues toCopy, boolean mutable) {
+    public DataVanillaResultValues(DataVanillaResultValues toCopy, boolean mutable) {
         super(mutable);
 
         this.amount = toCopy.getAmount();
@@ -125,6 +125,10 @@ public class DataVanillaResultValues extends ResultValues {
         this.amount = newAmount;
     }
 
+    public void setAmount(int newAmount) {
+        this.setAmount((byte) newAmount);
+    }
+
     public void setMaterial(CIMaterial newMaterial) {
         assertMutable();
         Checks.notNull(newMaterial);
@@ -134,6 +138,10 @@ public class DataVanillaResultValues extends ResultValues {
     public void setDataValue(byte newDataValue) {
         assertMutable();
         this.data = newDataValue;
+    }
+
+    public void setDataValue(int newDataValue) {
+        this.setDataValue((byte) newDataValue);
     }
 
     @Override

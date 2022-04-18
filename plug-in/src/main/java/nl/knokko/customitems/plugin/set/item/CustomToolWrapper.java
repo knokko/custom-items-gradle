@@ -91,10 +91,13 @@ public class CustomToolWrapper extends CustomItemWrapper {
     }
 
     @Override
-    public void onBlockBreak(Player player, ItemStack tool, boolean wasSolid, boolean wasFakeMainHand) {
+    public void onBlockBreak(
+            Player player, ItemStack tool, boolean wasSolid, boolean wasFakeMainHand, int numBrokenBlocks
+    ) {
         if (wasSolid && this.tool.getBlockBreakDurabilityLoss() != 0) {
 
-            ItemStack decreased = decreaseDurability(tool, this.tool.getBlockBreakDurabilityLoss());
+            int durabilityFactor = this.tool.getMultiBlockBreak().shouldStackDurabilityCost() ? numBrokenBlocks : 1;
+            ItemStack decreased = decreaseDurability(tool, this.tool.getBlockBreakDurabilityLoss() * durabilityFactor);
             if (decreased == null) {
                 for (ReplacementConditionValues cond : this.tool.getReplacementConditions()) {
                     if (cond.getCondition() == ReplacementConditionValues.ReplacementCondition.ISBROKEN) {

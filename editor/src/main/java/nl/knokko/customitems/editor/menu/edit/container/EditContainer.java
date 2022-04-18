@@ -1,7 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.container;
 
 import nl.knokko.customitems.container.CustomContainerValues;
-import nl.knokko.customitems.container.VanillaContainerType;
 import nl.knokko.customitems.container.fuel.FuelMode;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
@@ -92,14 +91,21 @@ public class EditContainer extends GuiMenu {
 				EnumSelect.createSelectButton(FuelMode.class, currentValues::setFuelMode, currentValues.getFuelMode()),
 				0.2f, 0.45f, 0.3f, 0.5f
 		);
+
+		DynamicTextComponent hostDisplay = new DynamicTextComponent("Host: " + currentValues.getHost(), LABEL);
+		addComponent(hostDisplay, 0.05f, 0.375f, 0.29f, 0.425f);
 		addComponent(
-				new DynamicTextComponent("Vanilla type:", LABEL),
-				0.05f, 0.375f, 0.2f, 0.425f
+				new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
+					state.getWindow().setMainComponent(new ChooseContainerHost(
+							this,
+							newHost -> {
+								currentValues.setHost(newHost);
+								hostDisplay.setText("Host: " + newHost);
+							}, menu.getSet()
+					));
+				}), 0.3f, 0.375f, 0.35f, 0.425f
 		);
-		addComponent(
-				EnumSelect.createSelectButton(VanillaContainerType.class, currentValues::setVanillaType, currentValues.getVanillaType()),
-				0.225f, 0.375f, 0.35f, 0.425f
-		);
+
 		addComponent(
 				new DynamicTextComponent("Persistent storage", LABEL),
 				0.05f, 0.3f, 0.25f, 0.35f

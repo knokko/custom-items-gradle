@@ -55,11 +55,14 @@ public class ContainerRecipeCollectionEdit extends SelfDedicatedCollectionEdit<C
 			result.append(output.getValue());
 			result.append(',');
 		}
+		if (model.getManualOutput() != null) {
+			result.append(model.getManualOutput());
+		}
 		result.append(')');
 
 		// Don't make it too long; that will get unreadable
 		int maxLength = 30;
-		return StringLength.fixLength(result.toString(), 30);
+		return StringLength.fixLength(result.toString(), maxLength);
 	}
 
 	@Override

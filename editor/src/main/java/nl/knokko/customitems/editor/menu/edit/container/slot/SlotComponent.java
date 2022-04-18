@@ -89,6 +89,10 @@ public class SlotComponent implements GuiComponent {
 			} else {
 				bottomText = "";
 			}
+		} else if (newSlot instanceof ManualOutputSlotValues) {
+			ManualOutputSlotValues outputSlot = (ManualOutputSlotValues) newSlot;
+			topText = "manual output";
+			bottomText = outputSlot.getName();
 		} else {
 			throw new Error("Unknown custom slot class: " + newSlot.getClass());
 		}

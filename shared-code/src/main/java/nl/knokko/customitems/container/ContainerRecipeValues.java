@@ -2,6 +2,7 @@ package nl.knokko.customitems.container;
 
 import nl.knokko.customitems.container.slot.ContainerSlotValues;
 import nl.knokko.customitems.container.slot.InputSlotValues;
+import nl.knokko.customitems.container.slot.ManualOutputSlotValues;
 import nl.knokko.customitems.container.slot.OutputSlotValues;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
@@ -10,34 +11,26 @@ import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
-import nl.knokko.customitems.util.Checks;
-import nl.knokko.customitems.util.ProgrammingValidationException;
-import nl.knokko.customitems.util.Validation;
-import nl.knokko.customitems.util.ValidationException;
+import nl.knokko.customitems.util.*;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ContainerRecipeValues extends ModelValues {
-
-    private static class Encodings {
-
-        static final byte ENCODING1 = 1;
-        static final byte ENCODING2 = 2;
-    }
 
     public static ContainerRecipeValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
         ContainerRecipeValues result = new ContainerRecipeValues(false);
 
-        if (encoding == Encodings.ENCODING1) {
+        if (encoding == 1) {
             result.load1(input, itemSet);
-        } else if (encoding == Encodings.ENCODING2) {
+        } else if (encoding == 2) {
             result.load2(input, itemSet);
+        } else if (encoding == 3) {
+            result.load3(input, itemSet);
+        } else if (encoding == 4) {
+            result.load4(input, itemSet);
         } else {
             throw new UnknownEncodingException("ContainerRecipe", encoding);
         }
@@ -48,6 +41,9 @@ public class ContainerRecipeValues extends ModelValues {
     private Map<String, IngredientValues> inputs;
     private Map<String, OutputTableValues> outputs;
 
+    private String manualOutputSlotName;
+    private ResultValues manualOutput;
+
     private int duration;
     private int experience;
 
@@ -55,6 +51,8 @@ public class ContainerRecipeValues extends ModelValues {
         super(mutable);
         this.inputs = new HashMap<>();
         this.outputs = new HashMap<>();
+        this.manualOutputSlotName = null;
+        this.manualOutput = null;
         this.duration = 40;
         this.experience = 5;
     }
@@ -63,6 +61,8 @@ public class ContainerRecipeValues extends ModelValues {
         super(mutable);
         this.inputs = toCopy.getInputs();
         this.outputs = toCopy.getOutputs();
+        this.manualOutputSlotName = toCopy.getManualOutputSlotName();
+        this.manualOutput = toCopy.getManualOutput();
         this.duration = toCopy.getDuration();
         this.experience = toCopy.getExperience();
     }
@@ -93,7 +93,7 @@ public class ContainerRecipeValues extends ModelValues {
 
             Collection<OutputTableValues.Entry> singleOutputList = new ArrayList<>(1);
             OutputTableValues.Entry theResultEntry = new OutputTableValues.Entry(true);
-            theResultEntry.setChance(100);
+            theResultEntry.setChance(Chance.percentage(100));
             theResultEntry.setResult(result);
             singleOutputList.add(theResultEntry);
             OutputTableValues outputTable = new OutputTableValues(true);
@@ -121,8 +121,31 @@ public class ContainerRecipeValues extends ModelValues {
         this.experience = input.readInt();
     }
 
+    private void load3(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        loadInputs(input, itemSet);
+
+        int numOutputs = input.readInt();
+        this.outputs = new HashMap<>(numOutputs);
+        for (int counter = 0; counter < numOutputs; counter++) {
+            String outputSlotName = input.readString();
+            OutputTableValues resultTable = OutputTableValues.load(input, itemSet);
+            this.outputs.put(outputSlotName, resultTable);
+        }
+
+        this.duration = input.readInt();
+        this.experience = input.readInt();
+    }
+
+    private void load4(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        this.load3(input, itemSet);
+        this.manualOutputSlotName = input.readString();
+        if (this.manualOutputSlotName != null) {
+            this.manualOutput = ResultValues.load(input, itemSet);
+        }
+    }
+
     public void save(BitOutput output) {
-        output.addByte(Encodings.ENCODING2);
+        output.addByte((byte) 4);
 
         output.addInt(inputs.size());
         for (Map.Entry<String, IngredientValues> inputEntry : inputs.entrySet()) {
@@ -133,11 +156,21 @@ public class ContainerRecipeValues extends ModelValues {
         output.addInt(outputs.size());
         for (Map.Entry<String, OutputTableValues> outputEntry : outputs.entrySet()) {
             output.addString(outputEntry.getKey());
-            outputEntry.getValue().save1(output);
+            outputEntry.getValue().save(output);
         }
 
         output.addInt(duration);
         output.addInt(experience);
+
+        output.addString(this.manualOutputSlotName);
+        if (this.manualOutputSlotName != null) {
+            this.manualOutput.save(output);
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "ContainerRecipe(inputs=" + this.inputs + ",outputs=" + this.outputs + ",manual output=" + this.manualOutput;
     }
 
     @Override
@@ -145,7 +178,9 @@ public class ContainerRecipeValues extends ModelValues {
         if (other.getClass() == ContainerRecipeValues.class) {
             ContainerRecipeValues otherRecipe = (ContainerRecipeValues) other;
             return this.inputs.equals(otherRecipe.inputs) && this.outputs.equals(otherRecipe.outputs)
-                    && this.duration == otherRecipe.duration && this.experience == otherRecipe.experience;
+                    && this.duration == otherRecipe.duration && this.experience == otherRecipe.experience
+                    && Objects.equals(this.manualOutputSlotName, otherRecipe.manualOutputSlotName)
+                    && Objects.equals(this.manualOutput, otherRecipe.manualOutput);
         } else {
             return false;
         }
@@ -170,6 +205,14 @@ public class ContainerRecipeValues extends ModelValues {
 
     public OutputTableValues getOutput(String outputSlotName) {
         return outputs.get(outputSlotName);
+    }
+
+    public String getManualOutputSlotName() {
+        return this.manualOutputSlotName;
+    }
+
+    public ResultValues getManualOutput() {
+        return this.manualOutput;
     }
 
     public int getDuration() {
@@ -202,6 +245,19 @@ public class ContainerRecipeValues extends ModelValues {
         assertMutable();
         Checks.notNull(outputSlotName);
         this.outputs.remove(outputSlotName);
+    }
+
+    public void setManualOutput(String slotName, ResultValues output) {
+        assertMutable();
+        if (slotName == null) {
+            if (output != null) throw new IllegalArgumentException("output must be null if slotName is null");
+            this.manualOutputSlotName = null;
+            this.manualOutput = null;
+        } else {
+            Checks.notNull(output);
+            this.manualOutputSlotName = slotName;
+            this.manualOutput = output;
+        }
     }
 
     public void setDuration(int duration) {
@@ -242,12 +298,25 @@ public class ContainerRecipeValues extends ModelValues {
             Validation.scope("Output " + outputEntry.getKey(), outputEntry.getValue()::validate, itemSet);
         }
 
+        if (manualOutputSlotName != null) {
+            if (!outputs.isEmpty()) throw new ValidationException("No regular outputs are allowed if a manual output slot is used");
+            if (manualOutput == null) throw new ProgrammingValidationException("No manual output");
+            if (slots.stream().noneMatch(
+                    slot -> slot instanceof ManualOutputSlotValues && ((ManualOutputSlotValues) slot).getName().equals(manualOutputSlotName)
+            )) {
+                throw new ValidationException("No manual output slot with name " + manualOutputSlotName + " exists anymore");
+            }
+            if (duration != 0) {
+                throw new ValidationException("Duration must be 0 if a manual output is used");
+            }
+        }
+
         if (duration < 0) throw new ValidationException("Duration can't be negative");
         if (experience < 0) throw new ValidationException("Experience can't be negative");
     }
 
     public boolean conflictsWith(ContainerRecipeValues other) {
-        // No conflict if possible if the number of used input slots are different
+        // No conflict is possible if the number of used input slots are different
         if (inputs.size() != other.inputs.size()) return false;
 
         for (Map.Entry<String, IngredientValues> inputEntry : inputs.entrySet()) {
@@ -276,6 +345,10 @@ public class ContainerRecipeValues extends ModelValues {
                     "Output " + outputEntry.getKey(),
                     () -> outputEntry.getValue().validateExportVersion(version)
             );
+        }
+
+        if (manualOutput != null) {
+            Validation.scope("Output", () -> manualOutput.validateExportVersion(version));
         }
     }
 }

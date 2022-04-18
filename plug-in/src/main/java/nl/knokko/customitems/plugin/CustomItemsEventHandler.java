@@ -61,19 +61,27 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 
 import nl.knokko.core.plugin.block.MushroomBlocks;
+import nl.knokko.core.plugin.entity.EntityDamageHelper;
 import nl.knokko.core.plugin.item.GeneralItemNBT;
+import nl.knokko.customitems.attack.effect.*;
 import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.block.drop.CustomBlockDropValues;
 import nl.knokko.customitems.block.drop.RequiredItemValues;
 import nl.knokko.customitems.block.drop.SilkTouchRequirement;
+import nl.knokko.customitems.damage.SpecialMeleeDamageValues;
 import nl.knokko.customitems.drops.BlockDropValues;
+import nl.knokko.customitems.drops.CIBiome;
 import nl.knokko.customitems.drops.DropValues;
 import nl.knokko.customitems.drops.MobDropValues;
-import nl.knokko.customitems.effect.PotionEffectValues;
+import nl.knokko.customitems.effect.ChancePotionEffectValues;
 import nl.knokko.customitems.item.*;
+import nl.knokko.customitems.item.command.CommandSubstitution;
+import nl.knokko.customitems.item.command.ItemCommand;
+import nl.knokko.customitems.item.command.ItemCommandEvent;
 import nl.knokko.customitems.itemset.BlockDropsView;
 import nl.knokko.customitems.itemset.CustomRecipesView;
 import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.plugin.data.PluginData;
 import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
 import nl.knokko.customitems.plugin.recipe.IngredientEntry;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
@@ -88,6 +96,7 @@ import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
+import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.*;
@@ -117,7 +126,9 @@ import nl.knokko.customitems.item.ReplacementConditionValues.ReplacementConditio
 import nl.knokko.customitems.plugin.set.item.update.ItemUpdater;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
+import org.bukkit.util.Vector;
 
 @SuppressWarnings("deprecation")
 public class CustomItemsEventHandler implements Listener {
@@ -339,18 +350,153 @@ public class CustomItemsEventHandler implements Listener {
 		}
 	}
 
-	@EventHandler
-	public void handleCommands (PlayerInteractEvent event) {
-		if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-			ItemStack item = event.getItem();
-			CustomItemValues custom = itemSet.getItem(item);
-			if (custom != null) {
-				Player player = event.getPlayer();
-				List<String> commands = custom.getCommands();
-				for (String command : commands) {
-					player.performCommand(command);
+	private Map<CommandSubstitution, String> createGeneralSubstitutionMap(Player player) {
+		Map<CommandSubstitution, String> result = new EnumMap<>(CommandSubstitution.class);
+		result.put(CommandSubstitution.WORLD_NAME, player.getWorld().getName());
+		result.put(CommandSubstitution.PLAYER_NAME, player.getName());
+		result.put(CommandSubstitution.PLAYER_X, Double.toString(player.getLocation().getX()));
+		result.put(CommandSubstitution.PLAYER_Y, Double.toString(player.getLocation().getY()));
+		result.put(CommandSubstitution.PLAYER_Z, Double.toString(player.getLocation().getZ()));
+		result.put(CommandSubstitution.PLAYER_BLOCK_X, Integer.toString(player.getLocation().getBlockX()));
+		result.put(CommandSubstitution.PLAYER_BLOCK_Y, Integer.toString(player.getLocation().getBlockY() - 1));
+		result.put(CommandSubstitution.PLAYER_BLOCK_Z, Integer.toString(player.getLocation().getBlockZ()));
+		return result;
+	}
+
+	private Map<CommandSubstitution, String> createBlockSubstitutionMap(Player player, Block block) {
+		Map<CommandSubstitution, String> result = createGeneralSubstitutionMap(player);
+		result.put(CommandSubstitution.BLOCK_X, Integer.toString(block.getX()));
+		result.put(CommandSubstitution.BLOCK_Y, Integer.toString(block.getY()));
+		result.put(CommandSubstitution.BLOCK_Z, Integer.toString(block.getZ()));
+		return result;
+	}
+
+	private Map<CommandSubstitution, String> createEntitySubstitutionMap(Player player, Entity target) {
+		Map<CommandSubstitution, String> result = createGeneralSubstitutionMap(player);
+		result.put(CommandSubstitution.TARGET_X, Double.toString(target.getLocation().getX()));
+		result.put(CommandSubstitution.TARGET_Y, Double.toString(target.getLocation().getY()));
+		result.put(CommandSubstitution.TARGET_Z, Double.toString(target.getLocation().getZ()));
+		result.put(CommandSubstitution.TARGET_BLOCK_X, Integer.toString(target.getLocation().getBlockX()));
+		result.put(CommandSubstitution.TARGET_BLOCK_Y, Integer.toString(target.getLocation().getBlockY() - 1));
+		result.put(CommandSubstitution.TARGET_BLOCK_Z, Integer.toString(target.getLocation().getBlockZ()));
+		return result;
+	}
+
+	private Map<CommandSubstitution, String> createPlayerSubstitutionMap(Player player, Player target) {
+		Map<CommandSubstitution, String> result = createEntitySubstitutionMap(player, target);
+		result.put(CommandSubstitution.TARGET_NAME, target.getName());
+		return result;
+	}
+
+	private void executeItemCommands(
+			ItemCommandEvent event, Player player, CustomItemValues item,
+			Map<CommandSubstitution, String> substitutionMap
+	) {
+		Random rng = new Random();
+		PluginData pluginData = CustomItemsPlugin.getInstance().getData();
+		List<ItemCommand> commands = item.getCommandSystem().getCommandsFor(event);
+		for (int commandIndex = 0; commandIndex < commands.size(); commandIndex++) {
+			ItemCommand command = commands.get(commandIndex);
+			if (!pluginData.isOnCooldown(player, item, event, commandIndex)) {
+				if (command.getChance().apply(rng)) {
+					String finalCommand = event.performSubstitutions(command.getRawCommand(), substitutionMap);
+					CommandSender executor;
+					if (command.getExecutor() == ItemCommand.Executor.CONSOLE) {
+						executor = Bukkit.getConsoleSender();
+					} else if (command.getExecutor() == ItemCommand.Executor.PLAYER) {
+						executor = player;
+					} else {
+						throw new UnsupportedOperationException("Unknown command executor: " + command.getExecutor());
+					}
+					Bukkit.dispatchCommand(executor, finalCommand);
+					pluginData.setOnCooldown(player, item, event, commandIndex);
+				} else if (command.activateCooldownWhenChanceFails()) {
+					pluginData.setOnCooldown(player, item, event, commandIndex);
 				}
 			}
+		}
+	}
+
+	@EventHandler
+	public void handleCommands(PlayerInteractEvent event) {
+		ItemStack item = event.getItem();
+		CustomItemValues custom = itemSet.getItem(item);
+		if (custom != null) {
+			if (event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) {
+				executeItemCommands(
+						ItemCommandEvent.LEFT_CLICK_GENERAL, event.getPlayer(), custom,
+						createGeneralSubstitutionMap(event.getPlayer())
+				);
+			}
+			if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+				executeItemCommands(
+						ItemCommandEvent.RIGHT_CLICK_GENERAL, event.getPlayer(), custom,
+						createGeneralSubstitutionMap(event.getPlayer())
+				);
+			}
+			if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
+				executeItemCommands(
+						ItemCommandEvent.LEFT_CLICK_BLOCK, event.getPlayer(), custom,
+						createBlockSubstitutionMap(event.getPlayer(), event.getClickedBlock())
+				);
+			}
+			if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
+				executeItemCommands(
+						ItemCommandEvent.RIGHT_CLICK_BLOCK, event.getPlayer(), custom,
+						createBlockSubstitutionMap(event.getPlayer(), event.getClickedBlock())
+				);
+			}
+		}
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void handleCommands(PlayerInteractEntityEvent event) {
+		ItemStack item = event.getPlayer().getInventory().getItemInMainHand();
+		CustomItemValues custom = itemSet.getItem(item);
+		if (event.getHand() == EquipmentSlot.HAND && custom != null) {
+			executeItemCommands(
+					ItemCommandEvent.RIGHT_CLICK_ENTITY, event.getPlayer(), custom,
+					createEntitySubstitutionMap(event.getPlayer(), event.getRightClicked())
+			);
+			if (event.getRightClicked() instanceof Player) {
+				executeItemCommands(
+						ItemCommandEvent.RIGHT_CLICK_PLAYER, event.getPlayer(), custom,
+						createPlayerSubstitutionMap(event.getPlayer(), (Player) event.getRightClicked())
+				);
+			}
+		}
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void handleCommands(EntityDamageByEntityEvent event) {
+		if (event.getDamager() instanceof Player) {
+			Player player = (Player) event.getDamager();
+			ItemStack item = player.getInventory().getItemInMainHand();
+			CustomItemValues custom = itemSet.getItem(item);
+			if (custom != null) {
+				executeItemCommands(
+						ItemCommandEvent.MELEE_ATTACK_ENTITY, player, custom,
+						createEntitySubstitutionMap(player, event.getEntity())
+				);
+				if (event.getEntity() instanceof Player) {
+					executeItemCommands(
+							ItemCommandEvent.MELEE_ATTACK_PLAYER, player, custom,
+							createPlayerSubstitutionMap(player, (Player) event.getEntity())
+					);
+				}
+			}
+		}
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void handleCommands(BlockBreakEvent event) {
+		ItemStack item = event.getPlayer().getInventory().getItemInMainHand();
+		CustomItemValues custom = itemSet.getItem(item);
+		if (custom != null) {
+			executeItemCommands(
+					ItemCommandEvent.BREAK_BLOCK, event.getPlayer(), custom,
+					createBlockSubstitutionMap(event.getPlayer(), event.getBlock())
+			);
 		}
 	}
 	
@@ -581,15 +727,18 @@ public class CustomItemsEventHandler implements Listener {
 
 						event.setDamage(event.getDamage() * damageMultiplier);
 						LivingEntity target = (LivingEntity) event.getEntity();
+						Random rng = new Random();
 						if (target != null) {
 
 							Collection<org.bukkit.potion.PotionEffect> effects = new ArrayList<> ();
-							for (PotionEffectValues effect : customBowOrCrossbow.getOnHitTargetEffects()) {
-								effects.add(new org.bukkit.potion.PotionEffect(
-										org.bukkit.potion.PotionEffectType.getByName(effect.getType().name()),
-										effect.getDuration() * 20,
-										effect.getLevel() - 1
-								));
+							for (ChancePotionEffectValues effect : customBowOrCrossbow.getOnHitTargetEffects()) {
+								if (effect.getChance().apply(rng)) {
+									effects.add(new org.bukkit.potion.PotionEffect(
+											org.bukkit.potion.PotionEffectType.getByName(effect.getType().name()),
+											effect.getDuration() * 20,
+											effect.getLevel() - 1
+									));
+								}
 							}
 							target.addPotionEffects(effects);
 						}
@@ -602,12 +751,14 @@ public class CustomItemsEventHandler implements Listener {
 
 						if (shooter instanceof LivingEntity) {
 							Collection<org.bukkit.potion.PotionEffect> effects = new ArrayList<> ();
-							for (PotionEffectValues effect : customBowOrCrossbow.getOnHitPlayerEffects()) {
-								effects.add(new org.bukkit.potion.PotionEffect(
-										org.bukkit.potion.PotionEffectType.getByName(effect.getType().name()),
-										effect.getDuration() * 20,
-										effect.getLevel() - 1
-								));
+							for (ChancePotionEffectValues effect : customBowOrCrossbow.getOnHitPlayerEffects()) {
+								if (effect.getChance().apply(rng)) {
+									effects.add(new org.bukkit.potion.PotionEffect(
+											org.bukkit.potion.PotionEffectType.getByName(effect.getType().name()),
+											effect.getDuration() * 20,
+											effect.getLevel() - 1
+									));
+								}
 							}
 
 							((LivingEntity) shooter).addPotionEffects(effects);
@@ -626,13 +777,16 @@ public class CustomItemsEventHandler implements Listener {
 						CustomTridentValues customTrident = (CustomTridentValues) shouldBeCustomTrident;
 						event.setDamage(event.getDamage() * customTrident.getThrowDamageMultiplier());
 						LivingEntity target = (LivingEntity) event.getEntity();
+						Random rng = new Random();
 						if (target != null) {
 							Collection<org.bukkit.potion.PotionEffect> effects = new ArrayList<> ();
-							for (PotionEffectValues effect : customTrident.getOnHitTargetEffects()) {
-								effects.add(new org.bukkit.potion.PotionEffect(
-										org.bukkit.potion.PotionEffectType.getByName(effect.getType().name()),
-										effect.getDuration() * 20, effect.getLevel() - 1)
-								);
+							for (ChancePotionEffectValues effect : customTrident.getOnHitTargetEffects()) {
+								if (effect.getChance().apply(rng)) {
+									effects.add(new org.bukkit.potion.PotionEffect(
+											org.bukkit.potion.PotionEffectType.getByName(effect.getType().name()),
+											effect.getDuration() * 20, effect.getLevel() - 1)
+									);
+								}
 							}
 							target.addPotionEffects(effects);
 						}
@@ -641,11 +795,13 @@ public class CustomItemsEventHandler implements Listener {
 							if (projectile.getShooter() instanceof LivingEntity) {
 								LivingEntity shooter = (LivingEntity) projectile.getShooter();
 								Collection<org.bukkit.potion.PotionEffect> effects = new ArrayList<> ();
-								for (PotionEffectValues effect : customTrident.getOnHitPlayerEffects()) {
-									effects.add(new org.bukkit.potion.PotionEffect(
-											org.bukkit.potion.PotionEffectType.getByName(effect.getType().name()),
-											effect.getDuration() * 20, effect.getLevel() - 1)
-									);
+								for (ChancePotionEffectValues effect : customTrident.getOnHitPlayerEffects()) {
+									if (effect.getChance().apply(rng)) {
+										effects.add(new org.bukkit.potion.PotionEffect(
+												org.bukkit.potion.PotionEffectType.getByName(effect.getType().name()),
+												effect.getDuration() * 20, effect.getLevel() - 1)
+										);
+									}
 								}
 								shooter.addPotionEffects(effects);
 							}
@@ -1033,7 +1189,9 @@ public class CustomItemsEventHandler implements Listener {
 		}
 	}
 	
-	private boolean collectDrops(Collection<ItemStack> stacksToDrop, DropValues drop, Random random, CustomItemValues mainItem) {
+	private boolean collectDrops(
+			Collection<ItemStack> stacksToDrop, DropValues drop, Location location, Random random, CustomItemValues mainItem
+	) {
 		
 		// Make sure the required held items of drops are really required
 		boolean shouldDrop = true;
@@ -1045,6 +1203,10 @@ public class CustomItemsEventHandler implements Listener {
 					break;
 				}
 			}
+		}
+
+		if (!drop.getAllowedBiomes().isAllowed(CIBiome.valueOf(location.getBlock().getBiome().name()))) {
+			shouldDrop = false;
 		}
 		
 		if (!shouldDrop) {
@@ -1094,10 +1256,17 @@ public class CustomItemsEventHandler implements Listener {
 		return cancelDefaultDrops;
 	}
 
+	private boolean isPerformingMultiBlockBreak = false;
+
 	// Use the highest priority because we want to ignore the event in case it is cancelled
 	// and we may need to modify the setDropItems flag of the event
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onBlockBreak(BlockBreakEvent event) {
+
+		if (!CustomItemsPlugin.getInstance().getEnabledAreas().isEnabled(event.getBlock().getLocation())) {
+			return;
+		}
+
 		ItemStack mainItem = event.getPlayer().getInventory().getItemInMainHand();
 		boolean usedSilkTouch = mainItem != null && mainItem.containsEnchantment(Enchantment.SILK_TOUCH);
 		CustomItemValues custom = itemSet.getItem(mainItem);
@@ -1113,20 +1282,102 @@ public class CustomItemsEventHandler implements Listener {
 		for (BlockDropValues blockDrop : customDrops) {
 			if (!usedSilkTouch || blockDrop.shouldAllowSilkTouch()) {
 				DropValues drop = blockDrop.getDrop();
-				if (collectDrops(stacksToDrop, drop, random, custom)) {
+				if (collectDrops(stacksToDrop, drop, event.getBlock().getLocation(), random, custom)) {
 					cancelDefaultDrops = true;
 				}
 			}
 		}
-		
-		if (custom != null) {
+
+		// To avoid endless recursion, don't enter this branch while performing a multi block break
+		if (custom != null && !this.isPerformingMultiBlockBreak) {
 			boolean wasSolid = ItemHelper.isMaterialSolid(event.getBlock());
 			boolean wasFakeMainHand = DualWieldSupport.isFakeMainHand(event);
+
+			MultiBlockBreakValues mbb = custom.getMultiBlockBreak();
+			Collection<Block> extraBlocksToBreak = new ArrayList<>();
+
+			if (mbb.getSize() > 1) {
+
+				int coreX = event.getBlock().getX();
+				int coreY = event.getBlock().getY();
+				int coreZ = event.getBlock().getZ();
+
+				String blockType = ItemHelper.getMaterialName(event.getBlock());
+				CustomBlockValues customBlock = MushroomBlockHelper.getMushroomBlock(event.getBlock());
+
+				for (int x = 1 + coreX - mbb.getSize(); x < coreX + mbb.getSize(); x++) {
+					for (int y = 1 + coreY - mbb.getSize(); y < coreY + mbb.getSize(); y++) {
+						for (int z = 1 + coreZ - mbb.getSize(); z < coreZ + mbb.getSize(); z++) {
+							if (x != coreX || y != coreY || z != coreZ) {
+								boolean isCloseEnough;
+								if (mbb.getShape() == MultiBlockBreakValues.Shape.CUBE) {
+									isCloseEnough = true;
+								} else if (mbb.getShape() == MultiBlockBreakValues.Shape.MANHATTAN) {
+									int dx = Math.abs(x - coreX);
+									int dy = Math.abs(y - coreY);
+									int dz = Math.abs(z - coreZ);
+									isCloseEnough = dx + dy + dz < mbb.getSize();
+								} else {
+									throw new UnsupportedOperationException("Unsupported shape " + mbb.getShape());
+								}
+								if (isCloseEnough) {
+									boolean isSameBlock;
+									Block candidateBlock = event.getBlock().getWorld().getBlockAt(x, y, z);
+									if (customBlock != null) {
+										CustomBlockValues candidateCustomBlock = MushroomBlockHelper.getMushroomBlock(candidateBlock);
+										isSameBlock = candidateCustomBlock != null && candidateCustomBlock.getInternalID() == customBlock.getInternalID();
+									} else {
+										String candidateBlockType = ItemHelper.getMaterialName(candidateBlock);
+										isSameBlock = candidateBlockType.equals(blockType);
+									}
+
+									if (isSameBlock) {
+										extraBlocksToBreak.add(candidateBlock);
+									}
+								}
+							}
+						}
+					}
+				}
+
+				this.isPerformingMultiBlockBreak = true;
+
+				for (Block extraBlockToBreak : extraBlocksToBreak) {
+					BlockBreakEvent extraBreakEvent = new BlockBreakEvent(
+							extraBlockToBreak, event.getPlayer()
+					);
+					Bukkit.getPluginManager().callEvent(extraBreakEvent);
+					if (!extraBreakEvent.isCancelled()) {
+
+						Collection<ItemStack> drops = extraBlockToBreak.getDrops(mainItem);
+
+						extraBlockToBreak.setType(Material.AIR);
+
+						if (extraBreakEvent.isDropItems()) {
+							for (ItemStack itemToDrop : drops) {
+								extraBlockToBreak.getWorld().dropItemNaturally(
+										extraBlockToBreak.getLocation(), itemToDrop
+								);
+							}
+						}
+
+						if (extraBreakEvent.getExpToDrop() > 0) {
+							ExperienceOrb expOrb = (ExperienceOrb) extraBlockToBreak.getWorld().spawnEntity(
+									extraBlockToBreak.getLocation(), EntityType.EXPERIENCE_ORB
+							);
+							expOrb.setExperience(extraBreakEvent.getExpToDrop());
+						}
+					}
+				}
+
+				this.isPerformingMultiBlockBreak = false;
+			}
+
 			
 			// Delay this to avoid messing around with other plug-ins
-			Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () ->
-				wrap(custom).onBlockBreak(event.getPlayer(), mainItem, wasSolid, wasFakeMainHand)
-			);
+			Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
+				wrap(custom).onBlockBreak(event.getPlayer(), mainItem, wasSolid, wasFakeMainHand, 1 + extraBlocksToBreak.size());
+			});
 		}
 		
 		Location dropLocation = event.getBlock().getLocation().add(0.5, 0.5, 0.5);
@@ -1193,6 +1444,11 @@ public class CustomItemsEventHandler implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onEntityDeath(EntityDeathEvent event) {
+
+		if (!CustomItemsPlugin.getInstance().getEnabledAreas().isEnabled(event.getEntity().getLocation())) {
+			return;
+		}
+
 		Collection<MobDropValues> drops = itemSet.getMobDrops(event.getEntity());
 		Random random = new Random();
 		
@@ -1220,16 +1476,93 @@ public class CustomItemsEventHandler implements Listener {
 		boolean cancelDefaultDrops = false;
 		Collection<ItemStack> stacksToDrop = new ArrayList<>();
 		for (MobDropValues mobDrop : drops) {
-			if (collectDrops(stacksToDrop, mobDrop.getDrop(), random, usedItem)) {
+			if (collectDrops(stacksToDrop, mobDrop.getDrop(), event.getEntity().getLocation(), random, usedItem)) {
 				cancelDefaultDrops = true;
 			}
 		}
 		
 		if (cancelDefaultDrops) {
 			event.getDrops().clear();
+		} else if (event.getEntity() instanceof Player) {
+			Player player = (Player) event.getEntity();
+			Collection<ItemStack> stacksToKeep = new ArrayList<>();
+			event.getDrops().removeIf(droppedItem -> {
+				CustomItemValues droppedCustomItem = itemSet.getItem(droppedItem);
+				if (droppedCustomItem != null && droppedCustomItem.shouldKeepOnDeath()) {
+					stacksToKeep.add(droppedItem);
+					return true;
+				} else {
+					return false;
+				}
+			});
+			if (!stacksToKeep.isEmpty()) {
+				Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
+					for (ItemStack stackToKeep : stacksToKeep) {
+						player.getInventory().addItem(stackToKeep);
+					}
+				});
+			}
 		}
 		
 		event.getDrops().addAll(stacksToDrop);
+	}
+
+	private boolean doesEntityTypeResistFireDamage(EntityType candidate) {
+		EntityType[] fireResistingEntities = {
+				EntityType.WITHER_SKELETON,
+				EntityType.GHAST,
+				EntityType.PIG_ZOMBIE,
+				EntityType.BLAZE,
+				EntityType.MAGMA_CUBE,
+				EntityType.WITHER,
+		};
+		for (EntityType resistingType : fireResistingEntities) {
+			if (resistingType == candidate) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean isPerformingCustomDamage;
+
+	@EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+	public void applyCustomDamageSource(EntityDamageByEntityEvent event) {
+		if (event.getDamager() instanceof LivingEntity) {
+			LivingEntity damager = (LivingEntity) event.getDamager();
+			EntityEquipment equipment = damager.getEquipment();
+			if (equipment != null) {
+
+				CustomItemValues customWeapon = itemSet.getItem(equipment.getItemInMainHand());
+				if (customWeapon != null && customWeapon.getSpecialMeleeDamage() != null) {
+					SpecialMeleeDamageValues specialDamage = customWeapon.getSpecialMeleeDamage();
+					if (!isPerformingCustomDamage) {
+						event.setCancelled(true);
+
+						// For some reason, this needs to be done manually. Fire resistance potion effect
+						// works out-of-the-box though, so I don't need to check for that.
+						if (!specialDamage.isFire() || !doesEntityTypeResistFireDamage(event.getEntityType())) {
+							isPerformingCustomDamage = true;
+							String rawDamageSourceName;
+							if (specialDamage.getDamageSource() != null) {
+								rawDamageSourceName = specialDamage.getDamageSource().rawName;
+							} else {
+								if (event.getDamager() instanceof Player) {
+									rawDamageSourceName = "player";
+								} else {
+									rawDamageSourceName = "mob";
+								}
+							}
+							EntityDamageHelper.causeCustomPhysicalAttack(
+									damager, event.getEntity(), (float) event.getDamage(),
+									rawDamageSourceName, specialDamage.shouldIgnoreArmor(), specialDamage.isFire()
+							);
+							isPerformingCustomDamage = false;
+						}
+					}
+				}
+			}
+		}
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -1242,18 +1575,21 @@ public class CustomItemsEventHandler implements Listener {
 				ItemStack chest = target.getEquipment().getChestplate();
 				ItemStack legs = target.getEquipment().getLeggings();
 				ItemStack boots = target.getEquipment().getBoots();
-	
+
+				Random rng = new Random();
 				CustomItemValues customHelmet = itemSet.getItem(helmet);
 				if (customHelmet != null) {
 					Collection<org.bukkit.potion.PotionEffect> pe = new ArrayList<>();
 
-					for (PotionEffectValues effect : customHelmet.getOnHitPlayerEffects()) {
-						pe.add(new org.bukkit.potion.PotionEffect(
-								org.bukkit.potion.PotionEffectType.getByName(
-										effect.getType().name()
-								), effect.getDuration() * 20, 
-								effect.getLevel() - 1)
-						);
+					for (ChancePotionEffectValues effect : customHelmet.getOnHitPlayerEffects()) {
+						if (effect.getChance().apply(rng)) {
+							pe.add(new org.bukkit.potion.PotionEffect(
+									org.bukkit.potion.PotionEffectType.getByName(
+											effect.getType().name()
+									), effect.getDuration() * 20,
+									effect.getLevel() - 1)
+							);
+						}
 					}
 
 					target.addPotionEffects(pe);
@@ -1262,13 +1598,15 @@ public class CustomItemsEventHandler implements Listener {
 				CustomItemValues customChest = itemSet.getItem(chest);
 				if (customChest != null) {
 					Collection<org.bukkit.potion.PotionEffect> pe = new ArrayList<>();
-					for (PotionEffectValues effect : customChest.getOnHitPlayerEffects()) {
-						pe.add(new org.bukkit.potion.PotionEffect(
-								org.bukkit.potion.PotionEffectType.getByName(
-										effect.getType().name()
-								), effect.getDuration() * 20, 
-								effect.getLevel() - 1)
-						);
+					for (ChancePotionEffectValues effect : customChest.getOnHitPlayerEffects()) {
+						if (effect.getChance().apply(rng)) {
+							pe.add(new org.bukkit.potion.PotionEffect(
+									org.bukkit.potion.PotionEffectType.getByName(
+											effect.getType().name()
+									), effect.getDuration() * 20,
+									effect.getLevel() - 1)
+							);
+						}
 					}
 					target.addPotionEffects(pe);
 				}
@@ -1276,13 +1614,15 @@ public class CustomItemsEventHandler implements Listener {
 				CustomItemValues customLegs = itemSet.getItem(legs);
 				if (customLegs != null) {
 					Collection<org.bukkit.potion.PotionEffect> pe = new ArrayList<>();
-					for (PotionEffectValues effect : customLegs.getOnHitPlayerEffects()) {
-						pe.add(new org.bukkit.potion.PotionEffect(
-								org.bukkit.potion.PotionEffectType.getByName(
-										effect.getType().name()
-								), effect.getDuration() * 20, 
-								effect.getLevel() - 1)
-						);
+					for (ChancePotionEffectValues effect : customLegs.getOnHitPlayerEffects()) {
+						if (effect.getChance().apply(rng)) {
+							pe.add(new org.bukkit.potion.PotionEffect(
+									org.bukkit.potion.PotionEffectType.getByName(
+											effect.getType().name()
+									), effect.getDuration() * 20,
+									effect.getLevel() - 1)
+							);
+						}
 					}
 					target.addPotionEffects(pe);
 				}
@@ -1290,13 +1630,15 @@ public class CustomItemsEventHandler implements Listener {
 				CustomItemValues customBoots = itemSet.getItem(boots);
 				if (customBoots != null) {
 					Collection<org.bukkit.potion.PotionEffect> pe = new ArrayList<>();
-					for (PotionEffectValues effect : customBoots.getOnHitPlayerEffects()) {
-						pe.add(new org.bukkit.potion.PotionEffect(
-								org.bukkit.potion.PotionEffectType.getByName(
-										effect.getType().name()
-								), effect.getDuration() * 20, 
-								effect.getLevel() - 1)
-						);
+					for (ChancePotionEffectValues effect : customBoots.getOnHitPlayerEffects()) {
+						if (effect.getChance().apply(rng)) {
+							pe.add(new org.bukkit.potion.PotionEffect(
+									org.bukkit.potion.PotionEffectType.getByName(
+											effect.getType().name()
+									), effect.getDuration() * 20,
+									effect.getLevel() - 1)
+							);
+						}
 					}
 					target.addPotionEffects(pe);
 				}
@@ -1312,51 +1654,197 @@ public class CustomItemsEventHandler implements Listener {
 							wrap(custom).onEntityHit(damager, weapon, event.getEntity());
 						}
 					}
-	
+
 					Collection<org.bukkit.potion.PotionEffect> te = new ArrayList<>();
 					if (customHelmet != null) {
-						for (PotionEffectValues effect : customHelmet.getOnHitTargetEffects()) {
-							te.add(new PotionEffect(
-									org.bukkit.potion.PotionEffectType.getByName(
-											effect.getType().name()
-									), effect.getDuration() * 20, 
-									effect.getLevel() - 1)
-							);
+						for (ChancePotionEffectValues effect : customHelmet.getOnHitTargetEffects()) {
+							if (effect.getChance().apply(rng)) {
+								te.add(new PotionEffect(
+										org.bukkit.potion.PotionEffectType.getByName(
+												effect.getType().name()
+										), effect.getDuration() * 20,
+										effect.getLevel() - 1)
+								);
+							}
 						}
 					}
 					if (customChest != null) {
-						for (PotionEffectValues effect : customChest.getOnHitTargetEffects()) {
-							te.add(new PotionEffect(
-									org.bukkit.potion.PotionEffectType.getByName(
-											effect.getType().name()
-									), effect.getDuration() * 20, 
-									effect.getLevel() - 1)
-							);
+						for (ChancePotionEffectValues effect : customChest.getOnHitTargetEffects()) {
+							if (effect.getChance().apply(rng)) {
+								te.add(new PotionEffect(
+										org.bukkit.potion.PotionEffectType.getByName(
+												effect.getType().name()
+										), effect.getDuration() * 20,
+										effect.getLevel() - 1)
+								);
+							}
 						}
 					}
 					if (customLegs != null) {
-						for (PotionEffectValues effect : customLegs.getOnHitTargetEffects()) {
-							te.add(new PotionEffect(
-									org.bukkit.potion.PotionEffectType.getByName(
-											effect.getType().name()
-									), effect.getDuration() * 20, 
-									effect.getLevel() - 1)
-							);
+						for (ChancePotionEffectValues effect : customLegs.getOnHitTargetEffects()) {
+							if (effect.getChance().apply(rng)) {
+								te.add(new PotionEffect(
+										org.bukkit.potion.PotionEffectType.getByName(
+												effect.getType().name()
+										), effect.getDuration() * 20,
+										effect.getLevel() - 1)
+								);
+							}
 						}
 					}
 					if (customBoots != null) {
-						for (PotionEffectValues effect : customBoots.getOnHitTargetEffects()) {
-							te.add(new PotionEffect(
-									org.bukkit.potion.PotionEffectType.getByName(
-											effect.getType().name()
-									), effect.getDuration() * 20, 
-									effect.getLevel() - 1)
-							);
+						for (ChancePotionEffectValues effect : customBoots.getOnHitTargetEffects()) {
+							if (effect.getChance().apply(rng)) {
+								te.add(new PotionEffect(
+										org.bukkit.potion.PotionEffectType.getByName(
+												effect.getType().name()
+										), effect.getDuration() * 20,
+										effect.getLevel() - 1)
+								);
+							}
 						}
 					}
 					damager.addPotionEffects(te);
 				}
 			}
+		}
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void applyAttackEffects(EntityDamageByEntityEvent event) {
+		if (event.getEntity() instanceof Player) {
+			Player victim = (Player) event.getEntity();
+
+			if (victim.isBlocking()) {
+				UsedShield usedShield = determineUsedShield(victim);
+
+				if (usedShield.customShield != null) {
+					Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
+						applyAttackEffects(
+								event.getDamager(), victim, usedShield.customShield.getBlockingEffects(),
+								event.getDamage(), event.getFinalDamage()
+						);
+					});
+				}
+			}
+		}
+
+		if (event.getDamager() instanceof LivingEntity) {
+			LivingEntity attacker = (LivingEntity) event.getDamager();
+			EntityEquipment attackerEquipment = attacker.getEquipment();
+			if (attackerEquipment != null) {
+
+				ItemStack weaponStack = attackerEquipment.getItemInMainHand();
+				CustomItemValues customWeapon = itemSet.getItem(weaponStack);
+				if (customWeapon != null) {
+					Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
+						applyAttackEffects(
+								attacker, event.getEntity(), customWeapon.getAttackEffects(),
+								event.getDamage(), event.getFinalDamage()
+						);
+					});
+				}
+			}
+		}
+	}
+
+	private void applyAttackEffects(
+			Entity attacker, Entity victim, Collection<AttackEffectGroupValues> effects,
+			double originalDamage, double finalDamage
+	) {
+		Random rng = new Random();
+		Vector attackDirection = victim.getLocation().subtract(attacker.getLocation()).toVector();
+
+		// This check is needed to avoid problems when attackDirection ~= (0, 0, 0)
+		if (attackDirection.lengthSquared() > 0.01) {
+			attackDirection.normalize();
+		}
+
+		for (AttackEffectGroupValues effectGroup : effects) {
+			if (originalDamage >= effectGroup.getOriginalDamageThreshold() && finalDamage >= effectGroup.getFinalDamageThreshold() && effectGroup.getChance().apply(rng)) {
+				for (AttackEffectValues effect : effectGroup.getAttackerEffects()) {
+					applyAttackEffect(attacker, effect, attackDirection, rng);
+				}
+				for (AttackEffectValues effect : effectGroup.getVictimEffects()) {
+					applyAttackEffect(victim, effect, attackDirection, rng);
+				}
+			}
+		}
+	}
+
+	private void applyAttackEffect(Entity entity, AttackEffectValues effect, Vector attackDirection, Random rng) {
+		if (effect instanceof AttackPotionEffectValues) {
+			if (entity instanceof LivingEntity) {
+
+				AttackPotionEffectValues potionEffect = (AttackPotionEffectValues) effect;
+				((LivingEntity) entity).addPotionEffect(new org.bukkit.potion.PotionEffect(
+						Objects.requireNonNull(PotionEffectType.getByName(potionEffect.getPotionEffect().getType().name())),
+						potionEffect.getPotionEffect().getDuration(),
+						potionEffect.getPotionEffect().getLevel() - 1
+				));
+			}
+		} else if (effect instanceof AttackIgniteValues) {
+			entity.setFireTicks(((AttackIgniteValues) effect).getDuration());
+		} else if (effect instanceof AttackDropWeaponValues) {
+			if (entity instanceof LivingEntity) {
+
+				EntityEquipment equipment = ((LivingEntity) entity).getEquipment();
+				if (equipment != null) {
+					ItemStack mainItem = equipment.getItemInMainHand();
+					ItemStack offItem = equipment.getItemInOffHand();
+					if (!ItemUtils.isEmpty(mainItem)) {
+						equipment.setItemInMainHand(null);
+						entity.getWorld().dropItemNaturally(entity.getLocation(), mainItem);
+					} else if (ItemHelper.getMaterialName(offItem).equals(CIMaterial.SHIELD.name())) {
+						equipment.setItemInOffHand(null);
+						entity.getWorld().dropItemNaturally(entity.getLocation(), offItem);
+					}
+				}
+			}
+		} else if (effect instanceof AttackLaunchValues) {
+			AttackLaunchValues launchEffect = (AttackLaunchValues) effect;
+
+			Vector direction;
+			if (launchEffect.getDirection() == AttackLaunchValues.LaunchDirection.ATTACK) {
+				direction = attackDirection.clone();
+			} else if (launchEffect.getDirection() == AttackLaunchValues.LaunchDirection.ATTACK_HORIZONTAL) {
+				direction = new Vector(attackDirection.getX(), 0, attackDirection.getZ());
+
+				// Check to avoid division by 0
+				if (direction.lengthSquared() > 0.001) {
+					direction.normalize();
+				}
+			} else if (launchEffect.getDirection() == AttackLaunchValues.LaunchDirection.ATTACK_SIDE) {
+				direction = new Vector(0, 1, 0).crossProduct(attackDirection);
+
+				// Avoid always knocking the target in the same direction: it should randomly differ between left and right
+				if (rng.nextBoolean()) {
+					direction.multiply(-1);
+				}
+			} else if (launchEffect.getDirection() == AttackLaunchValues.LaunchDirection.UP) {
+				direction = new Vector(0, 1, 0);
+			} else {
+				throw new UnsupportedOperationException("Unknown launch direction: " + launchEffect.getDirection());
+			}
+			entity.setVelocity(entity.getVelocity().add(direction.multiply(launchEffect.getSpeed())));
+		} else if (effect instanceof AttackDealDamageValues) {
+			if (entity instanceof LivingEntity) {
+				AttackDealDamageValues damageEffect = (AttackDealDamageValues) effect;
+
+				Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
+					((LivingEntity) entity).damage(damageEffect.getDamage());
+				}, damageEffect.getDelay());
+			}
+		} else if (effect instanceof AttackPlaySoundValues) {
+			if (entity instanceof Player) {
+				AttackPlaySoundValues soundEffect = (AttackPlaySoundValues) effect;
+				((Player) entity).playSound(
+						entity.getLocation(), Sound.valueOf(soundEffect.getSound().name()),
+						soundEffect.getVolume(), soundEffect.getPitch()
+				);
+			}
+		} else {
+			throw new UnsupportedOperationException("Unknown attack effect type: " + effect.getClass());
 		}
 	}
 
@@ -1447,34 +1935,17 @@ public class CustomItemsEventHandler implements Listener {
 			// There is no nice shield blocking event, so this dirty check will have to do
 			if (player.isBlocking() && event.getFinalDamage() == 0.0) {
 
-				CustomShieldValues shield = null;
-				boolean offhand = true;
+				UsedShield usedShield = determineUsedShield(player);
 
-				CustomItemValues customOff = itemSet.getItem(player.getInventory().getItemInOffHand());
-				if (customOff instanceof CustomShieldValues) {
-					shield = (CustomShieldValues) customOff;
-				}
-
-				CustomItemValues customMain = itemSet.getItem(player.getInventory().getItemInMainHand());
-				if (customMain instanceof CustomShieldValues) {
-					shield = (CustomShieldValues) customMain;
-					offhand = false;
-				} else if (ItemHelper.getMaterialName(
-							player.getInventory().getItemInMainHand()
-						).equals(CIMaterial.SHIELD.name())) {
-					shield = null;
-					offhand = false;
-				}
-
-				if (shield != null && event.getDamage() >= shield.getThresholdDamage()) {
+				if (usedShield.customShield != null && event.getDamage() >= usedShield.customShield.getThresholdDamage()) {
 					int lostDurability = (int) (event.getDamage()) + 1;
-					if (offhand) {
+					if (usedShield.inOffhand) {
 						ItemStack oldOffHand = player.getInventory().getItemInOffHand();
-						ItemStack newOffHand = wrap(shield).decreaseDurability(oldOffHand, lostDurability);
+						ItemStack newOffHand = wrap(usedShield.customShield).decreaseDurability(oldOffHand, lostDurability);
 						if (oldOffHand != newOffHand) {
 							player.getInventory().setItemInOffHand(newOffHand);
 							if (newOffHand == null) {
-								String newItemName = checkBrokenCondition(customOff.getReplacementConditions());
+								String newItemName = checkBrokenCondition(usedShield.customShield.getReplacementConditions());
 								if (newItemName != null) {
 									player.getInventory().setItemInOffHand(wrap(itemSet.getItem(newItemName)).create(1));
 								}
@@ -1483,11 +1954,11 @@ public class CustomItemsEventHandler implements Listener {
 						}
 					} else {
 						ItemStack oldMainHand = player.getInventory().getItemInMainHand();
-						ItemStack newMainHand = wrap(shield).decreaseDurability(oldMainHand, lostDurability);
+						ItemStack newMainHand = wrap(usedShield.customShield).decreaseDurability(oldMainHand, lostDurability);
 						if (oldMainHand != newMainHand) {
 							player.getInventory().setItemInMainHand(newMainHand);
 							if (newMainHand == null) {
-								String newItemName = checkBrokenCondition(customMain.getReplacementConditions());
+								String newItemName = checkBrokenCondition(usedShield.customShield.getReplacementConditions());
 								if (newItemName != null) {
 									player.getInventory().setItemInMainHand(wrap(itemSet.getItem(newItemName)).create(1));
 								}
@@ -1497,6 +1968,43 @@ public class CustomItemsEventHandler implements Listener {
 					}
 				}
 			}
+		}
+	}
+
+	private UsedShield determineUsedShield(Player player) {
+		CustomShieldValues shield = null;
+		boolean offhand = true;
+
+		ItemStack offStack = player.getInventory().getItemInOffHand();
+		ItemStack mainStack = player.getInventory().getItemInMainHand();
+
+		CustomItemValues customOff = itemSet.getItem(offStack);
+		if (customOff instanceof CustomShieldValues) {
+			shield = (CustomShieldValues) customOff;
+		}
+
+		CustomItemValues customMain = itemSet.getItem(mainStack);
+		if (customMain instanceof CustomShieldValues) {
+			shield = (CustomShieldValues) customMain;
+			offhand = false;
+		} else if (ItemHelper.getMaterialName(mainStack).equals(CIMaterial.SHIELD.name())) {
+			shield = null;
+			offhand = false;
+		}
+
+		return new UsedShield(offhand, offhand ? offStack : mainStack, shield);
+	}
+
+	private static class UsedShield {
+
+		final boolean inOffhand;
+		final ItemStack itemStack;
+		final CustomShieldValues customShield;
+
+		UsedShield(boolean inOffHand, ItemStack itemStack, CustomShieldValues customShield) {
+			this.inOffhand = inOffHand;
+			this.itemStack = itemStack;
+			this.customShield = customShield;
 		}
 	}
 
@@ -2192,7 +2700,7 @@ public class CustomItemsEventHandler implements Listener {
 			CustomItemValues customCurrent = itemSet.getItem(current);
 			
 			// This block makes custom items stackable
-			if (customCursor != null && customCursor == customCurrent && customCursor.canStack()) {
+			if (customCursor != null && customCursor == customCurrent && wrap(customCursor).needsStackingHelp()) {
 				
 				event.setResult(Result.DENY);
 				if (event.isLeftClick()) {
@@ -2217,7 +2725,7 @@ public class CustomItemsEventHandler implements Listener {
 			}
 		} else if (action == InventoryAction.COLLECT_TO_CURSOR) {
 			CustomItemValues customItem = itemSet.getItem(event.getCursor());
-			if (customItem != null && customItem.canStack()) {
+			if (customItem != null && wrap(customItem).needsStackingHelp()) {
 				int currentStacksize = event.getCursor().getAmount();
 				InventoryView view = event.getView();
 				/*
@@ -2272,7 +2780,7 @@ public class CustomItemsEventHandler implements Listener {
 			ItemStack clickedItem = event.getCurrentItem();
 			CustomItemValues customClicked = itemSet.getItem(clickedItem);
 
-			if (customClicked != null && customClicked.canStack()) {
+			if (customClicked != null && wrap(customClicked).needsStackingHelp()) {
 				event.setCancelled(true);
 				boolean clickedTopInv = event.getRawSlot() == event.getSlot();
 
@@ -2427,7 +2935,7 @@ public class CustomItemsEventHandler implements Listener {
 	    if (event.getType() == DragType.EVEN) {
 			ItemStack remainingCursor = event.getCursor();
 			CustomItemValues customItem = itemSet.getItem(remainingCursor);
-			if (customItem != null && customItem.canStack()) {
+			if (customItem != null && wrap(customItem).needsStackingHelp()) {
 			    int numSlots = event.getNewItems().size();
 			    int remainingSize = remainingCursor.getAmount();
 			    int extraPerSlot = remainingSize / numSlots;
@@ -2492,7 +3000,7 @@ public class CustomItemsEventHandler implements Listener {
 
 		// Check if there are any custom recipes matching the ingredients
 		CustomRecipesView recipes = itemSet.get().getCraftingRecipes();
-		if (recipes.size() > 0) {
+		if (recipes.size() > 0 && CustomItemsPlugin.getInstance().getEnabledAreas().isEnabled(owner.getLocation())) {
 			// Determine ingredients
 			ItemStack[] ingredients = inventory.getStorageContents();
 			ingredients = Arrays.copyOfRange(ingredients, 1, ingredients.length);

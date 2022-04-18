@@ -10,6 +10,7 @@ import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.BlockReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.texture.BaseTextureValues;
+import nl.knokko.customitems.texture.animated.AnimatedTextureValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -76,7 +77,8 @@ public class EditBlock extends GuiMenu  {
         addComponent(CollectionSelect.createButton(
                 set.getTextures().references(),
                 currentValues::setTexture,
-                candidateTexture -> candidateTexture.get().getClass() == BaseTextureValues.class,
+                candidateTexture -> candidateTexture.get().getClass() == BaseTextureValues.class
+                || candidateTexture.get().getClass() == AnimatedTextureValues.class,
                 textureReference -> textureReference.get().getName(),
                 currentValues.getTextureReference()
         ), 0.45f, 0.5f, 0.6f, 0.6f);

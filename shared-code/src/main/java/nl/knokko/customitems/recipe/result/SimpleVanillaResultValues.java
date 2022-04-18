@@ -114,6 +114,10 @@ public class SimpleVanillaResultValues extends ResultValues {
         this.amount = newAmount;
     }
 
+    public void setAmount(int newAmount) {
+        this.setAmount((byte) newAmount);
+    }
+
     public void setMaterial(CIMaterial newMaterial) {
         assertMutable();
         Checks.notNull(newMaterial);

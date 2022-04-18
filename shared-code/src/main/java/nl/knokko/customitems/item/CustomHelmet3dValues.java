@@ -21,6 +21,9 @@ public class CustomHelmet3dValues extends CustomArmorValues {
         } else if (encoding == ItemEncoding.ENCODING_HELMET3D_11) {
             result.load11(input, itemSet);
             result.initDefaults11();
+        } else if (encoding == ItemEncoding.ENCODING_HELMET3D_12) {
+            result.loadArmorPropertiesNew(input, itemSet);
+            return result;
         } else {
             throw new UnknownEncodingException("CustomHelmet3D", encoding);
         }
@@ -52,12 +55,8 @@ public class CustomHelmet3dValues extends CustomArmorValues {
 
     @Override
     public void save(BitOutput output, ItemSet.Side side) {
-        output.addByte(ItemEncoding.ENCODING_HELMET3D_11);
-        saveArmor11(output);
-
-        if (side == ItemSet.Side.EDITOR) {
-            saveEditorOnlyProperties1(output);
-        }
+        output.addByte(ItemEncoding.ENCODING_HELMET3D_12);
+        this.saveArmorPropertiesNew(output, side);
     }
 
     @Override

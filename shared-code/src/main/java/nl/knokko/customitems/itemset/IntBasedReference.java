@@ -41,6 +41,11 @@ abstract class IntBasedReference<M extends Model<V>, V extends ModelValues> impl
         }
     }
 
+    @Override
+    public int hashCode() {
+        return this.model != null ? extractIdentity(this.model.getValues()) : this.id;
+    }
+
     abstract String getDescription();
 
     abstract Collection<M> getCollection();

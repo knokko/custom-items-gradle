@@ -1,6 +1,5 @@
 package nl.knokko.customitems.container;
 
-import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.container.fuel.FuelMode;
 import nl.knokko.customitems.container.slot.ContainerSlotValues;
 import nl.knokko.customitems.container.slot.EmptySlotValues;
@@ -22,20 +21,37 @@ public class CustomContainerValues extends ModelValues {
 
     private static final int WIDTH = 9;
 
-    private static class Encodings {
-
-        static final byte ENCODING1 = 1;
-    }
-
     public static CustomContainerValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
         CustomContainerValues result = new CustomContainerValues(false);
 
-        if (encoding == Encodings.ENCODING1) {
-            result.load1(input, itemSet);
-        } else {
-            throw new UnknownEncodingException("CustomContainer", encoding);
+        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("CustomContainer", encoding);
+
+        result.name = input.readString();
+        result.selectionIcon = SlotDisplayValues.load(input, itemSet);
+        int numRecipes = input.readInt();
+        result.recipes = new ArrayList<>(numRecipes);
+        for (int counter = 0; counter < numRecipes; counter++) {
+            result.recipes.add(ContainerRecipeValues.load(input, itemSet));
         }
+        if (input.readBoolean()) {
+            result.fuelMode = FuelMode.ANY;
+        } else {
+            result.fuelMode = FuelMode.ALL;
+        }
+        int height = input.readInt();
+        result.slots = new ContainerSlotValues[WIDTH][height];
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < WIDTH; x++) {
+                result.slots[x][y] = ContainerSlotValues.load(input, itemSet);
+            }
+        }
+        if (encoding == 1) {
+            result.host = new CustomContainerHost(VanillaContainerType.valueOf(input.readString()));
+        } else {
+            result.host = CustomContainerHost.load(input, itemSet);
+        }
+        result.persistentStorage = input.readBoolean();
 
         return result;
     }
@@ -47,7 +63,7 @@ public class CustomContainerValues extends ModelValues {
     private List<ContainerRecipeValues> recipes;
 
     private FuelMode fuelMode;
-    private VanillaContainerType vanillaType;
+    private CustomContainerHost host;
     private boolean persistentStorage;
 
     public CustomContainerValues(boolean mutable) {
@@ -62,7 +78,7 @@ public class CustomContainerValues extends ModelValues {
         }
         this.recipes = new ArrayList<>(0);
         this.fuelMode = FuelMode.ALL;
-        this.vanillaType = VanillaContainerType.CRAFTING_TABLE;
+        this.host = new CustomContainerHost(VanillaContainerType.CRAFTING_TABLE);
         this.persistentStorage = false;
     }
 
@@ -73,36 +89,12 @@ public class CustomContainerValues extends ModelValues {
         this.slots = toCopy.getSlots();
         this.recipes = toCopy.getRecipes();
         this.fuelMode = toCopy.getFuelMode();
-        this.vanillaType = toCopy.getVanillaType();
+        this.host = toCopy.getHost();
         this.persistentStorage = toCopy.hasPersistentStorage();
     }
 
-    private void load1(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
-        this.name = input.readString();
-        this.selectionIcon = SlotDisplayValues.load(input, itemSet);
-        int numRecipes = input.readInt();
-        this.recipes = new ArrayList<>(numRecipes);
-        for (int counter = 0; counter < numRecipes; counter++) {
-            this.recipes.add(ContainerRecipeValues.load(input, itemSet));
-        }
-        if (input.readBoolean()) {
-            this.fuelMode = FuelMode.ANY;
-        } else {
-            this.fuelMode = FuelMode.ALL;
-        }
-        int height = input.readInt();
-        this.slots = new ContainerSlotValues[WIDTH][height];
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < WIDTH; x++) {
-                this.slots[x][y] = ContainerSlotValues.load(input, itemSet);
-            }
-        }
-        this.vanillaType = VanillaContainerType.valueOf(input.readString());
-        this.persistentStorage = input.readBoolean();
-    }
-
     public void save(BitOutput output) {
-        output.addByte(Encodings.ENCODING1);
+        output.addByte((byte) 2);
         output.addString(name);
         selectionIcon.save(output);
         output.addInt(recipes.size());
@@ -116,7 +108,7 @@ public class CustomContainerValues extends ModelValues {
                 slots[x][y].save(output);
             }
         }
-        output.addString(vanillaType.name());
+        host.save(output);
         output.addBoolean(persistentStorage);
     }
 
@@ -126,11 +118,16 @@ public class CustomContainerValues extends ModelValues {
             CustomContainerValues otherContainer = (CustomContainerValues) other;
             return this.name.equals(otherContainer.name) && this.selectionIcon.equals(otherContainer.selectionIcon)
                     && this.recipes.equals(otherContainer.recipes) && this.fuelMode == otherContainer.fuelMode
-                    && Arrays.deepEquals(this.slots, otherContainer.slots) && this.vanillaType == otherContainer.vanillaType
+                    && Arrays.deepEquals(this.slots, otherContainer.slots) && this.host.equals(otherContainer.host)
                     && this.persistentStorage == otherContainer.persistentStorage;
         } else {
             return false;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Container " + name;
     }
 
     @Override
@@ -194,8 +191,8 @@ public class CustomContainerValues extends ModelValues {
         return fuelMode;
     }
 
-    public VanillaContainerType getVanillaType() {
-        return vanillaType;
+    public CustomContainerHost getHost() {
+        return host;
     }
 
     public boolean hasPersistentStorage() {
@@ -271,10 +268,10 @@ public class CustomContainerValues extends ModelValues {
         this.fuelMode = fuelMode;
     }
 
-    public void setVanillaType(VanillaContainerType vanillaType) {
+    public void setHost(CustomContainerHost newHost) {
         assertMutable();
-        Checks.notNull(vanillaType);
-        this.vanillaType = vanillaType;
+        Checks.notNull(newHost);
+        this.host = newHost;
     }
 
     public void setPersistentStorage(boolean persistentStorage) {
@@ -327,7 +324,8 @@ public class CustomContainerValues extends ModelValues {
         }
 
         if (fuelMode == null) throw new ProgrammingValidationException("No fuel mode");
-        if (vanillaType == null) throw new ProgrammingValidationException("No vanilla type");
+        if (host == null) throw new ProgrammingValidationException("No host");
+        Validation.scope("Host", host::validate, itemSet);
         // There are no invalid values for persistentStorage
     }
 
@@ -346,11 +344,6 @@ public class CustomContainerValues extends ModelValues {
         for (ContainerRecipeValues recipe : recipes) {
             Validation.scope("Recipes", () -> recipe.validateExportVersion(version));
         }
-        if (version < vanillaType.firstVersion) {
-            throw new ValidationException(vanillaType + " doesn't exist yet in mc " + MCVersions.createString(version));
-        }
-        if (version > vanillaType.lastVersion) {
-            throw new ValidationException(vanillaType + " doesn't exist anymore in mc " + MCVersions.createString(version));
-        }
+        host.validateExportVersion(version);
     }
 }

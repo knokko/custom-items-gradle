@@ -17,7 +17,7 @@ public class ItemDurabilityAssignments {
 
     public short getNextItemDamage(CustomItemType itemType) throws ValidationException {
         short nextItemDamage = (short) (previousItemDamage + 1);
-        if (nextItemDamage > itemType.getMaxDurability()) {
+        if (itemType != CustomItemType.OTHER && nextItemDamage > itemType.getMaxDurability()) {
             throw new ValidationException("Too many items have internal item type " + itemType);
         }
         this.previousItemDamage = nextItemDamage;

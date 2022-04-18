@@ -15,6 +15,8 @@ import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
+import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
+
 public class SelectDrop extends GuiMenu {
 	
 	private final ItemSet set;
@@ -46,7 +48,7 @@ public class SelectDrop extends GuiMenu {
 			state.getWindow().setMainComponent(returnMenu);
 		}), 0.025f, 0.8f, 0.2f, 0.9f);
 		
-		addComponent(new DynamicTextComponent("Items to drop:", EditProps.LABEL), 0.3f, 0.7f, 0.5f, 0.8f);
+		addComponent(new DynamicTextComponent("Items to drop:", LABEL), 0.3f, 0.7f, 0.5f, 0.8f);
 		addComponent(new DynamicTextButton("Choose...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new EditOutputTable(
 					this, currentValues.getOutputTable(), currentValues::setOutputTable, set
@@ -54,7 +56,7 @@ public class SelectDrop extends GuiMenu {
 		}), 0.55f, 0.7f, 0.7f, 0.8f);
 		
 		addComponent(new DynamicTextComponent("Item that must be held/used:", 
-						EditProps.LABEL), 0.3f, 0.55f, 0.65f, 0.65f
+						LABEL), 0.3f, 0.55f, 0.65f, 0.65f
 		);
 		addComponent(new DynamicTextButton("Choose...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(
@@ -62,9 +64,19 @@ public class SelectDrop extends GuiMenu {
 							this, "Players can use any item")
 			);
 		}), 0.7f, 0.55f, 0.85f, 0.65f);
-		
+
 		addComponent(
-				new DynamicTextComponent("Prevent normal drops", EditProps.LABEL),
+				new DynamicTextComponent("Allowed biomes:", LABEL),
+				0.3f, 0.4f, 0.5f, 0.5f
+		);
+		addComponent(new DynamicTextButton("Choose...", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new EditAllowedBiomes(
+					currentValues.getAllowedBiomes(), currentValues::setAllowedBiomes, this
+			));
+		}), 0.55f, 0.4f, 0.65f, 0.5f);
+
+		addComponent(
+				new DynamicTextComponent("Prevent normal drops", LABEL),
 				0.3f, 0.225f, 0.55f, 0.325f
 		);
 		addComponent(

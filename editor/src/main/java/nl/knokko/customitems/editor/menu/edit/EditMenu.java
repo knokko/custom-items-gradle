@@ -124,9 +124,9 @@ public class EditMenu extends GuiMenu {
 
 	private void saveAndExport(int mcVersion) {
 		try {
-			EditorFileManager.saveAndBackUp(this.set, fileName);
 			this.set.validateExportVersion(mcVersion);
 			EditorFileManager.export(this.set, mcVersion, fileName);
+			EditorFileManager.saveAndBackUp(this.set, fileName);
 			state.getWindow().setMainComponent(new AfterExportMenu(this));
 		} catch (IOException | ValidationException ex) {
 			setError(ex.getLocalizedMessage());

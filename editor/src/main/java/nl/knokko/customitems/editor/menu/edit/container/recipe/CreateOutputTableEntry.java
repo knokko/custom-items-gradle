@@ -4,15 +4,16 @@ import java.util.function.Consumer;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.recipe.result.ChooseResult;
+import nl.knokko.customitems.editor.util.FixedPointEditField;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
+import nl.knokko.customitems.util.Chance;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
-import nl.knokko.gui.component.text.IntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import nl.knokko.gui.util.Option;
@@ -39,10 +40,16 @@ public class CreateOutputTableEntry extends GuiMenu {
 		addComponent(new DynamicTextButton("Cancel", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
 			state.getWindow().setMainComponent(returnMenu);
 		}), 0.025f, 0.7f, 0.15f, 0.8f);
-		
+
+		Chance[] pChance = { Chance.percentage(50) };
 		addComponent(new DynamicTextComponent("Chance: ", EditProps.LABEL), 0.2f, 0.6f, 0.3f, 0.7f);
-		IntEditField chanceField = new IntEditField(50, 1, 100, EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE);
-		addComponent(chanceField, 0.3f, 0.6f, 0.4f, 0.7f);
+		addComponent(
+				new FixedPointEditField(
+						Chance.NUM_BACK_DIGITS, Chance.percentage(50).getRawValue(), 0, 100,
+						newRawValue -> pChance[0] = new Chance(newRawValue)
+				),
+				0.3f, 0.6f, 0.4f, 0.7f
+		);
 		addComponent(new DynamicTextComponent("%", EditProps.LABEL), 0.4f, 0.6f, 0.42f, 0.7f);
 		
 		addComponent(new DynamicTextComponent("Item: ", EditProps.LABEL), 0.2f, 0.4f, 0.3f, 0.5f);
@@ -58,14 +65,13 @@ public class CreateOutputTableEntry extends GuiMenu {
 				errorComponent.setText("You need to choose an item");
 				return;
 			}
-			
-			Option.Int chance = chanceField.getInt();
-			if (!chance.hasValue()) {
-				errorComponent.setText("The chance must be an integer between 1 and 100");
+
+			if (pChance[0] == null) {
+				errorComponent.setText("You need to type a valid chance");
 				return;
 			}
 
-			OutputTableValues.Entry entry = OutputTableValues.Entry.createQuick(pResult[0], chance.getValue());
+			OutputTableValues.Entry entry = OutputTableValues.Entry.createQuick(pResult[0], pChance[0]);
 			String error = Validation.toErrorString(() -> entry.validate(set));
 			if (error == null) {
 				onCreate.accept(entry);

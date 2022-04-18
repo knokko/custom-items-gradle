@@ -111,7 +111,7 @@ public class UpdateProjectileTask implements Runnable {
 	
 	private void createCoverItem(Vector position) {
 		
-		CIMaterial coverMaterial = CustomItemWrapper.getMaterial(projectile.prototype.getCover().getItemType());
+		CIMaterial coverMaterial = CustomItemWrapper.getMaterial(projectile.prototype.getCover().getItemType(), null);
 		ItemStack coverStack = ItemHelper.createStack(coverMaterial.name(), 1);
 		ItemMeta coverMeta = coverStack.getItemMeta();
 		coverMeta.setUnbreakable(true);
