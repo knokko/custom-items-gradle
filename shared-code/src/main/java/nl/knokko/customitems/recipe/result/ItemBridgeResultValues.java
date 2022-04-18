@@ -24,6 +24,13 @@ public class ItemBridgeResultValues extends ResultValues {
         return result;
     }
 
+    public static ItemBridgeResultValues createQuick(String itemId, int amount) {
+        ItemBridgeResultValues result = new ItemBridgeResultValues(true);
+        result.setItemId(itemId);
+        result.setAmount(amount);
+        return result;
+    }
+
     private String itemId;
     private int amount;
 
@@ -57,6 +64,11 @@ public class ItemBridgeResultValues extends ResultValues {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public int hashCode() {
+        return this.itemId.hashCode() + this.amount;
     }
 
     @Override

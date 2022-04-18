@@ -25,6 +25,13 @@ public class MimicResultValues extends ResultValues {
         return result;
     }
 
+    public static MimicResultValues createQuick(String itemId, int amount) {
+        MimicResultValues result = new MimicResultValues(true);
+        result.setItemId(itemId);
+        result.setAmount(amount);
+        return result;
+    }
+
     private String itemId;
     private int amount;
 
@@ -58,6 +65,11 @@ public class MimicResultValues extends ResultValues {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public int hashCode() {
+        return this.itemId.hashCode() + this.amount;
     }
 
     @Override
