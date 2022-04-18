@@ -3,6 +3,7 @@ package nl.knokko.customitems.recipe.ingredient;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 import nl.knokko.customitems.encoding.RecipeEncoding;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
@@ -13,13 +14,14 @@ import java.util.Objects;
 
 public class ItemBridgeIngredientValues extends IngredientValues {
 
-    public static ItemBridgeIngredientValues load(BitInput input) throws UnknownEncodingException {
+    public static ItemBridgeIngredientValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte internalEncoding = input.readByte();
         if (internalEncoding != 1) throw new UnknownEncodingException("ItemBridgeIngredient", internalEncoding);
 
         ItemBridgeIngredientValues result = new ItemBridgeIngredientValues(false);
         result.itemId = input.readString();
         result.amount = input.readInt();
+        result.loadRemainingItem(input, itemSet);
         return result;
     }
 
@@ -44,6 +46,11 @@ public class ItemBridgeIngredientValues extends IngredientValues {
         super(toCopy, mutable);
         this.itemId = toCopy.getItemId();
         this.amount = toCopy.getAmount();
+    }
+
+    @Override
+    public String toString() {
+        return toString(null);
     }
 
     @Override
@@ -88,6 +95,7 @@ public class ItemBridgeIngredientValues extends IngredientValues {
         output.addByte((byte) 1);
         output.addString(this.itemId);
         output.addInt(this.amount);
+        saveRemainingItem(output);
     }
 
     public String getItemId() {
