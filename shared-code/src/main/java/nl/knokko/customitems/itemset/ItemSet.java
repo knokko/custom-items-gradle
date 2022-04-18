@@ -165,7 +165,18 @@ public class ItemSet {
                 Set<Short> lockedAssignments = lockedDamageAssignments.computeIfAbsent(item.getItemType(), k -> new HashSet<>());
                 if (!lockedAssignments.contains(item.getItemDamage())) {
                     ItemDurabilityAssignments assignments = assignmentMap.computeIfAbsent(item.getItemType(), k -> new ItemDurabilityAssignments());
-                    assignments.claimList.add(new ItemDurabilityClaim("customitems/" + item.getName(), item.getItemDamage(), null));
+
+                    List<BowTextureEntry> pullTextures = null;
+                    if (item.getTexture() instanceof BowTextureValues) {
+                        pullTextures = ((BowTextureValues) item.getTexture()).getPullTextures();
+                    } else if (item.getTexture() instanceof CrossbowTextureValues) {
+                        pullTextures = ((CrossbowTextureValues) item.getTexture()).getPullTextures();
+                    }
+
+                    ItemDurabilityClaim lockedClaim = new ItemDurabilityClaim(
+                            "customitems/" + item.getName(), item.getItemDamage(), pullTextures
+                    );
+                    assignments.claimList.add(lockedClaim);
                     lockedAssignments.add(item.getItemDamage());
                 }
             }
@@ -1243,10 +1254,6 @@ public class ItemSet {
 
     public void removeFuelRegistry(FuelRegistryReference registryToRemove) throws ValidationException, ProgrammingValidationException {
         removeModel(this.fuelRegistries, registryToRemove.getModel());
-    }
-
-    public void removeBlock(BlockReference blockToRemove) throws ValidationException, ProgrammingValidationException {
-        removeModel(this.blocks, blockToRemove.getModel());
     }
 
     public enum Side {
