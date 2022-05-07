@@ -3401,8 +3401,8 @@ public class CustomItemsEventHandler implements Listener {
 				}
 
 				boolean matchesCustomItem = false;
-				for (Object candidateItem : ri.getCustomItems()) {
-					if (candidateItem == usedCustomItem) {
+				for (ItemReference candidateItem : ri.getCustomItems()) {
+					if (candidateItem.get() == usedCustomItem) {
 						matchesCustomItem = true;
 						break;
 					}
