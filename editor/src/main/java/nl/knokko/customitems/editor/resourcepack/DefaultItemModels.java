@@ -19,7 +19,7 @@ public class DefaultItemModels {
         );
     }
 
-    private static String[] createModelBlockItem(CustomBlockValues block) {
+    static String[] createModelBlockItem(CustomBlockValues block) {
         return new String[] {
                 "{",
                 "    \"parent\": \"customblocks/" + block.getName() + "\"",
