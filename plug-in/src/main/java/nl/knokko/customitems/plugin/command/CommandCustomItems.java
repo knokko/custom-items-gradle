@@ -121,20 +121,30 @@ public class CommandCustomItems implements CommandExecutor {
 		if(args.length == 0) {
 			return false;
 		} else {
+			boolean enableOutput = true;
+			if (args[0].equals("disableoutput")) {
+				enableOutput = false;
+				args = Arrays.copyOfRange(args, 1, args.length);
+			}
+
 			switch (args[0]) {
 				case "give":
 				    if (!sender.hasPermission("customitems.give")) {
-				    	sender.sendMessage(ChatColor.DARK_RED + "You don't have access to this command.");
+				    	if (enableOutput) {
+							sender.sendMessage(ChatColor.DARK_RED + "You don't have access to this command.");
+						}
 				    	return true;
 					}
 					if (args.length == 2 || args.length == 3 || args.length == 4) {
 
 						Collection<String> errors = CustomItemsPlugin.getInstance().getLoadErrors();
 						if (!errors.isEmpty()) {
-							sender.sendMessage(ChatColor.RED + "The following errors occurred while enabling " +
-									"this plug-in. These errors will likely cause this command to fail:");
-							for (String error : errors) {
-								sender.sendMessage(ChatColor.DARK_RED + error);
+							if (enableOutput) {
+								sender.sendMessage(ChatColor.RED + "The following errors occurred while enabling " +
+										"this plug-in. These errors will likely cause this command to fail:");
+								for (String error : errors) {
+									sender.sendMessage(ChatColor.DARK_RED + error);
+								}
 							}
 						}
 
@@ -158,12 +168,14 @@ public class CommandCustomItems implements CommandExecutor {
 								if (sender instanceof Player) {
 									receiver = (Player) sender;
 								} else {
-									sender.sendMessage(lang.getCommandNoPlayerSpecified());
+									if (enableOutput) {
+										sender.sendMessage(lang.getCommandNoPlayerSpecified());
+									}
 								}
 							}
 							if (args.length >= 3) {
 								receiver = getOnlinePlayer(args[2]);
-								if (receiver == null) {
+								if (receiver == null && enableOutput) {
 									sender.sendMessage(lang.getCommandPlayerNotFound(args[2]));
 								}
 							}
@@ -171,46 +183,64 @@ public class CommandCustomItems implements CommandExecutor {
 								try {
 									amount = Integer.parseInt(args[3]);
 								} catch (NumberFormatException ex) {
-									sender.sendMessage(ChatColor.RED + "The amount (" + args[3] + ") should be an integer.");
+									if (enableOutput) {
+										sender.sendMessage(ChatColor.RED + "The amount (" + args[3] + ") should be an integer.");
+									}
 									return true;
 								}
 							}
 							if (amount > item.getMaxStacksize()) {
-								sender.sendMessage(ChatColor.RED + "The amount can be at most " + item.getMaxStacksize());
+								if (enableOutput) {
+									sender.sendMessage(ChatColor.RED + "The amount can be at most " + item.getMaxStacksize());
+								}
 								return true;
 							}
 							if (amount < 1) {
-								sender.sendMessage(ChatColor.RED + "The amount must be positive");
+								if (enableOutput) {
+									sender.sendMessage(ChatColor.RED + "The amount must be positive");
+								}
 								return true;
 							}
 							if (receiver != null && !CustomItemsPlugin.getInstance().getEnabledAreas().isEnabled(receiver.getLocation())) {
 								receiver = null;
-								sender.sendMessage(lang.getCommandWorldDisabled());
+								if (enableOutput) {
+									sender.sendMessage(lang.getCommandWorldDisabled());
+								}
 							}
 							if (receiver != null) {
 								receiver.getInventory().addItem(wrap(item).create(amount));
-								sender.sendMessage(lang.getCommandItemGiven());
+								if (enableOutput) {
+									sender.sendMessage(lang.getCommandItemGiven());
+								}
 							}
 						} else {
-							sender.sendMessage(lang.getCommandNoSuchItem(args[1]));
+							if (enableOutput) {
+								sender.sendMessage(lang.getCommandNoSuchItem(args[1]));
+							}
 						}
 					} else {
-						sendGiveUseage(sender);
+						if (enableOutput) {
+							sendGiveUseage(sender);
+						}
 					}
 					break;
 				case "take": {
 					if (!sender.hasPermission("customitems.take")) {
-						sender.sendMessage(ChatColor.DARK_RED + "You don't have access to this command.");
+						if (enableOutput) {
+							sender.sendMessage(ChatColor.DARK_RED + "You don't have access to this command.");
+						}
 						return true;
 					}
 					if (args.length == 1 || args.length == 2 || args.length == 3) {
 
 						Collection<String> errors = CustomItemsPlugin.getInstance().getLoadErrors();
 						if (!errors.isEmpty()) {
-							sender.sendMessage(ChatColor.RED + "The following errors occurred while enabling " +
-									"this plug-in. These errors will likely cause this command to fail:");
-							for (String error : errors) {
-								sender.sendMessage(ChatColor.DARK_RED + error);
+							if (enableOutput) {
+								sender.sendMessage(ChatColor.RED + "The following errors occurred while enabling " +
+										"this plug-in. These errors will likely cause this command to fail:");
+								for (String error : errors) {
+									sender.sendMessage(ChatColor.DARK_RED + error);
+								}
 							}
 						}
 
@@ -219,11 +249,15 @@ public class CommandCustomItems implements CommandExecutor {
 							try {
 								page = Integer.parseInt(args[1]);
 								if (page < 1) {
-									sender.sendMessage(ChatColor.RED + "The page (" + page + ") must be at least 1");
+									if (enableOutput) {
+										sender.sendMessage(ChatColor.RED + "The page (" + page + ") must be at least 1");
+									}
 									return true;
 								}
 							} catch (NumberFormatException badPageNumber) {
-								sender.sendMessage(ChatColor.RED + "The page number (" + args[1] + ") should be an integer");
+								if (enableOutput) {
+									sender.sendMessage(ChatColor.RED + "The page number (" + args[1] + ") should be an integer");
+								}
 								return true;
 							}
 						}
@@ -237,14 +271,18 @@ public class CommandCustomItems implements CommandExecutor {
 							if (maybeTarget.isPresent()) {
 								target = maybeTarget.get();
 							} else {
-								sender.sendMessage(ChatColor.RED + "Can't find player " + targetName);
+								if (enableOutput) {
+									sender.sendMessage(ChatColor.RED + "Can't find player " + targetName);
+								}
 								return true;
 							}
 						} else {
 							if (sender instanceof Player) {
 								target = (Player) sender;
 							} else {
-								sender.sendMessage(ChatColor.RED + "You should use /kci take <page number> <player name>");
+								if (enableOutput) {
+									sender.sendMessage(ChatColor.RED + "You should use /kci take <page number> <player name>");
+								}
 								return true;
 							}
 						}
@@ -254,7 +292,9 @@ public class CommandCustomItems implements CommandExecutor {
 						int firstItemIndex = numItemsPerPage * (page - 1);
 
 						if (firstItemIndex >= itemList.size()) {
-							sender.sendMessage(ChatColor.RED + "Page " + page + " shows custom item " + (firstItemIndex + 1) + " and later, but you only have " + itemList.size() + " custom items");
+							if (enableOutput) {
+								sender.sendMessage(ChatColor.RED + "Page " + page + " shows custom item " + (firstItemIndex + 1) + " and later, but you only have " + itemList.size() + " custom items");
+							}
 							return true;
 						}
 						int lastItemIndex = Math.min(firstItemIndex + numItemsPerPage - 1, itemList.size() - 1);
@@ -272,7 +312,9 @@ public class CommandCustomItems implements CommandExecutor {
 						}
 						target.openInventory(takeInventory);
 					} else {
-						sender.sendMessage(ChatColor.RED + "Use /kci take [page number] [player name]");
+						if (enableOutput) {
+							sender.sendMessage(ChatColor.RED + "Use /kci take [page number] [player name]");
+						}
 						return true;
 					}
 					break;
@@ -325,12 +367,16 @@ public class CommandCustomItems implements CommandExecutor {
 							(args[0].equals("repair") && !sender.hasPermission("customitems.repair"))
 							|| (args[0].equals("damage") && !sender.hasPermission("customitems.damage"))
 					) {
-						sender.sendMessage(ChatColor.DARK_RED + "You don't have access to this command.");
+						if (enableOutput) {
+							sender.sendMessage(ChatColor.DARK_RED + "You don't have access to this command.");
+						}
 						return true;
 					}
 
 					if (args.length <= 1) {
-						sender.sendMessage(ChatColor.RED + "You should use /kci " + args[0] + "<amount> [player]");
+						if (enableOutput) {
+							sender.sendMessage(ChatColor.RED + "You should use /kci " + args[0] + "<amount> [player]");
+						}
 						return true;
 					}
 
@@ -338,12 +384,16 @@ public class CommandCustomItems implements CommandExecutor {
 					try {
 						amount = Integer.parseInt(args[1]);
 					} catch (NumberFormatException notAnInteger) {
-						sender.sendMessage(ChatColor.RED + "The amount (" + args[1] + ") should be an integer");
+						if (enableOutput) {
+							sender.sendMessage(ChatColor.RED + "The amount (" + args[1] + ") should be an integer");
+						}
 						return true;
 					}
 
 					if (amount <= 0) {
-						sender.sendMessage(ChatColor.RED + "The amount should be positive");
+						if (enableOutput) {
+							sender.sendMessage(ChatColor.RED + "The amount should be positive");
+						}
 						return true;
 					}
 
@@ -351,45 +401,59 @@ public class CommandCustomItems implements CommandExecutor {
 					if (args.length > 2) {
 					    target = getOnlinePlayer(args[2]);
 					    if (target == null) {
-					    	sender.sendMessage(ChatColor.RED + "No online player with name " + args[2] + " was found");
+					    	if (enableOutput) {
+								sender.sendMessage(ChatColor.RED + "No online player with name " + args[2] + " was found");
+							}
 					    	return true;
 						}
 					} else {
 						if (sender instanceof Player) {
 							target = (Player) sender;
 						} else {
-							sender.sendMessage(ChatColor.RED + "You should use /kci " + args[0] + " <amount> <player>");
+							if (enableOutput) {
+								sender.sendMessage(ChatColor.RED + "You should use /kci " + args[0] + " <amount> <player>");
+							}
 							return true;
 						}
 					}
 
 					ItemStack item = target.getInventory().getItemInMainHand();
 					if (ItemUtils.isEmpty(item)) {
-						sender.sendMessage(ChatColor.RED + target.getName() + " should hold the item to " + args[0] + "in the main hand");
+						if (enableOutput) {
+							sender.sendMessage(ChatColor.RED + target.getName() + " should hold the item to " + args[0] + "in the main hand");
+						}
 						return true;
 					}
 
 					CustomItemValues customItem = itemSet.getItem(item);
 					if (customItem == null) {
-						sender.sendMessage(ChatColor.RED + "The item in the main hand of " + target.getName() + " should be a custom item");
+						if (enableOutput) {
+							sender.sendMessage(ChatColor.RED + "The item in the main hand of " + target.getName() + " should be a custom item");
+						}
 						return true;
 					}
 
 					if (!(customItem instanceof CustomToolValues)) {
-						sender.sendMessage(ChatColor.RED + "The item in the main hand of " + target.getName() + " should be a custom tool");
+						if (enableOutput) {
+							sender.sendMessage(ChatColor.RED + "The item in the main hand of " + target.getName() + " should be a custom tool");
+						}
 						return true;
 					}
 
 					CustomToolValues customTool = (CustomToolValues) customItem;
 					if (customTool.getMaxDurabilityNew() == null) {
-						sender.sendMessage(ChatColor.RED + "The tool in the main hand of " + target.getName() + " is unbreakable");
+						if (enableOutput) {
+							sender.sendMessage(ChatColor.RED + "The tool in the main hand of " + target.getName() + " is unbreakable");
+						}
 						return true;
 					}
 
 					if (args[0].equals("repair")) {
 						CustomToolWrapper.IncreaseDurabilityResult result = wrap(customTool).increaseDurability(item, amount);
 						if (result.increasedAmount == 0) {
-							sender.sendMessage(ChatColor.RED + "The tool in the main hand of " + target.getName() + " wasn't damaged");
+							if (enableOutput) {
+								sender.sendMessage(ChatColor.RED + "The tool in the main hand of " + target.getName() + " wasn't damaged");
+							}
 							return true;
 						}
 
@@ -637,24 +701,32 @@ public class CommandCustomItems implements CommandExecutor {
 				}
 				case "setblock": {
 					if (!sender.hasPermission("customitems.setblock")) {
-						sender.sendMessage(ChatColor.DARK_RED + "You don't have access to this command");
+						if (enableOutput) {
+							sender.sendMessage(ChatColor.DARK_RED + "You don't have access to this command");
+						}
 						return true;
 					}
 
 					if (args.length < 2 || args.length > 6) {
-						sender.sendMessage(ChatColor.RED + "You should use /kci setblock <block> [x] [y] [z] [world]");
+						if (enableOutput) {
+							sender.sendMessage(ChatColor.RED + "You should use /kci setblock <block> [x] [y] [z] [world]");
+						}
 						return true;
 					}
 
                     if (!MushroomBlocks.areEnabled()) {
-                    	sender.sendMessage(ChatColor.RED + "Custom blocks are not possible in this minecraft version");
+                    	if (enableOutput) {
+							sender.sendMessage(ChatColor.RED + "Custom blocks are not possible in this minecraft version");
+						}
                     	return true;
 					}
 
                     Optional<CustomBlockValues> block = itemSet.get().getBlock(args[1]);
 
 					if (!block.isPresent()) {
-						sender.sendMessage(ChatColor.RED + "There is no custom block with name '" + args[1] + "'");
+						if (enableOutput) {
+							sender.sendMessage(ChatColor.RED + "There is no custom block with name '" + args[1] + "'");
+						}
 						return true;
 					}
 
@@ -668,7 +740,9 @@ public class CommandCustomItems implements CommandExecutor {
 					}
 
 					if (args.length < 6 && senderLocation == null) {
-						sender.sendMessage("You should use /kci setblock <block> <x> <y> <z> <world>");
+						if (enableOutput) {
+							sender.sendMessage("You should use /kci setblock <block> <x> <y> <z> <world>");
+						}
 						return true;
 					}
 
@@ -708,7 +782,9 @@ public class CommandCustomItems implements CommandExecutor {
 					if (args.length >= 6) {
 						world = Bukkit.getWorld(args[5]);
 						if (world == null) {
-							sender.sendMessage(ChatColor.RED + "There is no world with name '" + args[5] + "'");
+							if (enableOutput) {
+								sender.sendMessage(ChatColor.RED + "There is no world with name '" + args[5] + "'");
+							}
 							return true;
 						}
 					} else {
@@ -743,11 +819,15 @@ public class CommandCustomItems implements CommandExecutor {
 					break;
 				case "reload":
 					if (!sender.hasPermission("customitems.reload")) {
-						sender.sendMessage(ChatColor.DARK_RED + "You don't have access to this command.");
+						if (enableOutput) {
+							sender.sendMessage(ChatColor.DARK_RED + "You don't have access to this command.");
+						}
 						return true;
 					}
 					CustomItemsPlugin.getInstance().reload();
-					sender.sendMessage("The item set and config should have been reloaded");
+					if (enableOutput) {
+						sender.sendMessage("The item set and config should have been reloaded");
+					}
 					break;
 				default:
 					return false;
