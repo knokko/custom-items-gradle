@@ -61,8 +61,8 @@ public class MissingSlotsComponent extends GuiMenu {
 		if (recipe.getManualOutputSlotName() != null) {
 			missingManualOutputSlot = true;
 			for (ContainerSlotValues slot : slots) {
-				if (slot instanceof OutputSlotValues) {
-					OutputSlotValues outputSlot = (OutputSlotValues) slot;
+				if (slot instanceof ManualOutputSlotValues) {
+					ManualOutputSlotValues outputSlot = (ManualOutputSlotValues) slot;
 					if (outputSlot.getName().equals(recipe.getManualOutputSlotName())) {
 						missingManualOutputSlot = false;
 						break;
