@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static nl.knokko.customitems.MCVersions.VERSION1_13;
 import static nl.knokko.customitems.editor.resourcepack.DefaultItemModels.getMinecraftModelTridentInHandBegin;
 import static nl.knokko.customitems.editor.resourcepack.DefaultItemModels.getMinecraftModelTridentInHandEnd;
 
@@ -357,14 +358,22 @@ class ResourcepackItemOverrider {
         jsonWriter.println("{");
         jsonWriter.println("    \"parent\": \"item/handheld\",");
         jsonWriter.println("    \"textures\": {");
-        jsonWriter.print("        \"layer0\": \"item/" + textureName + "\"");
+        if (this.mcVersion >= VERSION1_13) {
+            jsonWriter.print("        \"layer0\": \"item/" + textureName + "\"");
+        } else {
+            jsonWriter.print("        \"layer0\": \"items/" + textureName + "\"");
+        }
         boolean isLeatherArmor = itemType.isLeatherArmor();
         if (isLeatherArmor) {
             jsonWriter.print(",");
         }
         jsonWriter.println();
         if (isLeatherArmor) {
-            jsonWriter.print("        \"layer1\": \"item/" + textureName + "_overlay\"");
+            if (this.mcVersion >= VERSION1_13) {
+                jsonWriter.print("        \"layer1\": \"item/" + textureName + "_overlay\"");
+            } else {
+                jsonWriter.print("        \"layer1\": \"items/" + textureName + "_overlay\"");
+            }
         }
         jsonWriter.println("    },");
         jsonWriter.println("    \"overrides\": [");
