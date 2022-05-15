@@ -11,6 +11,7 @@ import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.color.SimpleGuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.state.GuiComponentState;
+import nl.knokko.gui.keycode.KeyCode;
 import nl.knokko.gui.render.GuiRenderer;
 import nl.knokko.gui.texture.GuiTexture;
 import nl.knokko.gui.util.TextBuilder;
@@ -24,15 +25,19 @@ public class InputSlotComponent implements GuiComponent {
 	private final GuiComponent outerMenu;
 	private final ItemSet set;
 	private final ContainerRecipeValues recipe;
+	private final IngredientValues[] pClipboardIngredient;
 	
 	private GuiComponentState state;
 	private GuiTexture topTextTexture;
 	private GuiTexture bottomTextTexture;
-	
-	public InputSlotComponent(String name, GuiComponent outerMenu, 
-			ContainerRecipeValues recipe, ItemSet set) {
+
+	public InputSlotComponent(
+			String name, GuiComponent outerMenu, IngredientValues[] pClipboardIngredient,
+			ContainerRecipeValues recipe, ItemSet set
+	) {
 		this.name = name;
 		this.outerMenu = outerMenu;
+		this.pClipboardIngredient = pClipboardIngredient;
 		this.recipe = recipe;
 		this.set = set;
 	}
@@ -111,7 +116,14 @@ public class InputSlotComponent implements GuiComponent {
 	}
 
 	@Override
-	public void keyPressed(int keyCode) {}
+	public void keyPressed(int keyCode) {
+		if (keyCode == KeyCode.KEY_P && state.isMouseOver()) {
+			this.setIngredient(pClipboardIngredient[0]);
+		}
+		if (keyCode == KeyCode.KEY_C && state.isMouseOver()) {
+			pClipboardIngredient[0] = recipe.getInput(this.name);
+		}
+	}
 
 	@Override
 	public void keyPressed(char character) {}
