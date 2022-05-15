@@ -155,7 +155,11 @@ class ResourcepackItemOverrider {
         jsonWriter.println("{");
         jsonWriter.println("    \"parent\": \"item/generated\",");
         jsonWriter.println("    \"textures\": {");
-        jsonWriter.println("        \"layer0\": \"item/bow\"");
+        if (this.mcVersion >= VERSION1_13) {
+            jsonWriter.println("        \"layer0\": \"item/bow\"");
+        } else {
+            jsonWriter.println("        \"layer0\": \"items/bow\"");
+        }
         jsonWriter.println("    },");
 
         // Display
@@ -286,7 +290,9 @@ class ResourcepackItemOverrider {
         jsonWriter.println("{");
         jsonWriter.println("    \"parent\": \"builtin/entity\",");
         jsonWriter.println("    \"textures\": {");
-        jsonWriter.println("        \"particle\": \"block/dark_oak_planks\"");
+        if (this.mcVersion >= VERSION1_13) {
+            jsonWriter.println("        \"particle\": \"block/dark_oak_planks\"");
+        }
         jsonWriter.println("    },");
         jsonWriter.println("    \"display\": {");
 
