@@ -65,6 +65,7 @@ import nl.knokko.core.plugin.entity.EntityDamageHelper;
 import nl.knokko.core.plugin.item.GeneralItemNBT;
 import nl.knokko.customitems.attack.effect.*;
 import nl.knokko.customitems.block.CustomBlockValues;
+import nl.knokko.customitems.block.MushroomBlockMapping;
 import nl.knokko.customitems.block.drop.CustomBlockDropValues;
 import nl.knokko.customitems.block.drop.RequiredItemValues;
 import nl.knokko.customitems.block.drop.SilkTouchRequirement;
@@ -3269,6 +3270,26 @@ public class CustomItemsEventHandler implements Listener {
 	public void maintainCustomBlocks(BlockPhysicsEvent event) {
 	    if (MushroomBlocks.areEnabled() && MushroomBlockHelper.isMushroomBlock(event.getBlock())) {
 	    	event.setCancelled(true);
+		}
+	}
+
+	private static final boolean[] DEFAULT_MUSHROOM_BLOCK_DIRECTIONS = {
+			true, true, true, true, true, true
+	};
+
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+	public void handleVanillaMushroomBlockPlacements(BlockPlaceEvent event) {
+		if (MushroomBlocks.areEnabled()) {
+			String itemName = ItemHelper.getMaterialName(event.getItemInHand());
+			if (MushroomBlockMapping.getType(itemName) != null) {
+				event.setCancelled(true);
+				Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
+					MushroomBlocks.place(event.getBlock(), DEFAULT_MUSHROOM_BLOCK_DIRECTIONS, itemName);
+				});
+				if (event.getPlayer().getGameMode() != GameMode.CREATIVE) {
+					event.getItemInHand().setAmount(event.getItemInHand().getAmount() - 1);
+				}
+			}
 		}
 	}
 
