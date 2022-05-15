@@ -20,6 +20,7 @@ import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.command.ItemCommand;
 import nl.knokko.customitems.item.command.ItemCommandEvent;
 import nl.knokko.customitems.item.command.ItemCommandSystem;
+import nl.knokko.customitems.item.model.LegacyCustomItemModel;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.ShapedRecipeValues;
 import nl.knokko.customitems.recipe.ShapelessRecipeValues;
@@ -544,7 +545,7 @@ public class Backward10 {
     static void test3dHelmet2(CustomHelmet3dValues item, ItemSet.Side side) {
         assertEquals("3dhelmet2", item.getName());
         if (side == ItemSet.Side.EDITOR) {
-            assertResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", item.getCustomModel());
+            assertResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", ((LegacyCustomItemModel) item.getModel()).getRawModel());
         }
         assertEquals(ItemCommandSystem.createQuick(ItemCommandEvent.RIGHT_CLICK_BLOCK, listOf(
                 ItemCommand.createQuick(

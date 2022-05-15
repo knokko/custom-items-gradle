@@ -1,6 +1,8 @@
 package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.encoding.ItemEncoding;
+import nl.knokko.customitems.item.model.DefaultItemModel;
+import nl.knokko.customitems.item.model.DefaultModelType;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -44,6 +46,11 @@ public class CustomHelmet3dValues extends CustomArmorValues {
     }
 
     @Override
+    public DefaultModelType getDefaultModelType() {
+        return null;
+    }
+
+    @Override
     public boolean equals(Object other) {
         return other.getClass() == CustomHelmet3dValues.class && areArmorPropertiesEqual((CustomArmorValues) other);
     }
@@ -63,6 +70,6 @@ public class CustomHelmet3dValues extends CustomArmorValues {
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {
         super.validateIndependent();
 
-        if (customModel == null) throw new ValidationException("3d helmets must have a custom model");
+        if (model == null || model instanceof DefaultItemModel) throw new ValidationException("3d helmets must have a custom model");
     }
 }

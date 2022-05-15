@@ -2,6 +2,7 @@ package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.encoding.ItemEncoding;
+import nl.knokko.customitems.item.model.DefaultModelType;
 import nl.knokko.customitems.itemset.BlockReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -50,6 +51,11 @@ public class CustomBlockItemValues extends CustomItemValues {
 
         this.maxStacksize = source.getMaxStacksize();
         this.block = source.getBlockReference();
+    }
+
+    @Override
+    public DefaultModelType getDefaultModelType() {
+        return null;
     }
 
     protected void loadBlockItemPropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
@@ -140,7 +146,7 @@ public class CustomBlockItemValues extends CustomItemValues {
         if (block == null) throw new ValidationException("You need to choose a block");
         if (maxStacksize < 1) throw new ValidationException("The maximum stacksize must be positive");
         if (maxStacksize > 64) throw new ValidationException("The maximum stacksize can be at most 64");
-        if (customModel != null) throw new ValidationException("Custom block items can't have custom models");
+        if (model != null) throw new ValidationException("Custom block items can't have custom models");
         super.validateIndependent();
     }
 

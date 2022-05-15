@@ -1,6 +1,7 @@
 package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.encoding.ItemEncoding;
+import nl.knokko.customitems.item.model.DefaultModelType;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
@@ -72,6 +73,11 @@ public class CustomBowValues extends CustomToolValues {
         this.knockbackStrength = toCopy.getKnockbackStrength();
         this.hasGravity = toCopy.hasGravity();
         this.shootDurabilityLoss = toCopy.getShootDurabilityLoss();
+    }
+
+    @Override
+    public DefaultModelType getDefaultModelType() {
+        return null;
     }
 
     protected void loadBowPropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
@@ -338,7 +344,7 @@ public class CustomBowValues extends CustomToolValues {
         // Note: having a negative speed multiplier or knockback strength is allowed
         if (shootDurabilityLoss < 0) throw new ValidationException("Shoot durability loss can't be negative");
 
-        if (customModel != null) throw new ProgrammingValidationException("Bows can't have custom models");
+        if (model != null) throw new ProgrammingValidationException("Bows can't have custom models");
     }
 
     @Override

@@ -2,9 +2,12 @@ package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.encoding.ItemEncoding;
+import nl.knokko.customitems.item.model.DefaultItemModel;
+import nl.knokko.customitems.item.model.DefaultModelType;
+import nl.knokko.customitems.item.model.ItemModel;
+import nl.knokko.customitems.item.model.LegacyCustomItemModel;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
-import nl.knokko.customitems.util.CollectionHelper;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.customitems.bithelper.BitInput;
@@ -47,8 +50,8 @@ public class CustomTridentValues extends CustomToolValues {
     private double throwDamageMultiplier;
     private double throwSpeedMultiplier;
 
-    private byte[] customInHandModel;
-    private byte[] customThrowingModel;
+    private ItemModel inHandModel;
+    private ItemModel throwingModel;
 
     public CustomTridentValues(boolean mutable) {
         super(mutable, CustomItemType.TRIDENT);
@@ -58,8 +61,8 @@ public class CustomTridentValues extends CustomToolValues {
         this.throwDamageMultiplier = 1.0;
         this.throwSpeedMultiplier = 1.0;
 
-        this.customInHandModel = null;
-        this.customThrowingModel = null;
+        this.inHandModel = new DefaultItemModel(DefaultModelType.TRIDENT_IN_HAND.recommendedParents.get(0));
+        this.throwingModel = new DefaultItemModel(DefaultModelType.TRIDENT_THROWING.recommendedParents.get(0));
     }
 
     public CustomTridentValues(CustomTridentValues toCopy, boolean mutable) {
@@ -68,27 +71,40 @@ public class CustomTridentValues extends CustomToolValues {
         this.throwDurabilityLoss = toCopy.getThrowDurabilityLoss();
         this.throwDamageMultiplier = toCopy.getThrowDamageMultiplier();
         this.throwSpeedMultiplier = toCopy.getThrowSpeedMultiplier();
-        this.customInHandModel = toCopy.getCustomInHandModel();
-        this.customThrowingModel = toCopy.getCustomThrowingModel();
+        this.inHandModel = toCopy.getInHandModel();
+        this.throwingModel = toCopy.getThrowingModel();
+    }
+
+    @Override
+    public DefaultModelType getDefaultModelType() {
+        return DefaultModelType.TRIDENT;
     }
 
     protected void loadTridentPropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         this.loadToolPropertiesNew(input, itemSet);
 
         byte encoding = input.readByte();
-        if (encoding != 1) throw new UnknownEncodingException("CustomTridentNew", encoding);
+        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("CustomTridentNew", encoding);
 
         this.throwDurabilityLoss = input.readInt();
         this.throwDamageMultiplier = input.readDouble();
         this.throwSpeedMultiplier = input.readDouble();
-        this.customInHandModel = null;
-        this.customThrowingModel = null;
+
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
-            if (input.readBoolean()) {
-                this.customInHandModel = input.readByteArray();
-            }
-            if (input.readBoolean()) {
-                this.customThrowingModel = input.readByteArray();
+            if (encoding >= 2) {
+                this.inHandModel = ItemModel.load(input);
+                this.throwingModel = ItemModel.load(input);
+            } else {
+                if (input.readBoolean()) {
+                    this.inHandModel = new LegacyCustomItemModel(input.readByteArray());
+                } else {
+                    this.inHandModel = new DefaultItemModel(DefaultModelType.TRIDENT_IN_HAND.recommendedParents.get(0));
+                }
+                if (input.readBoolean()) {
+                    this.throwingModel = new LegacyCustomItemModel(input.readByteArray());
+                } else {
+                    this.throwingModel = new DefaultItemModel(DefaultModelType.TRIDENT_THROWING.recommendedParents.get(0));
+                }
             }
         }
     }
@@ -96,19 +112,13 @@ public class CustomTridentValues extends CustomToolValues {
     protected void saveTridentPropertiesNew(BitOutput output, ItemSet.Side side) {
         this.saveToolPropertiesNew(output, side);
 
-        output.addByte((byte) 1);
+        output.addByte((byte) 2);
 
         output.addInt(this.throwDurabilityLoss);
         output.addDoubles(this.throwDamageMultiplier, this.throwSpeedMultiplier);
         if (side == ItemSet.Side.EDITOR) {
-            output.addBoolean(this.customInHandModel != null);
-            if (this.customInHandModel != null) {
-                output.addByteArray(this.customInHandModel);
-            }
-            output.addBoolean(this.customThrowingModel != null);
-            if (this.customThrowingModel != null) {
-                output.addByteArray(this.customThrowingModel);
-            }
+            this.inHandModel.save(output);
+            this.throwingModel.save(output);
         }
     }
 
@@ -116,15 +126,15 @@ public class CustomTridentValues extends CustomToolValues {
         loadEditorOnlyProperties1(input, itemSet, true);
 
         if (input.readBoolean()) {
-            customInHandModel = input.readByteArray();
+            this.inHandModel = new LegacyCustomItemModel(input.readByteArray());
         } else {
-            customInHandModel = null;
+            this.inHandModel = new DefaultItemModel(DefaultModelType.TRIDENT_IN_HAND.recommendedParents.get(0));
         }
 
         if (input.readBoolean()) {
-            customThrowingModel = input.readByteArray();
+            this.throwingModel = new LegacyCustomItemModel(input.readByteArray());
         } else {
-            customThrowingModel = null;
+            this.throwingModel = new DefaultItemModel(DefaultModelType.TRIDENT_THROWING.recommendedParents.get(0));
         }
     }
 
@@ -234,12 +244,12 @@ public class CustomTridentValues extends CustomToolValues {
         return throwSpeedMultiplier;
     }
 
-    public byte[] getCustomInHandModel() {
-        return CollectionHelper.arrayCopy(customInHandModel);
+    public ItemModel getInHandModel() {
+        return inHandModel;
     }
 
-    public byte[] getCustomThrowingModel() {
-        return CollectionHelper.arrayCopy(customThrowingModel);
+    public ItemModel getThrowingModel() {
+        return throwingModel;
     }
 
     public void setThrowDurabilityLoss(int newThrowDurabilityLoss) {
@@ -257,14 +267,14 @@ public class CustomTridentValues extends CustomToolValues {
         this.throwSpeedMultiplier = newThrowSpeedMultiplier;
     }
 
-    public void setCustomInHandModel(byte[] newInHandModel) {
+    public void setInHandModel(ItemModel newModel) {
         assertMutable();
-        this.customInHandModel = CollectionHelper.arrayCopy(newInHandModel);
+        this.inHandModel = newModel;
     }
 
-    public void setCustomThrowingModel(byte[] newThrowingModel) {
+    public void setThrowingModel(ItemModel newModel) {
         assertMutable();
-        this.customThrowingModel = CollectionHelper.arrayCopy(newThrowingModel);
+        this.throwingModel = newModel;
     }
 
     @Override
@@ -274,6 +284,9 @@ public class CustomTridentValues extends CustomToolValues {
         if (throwDurabilityLoss < 0) throw new ValidationException("Durability loss on throwing can't be negative");
         if (throwDamageMultiplier < 0) throw new ValidationException("Throw damage multiplier can't be negative");
         if (throwSpeedMultiplier < 0) throw new ValidationException("Throw speed multiplier can't be negative");
+
+        if (inHandModel == null) throw new ProgrammingValidationException("No in-hand model");
+        if (throwingModel == null) throw new ProgrammingValidationException("No throwing model");
     }
 
     @Override

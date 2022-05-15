@@ -3,9 +3,10 @@ package nl.knokko.customitems.editor.menu.edit.item;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.attack.effect.AttackEffectGroupCollectionEdit;
-import nl.knokko.customitems.editor.resourcepack.DefaultItemModels;
+import nl.knokko.customitems.editor.menu.edit.item.model.EditItemModel;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.CustomShieldValues;
+import nl.knokko.customitems.item.model.DefaultModelType;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.gui.component.text.EagerFloatEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
@@ -37,10 +38,10 @@ public class EditItemShield extends EditItemTool<CustomShieldValues> {
 		);
 		addComponent(new DynamicTextButton("Change...", 
 				EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new EditCustomModel(
-					DefaultItemModels.getDefaultModelBlockingShield(
-							currentValues.getTextureReference() != null ? currentValues.getTexture().getName() : "TEXTURE_NAME"),
-					this, currentValues::setCustomBlockingModel, currentValues.getCustomBlockingModel()
+			state.getWindow().setMainComponent(new EditItemModel(
+					currentValues.getBlockingModel(), currentValues::setBlockingModel, currentValues.getName(),
+					currentValues.getTextureReference() != null ? currentValues.getTexture().getName() : "TEXTURE_NAME",
+					DefaultModelType.SHIELD_BLOCKING, false, this
 			));
 		}), 0.85f, 0.25f, 0.95f, 0.325f);
 

@@ -14,6 +14,8 @@ import nl.knokko.customitems.item.command.ItemCommand;
 import nl.knokko.customitems.item.command.ItemCommandEvent;
 import nl.knokko.customitems.item.command.ItemCommandSystem;
 import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
+import nl.knokko.customitems.item.model.DefaultItemModel;
+import nl.knokko.customitems.item.model.LegacyCustomItemModel;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 import nl.knokko.customitems.projectile.effect.*;
@@ -369,7 +371,7 @@ public class Backward9 {
         } else {
             assertNull(item.getTextureReference());
         }
-        assertNull(item.getCustomModel());
+        assertTrue(item.getModel() instanceof DefaultItemModel);
         assertEquals(listOf(
                 ChancePotionEffectValues.createQuick(EffectType.SPEED, 10, 1, Chance.percentage(100))
         ), item.getOnHitPlayerEffects());
@@ -430,10 +432,10 @@ public class Backward9 {
         assertEquals(listOf(false, false, false, false, false, false), item.getItemFlags());
         if (set.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
-            assertStringResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", item.getCustomModel());
+            assertStringResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", ((LegacyCustomItemModel) item.getModel()).getRawModel());
         } else {
             assertNull(item.getTextureReference());
-            assertNull(item.getCustomModel());
+            assertTrue(item.getModel() instanceof DefaultItemModel);
         }
         assertEquals(listOf(
                 ChancePotionEffectValues.createQuick(EffectType.HEAL, 1, 1, Chance.percentage(100))
@@ -491,10 +493,10 @@ public class Backward9 {
         ), item.getItemFlags());
         if (set.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
-            assertStringResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", item.getCustomModel());
+            assertStringResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", ((LegacyCustomItemModel) item.getModel()).getRawModel());
         } else {
             assertNull(item.getTextureReference());
-            assertNull(item.getCustomModel());
+            assertTrue(item.getModel() instanceof DefaultItemModel);
         }
         assertEquals(listOf(
                 ChancePotionEffectValues.createQuick(EffectType.SATURATION, 100, 1, Chance.percentage(100))

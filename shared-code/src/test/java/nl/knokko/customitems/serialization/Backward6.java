@@ -7,6 +7,8 @@ import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.command.ItemCommand;
 import nl.knokko.customitems.item.command.ItemCommandEvent;
 import nl.knokko.customitems.item.command.ItemCommandSystem;
+import nl.knokko.customitems.item.model.DefaultItemModel;
+import nl.knokko.customitems.item.model.LegacyCustomItemModel;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.particle.CIParticle;
@@ -92,19 +94,19 @@ public class Backward6 {
         ), trident1.getItemFlags());
         if (set.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("quick_wand", trident1.getTexture().getName());
-            assertStringResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", trident1.getCustomModel());
-            assertStringResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", trident1.getCustomInHandModel());
+            assertStringResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", ((LegacyCustomItemModel) trident1.getModel()).getRawModel());
+            assertStringResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", ((LegacyCustomItemModel) trident1.getInHandModel()).getRawModel());
         } else {
             assertNull(trident1.getTextureReference());
-            assertNull(trident1.getCustomModel());
-            assertNull(trident1.getCustomInHandModel());
+            assertTrue(trident1.getModel() instanceof DefaultItemModel);
+            assertTrue(trident1.getInHandModel() instanceof DefaultItemModel);
         }
         assertEquals(0, trident1.getOnHitPlayerEffects().size());
         assertEquals(listOf(
                 ChancePotionEffectValues.createQuick(EffectType.SLOW, 40, 3, Chance.percentage(100))
         ), trident1.getOnHitTargetEffects());
         assertEquals(new ItemCommandSystem(false), trident1.getCommandSystem());
-        assertNull(trident1.getCustomThrowingModel());
+        assertTrue(trident1.getThrowingModel() instanceof DefaultItemModel);
         assertFalse(trident1.allowEnchanting());
         assertFalse(trident1.allowAnvilActions());
         assertEquals(432, (long) trident1.getMaxDurabilityNew());
@@ -240,7 +242,7 @@ public class Backward6 {
 
         if (set.getSide() == ItemSet.Side.EDITOR) {
             CustomProjectileCoverValues custom1 = (CustomProjectileCoverValues) set.getProjectileCover("custom_one").get();
-            assertResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", custom1.getCustomModel());
+            assertResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", ((LegacyCustomItemModel) custom1.getModel()).getRawModel());
         }
     }
 
@@ -309,12 +311,12 @@ public class Backward6 {
         ), item.getItemFlags());
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
-            assertResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", item.getCustomModel());
-            assertStringResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", item.getCustomBlockingModel());
+            assertResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", ((LegacyCustomItemModel) item.getModel()).getRawModel());
+            assertStringResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", ((LegacyCustomItemModel) item.getBlockingModel()).getRawModel());
         } else {
             assertNull(item.getTextureReference());
-            assertNull(item.getCustomModel());
-            assertNull(item.getCustomBlockingModel());
+            assertTrue(item.getModel() instanceof DefaultItemModel);
+            assertTrue(item.getBlockingModel() instanceof DefaultItemModel);
         }
         assertEquals(listOf(
                 ChancePotionEffectValues.createQuick(EffectType.SPEED, 40, 1, Chance.percentage(100))
@@ -348,10 +350,10 @@ public class Backward6 {
         ), item.getItemFlags());
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
-            assertResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", item.getCustomModel());
+            assertResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", ((LegacyCustomItemModel) item.getModel()).getRawModel());
         } else {
             assertNull(item.getTextureReference());
-            assertNull(item.getCustomModel());
+            assertTrue(item.getModel() instanceof DefaultItemModel);
         }
         assertEquals(listOf(
                 ChancePotionEffectValues.createQuick(EffectType.REGENERATION, 100, 1, Chance.percentage(100))
@@ -366,7 +368,11 @@ public class Backward6 {
     }
 
     static void testBaseDefault6(CustomItemValues item) {
-        assertNull(item.getCustomModel());
+        if (item.getDefaultModelType() != null) {
+            assertTrue(item.getModel() instanceof DefaultItemModel);
+        } else {
+            assertNull(item.getModel());
+        }
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
         assertEquals(new ItemCommandSystem(false), item.getCommandSystem());

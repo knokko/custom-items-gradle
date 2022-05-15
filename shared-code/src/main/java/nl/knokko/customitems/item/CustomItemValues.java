@@ -7,6 +7,10 @@ import nl.knokko.customitems.effect.*;
 import nl.knokko.customitems.item.command.ItemCommand;
 import nl.knokko.customitems.item.command.ItemCommandEvent;
 import nl.knokko.customitems.item.command.ItemCommandSystem;
+import nl.knokko.customitems.item.model.DefaultItemModel;
+import nl.knokko.customitems.item.model.DefaultModelType;
+import nl.knokko.customitems.item.model.ItemModel;
+import nl.knokko.customitems.item.model.LegacyCustomItemModel;
 import nl.knokko.customitems.itemset.FakeItemSet;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
@@ -28,11 +32,20 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static nl.knokko.customitems.encoding.ItemEncoding.*;
+import static nl.knokko.customitems.item.model.ItemModel.MODEL_TYPE_NONE;
 import static nl.knokko.customitems.util.Checks.isClose;
 
 public abstract class CustomItemValues extends ModelValues {
 
     public static final long UNBREAKABLE_TOOL_DURABILITY = -1;
+
+    private static DefaultItemModel createDefaultItemModel(DefaultModelType modelType) {
+        if (modelType != null) {
+            return new DefaultItemModel(modelType.recommendedParents.get(0));
+        } else {
+            return null;
+        }
+    }
 
     public static CustomItemValues loadFromBooleanRepresentation(byte[] booleanRepresentation) throws UnknownEncodingException {
         BitInput input = new ByteArrayBitInput(booleanRepresentation);
@@ -149,7 +162,7 @@ public abstract class CustomItemValues extends ModelValues {
 
     // Editor-only properties
     protected TextureReference texture;
-    protected byte[] customModel;
+    protected ItemModel model;
 
     // Plugin-only properties
     private byte[] booleanRepresentation;
@@ -192,7 +205,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.multiBlockBreak = new MultiBlockBreakValues(false);
 
         this.texture = null;
-        this.customModel = null;
+        this.model = createDefaultItemModel(getDefaultModelType());
     }
 
     public CustomItemValues(CustomItemValues source, boolean mutable) {
@@ -222,7 +235,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.keepOnDeath = source.shouldKeepOnDeath();
         this.multiBlockBreak = source.getMultiBlockBreak();
         this.texture = source.getTextureReference();
-        this.customModel = source.getCustomModel();
+        this.model = source.getModel();
         this.booleanRepresentation = source.getBooleanRepresentation();
     }
 
@@ -245,6 +258,10 @@ public abstract class CustomItemValues extends ModelValues {
                 && this.keepOnDeath == other.keepOnDeath && this.multiBlockBreak.equals(other.multiBlockBreak);
     }
 
+    public DefaultModelType getDefaultModelType() {
+        return DefaultModelType.BASIC;
+    }
+
     @Override
     public abstract CustomItemValues copy(boolean mutable);
 
@@ -260,15 +277,15 @@ public abstract class CustomItemValues extends ModelValues {
         this.texture = itemSet.getTextureReference(textureName);
 
         if (checkCustomModel && input.readBoolean()) {
-            this.customModel = input.readByteArray();
+            this.model = new LegacyCustomItemModel(input.readByteArray());
         } else {
-            this.customModel = null;
+            this.model = createDefaultItemModel(getDefaultModelType());
         }
     }
 
     protected void loadSharedPropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
-        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("CustomItemBaseNew", encoding);
+        if (encoding < 1 || encoding > 3) throw new UnknownEncodingException("CustomItemBaseNew", encoding);
 
         this.loadIdentityProperties10(input);
         if (this.itemType == CustomItemType.OTHER) {
@@ -312,12 +329,18 @@ public abstract class CustomItemValues extends ModelValues {
         }
 
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
-            this.loadEditorOnlyProperties1(input, itemSet, true);
+            if (encoding >= 3) {
+                String textureName = input.readString();
+                this.texture = itemSet.getTextureReference(textureName);
+                this.model = ItemModel.load(input);
+            } else {
+                this.loadEditorOnlyProperties1(input, itemSet, true);
+            }
         }
     }
 
     protected void saveSharedPropertiesNew(BitOutput output, ItemSet.Side targetSide) {
-        output.addByte((byte) 2);
+        output.addByte((byte) 3);
 
         this.saveIdentityProperties10(output);
         if (this.itemType == CustomItemType.OTHER) {
@@ -350,15 +373,9 @@ public abstract class CustomItemValues extends ModelValues {
         this.multiBlockBreak.save(output);
 
         if (targetSide == ItemSet.Side.EDITOR) {
-            this.saveEditorOnlyProperties1(output);
-        }
-    }
-
-    protected void saveEditorOnlyProperties1(BitOutput output) {
-        output.addJavaString(texture.get().getName());
-        output.addBoolean(customModel != null);
-        if (customModel != null) {
-            output.addByteArray(customModel);
+            output.addString(texture.get().getName());
+            if (model != null) model.save(output);
+            else output.addByte(MODEL_TYPE_NONE);
         }
     }
 
@@ -765,8 +782,8 @@ public abstract class CustomItemValues extends ModelValues {
         return texture;
     }
 
-    public byte[] getCustomModel() {
-        return CollectionHelper.arrayCopy(customModel);
+    public ItemModel getModel() {
+        return model;
     }
 
     public byte[] getBooleanRepresentation() {
@@ -953,9 +970,9 @@ public abstract class CustomItemValues extends ModelValues {
         this.texture = newTexture;
     }
 
-    public void setCustomModel(byte[] newModel) {
+    public void setModel(ItemModel newModel) {
         assertMutable();
-        this.customModel = CollectionHelper.arrayCopy(newModel);
+        this.model = newModel;
     }
 
     private void setBooleanRepresentation(byte[] newRepresentation) {
@@ -1058,7 +1075,7 @@ public abstract class CustomItemValues extends ModelValues {
         Validation.scope("Multi block break", multiBlockBreak::validate);
 
         if (texture == null) throw new ValidationException("No texture");
-        // customModel doesn't have any invalid values
+        if (getDefaultModelType() != null && model == null) throw new ProgrammingValidationException("No model");
     }
 
     public void validateComplete(

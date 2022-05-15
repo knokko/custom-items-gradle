@@ -13,6 +13,8 @@ import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.command.ItemCommand;
 import nl.knokko.customitems.item.command.ItemCommandEvent;
 import nl.knokko.customitems.item.command.ItemCommandSystem;
+import nl.knokko.customitems.item.model.DefaultItemModel;
+import nl.knokko.customitems.item.model.LegacyCustomItemModel;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.ShapedRecipeValues;
@@ -95,7 +97,7 @@ public class Backward8 {
         } else {
             assertNull(item.getTextureReference());
         }
-        assertNull(item.getCustomModel());
+        assertTrue(item.getModel() instanceof DefaultItemModel);
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
         assertEquals(new ItemCommandSystem(true), item.getCommandSystem());
@@ -125,8 +127,8 @@ public class Backward8 {
         assertEquals(1, item.getThrowDurabilityLoss());
         assertEquals(1.0, item.getThrowDamageMultiplier(), 0.0);
         assertEquals(1.0, item.getThrowSpeedMultiplier(), 0.0);
-        assertNull(item.getCustomInHandModel());
-        assertNull(item.getCustomThrowingModel());
+        assertTrue(item.getInHandModel() instanceof DefaultItemModel);
+        assertTrue(item.getThrowingModel() instanceof DefaultItemModel);
     }
 
     static void testContainersOld8(ItemSet set, int numContainers) {
@@ -290,7 +292,7 @@ public class Backward8 {
         } else {
             assertNull(item.getTextureReference());
         }
-        assertNull(item.getCustomModel());
+        assertTrue(item.getModel() instanceof DefaultItemModel);
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
         assertEquals(new ItemCommandSystem(false), item.getCommandSystem());
@@ -336,7 +338,7 @@ public class Backward8 {
         } else {
             assertNull(item.getTextureReference());
         }
-        assertNull(item.getCustomModel());
+        assertTrue(item.getModel() instanceof DefaultItemModel);
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
         assertEquals(new ItemCommandSystem(false), item.getCommandSystem());
@@ -376,7 +378,7 @@ public class Backward8 {
         } else {
             assertNull(item.getTextureReference());
         }
-        assertNull(item.getCustomModel());
+        assertTrue(item.getModel() instanceof DefaultItemModel);
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
         assertEquals(new ItemCommandSystem(false), item.getCommandSystem());
@@ -421,7 +423,7 @@ public class Backward8 {
         } else {
             assertNull(item.getTextureReference());
         }
-        assertNull(item.getCustomModel());
+        assertTrue(item.getModel() instanceof DefaultItemModel);
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
         assertEquals(new ItemCommandSystem(false), item.getCommandSystem());
@@ -467,7 +469,7 @@ public class Backward8 {
         } else {
             assertNull(item.getTextureReference());
         }
-        assertNull(item.getCustomModel());
+        assertTrue(item.getModel() instanceof DefaultItemModel);
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
         assertEquals(new ItemCommandSystem(true), item.getCommandSystem());
@@ -522,10 +524,10 @@ public class Backward8 {
         ), item.getItemFlags());
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
-            assertResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", item.getCustomModel());
+            assertResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", ((LegacyCustomItemModel) item.getModel()).getRawModel());
         } else {
             assertNull(item.getTextureReference());
-            assertNull(item.getCustomModel());
+            assertNull(item.getModel());
         }
         assertEquals(listOf(
                 ChancePotionEffectValues.createQuick(EffectType.INVISIBILITY, 30, 1, Chance.percentage(100))
@@ -584,7 +586,7 @@ public class Backward8 {
         } else {
             assertNull(item.getTextureReference());
         }
-        assertNull(item.getCustomModel());
+        assertNull(item.getModel());
         assertEquals(listOf(
                 ChancePotionEffectValues.createQuick(EffectType.NIGHT_VISION, 1000, 1, Chance.percentage(100))
         ), item.getOnHitPlayerEffects());
@@ -638,7 +640,7 @@ public class Backward8 {
         } else {
             assertNull(item.getTextureReference());
         }
-        assertNull(item.getCustomModel());
+        assertTrue(item.getModel() instanceof DefaultItemModel);
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
         assertEquals(new ItemCommandSystem(false), item.getCommandSystem());
@@ -691,7 +693,7 @@ public class Backward8 {
         } else {
             assertNull(item.getTextureReference());
         }
-        assertNull(item.getCustomModel());
+        assertTrue(item.getModel() instanceof DefaultItemModel);
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
         assertEquals(new ItemCommandSystem(true), item.getCommandSystem());
@@ -717,7 +719,7 @@ public class Backward8 {
         assertEquals(0, item.getEntityHitDurabilityLoss());
         assertEquals(0, item.getBlockBreakDurabilityLoss());
         assertEquals(4.0, item.getThresholdDamage(), 0.0);
-        assertNull(item.getCustomBlockingModel());
+        assertTrue(item.getBlockingModel() instanceof DefaultItemModel);
     }
 
     static void testBaseDefault8(CustomItemValues item) {

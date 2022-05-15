@@ -49,12 +49,8 @@ class ResourcepackModelWriter {
             } else if (item instanceof CustomCrossbowValues) {
                 writeLines(zipOutput, getDefaultModelCrossbow(item.getTexture().getName()));
             } else {
-                DefaultModelType defaultModelType = DefaultModelType.BASIC;
-                if (item instanceof CustomShieldValues) defaultModelType = DefaultModelType.SHIELD;
-                if (item instanceof CustomTridentValues) defaultModelType = DefaultModelType.TRIDENT;
-
                 ItemModel model = item.getModel();
-                model.write(zipOutput, item, defaultModelType);
+                model.write(zipOutput, item.getName(), item.getTexture().getName(), item.getDefaultModelType(), item.getItemType().isLeatherArmor());
             }
 
             zipOutput.closeEntry();
@@ -142,51 +138,22 @@ class ResourcepackModelWriter {
     }
 
     private void writeExtraShieldModels(CustomShieldValues shield) throws IOException {
-        byte[] blockingModel = shield.getCustomBlockingModel();
         ZipEntry entry = new ZipEntry("assets/minecraft/models/customitems/" + shield.getName() + "_blocking.json");
         zipOutput.putNextEntry(entry);
-        if (blockingModel != null) {
-            zipOutput.write(blockingModel);
-            zipOutput.flush();
-        } else {
-            String[] modelContent = getDefaultModelBlockingShield(shield.getTexture().getName());
-            PrintWriter jsonWriter = new PrintWriter(zipOutput);
-            for (String line : modelContent) {
-                jsonWriter.println(line);
-            }
-            jsonWriter.flush();
-        }
+        shield.getBlockingModel().write(zipOutput, shield.getName(), shield.getTexture().getName(), DefaultModelType.SHIELD_BLOCKING, false);
+        zipOutput.closeEntry();
     }
 
     private void writeExtraTridentModels(CustomTridentValues trident) throws IOException {
-        byte[] inHandModel = trident.getCustomInHandModel();
         ZipEntry entry = new ZipEntry("assets/minecraft/models/customitems/" + trident.getName() + "_in_hand.json");
         zipOutput.putNextEntry(entry);
-        if (inHandModel != null) {
-            zipOutput.write(inHandModel);
-            zipOutput.flush();
-        } else {
-            String[] modelContent = getDefaultModelTridentInHand(trident.getTexture().getName());
-            PrintWriter jsonWriter = new PrintWriter(zipOutput);
-            for (String line : modelContent) {
-                jsonWriter.println(line);
-            }
-            jsonWriter.flush();
-        }
-        byte[] throwingModel = trident.getCustomThrowingModel();
+        trident.getInHandModel().write(zipOutput, trident.getName(), trident.getTexture().getName(), DefaultModelType.TRIDENT_IN_HAND, false);
+        zipOutput.closeEntry();
+
         entry = new ZipEntry("assets/minecraft/models/customitems/" + trident.getName() + "_throwing.json");
         zipOutput.putNextEntry(entry);
-        if (throwingModel != null) {
-            zipOutput.write(throwingModel);
-            zipOutput.flush();
-        } else {
-            String[] modelContent = getDefaultModelTridentThrowing(trident.getTexture().getName());
-            PrintWriter jsonWriter = new PrintWriter(zipOutput);
-            for (String line : modelContent) {
-                jsonWriter.println(line);
-            }
-            jsonWriter.flush();
-        }
+        trident.getThrowingModel().write(zipOutput, trident.getName(), trident.getTexture().getName(), DefaultModelType.TRIDENT_THROWING, false);
+        zipOutput.closeEntry();
     }
 
     void writeProjectileCoverModels() throws IOException {

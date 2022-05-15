@@ -2,7 +2,7 @@ package nl.knokko.customitems.editor.menu.edit.projectile.cover;
 
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.menu.edit.item.EditCustomModel;
+import nl.knokko.customitems.editor.menu.edit.item.model.EditItemModel;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.itemset.ProjectileCoverReference;
 import nl.knokko.customitems.projectile.cover.CustomProjectileCoverValues;
@@ -24,8 +24,9 @@ public class EditCustomProjectileCover extends EditProjectileCover<CustomProject
 				0.45f, 0.1f, 0.59f, 0.2f
 		);
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new EditCustomModel(
-					null, this, currentValues::setCustomModel, currentValues.getCustomModel()
+			state.getWindow().setMainComponent(new EditItemModel(
+					currentValues.getModel(), currentValues::setModel, "projectile_cover/" + currentValues.getName(),
+					null, null, false, this
 			));
 		}), 0.6f, 0.11f, 0.7f, 0.19f);
 		

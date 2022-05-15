@@ -1,8 +1,10 @@
 package nl.knokko.customitems.item.model;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public enum DefaultModelType {
-    // TODO Handle 3d helmets
-    // TODO Handle block items, bows, and crossbows
     BASIC("item/handheld", "item/generated"),
     SHIELD("item/handheld"),
     SHIELD_BLOCKING("item/handheld"),
@@ -10,9 +12,11 @@ public enum DefaultModelType {
     TRIDENT_IN_HAND("item/handheld"),
     TRIDENT_THROWING("item/handheld");
 
-    private String[] recommendedParents;
+    public final List<String> recommendedParents;
 
     DefaultModelType(String... recommendedParents) {
-        this.recommendedParents = recommendedParents;
+        List<String> recommendedParentsList = new ArrayList<>(recommendedParents.length);
+        Collections.addAll(recommendedParentsList, recommendedParents);
+        this.recommendedParents = Collections.unmodifiableList(recommendedParentsList);
     }
 }

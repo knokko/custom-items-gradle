@@ -36,6 +36,7 @@ allprojects {
 project(':shared-code') {
     dependencies {
         implementation project(':bit-helper')
+        implementation 'com.github.cliftonlabs:json-simple:4.0.1'
     }
 }
 
@@ -63,6 +64,7 @@ project(':editor') {
         implementation project(':shared-code')
         implementation project(':bit-helper')
         implementation project(':gui')
+        implementation 'com.github.cliftonlabs:json-simple:4.0.1'
     }
     shadowJar {
         manifest {

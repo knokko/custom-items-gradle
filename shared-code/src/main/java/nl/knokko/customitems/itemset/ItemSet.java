@@ -10,6 +10,9 @@ import nl.knokko.customitems.encoding.SetEncoding;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.durability.ItemDurabilityAssignments;
 import nl.knokko.customitems.item.durability.ItemDurabilityClaim;
+import nl.knokko.customitems.item.model.DefaultItemModel;
+import nl.knokko.customitems.item.model.DefaultModelType;
+import nl.knokko.customitems.item.model.ItemModel;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 import nl.knokko.customitems.projectile.CustomProjectile;
 import nl.knokko.customitems.projectile.cover.ProjectileCoverValues;
@@ -192,7 +195,16 @@ public class ItemSet {
                     assignmentMap.put(itemType, assignments);
                 }
 
-                boolean canReuseModel = item.getCustomModel() == null && itemType.hasSimpleModel;
+                boolean canReuseModel = false;
+                DefaultModelType defaultModelType = item.getDefaultModelType();
+                if (itemType.hasSimpleModel && defaultModelType == DefaultModelType.BASIC) {
+
+                    ItemModel model = item.getModel();
+                    if (model instanceof DefaultItemModel && ((DefaultItemModel) model).getParent().equals(defaultModelType.recommendedParents.get(0))) {
+                        canReuseModel = true;
+                    }
+                }
+
                 boolean reuseExistingModel = false;
                 if (canReuseModel) {
                     Short existingItemDamage = assignments.textureReuseMap.get(item.getTexture().getName());

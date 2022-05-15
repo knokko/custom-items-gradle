@@ -31,8 +31,8 @@ import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.menu.edit.attack.effect.AttackEffectGroupCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.item.command.EditCommandSystem;
+import nl.knokko.customitems.editor.menu.edit.item.model.EditItemModel;
 import nl.knokko.customitems.editor.menu.edit.texture.TextureEdit;
-import nl.knokko.customitems.editor.resourcepack.DefaultItemModels;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.itemset.ItemReference;
@@ -285,12 +285,11 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 
 		if (canHaveCustomModel()) {
 			addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
-				state.getWindow().setMainComponent(new EditCustomModel(DefaultItemModels.getDefaultModel(
-						currentValues.getItemType(),
-						currentValues.getTextureReference() != null ? currentValues.getTexture().getName()
-								: "%TEXTURE_NAME%", currentValues.getItemType().isLeatherArmor(),
-						!(this instanceof EditItemHelmet3D))
-						, this, currentValues::setCustomModel, currentValues.getCustomModel()));
+				state.getWindow().setMainComponent(new EditItemModel(
+						currentValues.getModel(), currentValues::setModel, currentValues.getName(),
+						currentValues.getTextureReference() != null ? currentValues.getTexture().getName() : "%TEXTURE_NAME%",
+						currentValues.getDefaultModelType(), currentValues.getItemType().isLeatherArmor(), this
+				));
 			}), BUTTON_X, 0.26f, BUTTON_X + 0.1f, 0.31f);
 		}
 

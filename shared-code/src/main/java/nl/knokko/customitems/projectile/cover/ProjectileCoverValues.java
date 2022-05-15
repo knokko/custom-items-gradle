@@ -19,6 +19,7 @@ public class ProjectileCoverValues extends ModelValues {
 
     static final byte ENCODING_SPHERE1 = 0;
     static final byte ENCODING_CUSTOM1 = 1;
+    static final byte ENCODING_CUSTOM2 = 2;
 
     public static ProjectileCoverValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
 
@@ -26,7 +27,7 @@ public class ProjectileCoverValues extends ModelValues {
             byte encoding = input.readByte();
             if (encoding == ENCODING_SPHERE1) {
                 return SphereProjectileCoverValues.load(input, encoding, itemSet);
-            } else if (encoding == ENCODING_CUSTOM1) {
+            } else if (encoding == ENCODING_CUSTOM1 || encoding == ENCODING_CUSTOM2) {
                 return CustomProjectileCoverValues.load(input, encoding);
             } else {
                 throw new UnknownEncodingException("EditorProjectileCover", encoding);

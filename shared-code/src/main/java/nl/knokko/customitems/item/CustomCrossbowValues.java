@@ -1,6 +1,7 @@
 package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.encoding.ItemEncoding;
+import nl.knokko.customitems.item.model.DefaultModelType;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.texture.CrossbowTextureValues;
@@ -72,6 +73,11 @@ public class CustomCrossbowValues extends CustomToolValues {
         this.fireworkSpeedMultiplier = toCopy.getFireworkSpeedMultiplier();
         this.arrowKnockbackStrength = toCopy.getArrowKnockbackStrength();
         this.arrowGravity = toCopy.hasArrowGravity();
+    }
+
+    @Override
+    public DefaultModelType getDefaultModelType() {
+        return null;
     }
 
     protected void loadCrossbowPropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
@@ -265,7 +271,7 @@ public class CustomCrossbowValues extends CustomToolValues {
         // The speed multipliers are allowed to be negative
         // The arrow knockback strength is also allowed to be negative
 
-        if (customModel != null) throw new ProgrammingValidationException("Crossbows can't have custom models");
+        if (model != null) throw new ProgrammingValidationException("Crossbows can't have custom models");
 
         if (!(texture.get() instanceof CrossbowTextureValues)) {
             throw new ProgrammingValidationException("Only crossbow textures are allowed");

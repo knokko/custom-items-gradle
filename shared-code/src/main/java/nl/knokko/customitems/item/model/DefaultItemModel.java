@@ -1,11 +1,21 @@
 package nl.knokko.customitems.item.model;
 
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.bithelper.BitInput;
+import nl.knokko.customitems.bithelper.BitOutput;
+import nl.knokko.customitems.trouble.UnknownEncodingException;
 
 import java.io.PrintWriter;
 import java.util.zip.ZipOutputStream;
 
 public class DefaultItemModel implements ItemModel {
+
+    public static DefaultItemModel loadDefault(BitInput input) throws UnknownEncodingException {
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("DefaultItemModel", encoding);
+
+        String parent = input.readString();
+        return new DefaultItemModel(parent);
+    }
 
     private final String parent;
 
@@ -13,19 +23,26 @@ public class DefaultItemModel implements ItemModel {
         this.parent = parent;
     }
 
+    public String getParent() {
+        return parent;
+    }
+
     @Override
-    public void write(ZipOutputStream zipOutput, CustomItemValues item, DefaultModelType defaultModelType) {
+    public void write(
+            ZipOutputStream zipOutput, String itemName, String textureName,
+            DefaultModelType defaultModelType, boolean isLeatherArmor
+    ) {
         PrintWriter jsonWriter = new PrintWriter(zipOutput);
         jsonWriter.println("{");
         jsonWriter.println("  \"parent\": \"" + this.parent + "\",");
         jsonWriter.println("  \"textures\": {");
-        jsonWriter.print("    \"layer0\": \"customitems/" + item.getTexture().getName() + "\"");
-        if (item.getItemType().isLeatherArmor()) {
+        jsonWriter.print("    \"layer0\": \"customitems/" + textureName + "\"");
+        if (isLeatherArmor) {
             jsonWriter.print(",");
         }
         jsonWriter.println();
-        if (item.getItemType().isLeatherArmor()) {
-            jsonWriter.println("    \"layer1\": \"customitems/" + item.getTexture().getName() + "\"");
+        if (isLeatherArmor) {
+            jsonWriter.println("    \"layer1\": \"customitems/" + textureName + "\"");
         }
         DisplayProperties[] display = determineDefaultDisplayProperties(defaultModelType);
         if (display.length > 0) {
@@ -45,8 +62,21 @@ public class DefaultItemModel implements ItemModel {
             }
         }
         jsonWriter.println("  }");
-        jsonWriter.println();
+        jsonWriter.println("}");
         jsonWriter.flush();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        return other instanceof DefaultItemModel && this.parent.equals(((DefaultItemModel) other).parent);
+    }
+
+    @Override
+    public void save(BitOutput output) {
+        output.addByte(MODEL_TYPE_DEFAULT);
+        output.addByte((byte) 1);
+
+        output.addString(this.parent);
     }
 
     // TODO Add a unit test for this: probably some JSON-based zip comparison

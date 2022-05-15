@@ -2,9 +2,11 @@ package nl.knokko.customitems.editor.menu.edit.item;
 
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
+import nl.knokko.customitems.editor.menu.edit.item.model.EditItemModel;
 import nl.knokko.customitems.editor.resourcepack.DefaultItemModels;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.CustomTridentValues;
+import nl.knokko.customitems.item.model.DefaultModelType;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.gui.component.text.EagerFloatEditField;
 import nl.knokko.gui.component.text.EagerIntEditField;
@@ -53,10 +55,10 @@ public class EditItemTrident extends EditItemTool<CustomTridentValues> {
 				0.68f, 0.125f, 0.84f, 0.2f
 		);
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new EditCustomModel(
-					DefaultItemModels.getDefaultModelTridentInHand(
-							currentValues.getTextureReference() != null ? currentValues.getTexture().getName() : "TEXTURE_NAME"),
-					this, currentValues::setCustomInHandModel, currentValues.getCustomInHandModel()
+			state.getWindow().setMainComponent(new EditItemModel(
+					currentValues.getInHandModel(), currentValues::setInHandModel, currentValues.getName(),
+					currentValues.getTextureReference() != null ? currentValues.getTexture().getName() : "TEXTURE_NAME",
+					DefaultModelType.TRIDENT_IN_HAND, false, this
 			));
 		}), 0.85f, 0.125f, 0.95f, 0.2f);
 		addComponent(
@@ -64,10 +66,10 @@ public class EditItemTrident extends EditItemTool<CustomTridentValues> {
 				0.65f, 0.05f, 0.84f, 0.125f
 		);
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new EditCustomModel(
-					DefaultItemModels.getDefaultModelTridentThrowing(
-							currentValues.getTextureReference() != null ? currentValues.getTexture().getName() : "TEXTURE_NAME"),
-					this, currentValues::setCustomThrowingModel, currentValues.getCustomThrowingModel()
+			state.getWindow().setMainComponent(new EditItemModel(
+					currentValues.getThrowingModel(), currentValues::setThrowingModel, currentValues.getName(),
+					currentValues.getTextureReference() != null ? currentValues.getTexture().getName() : "TEXTURE_NAME",
+					DefaultModelType.TRIDENT_THROWING, false, this
 			));
 		}), 0.85f, 0.05f, 0.95f, 0.125f);
 		
