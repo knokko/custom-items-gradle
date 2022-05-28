@@ -33,6 +33,7 @@ import nl.knokko.customitems.editor.menu.edit.recipe.RecipeCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.texture.TextureCollectionEdit;
 import nl.knokko.customitems.editor.menu.main.MainMenu;
 import nl.knokko.customitems.editor.util.HelpButtons;
+import nl.knokko.customitems.editor.wiki.WikiGenerator;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
@@ -42,6 +43,7 @@ import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
+import java.io.File;
 import java.io.IOException;
 
 import static nl.knokko.customitems.MCVersions.*;
@@ -178,6 +180,15 @@ public class EditMenu extends GuiMenu {
 		addComponent(new DynamicTextButton("Export for 1.18", SAVE_BASE, SAVE_HOVER, () -> {
 			saveAndExport(VERSION1_18);
 		}), 0.3F, 0.32F, 0.5F, 0.4F);
+
+		addComponent(new DynamicTextButton("Generate wiki", BUTTON, HOVER, () -> {
+			try {
+				new WikiGenerator(set, fileName).generate(new File(EditorFileManager.FOLDER + "/wiki/" + fileName));
+				// TODO Create after-wiki menu
+			} catch (IOException ioTrouble) {
+				errorComponent.setText("Failed to create wiki: " + ioTrouble.getMessage());
+			}
+		}), 0.025f, 0.05f, 0.2f, 0.13f);
 
 		addComponent(new DynamicTextButton("Textures", BUTTON, HOVER, () -> {
 			this.state.getWindow().setMainComponent(this.textureOverview);
