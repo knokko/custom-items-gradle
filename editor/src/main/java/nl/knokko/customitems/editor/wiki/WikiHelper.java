@@ -23,14 +23,6 @@ public class WikiHelper {
         resourceOutput.close();
     }
 
-    static void copyResourceFragment(String sourcePath, OutputStream output) throws IOException {
-        InputStream resourceInput = Objects.requireNonNull(WikiGenerator.class.getClassLoader().getResourceAsStream(
-                WIKI_RESOURCE_PREFIX + sourcePath
-        ));
-        copyInputToOutput(resourceInput, output);
-        resourceInput.close();
-    }
-
     public static void copyInputToOutput(InputStream input, OutputStream output) throws IOException {
         byte[] resourceBuffer = new byte[10_000];
         while (true) {

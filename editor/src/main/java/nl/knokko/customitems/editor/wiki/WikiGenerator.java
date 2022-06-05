@@ -1,14 +1,11 @@
 package nl.knokko.customitems.editor.wiki;
 
+import nl.knokko.customitems.editor.wiki.item.WikiItemGenerator;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.itemset.ItemSet;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.util.Objects;
 
 import static nl.knokko.customitems.editor.wiki.WikiHelper.copyResource;
 
@@ -28,11 +25,20 @@ public class WikiGenerator {
         new WikiIndexGenerator(itemSet, name).generate(new File(destinationFolder + "/index.html"));
         new WikiTextureGenerator(itemSet).generate(new File(destinationFolder + "/textures"));
         copyResource("index.css", new File(destinationFolder + "/index.css"));
+        copyResource("items.css", new File(destinationFolder + "/items.css"));
+        copyResource("recipe.css", new File(destinationFolder + "/recipe.css"));
+        copyResource("recipe-arrow.png", new File(destinationFolder + "/recipe-arrow.png"));
 
         File itemsFolder = new File(destinationFolder + "/items");
         if (!itemsFolder.exists() && !itemsFolder.mkdir()) throw new IOException("Failed to create items folder");
         for (CustomItemValues item : itemSet.getItems()) {
             new WikiItemGenerator(itemSet, item).generate(new File(itemsFolder + "/" + item.getName() + ".html"));
         }
+
+        // TODO Projectiles
+
+        // TODO Containers
+
+        // TODO Blocks
     }
 }

@@ -1,0 +1,54 @@
+.recipe-table {
+    border-spacing: 0;
+    background-color: rgb(150,150,150);
+    padding: 2vw;
+}
+
+.recipe-cell {
+    width: 4.5vw;
+    height: 4.5vw;
+    padding: 0;
+}
+
+.recipe-slot {
+    border: 1px solid black;
+    position: relative;
+}
+
+.ingredient-slot {
+    background-color: rgb(100,100,130);
+}
+
+.result-slot {
+    background-color: rgb(130,100,100);
+}
+
+.recipe-image {
+    image-rendering: pixelated;
+    width: 4vw;
+    height: 4vw;
+    position: relative;
+    display: block;
+    left: 0.25vw;
+}
+
+.recipe-amount {
+    position: absolute;
+    display: block;
+    right: 0.2vw;
+    bottom: 0.2vw;
+    font-size: 1.5vw;
+    color: red;
+}
+
+.hover-recipe-list {
+    position: absolute;
+    left: 5vw;
+    top: 0.2vw;
+    width: max-content;
+    font-size: 1vw;
+    z-index: 1;
+    color: white;
+    background-color: midnightblue;
+    border: 1px solid black;
+}
