@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.function.Function;
 import java.util.logging.Level;
 
 import nl.knokko.core.plugin.item.GeneralItemNBT;
@@ -162,7 +163,7 @@ public class PluginData {
 			ContainerInfo typeInfo = itemSet.getContainerInfo(typeName);
 			
 			if (typeInfo != null) {
-				ContainerInstance instance = ContainerInstance.load1(input, typeInfo);
+				ContainerInstance instance = ContainerInstance.load1(input, typeInfo, new ArrayList<>());
 				ContainerStorageKey location = new ContainerStorageKey(typeName, new PassiveLocation(worldId, x, y, z), null, null);
 				persistentContainers.put(location, instance);
 			} else {
@@ -579,7 +580,7 @@ public class PluginData {
 		Iterator<TempContainerInstance> tempIterator = tempContainers.iterator();
 		while (tempIterator.hasNext()) {
 			TempContainerInstance tempInstance = tempIterator.next();
-			if (tempInstance.viewer.getOpenInventory().getTopInventory() != tempInstance.instance.getInventory()) {
+			if (!tempInstance.viewer.getOpenInventory().getTopInventory().equals(tempInstance.instance.getInventory())) {
 				tempIterator.remove();
 				tempInstance.instance.dropAllItems(tempInstance.viewer.getLocation());
 			}

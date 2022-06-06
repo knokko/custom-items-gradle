@@ -183,7 +183,7 @@ public class ContainerInstance {
 		}
 	}
 	
-	public static ContainerInstance load1(BitInput input, ContainerInfo typeInfo) {
+	public static ContainerInstance load1(BitInput input, ContainerInfo typeInfo, Collection<ItemStack> orphanStacks) {
 		
 		ContainerInstance instance = new ContainerInstance(typeInfo);
 		Inventory inv = instance.inventory;
@@ -210,7 +210,8 @@ public class ContainerInstance {
 			
 			private void putInEmptySlot(
 					Iterable<Integer> firstSlots, Iterable<Integer> secondSlots,
-					Iterable<Integer> thirdSlots) {
+					Iterable<Integer> thirdSlots, Collection<ItemStack> orphanStacks
+			) {
 				
 				// Use the preferred/first slots whenever possible
 				for (Integer slotIndex : firstSlots) {
@@ -236,8 +237,8 @@ public class ContainerInstance {
 					}
 				}
 				
-				// If this line is reached, this item will be discarded
-				// I don't know a better way to resolve this
+				// If this line is reached, this item will become an orphan stack
+				orphanStacks.add(stack);
 			}
 		}
 		
@@ -298,13 +299,13 @@ public class ContainerInstance {
 		
 		// But first the simple cases
 		inputStacks.removeIf(inputStack -> inputStack.putSimple(
-				inputSlotName -> typeInfo.getInputSlot(inputSlotName).getSlotIndex(), 
+				inputSlotName -> takeFrom(typeInfo.getInputSlot(inputSlotName), ContainerInfo.PlaceholderProps::getSlotIndex),
 		inv));
 		outputStacks.removeIf(outputStack -> outputStack.putSimple(
-				outputSlotName -> typeInfo.getOutputSlot(outputSlotName).getSlotIndex(), 
+				outputSlotName -> takeFrom(typeInfo.getOutputSlot(outputSlotName), ContainerInfo.PlaceholderProps::getSlotIndex),
 		inv));
 		fuelStacks.removeIf(fuelStack -> fuelStack.putSimple(
-				fuelSlotName -> typeInfo.getFuelSlot(fuelSlotName).getSlotIndex(), 
+				fuelSlotName -> takeFrom(typeInfo.getFuelSlot(fuelSlotName), FuelProps::getSlotIndex),
 		inv));
 		
 		// Now the annoying cases where the slot is changed or renamed
@@ -312,7 +313,8 @@ public class ContainerInstance {
 			inputStack.putInEmptySlot(
 					takeValues(typeInfo.getInputSlots(), ContainerInfo.PlaceholderProps::getSlotIndex),
 					takeValues(typeInfo.getOutputSlots(), ContainerInfo.PlaceholderProps::getSlotIndex),
-					takeValues(typeInfo.getFuelSlots(), FuelProps::getSlotIndex)
+					takeValues(typeInfo.getFuelSlots(), FuelProps::getSlotIndex),
+					orphanStacks
 			);
 		}
 		
@@ -320,7 +322,8 @@ public class ContainerInstance {
 			outputStack.putInEmptySlot(
 					takeValues(typeInfo.getOutputSlots(), ContainerInfo.PlaceholderProps::getSlotIndex),
 					takeValues(typeInfo.getFuelSlots(), FuelProps::getSlotIndex),
-					takeValues(typeInfo.getInputSlots(), ContainerInfo.PlaceholderProps::getSlotIndex)
+					takeValues(typeInfo.getInputSlots(), ContainerInfo.PlaceholderProps::getSlotIndex),
+					orphanStacks
 			);
 		}
 		
@@ -328,7 +331,8 @@ public class ContainerInstance {
 			fuelStack.putInEmptySlot(
 					takeValues(typeInfo.getFuelSlots(), FuelProps::getSlotIndex),
 					takeValues(typeInfo.getOutputSlots(), ContainerInfo.PlaceholderProps::getSlotIndex),
-					takeValues(typeInfo.getInputSlots(), ContainerInfo.PlaceholderProps::getSlotIndex)
+					takeValues(typeInfo.getInputSlots(), ContainerInfo.PlaceholderProps::getSlotIndex),
+					orphanStacks
 			);
 		}
 		
@@ -363,10 +367,16 @@ public class ContainerInstance {
 		return instance;
 	}
 
-	public static ContainerInstance load2(BitInput input, ContainerInfo typeInfo) {
-		ContainerInstance base = load1(input, typeInfo);
+	private static <T> Integer takeFrom(T nullableSource, Function<T, Integer> takeFromSource) {
+		if (nullableSource == null) return null;
+		return takeFromSource.apply(nullableSource);
+	}
 
+	public static ContainerInstance load2(BitInput input, ContainerInfo typeInfo) {
 		Collection<ItemStack> orphanStacks = new ArrayList<>(0);
+
+		ContainerInstance base = load1(input, typeInfo, orphanStacks);
+
 		int numStoredStacks = input.readInt();
 		for (int counter = 0; counter < numStoredStacks; counter++) {
 
