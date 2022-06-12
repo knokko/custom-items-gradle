@@ -504,13 +504,17 @@ public class CustomItemsEventHandler implements Listener {
 	@EventHandler
 	public void handleReplacement (PlayerInteractEvent event) {
 		if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-			ItemStack item = event.getItem();
-			CustomItemValues custom = itemSet.getItem(item);
-			if (custom != null) {
 
-				//Delay replacing by half a second to give all other handlers time to do their thing. Especially
-				//important for wands.
-				CustomItemsPlugin.getInstance().getServer().getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
+			int heldItemSlot = event.getPlayer().getInventory().getHeldItemSlot();
+			boolean isMainHand = event.getHand() == EquipmentSlot.HAND;
+
+			// Delay replacing by 3 ticks to give all other handlers time to do their thing. Especially
+			// important for wands.
+			Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
+				ItemStack item = isMainHand ? event.getPlayer().getInventory().getItem(heldItemSlot) : event.getPlayer().getInventory().getItemInOffHand();
+				CustomItemValues custom = itemSet.getItem(item);
+
+				if (custom != null) {
 					List<ReplacementConditionValues> conditions = custom.getReplacementConditions();
 					ConditionOperation op = custom.getConditionOp();
 					boolean replace = false;
@@ -560,7 +564,6 @@ public class CustomItemsEventHandler implements Listener {
 								}
 
 								replaceItem = conditions.get(replaceIndex).getReplaceItem();
-								EquipmentSlot slot = event.getHand();
 
 								boolean replaceSelf = false;
 								for (ReplacementConditionValues condition : conditions) {
@@ -577,10 +580,10 @@ public class CustomItemsEventHandler implements Listener {
 								if (replaceItem != null) {
 									ItemStack stack = wrap(replaceItem).create(1);
 									if (item.getAmount() <= 0) {
-										if (slot.equals(EquipmentSlot.OFF_HAND)) {
-											player.getInventory().setItemInOffHand(stack);
+										if (isMainHand) {
+											player.getInventory().setItem(heldItemSlot, stack);
 										} else {
-											player.getInventory().setItemInMainHand(stack);
+											player.getInventory().setItemInOffHand(stack);
 										}
 									} else {
 										addItemToInventory(player, stack);
@@ -603,14 +606,13 @@ public class CustomItemsEventHandler implements Listener {
 									item.setAmount(item.getAmount() - 1);
 
 								replaceItem = conditions.get(replaceIndex).getReplaceItem();
-								slot = event.getHand();
 								if (replaceItem != null) {
 									ItemStack stack = wrap(replaceItem).create(1);
 									if (item.getAmount() <= 0) {
-										if (slot.equals(EquipmentSlot.OFF_HAND)) {
-											player.getInventory().setItemInOffHand(stack);
+										if (isMainHand) {
+											player.getInventory().setItem(heldItemSlot, stack);
 										} else {
-											player.getInventory().setItemInMainHand(stack);
+											player.getInventory().setItemInOffHand(stack);
 										}
 									} else {
 										addItemToInventory(player, stack);
@@ -635,14 +637,13 @@ public class CustomItemsEventHandler implements Listener {
 									item.setAmount(item.getAmount() - 1);
 
 								replaceItem = conditions.get(replaceIndex).getReplaceItem();
-								slot = event.getHand();
 								if (replaceItem != null) {
 									ItemStack stack = wrap(replaceItem).create(1);
 									if (item.getAmount() <= 0) {
-										if (slot.equals(EquipmentSlot.OFF_HAND)) {
-											player.getInventory().setItemInOffHand(stack);
+										if (isMainHand) {
+											player.getInventory().setItem(heldItemSlot, stack);
 										} else {
-											player.getInventory().setItemInMainHand(stack);
+											player.getInventory().setItemInOffHand(stack);
 										}
 									} else {
 										addItemToInventory(player, stack);
@@ -657,8 +658,8 @@ public class CustomItemsEventHandler implements Listener {
 
 						}
 					}
-				}, 10L);
-			}
+				}
+			}, 3L);
 		}
 	}
 
