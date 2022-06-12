@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static nl.knokko.customitems.editor.wiki.WikiHelper.getDisplayName;
 import static nl.knokko.customitems.editor.wiki.WikiRecipeGenerator.*;
 
 class ItemRecipeGenerator {
@@ -143,6 +144,9 @@ class ItemRecipeGenerator {
 
     void generateIngredientRecipes(PrintWriter output) {
         if (!ingredientCraftingRecipes.isEmpty() || !ingredientContainerRecipes.isEmpty()) {
+            if (!shouldGenerateResultRecipes())  {
+                output.println("\t\t<link rel=\"stylesheet\" href=\"../recipe.css\" />");
+            }
             output.println("\t\t<h2>Craft with this item</h2>");
             generateCraftingRecipes(
                     output, ingredientCraftingRecipes, "<h3>Shaped recipes</h3>",
@@ -154,7 +158,8 @@ class ItemRecipeGenerator {
             );
 
             for (String containerName : ingredientContainerRecipes.keySet()) {
-                output.println("\t\t<h3><a href=\"../container/" + containerName + ".html\">" + containerName + " recipes</a></h3>");
+                output.println("\t\t<h3><a href=\"../containers/" + containerName + ".html\">" +
+                        getDisplayName(itemSet.getContainer(containerName).get()) + " recipes</a></h3>");
                 CustomContainerValues container = itemSet.getContainer(containerName).get();
 
                 Collection<ContainerRecipeValues> recipes = ingredientContainerRecipes.get(containerName);
@@ -178,7 +183,8 @@ class ItemRecipeGenerator {
         );
 
         for (String containerName : resultContainerRecipes.keySet()) {
-            output.println("\t\t<h4><a href=\"../container/" + containerName + ".html\">" + containerName + " recipes</a></h4>");
+            output.println("\t\t<h4><a href=\"../containers/" + containerName + ".html\">" +
+                    getDisplayName(itemSet.getContainer(containerName).get()) + " recipes</a></h4>");
             CustomContainerValues container = itemSet.getContainer(containerName).get();
 
             Collection<ContainerRecipeValues> recipes = resultContainerRecipes.get(containerName);

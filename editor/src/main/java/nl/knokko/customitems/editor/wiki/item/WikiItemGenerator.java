@@ -127,8 +127,7 @@ public class WikiItemGenerator {
     private void generatePotionEffects(PrintWriter output, Collection<ChancePotionEffectValues> effects) {
         output.println("<ul>");
         for (ChancePotionEffectValues effect : effects) {
-            output.println("\t\t\t<li>" + effect.getChance() + " to get " + effect.getType());
-            output.println(" " + effect.getLevel() + " for " + effect.getDuration() + " ticks</li>");
+            output.println("\t\t\t<li>" + effect.getChance() + " to get " + describePotionEffect(effect) + "</li>");
         }
         output.println("</ul>");
     }

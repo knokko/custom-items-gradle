@@ -24,7 +24,7 @@ import static nl.knokko.customitems.editor.wiki.WikiHelper.stripColorCodes;
 import static nl.knokko.customitems.editor.wiki.item.ItemRecipeGenerator.hasItem;
 import static nl.knokko.customitems.editor.wiki.item.ItemRecipeGenerator.isItem;
 
-class ItemDropGenerator {
+public class ItemDropGenerator {
 
     private final CustomItemValues item;
 
@@ -74,28 +74,7 @@ class ItemDropGenerator {
                 for (CustomBlockDropValues blockDrop : block.getDrops()) {
                     if (hasItem(item, blockDrop.getItemsToDrop())) {
                         output.println("\t\t\t<li>");
-                        output.println("\t\t\t\tSilk touch is " + blockDrop.getSilkTouchRequirement().name().toLowerCase(Locale.ROOT) + "<br>");
-                        if (blockDrop.getRequiredItems().isEnabled()) {
-                            if (blockDrop.getRequiredItems().isInverted()) {
-                                output.println("\t\t\t\tYou can use any item, <b>except</b> the following items:");
-                            } else {
-                                output.println("\t\t\t\tYou must use one of the following items:");
-                            }
-                            output.println("\t\t\t\t<ul>");
-                            for (RequiredItemValues.VanillaEntry vanilla : blockDrop.getRequiredItems().getVanillaItems()) {
-                                output.print("\t\t\t\t\t<li>" + vanilla.getMaterial());
-                                if (vanilla.shouldAllowCustomItems()) {
-                                    output.print(" or a custom item of this type");
-                                }
-                                output.println("\t\t\t\t</li>");
-                            }
-                            for (ItemReference itemRef : blockDrop.getRequiredItems().getCustomItems()) {
-                                output.print("\t\t\t\t\t<li><a href=\"./" + itemRef.get().getName() + ".html\">");
-                                output.println(stripColorCodes(itemRef.get().getDisplayName()) + "</a></li>");
-                            }
-                            output.println("\t\t\t\t</ul>");
-                        }
-
+                        generateCustomBlockDropInfo(output, blockDrop);
                         generateRelevantDrops(output, "\t\t\t\t", blockDrop.getItemsToDrop());
                         output.println("\t\t\t</li>");
                     }
@@ -103,6 +82,30 @@ class ItemDropGenerator {
 
                 output.println("\t\t</ul>");
             }
+        }
+    }
+
+    public static void generateCustomBlockDropInfo(PrintWriter output, CustomBlockDropValues blockDrop) {
+        output.println("\t\t\t\tSilk touch is " + blockDrop.getSilkTouchRequirement().name().toLowerCase(Locale.ROOT) + "<br>");
+        if (blockDrop.getRequiredItems().isEnabled()) {
+            if (blockDrop.getRequiredItems().isInverted()) {
+                output.println("\t\t\t\tYou can use any item, <b>except</b> the following items:");
+            } else {
+                output.println("\t\t\t\tYou must use one of the following items:");
+            }
+            output.println("\t\t\t\t<ul>");
+            for (RequiredItemValues.VanillaEntry vanilla : blockDrop.getRequiredItems().getVanillaItems()) {
+                output.print("\t\t\t\t\t<li>" + NameHelper.getNiceEnumName(vanilla.getMaterial().name()));
+                if (vanilla.shouldAllowCustomItems()) {
+                    output.print(" or a custom item of this type");
+                }
+                output.println("</li>");
+            }
+            for (ItemReference itemRef : blockDrop.getRequiredItems().getCustomItems()) {
+                output.print("\t\t\t\t\t<li><a href=\"./" + itemRef.get().getName() + ".html\">");
+                output.println(stripColorCodes(itemRef.get().getDisplayName()) + "</a></li>");
+            }
+            output.println("\t\t\t\t</ul>");
         }
     }
 

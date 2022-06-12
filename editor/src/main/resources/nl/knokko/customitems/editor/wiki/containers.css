@@ -1,0 +1,59 @@
+.layout-table {
+    border-spacing: 0;
+    background-color: rgb(150,150,150);
+    padding: 2vw;
+    font-size: 1.5vw;
+}
+
+.layout-slot {
+    width: 8vw;
+    height: 8vw;
+    padding: 0;
+    border: 1px solid black;
+    position: relative;
+}
+
+.layout-image {
+    image-rendering: pixelated;
+    width: 7.5vw;
+    height: 7.5vw;
+    position: relative;
+    display: block;
+    left: 0.25vw;
+}
+
+.layout-decoration-slot {
+    background-color: rgb(170,140,160);
+}
+
+.layout-empty-slot {
+    background-color: rgb(100,100,100);
+}
+
+.layout-fuel-indicator-slot {
+    background-color: rgb(250,200,100);
+}
+
+.layout-fuel-slot {
+    background-color: rgb(250,150,50);
+}
+
+.layout-input-slot {
+    background-color: rgb(150,150,255);
+}
+
+.layout-manual-output-slot {
+    background-color: rgb(200,100,100);
+}
+
+.layout-output-slot {
+    background-color: rgb(250,100,100);
+}
+
+.layout-progress-indicator-slot {
+    background-color: rgb(150,250,150);
+}
+
+.layout-storage-slot {
+    background-color: rgb(200,200,200);
+}

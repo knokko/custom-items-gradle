@@ -1,5 +1,9 @@
 package nl.knokko.customitems.editor.wiki;
 
+import nl.knokko.customitems.NameHelper;
+import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.effect.ChancePotionEffectValues;
+import nl.knokko.customitems.effect.PotionEffectValues;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.recipe.ingredient.*;
 
@@ -90,5 +94,19 @@ public class WikiHelper {
         } else {
             throw new IllegalArgumentException("Unknown ingredient class: " + ingredient.getClass());
         }
+    }
+
+    public static String describePotionEffect(PotionEffectValues effect) {
+        return NameHelper.getNiceEnumName(effect.getType().name()) + " " + effect.getLevel() + " for " + effect.getDuration() + " ticks";
+    }
+
+    public static String describePotionEffect(ChancePotionEffectValues effect) {
+        return describePotionEffect(PotionEffectValues.createQuick(effect.getType(), effect.getDuration(), effect.getLevel()));
+    }
+
+    public static String getDisplayName(CustomContainerValues container) {
+        String niceDisplayName = stripColorCodes(container.getSelectionIcon().getDisplayName());
+        if (niceDisplayName.isEmpty()) return container.getName();
+        else return niceDisplayName;
     }
 }

@@ -1,5 +1,7 @@
 package nl.knokko.customitems.editor.wiki;
 
+import nl.knokko.customitems.block.CustomBlockValues;
+import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.itemset.ItemSet;
 
@@ -8,8 +10,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.function.Predicate;
 
-import static nl.knokko.customitems.editor.wiki.WikiHelper.generateHtml;
-import static nl.knokko.customitems.editor.wiki.WikiHelper.stripColorCodes;
+import static nl.knokko.customitems.editor.wiki.WikiHelper.*;
 
 public class WikiIndexGenerator {
 
@@ -57,6 +58,28 @@ public class WikiIndexGenerator {
             generateItems(output, item -> item instanceof CustomFoodValues, "Food & potions", "h3");
             generateItems(output, item -> item instanceof CustomPocketContainerValues, "Pocket containers", "h3");
             generateItems(output, item -> item instanceof CustomBlockItemValues, "Block items", "h3");
+
+            if (itemSet.getContainers().size() > 0) {
+                output.println("\t\t<h2 id=\"containers-header\">Containers</h2>");
+                output.println("\t\t<ul>");
+                for (CustomContainerValues container : itemSet.getContainers()) {
+                    output.println("\t\t\t<li><a href=\"containers/" + container.getName() + ".html\">" +
+                            getDisplayName(container) + "</a></li>");
+                }
+                output.println("\t\t</ul>");
+            }
+
+            if (itemSet.getBlocks().size() > 0) {
+                output.println("\t\t<h2 id=\"blocks-header\">Blocks</h2>");
+                output.println("\t\t<ul>");
+                for (CustomBlockValues block : itemSet.getBlocks()) {
+                    String link = "blocks/" + block.getName() + ".html";
+                    output.print("\t\t\t<li><a href=\"" + link + "\"><img src=\"textures/" + block.getTexture().getName());
+                    output.println(".png\" class=\"block-icon\" />" + block.getName() + "</a></li>");
+                }
+
+                output.println("\t\t</ul>");
+            }
         });
     }
 
@@ -76,7 +99,7 @@ public class WikiIndexGenerator {
                 if (belongsToCategory.test(item)) {
                     String link = "items/" + item.getName() + ".html";
                     output.print("\t\t\t<li><a href=\"" + link + "\"><img src=\"textures/" + item.getTexture().getName());
-                    output.println(".png\" class=\"item-icon\" href=\"" + link + "\"/>" + stripColorCodes(item.getDisplayName()) + "</a></li>");
+                    output.println(".png\" class=\"item-icon\" />" + stripColorCodes(item.getDisplayName()) + "</a></li>");
                 }
             }
             output.println("\t\t</ul>");

@@ -5,8 +5,8 @@
 }
 
 .recipe-cell {
-    width: 4.5vw;
-    height: 4.5vw;
+    width: 4.0vw;
+    height: 4.0vw;
     padding: 0;
 }
 
@@ -25,11 +25,19 @@
 
 .recipe-image {
     image-rendering: pixelated;
-    width: 4vw;
-    height: 4vw;
+    width: 3.5vw;
+    height: 3.5vw;
     position: relative;
     display: block;
     left: 0.25vw;
+}
+
+.mini-item-icon {
+    image-rendering: pixelated;
+    width: 16px;
+    height: 16px;
+    bottom: -3px;
+    position: relative;
 }
 
 .recipe-amount {
@@ -39,6 +47,15 @@
     bottom: 0.2vw;
     font-size: 1.5vw;
     color: red;
+}
+
+.recipe-chance {
+    position: absolute;
+    display: block;
+    right: 0vw;
+    top: 0vw;
+    font-size: 1.5vw;
+    color: orange;
 }
 
 .hover-recipe-list {

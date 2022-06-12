@@ -1,0 +1,19 @@
+.block-icon {
+    image-rendering: pixelated;
+    width: 128px;
+    height: 128px;
+}
+
+.item-icon {
+    image-rendering: pixelated;
+    width: 32px;
+    height: 32px;
+}
+
+.mini-item-icon {
+    image-rendering: pixelated;
+    width: 16px;
+    height: 16px;
+    bottom: -3px;
+    position: relative;
+}

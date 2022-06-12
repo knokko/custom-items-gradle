@@ -1,8 +1,11 @@
 package nl.knokko.customitems.editor.wiki;
 
+import nl.knokko.customitems.block.CustomBlockValues;
+import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.editor.wiki.item.WikiItemGenerator;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.customitems.projectile.CustomProjectileValues;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,6 +31,9 @@ public class WikiGenerator {
         copyResource("items.css", new File(destinationFolder + "/items.css"));
         copyResource("recipe.css", new File(destinationFolder + "/recipe.css"));
         copyResource("recipe-arrow.png", new File(destinationFolder + "/recipe-arrow.png"));
+        copyResource("projectiles.css", new File(destinationFolder + "/projectiles.css"));
+        copyResource("containers.css", new File(destinationFolder + "/containers.css"));
+        copyResource("blocks.css", new File(destinationFolder + "/blocks.css"));
 
         File itemsFolder = new File(destinationFolder + "/items");
         if (!itemsFolder.exists() && !itemsFolder.mkdir()) throw new IOException("Failed to create items folder");
@@ -35,10 +41,22 @@ public class WikiGenerator {
             new WikiItemGenerator(itemSet, item).generate(new File(itemsFolder + "/" + item.getName() + ".html"));
         }
 
-        // TODO Projectiles
+        File projectilesFolder = new File(destinationFolder + "/projectiles");
+        if (!projectilesFolder.exists() && !projectilesFolder.mkdir()) throw new IOException("Failed to create projectiles folder");
+        for (CustomProjectileValues projectile : itemSet.getProjectiles()) {
+            new WikiProjectileGenerator(itemSet, projectile).generate(new File(projectilesFolder + "/" + projectile.getName() + ".html"));
+        }
 
-        // TODO Containers
+        File containersFolder = new File(destinationFolder + "/containers");
+        if (!containersFolder.exists() && !containersFolder.mkdir()) throw new IOException("Failed to create containers folder");
+        for (CustomContainerValues container : itemSet.getContainers()) {
+            new WikiContainerGenerator(itemSet, container).generate(new File(containersFolder + "/" + container.getName() + ".html"));
+        }
 
-        // TODO Blocks
+        File blocksFolder = new File(destinationFolder + "/blocks");
+        if (!blocksFolder.exists() && !blocksFolder.mkdir()) throw new IOException("Failed to create blocks folder");
+        for (CustomBlockValues block : itemSet.getBlocks()) {
+            new WikiBlockGenerator(itemSet, block).generate(new File(blocksFolder + "/" + block.getName() + ".html"));
+        }
     }
 }

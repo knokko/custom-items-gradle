@@ -8,6 +8,7 @@ import nl.knokko.customitems.recipe.ShapedRecipeValues;
 import nl.knokko.customitems.recipe.ShapelessRecipeValues;
 import nl.knokko.customitems.recipe.ingredient.*;
 import nl.knokko.customitems.recipe.result.*;
+import nl.knokko.customitems.util.Chance;
 
 import java.io.PrintWriter;
 import java.util.UUID;
@@ -196,15 +197,32 @@ public class WikiRecipeGenerator {
         output.println(tabs + "\t</div>");
 
         output.println(tabs + "\t<div class=\"hover-recipe-list hover-recipe-list-" + resultID + " \">");
-        for (OutputTableValues.Entry outputEntry : results.getEntries()) {
-            output.println(tabs + "\t\t" + outputEntry.getChance() + " chance to get " + outputEntry.getResult());
-        }
+        generateOutputTable(output, tabs + "\t\t", "", results);
         output.println(tabs + "\t</div>");
 
         if (amount > 1) {
             output.println(tabs + "\t<div class=\"recipe-amount\">" + amount + "</div>");
         }
+        if (!mostLikely.getChance().equals(Chance.percentage(100))) {
+            output.println(tabs + "\t<div class=\"recipe-chance\">" + mostLikely.getChance() + "</div>");
+        }
         output.println(tabs + "</td>");
+    }
+
+    public static void generateOutputTable(PrintWriter output, String prefix, String suffix, OutputTableValues outputTable) {
+        for (OutputTableValues.Entry outputEntry : outputTable.getEntries()) {
+            output.print(prefix + outputEntry.getChance() + " chance to get ");
+            int amount;
+            if (outputEntry.getResult() instanceof CustomItemResultValues) {
+                CustomItemResultValues customResult = (CustomItemResultValues) outputEntry.getResult();
+                output.print("<a href=\"../items/" + customResult.getItem().getName() + ".html\"><img src=\"../textures/" +
+                        customResult.getItem().getTexture().getName() + ".png\" class=\"mini-item-icon\" /></a>");
+                amount = customResult.getAmount();
+            } else {
+                amount = generateInnerResult(output, "", outputEntry.getResult(), "../");
+            }
+            output.println(" x " + amount + suffix);
+        }
     }
 
     private static int generateInnerResult(
@@ -216,7 +234,7 @@ public class WikiRecipeGenerator {
 
             output.println(tabs + "<a href=\"" + pathToRoot + "items/" + customResult.getItem().getName() + ".html\" >");
             output.print(tabs + "\t<img src=\"" + pathToRoot + "textures/" + customResult.getItem().getTexture().getName() + ".png\" ");
-            output.println("class=\"recipe-image result-image\" />");
+            output.print("class=\"recipe-image result-image\" />");
             output.println(tabs + "</a>");
 
             amount = customResult.getAmount();

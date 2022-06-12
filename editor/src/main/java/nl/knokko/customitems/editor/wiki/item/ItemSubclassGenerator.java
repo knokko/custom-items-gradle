@@ -11,7 +11,7 @@ import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 
 import java.io.PrintWriter;
 
-import static nl.knokko.customitems.editor.wiki.WikiHelper.createTextBasedIngredientHtml;
+import static nl.knokko.customitems.editor.wiki.WikiHelper.*;
 
 class ItemSubclassGenerator {
 
@@ -49,7 +49,7 @@ class ItemSubclassGenerator {
                 output.println("\t\tEat effects:");
                 output.println("\t\t<ul>");
                 for (PotionEffectValues effect : food.getEatEffects()) {
-                    output.println("\t\t\t<li>" + effect.getType() + " " + effect.getLevel() + " for " + effect.getDuration() + " ticks</li>");
+                    output.println("\t\t\t<li>" + describePotionEffect(effect) + "</li>");
                 }
                 output.println("\t\t</ul>");
             }
@@ -58,8 +58,7 @@ class ItemSubclassGenerator {
 
     private void generateWandOrGunProperties(
             PrintWriter output, CustomProjectileValues projectile, int amountPerShot, int cooldown, String action) {
-        // TODO Create a link to the projectile
-        output.println("\t\tProjectile: " + projectile.getName() + "<br>");
+        output.println("\t\tProjectile: <a href=\"../projectiles/" + projectile.getName() + ".html\">" + projectile.getName() + "</a><br>");
         if (amountPerShot != 1) {
             output.println("\t\tFires " + amountPerShot + " projectiles per " + action + "<br>");
         }
@@ -107,8 +106,7 @@ class ItemSubclassGenerator {
             output.println("\t\t<h2>Pocket containers<h2>");
             output.println("\t\t<ul>");
             for (CustomContainerValues container : pocketContainer.getContainers()) {
-                // TODO Add link
-                output.println("\t\t\t<li>" + container.getName() + "</li>");
+                output.println("\t\t\t<li><a href=\"../containers/" + container.getName() + ".html\">" + getDisplayName(container) + "</a></li>");
             }
             output.println("\t\t</ul>");
         }
@@ -116,8 +114,8 @@ class ItemSubclassGenerator {
 
     private void generateBlockItemProperties(PrintWriter output) {
         if (item instanceof CustomBlockItemValues) {
-            // TODO Add link
-            output.println("\t\tPlaces block " + ((CustomBlockItemValues) item).getBlock().getName());
+            String blockName = ((CustomBlockItemValues) item).getBlock().getName();
+            output.println("\t\tPlaces block <a href=\"../blocks/" + blockName + ".html\">" + blockName + "</a>");
         }
     }
 
