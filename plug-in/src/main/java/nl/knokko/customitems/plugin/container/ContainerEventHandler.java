@@ -497,6 +497,11 @@ public class ContainerEventHandler implements Listener {
 			return;
 		}
 
+		// Ensure the code below is only executed once rather than for both offhand and mainhand
+		if (event.getHand() != EquipmentSlot.HAND) {
+			return;
+		}
+
 		if (event.getAction() == Action.LEFT_CLICK_BLOCK && event.getPlayer().isSneaking()) {
 			
 			String blockName = ItemHelper.getMaterialName(event.getClickedBlock());
