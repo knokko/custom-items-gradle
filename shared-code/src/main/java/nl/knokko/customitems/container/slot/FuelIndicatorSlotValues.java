@@ -89,7 +89,7 @@ public class FuelIndicatorSlotValues extends ContainerSlotValues {
 
     @Override
     public FuelIndicatorSlotValues copy(boolean mutable) {
-        return new FuelIndicatorSlotValues(mutable);
+        return new FuelIndicatorSlotValues(this, mutable);
     }
 
     @Override
