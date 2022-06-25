@@ -18,7 +18,7 @@ import java.util.zip.ZipInputStream;
 public class ModelParentExtractor {
 
     public static void main(String[] args) throws IOException {
-        extractModels("1.18.2");
+        extractModels("1.19");
     }
 
     private static String findJsonProperty(String candidateLine, String property) {

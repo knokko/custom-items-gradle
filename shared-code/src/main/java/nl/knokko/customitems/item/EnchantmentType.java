@@ -28,7 +28,7 @@ import static nl.knokko.customitems.MCVersions.*;
 import nl.knokko.customitems.NameHelper;
 
 public enum EnchantmentType {
-	
+
 	PROTECTION_ENVIRONMENTAL("protection", 0),
 	PROTECTION_FIRE("fire_protection", 1),
 	PROTECTION_FALL("feather_falling", 2),
@@ -59,19 +59,20 @@ public enum EnchantmentType {
 	ARROW_INFINITE("infinity", 51),
 	LUCK("luck_of_the_sea", 61),
 	LURE("lure", 62),
-	
+
 	LOYALTY("loyalty", 65, VERSION1_13),
 	CHANNELING("channeling", 68, VERSION1_13),
 	RIPTIDE("riptide", 67, VERSION1_13),
 	IMPALING("impaling", 66, VERSION1_13),
-	
+
 	// Numeric IDs seem to have been removed completely in minecraft 1.14
 	MULTSHOT("multishot", -1, VERSION1_14),
 	PIERCING("piercing", -1, VERSION1_14),
 	QUICK_CHARGE("quick_charge", -1, VERSION1_14),
-	
-	SOUL_SPEED("soul_speed", -1, VERSION1_16);
-	
+
+	SOUL_SPEED("soul_speed", -1, VERSION1_16),
+	SWIFT_SNEAK("swift_sneak", -1, VERSION1_19);
+
 	private final String niceName;
 	
 	public final int version;
@@ -92,7 +93,7 @@ public enum EnchantmentType {
 	@Override
 	public String toString() {
 		// It looks like no enchantments have been renamed or removed
-		return NameHelper.getNiceEnumName(name(), version, VERSION1_18);
+		return NameHelper.getNiceEnumName(name(), version, LAST_VERSION);
 	}
 	
 	public String getName() {

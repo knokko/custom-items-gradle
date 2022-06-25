@@ -178,6 +178,9 @@ public class EditMenu extends GuiMenu {
 		addComponent(new DynamicTextButton("Export for 1.18", SAVE_BASE, SAVE_HOVER, () -> {
 			saveAndExport(VERSION1_18);
 		}), 0.3F, 0.32F, 0.5F, 0.4F);
+		addComponent(new DynamicTextButton("Export for 1.19", SAVE_BASE, SAVE_HOVER, () -> {
+			saveAndExport(VERSION1_19);
+		}), 0.3f, 0.23F, 0.5F, 0.31F);
 
 		addComponent(new DynamicTextButton("Textures", BUTTON, HOVER, () -> {
 			this.state.getWindow().setMainComponent(this.textureOverview);
