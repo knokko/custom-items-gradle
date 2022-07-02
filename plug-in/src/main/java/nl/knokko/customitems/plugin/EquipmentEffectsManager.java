@@ -20,22 +20,24 @@ public class EquipmentEffectsManager {
 			for (World world : Bukkit.getWorlds()) {
 				for (LivingEntity living : world.getLivingEntities()) {
 					EntityEquipment equipment = living.getEquipment();
-					
-					CustomItemValues mainHand = set.getItem(equipment.getItemInMainHand());
-					CustomItemValues offHand = set.getItem(equipment.getItemInOffHand());
-					
-					CustomItemValues helmet = set.getItem(equipment.getHelmet());
-					CustomItemValues chestplate = set.getItem(equipment.getChestplate());
-					CustomItemValues leggings = set.getItem(equipment.getLeggings());
-					CustomItemValues boots = set.getItem(equipment.getBoots());
-					
-					giveEffects(living, Slot.MAINHAND, mainHand);
-					giveEffects(living, Slot.OFFHAND, offHand);
-					
-					giveEffects(living, Slot.HEAD, helmet);
-					giveEffects(living, Slot.CHEST, chestplate);
-					giveEffects(living, Slot.LEGS, leggings);
-					giveEffects(living, Slot.FEET, boots);
+					if (equipment != null) {
+
+						CustomItemValues mainHand = set.getItem(equipment.getItemInMainHand());
+						CustomItemValues offHand = set.getItem(equipment.getItemInOffHand());
+
+						CustomItemValues helmet = set.getItem(equipment.getHelmet());
+						CustomItemValues chestplate = set.getItem(equipment.getChestplate());
+						CustomItemValues leggings = set.getItem(equipment.getLeggings());
+						CustomItemValues boots = set.getItem(equipment.getBoots());
+
+						giveEffects(living, Slot.MAINHAND, mainHand);
+						giveEffects(living, Slot.OFFHAND, offHand);
+
+						giveEffects(living, Slot.HEAD, helmet);
+						giveEffects(living, Slot.CHEST, chestplate);
+						giveEffects(living, Slot.LEGS, leggings);
+						giveEffects(living, Slot.FEET, boots);
+					}
 				}
 			}
 		}, 50, 30);
