@@ -15,6 +15,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 import static nl.knokko.customitems.item.CustomItemValues.UNBREAKABLE_TOOL_DURABILITY;
 
@@ -126,7 +127,8 @@ public class CustomToolWrapper extends CustomItemWrapper {
                 CustomItemsEventHandler.playBreakSound((Player) attacker);
             }
             if (decreased != tool) {
-                attacker.getEquipment().setItemInMainHand(decreased);
+                // This method can only be called when the attacker has equipment
+                Objects.requireNonNull(attacker.getEquipment()).setItemInMainHand(decreased);
             }
         }
     }

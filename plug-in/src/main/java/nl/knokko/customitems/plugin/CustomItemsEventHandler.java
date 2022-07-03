@@ -1573,83 +1573,90 @@ public class CustomItemsEventHandler implements Listener {
 			LivingEntity target = (LivingEntity) event.getEntity();
 
 			if (event.getCause() == DamageCause.ENTITY_ATTACK || event.getCause() == DamageCause.ENTITY_SWEEP_ATTACK) {
-				ItemStack helmet = target.getEquipment().getHelmet();
-				ItemStack chest = target.getEquipment().getChestplate();
-				ItemStack legs = target.getEquipment().getLeggings();
-				ItemStack boots = target.getEquipment().getBoots();
-
+				CustomItemValues customHelmet = null;
+				CustomItemValues customChest = null;
+				CustomItemValues customLegs = null;
+				CustomItemValues customBoots = null;
 				Random rng = new Random();
-				CustomItemValues customHelmet = itemSet.getItem(helmet);
-				if (customHelmet != null) {
-					Collection<org.bukkit.potion.PotionEffect> pe = new ArrayList<>();
 
-					for (ChancePotionEffectValues effect : customHelmet.getOnHitPlayerEffects()) {
-						if (effect.getChance().apply(rng)) {
-							pe.add(new org.bukkit.potion.PotionEffect(
-									org.bukkit.potion.PotionEffectType.getByName(
-											effect.getType().name()
-									), effect.getDuration() * 20,
-									effect.getLevel() - 1)
-							);
+				if (target.getEquipment() != null) {
+					ItemStack helmet = target.getEquipment().getHelmet();
+					ItemStack chest = target.getEquipment().getChestplate();
+					ItemStack legs = target.getEquipment().getLeggings();
+					ItemStack boots = target.getEquipment().getBoots();
+
+					customHelmet = itemSet.getItem(helmet);
+					if (customHelmet != null) {
+						Collection<org.bukkit.potion.PotionEffect> pe = new ArrayList<>();
+
+						for (ChancePotionEffectValues effect : customHelmet.getOnHitPlayerEffects()) {
+							if (effect.getChance().apply(rng)) {
+								pe.add(new org.bukkit.potion.PotionEffect(
+										org.bukkit.potion.PotionEffectType.getByName(
+												effect.getType().name()
+										), effect.getDuration() * 20,
+										effect.getLevel() - 1)
+								);
+							}
 						}
+
+						target.addPotionEffects(pe);
 					}
 
-					target.addPotionEffects(pe);
-				}
-	
-				CustomItemValues customChest = itemSet.getItem(chest);
-				if (customChest != null) {
-					Collection<org.bukkit.potion.PotionEffect> pe = new ArrayList<>();
-					for (ChancePotionEffectValues effect : customChest.getOnHitPlayerEffects()) {
-						if (effect.getChance().apply(rng)) {
-							pe.add(new org.bukkit.potion.PotionEffect(
-									org.bukkit.potion.PotionEffectType.getByName(
-											effect.getType().name()
-									), effect.getDuration() * 20,
-									effect.getLevel() - 1)
-							);
+					customChest = itemSet.getItem(chest);
+					if (customChest != null) {
+						Collection<org.bukkit.potion.PotionEffect> pe = new ArrayList<>();
+						for (ChancePotionEffectValues effect : customChest.getOnHitPlayerEffects()) {
+							if (effect.getChance().apply(rng)) {
+								pe.add(new org.bukkit.potion.PotionEffect(
+										org.bukkit.potion.PotionEffectType.getByName(
+												effect.getType().name()
+										), effect.getDuration() * 20,
+										effect.getLevel() - 1)
+								);
+							}
 						}
+						target.addPotionEffects(pe);
 					}
-					target.addPotionEffects(pe);
-				}
-	
-				CustomItemValues customLegs = itemSet.getItem(legs);
-				if (customLegs != null) {
-					Collection<org.bukkit.potion.PotionEffect> pe = new ArrayList<>();
-					for (ChancePotionEffectValues effect : customLegs.getOnHitPlayerEffects()) {
-						if (effect.getChance().apply(rng)) {
-							pe.add(new org.bukkit.potion.PotionEffect(
-									org.bukkit.potion.PotionEffectType.getByName(
-											effect.getType().name()
-									), effect.getDuration() * 20,
-									effect.getLevel() - 1)
-							);
+
+					customLegs = itemSet.getItem(legs);
+					if (customLegs != null) {
+						Collection<org.bukkit.potion.PotionEffect> pe = new ArrayList<>();
+						for (ChancePotionEffectValues effect : customLegs.getOnHitPlayerEffects()) {
+							if (effect.getChance().apply(rng)) {
+								pe.add(new org.bukkit.potion.PotionEffect(
+										org.bukkit.potion.PotionEffectType.getByName(
+												effect.getType().name()
+										), effect.getDuration() * 20,
+										effect.getLevel() - 1)
+								);
+							}
 						}
+						target.addPotionEffects(pe);
 					}
-					target.addPotionEffects(pe);
-				}
-	
-				CustomItemValues customBoots = itemSet.getItem(boots);
-				if (customBoots != null) {
-					Collection<org.bukkit.potion.PotionEffect> pe = new ArrayList<>();
-					for (ChancePotionEffectValues effect : customBoots.getOnHitPlayerEffects()) {
-						if (effect.getChance().apply(rng)) {
-							pe.add(new org.bukkit.potion.PotionEffect(
-									org.bukkit.potion.PotionEffectType.getByName(
-											effect.getType().name()
-									), effect.getDuration() * 20,
-									effect.getLevel() - 1)
-							);
+
+					customBoots = itemSet.getItem(boots);
+					if (customBoots != null) {
+						Collection<org.bukkit.potion.PotionEffect> pe = new ArrayList<>();
+						for (ChancePotionEffectValues effect : customBoots.getOnHitPlayerEffects()) {
+							if (effect.getChance().apply(rng)) {
+								pe.add(new org.bukkit.potion.PotionEffect(
+										org.bukkit.potion.PotionEffectType.getByName(
+												effect.getType().name()
+										), effect.getDuration() * 20,
+										effect.getLevel() - 1)
+								);
+							}
 						}
+						target.addPotionEffects(pe);
 					}
-					target.addPotionEffects(pe);
 				}
 			
 				if (event.getDamager() instanceof LivingEntity) {
 					
 					LivingEntity damager = (LivingEntity) event.getDamager();
 					
-					if (event.getCause() == DamageCause.ENTITY_ATTACK) {
+					if (damager.getEquipment() != null) {
 						ItemStack weapon = damager.getEquipment().getItemInMainHand();
 						CustomItemValues custom = itemSet.getItem(weapon);
 						if (custom != null) {
@@ -1857,7 +1864,7 @@ public class CustomItemsEventHandler implements Listener {
 			double original = event.getDamage();
 
 			// Only act if armor reduced the damage
-			if (isReducedByArmor(event.getCause())) {
+			if (isReducedByArmor(event.getCause()) && player.getEquipment() != null) {
 
 				int armorDamage = Math.max(1, (int) (original / 4));
 				EntityEquipment e = player.getEquipment();
@@ -2029,10 +2036,12 @@ public class CustomItemsEventHandler implements Listener {
 				EntityEquipment e = player.getEquipment();
 				short[] damageResistances = new short[4];
 
-				applyCustomArmorDamageReduction(e.getHelmet(), damageSource, damageResistances, 0);
-				applyCustomArmorDamageReduction(e.getChestplate(), damageSource, damageResistances, 1);
-				applyCustomArmorDamageReduction(e.getLeggings(), damageSource, damageResistances, 2);
-				applyCustomArmorDamageReduction(e.getBoots(), damageSource, damageResistances, 3);
+				if (e != null) {
+					applyCustomArmorDamageReduction(e.getHelmet(), damageSource, damageResistances, 0);
+					applyCustomArmorDamageReduction(e.getChestplate(), damageSource, damageResistances, 1);
+					applyCustomArmorDamageReduction(e.getLeggings(), damageSource, damageResistances, 2);
+					applyCustomArmorDamageReduction(e.getBoots(), damageSource, damageResistances, 3);
+				}
 
 				int totalDamageResistance = 0;
 				for (short damageResistance : damageResistances) {
@@ -2096,6 +2105,7 @@ public class CustomItemsEventHandler implements Listener {
 	public void beforeXP(PlayerExpChangeEvent event) {
 		
 		EntityEquipment eq = event.getPlayer().getEquipment();
+		if (eq == null) return;
 		
 		ItemStack mainHand = eq.getItemInMainHand();
 		ItemStack offHand = eq.getItemInOffHand();

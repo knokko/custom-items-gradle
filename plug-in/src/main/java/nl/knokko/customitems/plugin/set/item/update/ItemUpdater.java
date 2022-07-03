@@ -83,12 +83,14 @@ public class ItemUpdater {
 	}
 
 	public void updateEquipment(EntityEquipment equipment) {
-		updateEquipmentPiece(equipment.getItemInMainHand(), equipment::setItemInMainHand);
-		updateEquipmentPiece(equipment.getItemInOffHand(), equipment::setItemInOffHand);
-		updateEquipmentPiece(equipment.getHelmet(), equipment::setHelmet);
-		updateEquipmentPiece(equipment.getChestplate(), equipment::setChestplate);
-		updateEquipmentPiece(equipment.getLeggings(), equipment::setLeggings);
-		updateEquipmentPiece(equipment.getBoots(), equipment::setBoots);
+		if (equipment != null) {
+			updateEquipmentPiece(equipment.getItemInMainHand(), equipment::setItemInMainHand);
+			updateEquipmentPiece(equipment.getItemInOffHand(), equipment::setItemInOffHand);
+			updateEquipmentPiece(equipment.getHelmet(), equipment::setHelmet);
+			updateEquipmentPiece(equipment.getChestplate(), equipment::setChestplate);
+			updateEquipmentPiece(equipment.getLeggings(), equipment::setLeggings);
+			updateEquipmentPiece(equipment.getBoots(), equipment::setBoots);
+		}
 	}
 
 	private void updateEquipmentPiece(ItemStack original, Consumer<ItemStack> replace) {
