@@ -55,9 +55,9 @@ public class WikiItemGenerator {
         output.println("\t\tMaximum stacksize: " + item.getMaxStacksize() + "<br>");
         if (!item.getLore().isEmpty()) {
             output.println("\t\tLore:");
-            output.println("\t\t<ol>");
+            output.println("\t\t<ol class=\"lore-list\">");
             for (String line : item.getLore()) {
-                output.println("\t\t\t<li>" + stripColorCodes(line) + "</li>");
+                output.println("\t\t\t<li class=\"lore-line\">" + stripColorCodes(line) + "</li>");
             }
             output.println("\t\t</ol>");
         }
@@ -68,18 +68,19 @@ public class WikiItemGenerator {
             output.println("\t\t<h2>Basic properties</h2>");
             if (!item.getAttributeModifiers().isEmpty()) {
                 output.println("\t\tAttribute modifiers:");
-                output.println("\t\t<ul>");
+                output.println("\t\t<ul class=\"attribute-modifiers\">");
                 for (AttributeModifierValues attributeModifier : item.getAttributeModifiers()) {
-                    output.print("\t\t\t<li>" + attributeModifier.getOperation() + " " + attributeModifier.getValue());
+                    output.print("\t\t\t<li class=\"attribute-modifier\">" + attributeModifier.getOperation() + " "
+                            + attributeModifier.getValue());
                     output.println(" " + attributeModifier.getAttribute() + " in " + attributeModifier.getSlot() + "</li>");
                 }
                 output.println("\t\t</ul>");
             }
             if (!item.getDefaultEnchantments().isEmpty()) {
                 output.println("\t\tDefault enchantments:");
-                output.println("\t\t<ul>");
+                output.println("\t\t<ul class=\"enchantments\">");
                 for (EnchantmentValues enchantment : item.getDefaultEnchantments()) {
-                    output.println("\t\t\t<li>" + enchantment.getType() + " " + enchantment.getLevel() + "</li>");
+                    output.println("\t\t\t<li class=\"enchantment\">" + enchantment.getType() + " " + enchantment.getLevel() + "</li>");
                 }
                 output.println("\t\t</ul>");
             }
@@ -92,8 +93,10 @@ public class WikiItemGenerator {
         boolean hasEquippedEffects = !item.getEquippedEffects().isEmpty();
         boolean hasAttackRange = item.getAttackRange() != 1f;
         boolean hasSpecialDamage = item.getSpecialMeleeDamage() != null;
-        // TODO Attack effects
-        if (hasPlayerEffects || hasTargetEffects || hasEquippedEffects || hasAttackRange || hasSpecialDamage || item.shouldKeepOnDeath()) {
+        boolean hasAttackEffects = !item.getAttackEffects().isEmpty();
+        boolean hasMultiBlockBreak = item.getMultiBlockBreak().getSize() > 1;
+        if (hasPlayerEffects || hasTargetEffects || hasEquippedEffects || hasAttackRange
+                || hasSpecialDamage || item.shouldKeepOnDeath() || hasAttackEffects || hasMultiBlockBreak) {
             output.println("\t\t<h2>Special properties</h2>");
             if (hasPlayerEffects) {
                 output.println("\t\tOn-hit player potion effects:");
@@ -107,9 +110,10 @@ public class WikiItemGenerator {
 
             if (hasEquippedEffects) {
                 output.println("\t\tEquipped potion effects:");
-                output.println("\t\t<ul>");
+                output.println("\t\t<ul class=\"equipped-potion-effects\">");
                 for (EquippedPotionEffectValues effect : item.getEquippedEffects()) {
-                    output.println("\t\t\t<li>" + effect.getType() + " " + effect.getLevel() + " when in " + effect.getSlot() + "</li>");
+                    output.println("\t\t\t<li class=\"equipped-potion-effect\">" + effect.getType() + " "
+                            + effect.getLevel() + " when in " + effect.getSlot() + "</li>");
                 }
                 output.println("\t\t</ul>");
             }
@@ -118,16 +122,40 @@ public class WikiItemGenerator {
                 output.println("\t\tAttack range is " + String.format("%.2f", item.getAttackRange()) + " times the default attack range<br>");
             }
 
+            if (hasAttackEffects) {
+                output.println("Attack effects:");
+                new AttackEffectsGenerator(item.getAttackEffects()).generate(output, "\t\t");
+            }
+
             if (item.shouldKeepOnDeath()) {
                 output.println("\t\tPlayers won't lose this item upon death");
+            }
+
+            if (hasMultiBlockBreak) {
+                String areaString;
+                if (item.getMultiBlockBreak().getShape() == MultiBlockBreakValues.Shape.CUBE) {
+                    int length = 2 * item.getMultiBlockBreak().getSize() - 1;
+                    areaString = "in a " + length + "x" + length + "x" + length + " cube, ";
+                } else {
+                    areaString = "whose manhattan distance to the original block is at most " + item.getMultiBlockBreak().getSize() + ", ";
+                }
+
+                String durabilityString;
+                if (item.getMultiBlockBreak().shouldStackDurabilityCost()) {
+                    durabilityString = "but this costs more durability.";
+                } else {
+                    durabilityString = "without costing extra durability!";
+                }
+
+                output.println("\t\tUpon breaking a block, this item destroys equivalent blocks " + areaString + durabilityString);
             }
         }
     }
 
     private void generatePotionEffects(PrintWriter output, Collection<ChancePotionEffectValues> effects) {
-        output.println("<ul>");
+        output.println("<ul class=\"potion-effects\">");
         for (ChancePotionEffectValues effect : effects) {
-            output.println("\t\t\t<li>" + effect.getChance() + " to get " + describePotionEffect(effect) + "</li>");
+            output.println("\t\t\t<li class=\"potion-effect\">" + effect.getChance() + " to get " + describePotionEffect(effect) + "</li>");
         }
         output.println("</ul>");
     }

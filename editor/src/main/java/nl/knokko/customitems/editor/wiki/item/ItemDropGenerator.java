@@ -69,11 +69,11 @@ public class ItemDropGenerator {
 
             for (CustomBlockValues block : blocks) {
                 output.println("\t\t<h4><a href=\"../blocks/" + block.getName() + ".html\">" + block.getName() + "</a></h4>");
-                output.println("\t\t<ul>");
+                output.println("\t\t<ul class=\"block-drop-list\">");
 
                 for (CustomBlockDropValues blockDrop : block.getDrops()) {
                     if (hasItem(item, blockDrop.getItemsToDrop())) {
-                        output.println("\t\t\t<li>");
+                        output.println("\t\t\t<li class=\"block-drop-entry\">");
                         generateCustomBlockDropInfo(output, blockDrop);
                         generateRelevantDrops(output, "\t\t\t\t", blockDrop.getItemsToDrop());
                         output.println("\t\t\t</li>");
@@ -93,16 +93,16 @@ public class ItemDropGenerator {
             } else {
                 output.println("\t\t\t\tYou must use one of the following items:");
             }
-            output.println("\t\t\t\t<ul>");
+            output.println("\t\t\t\t<ul class=\"required-drop-items\">");
             for (RequiredItemValues.VanillaEntry vanilla : blockDrop.getRequiredItems().getVanillaItems()) {
-                output.print("\t\t\t\t\t<li>" + NameHelper.getNiceEnumName(vanilla.getMaterial().name()));
+                output.print("\t\t\t\t\t<li class=\"required-vanilla-item\">" + NameHelper.getNiceEnumName(vanilla.getMaterial().name()));
                 if (vanilla.shouldAllowCustomItems()) {
                     output.print(" or a custom item of this type");
                 }
                 output.println("</li>");
             }
             for (ItemReference itemRef : blockDrop.getRequiredItems().getCustomItems()) {
-                output.print("\t\t\t\t\t<li><a href=\"./" + itemRef.get().getName() + ".html\">");
+                output.print("\t\t\t\t\t<li class=\"required-custom-item\"><a href=\"./" + itemRef.get().getName() + ".html\">");
                 output.println(stripColorCodes(itemRef.get().getDisplayName()) + "</a></li>");
             }
             output.println("\t\t\t\t</ul>");
@@ -124,9 +124,9 @@ public class ItemDropGenerator {
     }
 
     private void generateBiomeList(PrintWriter output, String tabs, Collection<CIBiome> biomes) {
-        output.println(tabs + "<ul>");
+        output.println(tabs + "<ul class=\"drop-biomes\">");
         for (CIBiome biome : biomes) {
-            output.println(tabs + "\t<li>" + biome + "</li>");
+            output.println(tabs + "\t<li class=\"drop-biome\">" + biome + "</li>");
         }
         output.println(tabs + "</ul>");
     }
@@ -134,9 +134,9 @@ public class ItemDropGenerator {
     private void generateRequiredHeldItems(PrintWriter output, String tabs, Collection<ItemReference> requiredItems) {
         if (!requiredItems.isEmpty()) {
             output.println(tabs + "When the player uses one of the following custom items:");
-            output.println(tabs + "<ul>");
+            output.println(tabs + "<ul class=\"required-held-items\">");
             for (ItemReference item : requiredItems) {
-                output.println(tabs + "\t<li><a href=\"./" + item.get().getName() + ".html\">"
+                output.println(tabs + "\t<li class=\"required-custom-item\"><a href=\"./" + item.get().getName() + ".html\">"
                         + stripColorCodes(item.get().getDisplayName())
                         + "</a></li>");
             }
@@ -146,11 +146,11 @@ public class ItemDropGenerator {
 
     private void generateRelevantDrops(PrintWriter output, String tabs, OutputTableValues allDrops) {
         output.println(tabs + "Chances:");
-        output.println(tabs + "<ul>");
+        output.println(tabs + "<ul class=\"drop-chances\">");
         for (OutputTableValues.Entry candidateEntry : allDrops.getEntries()) {
             if (isItem(item, candidateEntry.getResult())) {
                 int amount = ((CustomItemResultValues) candidateEntry.getResult()).getAmount();
-                output.println(tabs + "\t<li>" + candidateEntry.getChance() + " to get " + amount + "</li>");
+                output.println(tabs + "\t<li class=\"drop-chance\">" + candidateEntry.getChance() + " to get " + amount + "</li>");
             }
         }
         output.println(tabs + "</ul>");

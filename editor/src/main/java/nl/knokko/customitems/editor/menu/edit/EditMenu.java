@@ -184,7 +184,7 @@ public class EditMenu extends GuiMenu {
 		addComponent(new DynamicTextButton("Generate wiki", BUTTON, HOVER, () -> {
 			try {
 				new WikiGenerator(set, fileName).generate(new File(EditorFileManager.FOLDER + "/wiki/" + fileName));
-				// TODO Create after-wiki menu
+				state.getWindow().setMainComponent(new AfterWikiMenu(fileName, this));
 			} catch (IOException ioTrouble) {
 				errorComponent.setText("Failed to create wiki: " + ioTrouble.getMessage());
 			}

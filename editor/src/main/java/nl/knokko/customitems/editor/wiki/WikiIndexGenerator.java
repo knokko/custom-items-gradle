@@ -61,20 +61,21 @@ public class WikiIndexGenerator {
 
             if (itemSet.getContainers().size() > 0) {
                 output.println("\t\t<h2 id=\"containers-header\">Containers</h2>");
-                output.println("\t\t<ul>");
+                output.println("\t\t<ul class=\"custom-containers\">");
                 for (CustomContainerValues container : itemSet.getContainers()) {
-                    output.println("\t\t\t<li><a href=\"containers/" + container.getName() + ".html\">" +
-                            getDisplayName(container) + "</a></li>");
+                    output.println("\t\t\t<li class=\"custom-container\"><a href=\"containers/"
+                            + container.getName() + ".html\">" + getDisplayName(container) + "</a></li>");
                 }
                 output.println("\t\t</ul>");
             }
 
             if (itemSet.getBlocks().size() > 0) {
                 output.println("\t\t<h2 id=\"blocks-header\">Blocks</h2>");
-                output.println("\t\t<ul>");
+                output.println("\t\t<ul class=\"custom-blocks\">");
                 for (CustomBlockValues block : itemSet.getBlocks()) {
                     String link = "blocks/" + block.getName() + ".html";
-                    output.print("\t\t\t<li><a href=\"" + link + "\"><img src=\"textures/" + block.getTexture().getName());
+                    output.print("\t\t\t<li class=\"custom-block\"><a href=\"" + link + "\"><img src=\"textures/"
+                            + block.getTexture().getName());
                     output.println(".png\" class=\"block-icon\" />" + block.getName() + "</a></li>");
                 }
 

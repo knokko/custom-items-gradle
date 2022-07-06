@@ -78,10 +78,10 @@ class WikiContainerGenerator {
             ).collect(Collectors.toList());
             if (!pocketContainers.isEmpty()) {
                 output.println("\t\tRight-click while holding 1 of these pocket containers in your hand:");
-                output.println("\t\t<ul>");
+                output.println("\t\t<ul class=\"pocket-containers\">");
                 for (CustomItemValues pocketContainer : pocketContainers) {
-                    output.println("\t\t\t<li><a href=\"../items/" + pocketContainer.getName() + ".html\">" +
-                            stripColorCodes(pocketContainer.getDisplayName()) + "</a></li>");
+                    output.println("\t\t\t<li class=\"pocket-container\"><a href=\"../items/" + pocketContainer.getName()
+                            + ".html\">" + stripColorCodes(pocketContainer.getDisplayName()) + "</a></li>");
                 }
                 output.println("\t\t</ul>");
             }

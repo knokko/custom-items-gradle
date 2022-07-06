@@ -39,9 +39,10 @@ class WikiBlockGenerator {
             if (!placingItems.isEmpty()) {
                 output.println("\t\t<h2>Placing this block</h2>");
                 output.println("\t\tYou can place this block by using 1 of these items:");
-                output.println("\t\t<ul>");
+                output.println("\t\t<ul class=\"block-items\">");
                 for (CustomItemValues placingItem : placingItems) {
-                    output.println("\t\t\t<li><a href=\"../items/" + placingItem.getName() + ".html\"><img src=\"../textures/" +
+                    output.println("\t\t\t<li class=\"block-item\"><a href=\"../items/" + placingItem.getName()
+                            + ".html\"><img src=\"../textures/" +
                             placingItem.getTexture().getName() + ".png\" class=\"item-icon\" />" +
                             stripColorCodes(placingItem.getDisplayName()) + "</a></li>");
                 }
@@ -50,13 +51,14 @@ class WikiBlockGenerator {
 
             if (!block.getDrops().isEmpty()) {
                 output.println("\t\t<h2>Drops</h2>");
-                output.println("\t\t<ul>");
+                output.println("\t\t<ul class=\"custom-block-drops\">");
                 for (CustomBlockDropValues drop : block.getDrops()) {
-                    output.println("\t\t\t<li>");
+                    output.println("\t\t\t<li class=\"custom-block-drop\">");
                     ItemDropGenerator.generateCustomBlockDropInfo(output, drop);
                     output.println("\t\t\t\tThe following items will be dropped:");
-                    output.println("\t\t\t\t<ul>");
-                    generateOutputTable(output, "\t\t\t\t\t<li>", "</li>", drop.getItemsToDrop());
+                    output.println("\t\t\t\t<ul class=\"custom-block-drop-items\">");
+                    generateOutputTable(output, "\t\t\t\t\t<li class=\"custom-block-drop-item\">", "</li>",
+                            drop.getItemsToDrop());
                     output.println("\t\t\t\t</ul>");
                     output.println("\t\t\t</li>");
                 }

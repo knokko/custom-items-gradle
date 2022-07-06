@@ -47,9 +47,9 @@ class ItemSubclassGenerator {
             }
             if (!food.getEatEffects().isEmpty()) {
                 output.println("\t\tEat effects:");
-                output.println("\t\t<ul>");
+                output.println("\t\t<ul class=\"eat-effects\">");
                 for (PotionEffectValues effect : food.getEatEffects()) {
-                    output.println("\t\t\t<li>" + describePotionEffect(effect) + "</li>");
+                    output.println("\t\t\t<li class=\"eat-effect\">" + describePotionEffect(effect) + "</li>");
                 }
                 output.println("\t\t</ul>");
             }
@@ -104,9 +104,10 @@ class ItemSubclassGenerator {
 
             CustomPocketContainerValues pocketContainer = (CustomPocketContainerValues) item;
             output.println("\t\t<h2>Pocket containers<h2>");
-            output.println("\t\t<ul>");
+            output.println("\t\t<ul class=\"pocket-containers\">");
             for (CustomContainerValues container : pocketContainer.getContainers()) {
-                output.println("\t\t\t<li><a href=\"../containers/" + container.getName() + ".html\">" + getDisplayName(container) + "</a></li>");
+                output.println("\t\t\t<li class=\"pocket-container\"><a href=\"../containers/" + container.getName() +
+                        ".html\">" + getDisplayName(container) + "</a></li>");
             }
             output.println("\t\t</ul>");
         }
@@ -203,7 +204,10 @@ class ItemSubclassGenerator {
             output.println("\t\t<h2>Shield</h2>");
 
             output.println("\t\tThreshold damage for durability loss: " + shield.getThresholdDamage());
-            // TODO Blocking effects
+            if (!shield.getBlockingEffects().isEmpty()) {
+                output.println("Blocking effects:");
+                new AttackEffectsGenerator(shield.getBlockingEffects()).generate(output, "\t\t");
+            }
         }
     }
 
@@ -230,11 +234,12 @@ class ItemSubclassGenerator {
             CustomArmorValues armor = (CustomArmorValues) item;
             if (!armor.getDamageResistances().equals(new DamageResistanceValues(false))) {
                 output.println("\t\t<h2>Armor damage resistances</h2>");
-                output.println("\t\t<ul>");
+                output.println("\t\t<ul class=\"armor-damage-resistances\">");
                 for (DamageSource damageSource : DamageSource.values()) {
                     short resistance = armor.getDamageResistances().getResistance(damageSource);
                     if (resistance != 0) {
-                        output.println("\t\t\t<li>" + resistance + "% resistance against " + damageSource + " damage</li>");
+                        output.println("\t\t\t<li class=\"armor-damage-resistance\">" + resistance +
+                                "% resistance against " + damageSource + " damage</li>");
                     }
                 }
                 output.println("\t\t</ul>");

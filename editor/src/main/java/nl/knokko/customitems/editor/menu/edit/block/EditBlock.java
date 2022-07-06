@@ -4,7 +4,6 @@ import nl.knokko.customitems.block.BlockConstants;
 import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.menu.main.MainMenu;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.BlockReference;
@@ -18,8 +17,7 @@ import nl.knokko.gui.component.text.EagerTextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import static nl.knokko.customitems.editor.util.HelpButtons.openWebpage;
 
 public class EditBlock extends GuiMenu  {
 
@@ -89,13 +87,7 @@ public class EditBlock extends GuiMenu  {
         );
         addComponent(new DynamicTextButton(
                 "https://www.youtube.com/watch?v=d_08KIvg7TM", EditProps.LINK_BASE, EditProps.LINK_HOVER, () -> {
-            URL url = null;
-            try {
-                url = new URL("https://www.youtube.com/watch?v=d_08KIvg7TM");
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-            MainMenu.openWebpage(url);
+            openWebpage("https://www.youtube.com/watch?v=d_08KIvg7TM");
         }
         ), 0.2f, 0.2f, 0.8f, 0.3f);
 
