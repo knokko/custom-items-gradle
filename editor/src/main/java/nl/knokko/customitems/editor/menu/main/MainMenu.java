@@ -23,12 +23,6 @@
  *******************************************************************************/
 package nl.knokko.customitems.editor.menu.main;
 
-import java.awt.Desktop;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-
 import nl.knokko.customitems.editor.menu.commandhelp.CommandBlockHelpOverview;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
@@ -36,6 +30,8 @@ import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
+
+import static nl.knokko.customitems.editor.util.HelpButtons.openWebpage;
 
 public class MainMenu extends GuiMenu {
 	
@@ -61,19 +57,11 @@ public class MainMenu extends GuiMenu {
 					CommandBlockHelpOverview.setClipboard("https://discordapp.com/invite/bmF3Zvu");
 		}), 0.05f, 0.65f, 0.145f, 0.7f);
 		addComponent(new DynamicTextButton("Open invite link", EditProps.BUTTON, EditProps.HOVER, () -> {
-			try {
-				openWebpage(new URL("https://discordapp.com/invite/bmF3Zvu"));
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			}
+			openWebpage("https://discordapp.com/invite/bmF3Zvu");
 		}), 0.155f, 0.65f, 0.25f, 0.7f);
 		addComponent(new DynamicTextComponent("Or read the tutorial:", EditProps.LABEL), 0.05f, 0.59f, 0.18f, 0.64f);
 		addComponent(new DynamicTextButton("Click here to open the tutorial", EditProps.BUTTON, EditProps.HOVER, () -> {
-			try {
-				openWebpage(new URL("https://knokko.github.io/custom%20items/tutorials/basic%20tools.html"));
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
-			}
+			openWebpage("https://knokko.github.io/custom%20items/tutorials/basic%20tools.html");
 		}), 0.05f, 0.53f, 0.25f, 0.58f);
 		
 		HelpButtons.addHelpLink(this, "main menu/index.html");
@@ -82,24 +70,5 @@ public class MainMenu extends GuiMenu {
 	@Override
 	public GuiColor getBackgroundColor() {
 		return EditProps.BACKGROUND;
-	}
-	
-	public static void openWebpage(URI uri) {
-	    Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
-	    if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
-	        try {
-	            desktop.browse(uri);
-			} catch (Exception e) {
-	            e.printStackTrace();
-	        }
-	    }
-	}
-
-	public static void openWebpage(URL url) {
-	    try {
-			openWebpage(url.toURI());
-		} catch (URISyntaxException e) {
-	        e.printStackTrace();
-	    }
 	}
 }
