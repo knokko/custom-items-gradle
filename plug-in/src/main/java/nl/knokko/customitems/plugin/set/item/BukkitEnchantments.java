@@ -1,6 +1,8 @@
 package nl.knokko.customitems.plugin.set.item;
 
+import nl.knokko.customitems.item.enchantment.CustomEnchantmentProvider;
 import nl.knokko.customitems.item.enchantment.EnchantmentType;
+import nl.knokko.customitems.plugin.multisupport.crazyenchantments.CrazyEnchantmentsSupport;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
@@ -20,14 +22,40 @@ public class BukkitEnchantments {
      * @return The enchantment level, or 0 if the item stack doesn't have the enchantment
      */
     public static int getLevel(ItemStack itemStack, EnchantmentType enchantment) {
-        return itemStack.getEnchantmentLevel(vanillaEnchantment(enchantment.getKey()));
+        if (enchantment.provider == null) {
+            return itemStack.getEnchantmentLevel(vanillaEnchantment(enchantment.getKey()));
+        } else if (enchantment.provider == CustomEnchantmentProvider.CRAZY_ENCHANTMENTS) {
+            if (CrazyEnchantmentsSupport.getCrazyEnchantmentsFunctions() != null) {
+                return CrazyEnchantmentsSupport.getCrazyEnchantmentsFunctions().getLevel(itemStack, enchantment.getKey());
+            } else {
+                return 0;
+            }
+        } else {
+            throw new Error("Unknown enchantment provider: " + enchantment.provider);
+        }
     }
 
     public static void add(ItemStack itemStack, EnchantmentType enchantment, int level) {
-        itemStack.addUnsafeEnchantment(vanillaEnchantment(enchantment.getKey()), level);
+        if (enchantment.provider == null) {
+            itemStack.addUnsafeEnchantment(vanillaEnchantment(enchantment.getKey()), level);
+        } else if (enchantment.provider == CustomEnchantmentProvider.CRAZY_ENCHANTMENTS) {
+            if (CrazyEnchantmentsSupport.getCrazyEnchantmentsFunctions() != null) {
+                CrazyEnchantmentsSupport.getCrazyEnchantmentsFunctions().add(itemStack, enchantment.getKey(), level);
+            }
+        } else {
+            throw new Error("Unknown enchantment provider: " + enchantment.provider);
+        }
     }
 
     public static void remove(ItemStack itemStack, EnchantmentType enchantment) {
-        itemStack.removeEnchantment(vanillaEnchantment(enchantment.getKey()));
+        if (enchantment.provider == null) {
+            itemStack.removeEnchantment(vanillaEnchantment(enchantment.getKey()));
+        } else if (enchantment.provider == CustomEnchantmentProvider.CRAZY_ENCHANTMENTS) {
+            if (CrazyEnchantmentsSupport.getCrazyEnchantmentsFunctions() != null) {
+                CrazyEnchantmentsSupport.getCrazyEnchantmentsFunctions().remove(itemStack, enchantment.getKey());
+            }
+        } else {
+            throw new Error("Unknown enchantment provider: " + enchantment.provider);
+        }
     }
 }

@@ -31,7 +31,9 @@ import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import java.lang.reflect.InvocationTargetException;
 
 public class CrazyEnchantmentsSupport {
-	
+
+	static CrazyEnchantmentsFunctions crazyEnchantmentsFunctions;
+
 	public static void onEnable() {
 		try {
 			Class.forName(
@@ -51,5 +53,12 @@ public class CrazyEnchantmentsSupport {
 		} catch (NoSuchMethodException | InvocationTargetException e) {
 			throw new Error("CrazyEnchantmentsEventHandler should have an empty constructor");
 		}
+	}
+
+	public static CrazyEnchantmentsFunctions getCrazyEnchantmentsFunctions() {
+		if (crazyEnchantmentsFunctions == null) {
+			Bukkit.getLogger().warning("An attempt is made to use a crazy enchantment, but crazy enchantments is not installed.");
+		}
+		return crazyEnchantmentsFunctions;
 	}
 }

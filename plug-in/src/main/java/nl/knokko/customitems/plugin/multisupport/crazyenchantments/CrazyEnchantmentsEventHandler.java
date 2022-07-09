@@ -23,6 +23,8 @@
  *******************************************************************************/
 package nl.knokko.customitems.plugin.multisupport.crazyenchantments;
 
+import me.badbones69.crazyenchantments.api.CrazyEnchantments;
+import me.badbones69.crazyenchantments.api.objects.CEnchantment;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomToolValues;
 import org.bukkit.event.EventHandler;
@@ -37,6 +39,30 @@ import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import static nl.knokko.customitems.plugin.set.item.CustomToolWrapper.wrap;
 
 public class CrazyEnchantmentsEventHandler implements Listener {
+
+	private static CEnchantment fromName(String enchantmentName) {
+		return CEnchantment.getCEnchantmentFromName(enchantmentName);
+	}
+
+	public CrazyEnchantmentsEventHandler() {
+		CrazyEnchantmentsSupport.crazyEnchantmentsFunctions = new CrazyEnchantmentsFunctions() {
+
+			@Override
+			public int getLevel(ItemStack itemStack, String enchantmentName) {
+				return CrazyEnchantments.getInstance().getLevel(itemStack, fromName(enchantmentName));
+			}
+
+			@Override
+			public void add(ItemStack itemStack, String enchantmentName, int level) {
+				CrazyEnchantments.getInstance().addEnchantment(itemStack, fromName(enchantmentName), level);
+			}
+
+			@Override
+			public void remove(ItemStack itemStack, String enchantmentName) {
+				CrazyEnchantments.getInstance().removeEnchantment(itemStack, fromName(enchantmentName));
+			}
+		};
+	}
 	
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void onHellForge(HellForgedUseEvent event) {
