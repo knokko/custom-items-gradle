@@ -7,10 +7,10 @@ import nl.knokko.core.plugin.item.ItemHelper;
 import nl.knokko.core.plugin.item.attributes.ItemAttributes;
 import nl.knokko.customitems.effect.ChancePotionEffectValues;
 import nl.knokko.customitems.item.*;
+import nl.knokko.customitems.item.enchantment.EnchantmentValues;
 import nl.knokko.customitems.item.nbt.NbtValueType;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.util.ItemUtils;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -20,10 +20,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public abstract class CustomItemWrapper {
 
@@ -121,7 +118,7 @@ public abstract class CustomItemWrapper {
             item.setDurability(this.item.getItemDamage());
         }
         for (EnchantmentValues enchantment : this.item.getDefaultEnchantments()) {
-            item.addUnsafeEnchantment(Enchantment.getByName(enchantment.getType().name()), enchantment.getLevel());
+            BukkitEnchantments.add(item, enchantment.getType(), enchantment.getLevel());
         }
 
         ItemStack[] pResult = {null};

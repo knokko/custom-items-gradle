@@ -1,4 +1,4 @@
-package nl.knokko.customitems.item;
+package nl.knokko.customitems.item.enchantment;
 
 import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.model.ModelValues;

@@ -7,6 +7,7 @@ import nl.knokko.customitems.effect.*;
 import nl.knokko.customitems.item.command.ItemCommand;
 import nl.knokko.customitems.item.command.ItemCommandEvent;
 import nl.knokko.customitems.item.command.ItemCommandSystem;
+import nl.knokko.customitems.item.enchantment.EnchantmentValues;
 import nl.knokko.customitems.item.model.DefaultItemModel;
 import nl.knokko.customitems.item.model.DefaultModelType;
 import nl.knokko.customitems.item.model.ItemModel;

@@ -6,6 +6,8 @@ import static org.junit.Assert.assertTrue;
 
 import nl.knokko.customitems.effect.ChancePotionEffectValues;
 import nl.knokko.customitems.item.*;
+import nl.knokko.customitems.item.enchantment.EnchantmentType;
+import nl.knokko.customitems.item.enchantment.EnchantmentValues;
 import nl.knokko.customitems.util.Chance;
 import org.junit.Test;
 

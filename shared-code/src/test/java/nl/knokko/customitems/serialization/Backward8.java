@@ -13,6 +13,8 @@ import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.command.ItemCommand;
 import nl.knokko.customitems.item.command.ItemCommandEvent;
 import nl.knokko.customitems.item.command.ItemCommandSystem;
+import nl.knokko.customitems.item.enchantment.EnchantmentType;
+import nl.knokko.customitems.item.enchantment.EnchantmentValues;
 import nl.knokko.customitems.item.model.DefaultItemModel;
 import nl.knokko.customitems.item.model.LegacyCustomItemModel;
 import nl.knokko.customitems.itemset.ItemSet;

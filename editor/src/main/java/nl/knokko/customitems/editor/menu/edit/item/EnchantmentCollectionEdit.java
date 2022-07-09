@@ -5,8 +5,8 @@ import java.util.function.Consumer;
 
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.menu.edit.collection.InlineCollectionEdit;
-import nl.knokko.customitems.item.EnchantmentType;
-import nl.knokko.customitems.item.EnchantmentValues;
+import nl.knokko.customitems.item.enchantment.EnchantmentType;
+import nl.knokko.customitems.item.enchantment.EnchantmentValues;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.image.ImageButton;
 import nl.knokko.gui.component.text.EagerIntEditField;

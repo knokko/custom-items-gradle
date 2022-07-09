@@ -2,6 +2,8 @@ package nl.knokko.customitems.serialization;
 
 import nl.knokko.customitems.damage.DamageSource;
 import nl.knokko.customitems.item.*;
+import nl.knokko.customitems.item.enchantment.EnchantmentType;
+import nl.knokko.customitems.item.enchantment.EnchantmentValues;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;

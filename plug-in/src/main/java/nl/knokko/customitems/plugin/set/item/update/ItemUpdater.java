@@ -1,7 +1,6 @@
 package nl.knokko.customitems.plugin.set.item.update;
 
 import static nl.knokko.customitems.plugin.set.item.CustomItemWrapper.*;
-import static org.bukkit.enchantments.Enchantment.getByName;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,8 +10,11 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 
 import nl.knokko.customitems.item.*;
+import nl.knokko.customitems.item.enchantment.EnchantmentType;
+import nl.knokko.customitems.item.enchantment.EnchantmentValues;
 import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
+import nl.knokko.customitems.plugin.set.item.BukkitEnchantments;
 import nl.knokko.customitems.plugin.set.item.CustomItemWrapper;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -536,10 +538,7 @@ public class ItemUpdater {
 		if (!newItem.allowAnvilActions()) {
 			toUpgrade.getEnchantments().keySet().forEach(toUpgrade::removeEnchantment);
 			for (EnchantmentValues enchantment : newItem.getDefaultEnchantments()) {
-				toUpgrade.addUnsafeEnchantment(
-						getByName(enchantment.getType().name()), 
-						enchantment.getLevel()
-				);
+				BukkitEnchantments.add(toUpgrade, enchantment.getType(), enchantment.getLevel());
 			}
 		} else {
 			
@@ -591,10 +590,8 @@ public class ItemUpdater {
 			}
 			
 			for (EnchantmentValues removed : removedEnchantments) {
-				int currentLevel = toUpgrade.getEnchantmentLevel(
-						getByName(removed.getType().name())
-				);
-				
+				int currentLevel = BukkitEnchantments.getLevel(toUpgrade, removed.getType());
+
 				/*
 				 * This case is a bit nasty because it is possible that the item to
 				 * upgrade has the removed enchantment at a higher level than the
@@ -607,17 +604,15 @@ public class ItemUpdater {
 				 */
 				int newLevel = currentLevel - removed.getLevel();
 				if (newLevel > 0) {
-					toUpgrade.addUnsafeEnchantment(getByName(removed.getType().name()), newLevel);
+					BukkitEnchantments.add(toUpgrade, removed.getType(), newLevel);
 				} else {
-					toUpgrade.removeEnchantment(getByName(removed.getType().name()));
+					BukkitEnchantments.remove(toUpgrade, removed.getType());
 				}
 			}
 			
 			for (EnchantmentValues added : addedEnchantments) {
-				int currentLevel = toUpgrade.getEnchantmentLevel(
-						getByName(added.getType().name())
-				);
-				
+				int currentLevel = BukkitEnchantments.getLevel(toUpgrade, added.getType());
+
 				/*
 				 * It is possible that the item to upgrade already has the
 				 * enchantment of the new default enchantment. Again, I'm not
@@ -629,34 +624,26 @@ public class ItemUpdater {
 				 * enchantment.
 				 */
 				if (added.getLevel() > currentLevel) {
-					toUpgrade.addUnsafeEnchantment(
-							getByName(added.getType().name()), 
-							added.getLevel()
-					);
+					BukkitEnchantments.add(toUpgrade, added.getType(), added.getLevel());
 				}
 			}
 			
 			for (ChangedEnchantment changed : changedEnchantments) {
-				int currentLevel = toUpgrade.getEnchantmentLevel(
-						getByName(changed.type.name())
-				);
-				
+				int currentLevel = BukkitEnchantments.getLevel(toUpgrade, changed.type);
+
 				if (changed.newLevel > changed.oldLevel) {
 					
 					// Make the same decision as for adding a new enchantment
 					if (changed.newLevel > currentLevel) {
-						toUpgrade.addUnsafeEnchantment(
-								getByName(changed.type.name()), 
-								changed.newLevel
-						);
+						BukkitEnchantments.add(toUpgrade, changed.type, changed.newLevel);
 					}
 				} else {
 					// Decrease the current enchantment level
 					int newLevel = currentLevel + changed.newLevel - changed.oldLevel;
 					if (newLevel > 0) {
-						toUpgrade.addUnsafeEnchantment(getByName(changed.type.name()), newLevel);
+						BukkitEnchantments.add(toUpgrade, changed.type, newLevel);
 					} else {
-						toUpgrade.removeEnchantment(getByName(changed.type.name()));
+						BukkitEnchantments.remove(toUpgrade, changed.type);
 					}
 				}
 			}

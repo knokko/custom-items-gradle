@@ -3,6 +3,7 @@ package nl.knokko.customitems.editor.wiki.item;
 import nl.knokko.customitems.effect.ChancePotionEffectValues;
 import nl.knokko.customitems.effect.EquippedPotionEffectValues;
 import nl.knokko.customitems.item.*;
+import nl.knokko.customitems.item.enchantment.EnchantmentValues;
 import nl.knokko.customitems.itemset.ItemSet;
 
 import java.io.File;
