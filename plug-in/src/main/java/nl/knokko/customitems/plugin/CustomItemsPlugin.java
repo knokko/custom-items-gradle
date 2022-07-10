@@ -29,17 +29,16 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.logging.Level;
 
 import com.google.common.collect.Lists;
-import nl.knokko.core.plugin.block.MushroomBlocks;
 import nl.knokko.core.plugin.entity.EntityDamageHelper;
 import nl.knokko.core.plugin.item.SmithingBlocker;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.plugin.command.CustomItemsTabCompletions;
 import nl.knokko.customitems.plugin.multisupport.itembridge.ItemBridgeSupport;
 import nl.knokko.customitems.plugin.multisupport.mimic.MimicSupport;
+import nl.knokko.customitems.plugin.multisupport.skript.SkriptSupport;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.util.StringEncoder;
 import org.bukkit.Bukkit;
@@ -123,6 +122,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 		itemUpdater.start();
 		CrazyEnchantmentsSupport.onEnable();
 		ItemBridgeSupport.onEnable(this);
+		SkriptSupport.onEnable(this);
 		PluginIndicators.init();
 	}
 

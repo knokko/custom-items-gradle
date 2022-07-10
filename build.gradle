@@ -26,6 +26,7 @@ allprojects {
         maven { url = 'https://jitpack.io' }
 
         mavenLocal()
+        maven { url = 'https://repo.skriptlang.org/releases' }
     }
 
     dependencies {
@@ -51,6 +52,7 @@ project(':plug-in') {
         compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.0'
         compileOnly 'ru.endlesscode.mimic:mimic-bukkit-api:0.7.1'
         compileOnly 'com.github.jojodmo:ItemBridge:master-SNAPSHOT'
+        compileOnly 'com.github.SkriptLang:Skript:2.6'
 
         testImplementation project(':bit-helper')
         testImplementation project(':core-plugin-12')
