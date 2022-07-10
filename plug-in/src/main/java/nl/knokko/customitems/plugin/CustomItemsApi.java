@@ -1,12 +1,17 @@
 package nl.knokko.customitems.plugin;
 
+import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
+import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 
 import static nl.knokko.customitems.plugin.set.item.CustomItemWrapper.wrap;
 
@@ -40,5 +45,35 @@ public class CustomItemsApi {
 
     public static boolean hasItem(String itemName) {
         return CustomItemsPlugin.getInstance().getSet().getItem(itemName) != null;
+    }
+
+    public static Collection<String> getAllBlockNames() {
+        ItemSet itemSet = CustomItemsPlugin.getInstance().getSet().get();
+
+        Collection<String> blockNames = new ArrayList<>(itemSet.getBlocks().size());
+        for (CustomItemValues item : itemSet.getItems()) {
+            blockNames.add(item.getName());
+        }
+
+        return blockNames;
+    }
+
+    public static void placeBlock(Block destination, String customBlockName) {
+        Optional<CustomBlockValues> customBlock = CustomItemsPlugin.getInstance().getSet().get().getBlock(customBlockName);
+        if (customBlock.isPresent()) {
+            MushroomBlockHelper.place(destination, customBlock.get());
+        } else {
+            destination.setType(Material.AIR);
+        }
+    }
+
+    public static String getBlockName(Block block) {
+        CustomBlockValues customBlock = MushroomBlockHelper.getMushroomBlock(block);
+        if (customBlock != null) return customBlock.getName();
+        else return null;
+    }
+
+    public static boolean hasBlock(String blockName) {
+        return CustomItemsPlugin.getInstance().getSet().get().getBlock(blockName).isPresent();
     }
 }
