@@ -11,13 +11,14 @@ import org.bukkit.event.Event;
 
 import java.util.Objects;
 
+@SuppressWarnings("unused")
 public class CondIsBlock extends Condition {
 
     static {
         Skript.registerCondition(
                 CondIsBlock.class,
-                "%block% is [a] kci %string%",
-                "%block% (isn't|is not) [a] kci %string%"
+                "%block% is [a] kci (%-string%|block)",
+                "%block% (isn't|is not) [a] kci (%-string%|block)"
         );
     }
 
@@ -28,10 +29,17 @@ public class CondIsBlock extends Condition {
     public boolean check(Event event) {
         Block candidateBlock = block.getSingle(event);
         if (candidateBlock == null) return isNegated();
-        String desiredCustomBlockName = customBlockName.getSingle(event);
-
         String actualCustomBlockName = CustomItemsApi.getBlockName(candidateBlock);
-        return isNegated() != Objects.equals(desiredCustomBlockName, actualCustomBlockName);
+
+        boolean isEqual;
+        if (customBlockName != null) {
+            String desiredCustomBlockName = customBlockName.getSingle(event);
+            isEqual = Objects.equals(desiredCustomBlockName, actualCustomBlockName);
+        } else {
+            isEqual = actualCustomBlockName != null;
+        }
+
+        return isNegated() != isEqual;
     }
 
     @Override
@@ -43,7 +51,7 @@ public class CondIsBlock extends Condition {
     @SuppressWarnings("unchecked")
     public boolean init(Expression<?>[] exprs, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         this.block = (Expression<Block>) exprs[0];
-        this.customBlockName = (Expression<String>) exprs[1];
+        this.customBlockName = exprs.length > 1 ? (Expression<String>) exprs[1] : null;
         this.setNegated(matchedPattern == 1);
         return true;
     }

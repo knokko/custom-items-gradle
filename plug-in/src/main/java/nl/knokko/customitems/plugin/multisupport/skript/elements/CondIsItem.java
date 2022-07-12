@@ -17,8 +17,8 @@ public class CondIsItem extends Condition {
     static {
         Skript.registerCondition(
                 CondIsItem.class,
-                "%itemstack% is [a] kci %string%",
-                "%itemstack% (is not|isn't) [a] kci %string%"
+                "%itemstack% is [a] kci (%-string%|item)",
+                "%itemstack% (is not|isn't) [a] kci (%-string%|item)"
         );
     }
 
@@ -29,10 +29,17 @@ public class CondIsItem extends Condition {
     public boolean check(Event event) {
         ItemStack candidateStack = itemStack.getSingle(event);
         if (candidateStack == null) return isNegated();
-        String desiredName = customItemName.getSingle(event);
 
         String actualName = CustomItemsApi.getItemName(candidateStack);
-        return isNegated() != Objects.equals(desiredName, actualName);
+        boolean isEqual;
+        if (customItemName != null) {
+            String desiredName = customItemName.getSingle(event);
+            isEqual = Objects.equals(desiredName, actualName);
+        } else {
+            isEqual = actualName != null;
+        }
+
+        return isNegated() != isEqual;
     }
 
     @Override
@@ -44,7 +51,7 @@ public class CondIsItem extends Condition {
     @SuppressWarnings("unchecked")
     public boolean init(Expression<?>[] expressions, int matchedPattern, Kleenean isDelayed, SkriptParser.ParseResult parseResult) {
         this.itemStack = (Expression<ItemStack>) expressions[0];
-        this.customItemName = (Expression<String>) expressions[1];
+        this.customItemName = expressions.length > 1 ? (Expression<String>) expressions[1] : null;
         this.setNegated(matchedPattern == 1);
         return true;
     }
