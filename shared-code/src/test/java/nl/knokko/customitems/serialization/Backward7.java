@@ -64,7 +64,7 @@ public class Backward7 {
         ), container1.getSelectionIcon());
         assertEquals(FuelMode.ANY, container1.getFuelMode());
         assertEquals(new CustomContainerHost(VanillaContainerType.ENCHANTING_TABLE), container1.getHost());
-        assertFalse(container1.hasPersistentStorage());
+        assertEquals(ContainerStorageMode.NOT_PERSISTENT, container1.getStorageMode());
 
         assertEquals(2, container1.getHeight());
         for (int x = 0; x < 9; x++) {

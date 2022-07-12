@@ -25,7 +25,7 @@ public class CustomContainerValues extends ModelValues {
         byte encoding = input.readByte();
         CustomContainerValues result = new CustomContainerValues(false);
 
-        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("CustomContainer", encoding);
+        if (encoding < 1 || encoding > 3) throw new UnknownEncodingException("CustomContainer", encoding);
 
         result.name = input.readString();
         result.selectionIcon = SlotDisplayValues.load(input, itemSet);
@@ -46,12 +46,18 @@ public class CustomContainerValues extends ModelValues {
                 result.slots[x][y] = ContainerSlotValues.load(input, itemSet);
             }
         }
+
         if (encoding == 1) {
             result.host = new CustomContainerHost(VanillaContainerType.valueOf(input.readString()));
         } else {
             result.host = CustomContainerHost.load(input, itemSet);
         }
-        result.persistentStorage = input.readBoolean();
+
+        if (encoding <= 2) {
+            result.storageMode = input.readBoolean() ? ContainerStorageMode.PER_LOCATION : ContainerStorageMode.NOT_PERSISTENT;
+        } else {
+            result.storageMode = ContainerStorageMode.valueOf(input.readString());
+        }
 
         return result;
     }
@@ -64,7 +70,7 @@ public class CustomContainerValues extends ModelValues {
 
     private FuelMode fuelMode;
     private CustomContainerHost host;
-    private boolean persistentStorage;
+    private ContainerStorageMode storageMode;
 
     public CustomContainerValues(boolean mutable) {
         super(mutable);
@@ -79,7 +85,7 @@ public class CustomContainerValues extends ModelValues {
         this.recipes = new ArrayList<>(0);
         this.fuelMode = FuelMode.ALL;
         this.host = new CustomContainerHost(VanillaContainerType.CRAFTING_TABLE);
-        this.persistentStorage = false;
+        this.storageMode = ContainerStorageMode.NOT_PERSISTENT;
     }
 
     public CustomContainerValues(CustomContainerValues toCopy, boolean mutable) {
@@ -90,11 +96,11 @@ public class CustomContainerValues extends ModelValues {
         this.recipes = toCopy.getRecipes();
         this.fuelMode = toCopy.getFuelMode();
         this.host = toCopy.getHost();
-        this.persistentStorage = toCopy.hasPersistentStorage();
+        this.storageMode = toCopy.getStorageMode();
     }
 
     public void save(BitOutput output) {
-        output.addByte((byte) 2);
+        output.addByte((byte) 3);
         output.addString(name);
         selectionIcon.save(output);
         output.addInt(recipes.size());
@@ -109,7 +115,7 @@ public class CustomContainerValues extends ModelValues {
             }
         }
         host.save(output);
-        output.addBoolean(persistentStorage);
+        output.addString(storageMode.name());
     }
 
     @Override
@@ -119,7 +125,7 @@ public class CustomContainerValues extends ModelValues {
             return this.name.equals(otherContainer.name) && this.selectionIcon.equals(otherContainer.selectionIcon)
                     && this.recipes.equals(otherContainer.recipes) && this.fuelMode == otherContainer.fuelMode
                     && Arrays.deepEquals(this.slots, otherContainer.slots) && this.host.equals(otherContainer.host)
-                    && this.persistentStorage == otherContainer.persistentStorage;
+                    && this.storageMode == otherContainer.storageMode;
         } else {
             return false;
         }
@@ -195,8 +201,8 @@ public class CustomContainerValues extends ModelValues {
         return host;
     }
 
-    public boolean hasPersistentStorage() {
-        return persistentStorage;
+    public ContainerStorageMode getStorageMode() {
+        return storageMode;
     }
 
     public void setName(String name) {
@@ -274,9 +280,9 @@ public class CustomContainerValues extends ModelValues {
         this.host = newHost;
     }
 
-    public void setPersistentStorage(boolean persistentStorage) {
+    public void setStorageMode(ContainerStorageMode newStorageMode) {
         assertMutable();
-        this.persistentStorage = persistentStorage;
+        this.storageMode = newStorageMode;
     }
 
     public void validate(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
@@ -326,7 +332,7 @@ public class CustomContainerValues extends ModelValues {
         if (fuelMode == null) throw new ProgrammingValidationException("No fuel mode");
         if (host == null) throw new ProgrammingValidationException("No host");
         Validation.scope("Host", host::validate, itemSet);
-        // There are no invalid values for persistentStorage
+        if (storageMode == null) throw new ProgrammingValidationException("No storage mode");
     }
 
     public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {

@@ -11,6 +11,7 @@ import java.util.logging.Level;
 
 import nl.knokko.core.plugin.item.GeneralItemNBT;
 import nl.knokko.customitems.block.CustomBlockValues;
+import nl.knokko.customitems.container.ContainerStorageMode;
 import nl.knokko.customitems.container.CustomContainerHost;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.slot.*;
@@ -59,6 +60,7 @@ public class PluginData {
 	private static final byte ENCODING_2 = 2;
 	private static final byte ENCODING_3 = 3;
 	private static final byte ENCODING_4 = 4;
+	private static final byte ENCODING_5 = 5;
 	
 	private static File getDataFile() {
 		return new File(CustomItemsPlugin.getInstance().getDataFolder() + "/gamedata.bin");
@@ -88,7 +90,10 @@ public class PluginData {
 						return load3(input, itemSet);
 					case ENCODING_4:
 						return load4(input, itemSet);
+					case ENCODING_5:
+						return load5(input, itemSet);
 					default:
+						// TODO Test this properly!
 						throw new IllegalArgumentException("Unknown data encoding: " + encoding);
 				}
 			} catch (IOException e) {
@@ -145,7 +150,7 @@ public class PluginData {
 		Map<UUID, PlayerData> playersMap = loadPlayerData1(input, itemSet);
 		
 		int numPersistentContainers = input.readInt();
-		Map<ContainerLocation, ContainerInstance> persistentContainers = new HashMap<>(numPersistentContainers);
+		Map<ContainerStorageKey, ContainerInstance> persistentContainers = new HashMap<>(numPersistentContainers);
 
 		for (int counter = 0; counter < numPersistentContainers; counter++) {
 			
@@ -159,7 +164,7 @@ public class PluginData {
 			
 			if (typeInfo != null) {
 				ContainerInstance instance = ContainerInstance.load1(input, typeInfo);
-				ContainerLocation location = new ContainerLocation(new PassiveLocation(worldId, x, y, z), typeInfo.getContainer());
+				ContainerStorageKey location = new ContainerStorageKey(typeName, new PassiveLocation(worldId, x, y, z), null, null);
 				persistentContainers.put(location, instance);
 			} else {
 				ContainerInstance.discard1(input);
@@ -175,7 +180,7 @@ public class PluginData {
 		Map<UUID, PlayerData> playersMap = loadPlayerData1(input, itemSet);
 
 		int numPersistentContainers = input.readInt();
-		Map<ContainerLocation, ContainerInstance> persistentContainers = new HashMap<>(numPersistentContainers);
+		Map<ContainerStorageKey, ContainerInstance> persistentContainers = new HashMap<>(numPersistentContainers);
 
 		for (int counter = 0; counter < numPersistentContainers; counter++) {
 
@@ -189,7 +194,7 @@ public class PluginData {
 
 			if (typeInfo != null) {
 				ContainerInstance instance = ContainerInstance.load2(input, typeInfo);
-				ContainerLocation location = new ContainerLocation(new PassiveLocation(worldId, x, y, z), typeInfo.getContainer());
+				ContainerStorageKey location = new ContainerStorageKey(typeName, new PassiveLocation(worldId, x, y, z), null, null);
 				persistentContainers.put(location, instance);
 			} else {
 				ContainerInstance.discard2(input);
@@ -205,7 +210,7 @@ public class PluginData {
 		Map<UUID, PlayerData> playersMap = loadPlayerData2(input, itemSet);
 
 		int numPersistentContainers = input.readInt();
-		Map<ContainerLocation, ContainerInstance> persistentContainers = new HashMap<>(numPersistentContainers);
+		Map<ContainerStorageKey, ContainerInstance> persistentContainers = new HashMap<>(numPersistentContainers);
 
 		for (int counter = 0; counter < numPersistentContainers; counter++) {
 
@@ -219,8 +224,32 @@ public class PluginData {
 
 			if (typeInfo != null) {
 				ContainerInstance instance = ContainerInstance.load2(input, typeInfo);
-				ContainerLocation location = new ContainerLocation(new PassiveLocation(worldId, x, y, z), typeInfo.getContainer());
+				ContainerStorageKey location = new ContainerStorageKey(typeName, new PassiveLocation(worldId, x, y, z), null, null);
 				persistentContainers.put(location, instance);
+			} else {
+				ContainerInstance.discard2(input);
+			}
+		}
+
+		return new PluginData(itemSet, currentTick, playersMap, persistentContainers);
+	}
+
+	private static PluginData load5(BitInput input, ItemSetWrapper itemSet) throws UnknownEncodingException {
+		long currentTick = input.readLong();
+
+		Map<UUID, PlayerData> playersMap = loadPlayerData2(input, itemSet);
+
+		int numPersistentContainers = input.readInt();
+		Map<ContainerStorageKey, ContainerInstance> persistentContainers = new HashMap<>(numPersistentContainers);
+
+		for (int counter = 0; counter < numPersistentContainers; counter++) {
+
+			ContainerStorageKey storageKey = ContainerStorageKey.load(input);
+			ContainerInfo typeInfo = itemSet.getContainerInfo(storageKey.containerName);
+
+			if (typeInfo != null) {
+				ContainerInstance instance = ContainerInstance.load2(input, typeInfo);
+				persistentContainers.put(storageKey, instance);
 			} else {
 				ContainerInstance.discard2(input);
 			}
@@ -231,7 +260,7 @@ public class PluginData {
 
 	// Persisting data
 	private final Map<UUID,PlayerData> playerData;
-	private final Map<ContainerLocation,ContainerInstance> persistentContainers;
+	private final Map<ContainerStorageKey, ContainerInstance> persistentContainers;
 
 	private long currentTick;
 	
@@ -253,7 +282,7 @@ public class PluginData {
 	}
 	
 	private PluginData(ItemSetWrapper itemSet, long currentTick, Map<UUID,PlayerData> playerData,
-			Map<ContainerLocation, ContainerInstance> persistentContainers) {
+			Map<ContainerStorageKey, ContainerInstance> persistentContainers) {
 		this.itemSet = itemSet;
 		this.playerData = playerData;
 		this.persistentContainers = persistentContainers;
@@ -689,8 +718,11 @@ public class PluginData {
 
 		if (closeContainerInv) {
 
+			ContainerStorageMode storageMode = pd.openPocketContainer.getType().getStorageMode();
+
 			// If the container doesn't have persistent storage, we shouldn't try to store its content
-			if (!pd.openPocketContainer.getType().hasPersistentStorage()) {
+			// If the storage mode doesn't depend on the location, we shouldn't store it either
+			if (storageMode != ContainerStorageMode.PER_LOCATION && storageMode != ContainerStorageMode.PER_LOCATION_PER_PLAYER) {
 				closeDestination = null;
 			}
 
@@ -706,38 +738,41 @@ public class PluginData {
 				}
 
 				if (acceptsCurrentContainer) {
-					String[] nbtKey = getPocketContainerNbtKey(pd.openPocketContainer.getType().getName());
+					String[] nbtKey = getPocketContainerNbtKey(pd.openPocketContainer.getType(), player);
 					GeneralItemNBT destNbt = GeneralItemNBT.readWriteInstance(closeDestination);
 
 					if (destNbt.getOrDefault(nbtKey, null) != null) {
 						// Don't overwrite the contents of another pocket container
 						// (This can happen in some edge case where the pocket container in the hand
-						// is replaced with another pocket container)
-						closeDestination = null;
-					}
-
-					ByteArrayBitOutput containerStateOutput = new ByteArrayBitOutput();
-					containerStateOutput.addByte(ContainerEncoding.ENCODING_2);
-					pd.openPocketContainer.save2(containerStateOutput);
-					destNbt.set(nbtKey, new String(StringEncoder.encodeTextyBytes(
-							containerStateOutput.getBytes(),
-							false), StandardCharsets.US_ASCII)
-					);
-					if (putBackInMainHand) {
-						inv.setItemInMainHand(destNbt.backToBukkit());
+						// is replaced with another pocket container.)
+						// To handle such cases, we drop all items on the floor rather than storing them.
+						storageMode = ContainerStorageMode.NOT_PERSISTENT;
 					} else {
-						inv.setItemInOffHand(destNbt.backToBukkit());
+
+						ByteArrayBitOutput containerStateOutput = new ByteArrayBitOutput();
+						containerStateOutput.addByte(ContainerEncoding.ENCODING_2);
+						pd.openPocketContainer.save2(containerStateOutput);
+						destNbt.set(nbtKey, new String(StringEncoder.encodeTextyBytes(
+								containerStateOutput.getBytes(),
+								false), StandardCharsets.US_ASCII)
+						);
+						if (putBackInMainHand) {
+							inv.setItemInMainHand(destNbt.backToBukkit());
+						} else {
+							inv.setItemInOffHand(destNbt.backToBukkit());
+						}
 					}
 				} else {
 
 					// Don't store the pocket container data in a pocket container that doesn't accept
 					// this type of container. This can happen in some edge cases where the pocket
-					// container in the hand is replaced with another kind of pocket container
-					closeDestination = null;
+					// container in the hand is replaced with another kind of pocket container.
+					// To handle such edge cases, we simply drop the items on the floor.
+					storageMode = ContainerStorageMode.NOT_PERSISTENT;
 				}
 			}
 
-			if (closeDestination == null) {
+			if (storageMode == ContainerStorageMode.NOT_PERSISTENT) {
 				pd.openPocketContainer.dropAllItems(player.getLocation());
 			}
 
@@ -871,8 +906,8 @@ public class PluginData {
 	 */
 	public void saveData() {
 		ByteArrayBitOutput output = new ByteArrayBitOutput();
-		output.addByte(ENCODING_4);
-		save4(output);
+		output.addByte(ENCODING_5);
+		save5(output);
 		try {
 			OutputStream fileOutput = Files.newOutputStream(getDataFile().toPath());
 			fileOutput.write(output.getBytes());
@@ -883,25 +918,14 @@ public class PluginData {
 		}
 	}
 	
-	private void save1(BitOutput output) {
-		output.addLong(currentTick);
-		
-		output.addInt(playerData.size());
-		for (Entry<UUID,PlayerData> entry : playerData.entrySet()) {
-			output.addLong(entry.getKey().getMostSignificantBits());
-			output.addLong(entry.getKey().getLeastSignificantBits());
-			entry.getValue().save1(output, currentTick);
-		}
-	}
-	
 	private void cleanEmptyContainers() {
 		
 		// Clean up any empty custom containers
-		Iterator<Entry<ContainerLocation, ContainerInstance>> entryIterator = persistentContainers.entrySet().iterator();
+		Iterator<Entry<ContainerStorageKey, ContainerInstance>> entryIterator = persistentContainers.entrySet().iterator();
 		entryLoop:
 		while (entryIterator.hasNext()) {
 			
-			Entry<ContainerLocation, ContainerInstance> entry = entryIterator.next();
+			Entry<ContainerStorageKey, ContainerInstance> entry = entryIterator.next();
 			ContainerInstance instance = entry.getValue();
 			
 			// Don't close it if anyone is still viewing it
@@ -934,65 +958,7 @@ public class PluginData {
 		}
 	}
 
-	@SuppressWarnings("unused")
-	private void save2(BitOutput output) {
-		save1(output);
-		
-		cleanEmptyContainers();
-		output.addInt(persistentContainers.size());
-		for (Entry<ContainerLocation, ContainerInstance> entry : persistentContainers.entrySet()) {
-			
-			// Save container location
-			ContainerLocation loc = entry.getKey();
-			output.addLong(loc.location.getWorldId().getMostSignificantBits());
-			output.addLong(loc.location.getWorldId().getLeastSignificantBits());
-			output.addInts(loc.location.getX(), loc.location.getY(), loc.location.getZ());
-			output.addString(loc.type.getName());
-			
-			// Save container state
-			ContainerInstance state = entry.getValue();
-			state.save1(output);
-		}
-	}
-
-	@SuppressWarnings("unused")
-	private void save3(BitOutput output) {
-		save1(output);
-
-		cleanEmptyContainers();
-		output.addInt(persistentContainers.size());
-		for (Entry<ContainerLocation, ContainerInstance> entry : persistentContainers.entrySet()) {
-
-			// Save container location
-			ContainerLocation loc = entry.getKey();
-			output.addLong(loc.location.getWorldId().getMostSignificantBits());
-			output.addLong(loc.location.getWorldId().getLeastSignificantBits());
-			output.addInts(loc.location.getX(), loc.location.getY(), loc.location.getZ());
-			output.addString(loc.type.getName());
-
-			// Save container state
-			ContainerInstance state = entry.getValue();
-			state.save2(output);
-		}
-
-		playerData.forEach((playerId, pd) -> {
-			if (pd.openPocketContainer != null) {
-				Player player = Bukkit.getPlayer(playerId);
-
-				if (player == null) {
-					Bukkit.getLogger().log(Level.SEVERE, "Lost pocket container for player " + Bukkit.getOfflinePlayer(playerId).getName());
-					return;
-				}
-
-				maybeClosePocketContainer(pd, player, true);
-			}
-		});
-
-		tempContainers.forEach(entry -> entry.instance.dropAllItems(entry.viewer.getLocation()));
-		tempContainers.clear();
-	}
-
-	private void save4(BitOutput output) {
+	private void save5(BitOutput output) {
 		output.addLong(currentTick);
 
 		output.addInt(playerData.size());
@@ -1004,14 +970,11 @@ public class PluginData {
 
 		cleanEmptyContainers();
 		output.addInt(persistentContainers.size());
-		for (Entry<ContainerLocation, ContainerInstance> entry : persistentContainers.entrySet()) {
+		for (Entry<ContainerStorageKey, ContainerInstance> entry : persistentContainers.entrySet()) {
 
 			// Save container location
-			ContainerLocation loc = entry.getKey();
-			output.addLong(loc.location.getWorldId().getMostSignificantBits());
-			output.addLong(loc.location.getWorldId().getLeastSignificantBits());
-			output.addInts(loc.location.getX(), loc.location.getY(), loc.location.getZ());
-			output.addString(loc.type.getName());
+			ContainerStorageKey storageKey = entry.getKey();
+			storageKey.save(output);
 
 			// Save container state
 			ContainerInstance state = entry.getValue();
@@ -1098,34 +1061,48 @@ public class PluginData {
 		return pd.openPocketContainer;
 	}
 	
-	public ContainerInstance getCustomContainer(Location location, Player newViewer, CustomContainerValues prototype) {
-		
-		/*
-		 * There are 2 kinds of custom containers: those with persistent storage
-		 * that is shared between players and saved when the server stops (for
-		 * instance furnaces). And there are those without persistent storage that
-		 * allocate space when the player opens it and drops all items when the
-		 * player closes it (like crafting table).
-		 */
-		if (prototype.hasPersistentStorage()) {
-			
-			// Container storage is shared between players, so we need to check if
-			// there is an existing inventory
-			ContainerLocation key = new ContainerLocation(location, prototype);
-			ContainerInstance instance = persistentContainers.get(key);
-			if (instance == null) {
-				instance = new ContainerInstance(itemSet.getContainerInfo(prototype));
-				persistentContainers.put(key, instance);
-			}
-			return instance;
-		} else {
-			
+	private ContainerInstance getCustomContainer(Location location, Player newViewer, CustomContainerValues prototype) {
+
+		ContainerStorageMode storageMode = prototype.getStorageMode();
+		if (storageMode == ContainerStorageMode.NOT_PERSISTENT) {
+
 			// Not shared between players, so just create a new instance
 			TempContainerInstance tempInstance = new TempContainerInstance(
 					new ContainerInstance(itemSet.getContainerInfo(prototype)), newViewer
 			);
 			tempContainers.add(tempInstance);
 			return tempInstance.instance;
+
+		} else {
+			ContainerStorageKey storageKey;
+
+			// TODO Handle string locations
+			if (storageMode == ContainerStorageMode.PER_LOCATION_PER_PLAYER) {
+				storageKey = new ContainerStorageKey(
+						prototype.getName(), new PassiveLocation(location), null, newViewer.getUniqueId()
+				);
+			} else if (storageMode == ContainerStorageMode.PER_LOCATION) {
+				storageKey = new ContainerStorageKey(
+						prototype.getName(), new PassiveLocation(location), null, null
+				);
+			} else if (storageMode == ContainerStorageMode.PER_PLAYER) {
+				storageKey = new ContainerStorageKey(
+						prototype.getName(), null, null, newViewer.getUniqueId()
+				);
+			} else if (storageMode == ContainerStorageMode.GLOBAL) {
+				storageKey = new ContainerStorageKey(
+						prototype.getName(), null, null, null
+				);
+			} else {
+				throw new IllegalArgumentException("Unknown storage mode: " + storageMode);
+			}
+
+			ContainerInstance instance = persistentContainers.get(storageKey);
+			if (instance == null) {
+				instance = new ContainerInstance(itemSet.getContainerInfo(prototype));
+				persistentContainers.put(storageKey, instance);
+			}
+			return instance;
 		}
 	}
 
@@ -1180,8 +1157,14 @@ public class PluginData {
 		return null;
 	}
 
-	private static String[] getPocketContainerNbtKey(String containerName) {
-		return new String[] {"KnokkosPocketContainer", "State", containerName};
+	private static String[] getPocketContainerNbtKey(CustomContainerValues containerType, Player player) {
+		if (containerType.getStorageMode() == ContainerStorageMode.PER_LOCATION) {
+			return new String[] {"KnokkosPocketContainer", "State", containerType.getName()};
+		} else if (containerType.getStorageMode() == ContainerStorageMode.PER_LOCATION_PER_PLAYER) {
+			return new String[] {"KnokkosPocketContainer", "State-" + player.getUniqueId(), containerType.getName()};
+		} else {
+			throw new IllegalArgumentException("Storage mode must be PER_LOCATION or PER_LOCATION_PER_PLAYER, but is " + containerType.getStorageMode());
+		}
 	}
 	
 	public void selectCustomContainer(Player player, CustomContainerValues selected) {
@@ -1244,14 +1227,19 @@ public class PluginData {
 			}
 
 			if (pocketContainer != null) {
-				GeneralItemNBT nbt = GeneralItemNBT.readWriteInstance(pocketContainerStack);
-				String[] nbtKey = getPocketContainerNbtKey(selected.getName());
-				String stringContainerState = nbt.getOrDefault(nbtKey, null);
-				nbt.remove(nbtKey);
-				if (isMainHand) {
-					player.getInventory().setItemInMainHand(nbt.backToBukkit());
-				} else {
-					player.getInventory().setItemInOffHand(nbt.backToBukkit());
+
+				String stringContainerState = null;
+				ContainerStorageMode storageMode = selected.getStorageMode();
+				if (storageMode == ContainerStorageMode.PER_LOCATION || storageMode == ContainerStorageMode.PER_LOCATION_PER_PLAYER) {
+					GeneralItemNBT nbt = GeneralItemNBT.readWriteInstance(pocketContainerStack);
+					String[] nbtKey = getPocketContainerNbtKey(selected, player);
+					stringContainerState = nbt.getOrDefault(nbtKey, null);
+					nbt.remove(nbtKey);
+					if (isMainHand) {
+						player.getInventory().setItemInMainHand(nbt.backToBukkit());
+					} else {
+						player.getInventory().setItemInOffHand(nbt.backToBukkit());
+					}
 				}
 
 				ContainerInstance instance;
@@ -1272,7 +1260,14 @@ public class PluginData {
 					}
 
 				} else {
-					instance = new ContainerInstance(itemSet.getContainerInfo(selected));
+					if (storageMode == ContainerStorageMode.GLOBAL) {
+						instance = this.getCustomContainer(null, null, selected);
+					} else if (storageMode == ContainerStorageMode.PER_PLAYER) {
+						instance = this.getCustomContainer(null, player, selected);
+					} else {
+						// In this case, the container is either non-persistent or both location-bound and empty
+						instance = new ContainerInstance(itemSet.getContainerInfo(selected));
+					}
 				}
 
 				player.openInventory(instance.getInventory());
@@ -1292,12 +1287,12 @@ public class PluginData {
 	
 	public void destroyCustomContainersAt(Location location) {
 		
-		Iterator<Entry<ContainerLocation, ContainerInstance>> persistentIterator = 
+		Iterator<Entry<ContainerStorageKey, ContainerInstance>> persistentIterator =
 				persistentContainers.entrySet().iterator();
 		PassiveLocation passiveLocation = new PassiveLocation(location);
 		
 		while (persistentIterator.hasNext()) {
-			Entry<ContainerLocation, ContainerInstance> entry = persistentIterator.next();
+			Entry<ContainerStorageKey, ContainerInstance> entry = persistentIterator.next();
 			
 			// Only the containers at this exact location are affected
 			if (passiveLocation.equals(entry.getKey().location)) {
@@ -1317,40 +1312,6 @@ public class PluginData {
 				if (player != null) {
 					player.closeInventory();
 				}
-			}
-		}
-	}
-	
-	private static class ContainerLocation {
-		
-		final PassiveLocation location;
-		
-		final CustomContainerValues type;
-		
-		ContainerLocation(PassiveLocation location, CustomContainerValues type){
-			this.location = location;
-			this.type = type;
-			if (type == null) throw new NullPointerException("type");
-			if (location == null) throw new NullPointerException("location");
-		}
-		
-		ContainerLocation(Location location, CustomContainerValues type) {
-			this(new PassiveLocation(location), type);
-		}
-		
-		@Override
-		public int hashCode() {
-			return 17 * location.hashCode() - 71 * type.getName().hashCode();
-		}
-		
-		@Override
-		public boolean equals(Object other) {
-			if (other instanceof ContainerLocation) {
-				ContainerLocation loc = (ContainerLocation) other;
-				return loc.type.getName().equals(type.getName()) && 
-						loc.location.equals(location);
-			} else {
-				return false;
 			}
 		}
 	}

@@ -1,5 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.container;
 
+import nl.knokko.customitems.container.ContainerStorageMode;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.fuel.FuelMode;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
@@ -12,7 +13,6 @@ import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ContainerReference;
 import nl.knokko.gui.color.GuiColor;
-import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.EagerTextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
@@ -107,12 +107,12 @@ public class EditContainer extends GuiMenu {
 		);
 
 		addComponent(
-				new DynamicTextComponent("Persistent storage", LABEL),
-				0.05f, 0.3f, 0.25f, 0.35f
+				new DynamicTextComponent("Storage mode", LABEL),
+				0.05f, 0.3f, 0.2f, 0.35f
 		);
 		addComponent(
-				new CheckboxComponent(currentValues.hasPersistentStorage(), currentValues::setPersistentStorage),
-				0.275f, 0.3f, 0.3f, 0.325f
+				EnumSelect.createSelectButton(ContainerStorageMode.class, currentValues::setStorageMode, currentValues.getStorageMode()),
+				0.21f, 0.3f, 0.36f, 0.35f
 		);
 		addComponent(new DynamicTextButton("Recipes...", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new ContainerRecipeCollectionEdit(

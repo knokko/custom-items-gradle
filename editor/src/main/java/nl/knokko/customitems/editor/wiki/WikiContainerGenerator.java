@@ -2,6 +2,7 @@ package nl.knokko.customitems.editor.wiki;
 
 import nl.knokko.customitems.NameHelper;
 import nl.knokko.customitems.container.ContainerRecipeValues;
+import nl.knokko.customitems.container.ContainerStorageMode;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.VanillaContainerType;
 import nl.knokko.customitems.container.fuel.FuelMode;
@@ -51,10 +52,23 @@ class WikiContainerGenerator {
                 }
             }
 
-            if (container.hasPersistentStorage()) {
-                output.println("\t\tPlayers can store items in this container.<br>");
+            if (container.getStorageMode() == ContainerStorageMode.NOT_PERSISTENT) {
+                output.println("\t\tAll items that are stored in this container will be dropped on the floor " +
+                        "when the container is closed. (Just like a crafting table)<br>");
+            } else if (container.getStorageMode() == ContainerStorageMode.PER_LOCATION_PER_PLAYER) {
+                output.println("\t\tPlayers can store items in this container, " +
+                        "which will be hidden from other players.<br>");
+            } else if (container.getStorageMode() == ContainerStorageMode.PER_LOCATION) {
+                output.println("\t\tPlayers can store items in this container. (Just like a chest or a furnace.)<br>");
+            } else if (container.getStorageMode() == ContainerStorageMode.PER_PLAYER) {
+                output.println("\t\tPlayers can store items in this container. " +
+                        "These items will be hidden from other players and are shared with other containers of this type. " +
+                        "(Just like an enderchest.)<br>");
+            } else if (container.getStorageMode() == ContainerStorageMode.GLOBAL) {
+                output.println("\t\tPlayers can store items in this container. " +
+                        "These items will be shared with other containers of this type.<br>");
             } else {
-                output.println("\t\tAll items that are stored in this container will be dropped on the floor when the container is closed.<br>");
+                output.println("\t\tUnknown storage mode: " + container.getStorageMode());
             }
 
             output.println("\t\t<h2>Opening this container</h2>");

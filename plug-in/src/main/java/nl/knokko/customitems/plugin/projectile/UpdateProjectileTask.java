@@ -108,7 +108,8 @@ public class UpdateProjectileTask implements Runnable {
 			coverItem.remove();
 		}
 	}
-	
+
+	@SuppressWarnings("deprecation")
 	private void createCoverItem(Vector position) {
 		
 		CIMaterial coverMaterial = CustomItemWrapper.getMaterial(projectile.prototype.getCover().getItemType(), null);

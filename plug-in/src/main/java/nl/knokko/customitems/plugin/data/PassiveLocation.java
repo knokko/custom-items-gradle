@@ -5,7 +5,7 @@ import java.util.UUID;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
-public class PassiveLocation {
+class PassiveLocation {
 
 	private final UUID worldId;
 	private final int x, y, z;
