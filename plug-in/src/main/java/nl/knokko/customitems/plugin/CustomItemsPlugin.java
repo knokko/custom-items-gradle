@@ -36,6 +36,7 @@ import nl.knokko.core.plugin.entity.EntityDamageHelper;
 import nl.knokko.core.plugin.item.SmithingBlocker;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.plugin.command.CustomItemsTabCompletions;
+import nl.knokko.customitems.plugin.multisupport.denizen.DenizenSupport;
 import nl.knokko.customitems.plugin.multisupport.itembridge.ItemBridgeSupport;
 import nl.knokko.customitems.plugin.multisupport.mimic.MimicSupport;
 import nl.knokko.customitems.plugin.multisupport.skript.SkriptSupport;
@@ -123,6 +124,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 		CrazyEnchantmentsSupport.onEnable();
 		ItemBridgeSupport.onEnable(this);
 		SkriptSupport.onEnable(this);
+		DenizenSupport.onEnable();
 		PluginIndicators.init();
 	}
 
