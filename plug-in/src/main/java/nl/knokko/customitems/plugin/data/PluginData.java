@@ -93,7 +93,6 @@ public class PluginData {
 					case ENCODING_5:
 						return load5(input, itemSet);
 					default:
-						// TODO Test this properly!
 						throw new IllegalArgumentException("Unknown data encoding: " + encoding);
 				}
 			} catch (IOException e) {
@@ -1060,8 +1059,34 @@ public class PluginData {
 		PlayerData pd = getPlayerData(viewer);
 		return pd.openPocketContainer;
 	}
+
+	public int destroyCustomContainer(
+			CustomContainerValues prototype, String stringHost, Location dropLocation
+	) {
+		int numDestroyedContainers = 0;
+
+		Iterator<Entry<ContainerStorageKey, ContainerInstance>> containerIterator = persistentContainers.entrySet().iterator();
+		while (containerIterator.hasNext()) {
+			Entry<ContainerStorageKey, ContainerInstance> entry = containerIterator.next();
+
+			ContainerStorageKey storageKey = entry.getKey();
+			if (storageKey.containerName.equals(prototype.getName()) && stringHost.equals(storageKey.stringHost)) {
+				ContainerInstance containerInstance = entry.getValue();
+				if (dropLocation != null) {
+					containerInstance.dropAllItems(dropLocation);
+				}
+				containerInstance.getInventory().getViewers().forEach(HumanEntity::closeInventory);
+				containerIterator.remove();
+				numDestroyedContainers += 1;
+			}
+		}
+
+		return numDestroyedContainers;
+	}
 	
-	private ContainerInstance getCustomContainer(Location location, Player newViewer, CustomContainerValues prototype) {
+	public ContainerInstance getCustomContainer(
+			Location location, String stringHost, Player newViewer, CustomContainerValues prototype
+	) {
 
 		ContainerStorageMode storageMode = prototype.getStorageMode();
 		if (storageMode == ContainerStorageMode.NOT_PERSISTENT) {
@@ -1076,14 +1101,13 @@ public class PluginData {
 		} else {
 			ContainerStorageKey storageKey;
 
-			// TODO Handle string locations
 			if (storageMode == ContainerStorageMode.PER_LOCATION_PER_PLAYER) {
 				storageKey = new ContainerStorageKey(
-						prototype.getName(), new PassiveLocation(location), null, newViewer.getUniqueId()
+						prototype.getName(), location != null ? new PassiveLocation(location) : null, stringHost, newViewer.getUniqueId()
 				);
 			} else if (storageMode == ContainerStorageMode.PER_LOCATION) {
 				storageKey = new ContainerStorageKey(
-						prototype.getName(), new PassiveLocation(location), null, null
+						prototype.getName(), location != null ? new PassiveLocation(location) : null, stringHost, null
 				);
 			} else if (storageMode == ContainerStorageMode.PER_PLAYER) {
 				storageKey = new ContainerStorageKey(
@@ -1119,7 +1143,7 @@ public class PluginData {
 			return null;
 		} else if (correspondingContainers.size() == 1) {
 			return getCustomContainer(
-					location, player, correspondingContainers.iterator().next()
+					location, null, player, correspondingContainers.iterator().next()
 			).getInventory();
 		} else {
 			PlayerData pd = getPlayerData(player);
@@ -1201,7 +1225,7 @@ public class PluginData {
 			 */
 			if (hostBlockStillValid) {
 				player.openInventory(getCustomContainer(
-						containerLocation, player, selected
+						containerLocation, null, player, selected
 				).getInventory());
 			} else {
 				player.closeInventory();
@@ -1261,9 +1285,9 @@ public class PluginData {
 
 				} else {
 					if (storageMode == ContainerStorageMode.GLOBAL) {
-						instance = this.getCustomContainer(null, null, selected);
+						instance = this.getCustomContainer(null, null, null, selected);
 					} else if (storageMode == ContainerStorageMode.PER_PLAYER) {
-						instance = this.getCustomContainer(null, player, selected);
+						instance = this.getCustomContainer(null, null, player, selected);
 					} else {
 						// In this case, the container is either non-persistent or both location-bound and empty
 						instance = new ContainerInstance(itemSet.getContainerInfo(selected));

@@ -79,7 +79,6 @@ class ContainerStorageKey {
                 + 3421 * Objects.hashCode(playerID);
     }
 
-    // TODO Unit-test this
     public void save(BitOutput output) {
         output.addByte((byte) 1);
 

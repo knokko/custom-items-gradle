@@ -120,6 +120,9 @@ public class CommandCustomItems implements CommandExecutor {
 				case "reload":
 					new CommandCustomItemsReload().handle(sender);
 					break;
+				case "container":
+					new CommandCustomItemsContainer(itemSet).handle(args, sender);
+					break;
 				default:
 					return false;
 			}
