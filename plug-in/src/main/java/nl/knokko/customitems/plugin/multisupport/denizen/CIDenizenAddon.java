@@ -52,6 +52,7 @@ class CIDenizenAddon {
         });
 
         BukkitCommandRegistry.instance.registerCommand(PlaceKciBlockCommand.class);
+        BukkitCommandRegistry.instance.registerCommand(KciContainerCommand.class);
         new KciItemsTag();
     }
 }

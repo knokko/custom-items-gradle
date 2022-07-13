@@ -3,10 +3,14 @@ package nl.knokko.customitems.plugin;
 import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.customitems.plugin.container.ContainerInfo;
+import nl.knokko.customitems.plugin.container.ContainerInstance;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -75,5 +79,45 @@ public class CustomItemsApi {
 
     public static boolean hasBlock(String blockName) {
         return CustomItemsPlugin.getInstance().getSet().get().getBlock(blockName).isPresent();
+    }
+
+    /**
+     * @param player The player that should open the container
+     * @param containerName The name of the custom container to be opened
+     * @param stringHost The host at which the container should be opened. This can be any string, but each distinct
+     *                   host will count as a distinct location.
+     * @return True if the container was opened successfully; False if there is no container with name <i>containerName</i>
+     */
+    public static boolean openContainerAtStringHost(Player player, String containerName, String stringHost) {
+        ContainerInfo containerInfo = CustomItemsPlugin.getInstance().getSet().getContainerInfo(containerName);
+        if (containerInfo != null) {
+            ContainerInstance containerInstance = CustomItemsPlugin.getInstance().getData().getCustomContainer(
+                    null, stringHost, player, containerInfo.getContainer()
+            );
+            player.openInventory(containerInstance.getInventory());
+            return true;
+        } else {
+            player.closeInventory();
+            return false;
+        }
+    }
+
+    /**
+     * Destroys all instances of the given container at the given host.
+     * @param containerName The name of the container whose instances should be destroyed
+     * @param stringHost The host at which the container instances should be destroyed
+     * @param dropLocation The location where all items that are stored in the destroyed containers will be dropped, or
+     *                     null to discard all stored items
+     * @return The number of destroyed container instances, or -1 if there is no container with name <i>containerName</i>
+     */
+    public static int destroyCustomContainersAtStringHost(String containerName, String stringHost, Location dropLocation) {
+        ContainerInfo containerInfo = CustomItemsPlugin.getInstance().getSet().getContainerInfo(containerName);
+        if (containerInfo != null) {
+            return CustomItemsPlugin.getInstance().getData().destroyCustomContainer(
+                    containerInfo.getContainer(), stringHost, dropLocation
+            );
+        } else {
+            return -1;
+        }
     }
 }
