@@ -29,11 +29,9 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.logging.Level;
 
 import com.google.common.collect.Lists;
-import nl.knokko.core.plugin.block.MushroomBlocks;
 import nl.knokko.core.plugin.entity.EntityDamageHelper;
 import nl.knokko.core.plugin.item.SmithingBlocker;
 import nl.knokko.customitems.itemset.ItemSet;
