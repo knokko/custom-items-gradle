@@ -2704,7 +2704,10 @@ public class CustomItemsEventHandler implements Listener {
 				}
 			}
 		} else if (action == InventoryAction.NOTHING || action == InventoryAction.PICKUP_ONE
-				|| action == InventoryAction.PICKUP_SOME || action == InventoryAction.SWAP_WITH_CURSOR) {
+				|| action == InventoryAction.PICKUP_SOME || action == InventoryAction.SWAP_WITH_CURSOR
+				|| action == InventoryAction.PLACE_ONE || action == InventoryAction.PLACE_SOME
+				|| action == InventoryAction.PLACE_ALL
+		) {
 			ItemStack cursor = event.getCursor();
 			ItemStack current = event.getCurrentItem();
 			
@@ -2713,6 +2716,7 @@ public class CustomItemsEventHandler implements Listener {
 			
 			// This block makes custom items stackable
 			if (customCursor != null && customCursor == customCurrent && wrap(customCursor).needsStackingHelp()) {
+				System.out.println("custom stacking");
 				
 				event.setResult(Result.DENY);
 				if (event.isLeftClick()) {
@@ -2738,6 +2742,7 @@ public class CustomItemsEventHandler implements Listener {
 		} else if (action == InventoryAction.COLLECT_TO_CURSOR) {
 			CustomItemValues customItem = itemSet.getItem(event.getCursor());
 			if (customItem != null && wrap(customItem).needsStackingHelp()) {
+				event.setCancelled(true);
 				int currentStacksize = event.getCursor().getAmount();
 				InventoryView view = event.getView();
 				/*
@@ -2762,6 +2767,7 @@ public class CustomItemsEventHandler implements Listener {
 									currentStacksize + otherSlot.getAmount(),
 									customItem.getMaxStacksize()
 							);
+							System.out.println("new stacksize is " + newStacksize + " and max stacksize is " + customItem.getMaxStacksize());
 							if (newStacksize > currentStacksize) {
 								int remainingStacksize = otherSlot.getAmount() - (newStacksize - currentStacksize);
 								if (remainingStacksize == 0) {
@@ -2936,31 +2942,44 @@ public class CustomItemsEventHandler implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void handleCustomItemDragging(InventoryDragEvent event) {
-	    if (event.getType() == DragType.EVEN) {
-			ItemStack remainingCursor = event.getCursor();
-			CustomItemValues customItem = itemSet.getItem(remainingCursor);
-			if (customItem != null && wrap(customItem).needsStackingHelp()) {
-			    int numSlots = event.getNewItems().size();
-			    int remainingSize = remainingCursor.getAmount();
-			    int extraPerSlot = remainingSize / numSlots;
-			    if (extraPerSlot > 0) {
-			    	for (Entry<Integer,ItemStack> entry : event.getNewItems().entrySet()) {
-			    		ItemStack toIncrease = entry.getValue();
-			    		int oldSize = toIncrease.getAmount();
-			    		int newSize = Math.min(oldSize + extraPerSlot, customItem.getMaxStacksize());
-			    		if (oldSize != newSize) {
-							remainingSize -= newSize - oldSize;
-							ItemStack replacement = toIncrease.clone();
-							replacement.setAmount(newSize);
-							Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () ->
-								event.getView().setItem(entry.getKey(), replacement)
-							);
-						}
-					}
-				}
+		CustomItemValues customItem = itemSet.getItem(event.getOldCursor());
+		if (customItem != null && wrap(customItem).needsStackingHelp()) {
+			int numSlots = event.getNewItems().size();
 
-			    if (remainingSize != remainingCursor.getAmount()) {
-			    	remainingCursor.setAmount(remainingSize);
+			ItemStack remainingCursor = event.getCursor();
+			int remainingSize = event.getOldCursor().getAmount();
+			int desiredAmountPerSlot = event.getType() == DragType.EVEN ? remainingSize / numSlots : 1;
+			int naturalStacksize = event.getOldCursor().getMaxStackSize();
+			int originalAmountPerSlot = event.getType() == DragType.EVEN ? Math.min(naturalStacksize, remainingSize / numSlots) : 1;
+			int extraPerSlot = desiredAmountPerSlot - originalAmountPerSlot;
+			System.out.println("desiredAmountPerSlot is " + desiredAmountPerSlot + " and naturalStacksize is " + naturalStacksize + " and extraPerSlot is " + extraPerSlot);
+
+			for (Entry<Integer,ItemStack> entry : event.getNewItems().entrySet()) {
+				ItemStack toIncrease = entry.getValue();
+				int oldSize = toIncrease.getAmount();
+				int newSize = Math.min(oldSize + extraPerSlot, customItem.getMaxStacksize());
+				System.out.println("old size is " + oldSize + " and new size is " + newSize);
+				if (oldSize != newSize) {
+					remainingSize -= originalAmountPerSlot + newSize - oldSize;
+					ItemStack replacement = toIncrease.clone();
+					replacement.setAmount(newSize);
+					Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () ->
+						event.getView().setItem(entry.getKey(), replacement)
+					);
+				}
+			}
+
+			System.out.println("remainingCursor is " + remainingCursor + " and remainingSize is " + remainingSize);
+			if (remainingCursor != null) {
+				if (remainingSize != remainingCursor.getAmount()) {
+					remainingCursor.setAmount(remainingSize);
+					event.setCursor(remainingCursor);
+				}
+			} else {
+				if (remainingSize != 0) {
+					ItemStack newCursor = event.getOldCursor().clone();
+					newCursor.setAmount(remainingSize);
+					event.setCursor(newCursor);
 				}
 			}
 		}

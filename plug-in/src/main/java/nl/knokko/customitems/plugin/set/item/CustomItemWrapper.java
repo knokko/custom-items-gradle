@@ -167,6 +167,7 @@ public abstract class CustomItemWrapper {
 
     public boolean needsStackingHelp() {
         if (item.getItemType() == CustomItemType.OTHER) {
+            System.out.println("max stacksize 1 is " + item.getMaxStacksize() + " and max stacksize 2 is " + ItemHelper.createStack(item.getOtherMaterial().name(), 1).getMaxStackSize());
             return item.getMaxStacksize() != ItemHelper.createStack(item.getOtherMaterial().name(), 1).getMaxStackSize();
         } else {
             return item.canStack();
