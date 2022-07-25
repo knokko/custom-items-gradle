@@ -208,9 +208,38 @@ public class CommandCustomItems implements CommandExecutor {
 								}
 							}
 							if (receiver != null) {
-								receiver.getInventory().addItem(wrap(item).create(amount));
+
+								boolean wasGiven = false;
+
+								if (wrap(item).needsStackingHelp()) {
+								    ItemStack[] contents = receiver.getInventory().getStorageContents();
+								    int freeSlotIndex = -1;
+								    for (int index = 0; index < contents.length; index++) {
+								    	if (ItemUtils.isEmpty(contents[index])) {
+								    		if (freeSlotIndex == -1) freeSlotIndex = index;
+										} else {
+								    		ItemStack existingStack = contents[index];
+								    		CustomItemValues existingItem = itemSet.getItem(existingStack);
+								    		if (existingItem == item && item.getMaxStacksize() >= existingStack.getAmount() + amount) {
+								    			existingStack.setAmount(existingStack.getAmount() + amount);
+								    			receiver.getInventory().setStorageContents(contents);
+								    			wasGiven = true;
+								    			break;
+											}
+										}
+									}
+
+								    if (freeSlotIndex != -1 && !wasGiven) {
+								    	contents[freeSlotIndex] = wrap(item).create(amount);
+								    	receiver.getInventory().setStorageContents(contents);
+								    	wasGiven = true;
+									}
+								} else {
+									wasGiven = receiver.getInventory().addItem(wrap(item).create(amount)).isEmpty();
+								}
 								if (enableOutput) {
-									sender.sendMessage(lang.getCommandItemGiven());
+									if (wasGiven) sender.sendMessage(lang.getCommandItemGiven());
+									else sender.sendMessage(ChatColor.RED + "No available inventory slot was found");
 								}
 							}
 						} else {
