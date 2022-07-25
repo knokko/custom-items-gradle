@@ -200,7 +200,7 @@ public class CrossbowTextureEdit extends GuiMenu {
                     oldEntry.getImage() == null ? null :
                             new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(oldEntry.getImage()))
             );
-            addComponent(TextureEdit.createImageSelect(new TextureEdit.PartialTransparencyFilter(this, (BufferedImage texture, String imageName) -> {
+            addComponent(TextureEdit.createImageSelect(new TextureEdit.PartialTransparencyFilter(CrossbowTextureEdit.this, (BufferedImage texture, String imageName) -> {
                 pullImageWrapper.setComponent(new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(texture)));
                 List<BowTextureEntry> pulls = currentValues.getPullTextures();
                 BowTextureEntry newEntry = pulls.get(index).copy(true);
@@ -208,7 +208,7 @@ public class CrossbowTextureEdit extends GuiMenu {
                 pulls.set(index, newEntry);
                 currentValues.setPullTextures(pulls);
                 return CrossbowTextureEdit.this;
-            }), errorComponent, this), 0.6f, 0.05f, 0.775f, 0.45f);
+            }), errorComponent, CrossbowTextureEdit.this), 0.6f, 0.05f, 0.775f, 0.45f);
             addComponent(pullImageWrapper, 0.8f, 0.05f, 1.0f, 0.45f);
         }
 
