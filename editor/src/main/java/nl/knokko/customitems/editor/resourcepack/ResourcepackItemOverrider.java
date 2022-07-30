@@ -67,6 +67,8 @@ class ResourcepackItemOverrider {
                         overrideCrossBow(jsonWriter, damageAssignments);
                     } else if (itemType == CustomItemType.SHIELD) {
                         overrideShield(jsonWriter, damageAssignments);
+                    } else if (itemType == CustomItemType.ELYTRA) {
+                        overrideElytra(jsonWriter, damageAssignments);
                     } else {
                         overrideItem(jsonWriter, damageAssignments, itemType, modelName, textureName);
                     }
@@ -349,6 +351,34 @@ class ResourcepackItemOverrider {
         // The next ones are required to preserve the vanilla shield models
         jsonWriter.println("        { \"predicate\": { \"blocking\": 0, \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/shield\" },");
         jsonWriter.println("        { \"predicate\": { \"blocking\": 1, \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/shield_blocking\" }");
+
+        // Now finish the json
+        jsonWriter.println("    ]");
+        jsonWriter.println("}");
+    }
+
+    private void overrideElytra(PrintWriter jsonWriter, ItemDurabilityAssignments damageAssignments) {
+        // The beginning
+        jsonWriter.println("{");
+        jsonWriter.println("    \"parent\": \"item/generated\",");
+        jsonWriter.println("    \"textures\": {");
+        jsonWriter.println("        \"layer0\": \"item/elytra\"");
+        jsonWriter.println("    }, \"overrides\": [");
+
+        // The next entry is part of preserving vanilla broken elytra model
+        jsonWriter.println("        { \"predicate\": { \"broken\": 1 }, \"model\": \"item/broken_elytra\" },");
+
+        // Now the part for the custom elytra predicates...
+        for (ItemDurabilityClaim claim : damageAssignments.claimList) {
+            double damage = (double) claim.itemDamage / CustomItemType.ELYTRA.getMaxDurability(this.mcVersion);
+            jsonWriter.println("        { \"predicate\": { \"broken\": 0, \"damaged\": 0, \"damage\": "
+                    + damage + " }, \"model\": \"" + claim.resourcePath + "\" },");
+        }
+        // TODO Handle broken textures someday
+
+        // The next ones are required to preserve the vanilla elytra models
+        jsonWriter.println("        { \"predicate\": { \"broken\": 0, \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/elytra\" },");
+        jsonWriter.println("        { \"predicate\": { \"broken\": 1, \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/broken_elytra\" }");
 
         // Now finish the json
         jsonWriter.println("    ]");

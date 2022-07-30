@@ -1,6 +1,7 @@
 package nl.knokko.customitems.editor.resourcepack;
 
 import nl.knokko.customitems.item.CustomArmorValues;
+import nl.knokko.customitems.item.CustomElytraValues;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.texture.*;
@@ -181,6 +182,38 @@ class ResourcepackTextureWriter {
                     propertyWriter.println("nbt.KnokkosCustomItems.Name=" + armor.getName());
                     propertyWriter.flush();
 
+                    zipOutput.closeEntry();
+                }
+            }
+        }
+    }
+
+    void writeOptifineElytraTextures() throws IOException {
+        String citPrefix;
+        if (mcVersion <= VERSION1_12) {
+            citPrefix = "assets/minecraft/mcpatcher/cit/";
+        } else {
+            citPrefix = "assets/minecraft/optifine/cit/";
+        }
+
+        for (CustomItemValues item : itemSet.getItems()) {
+            if (item instanceof CustomElytraValues) {
+                CustomElytraValues elytra = (CustomElytraValues) item;
+                if (elytra.getWornElytraTexture() != null) {
+                    String prefix = citPrefix + "customelytra/" + elytra.getName() + "/";
+
+                    ZipEntry textureEntry = new ZipEntry(prefix + elytra.getName() + ".png");
+                    zipOutput.putNextEntry(textureEntry);
+                    ImageIO.write(elytra.getWornElytraTexture(), "PNG", new MemoryCacheImageOutputStream(zipOutput));
+                    zipOutput.closeEntry();
+
+                    ZipEntry propertiesEntry = new ZipEntry(prefix + elytra.getName() + ".properties");
+                    zipOutput.putNextEntry(propertiesEntry);
+                    PrintWriter propertyWriter = new PrintWriter(zipOutput);
+                    propertyWriter.println("type=elytra");
+                    propertyWriter.println("texture=" + elytra.getName());
+                    propertyWriter.println("nbt.KnokkosCustomItems.Name=" + elytra.getName());
+                    propertyWriter.flush();
                     zipOutput.closeEntry();
                 }
             }

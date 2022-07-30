@@ -32,7 +32,8 @@ public class CustomToolWrapper extends CustomItemWrapper {
 
     private static final Collection<Class<?>> BASIC_TOOL_WRAPPERS = Lists.newArrayList(
             CustomBowValues.class, CustomCrossbowValues.class, CustomHoeValues.class,
-            CustomShieldValues.class, CustomToolValues.class, CustomTridentValues.class
+            CustomShieldValues.class, CustomToolValues.class, CustomTridentValues.class,
+            CustomElytraValues.class
     );
 
     public static CustomToolWrapper wrap(CustomToolValues tool) {

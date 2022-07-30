@@ -27,6 +27,7 @@ public class ResourcepackGenerator {
         ResourcepackTextureWriter textureWriter = new ResourcepackTextureWriter(itemSet, mcVersion, zipOutput);
         textureWriter.writeBaseTextures();
         textureWriter.writeOptifineArmorTextures();
+        textureWriter.writeOptifineElytraTextures();
 
         ResourcepackModelWriter modelWriter = new ResourcepackModelWriter(itemSet, zipOutput);
         modelWriter.writeCustomItemModels();

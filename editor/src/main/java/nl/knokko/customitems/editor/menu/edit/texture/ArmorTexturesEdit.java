@@ -65,14 +65,14 @@ public class ArmorTexturesEdit extends GuiMenu {
 				0.3f, 0.55f, 0.45f, 0.65f
 		);
 		addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
-			state.getWindow().setMainComponent(createImageSelect(currentValues::setLayer1));
+			state.getWindow().setMainComponent(createImageSelect(currentValues::setLayer1, errorComponent, this));
 		}), 0.5f, 0.55f, 0.65f, 0.65f);
 		addComponent(
 				new DynamicTextComponent("Layer 2:", EditProps.LABEL),
 				0.3f, 0.4f, 0.45f, 0.5f
 		);
 		addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
-			state.getWindow().setMainComponent(createImageSelect(currentValues::setLayer2));
+			state.getWindow().setMainComponent(createImageSelect(currentValues::setLayer2, errorComponent, this));
 		}), 0.5f, 0.4f, 0.65f, 0.5f);
 		
 		addComponent(new DynamicTextButton(toModify == null ? "Create" : "Apply", SAVE_BASE, SAVE_HOVER, () -> {
@@ -87,8 +87,10 @@ public class ArmorTexturesEdit extends GuiMenu {
 		HelpButtons.addHelpLink(this, "edit%20menu/textures/armor edit.html");
 	}
 	
-	private GuiComponent createImageSelect(Consumer<BufferedImage> onChoose) {
-		return new FileChooserMenu(this, chosenFile -> {
+	public static GuiComponent createImageSelect(
+			Consumer<BufferedImage> onChoose, DynamicTextComponent errorComponent, GuiComponent returnMenu
+	) {
+		return new FileChooserMenu(returnMenu, chosenFile -> {
 			try {
 				BufferedImage chosenImage = ImageIO.read(chosenFile);
 				if (chosenImage != null) {
@@ -100,7 +102,7 @@ public class ArmorTexturesEdit extends GuiMenu {
 			} catch (IOException io) {
 				errorComponent.setText("Couldn't load the image: " + io.getMessage());
 			}
-			return this;
+			return returnMenu;
 		}, file -> file.getName().toLowerCase(Locale.ROOT).endsWith(".png"), 
 				EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, 
 				EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, 

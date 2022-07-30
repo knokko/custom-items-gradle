@@ -127,6 +127,9 @@ public class EditItemArmor<V extends CustomArmorValues> extends EditItemTool<V> 
 		} else if (i == CustomItemType.LEATHER_BOOTS) {
 			armor = 1;
 			slot = Slot.FEET;
+		} else if (i == CustomItemType.ELYTRA) {
+			armor = 1;
+			slot = Slot.CHEST;
 		} else {
 			throw new IllegalArgumentException("Unknown item type: " + i.name());
 		}
@@ -151,7 +154,7 @@ public class EditItemArmor<V extends CustomArmorValues> extends EditItemTool<V> 
 				currentValues.setDamageResistances(newResistances);
 			}));
 		}), 0.85f, 0.35f, 0.99f, 0.425f);
-		if (!(this instanceof EditItemHelmet3D)) {
+		if (!(this instanceof EditItemHelmet3D || this instanceof EditItemElytra)) {
 			addComponent(new ConditionalTextComponent(
 					"Worn texture:", EditProps.LABEL, () -> !showColors()), 
 					0.65f, 0.29f, 0.84f, 0.35f);
@@ -190,7 +193,7 @@ public class EditItemArmor<V extends CustomArmorValues> extends EditItemTool<V> 
 		errorComponent.setText("Hint: Use attribute modifiers to set the armor (toughness) of this piece.");
 		
 		// 3d helmets are a bit different
-		if (!(this instanceof EditItemHelmet3D)) {
+		if (!(this instanceof EditItemHelmet3D || this instanceof EditItemElytra)) {
 			HelpButtons.addHelpLink(this, "edit%20menu/items/edit/armor.html");
 		}
 	}

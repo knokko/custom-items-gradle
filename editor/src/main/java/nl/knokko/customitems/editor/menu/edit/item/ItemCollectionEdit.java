@@ -44,6 +44,8 @@ public class ItemCollectionEdit extends DedicatedCollectionEdit<CustomItemValues
 			return new EditItemCrossbow(menu, (CustomCrossbowValues) itemValues, toModify);
 		else if (itemValues instanceof CustomHelmet3dValues)
 			return new EditItemHelmet3D(menu, (CustomHelmet3dValues) itemValues, toModify);
+		else if (itemValues instanceof CustomElytraValues)
+			return new EditItemElytra(menu, (CustomElytraValues) itemValues, toModify);
 		else if (itemValues instanceof CustomArmorValues)
 			return new EditItemArmor<>(menu, (CustomArmorValues) itemValues, toModify);
 		else if (itemValues instanceof CustomShearsValues)

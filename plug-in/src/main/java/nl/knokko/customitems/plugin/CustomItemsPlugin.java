@@ -126,6 +126,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 		SkriptSupport.onEnable(this);
 		DenizenSupport.onEnable();
 		PluginIndicators.init();
+		CustomElytraVelocityManager.start(itemSet, this);
 	}
 
 	@Override

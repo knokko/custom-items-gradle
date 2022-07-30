@@ -119,6 +119,8 @@ public abstract class CustomItemValues extends ModelValues {
                 || encoding == ENCODING_SIMPLE_10 || encoding == ENCODING_SIMPLE_12
         ) {
             return SimpleCustomItemValues.load(input, encoding, itemSet, checkCustomModel);
+        } else if (encoding == ENCODING_ELYTRA_12) {
+            return CustomElytraValues.load(input, false, itemSet);
         } else {
             throw new UnknownEncodingException("CustomItem", encoding);
         }

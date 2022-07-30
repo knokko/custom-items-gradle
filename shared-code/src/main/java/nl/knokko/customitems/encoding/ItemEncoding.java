@@ -185,4 +185,5 @@ public class ItemEncoding {
 	public static final byte ENCODING_TRIDENT_12 = 58;
 	public static final byte ENCODING_WAND_12 = 59;
 	public static final byte ENCODING_SIMPLE_12 = 60;
+	public static final byte ENCODING_ELYTRA_12 = 61;
 }

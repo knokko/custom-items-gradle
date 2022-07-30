@@ -69,12 +69,6 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 		this.currentValues = (V) oldValues.copy(true);
 		this.toModify = toModify;
 	}
-	
-	@Override
-	public void init() {
-		super.init();
-		errorComponent.setText("");
-	}
 
 	@Override
 	public GuiColor getBackgroundColor() {
