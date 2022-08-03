@@ -31,6 +31,8 @@ public class ContainerRecipeValues extends ModelValues {
             result.load3(input, itemSet);
         } else if (encoding == 4) {
             result.load4(input, itemSet);
+        } else if (encoding == 5) {
+            result.load5(input, itemSet);
         } else {
             throw new UnknownEncodingException("ContainerRecipe", encoding);
         }
@@ -47,6 +49,8 @@ public class ContainerRecipeValues extends ModelValues {
     private int duration;
     private int experience;
 
+    private String requiredPermission;
+
     public ContainerRecipeValues(boolean mutable) {
         super(mutable);
         this.inputs = new HashMap<>();
@@ -55,6 +59,7 @@ public class ContainerRecipeValues extends ModelValues {
         this.manualOutput = null;
         this.duration = 40;
         this.experience = 5;
+        this.requiredPermission = null;
     }
 
     public ContainerRecipeValues(ContainerRecipeValues toCopy, boolean mutable) {
@@ -65,6 +70,7 @@ public class ContainerRecipeValues extends ModelValues {
         this.manualOutput = toCopy.getManualOutput();
         this.duration = toCopy.getDuration();
         this.experience = toCopy.getExperience();
+        this.requiredPermission = toCopy.getRequiredPermission();
     }
 
     private void loadInputs(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
@@ -104,6 +110,7 @@ public class ContainerRecipeValues extends ModelValues {
 
         this.duration = input.readInt();
         this.experience = input.readInt();
+        this.requiredPermission = null;
     }
 
     private void load2(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
@@ -119,6 +126,7 @@ public class ContainerRecipeValues extends ModelValues {
 
         this.duration = input.readInt();
         this.experience = input.readInt();
+        this.requiredPermission = null;
     }
 
     private void load3(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
@@ -134,6 +142,7 @@ public class ContainerRecipeValues extends ModelValues {
 
         this.duration = input.readInt();
         this.experience = input.readInt();
+        this.requiredPermission = null;
     }
 
     private void load4(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
@@ -144,8 +153,13 @@ public class ContainerRecipeValues extends ModelValues {
         }
     }
 
+    private void load5(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        this.load4(input, itemSet);
+        this.requiredPermission = input.readString();
+    }
+
     public void save(BitOutput output) {
-        output.addByte((byte) 4);
+        output.addByte((byte) 5);
 
         output.addInt(inputs.size());
         for (Map.Entry<String, IngredientValues> inputEntry : inputs.entrySet()) {
@@ -166,6 +180,7 @@ public class ContainerRecipeValues extends ModelValues {
         if (this.manualOutputSlotName != null) {
             this.manualOutput.save(output);
         }
+        output.addString(this.requiredPermission);
     }
 
     @Override
@@ -180,7 +195,8 @@ public class ContainerRecipeValues extends ModelValues {
             return this.inputs.equals(otherRecipe.inputs) && this.outputs.equals(otherRecipe.outputs)
                     && this.duration == otherRecipe.duration && this.experience == otherRecipe.experience
                     && Objects.equals(this.manualOutputSlotName, otherRecipe.manualOutputSlotName)
-                    && Objects.equals(this.manualOutput, otherRecipe.manualOutput);
+                    && Objects.equals(this.manualOutput, otherRecipe.manualOutput)
+                    && Objects.equals(this.requiredPermission, otherRecipe.requiredPermission);
         } else {
             return false;
         }
@@ -221,6 +237,10 @@ public class ContainerRecipeValues extends ModelValues {
 
     public int getExperience() {
         return experience;
+    }
+
+    public String getRequiredPermission() {
+        return requiredPermission;
     }
 
     public void setInput(String inputSlotName, IngredientValues input) {
@@ -270,6 +290,11 @@ public class ContainerRecipeValues extends ModelValues {
         this.experience = experience;
     }
 
+    public void setRequiredPermission(String requiredPermission) {
+        assertMutable();
+        this.requiredPermission = "".equals(requiredPermission) ? null : requiredPermission;
+    }
+
     public void validate(ItemSet itemSet, CustomContainerValues container) throws ValidationException, ProgrammingValidationException {
         if (inputs == null) throw new ProgrammingValidationException("No inputs");
         Collection<ContainerSlotValues> slots = container.createSlotList();
@@ -313,6 +338,8 @@ public class ContainerRecipeValues extends ModelValues {
 
         if (duration < 0) throw new ValidationException("Duration can't be negative");
         if (experience < 0) throw new ValidationException("Experience can't be negative");
+
+        if ("".equals(requiredPermission)) throw new ProgrammingValidationException("Required permission can't be empty");
     }
 
     public boolean conflictsWith(ContainerRecipeValues other) {

@@ -28,10 +28,15 @@ class CommandCustomItemsGive {
     }
 
     void handle(String[] args, CommandSender sender) {
-        if (!sender.hasPermission("customitems.give")) {
+        if (
+                !sender.hasPermission("customitems.give") && itemSet.get().getItems().stream().noneMatch(
+                        item -> sender.hasPermission("customitems.give." + item.getName())
+                )
+        ) {
             sender.sendMessage(ChatColor.DARK_RED + "You don't have access to this command.");
             return;
         }
+
         if (args.length == 2 || args.length == 3 || args.length == 4) {
 
             Collection<String> errors = CustomItemsPlugin.getInstance().getLoadErrors();
@@ -57,6 +62,11 @@ class CommandCustomItemsGive {
             }
 
             if (item != null) {
+                if (!sender.hasPermission("customitems.give") && !sender.hasPermission("customitems.give." + item.getName())) {
+                    sender.sendMessage(ChatColor.DARK_RED + "You don't have permission to give this item to yourself.");
+                    return;
+                }
+
                 Player receiver = null;
                 int amount = 1;
                 if (args.length == 2) {
@@ -93,8 +103,12 @@ class CommandCustomItemsGive {
                     sender.sendMessage(lang.getCommandWorldDisabled());
                 }
                 if (receiver != null) {
-                    receiver.getInventory().addItem(wrap(item).create(amount));
-                    sender.sendMessage(lang.getCommandItemGiven());
+                    if (receiver == sender || sender.hasPermission("customitems.give") || sender.hasPermission("customitems.giveother")) {
+                        receiver.getInventory().addItem(wrap(item).create(amount));
+                        sender.sendMessage(lang.getCommandItemGiven());
+                    } else {
+                        sender.sendMessage(ChatColor.DARK_RED + "You don't have permission to give custom items to other players");
+                    }
                 }
             } else {
                 sender.sendMessage(lang.getCommandNoSuchItem(args[1]));

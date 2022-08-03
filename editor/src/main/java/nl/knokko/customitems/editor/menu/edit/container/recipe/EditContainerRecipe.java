@@ -12,6 +12,7 @@ import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.EagerIntEditField;
+import nl.knokko.gui.component.text.EagerTextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
@@ -68,6 +69,15 @@ public class EditContainerRecipe extends GuiMenu {
 		addComponent(
 				new EagerIntEditField(currentValues.getExperience(), 0, EDIT_BASE, EDIT_ACTIVE, currentValues::setExperience),
 				0.225f, 0.525f, 0.3f, 0.575f
+		);
+		addComponent(
+				new DynamicTextComponent("Required permission:", LABEL),
+				0.01f, 0.45f, 0.2f, 0.5f
+		);
+		String initialPermission = currentValues.getRequiredPermission() == null ? "" : currentValues.getRequiredPermission();
+		addComponent(
+				new EagerTextEditField(initialPermission, EDIT_BASE, EDIT_ACTIVE, currentValues::setRequiredPermission),
+				0.225f, 0.45f, 0.34f, 0.5f
 		);
 		
 		addComponent(

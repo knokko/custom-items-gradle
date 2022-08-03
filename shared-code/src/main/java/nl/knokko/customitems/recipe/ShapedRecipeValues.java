@@ -14,6 +14,7 @@ import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class ShapedRecipeValues extends CraftingRecipeValues {
 
@@ -24,6 +25,8 @@ public class ShapedRecipeValues extends CraftingRecipeValues {
 
         if (encoding == RecipeEncoding.SHAPED_RECIPE) {
             result.load1(input, itemSet);
+        } else if (encoding == RecipeEncoding.SHAPED_RECIPE_2) {
+            result.load2(input, itemSet);
         } else {
             throw new UnknownEncodingException("ShapedCraftingRecipe", encoding);
         }
@@ -65,20 +68,27 @@ public class ShapedRecipeValues extends CraftingRecipeValues {
         }
     }
 
+    private void load2(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        this.load1(input, itemSet);
+        this.requiredPermission = input.readString();
+    }
+
     @Override
     public void save(BitOutput output) {
-        output.addByte(RecipeEncoding.SHAPED_RECIPE);
+        output.addByte(RecipeEncoding.SHAPED_RECIPE_2);
         result.save(output);
         for (IngredientValues ingredient : ingredients) {
             ingredient.save(output);
         }
+        output.addString(requiredPermission);
     }
 
     @Override
     public boolean equals(Object other) {
         if (other instanceof ShapedRecipeValues) {
             ShapedRecipeValues otherRecipe = (ShapedRecipeValues) other;
-            return result.equals(otherRecipe.result) && Arrays.equals(ingredients, otherRecipe.ingredients);
+            return result.equals(otherRecipe.result) && Arrays.equals(ingredients, otherRecipe.ingredients) &&
+                    Objects.equals(this.requiredPermission, otherRecipe.requiredPermission);
         } else {
             return false;
         }

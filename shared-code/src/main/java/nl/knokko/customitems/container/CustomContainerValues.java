@@ -55,8 +55,10 @@ public class CustomContainerValues extends ModelValues {
 
         if (encoding <= 2) {
             result.storageMode = input.readBoolean() ? ContainerStorageMode.PER_LOCATION : ContainerStorageMode.NOT_PERSISTENT;
+            result.requiresPermission = false;
         } else {
             result.storageMode = ContainerStorageMode.valueOf(input.readString());
+            result.requiresPermission = input.readBoolean();
         }
 
         return result;
@@ -72,6 +74,8 @@ public class CustomContainerValues extends ModelValues {
     private CustomContainerHost host;
     private ContainerStorageMode storageMode;
 
+    private boolean requiresPermission;
+
     public CustomContainerValues(boolean mutable) {
         super(mutable);
         this.name = "";
@@ -86,6 +90,7 @@ public class CustomContainerValues extends ModelValues {
         this.fuelMode = FuelMode.ALL;
         this.host = new CustomContainerHost(VanillaContainerType.CRAFTING_TABLE);
         this.storageMode = ContainerStorageMode.NOT_PERSISTENT;
+        this.requiresPermission = false;
     }
 
     public CustomContainerValues(CustomContainerValues toCopy, boolean mutable) {
@@ -97,6 +102,7 @@ public class CustomContainerValues extends ModelValues {
         this.fuelMode = toCopy.getFuelMode();
         this.host = toCopy.getHost();
         this.storageMode = toCopy.getStorageMode();
+        this.requiresPermission = toCopy.requiresPermission();
     }
 
     public void save(BitOutput output) {
@@ -116,6 +122,7 @@ public class CustomContainerValues extends ModelValues {
         }
         host.save(output);
         output.addString(storageMode.name());
+        output.addBoolean(requiresPermission);
     }
 
     @Override
@@ -125,7 +132,7 @@ public class CustomContainerValues extends ModelValues {
             return this.name.equals(otherContainer.name) && this.selectionIcon.equals(otherContainer.selectionIcon)
                     && this.recipes.equals(otherContainer.recipes) && this.fuelMode == otherContainer.fuelMode
                     && Arrays.deepEquals(this.slots, otherContainer.slots) && this.host.equals(otherContainer.host)
-                    && this.storageMode == otherContainer.storageMode;
+                    && this.storageMode == otherContainer.storageMode && this.requiresPermission == otherContainer.requiresPermission;
         } else {
             return false;
         }
@@ -203,6 +210,10 @@ public class CustomContainerValues extends ModelValues {
 
     public ContainerStorageMode getStorageMode() {
         return storageMode;
+    }
+
+    public boolean requiresPermission() {
+        return requiresPermission;
     }
 
     public void setName(String name) {
@@ -283,6 +294,11 @@ public class CustomContainerValues extends ModelValues {
     public void setStorageMode(ContainerStorageMode newStorageMode) {
         assertMutable();
         this.storageMode = newStorageMode;
+    }
+
+    public void setRequiresPermission(boolean requiresPermission) {
+        assertMutable();
+        this.requiresPermission = requiresPermission;
     }
 
     public void validate(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {

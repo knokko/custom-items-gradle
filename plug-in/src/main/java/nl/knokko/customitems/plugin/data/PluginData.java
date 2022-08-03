@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 import nl.knokko.core.plugin.item.GeneralItemNBT;
 import nl.knokko.customitems.block.CustomBlockValues;
@@ -30,6 +31,7 @@ import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.StringEncoder;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.HumanEntity;
@@ -163,7 +165,7 @@ public class PluginData {
 			ContainerInfo typeInfo = itemSet.getContainerInfo(typeName);
 			
 			if (typeInfo != null) {
-				ContainerInstance instance = ContainerInstance.load1(input, typeInfo, new ArrayList<>());
+				ContainerInstance instance = ContainerInstance.load1(input, typeInfo, new ArrayList<>(), null);
 				ContainerStorageKey location = new ContainerStorageKey(typeName, new PassiveLocation(worldId, x, y, z), null, null);
 				persistentContainers.put(location, instance);
 			} else {
@@ -193,7 +195,7 @@ public class PluginData {
 			ContainerInfo typeInfo = itemSet.getContainerInfo(typeName);
 
 			if (typeInfo != null) {
-				ContainerInstance instance = ContainerInstance.load2(input, typeInfo);
+				ContainerInstance instance = ContainerInstance.load2(input, typeInfo, null);
 				ContainerStorageKey location = new ContainerStorageKey(typeName, new PassiveLocation(worldId, x, y, z), null, null);
 				persistentContainers.put(location, instance);
 			} else {
@@ -223,7 +225,7 @@ public class PluginData {
 			ContainerInfo typeInfo = itemSet.getContainerInfo(typeName);
 
 			if (typeInfo != null) {
-				ContainerInstance instance = ContainerInstance.load2(input, typeInfo);
+				ContainerInstance instance = ContainerInstance.load2(input, typeInfo, null);
 				ContainerStorageKey location = new ContainerStorageKey(typeName, new PassiveLocation(worldId, x, y, z), null, null);
 				persistentContainers.put(location, instance);
 			} else {
@@ -248,10 +250,10 @@ public class PluginData {
 			ContainerInfo typeInfo = itemSet.getContainerInfo(storageKey.containerName);
 
 			if (typeInfo != null) {
-				ContainerInstance instance = ContainerInstance.load2(input, typeInfo);
+				ContainerInstance instance = ContainerInstance.load3(input, typeInfo, storageKey.playerID);
 				persistentContainers.put(storageKey, instance);
 			} else {
-				ContainerInstance.discard2(input);
+				ContainerInstance.discard3(input);
 			}
 		}
 
@@ -328,6 +330,17 @@ public class PluginData {
 			}
 		}
 	}
+
+	private boolean hasPermission(Player player, CustomContainerValues container) {
+		return !container.requiresPermission() || player.hasPermission("customitems.container.openany") ||
+				player.hasPermission("customitems.container.open." + container.getName());
+	}
+
+	private Collection<CustomContainerValues> getAllowedContainers(
+			Player player, Collection<CustomContainerValues> candidates
+	) {
+		return candidates.stream().filter(candidate -> hasPermission(player, candidate)).collect(Collectors.toList());
+	}
 	
 	private Inventory createContainerSelectionMenu(
 			Collection<CustomContainerValues> containers) {
@@ -373,10 +386,10 @@ public class PluginData {
 				CustomItemValues mainItem = itemSet.getItem(current.getInventory().getItemInMainHand());
 				CustomItemValues offItem = itemSet.getItem(current.getInventory().getItemInOffHand());
 				
-				if (data.shootIfAllowed(mainItem, currentTick, true)) {
+				if (hasPermissionToShoot(current, mainItem) && data.shootIfAllowed(mainItem, currentTick, true)) {
 					fire(current, data, mainItem, current.getInventory().getItemInMainHand(), true);
 				}
-				if (data.shootIfAllowed(offItem, currentTick, false)) {
+				if (hasPermissionToShoot(current, offItem) && data.shootIfAllowed(offItem, currentTick, false)) {
 					fire(current, data, offItem, current.getInventory().getItemInOffHand(), false);
 				}
 			} else {
@@ -750,8 +763,8 @@ public class PluginData {
 					} else {
 
 						ByteArrayBitOutput containerStateOutput = new ByteArrayBitOutput();
-						containerStateOutput.addByte(ContainerEncoding.ENCODING_2);
-						pd.openPocketContainer.save2(containerStateOutput);
+						containerStateOutput.addByte(ContainerEncoding.ENCODING_3);
+						pd.openPocketContainer.save3(containerStateOutput);
 						destNbt.set(nbtKey, new String(StringEncoder.encodeTextyBytes(
 								containerStateOutput.getBytes(),
 								false), StandardCharsets.US_ASCII)
@@ -978,7 +991,9 @@ public class PluginData {
 
 			// Save container state
 			ContainerInstance state = entry.getValue();
-			state.save2(output);
+			state.save3(output);
+			new ArrayList<>(state.getInventory().getViewers()).forEach(HumanEntity::closeInventory);
+			state.getInventory().clear();
 		}
 
 		playerData.forEach((playerId, pd) -> {
@@ -994,8 +1009,28 @@ public class PluginData {
 			}
 		});
 
-		tempContainers.forEach(entry -> entry.instance.dropAllItems(entry.viewer.getLocation()));
+		tempContainers.forEach(entry -> {
+			entry.instance.dropAllItems(entry.viewer.getLocation());
+			new ArrayList<>(entry.instance.getInventory().getViewers()).forEach(HumanEntity::closeInventory);
+		});
 		tempContainers.clear();
+	}
+
+	public boolean hasPermissionToShoot(Player player, CustomItemValues item) {
+		boolean needsPermission;
+		if (item instanceof CustomWandValues) {
+			needsPermission = ((CustomWandValues) item).requiresPermission();
+		} else if (item instanceof CustomGunValues) {
+			needsPermission = ((CustomGunValues) item).requiresPermission();
+		} else {
+			return false;
+		}
+
+		if (needsPermission) {
+			return player.hasPermission("customitems.shootall") || player.hasPermission("customitems.shoot." + item.getName());
+		} else {
+			return true;
+		}
 	}
 
 	/**
@@ -1094,37 +1129,42 @@ public class PluginData {
 
 			// Not shared between players, so just create a new instance
 			TempContainerInstance tempInstance = new TempContainerInstance(
-					new ContainerInstance(itemSet.getContainerInfo(prototype)), newViewer
+					new ContainerInstance(itemSet.getContainerInfo(prototype), newViewer.getUniqueId()), newViewer
 			);
 			tempContainers.add(tempInstance);
 			return tempInstance.instance;
 
 		} else {
 			ContainerStorageKey storageKey;
+			UUID owner;
 
 			if (storageMode == ContainerStorageMode.PER_LOCATION_PER_PLAYER) {
 				storageKey = new ContainerStorageKey(
 						prototype.getName(), location != null ? new PassiveLocation(location) : null, stringHost, newViewer.getUniqueId()
 				);
+				owner = newViewer.getUniqueId();
 			} else if (storageMode == ContainerStorageMode.PER_LOCATION) {
 				storageKey = new ContainerStorageKey(
 						prototype.getName(), location != null ? new PassiveLocation(location) : null, stringHost, null
 				);
+				owner = null;
 			} else if (storageMode == ContainerStorageMode.PER_PLAYER) {
 				storageKey = new ContainerStorageKey(
 						prototype.getName(), null, null, newViewer.getUniqueId()
 				);
+				owner = newViewer.getUniqueId();
 			} else if (storageMode == ContainerStorageMode.GLOBAL) {
 				storageKey = new ContainerStorageKey(
 						prototype.getName(), null, null, null
 				);
+				owner = null;
 			} else {
 				throw new IllegalArgumentException("Unknown storage mode: " + storageMode);
 			}
 
 			ContainerInstance instance = persistentContainers.get(storageKey);
 			if (instance == null) {
-				instance = new ContainerInstance(itemSet.getContainerInfo(prototype));
+				instance = new ContainerInstance(itemSet.getContainerInfo(prototype), owner);
 				persistentContainers.put(storageKey, instance);
 			}
 			return instance;
@@ -1139,13 +1179,11 @@ public class PluginData {
 			return null;
 		}
 
-		Collection<CustomContainerValues> correspondingContainers = itemSet.getContainers(host);
+		Collection<CustomContainerValues> correspondingContainers = getAllowedContainers(player, itemSet.getContainers(host));
 		if (correspondingContainers.isEmpty()) {
 			return null;
 		} else if (correspondingContainers.size() == 1) {
-			return getCustomContainer(
-					location, null, player, correspondingContainers.iterator().next()
-			).getInventory();
+			return getCustomContainer(location, null, player, correspondingContainers.iterator().next()).getInventory();
 		} else {
 			PlayerData pd = getPlayerData(player);
 			pd.containerSelectionLocation = new PassiveLocation(location);
@@ -1154,11 +1192,13 @@ public class PluginData {
 	}
 
 	public void openPocketContainerMenu(Player player, CustomPocketContainerValues pocketContainer) {
-		Set<CustomContainerValues> containers = pocketContainer.getContainers();
+		Collection<CustomContainerValues> containers = getAllowedContainers(player, pocketContainer.getContainers());
 		PlayerData pd = getPlayerData(player);
 		pd.pocketContainerSelection = true;
 
-		if (containers.size() == 1) {
+		if (containers.isEmpty()) {
+			player.sendMessage(ChatColor.DARK_RED + "You don't have permission to open any container of this item");
+		} else if (containers.size() == 1) {
 		    selectCustomContainer(player, containers.iterator().next());
 		} else {
             player.openInventory(pocketContainerSelectionMap.get(pocketContainer.getName()));
@@ -1193,6 +1233,14 @@ public class PluginData {
 	}
 	
 	public void selectCustomContainer(Player player, CustomContainerValues selected) {
+		if (
+				selected.requiresPermission() && !player.hasPermission("customitems.container.openany") &&
+						!player.hasPermission("customitems.container.open." + selected.getName())
+		) {
+			player.sendMessage(ChatColor.DARK_RED + "You don't have permission to open this custom container");
+			return;
+		}
+
 		PlayerData pd = getPlayerData(player);
 
 		if (pd.containerSelectionLocation != null) {
@@ -1278,8 +1326,20 @@ public class PluginData {
 					if (stateEncoding == ContainerEncoding.ENCODING_2) {
 						instance = ContainerInstance.load2(
 								containerStateInput,
-								itemSet.getContainerInfo(selected)
+								itemSet.getContainerInfo(selected),
+								null
 						);
+					} else if (stateEncoding == ContainerEncoding.ENCODING_3) {
+						UUID ownerID = storageMode == ContainerStorageMode.PER_LOCATION_PER_PLAYER ? player.getUniqueId() : null;
+						try {
+							instance = ContainerInstance.load3(
+									containerStateInput,
+									itemSet.getContainerInfo(selected),
+									ownerID
+							);
+						} catch (UnknownEncodingException corrupted) {
+							throw new IllegalStateException("Corrupted stored pocket container contents in inventory of " + player.getName());
+						}
 					} else {
 						throw new IllegalStateException("Illegal stored pocket container contents in inventory of " + player.getName());
 					}
@@ -1291,7 +1351,11 @@ public class PluginData {
 						instance = this.getCustomContainer(null, null, player, selected);
 					} else {
 						// In this case, the container is either non-persistent or both location-bound and empty
-						instance = new ContainerInstance(itemSet.getContainerInfo(selected));
+						UUID ownerID = null;
+						if (storageMode == ContainerStorageMode.NOT_PERSISTENT || storageMode == ContainerStorageMode.PER_LOCATION_PER_PLAYER) {
+							ownerID = player.getUniqueId();
+						}
+						instance = new ContainerInstance(itemSet.getContainerInfo(selected), ownerID);
 					}
 				}
 

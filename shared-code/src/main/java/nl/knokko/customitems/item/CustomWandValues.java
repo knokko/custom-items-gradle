@@ -50,6 +50,8 @@ public class CustomWandValues extends CustomItemValues {
 
     private int amountPerShot;
 
+    private boolean requiresPermission;
+
     public CustomWandValues(boolean mutable) {
         super(mutable, CustomItemType.DIAMOND_HOE);
 
@@ -57,6 +59,7 @@ public class CustomWandValues extends CustomItemValues {
         this.cooldown = 40;
         this.charges = null;
         this.amountPerShot = 1;
+        this.requiresPermission = false;
     }
 
     public CustomWandValues(CustomWandValues toCopy, boolean mutable) {
@@ -66,13 +69,14 @@ public class CustomWandValues extends CustomItemValues {
         this.cooldown = toCopy.getCooldown();
         this.charges = toCopy.getCharges();
         this.amountPerShot = toCopy.getAmountPerShot();
+        this.requiresPermission = toCopy.requiresPermission();
     }
 
     protected void loadWandPropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         this.loadSharedPropertiesNew(input, itemSet);
 
         byte encoding = input.readByte();
-        if (encoding != 1) throw new UnknownEncodingException("WandNew", encoding);
+        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("WandNew", encoding);
 
         this.projectile = itemSet.getProjectileReference(input.readString());
         if (input.readBoolean()) {
@@ -82,12 +86,18 @@ public class CustomWandValues extends CustomItemValues {
         }
         this.cooldown = input.readInt();
         this.amountPerShot = input.readInt();
+
+        if (encoding >= 2) {
+            this.requiresPermission = input.readBoolean();
+        } else {
+            this.requiresPermission = false;
+        }
     }
 
     protected void saveWandPropertiesNew(BitOutput output, ItemSet.Side side) {
         this.saveSharedPropertiesNew(output, side);
 
-        output.addByte((byte) 1);
+        output.addByte((byte) 2);
 
         output.addString(this.projectile.get().getName());
         output.addBoolean(this.charges != null);
@@ -95,6 +105,7 @@ public class CustomWandValues extends CustomItemValues {
             this.charges.save1(output);
         }
         output.addInts(this.cooldown, this.amountPerShot);
+        output.addBoolean(this.requiresPermission);
     }
 
     @Override
@@ -111,7 +122,7 @@ public class CustomWandValues extends CustomItemValues {
     protected boolean areWandPropertiesEqual(CustomWandValues other) {
         return areBaseItemPropertiesEqual(other) && this.projectile.equals(other.projectile)
                 && this.amountPerShot == other.amountPerShot && this.cooldown == other.cooldown
-                && Objects.equals(this.charges, other.charges);
+                && Objects.equals(this.charges, other.charges) && this.requiresPermission == other.requiresPermission;
     }
 
     @Override
@@ -195,6 +206,10 @@ public class CustomWandValues extends CustomItemValues {
         return amountPerShot;
     }
 
+    public boolean requiresPermission() {
+        return requiresPermission;
+    }
+
     public void setProjectile(ProjectileReference newProjectile) {
         assertMutable();
         Checks.notNull(newProjectile);
@@ -214,6 +229,11 @@ public class CustomWandValues extends CustomItemValues {
     public void setAmountPerShot(int newAmountPerShot) {
         assertMutable();
         this.amountPerShot = newAmountPerShot;
+    }
+
+    public void setRequiresPermission(boolean requiresPermission) {
+        assertMutable();
+        this.requiresPermission = requiresPermission;
     }
 
     @Override

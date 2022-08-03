@@ -13,6 +13,7 @@ import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.ConditionalTextButton;
+import nl.knokko.gui.component.text.EagerTextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
@@ -78,7 +79,14 @@ public class ShapelessRecipeEdit extends GuiMenu {
         }), 0.025f, 0.1f, 0.175f, 0.2f);
 
         addComponent(errorComponent, 0f, 0.9f, 1f, 1f);
-        addComponent(ingredientList, 0.2f, 0f, 1f, 0.9f);
+        addComponent(ingredientList, 0.2f, 0.1f, 1f, 0.9f);
+
+        addComponent(new DynamicTextComponent("Required permission:", LABEL), 0.1f, 0f, 0.3f, 0.1f);
+        String requiredPermission = currentValues.getRequiredPermission() == null ? "" : currentValues.getRequiredPermission();
+        addComponent(
+                new EagerTextEditField(requiredPermission, EDIT_BASE, EDIT_ACTIVE, currentValues::setRequiredPermission),
+                0.325f, 0.01f, 0.6f, 0.09f
+        );
 
         HelpButtons.addHelpLink(this, "edit menu/recipes/shapeless.html");
     }

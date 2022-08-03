@@ -26,6 +26,8 @@ public class ShapelessRecipeValues extends CraftingRecipeValues {
 
         if (encoding == RecipeEncoding.SHAPELESS_RECIPE) {
             result.load1(input, itemSet);
+        } else if (encoding == RecipeEncoding.SHAPELESS_RECIPE_2) {
+            result.load2(input, itemSet);
         } else {
             throw new UnknownEncodingException("ShapelessCraftingRecipe", encoding);
         }
@@ -64,14 +66,20 @@ public class ShapelessRecipeValues extends CraftingRecipeValues {
         }
     }
 
+    private void load2(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        this.load1(input, itemSet);
+        this.requiredPermission = input.readString();
+    }
+
     @Override
     public void save(BitOutput output) {
-        output.addByte(RecipeEncoding.SHAPELESS_RECIPE);
+        output.addByte(RecipeEncoding.SHAPELESS_RECIPE_2);
         result.save(output);
         output.addNumber(ingredients.size(), (byte) 4, false);
         for (IngredientValues ingredient : ingredients) {
             ingredient.save(output);
         }
+        output.addString(requiredPermission);
     }
 
     private Map<IngredientValues, Integer> createIngredientCountMap() {
@@ -89,7 +97,9 @@ public class ShapelessRecipeValues extends CraftingRecipeValues {
     public boolean equals(Object other) {
         if (other instanceof ShapelessRecipeValues) {
             ShapelessRecipeValues otherRecipe = (ShapelessRecipeValues) other;
-            return this.result.equals(otherRecipe.result) && this.createIngredientCountMap().equals(otherRecipe.createIngredientCountMap());
+            return this.result.equals(otherRecipe.result)
+                    && this.createIngredientCountMap().equals(otherRecipe.createIngredientCountMap())
+                    && Objects.equals(this.requiredPermission, otherRecipe.requiredPermission);
         } else {
             return false;
         }

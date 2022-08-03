@@ -33,8 +33,11 @@ import nl.knokko.customitems.itemset.CraftingRecipeReference;
 import nl.knokko.customitems.recipe.ShapedRecipeValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.menu.GuiMenu;
+import nl.knokko.gui.component.text.EagerTextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
+
+import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class ShapedRecipeEdit extends GuiMenu {
 	
@@ -45,6 +48,8 @@ public class ShapedRecipeEdit extends GuiMenu {
 	private final Ingredients ingredientsComponent;
 	private final ResultComponent resultComponent;
 	private final DynamicTextComponent errorComponent;
+
+	private EagerTextEditField permissionField;
 
 	public ShapedRecipeEdit(EditMenu menu, ShapedRecipeValues oldValues, CraftingRecipeReference toModify) {
 		this.menu = menu;
@@ -62,6 +67,7 @@ public class ShapedRecipeEdit extends GuiMenu {
 	public void init() {
 		super.init();
 		errorComponent.setText("");
+		permissionField.loseFocus();
 	}
 
 	@Override
@@ -78,6 +84,13 @@ public class ShapedRecipeEdit extends GuiMenu {
 			else state.getWindow().setMainComponent(menu.getRecipeOverview());
 		}), 0.1f, 0.7f, 0.25f, 0.8f);
 		addComponent(ingredientsComponent, 0.05f, 0.1f, 0.65f, 0.6f);
+		addComponent(
+				new DynamicTextComponent("Required permission:", LABEL),
+				0.1f, 0f, 0.3f, 0.1f
+		);
+		String initialRequiredPermission = currentValues.getRequiredPermission() == null ? "" : currentValues.getRequiredPermission();
+		this.permissionField = new EagerTextEditField(initialRequiredPermission, EDIT_BASE, EDIT_ACTIVE, currentValues::setRequiredPermission);
+		addComponent(permissionField, 0.325f, 0.01f, 0.6f, 0.09f);
 		addComponent(errorComponent, 0.35f, 0.85f, 0.95f, 0.95f);
 		addComponent(resultComponent, 0.75f, 0.275f, 0.95f, 0.425f);
 		

@@ -24,11 +24,15 @@ public class CustomItemsTabCompletions implements TabCompleter {
         return full.stream().filter(element -> element.startsWith(prefix)).collect(Collectors.toList());
     }
 
-    private static List<String> getRootCompletions(CommandSender sender) {
+    private List<String> getRootCompletions(CommandSender sender) {
         return Lists.newArrayList(
                 "give", "take", "list", "debug", "encode", "reload", "repair", "damage", "setblock", "container"
-                ).stream().filter(element -> element.equals("container") || sender.hasPermission("customitems." + element))
-                .collect(Collectors.toList()
+                ).stream().filter(
+                        element -> element.equals("container") || sender.hasPermission("customitems." + element) ||
+                                (element.equals("give") && itemSet.get().getItems().stream().anyMatch(
+                                        item -> sender.hasPermission("customitems.give." + item.getName())
+                                ))
+                ).collect(Collectors.toList()
         );
     }
 
@@ -49,12 +53,14 @@ public class CustomItemsTabCompletions implements TabCompleter {
             String first = args[0];
             String prefix = args[1];
 
-            if (first.equals("give") && sender.hasPermission("customitems.give")) {
+            if (first.equals("give")) {
                 List<String> result = new ArrayList<>(itemSet.get().getItems().size());
                 for (CustomItemValues item : itemSet.get().getItems()) {
-                    result.add(item.getName());
-                    if (!item.getAlias().isEmpty()) {
-                        result.add(item.getAlias());
+                    if (sender.hasPermission("customitems.give") || sender.hasPermission("customitems.give." + item.getName())) {
+                        result.add(item.getName());
+                        if (!item.getAlias().isEmpty()) {
+                            result.add(item.getAlias());
+                        }
                     }
                 }
                 return filter(result, prefix);
@@ -86,13 +92,21 @@ public class CustomItemsTabCompletions implements TabCompleter {
             String first = args[0];
             String prefix = args[2];
             if (
-                    (first.equals("give") && sender.hasPermission("customitems.give"))
-                            || first.equals("take") && sender.hasPermission("customitems.take")
+                    first.equals("take") && sender.hasPermission("customitems.take")
                             || (first.equals("damage") && sender.hasPermission("customitems.damage"))
                             || (first.equals("repair") && sender.hasPermission("customitems.repair"))
             ) {
                 List<String> names = Bukkit.getOnlinePlayers().stream().map(HumanEntity::getName).collect(Collectors.toList());
                 return filter(names, prefix);
+            }
+
+            if (first.equals("give")) {
+                if (sender.hasPermission("customitems.give") || (sender.hasPermission("customitems.giveother") && sender.hasPermission("customitems.give." + args[1]))) {
+                    List<String> names = Bukkit.getOnlinePlayers().stream().map(HumanEntity::getName).collect(Collectors.toList());
+                    return filter(names, prefix);
+                } else if (sender.hasPermission("customitems.give." + args[1])) {
+                    return Lists.newArrayList(sender.getName());
+                }
             }
 
             if (first.equals("setblock") && sender.hasPermission("customitems.setblock")) {

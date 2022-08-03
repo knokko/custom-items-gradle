@@ -39,6 +39,7 @@ public class CustomGunValues extends CustomItemValues {
     private ProjectileReference projectile;
     private GunAmmoValues ammo;
     private int amountPerShot;
+    private boolean requiresPermission;
 
     public CustomGunValues(boolean mutable) {
         super(mutable, CustomItemType.DIAMOND_HOE);
@@ -46,6 +47,7 @@ public class CustomGunValues extends CustomItemValues {
         this.projectile = null;
         this.ammo = new DirectGunAmmoValues(false);
         this.amountPerShot = 1;
+        this.requiresPermission = false;
     }
 
     public CustomGunValues(CustomGunValues toCopy, boolean mutable) {
@@ -54,27 +56,35 @@ public class CustomGunValues extends CustomItemValues {
         this.projectile = toCopy.getProjectileReference();
         this.ammo = toCopy.getAmmo();
         this.amountPerShot = toCopy.getAmountPerShot();
+        this.requiresPermission = toCopy.requiresPermission();
     }
 
     protected void loadGunPropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         this.loadSharedPropertiesNew(input, itemSet);
 
         byte encoding = input.readByte();
-        if (encoding != 1) throw new UnknownEncodingException("CustomGunNew", encoding);
+        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("CustomGunNew", encoding);
 
         this.projectile = itemSet.getProjectileReference(input.readString());
         this.ammo = GunAmmoValues.load(input, itemSet);
         this.amountPerShot = input.readInt();
+
+        if (encoding >= 2) {
+            this.requiresPermission = input.readBoolean();
+        } else {
+            this.requiresPermission = false;
+        }
     }
 
     protected void saveGunPropertiesNew(BitOutput output, ItemSet.Side targetSide) {
         this.saveSharedPropertiesNew(output, targetSide);
 
-        output.addByte((byte) 1);
+        output.addByte((byte) 2);
 
         output.addString(this.projectile.get().getName());
         this.ammo.save(output);
         output.addInt(this.amountPerShot);
+        output.addBoolean(this.requiresPermission);
     }
 
     @Override
@@ -90,7 +100,8 @@ public class CustomGunValues extends CustomItemValues {
 
     protected boolean areGunPropertiesEqual(CustomGunValues other) {
         return areBaseItemPropertiesEqual(other) && this.projectile.equals(other.projectile)
-                && this.ammo.equals(other.ammo) && this.amountPerShot == other.amountPerShot;
+                && this.ammo.equals(other.ammo) && this.amountPerShot == other.amountPerShot
+                && this.requiresPermission == other.requiresPermission;
     }
 
     @Override
@@ -139,6 +150,10 @@ public class CustomGunValues extends CustomItemValues {
         return amountPerShot;
     }
 
+    public boolean requiresPermission() {
+        return requiresPermission;
+    }
+
     public void setProjectile(ProjectileReference newProjectile) {
         assertMutable();
         Checks.notNull(newProjectile);
@@ -154,6 +169,11 @@ public class CustomGunValues extends CustomItemValues {
     public void setAmountPerShot(int newAmount) {
         assertMutable();
         this.amountPerShot = newAmount;
+    }
+
+    public void setRequiresPermission(boolean requiresPermission) {
+        assertMutable();
+        this.requiresPermission = requiresPermission;
     }
 
     @Override

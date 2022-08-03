@@ -13,6 +13,7 @@ import nl.knokko.customitems.item.CustomItemType.Category;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
+import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
@@ -111,6 +112,11 @@ public class EditItemWand extends EditItemBase<CustomWandValues> {
 		addComponent(
 				new EagerIntEditField(currentValues.getCooldown(), 1, EDIT_BASE, EDIT_ACTIVE, currentValues::setCooldown),
 				BUTTON_X2, 0.56f, BUTTON_X2 + 0.05f, 0.61f
+		);
+		addComponent(new DynamicTextComponent("Requires permission", LABEL), LABEL_X2 - 0.2f, 0.5f, LABEL_X2, 0.55f);
+		addComponent(
+				new CheckboxComponent(currentValues.requiresPermission(), currentValues::setRequiresPermission),
+				LABEL_X2 - 0.23f, 0.51f, LABEL_X2 - 0.21f, 0.53f
 		);
 		
 		HelpButtons.addHelpLink(this, "edit%20menu/items/edit/wand.html");

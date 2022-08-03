@@ -18,10 +18,12 @@ import nl.knokko.customitems.container.slot.display.*;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
+import nl.knokko.customitems.trouble.UnknownEncodingException;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -182,10 +184,18 @@ public class ContainerInstance {
 			input.readString();
 		}
 	}
+
+	public static void discard3(BitInput input) throws UnknownEncodingException {
+		byte encoding = input.readByte();
+		if (encoding != 1) throw new UnknownEncodingException("ContainerInstance", encoding);
+
+		discard2(input);
+		int numPermissions = input.readInt();
+		for (int counter = 0; counter < numPermissions; counter++) input.readString();
+	}
 	
-	public static ContainerInstance load1(BitInput input, ContainerInfo typeInfo, Collection<ItemStack> orphanStacks) {
-		
-		ContainerInstance instance = new ContainerInstance(typeInfo);
+	public static ContainerInstance load1(BitInput input, ContainerInfo typeInfo, Collection<ItemStack> orphanStacks, UUID ownerID) {
+		ContainerInstance instance = new ContainerInstance(typeInfo, ownerID);
 		Inventory inv = instance.inventory;
 		
 		class StringStack {
@@ -372,10 +382,10 @@ public class ContainerInstance {
 		return takeFromSource.apply(nullableSource);
 	}
 
-	public static ContainerInstance load2(BitInput input, ContainerInfo typeInfo) {
+	public static ContainerInstance load2(BitInput input, ContainerInfo typeInfo, UUID ownerID) {
 		Collection<ItemStack> orphanStacks = new ArrayList<>(0);
 
-		ContainerInstance base = load1(input, typeInfo, orphanStacks);
+		ContainerInstance base = load1(input, typeInfo, orphanStacks, ownerID);
 
 		int numStoredStacks = input.readInt();
 		for (int counter = 0; counter < numStoredStacks; counter++) {
@@ -427,7 +437,7 @@ public class ContainerInstance {
 					StreamSupport.stream(typeInfo.getFuelSlots().spliterator(), false)
 					.map(entry -> entry.getValue().getSlotIndex())
 			).forEach(slotIndex -> {
-				if (ItemUtils.isEmpty(base.inventory.getItem(slotIndex)))	 {
+				if (ItemUtils.isEmpty(base.inventory.getItem(slotIndex))) {
 					freeSlots.add(slotIndex);
 				}
 			});
@@ -446,7 +456,22 @@ public class ContainerInstance {
 
 		return base;
 	}
-	
+
+	public static ContainerInstance load3(BitInput input, ContainerInfo typeInfo, UUID ownerID) throws UnknownEncodingException {
+		byte encoding = input.readByte();
+		if (encoding != 1) throw new UnknownEncodingException("ContainerInstance", encoding);
+
+		ContainerInstance instance = load2(input, typeInfo, ownerID);
+
+		instance.relevantPermissions.clear();
+		int numPermissions = input.readInt();
+		for (int counter = 0; counter < numPermissions; counter++) {
+			instance.relevantPermissions.add(input.readString());
+		}
+
+		return instance;
+	}
+
 	private static <T, U> Iterable<Integer> takeValues(Iterable<Entry<T, U>> entries, Function<U, Integer> getIndex) {
 		return StreamSupport.stream(entries.spliterator(), false).map(entry -> getIndex.apply(entry.getValue()))::iterator;
 	}
@@ -487,6 +512,8 @@ public class ContainerInstance {
 	private final ContainerInfo typeInfo;
 	
 	private final Inventory inventory;
+	private final Set<String> relevantPermissions;
+	private final UUID ownerID;
 	
 	// Will stay empty if there are no fuel slots
 	private final Map<String, FuelBurnEntry> fuelSlots;
@@ -500,16 +527,42 @@ public class ContainerInstance {
 	
 	private int storedExperience;
 	
-	public ContainerInstance(ContainerInfo typeInfo) {
+	public ContainerInstance(ContainerInfo typeInfo, UUID ownerID) {
 		if (typeInfo == null) throw new NullPointerException("typeInfo");
 		this.typeInfo = typeInfo;
 		this.inventory = createInventory(typeInfo);
-		
+
+		this.ownerID = ownerID;
+		this.relevantPermissions = new HashSet<>();
+		this.updateRelevantPermissions();
+
 		this.fuelSlots = new HashMap<>();
 		this.initFuelSlots();
 		
 		this.currentCraftingProgress = 0;
 		this.markHot();
+	}
+
+	private void updateRelevantPermissions(Player owner) {
+		relevantPermissions.clear();
+		if (owner.hasPermission("customitems.container.recipe.any")) {
+			relevantPermissions.add("customitems.container.recipe.any");
+		}
+		for (ContainerRecipeValues recipe : getType().getRecipes()) {
+			String permission = recipe.getRequiredPermission();
+			if (permission != null && owner.hasPermission(permission)) {
+				relevantPermissions.add(permission);
+			}
+		}
+	}
+
+	private void updateRelevantPermissions() {
+		if (ownerID != null) {
+			Player owner = Bukkit.getPlayer(ownerID);
+			if (owner != null) {
+				updateRelevantPermissions(owner);
+			}
+		}
 	}
 
 	private void markHot() {
@@ -534,7 +587,7 @@ public class ContainerInstance {
 		}
 	}
 	
-	public void save1(BitOutput output) {
+	private void save1(BitOutput output) {
 		
 		// Since the container layout of type could change, we need to be careful
 		// We will store entries of (slotName, itemStack) to store all items
@@ -602,7 +655,7 @@ public class ContainerInstance {
 		// be derived from the contents of the inventory slots
 	}
 
-	public void save2(BitOutput output) {
+	private void save2(BitOutput output) {
 		save1(output);
 
 		class StackEntry {
@@ -634,6 +687,15 @@ public class ContainerInstance {
 			output.addByte(entry.y);
 			saveStack(output, entry.stack);
 		});
+	}
+
+	public void save3(BitOutput output) {
+		output.addByte((byte) 1);
+		save2(output);
+		output.addInt(relevantPermissions.size());
+		for (String permission : relevantPermissions) {
+			output.addString(permission);
+		}
 	}
 	
 	public CustomContainerValues getType() {
@@ -798,6 +860,14 @@ public class ContainerInstance {
 
 	private boolean canPerformRecipe(ContainerRecipeValues candidate) {
 
+		String permission = candidate.getRequiredPermission();
+		if (
+				permission != null && ownerID != null && !relevantPermissions.contains(permission) &&
+						!relevantPermissions.contains("customitems.container.recipe.any")
+		) {
+			return false;
+		}
+
 		// Check that all inputs are present
 		for (Map.Entry<String, IngredientValues> input : candidate.getInputs().entrySet()) {
 			ItemStack inSlot = getInput(input.getKey());
@@ -852,6 +922,8 @@ public class ContainerInstance {
 	}
 
 	ContainerRecipeValues determineCurrentRecipe(ContainerRecipeValues mostLikely) {
+		// Ensure that the container recipe permissions are always up-to-date before determining the recipe
+		updateRelevantPermissions();
 
 		// Performance trick: first check the recipe that is most likely. If we can perform that recipe,
 		// we don't need to waste time with checking the other recipes.

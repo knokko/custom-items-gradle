@@ -8,12 +8,12 @@ import nl.knokko.customitems.item.AttributeModifierValues;
 import nl.knokko.customitems.item.CustomGunValues;
 import nl.knokko.customitems.item.CustomItemType;
 import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
-import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
-import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
+import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class EditItemGun extends EditItemBase<CustomGunValues> {
 
@@ -62,7 +62,13 @@ public class EditItemGun extends EditItemBase<CustomGunValues> {
                 0.73f, 0.68f, 0.78f, 0.73f
         );
 
-        HelpButtons.addHelpLink(this, "edit%20menu/items/edit/gun.html");
+        addComponent(new DynamicTextComponent("Requires permission", LABEL), 0.6f, 0.62f, 0.72f, 0.67f);
+        addComponent(
+                new CheckboxComponent(currentValues.requiresPermission(), currentValues::setRequiresPermission),
+                0.57f, 0.63f, 0.59f, 0.65f
+        );
+
+        HelpButtons.addHelpLink(this, "edit menu/items/edit/gun.html");
     }
 
     @Override

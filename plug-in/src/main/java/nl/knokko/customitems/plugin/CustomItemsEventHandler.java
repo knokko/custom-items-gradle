@@ -647,8 +647,14 @@ public class CustomItemsEventHandler implements Listener {
 		if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 
 			CustomItemValues usedItem = itemSet.getItem(event.getItem());
-			if (usedItem instanceof CustomWandValues || usedItem instanceof CustomGunValues) {
-				CustomItemsPlugin.getInstance().getData().setShooting(event.getPlayer());
+			PluginData data = CustomItemsPlugin.getInstance().getData();
+
+			if ((usedItem instanceof CustomWandValues || usedItem instanceof CustomGunValues)) {
+				if (data.hasPermissionToShoot(event.getPlayer(), usedItem)) {
+					data.setShooting(event.getPlayer());
+				} else {
+					event.getPlayer().sendMessage(ChatColor.DARK_RED + "You are not allowed to shoot with this item");
+				}
 			}
 		}
 	}
@@ -2982,7 +2988,11 @@ public class CustomItemsEventHandler implements Listener {
 
 			// Shaped recipes first because they have priority
 			for (CraftingRecipeValues recipe : recipes) {
-				if (recipe instanceof ShapedRecipeValues) {
+
+				String permission = recipe.getRequiredPermission();
+				boolean hasPermission = permission == null || owner.hasPermission(permission) || owner.hasPermission("customitems.craftall");
+
+				if (hasPermission && recipe instanceof ShapedRecipeValues) {
 					List<IngredientEntry> ingredientMapping = wrap(recipe).shouldAccept(ingredients);
 					if (ingredientMapping != null) {
 						inventory.setResult(convertResultToItemStack(recipe.getResult()));
@@ -2999,7 +3009,11 @@ public class CustomItemsEventHandler implements Listener {
 
 			// No shaped recipe fits, so try the shapeless recipes
 			for (CraftingRecipeValues recipe : recipes) {
-				if (recipe instanceof ShapelessRecipeValues) {
+
+				String permission = recipe.getRequiredPermission();
+				boolean hasPermission = permission == null || owner.hasPermission(permission) || owner.hasPermission("customitems.craftall");
+
+				if (hasPermission && recipe instanceof ShapelessRecipeValues) {
 					List<IngredientEntry> ingredientMapping = wrap(recipe).shouldAccept(ingredients);
 					if (ingredientMapping != null) {
 						inventory.setResult(convertResultToItemStack(recipe.getResult()));
