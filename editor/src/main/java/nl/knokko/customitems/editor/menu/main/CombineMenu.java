@@ -45,7 +45,7 @@ public class CombineMenu extends GuiMenu {
 				+ "have the content of both item sets.", EditProps.LABEL), 
 				0f, 0.7f, 0.95f, 0.8f);
 		addComponent(new DynamicTextComponent(
-				"You will need to select a primary item set and a secundary item set.", 
+				"You will need to select a primary item set and a secondary item set.",
 				EditProps.LABEL), 0f, 0.6f, 0.65f, 0.7f);
 		addComponent(new DynamicTextComponent(
 				"If you use custom blocks and have used any of the item sets on your server, you " +
@@ -84,7 +84,7 @@ public class CombineMenu extends GuiMenu {
 			
 			addComponent(new DynamicTextComponent("Name of primary item set:", EditProps.LABEL), 0.2f, 0.6f, 0.45f, 0.7f);
 			addComponent(primary, 0.5f, 0.6f, 0.7f, 0.7f);
-			addComponent(new DynamicTextComponent("Name of secundary item set:", EditProps.LABEL), 0.2f, 0.45f, 0.47f, 0.55f);
+			addComponent(new DynamicTextComponent("Name of secondary item set:", EditProps.LABEL), 0.2f, 0.45f, 0.47f, 0.55f);
 			addComponent(secundary, 0.5f, 0.45f, 0.7f, 0.55f);
 			
 			addComponent(new DynamicTextComponent("Name of the new item set:", EditProps.LABEL), 0.2f, 0.2f, 0.45f, 0.3f);
@@ -145,7 +145,7 @@ public class CombineMenu extends GuiMenu {
 					try {
 						secundarySet = new ItemSet(new ByteArrayBitInput(secundaryBytes), ItemSet.Side.EDITOR);
 					} catch (Exception ex) {
-						errorComponent.setText("Error in secundary item set: " + ex.getMessage());
+						errorComponent.setText("Error in secondary item set: " + ex.getMessage());
 						return;
 					}
 				} catch (IOException io) {
