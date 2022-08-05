@@ -70,4 +70,9 @@ public class SetEncoding {
 	 * Added custom blocks
 	 */
 	public static final byte ENCODING_9 = 8;
+
+	/**
+	 * Added equipment sets
+	 */
+	public static final byte ENCODING_10 = 9;
 }

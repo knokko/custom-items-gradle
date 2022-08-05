@@ -10,6 +10,8 @@ import nl.knokko.customitems.encoding.SetEncoding;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.durability.ItemDurabilityAssignments;
 import nl.knokko.customitems.item.durability.ItemDurabilityClaim;
+import nl.knokko.customitems.item.equipment.EquipmentSet;
+import nl.knokko.customitems.item.equipment.EquipmentSetValues;
 import nl.knokko.customitems.item.model.DefaultItemModel;
 import nl.knokko.customitems.item.model.DefaultModelType;
 import nl.knokko.customitems.item.model.ItemModel;
@@ -61,6 +63,9 @@ public class ItemSet {
 
         result.items.addAll(primary.items);
         result.items.addAll(secondary.items);
+
+        result.equipmentSets.addAll(primary.equipmentSets);
+        result.equipmentSets.addAll(secondary.equipmentSets);
 
         result.craftingRecipes.addAll(primary.craftingRecipes);
         result.craftingRecipes.addAll(secondary.craftingRecipes);
@@ -116,6 +121,7 @@ public class ItemSet {
     Collection<CustomTexture> textures;
     Collection<ArmorTexture> armorTextures;
     Collection<CustomItem> items;
+    Collection<EquipmentSet> equipmentSets;
     Collection<CustomCraftingRecipe> craftingRecipes;
     Collection<BlockDrop> blockDrops;
     Collection<MobDrop> mobDrops;
@@ -145,6 +151,7 @@ public class ItemSet {
         textures = new ArrayList<>();
         armorTextures = new ArrayList<>();
         items = new ArrayList<>();
+        equipmentSets = new ArrayList<>();
         craftingRecipes = new ArrayList<>();
         blockDrops = new ArrayList<>();
         mobDrops = new ArrayList<>();
@@ -271,7 +278,7 @@ public class ItemSet {
     }
 
     public void save(BitOutput output, Side targetSide) {
-        output.addByte(SetEncoding.ENCODING_9);
+        output.addByte(SetEncoding.ENCODING_10);
 
         ByteArrayBitOutput checkedOutput = new ByteArrayBitOutput();
         saveContent(checkedOutput, targetSide);
@@ -310,6 +317,11 @@ public class ItemSet {
         output.addInt(items.size());
         for (CustomItem item : items) {
             item.getValues().save(output, targetSide);
+        }
+
+        output.addInt(equipmentSets.size());
+        for (EquipmentSet equipmentSet : equipmentSets) {
+            equipmentSet.getValues().save(output);
         }
 
         output.addInt(blocks.size());
@@ -381,6 +393,9 @@ public class ItemSet {
         } else if (encoding == SetEncoding.ENCODING_9) {
             load9(input);
             initDefaults9();
+        } else if (encoding == SetEncoding.ENCODING_10) {
+            load10(input);
+            initDefaults10();
         } else {
             throw new UnknownEncodingException("ItemSet", encoding);
         }
@@ -440,7 +455,11 @@ public class ItemSet {
     }
 
     private void initDefaults9() {
-        // Nothing to be done until the next encoding is known
+        this.equipmentSets = new ArrayList<>();
+    }
+
+    private void initDefaults10() {
+        // Nothing to be done until encoding 11 has been made
     }
 
     private void loadExportTime(BitInput input) {
@@ -482,6 +501,14 @@ public class ItemSet {
         this.items = new ArrayList<>(numItems);
         for (int counter = 0; counter < numItems; counter++) {
             this.items.add(new CustomItem(CustomItemValues.load(input, this, checkCustomModel)));
+        }
+    }
+
+    private void loadEquipmentSets(BitInput input) throws UnknownEncodingException {
+        int numEquipmentSets = input.readInt();
+        this.equipmentSets = new ArrayList<>(numEquipmentSets);
+        for (int counter = 0; counter < numEquipmentSets; counter++) {
+            this.equipmentSets.add(new EquipmentSet(EquipmentSetValues.load(input, this)));
         }
     }
 
@@ -683,6 +710,25 @@ public class ItemSet {
         });
     }
 
+    private void load10(BitInput rawInput) throws IntegrityException, UnknownEncodingException {
+        loadWithIntegrityCheck(rawInput, (input, hash) -> {
+            loadExportTime(input);
+            loadTextures(input, true, true);
+            loadArmorTextures(input);
+            loadProjectileCovers(input);
+            loadProjectiles(input);
+            loadItems(input, true);
+            loadEquipmentSets(input);
+            loadBlocks(input);
+            loadCraftingRecipes(input);
+            loadBlockDrops(input);
+            loadMobDrops(input);
+            loadFuelRegistries(input);
+            loadContainers(input);
+            loadDeletedItemNames(input);
+        });
+    }
+
     public Side getSide() {
         return side;
     }
@@ -701,6 +747,10 @@ public class ItemSet {
 
     public CustomItemsView getItems() {
         return new CustomItemsView(items);
+    }
+
+    public EquipmentSetsView getEquipmentSets() {
+        return new EquipmentSetsView(equipmentSets);
     }
 
     public CustomRecipesView getCraftingRecipes() {
@@ -852,6 +902,10 @@ public class ItemSet {
         return isReferenceValid(items, reference.getModel());
     }
 
+    public boolean isReferenceValid(EquipmentSetReference reference) {
+        return isReferenceValid(equipmentSets, reference.getModel());
+    }
+
     public boolean isReferenceValid(CraftingRecipeReference reference) {
         return isReferenceValid(craftingRecipes, reference.getModel());
     }
@@ -910,6 +964,13 @@ public class ItemSet {
             Validation.scope(
                     "Item " + item.getName(),
                     () -> item.validateExportVersion(version)
+            );
+        }
+
+        for (EquipmentSetValues equipmentSet : getEquipmentSets()) {
+            Validation.scope(
+                    "Equipment set " + equipmentSet,
+                    () -> equipmentSet.validateExportVersion(version)
             );
         }
 
@@ -1005,6 +1066,13 @@ public class ItemSet {
             );
         }
         validateUniqueIDs("item name", items, item -> item.getValues().getName());
+
+        for (EquipmentSet equipmentSet : equipmentSets) {
+            Validation.scope(
+                    "Equipment set " + equipmentSet.getValues(),
+                    equipmentSet.getValues()::validate
+            );
+        }
 
         for (CustomCraftingRecipe recipe : craftingRecipes) {
             Validation.scope(
@@ -1102,6 +1170,19 @@ public class ItemSet {
         if (!isReferenceValid(itemToChange)) throw new ProgrammingValidationException("Item to change is invalid");
         newItemValues.validateComplete(this, itemToChange.get().getName());
         itemToChange.getModel().setValues(newItemValues);
+    }
+
+    public void addEquipmentSet(EquipmentSetValues newEquipmentSet) throws ValidationException, ProgrammingValidationException {
+        newEquipmentSet.validate();
+        this.equipmentSets.add(new EquipmentSet(newEquipmentSet));
+    }
+
+    public void changeEquipmentSet(
+            EquipmentSetReference setToChange, EquipmentSetValues newSetValues
+    ) throws ValidationException, ProgrammingValidationException {
+        if (!isReferenceValid(setToChange)) throw new ProgrammingValidationException("Equipment set is invalid");
+        newSetValues.validate();
+        setToChange.getModel().setValues(newSetValues);
     }
 
     public void addRecipe(CraftingRecipeValues newRecipe) throws ValidationException, ProgrammingValidationException {
@@ -1238,6 +1319,10 @@ public class ItemSet {
     public void removeItem(ItemReference itemToRemove) throws ValidationException, ProgrammingValidationException {
         removeModel(this.items, itemToRemove.getModel());
         this.removedItemNames.add(itemToRemove.getModel().getValues().getName());
+    }
+
+    public void removeEquipmentSet(EquipmentSetReference setToRemove) throws ValidationException, ProgrammingValidationException {
+        removeModel(this.equipmentSets, setToRemove.getModel());
     }
 
     public void removeCraftingRecipe(CraftingRecipeReference recipeToRemove) throws ValidationException, ProgrammingValidationException {
