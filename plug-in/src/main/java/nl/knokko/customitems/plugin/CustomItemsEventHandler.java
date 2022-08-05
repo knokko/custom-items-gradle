@@ -2006,13 +2006,13 @@ public class CustomItemsEventHandler implements Listener {
 
 	@EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
 	public void beforeEntityDamage(EntityDamageEvent event) {
-		if (event.getEntity() instanceof Player) {
+		if (event.getEntity() instanceof LivingEntity) {
 			try {
 				DamageSource damageSource = DamageSource.valueOf(event.getCause().name());
 
-				Player player = (Player) event.getEntity();
+				LivingEntity livingEntity = (LivingEntity) event.getEntity();
 
-				EntityEquipment e = player.getEquipment();
+				EntityEquipment e = livingEntity.getEquipment();
 				short[] damageResistances = new short[4];
 
 				if (e != null) {
@@ -2032,8 +2032,8 @@ public class CustomItemsEventHandler implements Listener {
 				} else {
 					if (totalDamageResistance > 100) {
 						double healing = event.getDamage() * (totalDamageResistance - 100) * 0.01;
-						double newHealth = player.getHealth() + healing;
-						player.setHealth(Math.min(player.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue(), newHealth));
+						double newHealth = livingEntity.getHealth() + healing;
+						livingEntity.setHealth(Math.min(livingEntity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue(), newHealth));
 					}
 
 					event.setCancelled(true);
@@ -2041,9 +2041,8 @@ public class CustomItemsEventHandler implements Listener {
 				}
 			} catch (IllegalArgumentException ex) {
 				// This will happen when the damage cause is not known to this plug-in.
-				// This plug-in only knows the damage causes of craftbukkit 1.12, which means that
-				// this catch block will be reached when a new damage cause is used in a later version
-				// of minecraft.
+				// This plug-in only knows the damage causes of minecraft versions that are currently supported by
+				// this plug-in, so this might happen when the plug-in is used in a later minecraft version.
 				Bukkit.getLogger().warning("Unknown damage cause: " + event.getCause());
 			}
 		}
