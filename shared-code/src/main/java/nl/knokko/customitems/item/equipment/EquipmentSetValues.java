@@ -70,6 +70,11 @@ public class EquipmentSetValues extends ModelValues {
         entries.put(entry, value);
     }
 
+    public void removeEntry(EquipmentEntry entry) {
+        assertMutable();
+        entries.remove(entry);
+    }
+
     public void setBonuses(Collection<EquipmentBonusValues> bonuses) {
         assertMutable();
         Checks.nonNull(bonuses);
