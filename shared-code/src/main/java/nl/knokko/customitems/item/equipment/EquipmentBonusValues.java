@@ -128,6 +128,9 @@ public class EquipmentBonusValues extends ModelValues {
         if (minValue > maxValue) {
             throw new ValidationException("Minimum value can't be larger than maximum value");
         }
+        if (minValue <= 0 && maxValue >= 0) {
+            throw new ValidationException("0 must NOT be between the minimum value and the maximum value");
+        }
 
         if (attributeModifiers == null) {
             throw new ProgrammingValidationException("No attribute modifiers");
