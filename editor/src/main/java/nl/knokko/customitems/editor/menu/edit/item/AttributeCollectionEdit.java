@@ -15,12 +15,14 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 public class AttributeCollectionEdit extends InlineCollectionEdit<AttributeModifierValues> {
 
 	private final AttributeModifierValues exampleModifier;
+	private final boolean showSlot;
 	
 	public AttributeCollectionEdit(Collection<AttributeModifierValues> currentCollection,
 			Consumer<Collection<AttributeModifierValues>> onApply,
-			GuiComponent returnMenu, AttributeModifierValues exampleModifier) {
+			GuiComponent returnMenu, AttributeModifierValues exampleModifier, boolean showSlot) {
 		super(returnMenu, currentCollection, onApply);
 		this.exampleModifier = exampleModifier;
+		this.showSlot = showSlot;
 	}
 
 	@Override
@@ -39,7 +41,7 @@ public class AttributeCollectionEdit extends InlineCollectionEdit<AttributeModif
 			removeItem(itemIndex);
 		}), 0.275f, minY, 0.325f, maxY);
 		addComponent(attributeButton, 0.33f, minY, 0.51f, maxY);
-		addComponent(slotButton, 0.525f, minY, 0.65f, maxY);
+		if (showSlot) addComponent(slotButton, 0.525f, minY, 0.65f, maxY);
 		addComponent(operationButton, 0.66f, minY, 0.78f, maxY);
 		addComponent(new DynamicTextComponent("Value: ", EditProps.LABEL), 0.79f, minY, 0.89f, maxY);
 		addComponent(new EagerFloatEditField(original.getValue(), -1024.0, 
@@ -55,6 +57,6 @@ public class AttributeCollectionEdit extends InlineCollectionEdit<AttributeModif
 
 	@Override
 	protected String getHelpPage() {
-		return "edit%20menu/items/edit/attributes.html";
+		return "edit menu/items/edit/attributes.html";
 	}
 }

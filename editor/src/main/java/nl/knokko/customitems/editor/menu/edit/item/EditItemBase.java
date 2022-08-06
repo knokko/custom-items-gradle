@@ -357,7 +357,7 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new AttributeCollectionEdit(
 					currentValues.getAttributeModifiers(), currentValues::setAttributeModifiers,
-					EditItemBase.this, getExampleAttributeModifier()
+					EditItemBase.this, getExampleAttributeModifier(), true
 			));
 		}), BUTTON_X, 0.5f, BUTTON_X + 0.1f, 0.55f);
 	}
