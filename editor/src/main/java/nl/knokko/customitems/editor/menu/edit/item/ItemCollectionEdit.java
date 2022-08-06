@@ -5,12 +5,16 @@ import java.awt.image.BufferedImage;
 import nl.knokko.customitems.editor.menu.commandhelp.CommandBlockHelpOverview;
 import nl.knokko.customitems.editor.menu.edit.*;
 import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
+import nl.knokko.customitems.editor.menu.edit.item.equipment.EquipmentSetCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
+
+import static nl.knokko.customitems.editor.menu.edit.EditProps.BUTTON;
+import static nl.knokko.customitems.editor.menu.edit.EditProps.HOVER;
 
 public class ItemCollectionEdit extends DedicatedCollectionEdit<CustomItemValues, ItemReference> {
 	
@@ -24,14 +28,17 @@ public class ItemCollectionEdit extends DedicatedCollectionEdit<CustomItemValues
 	@Override
 	protected void addComponents() {
 		super.addComponents();
-		addComponent(new DynamicTextButton("Create item", EditProps.BUTTON, EditProps.HOVER, () -> {
+		addComponent(new DynamicTextButton("Create item", BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new CreateItem(menu));
 		}), 0.025f, 0.3f, 0.225f, 0.4f);
-		addComponent(new DynamicTextButton("Command block help", EditProps.BUTTON, EditProps.HOVER, () -> {
+		addComponent(new DynamicTextButton("Equipment sets", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new EquipmentSetCollectionEdit(menu));
+		}), 0.025f, 0.175f, 0.23f, 0.275f);
+		addComponent(new DynamicTextButton("Command block help", BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new CommandBlockHelpOverview(menu.getSet(), this));
-		}), 0.025f, 0.1f, 0.275f, 0.2f);
-		
-		HelpButtons.addHelpLink(this, "edit%20menu/items/overview.html");
+		}), 0.025f, 0.05f, 0.275f, 0.15f);
+
+		HelpButtons.addHelpLink(this, "edit menu/items/overview.html");
 	}
 
 	private GuiComponent createEditMenu(ItemReference itemReference, boolean copy) {
