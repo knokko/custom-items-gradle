@@ -36,6 +36,7 @@ import nl.knokko.core.plugin.entity.EntityDamageHelper;
 import nl.knokko.core.plugin.item.SmithingBlocker;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.plugin.command.CustomItemsTabCompletions;
+import nl.knokko.customitems.plugin.equipment.EquipmentSetAttributes;
 import nl.knokko.customitems.plugin.multisupport.denizen.DenizenSupport;
 import nl.knokko.customitems.plugin.multisupport.itembridge.ItemBridgeSupport;
 import nl.knokko.customitems.plugin.multisupport.mimic.MimicSupport;
@@ -127,6 +128,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 		DenizenSupport.onEnable();
 		PluginIndicators.init();
 		CustomElytraVelocityManager.start(itemSet, this);
+		EquipmentSetAttributes.startUpdateTask(this, itemSet);
 	}
 
 	@Override

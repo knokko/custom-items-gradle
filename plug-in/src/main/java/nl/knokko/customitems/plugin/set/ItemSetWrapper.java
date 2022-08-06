@@ -7,6 +7,7 @@ import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomTridentValues;
 import nl.knokko.customitems.itemset.BlockDropsView;
+import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.MobDropsView;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.plugin.container.ContainerInfo;
@@ -118,6 +119,12 @@ public class ItemSetWrapper {
         if (itemName == null) return null;
 
         return this.itemMap.get(itemName);
+    }
+
+    public ItemReference getItemReference(ItemStack itemStack) {
+        CustomItemValues itemValues = this.getItem(itemStack);
+        if (itemValues == null) return null;
+        return this.get().getItemReference(itemValues.getName());
     }
 
     public MobDropsView getMobDrops(CIEntityType entityType) {

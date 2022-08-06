@@ -53,10 +53,12 @@ import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.command.CommandSubstitution;
 import nl.knokko.customitems.item.command.ItemCommand;
 import nl.knokko.customitems.item.command.ItemCommandEvent;
+import nl.knokko.customitems.item.equipment.EquipmentBonusValues;
 import nl.knokko.customitems.itemset.BlockDropsView;
 import nl.knokko.customitems.itemset.CustomRecipesView;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.plugin.data.PluginData;
+import nl.knokko.customitems.plugin.equipment.EquipmentSetHelper;
 import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
 import nl.knokko.customitems.plugin.recipe.IngredientEntry;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
@@ -2013,17 +2015,21 @@ public class CustomItemsEventHandler implements Listener {
 				LivingEntity livingEntity = (LivingEntity) event.getEntity();
 
 				EntityEquipment e = livingEntity.getEquipment();
-				short[] damageResistances = new short[4];
+				short[] individualDamageResistances = new short[4];
+				int totalDamageResistance = 0;
 
 				if (e != null) {
-					applyCustomArmorDamageReduction(e.getHelmet(), damageSource, damageResistances, 0);
-					applyCustomArmorDamageReduction(e.getChestplate(), damageSource, damageResistances, 1);
-					applyCustomArmorDamageReduction(e.getLeggings(), damageSource, damageResistances, 2);
-					applyCustomArmorDamageReduction(e.getBoots(), damageSource, damageResistances, 3);
+					applyCustomArmorDamageReduction(e.getHelmet(), damageSource, individualDamageResistances, 0);
+					applyCustomArmorDamageReduction(e.getChestplate(), damageSource, individualDamageResistances, 1);
+					applyCustomArmorDamageReduction(e.getLeggings(), damageSource, individualDamageResistances, 2);
+					applyCustomArmorDamageReduction(e.getBoots(), damageSource, individualDamageResistances, 3);
+
+					for (EquipmentBonusValues equipmentBonus : EquipmentSetHelper.getEquipmentBonuses(e, itemSet)) {
+						totalDamageResistance += equipmentBonus.getDamageResistances().getResistance(damageSource);
+					}
 				}
 
-				int totalDamageResistance = 0;
-				for (short damageResistance : damageResistances) {
+				for (short damageResistance : individualDamageResistances) {
 					totalDamageResistance += damageResistance;
 				}
 
