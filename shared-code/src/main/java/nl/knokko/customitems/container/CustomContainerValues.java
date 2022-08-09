@@ -15,7 +15,10 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 
+import java.awt.image.BufferedImage;
 import java.util.*;
+
+import static nl.knokko.customitems.texture.BaseTextureValues.*;
 
 public class CustomContainerValues extends ModelValues {
 
@@ -55,9 +58,18 @@ public class CustomContainerValues extends ModelValues {
 
         if (encoding <= 2) {
             result.storageMode = input.readBoolean() ? ContainerStorageMode.PER_LOCATION : ContainerStorageMode.NOT_PERSISTENT;
+            result.overlayChar = 0;
+            result.overlayTexture = null;
             result.requiresPermission = false;
         } else {
             result.storageMode = ContainerStorageMode.valueOf(input.readString());
+            if (input.readBoolean()) {
+                result.overlayChar = input.readChar();
+                result.overlayTexture = loadImage(input, true);
+            } else {
+                result.overlayChar = 0;
+                result.overlayTexture = null;
+            }
             result.requiresPermission = input.readBoolean();
         }
 
@@ -74,6 +86,8 @@ public class CustomContainerValues extends ModelValues {
     private CustomContainerHost host;
     private ContainerStorageMode storageMode;
 
+    private char overlayChar;
+    private BufferedImage overlayTexture;
     private boolean requiresPermission;
 
     public CustomContainerValues(boolean mutable) {
@@ -90,6 +104,8 @@ public class CustomContainerValues extends ModelValues {
         this.fuelMode = FuelMode.ALL;
         this.host = new CustomContainerHost(VanillaContainerType.CRAFTING_TABLE);
         this.storageMode = ContainerStorageMode.NOT_PERSISTENT;
+        this.overlayChar = 0;
+        this.overlayTexture = null;
         this.requiresPermission = false;
     }
 
@@ -102,6 +118,8 @@ public class CustomContainerValues extends ModelValues {
         this.fuelMode = toCopy.getFuelMode();
         this.host = toCopy.getHost();
         this.storageMode = toCopy.getStorageMode();
+        this.overlayChar = toCopy.getOverlayChar();
+        this.overlayTexture = toCopy.getOverlayTexture();
         this.requiresPermission = toCopy.requiresPermission();
     }
 
@@ -122,6 +140,11 @@ public class CustomContainerValues extends ModelValues {
         }
         host.save(output);
         output.addString(storageMode.name());
+        output.addBoolean(overlayTexture != null);
+        if (overlayTexture != null) {
+            output.addChar(overlayChar);
+            saveImage(output, overlayTexture);
+        }
         output.addBoolean(requiresPermission);
     }
 
@@ -132,7 +155,8 @@ public class CustomContainerValues extends ModelValues {
             return this.name.equals(otherContainer.name) && this.selectionIcon.equals(otherContainer.selectionIcon)
                     && this.recipes.equals(otherContainer.recipes) && this.fuelMode == otherContainer.fuelMode
                     && Arrays.deepEquals(this.slots, otherContainer.slots) && this.host.equals(otherContainer.host)
-                    && this.storageMode == otherContainer.storageMode && this.requiresPermission == otherContainer.requiresPermission;
+                    && this.storageMode == otherContainer.storageMode && areImagesEqual(this.overlayTexture, otherContainer.overlayTexture)
+                    && this.overlayChar == otherContainer.overlayChar && this.requiresPermission == otherContainer.requiresPermission;
         } else {
             return false;
         }
@@ -210,6 +234,14 @@ public class CustomContainerValues extends ModelValues {
 
     public ContainerStorageMode getStorageMode() {
         return storageMode;
+    }
+
+    public char getOverlayChar() {
+        return overlayChar;
+    }
+
+    public BufferedImage getOverlayTexture() {
+        return overlayTexture;
     }
 
     public boolean requiresPermission() {
@@ -296,6 +328,16 @@ public class CustomContainerValues extends ModelValues {
         this.storageMode = newStorageMode;
     }
 
+    public void setOverlayChar(char overlayChar) {
+        // Leave out the assertMutable() check for resourcepack generation convenience
+        this.overlayChar = overlayChar;
+    }
+
+    public void setOverlayTexture(BufferedImage newOverlayTexture) {
+        assertMutable();
+        this.overlayTexture = newOverlayTexture;
+    }
+
     public void setRequiresPermission(boolean requiresPermission) {
         assertMutable();
         this.requiresPermission = requiresPermission;
@@ -349,6 +391,10 @@ public class CustomContainerValues extends ModelValues {
         if (host == null) throw new ProgrammingValidationException("No host");
         Validation.scope("Host", host::validate, itemSet);
         if (storageMode == null) throw new ProgrammingValidationException("No storage mode");
+        if (overlayTexture != null) {
+            if (overlayTexture.getWidth() != 256) throw new ValidationException("The overlay texture width should be 256 pixels");
+            if (overlayTexture.getHeight() != 105) throw new ValidationException("The overlay texture height should be 105 pixels");
+        }
     }
 
     public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {

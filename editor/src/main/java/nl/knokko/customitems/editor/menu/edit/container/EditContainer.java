@@ -6,6 +6,7 @@ import nl.knokko.customitems.container.fuel.FuelMode;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
+import nl.knokko.customitems.editor.menu.edit.container.overlay.EditContainerOverlayTexture;
 import nl.knokko.customitems.editor.menu.edit.container.recipe.ContainerRecipeCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.container.slot.CreateDisplay;
 import nl.knokko.customitems.editor.menu.edit.container.slot.SlotsComponent;
@@ -124,11 +125,15 @@ public class EditContainer extends GuiMenu {
 				EnumSelect.createSelectButton(ContainerStorageMode.class, currentValues::setStorageMode, currentValues.getStorageMode()),
 				0.21f, 0.3f, 0.36f, 0.35f
 		);
+
+		addComponent(new DynamicTextButton("Overlay texture...", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new EditContainerOverlayTexture(currentValues, this));
+		}), 0.05f, 0.225f, 0.3f, 0.275f);
 		addComponent(new DynamicTextButton("Recipes...", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new ContainerRecipeCollectionEdit(
 					menu.getSet(), currentValues, this
 			));
-		}), 0.05f, 0.225f, 0.2f, 0.275f);
+		}), 0.05f, 0.15f, 0.2f, 0.2f);
 		
 		addComponent(
 				new SlotsComponent(this, menu.getSet(), currentValues),
@@ -140,7 +145,7 @@ public class EditContainer extends GuiMenu {
 				String error = Validation.toErrorString(() -> menu.getSet().changeContainer(toModify, currentValues));
 				if (error == null) state.getWindow().setMainComponent(new ContainerCollectionEdit(menu));
 				else errorComponent.setText(error);
-			}), 0.025f, 0.1f, 0.175f, 0.2f);
+			}), 0.025f, 0.025f, 0.175f, 0.125f);
 		} else {
 			addComponent(new DynamicTextButton("Create", SAVE_BASE, SAVE_HOVER, () -> {
 				String error = Validation.toErrorString(() -> menu.getSet().addContainer(currentValues));
@@ -149,7 +154,7 @@ public class EditContainer extends GuiMenu {
 				} else {
 					state.getWindow().setMainComponent(new ContainerCollectionEdit(menu));
 				}
-			}), 0.025f, 0.1f, 0.175f, 0.2f);
+			}), 0.025f, 0.025f, 0.175f, 0.125f);
 		}
 		HelpButtons.addHelpLink(this, "edit menu/containers/edit.html");
 	}

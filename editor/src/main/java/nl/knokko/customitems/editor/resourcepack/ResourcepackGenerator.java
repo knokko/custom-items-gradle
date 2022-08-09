@@ -28,6 +28,10 @@ public class ResourcepackGenerator {
         textureWriter.writeBaseTextures();
         textureWriter.writeOptifineArmorTextures();
         textureWriter.writeOptifineElytraTextures();
+        textureWriter.writeContainerOverlayTextures();
+
+        ResourcepackFontOverrider fontWriter = new ResourcepackFontOverrider(itemSet, zipOutput);
+        fontWriter.overrideContainerOverlayChars();
 
         ResourcepackModelWriter modelWriter = new ResourcepackModelWriter(itemSet, zipOutput);
         modelWriter.writeCustomItemModels();

@@ -1,5 +1,6 @@
 package nl.knokko.customitems.editor.resourcepack;
 
+import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.item.CustomArmorValues;
 import nl.knokko.customitems.item.CustomElytraValues;
 import nl.knokko.customitems.item.CustomItemValues;
@@ -217,6 +218,25 @@ class ResourcepackTextureWriter {
                     zipOutput.closeEntry();
                 }
             }
+        }
+    }
+
+    void writeContainerOverlayTextures() throws IOException {
+        for (CustomContainerValues container : itemSet.getContainers()) {
+            if (container.getOverlayTexture() != null) {
+
+                ZipEntry overlayTextureEntry = new ZipEntry("assets/minecraft/textures/customcontainers/overlay/" + container.getName() + ".png");
+                zipOutput.putNextEntry(overlayTextureEntry);
+                ImageIO.write(container.getOverlayTexture(), "PNG", new MemoryCacheImageOutputStream(zipOutput));
+                zipOutput.closeEntry();
+            }
+        }
+
+        if (itemSet.getContainers().stream().anyMatch(container -> container.getOverlayTexture() != null)) {
+            ZipEntry blackTexture = new ZipEntry("assets/minecraft/textures/customcontainers/black.png");
+            zipOutput.putNextEntry(blackTexture);
+            ImageIO.write(new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB), "PNG", zipOutput);
+            zipOutput.closeEntry();
         }
     }
 }

@@ -101,8 +101,12 @@ public class ContainerInstance {
 	
 	private static Inventory createInventory(ContainerInfo typeInfo) {
 		CustomContainerValues container = typeInfo.getContainer();
-		Inventory inv = Bukkit.createInventory(null, 9 * container.getHeight(), 
-				container.getSelectionIcon().getDisplayName());
+
+		String displayName = container.getSelectionIcon().getDisplayName();
+		if (container.getOverlayTexture() != null) {
+			displayName = (char) 0xE000 + "" + (char) 167 + "f" + container.getOverlayChar() + displayName;
+		}
+		Inventory inv = Bukkit.createInventory(null, 9 * container.getHeight(), displayName);
 		
 		for (DecorationProps decoration : typeInfo.getDecorations()) {
 			ItemStack stack = fromDisplay(decoration.getSlotDisplay());
