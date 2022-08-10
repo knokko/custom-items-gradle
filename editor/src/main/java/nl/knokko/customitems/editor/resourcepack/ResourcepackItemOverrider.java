@@ -169,7 +169,7 @@ class ResourcepackItemOverrider {
         if (this.mcVersion >= VERSION1_13) {
             jsonWriter.println("        \"layer0\": \"item/bow\"");
         } else {
-            jsonWriter.println("        \"layer0\": \"items/bow\"");
+            jsonWriter.println("        \"layer0\": \"items/bow_standby\"");
         }
         jsonWriter.println("    },");
 
