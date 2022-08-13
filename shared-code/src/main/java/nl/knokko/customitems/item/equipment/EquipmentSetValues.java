@@ -134,11 +134,14 @@ public class EquipmentSetValues extends ModelValues {
         ), input.readInt());
     }
 
-    public void validate() throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         if (entries == null) throw new ProgrammingValidationException("No entries");
         for (Map.Entry<EquipmentEntry, Integer> entry : entries.entrySet()) {
             if (entry.getKey() == null) throw new ProgrammingValidationException("Missing an equipment entry");
             if (entry.getValue() == null) throw new ProgrammingValidationException("Missing an equipment entry value");
+            if (!itemSet.isReferenceValid(entry.getKey().item)) {
+                throw new ProgrammingValidationException("Item is no longer valid");
+            }
         }
 
         if (bonuses == null) throw new ProgrammingValidationException("No bonuses");

@@ -1070,7 +1070,7 @@ public class ItemSet {
         for (EquipmentSet equipmentSet : equipmentSets) {
             Validation.scope(
                     "Equipment set " + equipmentSet.getValues(),
-                    equipmentSet.getValues()::validate
+                    equipmentSet.getValues()::validate, this
             );
         }
 
@@ -1173,7 +1173,7 @@ public class ItemSet {
     }
 
     public void addEquipmentSet(EquipmentSetValues newEquipmentSet) throws ValidationException, ProgrammingValidationException {
-        newEquipmentSet.validate();
+        newEquipmentSet.validate(this);
         this.equipmentSets.add(new EquipmentSet(newEquipmentSet));
     }
 
@@ -1181,7 +1181,7 @@ public class ItemSet {
             EquipmentSetReference setToChange, EquipmentSetValues newSetValues
     ) throws ValidationException, ProgrammingValidationException {
         if (!isReferenceValid(setToChange)) throw new ProgrammingValidationException("Equipment set is invalid");
-        newSetValues.validate();
+        newSetValues.validate(this);
         setToChange.getModel().setValues(newSetValues);
     }
 
