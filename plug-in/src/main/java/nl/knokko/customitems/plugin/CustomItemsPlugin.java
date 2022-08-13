@@ -37,6 +37,7 @@ import nl.knokko.core.plugin.item.SmithingBlocker;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.plugin.command.CustomItemsTabCompletions;
 import nl.knokko.customitems.plugin.equipment.EquipmentSetAttributes;
+import nl.knokko.customitems.plugin.miningspeed.MiningSpeedManager;
 import nl.knokko.customitems.plugin.multisupport.denizen.DenizenSupport;
 import nl.knokko.customitems.plugin.multisupport.itembridge.ItemBridgeSupport;
 import nl.knokko.customitems.plugin.multisupport.mimic.MimicSupport;
@@ -71,6 +72,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 	private ProjectileManager projectileManager;
 	private ItemUpdater itemUpdater;
 	private EnabledAreas enabledAreas;
+	private MiningSpeedManager miningSpeedManager;
 	
 	private int maxFlyingProjectiles;
 
@@ -129,6 +131,8 @@ public class CustomItemsPlugin extends JavaPlugin {
 		PluginIndicators.init();
 		CustomElytraVelocityManager.start(itemSet, this);
 		EquipmentSetAttributes.startUpdateTask(this, itemSet);
+		miningSpeedManager = new MiningSpeedManager();
+		miningSpeedManager.start(this);
 	}
 
 	@Override
@@ -154,6 +158,10 @@ public class CustomItemsPlugin extends JavaPlugin {
 
 	public EnabledAreas getEnabledAreas() {
 		return enabledAreas;
+	}
+
+	public MiningSpeedManager getMiningSpeedManager() {
+		return miningSpeedManager;
 	}
 
 	private static final String KEY_MAX_PROJECTILES = "Maximum number of flying projectiles";

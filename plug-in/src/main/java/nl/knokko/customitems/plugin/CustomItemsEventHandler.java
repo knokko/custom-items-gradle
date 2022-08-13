@@ -59,6 +59,7 @@ import nl.knokko.customitems.itemset.CustomRecipesView;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.plugin.data.PluginData;
 import nl.knokko.customitems.plugin.equipment.EquipmentSetHelper;
+import nl.knokko.customitems.plugin.miningspeed.MiningSpeedManager;
 import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
 import nl.knokko.customitems.plugin.recipe.IngredientEntry;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
@@ -3509,5 +3510,38 @@ public class CustomItemsEventHandler implements Listener {
 				}
 			}
 		}
+	}
+
+	@EventHandler
+	public void handleCustomBlockMiningSpeed(PlayerInteractEvent event) {
+		if (event.getAction() == Action.LEFT_CLICK_BLOCK && MushroomBlocks.areEnabled()) {
+
+			CustomBlockValues customBlock = MushroomBlockHelper.getMushroomBlock(event.getClickedBlock());
+			MiningSpeedManager miningSpeedManager = CustomItemsPlugin.getInstance().getMiningSpeedManager();
+			if (customBlock != null) {
+				CIMaterial material;
+				CustomItemValues customItem;
+
+				ItemStack item = event.getItem();
+				if (ItemUtils.isEmpty(item)) {
+					material = CIMaterial.AIR;
+					customItem = null;
+				} else {
+					material = CIMaterial.valueOf(ItemHelper.getMaterialName(item));
+					customItem = itemSet.getItem(item);
+				}
+
+				miningSpeedManager.startBreakingCustomBlock(
+						event.getPlayer(), event.getClickedBlock(), customBlock, material, customItem
+				);
+			} else {
+				miningSpeedManager.stopBreakingCustomBlock(event.getPlayer());
+			}
+		}
+	}
+
+	@EventHandler
+	public void handleCustomBlockMiningSpeed(BlockBreakEvent event) {
+		CustomItemsPlugin.getInstance().getMiningSpeedManager().stopBreakingCustomBlock(event.getPlayer());
 	}
 }

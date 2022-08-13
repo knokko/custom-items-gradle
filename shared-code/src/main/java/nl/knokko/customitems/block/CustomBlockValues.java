@@ -1,6 +1,7 @@
 package nl.knokko.customitems.block;
 
 import nl.knokko.customitems.block.drop.CustomBlockDropValues;
+import nl.knokko.customitems.block.miningspeed.MiningSpeedValues;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.model.ModelValues;
@@ -18,8 +19,6 @@ import java.util.Collection;
 
 public class CustomBlockValues extends ModelValues {
 
-    private static final byte ENCODING_1 = 1;
-
     public static CustomBlockValues load(
             BitInput input, ItemSet itemSet, int internalId
     ) throws UnknownEncodingException {
@@ -27,11 +26,7 @@ public class CustomBlockValues extends ModelValues {
 
         CustomBlockValues result = new CustomBlockValues(false);
         result.internalId = internalId;
-        if (encoding == ENCODING_1) {
-            result.load1(input, itemSet);
-        } else {
-            throw new UnknownEncodingException("CustomBlockValues", encoding);
-        }
+        result.loadNew(input, itemSet, encoding);
 
         return result;
     }
@@ -41,6 +36,7 @@ public class CustomBlockValues extends ModelValues {
     private String name;
 
     private Collection<CustomBlockDropValues> drops;
+    private MiningSpeedValues miningSpeed;
 
     // Only use this in the Editor; Keep it null on the plug-in
     private TextureReference texture;
@@ -51,6 +47,7 @@ public class CustomBlockValues extends ModelValues {
         this.internalId = 0;
         this.name = "";
         this.drops = new ArrayList<>(0);
+        this.miningSpeed = new MiningSpeedValues(false);
         this.texture = null;
     }
 
@@ -60,6 +57,7 @@ public class CustomBlockValues extends ModelValues {
         this.internalId = toCopy.getInternalID();
         this.name = toCopy.getName();
         this.drops = toCopy.getDrops();
+        this.miningSpeed = toCopy.getMiningSpeed();
         this.texture = toCopy.getTextureReference();
     }
 
@@ -73,7 +71,7 @@ public class CustomBlockValues extends ModelValues {
         if (other instanceof CustomBlockValues) {
             CustomBlockValues otherBlock = (CustomBlockValues) other;
             return otherBlock.internalId == this.internalId && otherBlock.name.equals(this.name)
-                    && otherBlock.drops.equals(this.drops);
+                    && otherBlock.drops.equals(this.drops) && otherBlock.miningSpeed.equals(this.miningSpeed);
         } else {
             return false;
         }
@@ -99,20 +97,31 @@ public class CustomBlockValues extends ModelValues {
         }
     }
 
-    private void load1(
-            BitInput input, ItemSet itemSet
+    private void loadNew(
+            BitInput input, ItemSet itemSet, byte encoding
     ) throws UnknownEncodingException {
+        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("CustomBlock", encoding);
+
         this.name = input.readString();
         this.loadDrops1(input, itemSet);
         String textureName = input.readString();
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             this.texture = itemSet.getTextureReference(textureName);
         }
+        if (encoding >= 2) {
+            this.miningSpeed = MiningSpeedValues.load(input, itemSet);
+        } else {
+            this.miningSpeed = new MiningSpeedValues(false);
+        }
     }
 
     public void save(BitOutput output) {
-        output.addByte(ENCODING_1);
-        save1(output);
+        output.addByte((byte) 2);
+
+        output.addString(name);
+        saveDrops1(output);
+        saveTexture1(output);
+        miningSpeed.save(output);
     }
 
     private void saveDrops1(BitOutput output) {
@@ -130,12 +139,6 @@ public class CustomBlockValues extends ModelValues {
         }
     }
 
-    private void save1(BitOutput output) {
-        output.addString(name);
-        saveDrops1(output);
-        saveTexture1(output);
-    }
-
     public int getInternalID() {
         return internalId;
     }
@@ -150,6 +153,10 @@ public class CustomBlockValues extends ModelValues {
 
     public BaseTextureValues getTexture() {
         return texture.get();
+    }
+
+    public MiningSpeedValues getMiningSpeed() {
+        return miningSpeed;
     }
 
     public TextureReference getTextureReference() {
@@ -171,6 +178,11 @@ public class CustomBlockValues extends ModelValues {
         this.drops = Mutability.createDeepCopy(newDrops, false);
     }
 
+    public void setMiningSpeed(MiningSpeedValues miningSpeed) {
+        assertMutable();
+        this.miningSpeed = miningSpeed.copy(false);
+    }
+
     public void setTexture(TextureReference newTexture) {
         assertMutable();
         this.texture = newTexture;
@@ -188,6 +200,8 @@ public class CustomBlockValues extends ModelValues {
             if (drop == null) throw new ProgrammingValidationException("Missing a drop");
             Validation.scope("Drop", drop::validateIndependent);
         }
+
+        if (miningSpeed == null) throw new ProgrammingValidationException("No mining speed");
 
         if (texture == null) throw new ValidationException("You haven't chosen a texture");
     }
@@ -211,6 +225,8 @@ public class CustomBlockValues extends ModelValues {
             if (drop == null) throw new ProgrammingValidationException("Missing a drop");
             Validation.scope("Drop", () -> drop.validateComplete(itemSet));
         }
+
+        Validation.scope("Mining speed", miningSpeed::validate, itemSet);
 
         if (!itemSet.isReferenceValid(texture)) {
             throw new ProgrammingValidationException("The chosen texture is not (or no longer) valid");

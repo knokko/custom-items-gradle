@@ -4,6 +4,7 @@ import nl.knokko.customitems.block.BlockConstants;
 import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
+import nl.knokko.customitems.editor.menu.edit.block.miningspeed.EditMiningSpeed;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.BlockReference;
@@ -17,6 +18,7 @@ import nl.knokko.gui.component.text.EagerTextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
+import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 import static nl.knokko.customitems.editor.util.HelpButtons.openWebpage;
 
 public class EditBlock extends GuiMenu  {
@@ -56,22 +58,22 @@ public class EditBlock extends GuiMenu  {
             }
         }), 0.025f, 0.2f, 0.175f, 0.3f);
 
-        addComponent(new DynamicTextComponent("Name:", EditProps.LABEL),
+        addComponent(new DynamicTextComponent("Name:", LABEL),
                 0.35f, 0.8f, 0.44f, 0.9f);
         addComponent(new EagerTextEditField(
                 currentValues.getName(), EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE, currentValues::setName
         ), 0.45f, 0.8f, 0.65f, 0.9f);
 
-        addComponent(new DynamicTextComponent("Drops:", EditProps.LABEL),
-                0.35f, 0.65f, 0.44f, 0.75f);
+        addComponent(new DynamicTextComponent("Drops:", LABEL),
+                0.35f, 0.68f, 0.44f, 0.78f);
         addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () ->
                 state.getWindow().setMainComponent(new CustomBlockDropCollectionEdit(
                         currentValues.getDrops(), currentValues::setDrops, set, this
                 ))
-        ), 0.45f, 0.65f, 0.6f, 0.75f);
+        ), 0.45f, 0.68f, 0.6f, 0.78f);
 
-        addComponent(new DynamicTextComponent("Texture:", EditProps.LABEL),
-                0.3f, 0.5f, 0.44f, 0.6f);
+        addComponent(new DynamicTextComponent("Texture:", LABEL),
+                0.3f, 0.56f, 0.44f, 0.66f);
         addComponent(CollectionSelect.createButton(
                 set.getTextures().references(),
                 currentValues::setTexture,
@@ -79,10 +81,17 @@ public class EditBlock extends GuiMenu  {
                 || candidateTexture.get().getClass() == AnimatedTextureValues.class,
                 textureReference -> textureReference.get().getName(),
                 currentValues.getTextureReference()
-        ), 0.45f, 0.5f, 0.6f, 0.6f);
+        ), 0.45f, 0.56f, 0.6f, 0.66f);
+
+        addComponent(new DynamicTextComponent("Mining speed:", LABEL), 0.25f, 0.44f, 0.44f, 0.54f);
+        addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
+            state.getWindow().setMainComponent(new EditMiningSpeed(
+                    this, set, currentValues.getMiningSpeed(), currentValues::setMiningSpeed
+            ));
+        }), 0.45f, 0.44f, 0.6f, 0.54f);
 
         addComponent(new DynamicTextComponent(
-                "The custom block texture system is based on the resourcepack of LapisDemon:", EditProps.LABEL),
+                "The custom block texture system is based on the resourcepack of LapisDemon:", LABEL),
                 0.2f, 0.3f, 1f, 0.4f
         );
         addComponent(new DynamicTextButton(
@@ -93,7 +102,7 @@ public class EditBlock extends GuiMenu  {
 
         addComponent(new DynamicTextComponent(
                 "Note: you can create at most " + BlockConstants.MAX_NUM_BLOCKS + " custom blocks",
-                EditProps.LABEL), 0.2f, 0.05f, 0.8f, 0.15f);
+                LABEL), 0.2f, 0.05f, 0.8f, 0.15f);
 
         HelpButtons.addHelpLink(this, "edit menu/blocks/edit.html");
     }
