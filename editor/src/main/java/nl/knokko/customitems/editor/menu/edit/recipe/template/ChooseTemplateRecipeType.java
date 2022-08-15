@@ -83,6 +83,15 @@ public class ChooseTemplateRecipeType extends GuiMenu {
                     string, stick, null
             };
         });
+
+        addTemplateButton("Block", 1, 2, arrayOf("Material"), chosenIngredients -> {
+            IngredientValues material = chosenIngredients.get(0);
+            return new IngredientValues[] {
+                    material, material, material,
+                    material, material, material,
+                    material, material, material
+            };
+        });
     }
 
     private String[] arrayOf(String...elements) {
