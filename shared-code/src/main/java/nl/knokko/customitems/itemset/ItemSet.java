@@ -1256,6 +1256,10 @@ public class ItemSet {
         removeModel(this.fuelRegistries, registryToRemove.getModel());
     }
 
+    public void removeBlock(BlockReference blockToRemove) throws ValidationException, ProgrammingValidationException {
+        removeModel(this.blocks, blockToRemove.getModel());
+    }
+
     public enum Side {
         EDITOR,
         PLUGIN

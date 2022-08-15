@@ -5,19 +5,25 @@ import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
+import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.BlockReference;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
 import java.awt.image.BufferedImage;
 
+import static nl.knokko.customitems.editor.menu.edit.EditProps.QUIT_BASE;
+import static nl.knokko.customitems.editor.menu.edit.EditProps.QUIT_HOVER;
+
 public class BlockCollectionEdit extends DedicatedCollectionEdit<CustomBlockValues, BlockReference> {
 
     private final EditMenu menu;
+    private final boolean allowDeletions;
 
-    public BlockCollectionEdit(EditMenu menu) {
+    public BlockCollectionEdit(EditMenu menu, boolean allowDeletions) {
         super(menu, menu.getSet().getBlocks().references(), null);
         this.menu = menu;
+        this.allowDeletions = allowDeletions;
     }
 
     @Override
@@ -27,7 +33,13 @@ public class BlockCollectionEdit extends DedicatedCollectionEdit<CustomBlockValu
             state.getWindow().setMainComponent(new EditBlock(
                     null, new CustomBlockValues(true), this, menu.getSet()
             ));
-        }), 0.025f, 0.3f, 0.225f, 0.4f);
+        }), 0.025f, 0.35f, 0.225f, 0.45f);
+
+        if (!allowDeletions) {
+            addComponent(new DynamicTextButton("Enable deletions", QUIT_BASE, QUIT_HOVER, () -> {
+                state.getWindow().setMainComponent(new EnableBlockDeletions(menu));
+            }), 0.025f, 0.15f, 0.25f, 0.25f);
+        }
 
         HelpButtons.addHelpLink(this, "edit menu/blocks/overview.html");
     }
@@ -54,12 +66,12 @@ public class BlockCollectionEdit extends DedicatedCollectionEdit<CustomBlockValu
 
     @Override
     protected String deleteModel(BlockReference modelReference) {
-        throw new UnsupportedOperationException("Can't delete custom blocks");
+        return Validation.toErrorString(() -> menu.getSet().removeBlock(modelReference));
     }
 
     @Override
     protected boolean canDeleteModels() {
-        return false;
+        return allowDeletions;
     }
 
     @Override
