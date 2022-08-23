@@ -11,6 +11,7 @@ import nl.knokko.customitems.container.IndicatorDomain;
 import nl.knokko.customitems.container.fuel.FuelRegistryValues;
 import nl.knokko.customitems.container.slot.*;
 import nl.knokko.customitems.container.slot.display.SlotDisplayValues;
+import nl.knokko.customitems.itemset.EnergyTypeReference;
 
 /**
  * This class captures information about a given custom container that is useful for
@@ -27,6 +28,7 @@ public class ContainerInfo {
 	private final Collection<PlaceholderProps> storageSlots;
 	
 	private final Collection<IndicatorProps> craftingIndicators;
+	private final Collection<EnergyIndicatorProps> energyIndicators;
 	
 	private final Collection<DecorationProps> decorations;
 	
@@ -39,6 +41,7 @@ public class ContainerInfo {
 		this.fuelSlots = new HashMap<>();
 		this.storageSlots = new ArrayList<>();
 		this.craftingIndicators = new ArrayList<>();
+		this.energyIndicators = new ArrayList<>();
 		this.decorations = new ArrayList<>();
 		
 		// This is only temporarily
@@ -96,6 +99,12 @@ public class ContainerInfo {
 				} else if (slot instanceof StorageSlotValues) {
 					StorageSlotValues storageSlot = (StorageSlotValues) slot;
 					storageSlots.add(new PlaceholderProps(invIndex, storageSlot.getPlaceholder()));
+				} else if (slot instanceof EnergyIndicatorSlotValues) {
+					EnergyIndicatorSlotValues energySlot = (EnergyIndicatorSlotValues) slot;
+					energyIndicators.add(new EnergyIndicatorProps(
+							invIndex, energySlot.getEnergyTypeReference(),
+							energySlot.getDisplay(), energySlot.getPlaceholder(), energySlot.getIndicatorDomain()
+					));
 				}
 				invIndex++;
 			}
@@ -126,7 +135,11 @@ public class ContainerInfo {
 	public Iterable<IndicatorProps> getCraftingIndicators() {
 		return craftingIndicators;
 	}
-	
+
+	public Iterable<EnergyIndicatorProps> getEnergyIndicators() {
+		return energyIndicators;
+	}
+
 	public FuelProps getFuelSlot(String fuelSlotName) {
 		return fuelSlots.get(fuelSlotName);
 	}
@@ -185,6 +198,23 @@ public class ContainerInfo {
 		
 		public IndicatorDomain getIndicatorDomain() {
 			return domain;
+		}
+	}
+
+	public static class EnergyIndicatorProps extends IndicatorProps {
+
+		private final EnergyTypeReference energyType;
+
+		private EnergyIndicatorProps(
+				int invIndex, EnergyTypeReference energyType,
+				SlotDisplayValues display, SlotDisplayValues placeholder, IndicatorDomain domain
+		) {
+			super(invIndex, display, placeholder, domain);
+			this.energyType = energyType;
+		}
+
+		public EnergyTypeReference getEnergyType() {
+			return energyType;
 		}
 	}
 	

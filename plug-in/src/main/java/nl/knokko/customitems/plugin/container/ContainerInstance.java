@@ -11,11 +11,16 @@ import java.util.stream.StreamSupport;
 
 import nl.knokko.customitems.container.ContainerRecipeValues;
 import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.container.energy.EnergyTypeValues;
+import nl.knokko.customitems.container.energy.RecipeEnergyOperation;
+import nl.knokko.customitems.container.energy.RecipeEnergyValues;
 import nl.knokko.customitems.container.fuel.FuelEntryValues;
 import nl.knokko.customitems.container.slot.ContainerSlotValues;
 import nl.knokko.customitems.container.slot.StorageSlotValues;
 import nl.knokko.customitems.container.slot.display.*;
 import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.plugin.data.ContainerStorageKey;
+import nl.knokko.customitems.plugin.data.StoredEnergy;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -198,8 +203,11 @@ public class ContainerInstance {
 		for (int counter = 0; counter < numPermissions; counter++) input.readString();
 	}
 	
-	public static ContainerInstance load1(BitInput input, ContainerInfo typeInfo, Collection<ItemStack> orphanStacks, UUID ownerID) {
-		ContainerInstance instance = new ContainerInstance(typeInfo, ownerID);
+	public static ContainerInstance load1(
+			BitInput input, ContainerInfo typeInfo, Collection<ItemStack> orphanStacks, UUID ownerID,
+			ContainerStorageKey storageKey, StoredEnergy storedEnergy
+	) {
+		ContainerInstance instance = new ContainerInstance(typeInfo, ownerID, storageKey, storedEnergy);
 		Inventory inv = instance.inventory;
 		
 		class StringStack {
@@ -386,10 +394,13 @@ public class ContainerInstance {
 		return takeFromSource.apply(nullableSource);
 	}
 
-	public static ContainerInstance load2(BitInput input, ContainerInfo typeInfo, UUID ownerID) {
+	public static ContainerInstance load2(
+			BitInput input, ContainerInfo typeInfo, UUID ownerID,
+			ContainerStorageKey storageKey, StoredEnergy storedEnergy
+	) {
 		Collection<ItemStack> orphanStacks = new ArrayList<>(0);
 
-		ContainerInstance base = load1(input, typeInfo, orphanStacks, ownerID);
+		ContainerInstance base = load1(input, typeInfo, orphanStacks, ownerID, storageKey, storedEnergy);
 
 		int numStoredStacks = input.readInt();
 		for (int counter = 0; counter < numStoredStacks; counter++) {
@@ -461,11 +472,14 @@ public class ContainerInstance {
 		return base;
 	}
 
-	public static ContainerInstance load3(BitInput input, ContainerInfo typeInfo, UUID ownerID) throws UnknownEncodingException {
+	public static ContainerInstance load3(
+			BitInput input, ContainerInfo typeInfo, UUID ownerID,
+			ContainerStorageKey storageKey, StoredEnergy storedEnergy
+	) throws UnknownEncodingException {
 		byte encoding = input.readByte();
 		if (encoding != 1) throw new UnknownEncodingException("ContainerInstance", encoding);
 
-		ContainerInstance instance = load2(input, typeInfo, ownerID);
+		ContainerInstance instance = load2(input, typeInfo, ownerID, storageKey, storedEnergy);
 
 		instance.relevantPermissions.clear();
 		int numPermissions = input.readInt();
@@ -514,6 +528,8 @@ public class ContainerInstance {
 	}
 
 	private final ContainerInfo typeInfo;
+	private final ContainerStorageKey storageKey;
+	public final StoredEnergy storedEnergy;
 	
 	private final Inventory inventory;
 	private final Set<String> relevantPermissions;
@@ -531,9 +547,14 @@ public class ContainerInstance {
 	
 	private int storedExperience;
 	
-	public ContainerInstance(ContainerInfo typeInfo, UUID ownerID) {
+	public ContainerInstance(
+			ContainerInfo typeInfo, UUID ownerID,
+			ContainerStorageKey storageKey, StoredEnergy storedEnergy
+	) {
 		if (typeInfo == null) throw new NullPointerException("typeInfo");
 		this.typeInfo = typeInfo;
+		this.storageKey = storageKey;
+		this.storedEnergy = storedEnergy;
 		this.inventory = createInventory(typeInfo);
 
 		this.ownerID = ownerID;
@@ -872,6 +893,21 @@ public class ContainerInstance {
 			return false;
 		}
 
+		for (RecipeEnergyValues energyRequirement : candidate.getEnergy()) {
+
+			if (energyRequirement.getOperation() == RecipeEnergyOperation.REQUIRE_AT_LEAST) {
+				int actualAmount = storedEnergy.getEnergy(energyRequirement.getEnergyType(), storageKey);
+				if (energyRequirement.getAmount() < actualAmount) return false;
+			}
+
+			if (energyRequirement.getOperation() == RecipeEnergyOperation.REQUIRE_AT_MOST) {
+				int actualAmount = storedEnergy.getEnergy(energyRequirement.getEnergyType(), storageKey);
+				if (energyRequirement.getAmount() > actualAmount) return false;
+			}
+
+			// There is no need to check the INCREASE and DECREASE operations
+		}
+
 		// Check that all inputs are present
 		for (Map.Entry<String, IngredientValues> input : candidate.getInputs().entrySet()) {
 			ItemStack inSlot = getInput(input.getKey());
@@ -961,6 +997,8 @@ public class ContainerInstance {
 				updatePlaceholders();
 			}
 
+			updateEnergyIndicators();
+
 			ContainerRecipeValues oldRecipe = currentRecipe;
 			currentRecipe = null;
 
@@ -997,6 +1035,20 @@ public class ContainerInstance {
 						// Now that we only check the inputs periodically, we should be absolutely sure
 						// that all inputs are still present before producing a result.
 					    if (currentRecipe == determineCurrentRecipe(currentRecipe)) {
+
+							for (RecipeEnergyValues energyAction : currentRecipe.getEnergy()) {
+
+								if (energyAction.getOperation() == RecipeEnergyOperation.DECREASE) {
+									storedEnergy.decreaseEnergy(energyAction.getEnergyType(), storageKey, energyAction.getAmount());
+								}
+
+								if (energyAction.getOperation() == RecipeEnergyOperation.INCREASE) {
+									storedEnergy.increaseEnergy(energyAction.getEnergyType(), storageKey, energyAction.getAmount());
+								}
+
+								// There is no need to do anything with REQUIRE_AT_LEAST and REQUIRE_AT_MOST here
+							}
+
 							// Decrease the stacksize of all relevant input slots
 							this.consumeIngredientsOfCurrentRecipe();
 
@@ -1041,7 +1093,7 @@ public class ContainerInstance {
 						int newStacksize = 0;
 						if (currentCraftingProgress > 0) {
 							IndicatorDomain domain = indicator.getIndicatorDomain();
-							newStacksize = domain.getStacksize(currentCraftingProgress, currentRecipe.getDuration());
+							newStacksize = domain.getStacksize(currentCraftingProgress, 0, currentRecipe.getDuration());
 						}
 
 						if (newStacksize > 0) {
@@ -1063,6 +1115,25 @@ public class ContainerInstance {
 
 		// Always decrease the burn times
 		decrementBurnTimes();
+	}
+
+	private void updateEnergyIndicators() {
+		for (ContainerInfo.EnergyIndicatorProps indicator : typeInfo.getEnergyIndicators()) {
+			ItemStack indicatingStack = fromDisplay(indicator.getSlotDisplay());
+			IndicatorDomain domain = indicator.getIndicatorDomain();
+
+			EnergyTypeValues energyType = indicator.getEnergyType().get();
+			int currentAmount = storedEnergy.getEnergy(energyType, storageKey);
+
+			int indicatingStacksize = domain.getStacksize(currentAmount, energyType.getMinValue(), energyType.getMaxValue());
+			if (indicatingStacksize > 0) {
+				indicatingStack.setAmount(indicatingStacksize);
+			} else {
+				indicatingStack = fromDisplay(indicator.getPlaceholder());
+			}
+
+			inventory.setItem(indicator.getInventoryIndex(), indicatingStack);
+		}
 	}
 
 	void consumeIngredientsOfCurrentRecipe() {
@@ -1094,7 +1165,7 @@ public class ContainerInstance {
 			IndicatorDomain domain = indicator.getIndicatorDomain();
 			
 			FuelBurnEntry burn = fuelSlots.get(fuelSlotName);
-			int indicatingStacksize = domain.getStacksize(burn.remainingBurnTime, burn.maxBurnTime);
+			int indicatingStacksize = domain.getStacksize(burn.remainingBurnTime, 0, burn.maxBurnTime);
 			if (indicatingStacksize > 0) {
 				indicatingStack.setAmount(indicatingStacksize);
 			} else {

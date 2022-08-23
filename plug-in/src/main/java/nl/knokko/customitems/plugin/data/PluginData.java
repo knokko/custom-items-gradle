@@ -7,7 +7,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -143,7 +142,7 @@ public class PluginData {
 		Map<UUID, PlayerData> playersMap = loadPlayerData1(input, itemSet);
 		
 		// There were no persistent containers in this version
-		return new PluginData(itemSet, currentTick, playersMap, new HashMap<>());
+		return new PluginData(itemSet, currentTick, playersMap, new HashMap<>(), new StoredEnergy());
 	}
 	
 	private static PluginData load2(BitInput input, ItemSetWrapper itemSet) {
@@ -154,6 +153,8 @@ public class PluginData {
 		int numPersistentContainers = input.readInt();
 		Map<ContainerStorageKey, ContainerInstance> persistentContainers = new HashMap<>(numPersistentContainers);
 
+		StoredEnergy storedEnergy = new StoredEnergy();
+
 		for (int counter = 0; counter < numPersistentContainers; counter++) {
 			
 			UUID worldId = new UUID(input.readLong(), input.readLong());
@@ -165,15 +166,15 @@ public class PluginData {
 			ContainerInfo typeInfo = itemSet.getContainerInfo(typeName);
 			
 			if (typeInfo != null) {
-				ContainerInstance instance = ContainerInstance.load1(input, typeInfo, new ArrayList<>(), null);
 				ContainerStorageKey location = new ContainerStorageKey(typeName, new PassiveLocation(worldId, x, y, z), null, null);
+				ContainerInstance instance = ContainerInstance.load1(input, typeInfo, new ArrayList<>(), null, location, storedEnergy);
 				persistentContainers.put(location, instance);
 			} else {
 				ContainerInstance.discard1(input);
 			}
 		}
 		
-		return new PluginData(itemSet, currentTick, playersMap, persistentContainers);
+		return new PluginData(itemSet, currentTick, playersMap, persistentContainers, storedEnergy);
 	}
 
 	private static PluginData load3(BitInput input, ItemSetWrapper itemSet) {
@@ -184,6 +185,7 @@ public class PluginData {
 		int numPersistentContainers = input.readInt();
 		Map<ContainerStorageKey, ContainerInstance> persistentContainers = new HashMap<>(numPersistentContainers);
 
+		StoredEnergy storedEnergy = new StoredEnergy();
 		for (int counter = 0; counter < numPersistentContainers; counter++) {
 
 			UUID worldId = new UUID(input.readLong(), input.readLong());
@@ -195,15 +197,15 @@ public class PluginData {
 			ContainerInfo typeInfo = itemSet.getContainerInfo(typeName);
 
 			if (typeInfo != null) {
-				ContainerInstance instance = ContainerInstance.load2(input, typeInfo, null);
 				ContainerStorageKey location = new ContainerStorageKey(typeName, new PassiveLocation(worldId, x, y, z), null, null);
+				ContainerInstance instance = ContainerInstance.load2(input, typeInfo, null, location, storedEnergy);
 				persistentContainers.put(location, instance);
 			} else {
 				ContainerInstance.discard2(input);
 			}
 		}
 
-		return new PluginData(itemSet, currentTick, playersMap, persistentContainers);
+		return new PluginData(itemSet, currentTick, playersMap, persistentContainers, storedEnergy);
 	}
 
 	private static PluginData load4(BitInput input, ItemSetWrapper itemSet) throws UnknownEncodingException {
@@ -214,6 +216,7 @@ public class PluginData {
 		int numPersistentContainers = input.readInt();
 		Map<ContainerStorageKey, ContainerInstance> persistentContainers = new HashMap<>(numPersistentContainers);
 
+		StoredEnergy storedEnergy = new StoredEnergy();
 		for (int counter = 0; counter < numPersistentContainers; counter++) {
 
 			UUID worldId = new UUID(input.readLong(), input.readLong());
@@ -225,21 +228,23 @@ public class PluginData {
 			ContainerInfo typeInfo = itemSet.getContainerInfo(typeName);
 
 			if (typeInfo != null) {
-				ContainerInstance instance = ContainerInstance.load2(input, typeInfo, null);
 				ContainerStorageKey location = new ContainerStorageKey(typeName, new PassiveLocation(worldId, x, y, z), null, null);
+				ContainerInstance instance = ContainerInstance.load2(input, typeInfo, null, location, storedEnergy);
 				persistentContainers.put(location, instance);
 			} else {
 				ContainerInstance.discard2(input);
 			}
 		}
 
-		return new PluginData(itemSet, currentTick, playersMap, persistentContainers);
+		return new PluginData(itemSet, currentTick, playersMap, persistentContainers, storedEnergy);
 	}
 
 	private static PluginData load5(BitInput input, ItemSetWrapper itemSet) throws UnknownEncodingException {
 		long currentTick = input.readLong();
 
 		Map<UUID, PlayerData> playersMap = loadPlayerData2(input, itemSet);
+
+		StoredEnergy storedEnergy = StoredEnergy.load(input);
 
 		int numPersistentContainers = input.readInt();
 		Map<ContainerStorageKey, ContainerInstance> persistentContainers = new HashMap<>(numPersistentContainers);
@@ -250,19 +255,23 @@ public class PluginData {
 			ContainerInfo typeInfo = itemSet.getContainerInfo(storageKey.containerName);
 
 			if (typeInfo != null) {
-				ContainerInstance instance = ContainerInstance.load3(input, typeInfo, storageKey.playerID);
+				ContainerInstance instance = ContainerInstance.load3(
+						input, typeInfo, storageKey.playerID, storageKey, storedEnergy
+				);
 				persistentContainers.put(storageKey, instance);
 			} else {
 				ContainerInstance.discard3(input);
 			}
 		}
 
-		return new PluginData(itemSet, currentTick, playersMap, persistentContainers);
+
+		return new PluginData(itemSet, currentTick, playersMap, persistentContainers, storedEnergy);
 	}
 
 	// Persisting data
 	private final Map<UUID,PlayerData> playerData;
 	private final Map<ContainerStorageKey, ContainerInstance> persistentContainers;
+	private final StoredEnergy storedEnergy;
 
 	private long currentTick;
 	
@@ -278,16 +287,18 @@ public class PluginData {
 		this.itemSet = itemSet;
 		playerData = new HashMap<>();
 		persistentContainers = new HashMap<>();
+		storedEnergy = new StoredEnergy();
 		currentTick = 0;
 		
 		init();
 	}
 	
 	private PluginData(ItemSetWrapper itemSet, long currentTick, Map<UUID,PlayerData> playerData,
-			Map<ContainerStorageKey, ContainerInstance> persistentContainers) {
+			Map<ContainerStorageKey, ContainerInstance> persistentContainers, StoredEnergy storedEnergy) {
 		this.itemSet = itemSet;
 		this.playerData = playerData;
 		this.persistentContainers = persistentContainers;
+		this.storedEnergy = storedEnergy;
 		this.currentTick = currentTick;
 		
 		init();
@@ -733,9 +744,9 @@ public class PluginData {
 
 			ContainerStorageMode storageMode = pd.openPocketContainer.getType().getStorageMode();
 
-			// If the container doesn't have persistent storage, we shouldn't try to store its content
-			// If the storage mode doesn't depend on the location, we shouldn't store it either
-			if (storageMode != ContainerStorageMode.PER_LOCATION && storageMode != ContainerStorageMode.PER_LOCATION_PER_PLAYER) {
+			// If the storage mode doesn't depend on the location, we shouldn't store it
+			// If the storage mode is not persistent, we should only store the energy
+			if (storageMode == ContainerStorageMode.GLOBAL || storageMode == ContainerStorageMode.PER_PLAYER) {
 				closeDestination = null;
 			}
 
@@ -762,13 +773,27 @@ public class PluginData {
 						storageMode = ContainerStorageMode.NOT_PERSISTENT;
 					} else {
 
-						ByteArrayBitOutput containerStateOutput = new ByteArrayBitOutput();
-						containerStateOutput.addByte(ContainerEncoding.ENCODING_3);
-						pd.openPocketContainer.save3(containerStateOutput);
-						destNbt.set(nbtKey, new String(StringEncoder.encodeTextyBytes(
-								containerStateOutput.getBytes(),
-								false), StandardCharsets.US_ASCII)
-						);
+						// When the storage is not persistent, we should only store the energy
+						if (storageMode != ContainerStorageMode.NOT_PERSISTENT) {
+							ByteArrayBitOutput containerStateOutput = new ByteArrayBitOutput();
+							containerStateOutput.addByte(ContainerEncoding.ENCODING_3);
+							pd.openPocketContainer.save3(containerStateOutput);
+							destNbt.set(nbtKey, new String(StringEncoder.encodeTextyBytes(
+									containerStateOutput.getBytes(),
+									false), StandardCharsets.US_ASCII)
+							);
+						}
+
+						ByteArrayBitOutput storedEnergyOutput = new ByteArrayBitOutput();
+						if (pd.openPocketContainer.storedEnergy instanceof PocketStoredEnergy) {
+							pd.openPocketContainer.storedEnergy.save(storedEnergyOutput);
+							destNbt.set(POCKET_CONTAINER_ENERGY_KEY, new String(StringEncoder.encodeTextyBytes(
+									storedEnergyOutput.getBytes(), false
+							), StandardCharsets.US_ASCII));
+						} else {
+							Bukkit.getLogger().severe("Stored energy of a pocket container is NOT of type PocketStoredEnergy");
+						}
+
 						if (putBackInMainHand) {
 							inv.setItemInMainHand(destNbt.backToBukkit());
 						} else {
@@ -981,6 +1006,8 @@ public class PluginData {
 			entry.getValue().save2(output, itemSet, currentTick);
 		}
 
+		storedEnergy.save(output);
+
 		cleanEmptyContainers();
 		output.addInt(persistentContainers.size());
 		for (Entry<ContainerStorageKey, ContainerInstance> entry : persistentContainers.entrySet()) {
@@ -1117,6 +1144,8 @@ public class PluginData {
 			}
 		}
 
+		storedEnergy.removeStoredEnergyAt(prototype, stringHost);
+
 		return numDestroyedContainers;
 	}
 	
@@ -1127,9 +1156,33 @@ public class PluginData {
 		ContainerStorageMode storageMode = prototype.getStorageMode();
 		if (storageMode == ContainerStorageMode.NOT_PERSISTENT) {
 
+			/*
+			* Non-persistent containers aren't really stored, but still need a storage key to store their energy.
+			* The great question is: where should its energy be stored? I think there are 3 ways to tackle this problem:
+			*
+			* 1) Forbid non-persistent container recipes from using energy. I dislike this option because it takes
+			* away some interesting possibilities for using shared energy in the recipes of a non-persistent container.
+			* 2) Give non-persistent containers their own private energy storage. This has the same drawback as option
+			* (1).
+			* 3) Give non-persistent containers the same energy storage mechanism as containers with the
+			* PER_LOCATION_PER_PLAYER storage mode. This option would cause energy to be shared if and only if the
+			* energy FORCES itself to be shared with other locations and/or players. This option would have full
+			* energy sharing support. However, it also has a drawback: the energy will be kept when the container is
+			* closed, which goes against the idea of non-persistent containers.
+			*
+			* It would be nice if I were able to use option (2) when the energy does NOT force sharing and to use
+			* option (3) when the energy DOES force sharing. However, 1 container (recipe) can require multiple
+			* energy types, so it would be possible to encounter 'conflicting' energy types.
+			*
+			* I think option (3) is the least bad solution.
+			*/
+			ContainerStorageKey fakeStorageKey = new ContainerStorageKey(
+					prototype.getName(), location != null ? new PassiveLocation(location) : null, stringHost, newViewer.getUniqueId()
+			);
+
 			// Not shared between players, so just create a new instance
 			TempContainerInstance tempInstance = new TempContainerInstance(
-					new ContainerInstance(itemSet.getContainerInfo(prototype), newViewer.getUniqueId()), newViewer
+					new ContainerInstance(itemSet.getContainerInfo(prototype), newViewer.getUniqueId(), fakeStorageKey, storedEnergy), newViewer
 			);
 			tempContainers.add(tempInstance);
 			return tempInstance.instance;
@@ -1164,7 +1217,7 @@ public class PluginData {
 
 			ContainerInstance instance = persistentContainers.get(storageKey);
 			if (instance == null) {
-				instance = new ContainerInstance(itemSet.getContainerInfo(prototype), owner);
+				instance = new ContainerInstance(itemSet.getContainerInfo(prototype), owner, storageKey, storedEnergy);
 				persistentContainers.put(storageKey, instance);
 			}
 			return instance;
@@ -1221,6 +1274,13 @@ public class PluginData {
 
 		return null;
 	}
+
+	// This location is used for pocket containers. Its coordinates don't really matter, but they must be consistent
+	private static final PassiveLocation DUMMY_POCKET_LOCATION = new PassiveLocation(
+			new UUID(1, 2), 3, 4, 5
+	);
+
+	private static final String[] POCKET_CONTAINER_ENERGY_KEY = { "KnokkosPocketContainer", "StoredEnergy" };
 
 	private static String[] getPocketContainerNbtKey(CustomContainerValues containerType, Player player) {
 		if (containerType.getStorageMode() == ContainerStorageMode.PER_LOCATION) {
@@ -1301,18 +1361,36 @@ public class PluginData {
 
 			if (pocketContainer != null) {
 
+				GeneralItemNBT nbt = GeneralItemNBT.readWriteInstance(pocketContainerStack);
+
 				String stringContainerState = null;
 				ContainerStorageMode storageMode = selected.getStorageMode();
 				if (storageMode == ContainerStorageMode.PER_LOCATION || storageMode == ContainerStorageMode.PER_LOCATION_PER_PLAYER) {
-					GeneralItemNBT nbt = GeneralItemNBT.readWriteInstance(pocketContainerStack);
 					String[] nbtKey = getPocketContainerNbtKey(selected, player);
 					stringContainerState = nbt.getOrDefault(nbtKey, null);
 					nbt.remove(nbtKey);
-					if (isMainHand) {
-						player.getInventory().setItemInMainHand(nbt.backToBukkit());
-					} else {
-						player.getInventory().setItemInOffHand(nbt.backToBukkit());
+				}
+
+				String stringStoredEnergy = nbt.getOrDefault(POCKET_CONTAINER_ENERGY_KEY, null);
+
+				StoredEnergy loadedEnergy = new StoredEnergy();
+				if (stringStoredEnergy != null) {
+					try {
+						loadedEnergy = StoredEnergy.load(new ByteArrayBitInput(StringEncoder.decodeTextyBytes(
+								stringStoredEnergy.getBytes(StandardCharsets.US_ASCII)
+						)));
+						nbt.remove(POCKET_CONTAINER_ENERGY_KEY);
+					} catch (UnknownEncodingException corruptedEnergy) {
+						Bukkit.getLogger().warning("Failed to load the stored energy of a pocket container");
 					}
+				}
+
+				StoredEnergy pocketStoredEnergy = new PocketStoredEnergy(loadedEnergy, this.storedEnergy);
+
+				if (isMainHand) {
+					player.getInventory().setItemInMainHand(nbt.backToBukkit());
+				} else {
+					player.getInventory().setItemInOffHand(nbt.backToBukkit());
 				}
 
 				ContainerInstance instance;
@@ -1324,18 +1402,28 @@ public class PluginData {
 					BitInput containerStateInput = new ByteArrayBitInput(byteContainerState);
 					byte stateEncoding = containerStateInput.readByte();
 					if (stateEncoding == ContainerEncoding.ENCODING_2) {
+
+						ContainerStorageKey energyStorageKey = new ContainerStorageKey(
+								selected.getName(), DUMMY_POCKET_LOCATION, null, null
+						);
+
 						instance = ContainerInstance.load2(
 								containerStateInput,
 								itemSet.getContainerInfo(selected),
-								null
+								null, energyStorageKey, pocketStoredEnergy
 						);
 					} else if (stateEncoding == ContainerEncoding.ENCODING_3) {
 						UUID ownerID = storageMode == ContainerStorageMode.PER_LOCATION_PER_PLAYER ? player.getUniqueId() : null;
+
+						ContainerStorageKey energyStorageKey = new ContainerStorageKey(
+								selected.getName(), DUMMY_POCKET_LOCATION, null, ownerID
+						);
+
 						try {
 							instance = ContainerInstance.load3(
 									containerStateInput,
 									itemSet.getContainerInfo(selected),
-									ownerID
+									ownerID, energyStorageKey, pocketStoredEnergy
 							);
 						} catch (UnknownEncodingException corrupted) {
 							throw new IllegalStateException("Corrupted stored pocket container contents in inventory of " + player.getName());
@@ -1355,7 +1443,14 @@ public class PluginData {
 						if (storageMode == ContainerStorageMode.NOT_PERSISTENT || storageMode == ContainerStorageMode.PER_LOCATION_PER_PLAYER) {
 							ownerID = player.getUniqueId();
 						}
-						instance = new ContainerInstance(itemSet.getContainerInfo(selected), ownerID);
+
+						ContainerStorageKey energyStorageKey = new ContainerStorageKey(
+								selected.getName(), DUMMY_POCKET_LOCATION, null, ownerID
+						);
+
+						instance = new ContainerInstance(
+								itemSet.getContainerInfo(selected), ownerID, energyStorageKey, pocketStoredEnergy
+						);
 					}
 				}
 
@@ -1375,7 +1470,7 @@ public class PluginData {
 	}
 	
 	public void destroyCustomContainersAt(Location location) {
-		
+
 		Iterator<Entry<ContainerStorageKey, ContainerInstance>> persistentIterator =
 				persistentContainers.entrySet().iterator();
 		PassiveLocation passiveLocation = new PassiveLocation(location);
@@ -1403,6 +1498,8 @@ public class PluginData {
 				}
 			}
 		}
+
+		storedEnergy.removeStoredEnergyAt(passiveLocation);
 	}
 	
 	private static class TempContainerInstance {

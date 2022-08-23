@@ -7,7 +7,7 @@ import nl.knokko.customitems.trouble.UnknownEncodingException;
 import java.util.Objects;
 import java.util.UUID;
 
-class ContainerStorageKey {
+public class ContainerStorageKey {
 
     public static ContainerStorageKey load(BitInput input) throws UnknownEncodingException {
         byte encoding = input.readByte();
@@ -52,7 +52,7 @@ class ContainerStorageKey {
     public final UUID playerID;
 
     public ContainerStorageKey(String containerName, PassiveLocation location, String stringHost, UUID playerID) {
-        this.containerName = Objects.requireNonNull(containerName);
+        this.containerName = containerName;
         this.location = location;
         this.stringHost = stringHost;
         this.playerID = playerID;
@@ -66,7 +66,7 @@ class ContainerStorageKey {
     public boolean equals(Object other) {
         if (other instanceof ContainerStorageKey) {
             ContainerStorageKey otherKey = (ContainerStorageKey) other;
-            return this.containerName.equals(otherKey.containerName) && Objects.equals(this.location, otherKey.location)
+            return Objects.equals(this.containerName, otherKey.containerName) && Objects.equals(this.location, otherKey.location)
                     && Objects.equals(this.stringHost, otherKey.stringHost) && Objects.equals(this.playerID, otherKey.playerID);
         } else {
             return false;
@@ -75,13 +75,14 @@ class ContainerStorageKey {
 
     @Override
     public int hashCode() {
-        return containerName.hashCode() + 71 * Objects.hashCode(location) + 791 * Objects.hashCode(stringHost)
+        return Objects.hashCode(containerName) + 71 * Objects.hashCode(location) + 791 * Objects.hashCode(stringHost)
                 + 3421 * Objects.hashCode(playerID);
     }
 
     public void save(BitOutput output) {
         output.addByte((byte) 1);
 
+        // Note that the addString method supports null
         output.addString(containerName);
 
         output.addBoolean(location != null);
@@ -93,7 +94,6 @@ class ContainerStorageKey {
             output.addInt(location.getZ());
         }
 
-        // Note that the addString method supports null
         output.addString(stringHost);
 
         output.addBoolean(playerID != null);
