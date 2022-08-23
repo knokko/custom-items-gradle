@@ -3,6 +3,8 @@ package nl.knokko.customitems.itemset;
 import nl.knokko.customitems.block.*;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.CustomContainer;
+import nl.knokko.customitems.container.energy.EnergyType;
+import nl.knokko.customitems.container.energy.EnergyTypeValues;
 import nl.knokko.customitems.container.fuel.FuelRegistryValues;
 import nl.knokko.customitems.container.fuel.CustomFuelRegistry;
 import nl.knokko.customitems.drops.*;
@@ -79,6 +81,8 @@ public class ItemSet {
         result.containers.addAll(secondary.containers);
         result.fuelRegistries.addAll(primary.fuelRegistries);
         result.fuelRegistries.addAll(secondary.fuelRegistries);
+        result.energyTypes.addAll(primary.energyTypes);
+        result.energyTypes.addAll(secondary.energyTypes);
 
         result.projectiles.addAll(primary.projectiles);
         result.projectiles.addAll(secondary.projectiles);
@@ -113,6 +117,7 @@ public class ItemSet {
     // <---- INTERNAL USE ONLY ---->
     Collection<IntBasedReference<?, ?>> intReferences;
     Collection<StringBasedReference<?, ?>> stringReferences;
+    Collection<UUIDBasedReference<?, ?>> uuidReferences;
     boolean finishedLoading;
     // <---- END OF INTERNAL USE ---->
 
@@ -127,6 +132,7 @@ public class ItemSet {
     Collection<MobDrop> mobDrops;
     Collection<CustomContainer> containers;
     Collection<CustomFuelRegistry> fuelRegistries;
+    Collection<EnergyType> energyTypes;
     Collection<CustomProjectile> projectiles;
     Collection<ProjectileCover> projectileCovers;
     Collection<CustomBlock> blocks;
@@ -158,6 +164,7 @@ public class ItemSet {
         blocks = new ArrayList<>();
         containers = new ArrayList<>();
         fuelRegistries = new ArrayList<>();
+        energyTypes = new ArrayList<>();
         projectiles = new ArrayList<>();
         projectileCovers = new ArrayList<>();
 
@@ -350,6 +357,11 @@ public class ItemSet {
             fuelRegistry.getValues().save(output);
         }
 
+        output.addInt(energyTypes.size());
+        for (EnergyType energyType : energyTypes) {
+            energyType.getValues().save(output);
+        }
+
         output.addInt(containers.size());
         for (CustomContainer container : containers) {
             container.getValues().save(output);
@@ -364,6 +376,7 @@ public class ItemSet {
     private void load(BitInput input) throws IntegrityException, UnknownEncodingException {
         this.intReferences = new ArrayList<>();
         this.stringReferences = new ArrayList<>();
+        this.uuidReferences = new ArrayList<>();
 
         byte encoding = input.readByte();
         if (encoding == SetEncoding.ENCODING_1) {
@@ -408,8 +421,12 @@ public class ItemSet {
         for (StringBasedReference<?, ?> stringReference : stringReferences) {
             stringReference.get();
         }
+        for (UUIDBasedReference<?, ?> uuidReference : uuidReferences) {
+            uuidReference.get();
+        }
         intReferences = null;
         stringReferences = null;
+        uuidReferences = null;
     }
 
     private void initDefaults1() {
@@ -456,6 +473,7 @@ public class ItemSet {
 
     private void initDefaults9() {
         this.equipmentSets = new ArrayList<>();
+        this.energyTypes = new ArrayList<>();
     }
 
     private void initDefaults10() {
@@ -566,6 +584,14 @@ public class ItemSet {
         this.fuelRegistries = new ArrayList<>(numFuelRegistries);
         for (int counter = 0; counter < numFuelRegistries; counter++) {
             this.fuelRegistries.add(new CustomFuelRegistry(FuelRegistryValues.load(input, this)));
+        }
+    }
+
+    private void loadEnergyTypes(BitInput input) throws UnknownEncodingException {
+        int numEnergyTypes = input.readInt();
+        this.energyTypes = new ArrayList<>(numEnergyTypes);
+        for (int counter = 0; counter < numEnergyTypes; counter++) {
+            this.energyTypes.add(new EnergyType(EnergyTypeValues.load(input)));
         }
     }
 
@@ -724,6 +750,7 @@ public class ItemSet {
             loadBlockDrops(input);
             loadMobDrops(input);
             loadFuelRegistries(input);
+            loadEnergyTypes(input);
             loadContainers(input);
             loadDeletedItemNames(input);
         });
@@ -781,6 +808,10 @@ public class ItemSet {
         return new FuelRegistriesView(fuelRegistries);
     }
 
+    public EnergyTypesView getEnergyTypes() {
+        return new EnergyTypesView(energyTypes);
+    }
+
     public CustomBlocksView getBlocks() {
         return new CustomBlocksView(blocks);
     }
@@ -833,6 +864,14 @@ public class ItemSet {
         }
     }
 
+    public EnergyTypeReference getEnergyTypeReference(UUID typeID) throws NoSuchElementException {
+        if (finishedLoading) {
+            return new EnergyTypeReference(CollectionHelper.find(energyTypes, energyType -> energyType.getValues().getId(), typeID).get());
+        } else {
+            return new EnergyTypeReference(typeID, this);
+        }
+    }
+
     public ProjectileReference getProjectileReference(String projectileName) throws NoSuchElementException {
         if (finishedLoading) {
             return new ProjectileReference(CollectionHelper.find(projectiles, projectile -> projectile.getValues().getName(), projectileName).get());
@@ -875,6 +914,10 @@ public class ItemSet {
 
     public Optional<FuelRegistryValues> getFuelRegistry(String registryName) {
         return CollectionHelper.find(fuelRegistries, registry -> registry.getValues().getName(), registryName).map(CustomFuelRegistry::getValues);
+    }
+
+    public Optional<EnergyTypeValues> getEnergyType(UUID id) {
+        return CollectionHelper.find(energyTypes, energyType -> energyType.getValues().getId(), id).map(EnergyType::getValues);
     }
 
     public Optional<CustomProjectileValues> getProjectile(String projectileName) {
@@ -928,6 +971,10 @@ public class ItemSet {
 
     public boolean isReferenceValid(FuelRegistryReference reference) {
         return isReferenceValid(fuelRegistries, reference.getModel());
+    }
+
+    public boolean isReferenceValid(EnergyTypeReference reference) {
+        return isReferenceValid(energyTypes, reference.getModel());
     }
 
     public boolean isReferenceValid(ProjectileReference reference) {
@@ -1127,6 +1174,15 @@ public class ItemSet {
         }
         validateUniqueIDs("fuel registry name", fuelRegistries, fuelRegistry -> fuelRegistry.getValues().getName());
 
+        for (EnergyTypeValues energyType : getEnergyTypes()) {
+            Validation.scope(
+                    "Energy type " + energyType.getName(),
+                    () -> energyType.validateComplete(this, energyType.getId())
+            );
+        }
+        validateUniqueIDs("energy type id", energyTypes, energyType -> energyType.getValues().getId());
+        validateUniqueIDs("energy type name", energyTypes, energyType -> energyType.getValues().getName());
+
         for (CustomBlock block : blocks) {
             Validation.scope(
                     "Block " + block.getValues().getName(),
@@ -1272,6 +1328,19 @@ public class ItemSet {
         registryToChange.getModel().setValues(newValues);
     }
 
+    public void addEnergyType(EnergyTypeValues energyToAdd) throws ValidationException, ProgrammingValidationException {
+        energyToAdd.validateComplete(this, null);
+        this.energyTypes.add(new EnergyType(energyToAdd));
+    }
+
+    public void changeEnergyType(
+            EnergyTypeReference energyToChange, EnergyTypeValues newValues
+    ) throws ValidationException, ProgrammingValidationException {
+        if (!isReferenceValid(energyToChange)) throw new ProgrammingValidationException("Energy type to change is invalid");
+        newValues.validateComplete(this, energyToChange.get().getId());
+        energyToChange.getModel().setValues(newValues);
+    }
+
     private int findFreeBlockId() throws ValidationException {
         for (int candidateId = BlockConstants.MIN_BLOCK_ID; candidateId <= BlockConstants.MAX_BLOCK_ID; candidateId++) {
             if (!this.getBlock(candidateId).isPresent()) return candidateId;
@@ -1351,6 +1420,10 @@ public class ItemSet {
 
     public void removeFuelRegistry(FuelRegistryReference registryToRemove) throws ValidationException, ProgrammingValidationException {
         removeModel(this.fuelRegistries, registryToRemove.getModel());
+    }
+
+    public void removeEnergyType(EnergyTypeReference energyToRemove) throws ValidationException, ProgrammingValidationException {
+        removeModel(this.energyTypes, energyToRemove.getModel());
     }
 
     public enum Side {

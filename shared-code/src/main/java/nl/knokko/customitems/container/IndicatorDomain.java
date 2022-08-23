@@ -53,7 +53,12 @@ public class IndicatorDomain {
 		return end;
 	}
 	
-	public int getStacksize(int currentProgress, int maxProgress) {
+	public int getStacksize(int currentProgress, int minProgress, int maxProgress) {
+
+		// This is somewhat dirty, but very easy
+		currentProgress -= minProgress;
+		maxProgress -= minProgress;
+
 		int scaledBegin = begin * maxProgress / MAX;
 		int scaledEnd = end * maxProgress / MAX;
 		

@@ -1,11 +1,13 @@
 package nl.knokko.customitems.container;
 
+import nl.knokko.customitems.container.energy.RecipeEnergyValues;
 import nl.knokko.customitems.container.slot.ContainerSlotValues;
 import nl.knokko.customitems.container.slot.InputSlotValues;
 import nl.knokko.customitems.container.slot.ManualOutputSlotValues;
 import nl.knokko.customitems.container.slot.OutputSlotValues;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
+import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
@@ -50,6 +52,7 @@ public class ContainerRecipeValues extends ModelValues {
     private int experience;
 
     private String requiredPermission;
+    private Collection<RecipeEnergyValues> energy;
 
     public ContainerRecipeValues(boolean mutable) {
         super(mutable);
@@ -60,6 +63,7 @@ public class ContainerRecipeValues extends ModelValues {
         this.duration = 40;
         this.experience = 5;
         this.requiredPermission = null;
+        this.energy = new ArrayList<>();
     }
 
     public ContainerRecipeValues(ContainerRecipeValues toCopy, boolean mutable) {
@@ -71,6 +75,7 @@ public class ContainerRecipeValues extends ModelValues {
         this.duration = toCopy.getDuration();
         this.experience = toCopy.getExperience();
         this.requiredPermission = toCopy.getRequiredPermission();
+        this.energy = toCopy.getEnergy();
     }
 
     private void loadInputs(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
@@ -156,6 +161,11 @@ public class ContainerRecipeValues extends ModelValues {
     private void load5(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         this.load4(input, itemSet);
         this.requiredPermission = input.readString();
+        int numEnergyEntries = input.readInt();
+        this.energy = new ArrayList<>(numEnergyEntries);
+        for (int counter = 0; counter < numEnergyEntries; counter++) {
+            this.energy.add(RecipeEnergyValues.load(input, itemSet));
+        }
     }
 
     public void save(BitOutput output) {
@@ -181,6 +191,11 @@ public class ContainerRecipeValues extends ModelValues {
             this.manualOutput.save(output);
         }
         output.addString(this.requiredPermission);
+
+        output.addInt(energy.size());
+        for (RecipeEnergyValues energyEntry : energy) {
+            energyEntry.save(output);
+        }
     }
 
     @Override
@@ -243,6 +258,10 @@ public class ContainerRecipeValues extends ModelValues {
         return requiredPermission;
     }
 
+    public Collection<RecipeEnergyValues> getEnergy() {
+        return new ArrayList<>(energy);
+    }
+
     public void setInput(String inputSlotName, IngredientValues input) {
         assertMutable();
         Checks.nonNull(inputSlotName, input);
@@ -295,6 +314,12 @@ public class ContainerRecipeValues extends ModelValues {
         this.requiredPermission = "".equals(requiredPermission) ? null : requiredPermission;
     }
 
+    public void setEnergy(Collection<RecipeEnergyValues> energy) {
+        assertMutable();
+        Checks.nonNull(energy);
+        this.energy = Mutability.createDeepCopy(energy, false);
+    }
+
     public void validate(ItemSet itemSet, CustomContainerValues container) throws ValidationException, ProgrammingValidationException {
         if (inputs == null) throw new ProgrammingValidationException("No inputs");
         Collection<ContainerSlotValues> slots = container.createSlotList();
@@ -340,6 +365,12 @@ public class ContainerRecipeValues extends ModelValues {
         if (experience < 0) throw new ValidationException("Experience can't be negative");
 
         if ("".equals(requiredPermission)) throw new ProgrammingValidationException("Required permission can't be empty");
+
+        if (energy == null) throw new ProgrammingValidationException("No energy");
+        for (RecipeEnergyValues energyEntry : energy) {
+            if (energyEntry == null) throw new ProgrammingValidationException("Missing an energy entry");
+            energyEntry.validateComplete(itemSet);
+        }
     }
 
     public boolean conflictsWith(ContainerRecipeValues other) {
