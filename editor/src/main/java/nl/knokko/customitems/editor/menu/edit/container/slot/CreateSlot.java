@@ -40,8 +40,13 @@ public class CreateSlot extends GuiMenu {
 		
 		addComponent(
 				new DynamicTextComponent("Change to", LABEL),
-				0.6f, 0.7f, 0.75f, 0.8f
+				0.6f, 0.775f, 0.75f, 0.875f
 		);
+		addComponent(new DynamicTextButton("Energy indicator", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new CreateEnergyIndicatorSlot(
+					returnMenu, itemSet, changeSlot
+			));
+		}), 0.6f, 0.675f, 0.8f, 0.725f);
 		addComponent(new DynamicTextButton("Decoration", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new CreateDisplay(returnMenu, itemSet, display -> {
 				changeSlot.accept(DecorationSlotValues.createQuick(display));

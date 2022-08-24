@@ -50,7 +50,11 @@ public class SlotComponent implements GuiComponent {
 		this.container.setSlot(this.x, this.y, newSlot);
 		String topText;
 		String bottomText;
-		if (newSlot instanceof DecorationSlotValues) {
+		if (newSlot instanceof EnergyIndicatorSlotValues) {
+			EnergyIndicatorSlotValues indicatorSlot = (EnergyIndicatorSlotValues) newSlot;
+			topText = "energy ind. ";
+			bottomText = indicatorSlot.getEnergyType().getName();
+		} else if (newSlot instanceof DecorationSlotValues) {
 			DecorationSlotValues decorationSlot = (DecorationSlotValues) newSlot;
 			topText = "decoration";
 			bottomText = decorationSlot.getDisplay().toString();
@@ -63,10 +67,8 @@ public class SlotComponent implements GuiComponent {
 			bottomText = fuelSlot.getFuelRegistry().getName();
 		} else if (newSlot instanceof FuelIndicatorSlotValues) {
 			FuelIndicatorSlotValues indicatorSlot = (FuelIndicatorSlotValues) newSlot;
-			topText = "fuel ind. " + indicatorSlot.getFuelSlotName() + " "
-					+ indicatorSlot.getIndicatorDomain().getBegin() + "% to "
-					+ indicatorSlot.getIndicatorDomain().getEnd() + "%";
-			bottomText = indicatorSlot.getDisplay().toString();
+			topText = "fuel ind.";
+			bottomText = indicatorSlot.getFuelSlotName();
 		} else if (newSlot instanceof InputSlotValues) {
 			InputSlotValues inputSlot = (InputSlotValues) newSlot;
 			topText = "input";

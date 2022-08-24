@@ -79,6 +79,11 @@ public class EditContainerRecipe extends GuiMenu {
 				new EagerTextEditField(initialPermission, EDIT_BASE, EDIT_ACTIVE, currentValues::setRequiredPermission),
 				0.225f, 0.45f, 0.34f, 0.5f
 		);
+		addComponent(new DynamicTextButton("Energy...", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new ContainerRecipeEnergyCollectionEdit(
+					this, itemSet, currentValues.getEnergy(), currentValues::setEnergy
+			));
+		}), 0.05f, 0.375f, 0.2f, 0.425f);
 		
 		addComponent(
 				new RecipeSlotsGrid(this, itemSet, container, currentValues),
@@ -98,6 +103,7 @@ public class EditContainerRecipe extends GuiMenu {
 				errorComponent.setText(error);
 			}
 		}), 0.025f, 0.2f, 0.2f, 0.3f);
+
 		HelpButtons.addHelpLink(this, "edit menu/containers/recipes/edit.html");
 	}
 	
