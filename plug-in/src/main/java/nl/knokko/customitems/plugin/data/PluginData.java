@@ -762,10 +762,10 @@ public class PluginData {
 				}
 
 				if (acceptsCurrentContainer) {
-					String[] nbtKey = getPocketContainerNbtKey(pd.openPocketContainer.getType(), player);
+					String[] nbtKey = storageMode != ContainerStorageMode.NOT_PERSISTENT ? getPocketContainerNbtKey(pd.openPocketContainer.getType(), player) : null;
 					GeneralItemNBT destNbt = GeneralItemNBT.readWriteInstance(closeDestination);
 
-					if (destNbt.getOrDefault(nbtKey, null) != null) {
+					if (storageMode != ContainerStorageMode.NOT_PERSISTENT && destNbt.getOrDefault(nbtKey, null) != null) {
 						// Don't overwrite the contents of another pocket container
 						// (This can happen in some edge case where the pocket container in the hand
 						// is replaced with another pocket container.)

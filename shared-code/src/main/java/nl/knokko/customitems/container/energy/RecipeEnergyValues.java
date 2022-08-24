@@ -119,6 +119,8 @@ public class RecipeEnergyValues extends ModelValues {
     }
 
     public void validateComplete(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
+        validateIndependent();
+
         if (!itemSet.isReferenceValid(energyType)) {
             throw new ProgrammingValidationException("Energy type is invalid");
         }

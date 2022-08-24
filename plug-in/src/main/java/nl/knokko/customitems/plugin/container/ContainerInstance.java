@@ -897,12 +897,12 @@ public class ContainerInstance {
 
 			if (energyRequirement.getOperation() == RecipeEnergyOperation.REQUIRE_AT_LEAST) {
 				int actualAmount = storedEnergy.getEnergy(energyRequirement.getEnergyType(), storageKey);
-				if (energyRequirement.getAmount() < actualAmount) return false;
+				if (actualAmount < energyRequirement.getAmount()) return false;
 			}
 
 			if (energyRequirement.getOperation() == RecipeEnergyOperation.REQUIRE_AT_MOST) {
 				int actualAmount = storedEnergy.getEnergy(energyRequirement.getEnergyType(), storageKey);
-				if (energyRequirement.getAmount() > actualAmount) return false;
+				if (actualAmount > energyRequirement.getAmount()) return false;
 			}
 
 			// There is no need to check the INCREASE and DECREASE operations
@@ -1036,21 +1036,8 @@ public class ContainerInstance {
 						// that all inputs are still present before producing a result.
 					    if (currentRecipe == determineCurrentRecipe(currentRecipe)) {
 
-							for (RecipeEnergyValues energyAction : currentRecipe.getEnergy()) {
-
-								if (energyAction.getOperation() == RecipeEnergyOperation.DECREASE) {
-									storedEnergy.decreaseEnergy(energyAction.getEnergyType(), storageKey, energyAction.getAmount());
-								}
-
-								if (energyAction.getOperation() == RecipeEnergyOperation.INCREASE) {
-									storedEnergy.increaseEnergy(energyAction.getEnergyType(), storageKey, energyAction.getAmount());
-								}
-
-								// There is no need to do anything with REQUIRE_AT_LEAST and REQUIRE_AT_MOST here
-							}
-
 							// Decrease the stacksize of all relevant input slots
-							this.consumeIngredientsOfCurrentRecipe();
+							this.consumeIngredientsAndEnergyOfCurrentRecipe();
 
 							// Add the results to the output slots
 							for (Map.Entry<String, OutputTableValues> output : currentRecipe.getOutputs().entrySet()) {
@@ -1136,7 +1123,21 @@ public class ContainerInstance {
 		}
 	}
 
-	void consumeIngredientsOfCurrentRecipe() {
+	void consumeIngredientsAndEnergyOfCurrentRecipe() {
+
+		for (RecipeEnergyValues energyAction : currentRecipe.getEnergy()) {
+
+			if (energyAction.getOperation() == RecipeEnergyOperation.DECREASE) {
+				storedEnergy.decreaseEnergy(energyAction.getEnergyType(), storageKey, energyAction.getAmount());
+			}
+
+			if (energyAction.getOperation() == RecipeEnergyOperation.INCREASE) {
+				storedEnergy.increaseEnergy(energyAction.getEnergyType(), storageKey, energyAction.getAmount());
+			}
+
+			// There is no need to do anything with REQUIRE_AT_LEAST and REQUIRE_AT_MOST here
+		}
+
 		for (Map.Entry<String, IngredientValues> input : currentRecipe.getInputs().entrySet()) {
 
 			int invIndex = typeInfo.getInputSlot(input.getKey()).getSlotIndex();

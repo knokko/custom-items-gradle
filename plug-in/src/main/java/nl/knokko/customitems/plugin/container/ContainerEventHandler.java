@@ -292,7 +292,7 @@ public class ContainerEventHandler implements Listener {
 
 								int numRecipeExecutions = 0;
 								while (customContainer.determineCurrentRecipe(currentManualRecipe) == currentManualRecipe) {
-									customContainer.consumeIngredientsOfCurrentRecipe();
+									customContainer.consumeIngredientsAndEnergyOfCurrentRecipe();
 									numRecipeExecutions += 1;
 								}
 
@@ -370,7 +370,7 @@ public class ContainerEventHandler implements Listener {
 					}
 
 					if (consumeManualRecipeOnce) {
-						customContainer.consumeIngredientsOfCurrentRecipe();
+						customContainer.consumeIngredientsAndEnergyOfCurrentRecipe();
 						if (currentManualRecipe.getExperience() > 0) {
 							player.giveExp(currentManualRecipe.getExperience());
 						}
