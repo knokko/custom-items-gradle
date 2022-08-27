@@ -21,6 +21,7 @@ import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.command.ItemCommandEvent;
 import nl.knokko.customitems.item.gun.DirectGunAmmoValues;
 import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
+import nl.knokko.customitems.plugin.SoundPlayer;
 import nl.knokko.customitems.plugin.multisupport.worldguard.WorldGuardSupport;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
@@ -32,7 +33,6 @@ import nl.knokko.customitems.util.StringEncoder;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Sound;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -439,11 +439,7 @@ public class PluginData {
 					if (pd.mainhandFood != null) {
 						long elapsedTime = currentTick - pd.startMainhandEatTime;
 						if (elapsedTime % mainFood.getSoundPeriod() == 0) {
-							player.playSound(
-									player.getLocation(),
-									Sound.valueOf(mainFood.getEatSound().name()),
-									mainFood.getSoundVolume(), mainFood.getSoundPitch()
-							);
+							SoundPlayer.playSound(player, mainFood.getEatSound());
 						}
 
 						if (elapsedTime >= mainFood.getEatTime()) {
@@ -482,11 +478,7 @@ public class PluginData {
 					if (pd.offhandFood != null) {
 						long elapsedTime = currentTick - pd.startOffhandEatTime;
 						if (elapsedTime % offFood.getSoundPeriod() == 0) {
-							player.playSound(
-									player.getLocation(),
-									Sound.valueOf(offFood.getEatSound().name()),
-									offFood.getSoundVolume(), offFood.getSoundPitch()
-							);
+							SoundPlayer.playSound(player, offFood.getEatSound());
 						}
 
 						if (elapsedTime >= offFood.getEatTime()) {
@@ -537,11 +529,7 @@ public class PluginData {
 							if (checkAmmo(player.getInventory(), indirectAmmo.getReloadItem(), true)) {
 								player.getInventory().setItemInMainHand(new CustomGunWrapper(gun).reload(currentItem));
 								if (indirectAmmo.getEndReloadSound() != null) {
-									player.playSound(
-											player.getLocation(),
-											Sound.valueOf(indirectAmmo.getEndReloadSound().name()),
-											1f, 1f
-									);
+									SoundPlayer.playSound(player, indirectAmmo.getEndReloadSound());
 								}
 							}
 						} else {
@@ -570,11 +558,7 @@ public class PluginData {
 							if (checkAmmo(player.getInventory(), indirectAmmo.getReloadItem(), true)) {
                                 player.getInventory().setItemInOffHand(new CustomGunWrapper(gun).reload(currentItem));
                                 if (indirectAmmo.getEndReloadSound() != null) {
-									player.playSound(
-											player.getLocation(),
-											Sound.valueOf(indirectAmmo.getEndReloadSound().name()),
-											1f, 1f
-									);
+                                	SoundPlayer.playSound(player, indirectAmmo.getEndReloadSound());
 								}
 
 							}
@@ -873,10 +857,7 @@ public class PluginData {
 
 					if (checkAmmo(player.getInventory(), indirectAmmo.getReloadItem(), false)) {
 						if (indirectAmmo.getStartReloadSound() != null) {
-							player.playSound(
-									player.getLocation(), Sound.valueOf(indirectAmmo.getStartReloadSound().name()),
-									1f, 1f
-							);
+							SoundPlayer.playSound(player, indirectAmmo.getStartReloadSound());
 						}
 
                         if (isMainhand) {

@@ -8,6 +8,7 @@ import nl.knokko.customitems.item.CustomWandValues;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 import nl.knokko.customitems.projectile.effect.*;
+import nl.knokko.customitems.sound.SoundValues;
 
 import java.io.File;
 import java.io.IOException;
@@ -125,8 +126,13 @@ class WikiProjectileGenerator {
             output.println(tabs + "<li class=\"projectile-effect\">Create an explosion with power " + explosion.getPower() +
                     (explosion.setsFire() ? " that sets fire" : "") + "</li>");
         } else if (effect instanceof PlaySoundValues) {
-            output.println(tabs + "<li class=\"projectile-effect\">Play the "
-                    + NameHelper.getNiceEnumName(((PlaySoundValues) effect).getSound().name()) + " sound</li>");
+            SoundValues sound = ((PlaySoundValues) effect).getSound();
+
+            String soundName;
+            if (sound.getVanillaSound() != null) soundName = NameHelper.getNiceEnumName(sound.getVanillaSound().name());
+            else soundName = sound.getCustomSound().getName();
+
+            output.println(tabs + "<li class=\"projectile-effect\">Play the " + soundName + " sound</li>");
         } else if (effect instanceof PotionAuraValues) {
             PotionAuraValues aura = (PotionAuraValues) effect;
             output.println(tabs + "<li class=\"projectile-effect\">");

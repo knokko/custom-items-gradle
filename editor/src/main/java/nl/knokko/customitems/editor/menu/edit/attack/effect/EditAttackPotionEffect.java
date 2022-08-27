@@ -5,6 +5,7 @@ import nl.knokko.customitems.attack.effect.AttackPotionEffectValues;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.effect.EffectType;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
@@ -18,9 +19,10 @@ public class EditAttackPotionEffect extends EditAttackEffect {
     private final AttackPotionEffectValues currentValues;
 
     public EditAttackPotionEffect(
-            AttackPotionEffectValues oldValues, Consumer<AttackEffectValues> changeValues, GuiComponent returnMenu
+            AttackPotionEffectValues oldValues, Consumer<AttackEffectValues> changeValues,
+            GuiComponent returnMenu, ItemSet itemSet
     ) {
-        super(changeValues, returnMenu);
+        super(changeValues, returnMenu, itemSet);
         this.currentValues = oldValues.copy(true);
     }
 

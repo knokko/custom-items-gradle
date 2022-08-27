@@ -2,6 +2,7 @@ package nl.knokko.customitems.attack.effect;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
@@ -70,7 +71,7 @@ public class AttackIgniteValues extends AttackEffectValues {
     }
 
     @Override
-    public void validate() throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         if (duration <= 0) throw new ValidationException("Duration must be positive");
     }
 

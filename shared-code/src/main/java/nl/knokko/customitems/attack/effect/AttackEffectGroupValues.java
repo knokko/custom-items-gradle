@@ -2,6 +2,7 @@ package nl.knokko.customitems.attack.effect;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -14,7 +15,7 @@ import static nl.knokko.customitems.util.Checks.isClose;
 
 public class AttackEffectGroupValues extends ModelValues {
 
-    public static AttackEffectGroupValues load(BitInput input) throws UnknownEncodingException {
+    public static AttackEffectGroupValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
         if (encoding != 1) throw new UnknownEncodingException("AttackEffectGroup", encoding);
 
@@ -23,13 +24,13 @@ public class AttackEffectGroupValues extends ModelValues {
         int numAttackerEffects = input.readInt();
         result.attackerEffects = new ArrayList<>(numAttackerEffects);
         for (int counter = 0; counter < numAttackerEffects; counter++) {
-            result.attackerEffects.add(AttackEffectValues.load(input));
+            result.attackerEffects.add(AttackEffectValues.load(input, itemSet));
         }
 
         int numVictimEffects = input.readInt();
         result.victimEffects = new ArrayList<>(numVictimEffects);
         for (int counter = 0; counter < numVictimEffects; counter++) {
-            result.victimEffects.add(AttackEffectValues.load(input));
+            result.victimEffects.add(AttackEffectValues.load(input, itemSet));
         }
 
         result.chance = Chance.load(input);
@@ -165,16 +166,16 @@ public class AttackEffectGroupValues extends ModelValues {
         this.finalDamageThreshold = finalDamageThreshold;
     }
 
-    public void validate() throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         if (attackerEffects == null) throw new ProgrammingValidationException("No attacker effects");
         for (AttackEffectValues attackEffect : attackerEffects) {
             if (attackEffect == null) throw new ProgrammingValidationException("Missing an attacker effect");
-            Validation.scope("Attacker effects", attackEffect::validate);
+            Validation.scope("Attacker effects", attackEffect::validate, itemSet);
         }
         if (victimEffects == null) throw new ProgrammingValidationException("No victim effects");
         for (AttackEffectValues victimEffect : victimEffects) {
             if (victimEffect == null) throw new ProgrammingValidationException("Missing a victim effect");
-            Validation.scope("Victim effects", victimEffect::validate);
+            Validation.scope("Victim effects", victimEffect::validate, itemSet);
         }
         if (chance == null) throw new ProgrammingValidationException("No chance");
         if (originalDamageThreshold < 0f) throw new ValidationException("Original damage threshold can't be negative");

@@ -3,7 +3,9 @@ package nl.knokko.customitems.editor.menu.edit.attack.effect;
 import nl.knokko.customitems.attack.effect.*;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.collection.SelfDedicatedCollectionEdit;
+import nl.knokko.customitems.editor.menu.edit.sound.EditSound;
 import nl.knokko.customitems.editor.util.HelpButtons;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
@@ -13,12 +15,15 @@ import java.util.function.Consumer;
 
 public class AttackEffectCollectionEdit extends SelfDedicatedCollectionEdit<AttackEffectValues> {
 
+    private final ItemSet itemSet;
+
     public AttackEffectCollectionEdit(
             Collection<AttackEffectValues> oldCollection,
             Consumer<Collection<AttackEffectValues>> changeCollection,
-            GuiComponent returnMenu
+            GuiComponent returnMenu, ItemSet itemSet
     ) {
         super(oldCollection, changeCollection::accept, returnMenu);
+        this.itemSet = itemSet;
     }
 
     @Override
@@ -26,7 +31,7 @@ public class AttackEffectCollectionEdit extends SelfDedicatedCollectionEdit<Atta
         super.addComponents();
         addComponent(new DynamicTextButton("Add effect", EditProps.BUTTON, EditProps.HOVER, () -> {
             state.getWindow().setMainComponent(new CreateAttackEffect(
-                    this::addModel, this,
+                    this::addModel, this, itemSet,
                     liveCollection.stream().noneMatch(effect -> effect instanceof AttackIgniteValues),
                     liveCollection.stream().noneMatch(effect -> effect instanceof AttackDropWeaponValues)
             ));
@@ -53,15 +58,17 @@ public class AttackEffectCollectionEdit extends SelfDedicatedCollectionEdit<Atta
     @Override
     protected GuiComponent createEditMenu(AttackEffectValues oldModelValues, Consumer<AttackEffectValues> changeModelValues) {
         if (oldModelValues instanceof AttackPotionEffectValues) {
-            return new EditAttackPotionEffect((AttackPotionEffectValues) oldModelValues, changeModelValues, this);
+            return new EditAttackPotionEffect((AttackPotionEffectValues) oldModelValues, changeModelValues, this, itemSet);
         } else if (oldModelValues instanceof AttackIgniteValues) {
-            return new EditAttackIgnite((AttackIgniteValues) oldModelValues, changeModelValues, this);
+            return new EditAttackIgnite((AttackIgniteValues) oldModelValues, changeModelValues, this, itemSet);
         } else if (oldModelValues instanceof AttackLaunchValues) {
-            return new EditAttackLaunch((AttackLaunchValues) oldModelValues, changeModelValues, this);
+            return new EditAttackLaunch((AttackLaunchValues) oldModelValues, changeModelValues, this, itemSet);
         } else if (oldModelValues instanceof AttackDealDamageValues) {
-            return new EditAttackDealDamage((AttackDealDamageValues) oldModelValues, changeModelValues, this);
+            return new EditAttackDealDamage((AttackDealDamageValues) oldModelValues, changeModelValues, this, itemSet);
         } else if (oldModelValues instanceof AttackPlaySoundValues) {
-            return new EditAttackPlaySound((AttackPlaySoundValues) oldModelValues, changeModelValues, this);
+            return new EditSound(((AttackPlaySoundValues) oldModelValues).getSound(), newSound -> {
+                changeModelValues.accept(AttackPlaySoundValues.createQuick(newSound));
+            }, this, itemSet);
         } else {
             throw new Error("Unknown AttackEffectValues sublcass: " + oldModelValues.getClass());
         }

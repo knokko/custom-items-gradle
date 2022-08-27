@@ -48,7 +48,7 @@ public class EditItemShield extends EditItemTool<CustomShieldValues> {
 		addComponent(new DynamicTextComponent("Blocking effects:", LABEL), 0.65f, 0.15f, 0.84f, 0.25f);
 		addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new AttackEffectGroupCollectionEdit(
-					currentValues.getBlockingEffects(), currentValues::setBlockingEffects, true, this
+					currentValues.getBlockingEffects(), currentValues::setBlockingEffects, true, this, menu.getSet()
 			));
 		}), 0.85f, 0.15f, 0.95f, 0.225f);
 

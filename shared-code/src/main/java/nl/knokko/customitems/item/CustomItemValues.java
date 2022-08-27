@@ -318,7 +318,7 @@ public abstract class CustomItemValues extends ModelValues {
             int numAttackEffectGroups = input.readInt();
             this.attackEffects = new ArrayList<>(numAttackEffectGroups);
             for (int counter = 0; counter < numAttackEffectGroups; counter++) {
-                this.attackEffects.add(AttackEffectGroupValues.load(input));
+                this.attackEffects.add(AttackEffectGroupValues.load(input, itemSet));
             }
             this.updateAutomatically = input.readBoolean();
             this.keepOnDeath = input.readBoolean();
@@ -1072,8 +1072,9 @@ public abstract class CustomItemValues extends ModelValues {
 
         if (attackEffects == null) throw new ProgrammingValidationException("No attack effects");
         for (AttackEffectGroupValues attackEffectGroup : this.attackEffects) {
-            Validation.scope("Attack effects", attackEffectGroup::validate);
+            if (attackEffectGroup == null) throw new ProgrammingValidationException("Missing an attack effect");
         }
+
         if (multiBlockBreak == null) throw new ProgrammingValidationException("No multi block break");
         Validation.scope("Multi block break", multiBlockBreak::validate);
 
@@ -1103,6 +1104,10 @@ public abstract class CustomItemValues extends ModelValues {
 
         for (ReplacementConditionValues condition : replaceConditions) {
             Validation.scope("Replace condition", () -> condition.validateComplete(itemSet));
+        }
+
+        for (AttackEffectGroupValues attackEffectGroup : attackEffects) {
+            Validation.scope("Attack effects", attackEffectGroup::validate, itemSet);
         }
     }
 

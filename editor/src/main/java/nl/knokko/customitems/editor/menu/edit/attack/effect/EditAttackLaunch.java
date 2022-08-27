@@ -4,6 +4,7 @@ import nl.knokko.customitems.attack.effect.AttackEffectValues;
 import nl.knokko.customitems.attack.effect.AttackLaunchValues;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.util.HelpButtons;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerFloatEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
@@ -17,9 +18,10 @@ public class EditAttackLaunch extends EditAttackEffect {
     private final AttackLaunchValues currentValues;
 
     public EditAttackLaunch(
-            AttackLaunchValues oldValues, Consumer<AttackEffectValues> changeValues, GuiComponent returnMenu
+            AttackLaunchValues oldValues, Consumer<AttackEffectValues> changeValues,
+            GuiComponent returnMenu, ItemSet itemSet
     ) {
-        super(changeValues, returnMenu);
+        super(changeValues, returnMenu, itemSet);
         this.currentValues = oldValues.copy(true);
     }
 

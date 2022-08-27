@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.collection.SelfDedicatedCollectionEdit;
+import nl.knokko.customitems.editor.menu.edit.sound.EditSound;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.projectile.effect.*;
@@ -68,7 +69,9 @@ public class ProjectileEffectCollectionEdit extends SelfDedicatedCollectionEdit<
 		} else if (oldValues instanceof SubProjectilesValues) {
 			return new EditSubProjectiles((SubProjectilesValues) oldValues, changeValues, this, set);
 		} else if (oldValues instanceof PlaySoundValues) {
-			return new EditPlaySound((PlaySoundValues) oldValues, changeValues, this);
+			return new EditSound(((PlaySoundValues) oldValues).getSound(), newSound -> {
+				changeValues.accept(PlaySoundValues.createQuick(newSound));
+			}, this, set);
 		} else if (oldValues instanceof PotionAuraValues) {
 			return new EditPotionAura((PotionAuraValues) oldValues, changeValues, this);
 		} else if (oldValues instanceof PushOrPullValues) {

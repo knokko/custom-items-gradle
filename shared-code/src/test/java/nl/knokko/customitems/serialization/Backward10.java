@@ -30,6 +30,7 @@ import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
 import nl.knokko.customitems.recipe.result.ItemBridgeResultValues;
 import nl.knokko.customitems.recipe.result.MimicResultValues;
 import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
+import nl.knokko.customitems.sound.SoundValues;
 import nl.knokko.customitems.sound.VanillaSoundType;
 import nl.knokko.customitems.texture.animated.AnimatedTextureValues;
 import nl.knokko.customitems.texture.animated.AnimationFrameValues;
@@ -445,7 +446,7 @@ public class Backward10 {
                 )
         )), item.getCommandSystem());
         assertEquals(listOf(AttackEffectGroupValues.createQuick(
-                listOf(), listOf(AttackPlaySoundValues.createQuick(VanillaSoundType.ENTITY_GHAST_SCREAM, 1.5f, 0.5f)),
+                listOf(), listOf(AttackPlaySoundValues.createQuick(SoundValues.createQuick(VanillaSoundType.ENTITY_GHAST_SCREAM, 1.5f, 0.5f))),
                 Chance.nonIntegerPercentage(1.25), 0f, 0f
         )), item.getAttackEffects());
         assertEquals(MultiBlockBreakValues.createQuick(

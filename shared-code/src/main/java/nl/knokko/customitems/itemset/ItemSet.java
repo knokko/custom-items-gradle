@@ -23,6 +23,8 @@ import nl.knokko.customitems.projectile.cover.ProjectileCoverValues;
 import nl.knokko.customitems.projectile.cover.ProjectileCover;
 import nl.knokko.customitems.recipe.CraftingRecipeValues;
 import nl.knokko.customitems.recipe.CustomCraftingRecipe;
+import nl.knokko.customitems.sound.CustomSoundType;
+import nl.knokko.customitems.sound.CustomSoundTypeValues;
 import nl.knokko.customitems.texture.*;
 import nl.knokko.customitems.trouble.IntegrityException;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -84,6 +86,9 @@ public class ItemSet {
         result.energyTypes.addAll(primary.energyTypes);
         result.energyTypes.addAll(secondary.energyTypes);
 
+        result.soundTypes.addAll(primary.soundTypes);
+        result.soundTypes.addAll(secondary.soundTypes);
+
         result.projectiles.addAll(primary.projectiles);
         result.projectiles.addAll(secondary.projectiles);
         result.projectileCovers.addAll(primary.projectileCovers);
@@ -133,6 +138,7 @@ public class ItemSet {
     Collection<CustomContainer> containers;
     Collection<CustomFuelRegistry> fuelRegistries;
     Collection<EnergyType> energyTypes;
+    Collection<CustomSoundType> soundTypes;
     Collection<CustomProjectile> projectiles;
     Collection<ProjectileCover> projectileCovers;
     Collection<CustomBlock> blocks;
@@ -165,6 +171,7 @@ public class ItemSet {
         containers = new ArrayList<>();
         fuelRegistries = new ArrayList<>();
         energyTypes = new ArrayList<>();
+        soundTypes = new ArrayList<>();
         projectiles = new ArrayList<>();
         projectileCovers = new ArrayList<>();
 
@@ -362,6 +369,11 @@ public class ItemSet {
             energyType.getValues().save(output);
         }
 
+        output.addInt(soundTypes.size());
+        for (CustomSoundType soundType : soundTypes) {
+            soundType.getValues().save(output, targetSide);
+        }
+
         output.addInt(containers.size());
         for (CustomContainer container : containers) {
             container.getValues().save(output);
@@ -474,6 +486,7 @@ public class ItemSet {
     private void initDefaults9() {
         this.equipmentSets = new ArrayList<>();
         this.energyTypes = new ArrayList<>();
+        this.soundTypes = new ArrayList<>();
     }
 
     private void initDefaults10() {
@@ -592,6 +605,14 @@ public class ItemSet {
         this.energyTypes = new ArrayList<>(numEnergyTypes);
         for (int counter = 0; counter < numEnergyTypes; counter++) {
             this.energyTypes.add(new EnergyType(EnergyTypeValues.load(input)));
+        }
+    }
+
+    private void loadSoundTypes(BitInput input) throws UnknownEncodingException {
+        int numSoundTypes = input.readInt();
+        this.soundTypes = new ArrayList<>(numSoundTypes);
+        for (int counter = 0; counter < numSoundTypes; counter++) {
+            this.soundTypes.add(new CustomSoundType(CustomSoundTypeValues.load(input, this)));
         }
     }
 
@@ -751,6 +772,7 @@ public class ItemSet {
             loadMobDrops(input);
             loadFuelRegistries(input);
             loadEnergyTypes(input);
+            loadSoundTypes(input);
             loadContainers(input);
             loadDeletedItemNames(input);
         });
@@ -810,6 +832,10 @@ public class ItemSet {
 
     public EnergyTypesView getEnergyTypes() {
         return new EnergyTypesView(energyTypes);
+    }
+
+    public CustomSoundTypesView getSoundTypes() {
+        return new CustomSoundTypesView(soundTypes);
     }
 
     public CustomBlocksView getBlocks() {
@@ -872,6 +898,14 @@ public class ItemSet {
         }
     }
 
+    public SoundTypeReference getSoundTypeReference(UUID soundID) throws NoSuchElementException {
+        if (finishedLoading) {
+            return new SoundTypeReference(CollectionHelper.find(soundTypes, soundType -> soundType.getValues().getId(), soundID).get());
+        } else {
+            return new SoundTypeReference(soundID, this);
+        }
+    }
+
     public ProjectileReference getProjectileReference(String projectileName) throws NoSuchElementException {
         if (finishedLoading) {
             return new ProjectileReference(CollectionHelper.find(projectiles, projectile -> projectile.getValues().getName(), projectileName).get());
@@ -918,6 +952,10 @@ public class ItemSet {
 
     public Optional<EnergyTypeValues> getEnergyType(UUID id) {
         return CollectionHelper.find(energyTypes, energyType -> energyType.getValues().getId(), id).map(EnergyType::getValues);
+    }
+
+    public Optional<CustomSoundTypeValues> getSoundType(UUID id) {
+        return CollectionHelper.find(soundTypes, soundType -> soundType.getValues().getId(), id).map(CustomSoundType::getValues);
     }
 
     public Optional<CustomProjectileValues> getProjectile(String projectileName) {
@@ -975,6 +1013,10 @@ public class ItemSet {
 
     public boolean isReferenceValid(EnergyTypeReference reference) {
         return isReferenceValid(energyTypes, reference.getModel());
+    }
+
+    public boolean isReferenceValid(SoundTypeReference reference) {
+        return isReferenceValid(soundTypes, reference.getModel());
     }
 
     public boolean isReferenceValid(ProjectileReference reference) {
@@ -1183,6 +1225,15 @@ public class ItemSet {
         validateUniqueIDs("energy type id", energyTypes, energyType -> energyType.getValues().getId());
         validateUniqueIDs("energy type name", energyTypes, energyType -> energyType.getValues().getName());
 
+        for (CustomSoundTypeValues soundType : getSoundTypes()) {
+            Validation.scope(
+                    "Sound type " + soundType.getName(),
+                    () -> soundType.validate(this, soundType.getId())
+            );
+        }
+        validateUniqueIDs("sound type id", soundTypes, soundType -> soundType.getValues().getId());
+        validateUniqueIDs("sound type name", soundTypes, soundType -> soundType.getValues().getName());
+
         for (CustomBlock block : blocks) {
             Validation.scope(
                     "Block " + block.getValues().getName(),
@@ -1341,6 +1392,19 @@ public class ItemSet {
         energyToChange.getModel().setValues(newValues);
     }
 
+    public void addSoundType(CustomSoundTypeValues soundToAdd) throws ValidationException, ProgrammingValidationException {
+        soundToAdd.validate(this, null);
+        this.soundTypes.add(new CustomSoundType(soundToAdd));
+    }
+
+    public void changeSoundType(
+            SoundTypeReference soundToChange, CustomSoundTypeValues newValues
+    ) throws ValidationException, ProgrammingValidationException {
+        if (!isReferenceValid(soundToChange)) throw new ProgrammingValidationException("Sound type to change is invalid");
+        newValues.validate(this, soundToChange.get().getId());
+        soundToChange.getModel().setValues(newValues);
+    }
+
     private int findFreeBlockId() throws ValidationException {
         for (int candidateId = BlockConstants.MIN_BLOCK_ID; candidateId <= BlockConstants.MAX_BLOCK_ID; candidateId++) {
             if (!this.getBlock(candidateId).isPresent()) return candidateId;
@@ -1424,6 +1488,10 @@ public class ItemSet {
 
     public void removeEnergyType(EnergyTypeReference energyToRemove) throws ValidationException, ProgrammingValidationException {
         removeModel(this.energyTypes, energyToRemove.getModel());
+    }
+
+    public void removeSoundType(SoundTypeReference soundToRemove) throws ValidationException, ProgrammingValidationException {
+        removeModel(this.soundTypes, soundToRemove.getModel());
     }
 
     public enum Side {

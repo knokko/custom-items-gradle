@@ -33,6 +33,10 @@ public class ResourcepackGenerator {
         ResourcepackFontOverrider fontWriter = new ResourcepackFontOverrider(itemSet, zipOutput);
         fontWriter.overrideContainerOverlayChars();
 
+        ResourcepackSoundWriter soundWriter = new ResourcepackSoundWriter(itemSet, zipOutput);
+        soundWriter.writeSoundsJson();
+        soundWriter.writeSoundFiles();
+
         ResourcepackModelWriter modelWriter = new ResourcepackModelWriter(itemSet, zipOutput);
         modelWriter.writeCustomItemModels();
         modelWriter.writeCustomBlockModels();

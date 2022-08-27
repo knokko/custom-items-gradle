@@ -28,6 +28,7 @@ import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
 import nl.knokko.customitems.recipe.result.CustomItemResultValues;
 import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
+import nl.knokko.customitems.sound.SoundValues;
 import nl.knokko.customitems.sound.VanillaSoundType;
 import nl.knokko.customitems.texture.BowTextureEntry;
 import nl.knokko.customitems.texture.CrossbowTextureValues;
@@ -295,7 +296,7 @@ public class Backward9 {
         ), inFlightEffects.getEffects());
 
         assertEquals(listOf(
-                PlaySoundValues.createQuick(VanillaSoundType.BLOCK_ANVIL_HIT, 1.25f, 1.75f),
+                PlaySoundValues.createQuick(SoundValues.createQuick(VanillaSoundType.BLOCK_ANVIL_HIT, 1.25f, 1.75f)),
                 PotionAuraValues.createQuick(3f, listOf(
                         PotionEffectValues.createQuick(EffectType.FAST_DIGGING, 100, 2)
                 ))
@@ -407,7 +408,7 @@ public class Backward9 {
         assertEquals(35, ammo.getStoredAmmo());
         assertEquals(25, ammo.getReloadTime());
         assertNull(ammo.getStartReloadSound());
-        assertEquals(VanillaSoundType.ENTITY_SKELETON_HORSE_HURT, ammo.getEndReloadSound());
+        assertEquals(SoundValues.createQuick(VanillaSoundType.ENTITY_SKELETON_HORSE_HURT, 1f, 1f), ammo.getEndReloadSound());
         assertEquals(2, item.getAmountPerShot());
     }
 
@@ -531,9 +532,9 @@ public class Backward9 {
                 PotionEffectValues.createQuick(EffectType.WATER_BREATHING, 300, 1)
         ), item.getEatEffects());
         assertEquals(37, item.getEatTime());
-        assertEquals(VanillaSoundType.ENTITY_WITCH_DRINK, item.getEatSound());
-        assertEquals(1.25, item.getSoundVolume(), 0.0);
-        assertEquals(0.75, item.getSoundPitch(), 0.0);
+        assertEquals(VanillaSoundType.ENTITY_WITCH_DRINK, item.getEatSound().getVanillaSound());
+        assertEquals(1.25, item.getEatSound().getVolume(), 0.0);
+        assertEquals(0.75, item.getEatSound().getPitch(), 0.0);
         assertEquals(7, item.getSoundPeriod());
         assertEquals(61, item.getMaxStacksize());
     }

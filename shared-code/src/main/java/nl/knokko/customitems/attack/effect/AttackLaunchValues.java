@@ -2,6 +2,7 @@ package nl.knokko.customitems.attack.effect;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -92,7 +93,7 @@ public class AttackLaunchValues extends AttackEffectValues {
     }
 
     @Override
-    public void validate() throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         if (direction == null) throw new ProgrammingValidationException("No direction");
         if (!Float.isFinite(speed)) throw new ValidationException("Speed must be finite");
     }

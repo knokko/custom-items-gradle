@@ -30,6 +30,7 @@ import nl.knokko.customitems.editor.menu.edit.drops.DropsMenu;
 import nl.knokko.customitems.editor.menu.edit.item.ItemCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.projectile.ProjectileMenu;
 import nl.knokko.customitems.editor.menu.edit.recipe.RecipeCollectionEdit;
+import nl.knokko.customitems.editor.menu.edit.sound.SoundTypeCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.texture.TextureCollectionEdit;
 import nl.knokko.customitems.editor.menu.main.MainMenu;
 import nl.knokko.customitems.editor.util.HelpButtons;
@@ -95,10 +96,6 @@ public class EditMenu extends GuiMenu {
 
 	public GuiComponent getRecipeOverview() {
 		return recipeOverview;
-	}
-
-	public GuiComponent getDropsMenu() {
-		return dropsMenu;
 	}
 
 	public ProjectileMenu getProjectileMenu() {
@@ -192,26 +189,30 @@ public class EditMenu extends GuiMenu {
 
 		addComponent(new DynamicTextButton("Textures", BUTTON, HOVER, () -> {
 			this.state.getWindow().setMainComponent(this.textureOverview);
-		}), 0.6F, 0.8F, 0.8F, 0.9F);
+		}), 0.6F, 0.825F, 0.8F, 0.9F);
 		addComponent(new DynamicTextButton("Items", BUTTON, HOVER, () -> {
 			this.state.getWindow().setMainComponent(this.itemOverview);
-		}), 0.6F, 0.68F, 0.8F, 0.78F);
+		}), 0.6F, 0.735F, 0.8F, 0.81F);
 		addComponent(new DynamicTextButton("Recipes", BUTTON, HOVER, () -> {
 			this.state.getWindow().setMainComponent(this.recipeOverview);
-		}), 0.6F, 0.56F, 0.8F, 0.66F);
+		}), 0.6F, 0.645F, 0.8F, 0.72F);
 		addComponent(new DynamicTextButton("Drops", BUTTON, HOVER, () -> {
 			this.state.getWindow().setMainComponent(this.dropsMenu);
-		}), 0.6F, 0.44F, 0.8F, 0.54F);
+		}), 0.6F, 0.555F, 0.8F, 0.63F);
 		addComponent(new DynamicTextButton("Projectiles", BUTTON, HOVER, () -> {
 			this.state.getWindow().setMainComponent(this.projectileMenu);
-		}), 0.6F, 0.32F, 0.875F, 0.42F);
+		}), 0.6F, 0.465F, 0.875F, 0.54F);
 		addComponent(new DynamicTextButton("Containers", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(containerPortal);
-		}), 0.6f, 0.2f, 0.875f, 0.3f);
+		}), 0.6f, 0.375f, 0.875f, 0.45f);
 		addComponent(new DynamicTextButton("Blocks (1.13+)", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new BlockCollectionEdit(this));
-		}), 0.6f, 0.08f, 0.9f, 0.18f);
+		}), 0.6f, 0.285f, 0.875f, 0.36f);
+		addComponent(new DynamicTextButton("Sounds", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new SoundTypeCollectionEdit(this, set));
+		}), 0.6f, 0.195f, 0.8f, 0.27f);
 
+		// TODO Update help menu
 		HelpButtons.addHelpLink(this, "edit menu/index.html");
 	}
 }

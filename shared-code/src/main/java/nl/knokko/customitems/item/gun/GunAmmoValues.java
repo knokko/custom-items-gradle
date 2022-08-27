@@ -12,6 +12,7 @@ public abstract class GunAmmoValues extends ModelValues {
 
     static final byte ENCODING_DIRECT_1 = 0;
     static final byte ENCODING_INDIRECT_1 = 1;
+    static final byte ENCODING_INDIRECT_NEW = 2;
 
     public static GunAmmoValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
@@ -20,6 +21,8 @@ public abstract class GunAmmoValues extends ModelValues {
             return DirectGunAmmoValues.load(input, encoding, itemSet);
         } else if (encoding == ENCODING_INDIRECT_1) {
             return IndirectGunAmmoValues.load(input, encoding, itemSet);
+        } else if (encoding == ENCODING_INDIRECT_NEW) {
+            return IndirectGunAmmoValues.loadNew(input, itemSet);
         } else {
             throw new UnknownEncodingException("GunAmmo", encoding);
         }

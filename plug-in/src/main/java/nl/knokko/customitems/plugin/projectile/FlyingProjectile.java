@@ -5,6 +5,7 @@ import static java.lang.Math.*;
 import java.util.Collection;
 import java.util.Random;
 
+import nl.knokko.customitems.plugin.SoundPlayer;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 import nl.knokko.customitems.projectile.effect.*;
 import org.bukkit.*;
@@ -241,12 +242,7 @@ class FlyingProjectile {
 					}
 				}
 			} else if (effect instanceof PlaySoundValues) {
-				PlaySoundValues playSound = (PlaySoundValues) effect;
-				world.playSound(
-						currentPosition.toLocation(world),
-						Sound.valueOf(playSound.getSound().name()),
-						playSound.getVolume(), playSound.getPitch()
-				);
+				SoundPlayer.playSound(currentPosition.toLocation(world), ((PlaySoundValues) effect).getSound());
 			} else if (effect instanceof ShowFireworkValues) {
 				ShowFireworkValues showFirework = (ShowFireworkValues) effect;
 				world.spawn(currentPosition.toLocation(world), Firework.class, firework -> {

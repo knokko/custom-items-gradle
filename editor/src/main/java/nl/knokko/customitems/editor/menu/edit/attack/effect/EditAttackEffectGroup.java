@@ -3,14 +3,12 @@ package nl.knokko.customitems.editor.menu.edit.attack.effect;
 import nl.knokko.customitems.attack.effect.AttackEffectGroupValues;
 import nl.knokko.customitems.editor.util.FixedPointEditField;
 import nl.knokko.customitems.editor.util.HelpButtons;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.util.Chance;
-import nl.knokko.customitems.util.Validation;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.EagerFloatEditField;
-import nl.knokko.gui.component.text.EagerIntEditField;
-import nl.knokko.gui.component.text.IntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
@@ -25,15 +23,17 @@ public class EditAttackEffectGroup extends GuiMenu {
     private final Consumer<AttackEffectGroupValues> changeValues;
     private final boolean isForBlocking;
     private final GuiComponent returnMenu;
+    private final ItemSet itemSet;
 
     public EditAttackEffectGroup(
             AttackEffectGroupValues oldValues, Consumer<AttackEffectGroupValues> changeValues,
-            boolean isForBlocking, GuiComponent returnMenu
+            boolean isForBlocking, GuiComponent returnMenu, ItemSet itemSet
     ) {
         this.currentValues = oldValues.copy(true);
         this.changeValues = changeValues;
         this.isForBlocking = isForBlocking;
         this.returnMenu = returnMenu;
+        this.itemSet = itemSet;
     }
 
     @Override
@@ -46,7 +46,7 @@ public class EditAttackEffectGroup extends GuiMenu {
         }), 0.05f, 0.8f, 0.175f, 0.9f);
 
         addComponent(new DynamicTextButton("Apply", SAVE_BASE, SAVE_HOVER, () -> {
-            String error = toErrorString(currentValues::validate);
+            String error = toErrorString(() -> currentValues.validate(itemSet));
             if (error == null) {
                 changeValues.accept(currentValues);
                 state.getWindow().setMainComponent(returnMenu);
@@ -58,14 +58,14 @@ public class EditAttackEffectGroup extends GuiMenu {
         addComponent(new DynamicTextComponent("Attacker effects", LABEL), 0.2f, 0.7f, 0.4f, 0.8f);
         addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new AttackEffectCollectionEdit(
-                    currentValues.getAttackerEffects(), currentValues::setAttackerEffects, this
+                    currentValues.getAttackerEffects(), currentValues::setAttackerEffects, this, itemSet
             ));
         }), 0.45f, 0.7f, 0.55f, 0.8f);
 
         addComponent(new DynamicTextComponent("Victim effects", LABEL), 0.2f, 0.55f, 0.4f, 0.65f);
         addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new AttackEffectCollectionEdit(
-                    currentValues.getVictimEffects(), currentValues::setVictimEffects, this
+                    currentValues.getVictimEffects(), currentValues::setVictimEffects, this, itemSet
             ));
         }), 0.45f, 0.55f, 0.55f, 0.65f);
 

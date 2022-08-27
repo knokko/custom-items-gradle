@@ -1,28 +1,29 @@
 package nl.knokko.customitems.editor.menu.edit.item;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.ChooseIngredient;
+import nl.knokko.customitems.editor.menu.edit.sound.EditSound;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.item.gun.DirectGunAmmoValues;
 import nl.knokko.customitems.item.gun.GunAmmoValues;
 import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.sound.VanillaSoundType;
+import nl.knokko.customitems.sound.SoundValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
+import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.ActivatableTextButton;
+import nl.knokko.gui.component.text.ConditionalTextButton;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 import java.util.function.Consumer;
 
-import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
-import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
+import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class EditAmmoSystem extends GuiMenu {
 
@@ -96,6 +97,7 @@ public class EditAmmoSystem extends GuiMenu {
         addComponent(new AmmoTypeWrapper<>(new IndirectAmmoProperties(), AmmoType.INDIRECT),
                 0.4f, 0f, 1f, 1f);
 
+        // TODO Update help menu
         HelpButtons.addHelpLink(this, "edit%20menu/items/edit/gun%20ammo.html");
     }
 
@@ -168,17 +170,29 @@ public class EditAmmoSystem extends GuiMenu {
                     0.72f, 0.4f, 0.85f, 0.47f
             );
 
-            addComponent(new DynamicTextComponent("Start reload sound:", EditProps.LABEL),
+            addComponent(new CheckboxComponent(indirectValues.getStartReloadSound() != null, newValue -> {
+                if (newValue) indirectValues.setStartReloadSound(new SoundValues(false));
+                else indirectValues.setStartReloadSound(null);
+            }), 0.37f, 0.31f, 0.39f, 0.33f);
+            addComponent(new DynamicTextComponent("Start reload sound", EditProps.LABEL),
                     0.4f, 0.3f, 0.7f, 0.37f);
-            addComponent(EnumSelect.createSelectButton(
-                    VanillaSoundType.class, indirectValues::setStartReloadSound, indirectValues.getStartReloadSound()
-            ), 0.72f, 0.3f, 0.9f, 0.37f);
+            addComponent(new ConditionalTextButton("Change...", BUTTON, HOVER, () -> {
+                state.getWindow().setMainComponent(new EditSound(
+                        indirectValues.getStartReloadSound(), indirectValues::setStartReloadSound, EditAmmoSystem.this, set
+                ));
+            }, () -> indirectValues.getStartReloadSound() != null), 0.72f, 0.3f, 0.9f, 0.37f);
 
-            addComponent(new DynamicTextComponent("Finish reload sound:", EditProps.LABEL),
+            addComponent(new CheckboxComponent(indirectValues.getEndReloadSound() != null, newValue -> {
+                if (newValue) indirectValues.setEndReloadSound(new SoundValues(false));
+                else indirectValues.setEndReloadSound(null);
+            }), 0.37f, 0.21f, 0.39f, 0.23f);
+            addComponent(new DynamicTextComponent("Finish reload sound", EditProps.LABEL),
                     0.4f, 0.2f, 0.7f, 0.27f);
-            addComponent(EnumSelect.createSelectButton(
-                    VanillaSoundType.class, indirectValues::setEndReloadSound, indirectValues.getEndReloadSound()
-            ), 0.72f, 0.2f, 0.9f, 0.27f);
+            addComponent(new ConditionalTextButton("Change...", BUTTON, HOVER, () -> {
+                state.getWindow().setMainComponent(new EditSound(
+                        indirectValues.getEndReloadSound(), indirectValues::setEndReloadSound, EditAmmoSystem.this, set
+                ));
+            }, () -> indirectValues.getEndReloadSound() != null), 0.72f, 0.2f, 0.9f, 0.27f);
         }
 
         @Override

@@ -3,6 +3,7 @@ package nl.knokko.customitems.item.gun;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
+import nl.knokko.customitems.sound.SoundValues;
 import nl.knokko.customitems.sound.VanillaSoundType;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
@@ -11,6 +12,8 @@ import nl.knokko.customitems.util.Validation;
 import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
+
+import java.util.Objects;
 
 public class IndirectGunAmmoValues extends GunAmmoValues {
 
@@ -28,13 +31,37 @@ public class IndirectGunAmmoValues extends GunAmmoValues {
         return result;
     }
 
+    static IndirectGunAmmoValues loadNew(
+            BitInput input, ItemSet itemSet
+    ) throws UnknownEncodingException {
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("IndirectGunAmmo", encoding);
+
+        IndirectGunAmmoValues result = new IndirectGunAmmoValues(false);
+        result.reloadItem = IngredientValues.load(input, itemSet);
+        result.cooldown = input.readInt();
+        result.storedAmmo = input.readInt();
+        result.reloadTime = input.readInt();
+        if (input.readBoolean()) {
+            result.startReloadSound = SoundValues.load(input, itemSet);
+        } else {
+            result.startReloadSound = null;
+        }
+        if (input.readBoolean()) {
+            result.endReloadSound = SoundValues.load(input, itemSet);
+        } else {
+            result.endReloadSound = null;
+        }
+        return result;
+    }
+
     private IngredientValues reloadItem;
     private int cooldown;
     private int storedAmmo;
     private int reloadTime;
 
-    private VanillaSoundType startReloadSound;
-    private VanillaSoundType endReloadSound;
+    private SoundValues startReloadSound;
+    private SoundValues endReloadSound;
 
     public IndirectGunAmmoValues(boolean mutable) {
         super(mutable);
@@ -66,7 +93,8 @@ public class IndirectGunAmmoValues extends GunAmmoValues {
             IndirectGunAmmoValues otherAmmo = (IndirectGunAmmoValues) other;
             return this.reloadItem.equals(otherAmmo.reloadItem) && this.cooldown == otherAmmo.cooldown
                     && this.storedAmmo == otherAmmo.storedAmmo && this.reloadTime == otherAmmo.reloadTime
-                    && this.startReloadSound == otherAmmo.startReloadSound && this.endReloadSound == otherAmmo.endReloadSound;
+                    && Objects.equals(this.startReloadSound, otherAmmo.startReloadSound)
+                    && Objects.equals(this.endReloadSound, otherAmmo.endReloadSound);
         } else {
             return false;
         }
@@ -79,11 +107,12 @@ public class IndirectGunAmmoValues extends GunAmmoValues {
 
     @Override
     public void save(BitOutput output) {
-        output.addByte(ENCODING_INDIRECT_1);
-        save1(output);
+        output.addByte(ENCODING_INDIRECT_NEW);
+        output.addByte((byte) 1);
+        saveNew(output);
     }
 
-    private void save1(BitOutput output) {
+    private void saveNew(BitOutput output) {
         reloadItem.save(output);
         output.addInt(cooldown);
         output.addInt(storedAmmo);
@@ -91,12 +120,12 @@ public class IndirectGunAmmoValues extends GunAmmoValues {
 
         output.addBoolean(startReloadSound != null);
         if (startReloadSound != null) {
-            output.addString(startReloadSound.name());
+            startReloadSound.save(output);
         }
 
         output.addBoolean(endReloadSound != null);
         if (endReloadSound != null) {
-            output.addString(endReloadSound.name());
+            endReloadSound.save(output);
         }
     }
 
@@ -107,13 +136,13 @@ public class IndirectGunAmmoValues extends GunAmmoValues {
         this.reloadTime = input.readInt();
 
         if (input.readBoolean()) {
-            this.startReloadSound = VanillaSoundType.valueOf(input.readString());
+            this.startReloadSound = SoundValues.createQuick(VanillaSoundType.valueOf(input.readString()), 1f, 1f).copy(false);
         } else {
             this.startReloadSound = null;
         }
 
         if (input.readBoolean()) {
-            this.endReloadSound = VanillaSoundType.valueOf(input.readString());
+            this.endReloadSound = SoundValues.createQuick(VanillaSoundType.valueOf(input.readString()), 1f, 1f).copy(false);
         } else {
             this.endReloadSound = null;
         }
@@ -136,11 +165,11 @@ public class IndirectGunAmmoValues extends GunAmmoValues {
         return reloadTime;
     }
 
-    public VanillaSoundType getStartReloadSound() {
+    public SoundValues getStartReloadSound() {
         return startReloadSound;
     }
 
-    public VanillaSoundType getEndReloadSound() {
+    public SoundValues getEndReloadSound() {
         return endReloadSound;
     }
 
@@ -165,14 +194,14 @@ public class IndirectGunAmmoValues extends GunAmmoValues {
         this.reloadTime = newReloadTime;
     }
 
-    public void setStartReloadSound(VanillaSoundType newStartReloadSound) {
+    public void setStartReloadSound(SoundValues newStartReloadSound) {
         assertMutable();
-        this.startReloadSound = newStartReloadSound;
+        this.startReloadSound = newStartReloadSound != null ? newStartReloadSound.copy(false) : null;
     }
 
-    public void setEndReloadSound(VanillaSoundType newEndReloadSound) {
+    public void setEndReloadSound(SoundValues newEndReloadSound) {
         assertMutable();
-        this.endReloadSound = newEndReloadSound;
+        this.endReloadSound = newEndReloadSound != null ? newEndReloadSound.copy(false) : null;
     }
 
     @Override
@@ -187,10 +216,14 @@ public class IndirectGunAmmoValues extends GunAmmoValues {
     public void validateComplete(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         validateIndependent();
         if (reloadItem != null) Validation.scope("Reload item", () -> reloadItem.validateComplete(itemSet));
+        if (startReloadSound != null) Validation.scope("Start reload sound", startReloadSound::validate, itemSet);
+        if (endReloadSound != null) Validation.scope("End reload sound", endReloadSound::validate, itemSet);
     }
 
     @Override
     public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
         if (reloadItem != null) reloadItem.validateExportVersion(version);
+        if (startReloadSound != null) Validation.scope("Start reload sound", () -> startReloadSound.validateExportVersion(version));
+        if (endReloadSound != null) Validation.scope("End reload sound", () -> endReloadSound.validateExportVersion(version));
     }
 }

@@ -1,14 +1,11 @@
 package nl.knokko.customitems.editor.menu.edit.attack.effect;
 
 import nl.knokko.customitems.attack.effect.AttackEffectValues;
-import nl.knokko.customitems.attack.effect.AttackPotionEffectValues;
-import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.util.Validation;
-import nl.knokko.customitems.effect.EffectType;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
-import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
@@ -21,12 +18,14 @@ public abstract class EditAttackEffect extends GuiMenu {
 
     private final Consumer<AttackEffectValues> changeValues;
     private final GuiComponent returnMenu;
+    private final ItemSet itemSet;
 
     public EditAttackEffect(
-            Consumer<AttackEffectValues> changeValues, GuiComponent returnMenu
+            Consumer<AttackEffectValues> changeValues, GuiComponent returnMenu, ItemSet itemSet
     ) {
         this.changeValues = changeValues;
         this.returnMenu = returnMenu;
+        this.itemSet = itemSet;
     }
 
     @Override
@@ -40,7 +39,7 @@ public abstract class EditAttackEffect extends GuiMenu {
 
         addComponent(new DynamicTextButton("Apply", SAVE_BASE, SAVE_HOVER, () -> {
             AttackEffectValues currentValues = getCurrentValues();
-            String error = Validation.toErrorString(currentValues::validate);
+            String error = Validation.toErrorString(() -> currentValues.validate(itemSet));
             if (error == null) {
                 changeValues.accept(currentValues);
                 state.getWindow().setMainComponent(returnMenu);

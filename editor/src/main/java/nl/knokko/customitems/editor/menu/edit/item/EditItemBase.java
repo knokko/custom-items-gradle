@@ -319,7 +319,7 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 		}), BUTTON_X, -0.28f, BUTTON_X + 0.1f, -0.23f);
 		addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new AttackEffectGroupCollectionEdit(
-					currentValues.getAttackEffects(), currentValues::setAttackEffects, false, this
+					currentValues.getAttackEffects(), currentValues::setAttackEffects, false, this, menu.getSet()
 			));
 		}), BUTTON_X, -0.34f, BUTTON_X + 0.1f, -0.29f);
 		addComponent(

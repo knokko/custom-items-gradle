@@ -4,6 +4,7 @@ import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 import nl.knokko.customitems.damage.DamageSource;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -93,7 +94,7 @@ public class AttackDealDamageValues extends AttackEffectValues {
     }
 
     @Override
-    public void validate() throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         if (this.damage <= 0f) throw new ValidationException("Damage must be positive");
         if (this.delay <= 0) throw new ValidationException("Delay must be positive");
     }

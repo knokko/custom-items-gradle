@@ -21,6 +21,7 @@ public abstract class ProjectileEffectValues extends ModelValues {
     static final byte ENCODING_PLAY_SOUND_1 = 8;
     static final byte ENCODING_FIREWORK_1 = 9;
     static final byte ENCODING_POTION_AURA_1 = 10;
+    static final byte ENCODING_PLAY_SOUND_NEW = 11;
 
     public static ProjectileEffectValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
@@ -31,8 +32,8 @@ public abstract class ProjectileEffectValues extends ModelValues {
             return ExecuteCommandValues.load(input, encoding);
         } else if (encoding == ENCODING_EXPLOSION_1) {
             return ExplosionValues.load(input, encoding);
-        } else if (encoding == ENCODING_PLAY_SOUND_1) {
-            return PlaySoundValues.load(input, encoding);
+        } else if (encoding == ENCODING_PLAY_SOUND_1 || encoding == ENCODING_PLAY_SOUND_NEW) {
+            return PlaySoundValues.load(input, encoding, itemSet);
         } else if (encoding == ENCODING_POTION_AURA_1) {
             return PotionAuraValues.load(input, encoding);
         } else if (encoding == ENCODING_PUSH_PULL_1) {

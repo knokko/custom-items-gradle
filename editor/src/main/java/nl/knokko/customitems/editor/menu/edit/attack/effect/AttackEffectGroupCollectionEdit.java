@@ -3,9 +3,8 @@ package nl.knokko.customitems.editor.menu.edit.attack.effect;
 import nl.knokko.customitems.attack.effect.AttackEffectGroupValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.collection.SelfDedicatedCollectionEdit;
-import nl.knokko.customitems.editor.menu.edit.projectile.effect.EditProjectileEffects;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.projectile.effect.ProjectileEffectsValues;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
@@ -16,14 +15,16 @@ import java.util.function.Consumer;
 public class AttackEffectGroupCollectionEdit extends SelfDedicatedCollectionEdit<AttackEffectGroupValues> {
 
     private final boolean isForBlocking;
+    private final ItemSet itemSet;
 
     public AttackEffectGroupCollectionEdit(
             Collection<AttackEffectGroupValues> oldCollection,
             Consumer<Collection<AttackEffectGroupValues>> changeCollection,
-            boolean isForBlocking, GuiComponent returnMenu
+            boolean isForBlocking, GuiComponent returnMenu, ItemSet itemSet
     ) {
         super(oldCollection, changeCollection::accept, returnMenu);
         this.isForBlocking = isForBlocking;
+        this.itemSet = itemSet;
     }
 
     @Override
@@ -31,7 +32,7 @@ public class AttackEffectGroupCollectionEdit extends SelfDedicatedCollectionEdit
         super.addComponents();
         addComponent(new DynamicTextButton("Add effects", EditProps.BUTTON, EditProps.HOVER, () -> {
             state.getWindow().setMainComponent(new EditAttackEffectGroup(
-                    new AttackEffectGroupValues(true), this::addModel, isForBlocking, this
+                    new AttackEffectGroupValues(true), this::addModel, isForBlocking, this, itemSet
             ));
         }), 0.025f, 0.2f, 0.2f, 0.3f);
 
@@ -56,7 +57,7 @@ public class AttackEffectGroupCollectionEdit extends SelfDedicatedCollectionEdit
 
     @Override
     protected GuiComponent createEditMenu(AttackEffectGroupValues oldModelValues, Consumer<AttackEffectGroupValues> changeModelValues) {
-        return new EditAttackEffectGroup(oldModelValues, changeModelValues, isForBlocking, this);
+        return new EditAttackEffectGroup(oldModelValues, changeModelValues, isForBlocking, this, itemSet);
     }
 
     @Override

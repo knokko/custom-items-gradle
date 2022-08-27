@@ -1,63 +1,54 @@
 package nl.knokko.customitems.attack.effect;
 
-import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
+import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.customitems.sound.SoundValues;
 import nl.knokko.customitems.sound.VanillaSoundType;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
-import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
+import nl.knokko.customitems.util.Validation;
 import nl.knokko.customitems.util.ValidationException;
-
-import static nl.knokko.customitems.util.Checks.isClose;
 
 public class AttackPlaySoundValues extends AttackEffectValues {
 
-    static AttackPlaySoundValues loadOwn(BitInput input) throws UnknownEncodingException {
+    static AttackPlaySoundValues loadOwn(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
-        if (encoding != 1) throw new UnknownEncodingException("AttackPlaySound", encoding);
+        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("AttackPlaySound", encoding);
 
         AttackPlaySoundValues result = new AttackPlaySoundValues(false);
-        result.sound = VanillaSoundType.valueOf(input.readString());
-        result.volume = input.readFloat();
-        result.pitch = input.readFloat();
+        if (encoding == 1) {
+            result.sound = SoundValues.createQuick(VanillaSoundType.valueOf(input.readString()), input.readFloat(), input.readFloat()).copy(false);
+        } else {
+            result.sound = SoundValues.load(input, itemSet);
+        }
         return result;
     }
 
-    public static AttackPlaySoundValues createQuick(VanillaSoundType sound, float volume, float pitch) {
+    public static AttackPlaySoundValues createQuick(SoundValues sound) {
         AttackPlaySoundValues result = new AttackPlaySoundValues(true);
         result.setSound(sound);
-        result.setVolume(volume);
-        result.setPitch(pitch);
         return result;
     }
 
-    private VanillaSoundType sound;
-    private float volume;
-    private float pitch;
+    private SoundValues sound;
 
     public AttackPlaySoundValues(boolean mutable) {
         super(mutable);
-        this.sound = VanillaSoundType.BLOCK_ANVIL_LAND;
-        this.volume = 1f;
-        this.pitch = 1f;
+        this.sound = new SoundValues(false);
     }
 
     public AttackPlaySoundValues(AttackPlaySoundValues toCopy, boolean mutable) {
         super(mutable);
         this.sound = toCopy.getSound();
-        this.volume = toCopy.getVolume();
-        this.pitch = toCopy.getPitch();
     }
 
     @Override
     public void save(BitOutput output) {
         output.addByte(ENCODING_PLAY_SOUND);
-        output.addByte((byte) 1);
+        output.addByte((byte) 2);
 
-        output.addString(sound.name());
-        output.addFloat(volume);
-        output.addFloat(pitch);
+        sound.save(output);
     }
 
     @Override
@@ -69,7 +60,7 @@ public class AttackPlaySoundValues extends AttackEffectValues {
     public boolean equals(Object other) {
         if (other instanceof AttackPlaySoundValues) {
             AttackPlaySoundValues otherEffect = (AttackPlaySoundValues) other;
-            return this.sound == otherEffect.sound && isClose(this.volume, otherEffect.volume) && isClose(this.pitch, otherEffect.pitch);
+            return this.sound.equals(otherEffect.sound);
         } else {
             return false;
         }
@@ -77,51 +68,26 @@ public class AttackPlaySoundValues extends AttackEffectValues {
 
     @Override
     public String toString() {
-        return "AttackPlaySound(" + sound + ",volume=" + volume + ",pitch=" + pitch + ")";
+        return sound.toString();
     }
 
-    public VanillaSoundType getSound() {
+    public SoundValues getSound() {
         return sound;
     }
 
-    public float getVolume() {
-        return volume;
-    }
-
-    public float getPitch() {
-        return pitch;
-    }
-
-    public void setSound(VanillaSoundType sound) {
+    public void setSound(SoundValues sound) {
         assertMutable();
-        Checks.notNull(sound);
-        this.sound = sound;
-    }
-
-    public void setVolume(float volume) {
-        assertMutable();
-        this.volume = volume;
-    }
-
-    public void setPitch(float pitch) {
-        assertMutable();
-        this.pitch = pitch;
+        this.sound = sound.copy(false);
     }
 
     @Override
-    public void validate() throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         if (sound == null) throw new ProgrammingValidationException("No sound");
-        if (volume <= 0f) throw new ValidationException("Volume must be positive");
-        if (pitch <= 0f) throw new ValidationException("Pich must be positive");
+        Validation.scope("Sound", sound::validate, itemSet);
     }
 
     @Override
     public void validateExportVersion(int mcVersion) throws ValidationException, ProgrammingValidationException {
-        if (mcVersion < sound.firstVersion) {
-            throw new ValidationException("Sound " + sound + " doesn't exist yet in MC " + MCVersions.createString(mcVersion));
-        }
-        if (mcVersion > sound.lastVersion) {
-            throw new ValidationException("Sound " + sound + " no longer exists in MC " + MCVersions.createString(mcVersion));
-        }
+        Validation.scope("Sound", () -> sound.validateExportVersion(mcVersion));
     }
 }

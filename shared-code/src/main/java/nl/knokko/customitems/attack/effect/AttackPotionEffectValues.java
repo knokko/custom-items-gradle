@@ -4,6 +4,7 @@ import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 import nl.knokko.customitems.effect.EffectType;
 import nl.knokko.customitems.effect.PotionEffectValues;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -91,7 +92,7 @@ public class AttackPotionEffectValues extends AttackEffectValues {
     }
 
     @Override
-    public void validate() throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         if (potionEffect == null) throw new ProgrammingValidationException("No potion effect");
         Validation.scope("Potion effect", potionEffect::validate);
     }

@@ -73,6 +73,8 @@ import nl.knokko.customitems.recipe.result.ResultValues;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Jukebox;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
@@ -1828,11 +1830,7 @@ public class CustomItemsEventHandler implements Listener {
 			}
 		} else if (effect instanceof AttackPlaySoundValues) {
 			if (entity instanceof Player) {
-				AttackPlaySoundValues soundEffect = (AttackPlaySoundValues) effect;
-				((Player) entity).playSound(
-						entity.getLocation(), Sound.valueOf(soundEffect.getSound().name()),
-						soundEffect.getVolume(), soundEffect.getPitch()
-				);
+				SoundPlayer.playSound((Player) entity, ((AttackPlaySoundValues) effect).getSound());
 			}
 		} else {
 			throw new UnsupportedOperationException("Unknown attack effect type: " + effect.getClass());

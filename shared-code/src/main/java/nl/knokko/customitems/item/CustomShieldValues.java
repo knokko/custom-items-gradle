@@ -16,7 +16,6 @@ import nl.knokko.customitems.bithelper.BitOutput;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static nl.knokko.customitems.item.model.ItemModel.MODEL_TYPE_NONE;
 import static nl.knokko.customitems.util.Checks.isClose;
 
 public class CustomShieldValues extends CustomToolValues {
@@ -85,7 +84,7 @@ public class CustomShieldValues extends CustomToolValues {
             int numBlockingEffects = input.readInt();
             this.blockingEffects = new ArrayList<>(numBlockingEffects);
             for (int counter = 0; counter < numBlockingEffects; counter++) {
-                this.blockingEffects.add(AttackEffectGroupValues.load(input));
+                this.blockingEffects.add(AttackEffectGroupValues.load(input, itemSet));
             }
         }
 
@@ -246,10 +245,19 @@ public class CustomShieldValues extends CustomToolValues {
         if (thresholdDamage < 0.0) throw new ValidationException("Threshold damage can't be negative");
         if (blockingEffects == null) throw new ProgrammingValidationException("No blocking effects");
         for (AttackEffectGroupValues blockingEffectGroup : blockingEffects) {
-            Validation.scope("Blocking effects", blockingEffectGroup::validate);
+            if (blockingEffectGroup == null) throw new ProgrammingValidationException("Missing a blocking effect");
         }
 
         if (blockingModel == null) throw new ProgrammingValidationException("No blocking model");
+    }
+
+    @Override
+    public void validateComplete(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
+        super.validateComplete(itemSet, oldName);
+
+        for (AttackEffectGroupValues blockingEffectGroup : blockingEffects) {
+            Validation.scope("Blocking effects", blockingEffectGroup::validate, itemSet);
+        }
     }
 
     @Override
@@ -259,5 +267,6 @@ public class CustomShieldValues extends CustomToolValues {
         for (AttackEffectGroupValues blockingEffectGroup : blockingEffects) {
             Validation.scope("Blocking effects", () -> blockingEffectGroup.validateExportVersion(mcVersion));
         }
+
     }
 }

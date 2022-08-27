@@ -1,10 +1,10 @@
 package nl.knokko.customitems.item;
 
-import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.effect.PotionEffectValues;
 import nl.knokko.customitems.encoding.ItemEncoding;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.Mutability;
+import nl.knokko.customitems.sound.SoundValues;
 import nl.knokko.customitems.sound.VanillaSoundType;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
@@ -16,8 +16,6 @@ import nl.knokko.customitems.bithelper.BitOutput;
 
 import java.util.ArrayList;
 import java.util.Collection;
-
-import static nl.knokko.customitems.util.Checks.isClose;
 
 public class CustomFoodValues extends CustomItemValues {
 
@@ -47,9 +45,7 @@ public class CustomFoodValues extends CustomItemValues {
     private Collection<PotionEffectValues> eatEffects;
     private int eatTime;
 
-    private VanillaSoundType eatSound;
-    private float soundVolume;
-    private float soundPitch;
+    private SoundValues eatSound;
     private int soundPeriod;
 
     private byte maxStacksize;
@@ -60,9 +56,7 @@ public class CustomFoodValues extends CustomItemValues {
         this.foodValue = 4;
         this.eatEffects = new ArrayList<>();
         this.eatTime = 30;
-        this.eatSound = VanillaSoundType.ENTITY_GENERIC_EAT;
-        this.soundVolume = 1f;
-        this.soundPitch = 1f;
+        this.eatSound = SoundValues.createQuick(VanillaSoundType.ENTITY_GENERIC_EAT, 1f, 1f).copy(false);
         this.soundPeriod = 10;
         this.maxStacksize = 64;
     }
@@ -74,8 +68,6 @@ public class CustomFoodValues extends CustomItemValues {
         this.eatEffects = toCopy.getEatEffects();
         this.eatTime = toCopy.getEatTime();
         this.eatSound = toCopy.getEatSound();
-        this.soundVolume = toCopy.getSoundVolume();
-        this.soundPitch = toCopy.getSoundPitch();
         this.soundPeriod = toCopy.getSoundPeriod();
         this.maxStacksize = toCopy.getMaxStacksize();
     }
@@ -84,27 +76,37 @@ public class CustomFoodValues extends CustomItemValues {
         this.loadSharedPropertiesNew(input, itemSet);
 
         byte encoding = input.readByte();
-        if (encoding != 1) throw new UnknownEncodingException("CustomFoodNew", encoding);
+        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("CustomFoodNew", encoding);
 
         this.eatEffects = this.loadPotionEffectList(input);
-        this.eatSound = VanillaSoundType.valueOf(input.readString());
-        this.foodValue = input.readInt();
-        this.eatTime = input.readInt();
-        this.soundPeriod = input.readInt();
-        this.soundVolume = input.readFloat();
-        this.soundPitch = input.readFloat();
-        this.maxStacksize = input.readByte();
+
+        if (encoding == 1) {
+            VanillaSoundType eatSoundType = VanillaSoundType.valueOf(input.readString());
+            this.foodValue = input.readInt();
+            this.eatTime = input.readInt();
+            this.soundPeriod = input.readInt();
+            float eatSoundVolume = input.readFloat();
+            float eatSoundPitch = input.readFloat();
+            this.maxStacksize = input.readByte();
+            this.eatSound = SoundValues.createQuick(eatSoundType, eatSoundVolume, eatSoundPitch).copy(false);
+        } else {
+            this.foodValue = input.readInt();
+            this.eatSound = SoundValues.load(input, itemSet);
+            this.eatTime = input.readInt();
+            this.soundPeriod = input.readInt();
+            this.maxStacksize = input.readByte();
+        }
     }
 
     protected void saveFoodPropertiesNew(BitOutput output, ItemSet.Side targetSide) {
         this.saveSharedPropertiesNew(output, targetSide);
 
-        output.addByte((byte) 1);
+        output.addByte((byte) 2);
 
         this.savePotionEffectList(this.eatEffects, output);
-        output.addString(this.eatSound.name());
-        output.addInts(this.foodValue, this.eatTime, this.soundPeriod);
-        output.addFloats(this.soundVolume, this.soundPitch);
+        output.addInt(this.foodValue);
+        this.eatSound.save(output);
+        output.addInts(this.eatTime, this.soundPeriod);
         output.addByte(this.maxStacksize);
     }
 
@@ -127,9 +129,7 @@ public class CustomFoodValues extends CustomItemValues {
             this.eatEffects.add(PotionEffectValues.load2(input, false));
         }
         this.eatTime = input.readInt();
-        this.eatSound = VanillaSoundType.valueOf(input.readString());
-        this.soundVolume = input.readFloat();
-        this.soundPitch = input.readFloat();
+        this.eatSound = SoundValues.createQuick(VanillaSoundType.valueOf(input.readString()), input.readFloat(), input.readFloat()).copy(false);
         this.soundPeriod = input.readInt();
         this.maxStacksize = (byte) input.readInt();
     }
@@ -150,8 +150,7 @@ public class CustomFoodValues extends CustomItemValues {
 
     protected boolean areFoodPropertiesEqual(CustomFoodValues other) {
         return areBaseItemPropertiesEqual(other) && this.foodValue == other.foodValue && this.eatEffects.equals(other.eatEffects)
-                && this.eatTime == other.eatTime && this.eatSound == other.eatSound && isClose(this.soundPitch, other.soundPitch)
-                && isClose(this.soundVolume, other.soundVolume) && this.soundPeriod == other.soundPeriod
+                && this.eatTime == other.eatTime && this.eatSound.equals(other.eatSound) && this.soundPeriod == other.soundPeriod
                 && this.maxStacksize == other.maxStacksize;
     }
 
@@ -177,16 +176,8 @@ public class CustomFoodValues extends CustomItemValues {
         return eatTime;
     }
 
-    public VanillaSoundType getEatSound() {
+    public SoundValues getEatSound() {
         return eatSound;
-    }
-
-    public float getSoundVolume() {
-        return soundVolume;
-    }
-
-    public float getSoundPitch() {
-        return soundPitch;
     }
 
     public int getSoundPeriod() {
@@ -209,20 +200,10 @@ public class CustomFoodValues extends CustomItemValues {
         this.eatTime = newEatTime;
     }
 
-    public void setEatSound(VanillaSoundType newEatSound) {
+    public void setEatSound(SoundValues newEatSound) {
         assertMutable();
         Checks.notNull(newEatSound);
-        this.eatSound = newEatSound;
-    }
-
-    public void setSoundVolume(float newVolume) {
-        assertMutable();
-        this.soundVolume = newVolume;
-    }
-
-    public void setSoundPitch(float newPitch) {
-        assertMutable();
-        this.soundPitch = newPitch;
+        this.eatSound = newEatSound.copy(false);
     }
 
     public void setSoundPeriod(int newPeriod) {
@@ -247,11 +228,16 @@ public class CustomFoodValues extends CustomItemValues {
 
         if (eatTime < 1) throw new ValidationException("Eat time must be positive");
         if (eatSound == null) throw new ProgrammingValidationException("No eat sound");
-        if (soundVolume <= 0f) throw new ValidationException("Sound volume must be positive");
-        if (soundPitch <= 0f) throw new ValidationException("Sound pitch must be positive");
         if (soundPeriod < 1) throw new ValidationException("Sound period must be positive");
         if (maxStacksize < 1) throw new ValidationException("Maximum stacksize must be positive");
         if (maxStacksize > 64) throw new ValidationException("Maximum stacksize can be at most 64");
+    }
+
+    @Override
+    public void validateComplete(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
+        super.validateComplete(itemSet, oldName);
+
+        Validation.scope("Eat sound", eatSound::validate, itemSet);
     }
 
     @Override
@@ -260,11 +246,6 @@ public class CustomFoodValues extends CustomItemValues {
             Validation.scope("Eat effects", () -> effect.validateExportVersion(version));
         }
 
-        if (version < eatSound.firstVersion) {
-            throw new ValidationException(eatSound + " doesn't exist yet in mc " + MCVersions.createString(version));
-        }
-        if (version > eatSound.lastVersion) {
-            throw new ValidationException(eatSound + " doesn't exist anymore in mc " + MCVersions.createString(version));
-        }
+        Validation.scope("Eat sound", () -> eatSound.validateExportVersion(version));
     }
 }

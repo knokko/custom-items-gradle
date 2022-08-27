@@ -3,6 +3,7 @@ package nl.knokko.customitems.editor.menu.edit.attack.effect;
 import nl.knokko.customitems.attack.effect.AttackEffectValues;
 import nl.knokko.customitems.attack.effect.AttackIgniteValues;
 import nl.knokko.customitems.editor.util.HelpButtons;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
@@ -16,9 +17,10 @@ public class EditAttackIgnite extends EditAttackEffect {
     private final AttackIgniteValues currentValues;
 
     public EditAttackIgnite(
-            AttackIgniteValues oldValues, Consumer<AttackEffectValues> changeValues, GuiComponent returnMenu
+            AttackIgniteValues oldValues, Consumer<AttackEffectValues> changeValues,
+            GuiComponent returnMenu, ItemSet itemSet
     ) {
-        super(changeValues, returnMenu);
+        super(changeValues, returnMenu, itemSet);
         this.currentValues = oldValues.copy(true);
     }
 

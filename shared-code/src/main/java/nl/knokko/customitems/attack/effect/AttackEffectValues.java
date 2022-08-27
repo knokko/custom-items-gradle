@@ -2,6 +2,7 @@ package nl.knokko.customitems.attack.effect;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -16,7 +17,7 @@ public abstract class AttackEffectValues extends ModelValues {
     protected static final byte ENCODING_DEAL_DAMAGE = 4;
     protected static final byte ENCODING_PLAY_SOUND = 5;
 
-    public static AttackEffectValues load(BitInput input) throws UnknownEncodingException {
+    public static AttackEffectValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
 
         if (encoding == ENCODING_POTION_EFFECT) {
@@ -30,7 +31,7 @@ public abstract class AttackEffectValues extends ModelValues {
         } else if (encoding == ENCODING_DEAL_DAMAGE) {
             return AttackDealDamageValues.loadOwn(input);
         } else if (encoding == ENCODING_PLAY_SOUND) {
-            return AttackPlaySoundValues.loadOwn(input);
+            return AttackPlaySoundValues.loadOwn(input, itemSet);
         } else {
             throw new UnknownEncodingException("AttackEffect", encoding);
         }
@@ -45,7 +46,7 @@ public abstract class AttackEffectValues extends ModelValues {
     @Override
     public abstract AttackEffectValues copy(boolean mutable);
 
-    public abstract void validate() throws ValidationException, ProgrammingValidationException;
+    public abstract void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException;
 
     public abstract void validateExportVersion(int mcVersion) throws ValidationException, ProgrammingValidationException;
 }
