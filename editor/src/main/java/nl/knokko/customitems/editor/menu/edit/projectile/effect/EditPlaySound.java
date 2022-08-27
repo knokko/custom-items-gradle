@@ -5,7 +5,7 @@ import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.projectile.effect.PlaySoundValues;
 import nl.knokko.customitems.projectile.effect.ProjectileEffectValues;
-import nl.knokko.customitems.sound.CISound;
+import nl.knokko.customitems.sound.VanillaSoundType;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerFloatEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
@@ -48,7 +48,7 @@ public class EditPlaySound extends EditProjectileEffect<PlaySoundValues> {
                 0.25f, 0.4f, 0.35f, 0.5f
         );
         addComponent(
-                EnumSelect.createSelectButton(CISound.class, currentValues::setSound, currentValues.getSound()),
+                EnumSelect.createSelectButton(VanillaSoundType.class, currentValues::setSound, currentValues.getSound()),
                 0.4f, 0.4f, 0.6f, 0.5f
         );
 

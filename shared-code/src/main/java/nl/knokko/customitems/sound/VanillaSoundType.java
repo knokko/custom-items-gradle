@@ -4,7 +4,7 @@ import nl.knokko.customitems.NameHelper;
 
 import static nl.knokko.customitems.MCVersions.*;
 
-public enum CISound {
+public enum VanillaSoundType {
 
     AMBIENT_CAVE(VERSION1_12, VERSION1_18),
     BLOCK_ANVIL_BREAK(VERSION1_12, VERSION1_18),
@@ -1359,7 +1359,7 @@ public enum CISound {
     public final int firstVersion;
     public final int lastVersion;
 
-    CISound(int firstVersion, int lastVersion) {
+    VanillaSoundType(int firstVersion, int lastVersion) {
         this.firstVersion = firstVersion;
         this.lastVersion = lastVersion;
     }

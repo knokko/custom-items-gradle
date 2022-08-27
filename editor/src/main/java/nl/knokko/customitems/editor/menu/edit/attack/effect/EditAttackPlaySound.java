@@ -4,7 +4,7 @@ import nl.knokko.customitems.attack.effect.AttackEffectValues;
 import nl.knokko.customitems.attack.effect.AttackPlaySoundValues;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.sound.CISound;
+import nl.knokko.customitems.sound.VanillaSoundType;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerFloatEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
@@ -30,7 +30,7 @@ public class EditAttackPlaySound extends EditAttackEffect {
 
         addComponent(new DynamicTextComponent("Sound:", LABEL), 0.4f, 0.7f, 0.5f, 0.8f);
         addComponent(EnumSelect.createSelectButton(
-                CISound.class, currentValues::setSound, currentValues.getSound()
+                VanillaSoundType.class, currentValues::setSound, currentValues.getSound()
         ), 0.55f, 0.7f, 0.75f, 0.8f);
 
         addComponent(new DynamicTextComponent("Volume:", LABEL), 0.4f, 0.55f, 0.5f, 0.65f);

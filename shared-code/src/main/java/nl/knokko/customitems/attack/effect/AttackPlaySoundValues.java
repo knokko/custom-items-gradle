@@ -3,7 +3,7 @@ package nl.knokko.customitems.attack.effect;
 import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
-import nl.knokko.customitems.sound.CISound;
+import nl.knokko.customitems.sound.VanillaSoundType;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -18,13 +18,13 @@ public class AttackPlaySoundValues extends AttackEffectValues {
         if (encoding != 1) throw new UnknownEncodingException("AttackPlaySound", encoding);
 
         AttackPlaySoundValues result = new AttackPlaySoundValues(false);
-        result.sound = CISound.valueOf(input.readString());
+        result.sound = VanillaSoundType.valueOf(input.readString());
         result.volume = input.readFloat();
         result.pitch = input.readFloat();
         return result;
     }
 
-    public static AttackPlaySoundValues createQuick(CISound sound, float volume, float pitch) {
+    public static AttackPlaySoundValues createQuick(VanillaSoundType sound, float volume, float pitch) {
         AttackPlaySoundValues result = new AttackPlaySoundValues(true);
         result.setSound(sound);
         result.setVolume(volume);
@@ -32,13 +32,13 @@ public class AttackPlaySoundValues extends AttackEffectValues {
         return result;
     }
 
-    private CISound sound;
+    private VanillaSoundType sound;
     private float volume;
     private float pitch;
 
     public AttackPlaySoundValues(boolean mutable) {
         super(mutable);
-        this.sound = CISound.BLOCK_ANVIL_LAND;
+        this.sound = VanillaSoundType.BLOCK_ANVIL_LAND;
         this.volume = 1f;
         this.pitch = 1f;
     }
@@ -80,7 +80,7 @@ public class AttackPlaySoundValues extends AttackEffectValues {
         return "AttackPlaySound(" + sound + ",volume=" + volume + ",pitch=" + pitch + ")";
     }
 
-    public CISound getSound() {
+    public VanillaSoundType getSound() {
         return sound;
     }
 
@@ -92,7 +92,7 @@ public class AttackPlaySoundValues extends AttackEffectValues {
         return pitch;
     }
 
-    public void setSound(CISound sound) {
+    public void setSound(VanillaSoundType sound) {
         assertMutable();
         Checks.notNull(sound);
         this.sound = sound;

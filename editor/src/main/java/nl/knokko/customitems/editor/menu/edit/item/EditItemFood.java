@@ -8,7 +8,7 @@ import nl.knokko.customitems.item.AttributeModifierValues;
 import nl.knokko.customitems.item.CustomFoodValues;
 import nl.knokko.customitems.item.CustomItemType;
 import nl.knokko.customitems.itemset.ItemReference;
-import nl.knokko.customitems.sound.CISound;
+import nl.knokko.customitems.sound.VanillaSoundType;
 import nl.knokko.gui.component.text.EagerFloatEditField;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
@@ -56,7 +56,7 @@ public class EditItemFood extends EditItemBase<CustomFoodValues> {
         addComponent(new DynamicTextComponent("Eat sound:", LABEL),
                 0.65f, 0.46f, 0.795f, 0.54f);
         addComponent(EnumSelect.createSelectButton(
-                CISound.class,
+                VanillaSoundType.class,
                 currentValues::setEatSound,
                 currentValues.getEatSound()
         ), 0.8f, 0.46f, 1f, 0.54f);

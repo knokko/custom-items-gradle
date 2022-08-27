@@ -3,7 +3,7 @@ package nl.knokko.customitems.item.gun;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
-import nl.knokko.customitems.sound.CISound;
+import nl.knokko.customitems.sound.VanillaSoundType;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -33,8 +33,8 @@ public class IndirectGunAmmoValues extends GunAmmoValues {
     private int storedAmmo;
     private int reloadTime;
 
-    private CISound startReloadSound;
-    private CISound endReloadSound;
+    private VanillaSoundType startReloadSound;
+    private VanillaSoundType endReloadSound;
 
     public IndirectGunAmmoValues(boolean mutable) {
         super(mutable);
@@ -107,13 +107,13 @@ public class IndirectGunAmmoValues extends GunAmmoValues {
         this.reloadTime = input.readInt();
 
         if (input.readBoolean()) {
-            this.startReloadSound = CISound.valueOf(input.readString());
+            this.startReloadSound = VanillaSoundType.valueOf(input.readString());
         } else {
             this.startReloadSound = null;
         }
 
         if (input.readBoolean()) {
-            this.endReloadSound = CISound.valueOf(input.readString());
+            this.endReloadSound = VanillaSoundType.valueOf(input.readString());
         } else {
             this.endReloadSound = null;
         }
@@ -136,11 +136,11 @@ public class IndirectGunAmmoValues extends GunAmmoValues {
         return reloadTime;
     }
 
-    public CISound getStartReloadSound() {
+    public VanillaSoundType getStartReloadSound() {
         return startReloadSound;
     }
 
-    public CISound getEndReloadSound() {
+    public VanillaSoundType getEndReloadSound() {
         return endReloadSound;
     }
 
@@ -165,12 +165,12 @@ public class IndirectGunAmmoValues extends GunAmmoValues {
         this.reloadTime = newReloadTime;
     }
 
-    public void setStartReloadSound(CISound newStartReloadSound) {
+    public void setStartReloadSound(VanillaSoundType newStartReloadSound) {
         assertMutable();
         this.startReloadSound = newStartReloadSound;
     }
 
-    public void setEndReloadSound(CISound newEndReloadSound) {
+    public void setEndReloadSound(VanillaSoundType newEndReloadSound) {
         assertMutable();
         this.endReloadSound = newEndReloadSound;
     }

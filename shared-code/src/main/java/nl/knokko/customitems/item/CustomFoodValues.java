@@ -5,7 +5,7 @@ import nl.knokko.customitems.effect.PotionEffectValues;
 import nl.knokko.customitems.encoding.ItemEncoding;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.Mutability;
-import nl.knokko.customitems.sound.CISound;
+import nl.knokko.customitems.sound.VanillaSoundType;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -47,7 +47,7 @@ public class CustomFoodValues extends CustomItemValues {
     private Collection<PotionEffectValues> eatEffects;
     private int eatTime;
 
-    private CISound eatSound;
+    private VanillaSoundType eatSound;
     private float soundVolume;
     private float soundPitch;
     private int soundPeriod;
@@ -60,7 +60,7 @@ public class CustomFoodValues extends CustomItemValues {
         this.foodValue = 4;
         this.eatEffects = new ArrayList<>();
         this.eatTime = 30;
-        this.eatSound = CISound.ENTITY_GENERIC_EAT;
+        this.eatSound = VanillaSoundType.ENTITY_GENERIC_EAT;
         this.soundVolume = 1f;
         this.soundPitch = 1f;
         this.soundPeriod = 10;
@@ -87,7 +87,7 @@ public class CustomFoodValues extends CustomItemValues {
         if (encoding != 1) throw new UnknownEncodingException("CustomFoodNew", encoding);
 
         this.eatEffects = this.loadPotionEffectList(input);
-        this.eatSound = CISound.valueOf(input.readString());
+        this.eatSound = VanillaSoundType.valueOf(input.readString());
         this.foodValue = input.readInt();
         this.eatTime = input.readInt();
         this.soundPeriod = input.readInt();
@@ -127,7 +127,7 @@ public class CustomFoodValues extends CustomItemValues {
             this.eatEffects.add(PotionEffectValues.load2(input, false));
         }
         this.eatTime = input.readInt();
-        this.eatSound = CISound.valueOf(input.readString());
+        this.eatSound = VanillaSoundType.valueOf(input.readString());
         this.soundVolume = input.readFloat();
         this.soundPitch = input.readFloat();
         this.soundPeriod = input.readInt();
@@ -177,7 +177,7 @@ public class CustomFoodValues extends CustomItemValues {
         return eatTime;
     }
 
-    public CISound getEatSound() {
+    public VanillaSoundType getEatSound() {
         return eatSound;
     }
 
@@ -209,7 +209,7 @@ public class CustomFoodValues extends CustomItemValues {
         this.eatTime = newEatTime;
     }
 
-    public void setEatSound(CISound newEatSound) {
+    public void setEatSound(VanillaSoundType newEatSound) {
         assertMutable();
         Checks.notNull(newEatSound);
         this.eatSound = newEatSound;

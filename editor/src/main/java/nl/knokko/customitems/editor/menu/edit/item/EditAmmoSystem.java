@@ -9,7 +9,7 @@ import nl.knokko.customitems.item.gun.DirectGunAmmoValues;
 import nl.knokko.customitems.item.gun.GunAmmoValues;
 import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.sound.CISound;
+import nl.knokko.customitems.sound.VanillaSoundType;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
@@ -171,13 +171,13 @@ public class EditAmmoSystem extends GuiMenu {
             addComponent(new DynamicTextComponent("Start reload sound:", EditProps.LABEL),
                     0.4f, 0.3f, 0.7f, 0.37f);
             addComponent(EnumSelect.createSelectButton(
-                    CISound.class, indirectValues::setStartReloadSound, indirectValues.getStartReloadSound()
+                    VanillaSoundType.class, indirectValues::setStartReloadSound, indirectValues.getStartReloadSound()
             ), 0.72f, 0.3f, 0.9f, 0.37f);
 
             addComponent(new DynamicTextComponent("Finish reload sound:", EditProps.LABEL),
                     0.4f, 0.2f, 0.7f, 0.27f);
             addComponent(EnumSelect.createSelectButton(
-                    CISound.class, indirectValues::setEndReloadSound, indirectValues.getEndReloadSound()
+                    VanillaSoundType.class, indirectValues::setEndReloadSound, indirectValues.getEndReloadSound()
             ), 0.72f, 0.2f, 0.9f, 0.27f);
         }
 

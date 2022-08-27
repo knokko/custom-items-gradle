@@ -2,7 +2,7 @@ package nl.knokko.customitems.projectile.effect;
 
 import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.sound.CISound;
+import nl.knokko.customitems.sound.VanillaSoundType;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -28,7 +28,7 @@ public class PlaySoundValues extends ProjectileEffectValues {
         return result;
     }
 
-    public static PlaySoundValues createQuick(CISound sound, float volume, float pitch) {
+    public static PlaySoundValues createQuick(VanillaSoundType sound, float volume, float pitch) {
         PlaySoundValues result = new PlaySoundValues(true);
         result.setSound(sound);
         result.setVolume(volume);
@@ -36,12 +36,12 @@ public class PlaySoundValues extends ProjectileEffectValues {
         return result;
     }
 
-    private CISound sound;
+    private VanillaSoundType sound;
     private float volume, pitch;
 
     public PlaySoundValues(boolean mutable) {
         super(mutable);
-        this.sound = CISound.ENTITY_BLAZE_SHOOT;
+        this.sound = VanillaSoundType.ENTITY_BLAZE_SHOOT;
         this.volume = 1f;
         this.pitch = 1f;
     }
@@ -59,7 +59,7 @@ public class PlaySoundValues extends ProjectileEffectValues {
     }
 
     private void load1(BitInput input) {
-        this.sound = CISound.valueOf(input.readString());
+        this.sound = VanillaSoundType.valueOf(input.readString());
         this.volume = input.readFloat();
         this.pitch = input.readFloat();
     }
@@ -87,7 +87,7 @@ public class PlaySoundValues extends ProjectileEffectValues {
         }
     }
 
-    public CISound getSound() {
+    public VanillaSoundType getSound() {
         return sound;
     }
 
@@ -99,7 +99,7 @@ public class PlaySoundValues extends ProjectileEffectValues {
         return pitch;
     }
 
-    public void setSound(CISound newSound) {
+    public void setSound(VanillaSoundType newSound) {
         assertMutable();
         Checks.notNull(newSound);
         this.sound = newSound;
