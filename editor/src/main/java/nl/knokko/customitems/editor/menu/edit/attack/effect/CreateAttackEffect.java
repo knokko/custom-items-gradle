@@ -76,7 +76,6 @@ public class CreateAttackEffect extends GuiMenu {
             ));
         }), 0.4f, 0.05f, 0.55f, 0.15f);
 
-        // TODO Update help menu
         HelpButtons.addHelpLink(this, "edit menu/attack/effect/create.html");
     }
 

@@ -2,6 +2,7 @@ package nl.knokko.customitems.editor.menu.edit.sound;
 
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.sound.SoundValues;
@@ -93,7 +94,7 @@ public class EditSound extends GuiMenu {
                 currentValues.getPitch(), 0f, 100f, EDIT_BASE, EDIT_ACTIVE, currentValues::setPitch
         ), 0.31f, 0.3f, 0.4f, 0.4f);
 
-        // TODO Create help menu
+        HelpButtons.addHelpLink(this, "edit menu/sound/edit.html");
     }
 
     @Override

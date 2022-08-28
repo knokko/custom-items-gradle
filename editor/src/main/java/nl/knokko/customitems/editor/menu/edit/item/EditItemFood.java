@@ -72,8 +72,7 @@ public class EditItemFood extends EditItemBase<CustomFoodValues> {
                 ), 0.9f, 0.26f, 0.975f, 0.34f
         );
 
-        // TODO Update help menu
-        HelpButtons.addHelpLink(this, "edit%20menu/items/edit/food.html");
+        HelpButtons.addHelpLink(this, "edit menu/items/edit/food.html");
     }
 
     @Override

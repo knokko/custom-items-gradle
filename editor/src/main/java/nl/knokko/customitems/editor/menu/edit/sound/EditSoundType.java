@@ -1,6 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.sound;
 
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.SoundTypeReference;
@@ -81,7 +82,7 @@ public class EditSoundType extends GuiMenu {
                 0.5f, 0.4f, 0.7f, 0.5f
         );
 
-        // TODO Add help link
+        HelpButtons.addHelpLink(this, "edit menu/sound/edit type.html");
     }
 
     @Override

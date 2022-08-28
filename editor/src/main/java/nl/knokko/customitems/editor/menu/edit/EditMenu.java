@@ -212,7 +212,6 @@ public class EditMenu extends GuiMenu {
 			state.getWindow().setMainComponent(new SoundTypeCollectionEdit(this, set));
 		}), 0.6f, 0.195f, 0.8f, 0.27f);
 
-		// TODO Update help menu
 		HelpButtons.addHelpLink(this, "edit menu/index.html");
 	}
 }

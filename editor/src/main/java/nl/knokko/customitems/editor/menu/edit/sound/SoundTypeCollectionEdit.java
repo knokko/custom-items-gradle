@@ -1,6 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.sound;
 
 import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.SoundTypeReference;
@@ -32,7 +33,7 @@ public class SoundTypeCollectionEdit extends DedicatedCollectionEdit<CustomSound
             ));
         }), 0.025f, 0.3f, 0.2f, 0.4f);
 
-        // TODO Add help link
+        HelpButtons.addHelpLink(this, "edit menu/sound/overview.html");
     }
 
     @Override

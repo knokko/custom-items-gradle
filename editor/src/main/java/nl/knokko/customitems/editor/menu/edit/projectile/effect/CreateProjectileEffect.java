@@ -70,8 +70,7 @@ public class CreateProjectileEffect extends GuiMenu {
 			state.getWindow().setMainComponent(new EditShowFirework(new ShowFireworkValues(true), addEffect, returnMenu));
 		}), 0.2f, 0.44f, 0.4f, 0.54f);
 
-		// TODO Update help menu
-		HelpButtons.addHelpLink(this, "edit%20menu/projectiles/effects/create.html");
+		HelpButtons.addHelpLink(this, "edit menu/projectiles/effects/create.html");
 	}
 
 	@Override
