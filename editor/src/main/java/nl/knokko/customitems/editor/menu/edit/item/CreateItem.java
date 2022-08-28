@@ -70,6 +70,9 @@ public class CreateItem extends GuiMenu {
 		addComponent(new DynamicTextButton("Block (1.13+)", CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
 			state.getWindow().setMainComponent(new EditItemBlock(menu, new CustomBlockItemValues(true), null));
 		}), 0f, 0.4f, 0.2f, 0.5f);
+		addComponent(new DynamicTextButton("Music disc (1.14+)", CHOOSE_BASE, CHOOSE_HOVER, () -> {
+			state.getWindow().setMainComponent(new EditItemMusicDisc(menu, new CustomMusicDiscValues(true), null));
+		}), 0f, 0.275f, 0.23f, 0.375f);
 
 		// The row for the special stuff
 		addComponent(new DynamicTextButton("Wand", CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
@@ -130,6 +133,6 @@ public class CreateItem extends GuiMenu {
 			state.getWindow().setMainComponent(new EditItemShield(menu, new CustomShieldValues(true), null));
 		}), 0.75f, 0.025f, 0.95f, 0.125f);
 
-		HelpButtons.addHelpLink(this, "edit%20menu/items/select%20type.html");
+		HelpButtons.addHelpLink(this, "edit menu/items/select type.html");
 	}
 }

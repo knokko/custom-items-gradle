@@ -2,10 +2,12 @@ package nl.knokko.customitems.plugin;
 
 import nl.knokko.customitems.sound.SoundValues;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
 import org.bukkit.entity.Player;
 
 import java.util.Locale;
+import java.util.Objects;
 
 public class SoundPlayer {
 
@@ -23,6 +25,7 @@ public class SoundPlayer {
     }
 
     public static void playSound(Location location, SoundValues sound) {
+        Objects.requireNonNull(location.getWorld());
         SoundCategory category = determineSoundCategory(sound);
         if (category == null) location.getWorld().playSound(location, determineSoundName(sound), sound.getVolume(), sound.getPitch());
         else location.getWorld().playSound(location, determineSoundName(sound), category, sound.getVolume(), sound.getPitch());
@@ -32,5 +35,19 @@ public class SoundPlayer {
         SoundCategory category = determineSoundCategory(sound);
         if (category == null) player.playSound(player.getLocation(), determineSoundName(sound), sound.getVolume(), sound.getPitch());
         else player.playSound(player.getLocation(), determineSoundName(sound), category, sound.getVolume(), sound.getPitch());
+    }
+
+    private static final int JUKEBOX_RANGE = 16;
+
+    public static void stopSound(Location location, SoundValues sound, boolean forceRecordCategory) {
+        SoundCategory category = determineSoundCategory(sound);
+
+        for (Player player : Objects.requireNonNull(location.getWorld()).getPlayers()) {
+            if (location.distance(player.getLocation()) <= JUKEBOX_RANGE * sound.getVolume()) {
+                if (forceRecordCategory) player.stopSound(Sound.valueOf(sound.getVanillaSound().name()), SoundCategory.RECORDS);
+                else if (category != null) player.stopSound(determineSoundName(sound), category);
+                else player.stopSound(determineSoundName(sound));
+            }
+        }
     }
 }

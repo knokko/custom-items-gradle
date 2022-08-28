@@ -77,6 +77,8 @@ public class ItemCollectionEdit extends DedicatedCollectionEdit<CustomItemValues
 			return new EditItemFood(menu, (CustomFoodValues) itemValues, toModify);
 		else if (itemValues instanceof CustomBlockItemValues)
 			return new EditItemBlock(menu, (CustomBlockItemValues) itemValues, toModify);
+		else if (itemValues instanceof CustomMusicDiscValues)
+			return new EditItemMusicDisc(menu, (CustomMusicDiscValues) itemValues, toModify);
 		else
 			throw new IllegalArgumentException("Unsupported custom item class: " + itemValues.getClass());
 	}

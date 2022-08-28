@@ -68,6 +68,7 @@ public abstract class CustomItemWrapper {
         if (item instanceof CustomToolValues) return CustomToolWrapper.wrap((CustomToolValues) item);
         if (SIMPLE_WRAPPER_CLASSES.contains(item.getClass())) return new SimpleCustomItemWrapper(item);
         if (item.getClass() == CustomGunValues.class) return new CustomGunWrapper((CustomGunValues) item);
+        if (item.getClass() == CustomMusicDiscValues.class) return new CustomMusicDiscWrapper(item);
         throw new IllegalArgumentException("Unknown item class " + item.getClass());
     }
 

@@ -37,6 +37,7 @@ import nl.knokko.core.plugin.item.SmithingBlocker;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.plugin.command.CustomItemsTabCompletions;
 import nl.knokko.customitems.plugin.equipment.EquipmentSetAttributes;
+import nl.knokko.customitems.plugin.events.CustomMusicDiscEventHandler;
 import nl.knokko.customitems.plugin.miningspeed.MiningSpeedManager;
 import nl.knokko.customitems.plugin.multisupport.denizen.DenizenSupport;
 import nl.knokko.customitems.plugin.multisupport.itembridge.ItemBridgeSupport;
@@ -120,6 +121,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 		itemUpdater = new ItemUpdater(itemSet);
 		Bukkit.getPluginManager().registerEvents(new ContainerEventHandler(itemSet), this);
 		Bukkit.getPluginManager().registerEvents(projectileManager, this);
+		Bukkit.getPluginManager().registerEvents(new CustomMusicDiscEventHandler(itemSet), this);
 		CustomItemPickups.start();
 		EquipmentEffectsManager.start();
 		
