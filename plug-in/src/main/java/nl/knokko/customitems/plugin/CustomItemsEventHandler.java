@@ -291,7 +291,9 @@ public class CustomItemsEventHandler implements Listener {
 
 				// Don't let custom items be used as their internal item
 				boolean canBeTilled = type == CIMaterial.DIRT || type == CIMaterial.GRASS
-						|| type == CIMaterial.GRASS_BLOCK || type == CIMaterial.GRASS_PATH;
+						|| type == CIMaterial.GRASS_BLOCK || type == CIMaterial.GRASS_PATH
+						|| type == CIMaterial.COARSE_DIRT || type == CIMaterial.DIRT_PATH
+						|| type == CIMaterial.ROOTED_DIRT;
 				boolean canBeSheared = type == CIMaterial.PUMPKIN || type == CIMaterial.BEE_NEST
 						|| type == CIMaterial.BEEHIVE;
 
