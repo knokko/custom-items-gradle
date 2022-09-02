@@ -19,33 +19,35 @@ class ResourcepackFontOverrider {
     }
 
     void overrideContainerOverlayChars() throws IOException {
-        ZipEntry entry = new ZipEntry("assets/minecraft/font/default.json");
-        zipOutput.putNextEntry(entry);
+        if (itemSet.getContainers().stream().anyMatch(container -> container.getOverlayTexture() != null)) {
+            ZipEntry entry = new ZipEntry("assets/minecraft/font/default.json");
+            zipOutput.putNextEntry(entry);
 
-        PrintWriter jsonWriter = new PrintWriter(zipOutput);
-        jsonWriter.println("{");
-        jsonWriter.println("  \"providers\": [");
+            PrintWriter jsonWriter = new PrintWriter(zipOutput);
+            jsonWriter.println("{");
+            jsonWriter.println("  \"providers\": [");
 
-        int nextOverlayChar = 0xE000;
+            int nextOverlayChar = 0xE000;
 
-        for (CustomContainerValues container : itemSet.getContainers()) {
-            if (container.getOverlayTexture() != null) {
-                nextOverlayChar += 1;
-                container.setOverlayChar((char) nextOverlayChar);
-                writeFontEntry(
-                        jsonWriter, "customcontainers/overlay/" + container.getName(),
-                        16, 105, (char) nextOverlayChar, true
-                );
+            for (CustomContainerValues container : itemSet.getContainers()) {
+                if (container.getOverlayTexture() != null) {
+                    nextOverlayChar += 1;
+                    container.setOverlayChar((char) nextOverlayChar);
+                    writeFontEntry(
+                            jsonWriter, "customcontainers/overlay/" + container.getName(),
+                            16, 105, (char) nextOverlayChar, true
+                    );
+                }
             }
+
+            writeFontEntry(jsonWriter, "customcontainers/black", -5000, -50, (char) 0xE000, false);
+            jsonWriter.println("  ]");
+            jsonWriter.println("}");
+
+            jsonWriter.flush();
+
+            zipOutput.closeEntry();
         }
-
-        writeFontEntry(jsonWriter, "customcontainers/black", -5000, -50, (char) 0xE000, false);
-        jsonWriter.println("  ]");
-        jsonWriter.println("}");
-
-        jsonWriter.flush();
-
-        zipOutput.closeEntry();
     }
 
     private void writeFontEntry(
