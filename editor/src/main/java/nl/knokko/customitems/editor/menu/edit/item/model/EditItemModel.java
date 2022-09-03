@@ -77,7 +77,7 @@ public class EditItemModel extends GuiMenu {
             }), 0.65f, 0.55f, 0.85f, 0.65f);
         }
         addComponent(new DynamicTextButton("Custom model", BUTTON, HOVER, () -> {
-            state.getWindow().setMainComponent(new ChooseCustomModel(changeModel, returnMenu));
+            state.getWindow().setMainComponent(new ChooseCustomModel(changeModel::accept, returnMenu));
         }), 0.65f, 0.4f, 0.85f, 0.5f);
 
         HelpButtons.addHelpLink(this, "edit menu/items/edit/model/index.html");

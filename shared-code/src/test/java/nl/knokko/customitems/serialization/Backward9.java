@@ -99,9 +99,9 @@ public class Backward9 {
         ), requiredItems.getVanillaItems());
 
         if (set.getSide() == ItemSet.Side.EDITOR) {
-            assertEquals("quick_wand", block1.getTexture().getName());
+            assertEquals("quick_wand", block1.getModel().getPrimaryTexture().get().getName());
         } else {
-            assertNull(block1.getTextureReference());
+            assertNull(block1.getModel());
         }
     }
 

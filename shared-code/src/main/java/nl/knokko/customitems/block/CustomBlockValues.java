@@ -2,11 +2,11 @@ package nl.knokko.customitems.block;
 
 import nl.knokko.customitems.block.drop.CustomBlockDropValues;
 import nl.knokko.customitems.block.miningspeed.MiningSpeedValues;
+import nl.knokko.customitems.block.model.BlockModel;
+import nl.knokko.customitems.block.model.SimpleBlockModel;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.model.Mutability;
-import nl.knokko.customitems.texture.BaseTextureValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.Validation;
@@ -16,6 +16,7 @@ import nl.knokko.customitems.bithelper.BitOutput;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 public class CustomBlockValues extends ModelValues {
 
@@ -39,7 +40,7 @@ public class CustomBlockValues extends ModelValues {
     private MiningSpeedValues miningSpeed;
 
     // Only use this in the Editor; Keep it null on the plug-in
-    private TextureReference texture;
+    private BlockModel model;
 
     public CustomBlockValues(boolean mutable) {
         super(mutable);
@@ -48,7 +49,7 @@ public class CustomBlockValues extends ModelValues {
         this.name = "";
         this.drops = new ArrayList<>(0);
         this.miningSpeed = new MiningSpeedValues(false);
-        this.texture = null;
+        this.model = null;
     }
 
     public CustomBlockValues(CustomBlockValues toCopy, boolean mutable) {
@@ -58,7 +59,7 @@ public class CustomBlockValues extends ModelValues {
         this.name = toCopy.getName();
         this.drops = toCopy.getDrops();
         this.miningSpeed = toCopy.getMiningSpeed();
-        this.texture = toCopy.getTextureReference();
+        this.model = toCopy.getModel();
     }
 
     @Override
@@ -104,9 +105,12 @@ public class CustomBlockValues extends ModelValues {
 
         this.name = input.readString();
         this.loadDrops1(input, itemSet);
-        String textureName = input.readString();
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
-            this.texture = itemSet.getTextureReference(textureName);
+            if (encoding == 1) this.model = new SimpleBlockModel(itemSet.getTextureReference(input.readString()));
+            else this.model = BlockModel.load(input, itemSet);
+        } else {
+            this.model = null;
+            if (encoding == 1) input.readString();
         }
         if (encoding >= 2) {
             this.miningSpeed = MiningSpeedValues.load(input, itemSet);
@@ -115,12 +119,12 @@ public class CustomBlockValues extends ModelValues {
         }
     }
 
-    public void save(BitOutput output) {
+    public void save(BitOutput output, ItemSet.Side targetSide) {
         output.addByte((byte) 2);
 
         output.addString(name);
         saveDrops1(output);
-        saveTexture1(output);
+        if (targetSide == ItemSet.Side.EDITOR) model.save(output);
         miningSpeed.save(output);
     }
 
@@ -128,14 +132,6 @@ public class CustomBlockValues extends ModelValues {
         output.addInt(drops.size());
         for (CustomBlockDropValues drop : drops) {
             drop.save(output);
-        }
-    }
-
-    private void saveTexture1(BitOutput output) {
-        if (texture == null) {
-            output.addString(null);
-        } else {
-            output.addString(texture.get().getName());
         }
     }
 
@@ -151,16 +147,12 @@ public class CustomBlockValues extends ModelValues {
         return new ArrayList<>(drops);
     }
 
-    public BaseTextureValues getTexture() {
-        return texture.get();
+    public BlockModel getModel() {
+        return model;
     }
 
     public MiningSpeedValues getMiningSpeed() {
         return miningSpeed;
-    }
-
-    public TextureReference getTextureReference() {
-        return texture;
     }
 
     public void setInternalId(int newId) {
@@ -183,9 +175,9 @@ public class CustomBlockValues extends ModelValues {
         this.miningSpeed = miningSpeed.copy(false);
     }
 
-    public void setTexture(TextureReference newTexture) {
+    public void setModel(BlockModel newModel) {
         assertMutable();
-        this.texture = newTexture;
+        this.model = Objects.requireNonNull(newModel);
     }
 
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {
@@ -203,7 +195,7 @@ public class CustomBlockValues extends ModelValues {
 
         if (miningSpeed == null) throw new ProgrammingValidationException("No mining speed");
 
-        if (texture == null) throw new ValidationException("You haven't chosen a texture");
+        if (model == null) throw new ValidationException("You haven't chosen a texture");
     }
 
     public void validateComplete(
@@ -228,9 +220,7 @@ public class CustomBlockValues extends ModelValues {
 
         Validation.scope("Mining speed", miningSpeed::validate, itemSet);
 
-        if (!itemSet.isReferenceValid(texture)) {
-            throw new ProgrammingValidationException("The chosen texture is not (or no longer) valid");
-        }
+        Validation.scope("Model", model::validate, itemSet);
     }
 
     public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {

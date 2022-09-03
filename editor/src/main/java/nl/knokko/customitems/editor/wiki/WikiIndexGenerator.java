@@ -75,7 +75,7 @@ public class WikiIndexGenerator {
                 for (CustomBlockValues block : itemSet.getBlocks()) {
                     String link = "blocks/" + block.getName() + ".html";
                     output.print("\t\t\t<li class=\"custom-block\"><a href=\"" + link + "\"><img src=\"textures/"
-                            + block.getTexture().getName());
+                            + block.getModel().getPrimaryTexture().get().getName());
                     output.println(".png\" class=\"block-icon\" />" + block.getName() + "</a></li>");
                 }
 

@@ -29,7 +29,7 @@ import static nl.knokko.customitems.item.model.ModernCustomItemModel.TEXTURES_KE
 
 public class ChooseCustomModel extends GuiMenu {
 
-    private final Consumer<ItemModel> onChange;
+    private final Consumer<ModernCustomItemModel> onChange;
     private final GuiComponent returnMenu;
 
     private final DynamicTextComponent errorComponent = new DynamicTextComponent("", ERROR);
@@ -38,7 +38,7 @@ public class ChooseCustomModel extends GuiMenu {
     private Map<String, BufferedImage> imageMap;
     private byte[] rawModel;
 
-    public ChooseCustomModel(Consumer<ItemModel> onChange, GuiComponent returnMenu) {
+    public ChooseCustomModel(Consumer<ModernCustomItemModel> onChange, GuiComponent returnMenu) {
         this.onChange = onChange;
         this.returnMenu = returnMenu;
     }

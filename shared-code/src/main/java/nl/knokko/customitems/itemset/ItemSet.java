@@ -341,7 +341,7 @@ public class ItemSet {
         output.addInt(blocks.size());
         for (CustomBlock block : blocks) {
             output.addInt(block.getValues().getInternalID());
-            block.getValues().save(output);
+            block.getValues().save(output, targetSide);
         }
 
         output.addInt(craftingRecipes.size());

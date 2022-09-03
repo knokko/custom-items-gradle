@@ -133,7 +133,7 @@ public class CustomBlockItemValues extends CustomItemValues {
         assertMutable();
         Checks.notNull(newBlock);
         this.block = newBlock;
-        this.texture = newBlock.get().getTextureReference();
+        this.texture = newBlock.get().getModel().getPrimaryTexture();
     }
 
     public void setMaxStacksize(byte newStacksize) {

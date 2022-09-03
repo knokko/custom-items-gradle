@@ -74,14 +74,9 @@ class ResourcepackModelWriter {
             ZipEntry blockModelEntry = new ZipEntry("assets/minecraft/models/customblocks/" + block.getName() + ".json");
             zipOutput.putNextEntry(blockModelEntry);
 
-            PrintWriter modelWriter = new PrintWriter(zipOutput);
-            modelWriter.println("{");
-            modelWriter.println("    \"parent\": \"block/cube_all\",");
-            modelWriter.println("    \"textures\": {");
-            modelWriter.println("        \"all\": \"customitems/" + block.getTexture().getName() + "\"");
-            modelWriter.println("    }");
-            modelWriter.println("}");
-            modelWriter.flush();
+            block.getModel().write(zipOutput, block.getName());
+
+            zipOutput.closeEntry();
         }
     }
 

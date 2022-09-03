@@ -38,8 +38,8 @@ public class BlockCollectionEdit extends DedicatedCollectionEdit<CustomBlockValu
     }
 
     @Override
-    protected BufferedImage getModelIcon(CustomBlockValues model) {
-        return model.getTexture().getImage();
+    protected BufferedImage getModelIcon(CustomBlockValues block) {
+        return block.getModel().getPrimaryTexture().get().getImage();
     }
 
     @Override

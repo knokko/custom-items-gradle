@@ -2,15 +2,13 @@ package nl.knokko.customitems.editor.menu.edit.block;
 
 import nl.knokko.customitems.block.BlockConstants;
 import nl.knokko.customitems.block.CustomBlockValues;
-import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.block.miningspeed.EditMiningSpeed;
+import nl.knokko.customitems.editor.menu.edit.block.model.ManageBlockModel;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.BlockReference;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.texture.BaseTextureValues;
-import nl.knokko.customitems.texture.animated.AnimatedTextureValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -72,16 +70,13 @@ public class EditBlock extends GuiMenu  {
                 ))
         ), 0.45f, 0.68f, 0.6f, 0.78f);
 
-        addComponent(new DynamicTextComponent("Texture:", LABEL),
-                0.3f, 0.56f, 0.44f, 0.66f);
-        addComponent(CollectionSelect.createButton(
-                set.getTextures().references(),
-                currentValues::setTexture,
-                candidateTexture -> candidateTexture.get().getClass() == BaseTextureValues.class
-                || candidateTexture.get().getClass() == AnimatedTextureValues.class,
-                textureReference -> textureReference.get().getName(),
-                currentValues.getTextureReference()
-        ), 0.45f, 0.56f, 0.6f, 0.66f);
+        addComponent(new DynamicTextComponent("Texture and model:", LABEL),
+                0.15f, 0.56f, 0.44f, 0.66f);
+        addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
+            state.getWindow().setMainComponent(new ManageBlockModel(
+                    this, set, currentValues.getModel(), currentValues::setModel
+            ));
+        }), 0.45f, 0.56f, 0.6f, 0.66f);
 
         addComponent(new DynamicTextComponent("Mining speed:", LABEL), 0.25f, 0.44f, 0.44f, 0.54f);
         addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {

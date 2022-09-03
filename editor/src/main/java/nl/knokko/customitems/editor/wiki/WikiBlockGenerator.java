@@ -2,12 +2,10 @@ package nl.knokko.customitems.editor.wiki;
 
 import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.block.drop.CustomBlockDropValues;
-import nl.knokko.customitems.block.drop.SilkTouchRequirement;
 import nl.knokko.customitems.editor.wiki.item.ItemDropGenerator;
 import nl.knokko.customitems.item.CustomBlockItemValues;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.recipe.OutputTableValues;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +29,7 @@ class WikiBlockGenerator {
     void generate(File destination) throws IOException {
         generateHtml(destination, "../blocks.css", block.getName(), output -> {
             output.println("\t\t<h1>" + block.getName() + "</h1>");
-            output.println("\t\t<img src=\"../textures/" + block.getTexture().getName() + ".png\" class=\"block-icon\" /><br>");
+            output.println("\t\t<img src=\"../textures/" + block.getModel().getPrimaryTexture().get().getName() + ".png\" class=\"block-icon\" /><br>");
 
             Collection<CustomItemValues> placingItems = itemSet.getItems().stream().filter(
                     item -> item instanceof CustomBlockItemValues && ((CustomBlockItemValues) item).getBlock().getName().equals(block.getName())
