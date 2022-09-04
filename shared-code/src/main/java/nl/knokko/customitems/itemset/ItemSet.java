@@ -33,6 +33,10 @@ import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 import nl.knokko.customitems.bithelper.ByteArrayBitInput;
 import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
+import nl.knokko.customitems.worldgen.OreVeinGenerator;
+import nl.knokko.customitems.worldgen.OreVeinGeneratorValues;
+import nl.knokko.customitems.worldgen.TreeGenerator;
+import nl.knokko.customitems.worldgen.TreeGeneratorValues;
 
 import java.util.*;
 import java.util.function.Function;
@@ -97,6 +101,11 @@ public class ItemSet {
         result.blocks.addAll(primary.blocks);
         if (!secondary.blocks.isEmpty()) throw new ValidationException("The secondary item set can't have blocks");
 
+        result.oreVeinGenerators.addAll(primary.oreVeinGenerators);
+        result.oreVeinGenerators.addAll(secondary.oreVeinGenerators);
+        result.treeGenerators.addAll(primary.treeGenerators);
+        result.treeGenerators.addAll(secondary.treeGenerators);
+
         for (String deletedItem : primary.removedItemNames) {
             if (secondary.getItem(deletedItem).isPresent()) {
                 throw new ValidationException("The secondary set has item " + deletedItem + ", which is removed in the primary set");
@@ -142,6 +151,8 @@ public class ItemSet {
     Collection<CustomProjectile> projectiles;
     Collection<ProjectileCover> projectileCovers;
     Collection<CustomBlock> blocks;
+    Collection<OreVeinGenerator> oreVeinGenerators;
+    Collection<TreeGenerator> treeGenerators;
 
     Collection<String> removedItemNames;
 
@@ -168,6 +179,8 @@ public class ItemSet {
         blockDrops = new ArrayList<>();
         mobDrops = new ArrayList<>();
         blocks = new ArrayList<>();
+        oreVeinGenerators = new ArrayList<>();
+        treeGenerators = new ArrayList<>();
         containers = new ArrayList<>();
         fuelRegistries = new ArrayList<>();
         energyTypes = new ArrayList<>();
@@ -344,6 +357,16 @@ public class ItemSet {
             block.getValues().save(output, targetSide);
         }
 
+        output.addInt(oreVeinGenerators.size());
+        for (OreVeinGenerator oreVein : oreVeinGenerators) {
+            oreVein.getValues().save(output);
+        }
+
+        output.addInt(treeGenerators.size());
+        for (TreeGenerator tree : treeGenerators) {
+            tree.getValues().save(output);
+        }
+
         output.addInt(craftingRecipes.size());
         for (CustomCraftingRecipe recipe : craftingRecipes) {
             recipe.getValues().save(output);
@@ -487,6 +510,8 @@ public class ItemSet {
         this.equipmentSets = new ArrayList<>();
         this.energyTypes = new ArrayList<>();
         this.soundTypes = new ArrayList<>();
+        this.oreVeinGenerators = new ArrayList<>();
+        this.treeGenerators = new ArrayList<>();
     }
 
     private void initDefaults10() {
@@ -549,6 +574,22 @@ public class ItemSet {
         for (int counter = 0; counter < numBlocks; counter++) {
             int blockID = input.readInt();
             this.blocks.add(new CustomBlock(CustomBlockValues.load(input, this, blockID)));
+        }
+    }
+
+    private void loadOreVeinGenerators(BitInput input) throws UnknownEncodingException {
+        int numGenerators = input.readInt();
+        this.oreVeinGenerators = new ArrayList<>(numGenerators);
+        for (int counter = 0; counter < numGenerators; counter++) {
+            this.oreVeinGenerators.add(new OreVeinGenerator(OreVeinGeneratorValues.load(input, this)));
+        }
+    }
+
+    private void loadTreeGenerators(BitInput input) throws UnknownEncodingException {
+        int numGenerators = input.readInt();
+        this.treeGenerators = new ArrayList<>(numGenerators);
+        for (int counter = 0; counter < numGenerators; counter++) {
+            this.treeGenerators.add(new TreeGenerator(TreeGeneratorValues.load(input, this)));
         }
     }
 
@@ -767,6 +808,8 @@ public class ItemSet {
             loadItems(input, true);
             loadEquipmentSets(input);
             loadBlocks(input);
+            loadOreVeinGenerators(input);
+            loadTreeGenerators(input);
             loadCraftingRecipes(input);
             loadBlockDrops(input);
             loadMobDrops(input);
@@ -844,6 +887,14 @@ public class ItemSet {
 
     public CustomBlocksView getBlocks() {
         return new CustomBlocksView(blocks);
+    }
+
+    public OreVeinGeneratorsView getOreVeinGenerators() {
+        return new OreVeinGeneratorsView(oreVeinGenerators);
+    }
+
+    public TreeGeneratorsView getTreeGenerators() {
+        return new TreeGeneratorsView(treeGenerators);
     }
 
     public TextureReference getTextureReference(String textureName) throws NoSuchElementException {
@@ -1007,6 +1058,14 @@ public class ItemSet {
         return isReferenceValid(blocks, reference.getModel());
     }
 
+    public boolean isReferenceValid(OreVeinGeneratorReference reference) {
+        return isReferenceValid(oreVeinGenerators, reference.getModel());
+    }
+
+    public boolean isReferenceValid(TreeGeneratorReference reference) {
+        return isReferenceValid(treeGenerators, reference.getModel());
+    }
+
     public boolean isReferenceValid(ContainerReference reference) {
         return isReferenceValid(containers, reference.getModel());
     }
@@ -1121,6 +1180,14 @@ public class ItemSet {
                     "Block " + block.getName(),
                     () -> block.validateExportVersion(version)
             );
+        }
+
+        for (OreVeinGeneratorValues oreVein : getOreVeinGenerators()) {
+            Validation.scope("Ore vein generator " + oreVein, oreVein::validateExportVersion, version);
+        }
+
+        for (TreeGeneratorValues treeGenerator : getTreeGenerators()) {
+            Validation.scope("Tree generator " + treeGenerator, treeGenerator::validateExportVersion, version);
         }
     }
 
@@ -1246,6 +1313,20 @@ public class ItemSet {
         }
         validateUniqueIDs("block id", blocks, block -> block.getValues().getInternalID());
         validateUniqueIDs("block name", blocks, block -> block.getValues().getName());
+
+        for (OreVeinGenerator oreVeinGenerator : oreVeinGenerators) {
+            Validation.scope(
+                    "Ore vein generator " + oreVeinGenerator,
+                    () -> oreVeinGenerator.getValues().validate(this)
+            );
+        }
+
+        for (TreeGenerator treeGenerator : treeGenerators) {
+            Validation.scope(
+                    "Tree generator " + treeGenerator,
+                    () -> treeGenerator.getValues().validate(this)
+            );
+        }
     }
 
     public void addTexture(BaseTextureValues newTexture) throws ValidationException, ProgrammingValidationException {
@@ -1428,6 +1509,32 @@ public class ItemSet {
         blockToChange.getModel().setValues(newBlockValues);
     }
 
+    public void addOreVeinGenerator(OreVeinGeneratorValues toAdd) throws ValidationException, ProgrammingValidationException {
+        toAdd.validate(this);
+        this.oreVeinGenerators.add(new OreVeinGenerator(toAdd));
+    }
+
+    public void changeOreVeinGenerator(
+            OreVeinGeneratorReference generatorToChange, OreVeinGeneratorValues newValues
+    ) throws ValidationException, ProgrammingValidationException {
+        if (!isReferenceValid(generatorToChange)) throw new ProgrammingValidationException("Generator to change is invalid");
+        newValues.validate(this);
+        generatorToChange.getModel().setValues(newValues);
+    }
+
+    public void addTreeGenerator(TreeGeneratorValues toAdd) throws ValidationException, ProgrammingValidationException {
+        toAdd.validate(this);
+        this.treeGenerators.add(new TreeGenerator(toAdd));
+    }
+
+    public void changeTreeGenerator(
+            TreeGeneratorReference generatorToChange, TreeGeneratorValues newValues
+    ) throws ValidationException, ProgrammingValidationException {
+        if (!isReferenceValid(generatorToChange)) throw new ProgrammingValidationException("Generator to change is invalid");
+        newValues.validate(this);
+        generatorToChange.getModel().setValues(newValues);
+    }
+
     private <T> void removeModel(Collection<T> collection, T model) throws ValidationException, ProgrammingValidationException {
         if (model == null) throw new ProgrammingValidationException("Model is invalid");
         String errorMessage = null;
@@ -1488,6 +1595,14 @@ public class ItemSet {
 
     public void removeFuelRegistry(FuelRegistryReference registryToRemove) throws ValidationException, ProgrammingValidationException {
         removeModel(this.fuelRegistries, registryToRemove.getModel());
+    }
+
+    public void removeOreVeinGenerator(OreVeinGeneratorReference generatorToRemove) throws ValidationException, ProgrammingValidationException {
+        removeModel(this.oreVeinGenerators, generatorToRemove.getModel());
+    }
+
+    public void removeTreeGenerator(TreeGeneratorReference generatorToRemove) throws ValidationException, ProgrammingValidationException {
+        removeModel(this.treeGenerators, generatorToRemove.getModel());
     }
 
     public void removeEnergyType(EnergyTypeReference energyToRemove) throws ValidationException, ProgrammingValidationException {

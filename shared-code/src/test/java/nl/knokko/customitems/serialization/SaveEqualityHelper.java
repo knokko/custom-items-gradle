@@ -19,6 +19,8 @@ import nl.knokko.customitems.trouble.IntegrityException;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.bithelper.ByteArrayBitInput;
 import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
+import nl.knokko.customitems.worldgen.OreVeinGeneratorValues;
+import nl.knokko.customitems.worldgen.TreeGeneratorValues;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -116,6 +118,16 @@ public class SaveEqualityHelper {
             assertEquals(originalSet.getBlocks().size(), testSet.getBlocks().size());
             for (CustomBlockValues originalBlock : originalSet.getBlocks()) {
                 assertEquals(originalBlock, testSet.getBlock(originalBlock.getInternalID()).get());
+            }
+
+            assertEquals(originalSet.getOreVeinGenerators().size(), testSet.getOreVeinGenerators().size());
+            for (OreVeinGeneratorValues generator : originalSet.getOreVeinGenerators()) {
+                assertTrue(testSet.getOreVeinGenerators().stream().anyMatch(candidate -> candidate.equals(generator)));
+            }
+
+            assertEquals(originalSet.getTreeGenerators().size(), testSet.getTreeGenerators().size());
+            for (TreeGeneratorValues generator : originalSet.getTreeGenerators()) {
+                assertTrue(testSet.getTreeGenerators().stream().anyMatch(candidate -> candidate.equals(generator)));
             }
         }
     }
