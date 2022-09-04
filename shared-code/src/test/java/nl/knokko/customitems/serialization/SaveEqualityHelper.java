@@ -2,14 +2,17 @@ package nl.knokko.customitems.serialization;
 
 import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.container.energy.EnergyTypeValues;
 import nl.knokko.customitems.container.fuel.FuelRegistryValues;
 import nl.knokko.customitems.drops.BlockDropValues;
 import nl.knokko.customitems.drops.MobDropValues;
 import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.equipment.EquipmentSetValues;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 import nl.knokko.customitems.projectile.cover.ProjectileCoverValues;
 import nl.knokko.customitems.recipe.CraftingRecipeValues;
+import nl.knokko.customitems.sound.CustomSoundTypeValues;
 import nl.knokko.customitems.texture.ArmorTextureValues;
 import nl.knokko.customitems.texture.BaseTextureValues;
 import nl.knokko.customitems.trouble.IntegrityException;
@@ -50,6 +53,13 @@ public class SaveEqualityHelper {
                 }
             }
 
+            assertEquals(originalSet.getRemovedItemNames(), testSet.getRemovedItemNames());
+
+            assertEquals(originalSet.getEquipmentSets().size(), testSet.getEquipmentSets().size());
+            for (EquipmentSetValues originalEquipmentSet : originalSet.getEquipmentSets()) {
+                assertTrue(testSet.getEquipmentSets().stream().anyMatch(candidate -> candidate.equals(originalEquipmentSet)));
+            }
+
             assertEquals(originalSet.getCraftingRecipes().size(), testSet.getCraftingRecipes().size());
             for (CraftingRecipeValues originalRecipe : originalSet.getCraftingRecipes()) {
                 assertTrue(testSet.getCraftingRecipes().stream().anyMatch(candidate -> candidate.equals(originalRecipe)));
@@ -86,6 +96,16 @@ public class SaveEqualityHelper {
             assertEquals(originalSet.getFuelRegistries().size(), testSet.getFuelRegistries().size());
             for (FuelRegistryValues originalFuelRegistry : originalSet.getFuelRegistries()) {
                 assertEquals(originalFuelRegistry, testSet.getFuelRegistry(originalFuelRegistry.getName()).get());
+            }
+
+            assertEquals(originalSet.getEnergyTypes().size(), testSet.getEnergyTypes().size());
+            for (EnergyTypeValues originalEnergyType : originalSet.getEnergyTypes()) {
+                assertEquals(originalEnergyType, testSet.getEnergyType(originalEnergyType.getId()).get());
+            }
+
+            assertEquals(originalSet.getSoundTypes().size(), testSet.getSoundTypes().size());
+            for (CustomSoundTypeValues originalSoundType : originalSet.getSoundTypes()) {
+                assertEquals(originalSoundType, testSet.getSoundType(originalSoundType.getId()).get());
             }
 
             assertEquals(originalSet.getContainers().size(), testSet.getContainers().size());

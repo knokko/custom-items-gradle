@@ -798,6 +798,10 @@ public class ItemSet {
         return new CustomItemsView(items);
     }
 
+    public Set<String> getRemovedItemNames() {
+        return new HashSet<>(removedItemNames);
+    }
+
     public EquipmentSetsView getEquipmentSets() {
         return new EquipmentSetsView(equipmentSets);
     }
