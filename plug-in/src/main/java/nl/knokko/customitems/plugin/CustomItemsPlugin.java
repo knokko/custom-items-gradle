@@ -44,6 +44,7 @@ import nl.knokko.customitems.plugin.multisupport.itembridge.ItemBridgeSupport;
 import nl.knokko.customitems.plugin.multisupport.mimic.MimicSupport;
 import nl.knokko.customitems.plugin.multisupport.skript.SkriptSupport;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
+import nl.knokko.customitems.plugin.worldgen.WorldgenListener;
 import nl.knokko.customitems.util.StringEncoder;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -122,6 +123,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 		Bukkit.getPluginManager().registerEvents(new ContainerEventHandler(itemSet), this);
 		Bukkit.getPluginManager().registerEvents(projectileManager, this);
 		Bukkit.getPluginManager().registerEvents(new CustomMusicDiscEventHandler(itemSet), this);
+		Bukkit.getPluginManager().registerEvents(new WorldgenListener(itemSet), this);
 		CustomItemPickups.start();
 		EquipmentEffectsManager.start();
 		
@@ -129,7 +131,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 		CrazyEnchantmentsSupport.onEnable();
 		ItemBridgeSupport.onEnable(this);
 		SkriptSupport.onEnable(this);
-		DenizenSupport.onEnable();
+		DenizenSupport.onEnable(this);
 		PluginIndicators.init();
 		CustomElytraVelocityManager.start(itemSet, this);
 		EquipmentSetAttributes.startUpdateTask(this, itemSet);
