@@ -22,6 +22,12 @@ public class Validation {
         scope(scopeName, () -> validationFunction.validate(itemSet));
     }
 
+    public static void scope(
+            String scopeName, ValidationFunction3 validationFunction, int version
+    ) throws ValidationException, ProgrammingValidationException {
+        scope(scopeName, () -> validationFunction.validateExportVersion(version));
+    }
+
     @FunctionalInterface
     public interface ValidationFunction {
         void validate() throws ValidationException, ProgrammingValidationException;
@@ -30,6 +36,11 @@ public class Validation {
     @FunctionalInterface
     public interface ValidationFunction2 {
         void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException;
+    }
+
+    @FunctionalInterface
+    public interface ValidationFunction3 {
+        void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException;
     }
 
     public static void safeName(String safeName) throws ValidationException, ProgrammingValidationException {
