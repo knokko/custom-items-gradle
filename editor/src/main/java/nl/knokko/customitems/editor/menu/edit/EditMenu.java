@@ -32,6 +32,7 @@ import nl.knokko.customitems.editor.menu.edit.projectile.ProjectileMenu;
 import nl.knokko.customitems.editor.menu.edit.recipe.RecipeCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.sound.SoundTypeCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.texture.TextureCollectionEdit;
+import nl.knokko.customitems.editor.menu.edit.worldgen.WorldGenerationPortal;
 import nl.knokko.customitems.editor.menu.main.MainMenu;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.wiki.WikiGenerator;
@@ -211,7 +212,11 @@ public class EditMenu extends GuiMenu {
 		addComponent(new DynamicTextButton("Sounds", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new SoundTypeCollectionEdit(this, set));
 		}), 0.6f, 0.195f, 0.8f, 0.27f);
+		addComponent(new DynamicTextButton("World generation", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new WorldGenerationPortal(this, set));
+		}), 0.6f, 0.105f, 0.9f, 0.18f);
 
+		// TODO Update help menu
 		HelpButtons.addHelpLink(this, "edit menu/index.html");
 	}
 }

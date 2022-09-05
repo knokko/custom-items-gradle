@@ -41,6 +41,12 @@ public class BlockProducerValues extends ModelValues {
         return result;
     }
 
+    public static BlockProducerValues createQuick(List<Entry> entries) {
+        BlockProducerValues result = new BlockProducerValues(true);
+        result.setEntries(entries);
+        return result;
+    }
+
     private List<Entry> entries;
 
     public BlockProducerValues(boolean mutable) {
