@@ -1,6 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.worldgen;
 
 import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.OreVeinGeneratorReference;
@@ -38,7 +39,7 @@ public class OreVeinGeneratorCollectionEdit extends DedicatedCollectionEdit<OreV
             ));
         }), 0.025f, 0.2f, 0.175f, 0.3f);
 
-        // TODO Add help button
+        HelpButtons.addHelpLink(this, "edit menu/worldgen/ore/overview.html");
     }
 
     @Override

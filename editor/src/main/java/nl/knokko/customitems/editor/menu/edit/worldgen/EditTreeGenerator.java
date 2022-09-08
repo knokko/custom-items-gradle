@@ -3,6 +3,7 @@ package nl.knokko.customitems.editor.menu.edit.worldgen;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.menu.edit.drops.EditAllowedBiomes;
 import nl.knokko.customitems.editor.util.FixedPointEditField;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TreeGeneratorReference;
@@ -100,7 +101,7 @@ public class EditTreeGenerator extends GuiMenu {
                 currentValues.getMaxNumAttempts(), 1, 100, EDIT_BASE, EDIT_ACTIVE, currentValues::setMaxNumAttempts
         ), 0.93f, 0.35f, 0.99f, 0.45f);
 
-        // TODO Add help button
+        HelpButtons.addHelpLink(this, "edit menu/worldgen/tree/edit.html");
     }
 
     @Override

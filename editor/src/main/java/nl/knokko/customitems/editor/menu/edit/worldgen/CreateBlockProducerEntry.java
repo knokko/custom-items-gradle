@@ -79,8 +79,6 @@ public class CreateBlockProducerEntry extends GuiMenu {
                     }, candidateBlock -> true, candidateBlock -> candidateBlock.get().getName(), this
             ));
         }), 0.7f, 0.55f, 0.8f, 0.65f);
-
-        // TODO Add help button
     }
 
     @Override

@@ -2,6 +2,7 @@ package nl.knokko.customitems.editor.menu.edit.worldgen;
 
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.itemset.BlockReference;
@@ -84,7 +85,7 @@ public class EditReplaceBlocks extends GuiMenu {
         }), 0.825f, 0.8f, 0.9f, 0.9f);
         addComponent(customBlocks, 0.625f, 0.05f, 0.975f, 0.8f);
 
-        // TODO Add help button
+        HelpButtons.addHelpLink(this, "edit menu/worldgen/ore/replace blocks.html");
     }
 
     @Override

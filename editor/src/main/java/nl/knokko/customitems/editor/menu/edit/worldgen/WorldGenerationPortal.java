@@ -1,5 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.worldgen;
 
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -31,7 +32,7 @@ public class WorldGenerationPortal extends GuiMenu {
             state.getWindow().setMainComponent(new TreeGeneratorCollectionEdit(this, itemSet));
         }), 0.7f, 0.55f, 0.8f, 0.65f);
 
-        // TODO Add help button
+        HelpButtons.addHelpLink(this, "edit menu/worldgen/index.html");
     }
 
     @Override

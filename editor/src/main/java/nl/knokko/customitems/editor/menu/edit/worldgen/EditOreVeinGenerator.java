@@ -2,6 +2,7 @@ package nl.knokko.customitems.editor.menu.edit.worldgen;
 
 import nl.knokko.customitems.editor.menu.edit.drops.EditAllowedBiomes;
 import nl.knokko.customitems.editor.util.FixedPointEditField;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.OreVeinGeneratorReference;
@@ -128,7 +129,7 @@ public class EditOreVeinGenerator extends GuiMenu {
                 currentValues.getMaxNumGrowAttempts(), 1, 999, EDIT_BASE, EDIT_ACTIVE, currentValues::setMaxNumGrowAttempts
         ), 0.93f, 0.21f, 0.99f, 0.3f);
 
-        // TODO Add help button
+        HelpButtons.addHelpLink(this, "edit menu/worldgen/ore/edit.html");
     }
 
     @Override

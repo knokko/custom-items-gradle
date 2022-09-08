@@ -216,7 +216,6 @@ public class EditMenu extends GuiMenu {
 			state.getWindow().setMainComponent(new WorldGenerationPortal(this, set));
 		}), 0.6f, 0.105f, 0.9f, 0.18f);
 
-		// TODO Update help menu
 		HelpButtons.addHelpLink(this, "edit menu/index.html");
 	}
 }

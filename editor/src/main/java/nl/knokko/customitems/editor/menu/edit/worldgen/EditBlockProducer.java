@@ -2,6 +2,7 @@ package nl.knokko.customitems.editor.menu.edit.worldgen;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.SafeCollectionEdit;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.Mutability;
@@ -62,7 +63,7 @@ public class EditBlockProducer extends SafeCollectionEdit<BlockProducerValues.En
 
         addComponent(nothingChanceComponent, 0f, 0.4f, 0.25f, 0.5f);
 
-        // TODO Add help button
+        HelpButtons.addHelpLink(this, "edit menu/worldgen/block producer.html");
     }
 
     @Override
