@@ -44,6 +44,7 @@ import nl.knokko.customitems.plugin.multisupport.itembridge.ItemBridgeSupport;
 import nl.knokko.customitems.plugin.multisupport.mimic.MimicSupport;
 import nl.knokko.customitems.plugin.multisupport.skript.SkriptSupport;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
+import nl.knokko.customitems.plugin.worldgen.LatePopulator;
 import nl.knokko.customitems.plugin.worldgen.WorldgenListener;
 import nl.knokko.customitems.util.StringEncoder;
 import org.bukkit.Bukkit;
@@ -75,8 +76,11 @@ public class CustomItemsPlugin extends JavaPlugin {
 	private ItemUpdater itemUpdater;
 	private EnabledAreas enabledAreas;
 	private MiningSpeedManager miningSpeedManager;
+	private LatePopulator latePopulator;
 	
 	private int maxFlyingProjectiles;
+	private int chunkPopulationPeriod;
+	private int chunkPopulationCount;
 
 	public static CustomItemsPlugin getInstance() {
 		return instance;
@@ -92,6 +96,8 @@ public class CustomItemsPlugin extends JavaPlugin {
 		// That will have to be updated as well
 		data.saveData();
 		data = PluginData.loadData(this.itemSet);
+		latePopulator.stop();
+		latePopulator.start(this, chunkPopulationPeriod, chunkPopulationCount);
 	}
 
 	@Override
@@ -131,16 +137,19 @@ public class CustomItemsPlugin extends JavaPlugin {
 		CrazyEnchantmentsSupport.onEnable();
 		ItemBridgeSupport.onEnable(this);
 		SkriptSupport.onEnable(this);
-		DenizenSupport.onEnable(this);
+		DenizenSupport.onEnable();
 		PluginIndicators.init();
 		CustomElytraVelocityManager.start(itemSet, this);
 		EquipmentSetAttributes.startUpdateTask(this, itemSet);
 		miningSpeedManager = new MiningSpeedManager();
 		miningSpeedManager.start(this);
+		latePopulator = new LatePopulator(itemSet, getDataFolder(), enabledAreas);
+		latePopulator.start(this, chunkPopulationPeriod, chunkPopulationCount);
 	}
 
 	@Override
 	public void onDisable() {
+		latePopulator.stop();
 		data.saveData();
 		projectileManager.destroyCustomProjectiles();
 		enabledAreas = null;
@@ -169,6 +178,8 @@ public class CustomItemsPlugin extends JavaPlugin {
 	}
 
 	private static final String KEY_MAX_PROJECTILES = "Maximum number of flying projectiles";
+	private static final String KEY_CHUNK_POPULATION_PERIOD = "Chunk population period";
+	private static final String KEY_CHUNK_POPULATION_COUNT = "Chunks per population period";
 	
 	private void debugChecks() {
 		Plugin knokkoCore = Bukkit.getPluginManager().getPlugin("KnokkoCore");
@@ -264,14 +275,37 @@ public class CustomItemsPlugin extends JavaPlugin {
 	private void loadConfig() {
 		reloadConfig();
 		FileConfiguration config = getConfig();
+
+		boolean saveConfig = false;
 		if (config.contains(KEY_MAX_PROJECTILES)) {
 			this.maxFlyingProjectiles = config.getInt(KEY_MAX_PROJECTILES);
 		} else {
 			this.maxFlyingProjectiles = 100;
 			config.set(KEY_MAX_PROJECTILES, maxFlyingProjectiles);
+			saveConfig = true;
+		}
+
+		if (config.contains(KEY_CHUNK_POPULATION_PERIOD)) {
+			this.chunkPopulationPeriod = config.getInt(KEY_CHUNK_POPULATION_PERIOD);
+		} else {
+			this.chunkPopulationPeriod = 20;
+			config.set(KEY_CHUNK_POPULATION_PERIOD, chunkPopulationPeriod);
+			saveConfig = true;
+		}
+
+		if (config.contains(KEY_CHUNK_POPULATION_COUNT)) {
+			this.chunkPopulationCount = config.getInt(KEY_CHUNK_POPULATION_COUNT);
+		} else {
+			this.chunkPopulationCount = 10;
+			config.set(KEY_CHUNK_POPULATION_COUNT, chunkPopulationCount);
+			saveConfig = true;
+		}
+
+		this.enabledAreas.update(config);
+
+		if (saveConfig) {
 			saveConfig();
 		}
-		this.enabledAreas.update(config);
 	}
 	
 	private void loadSet(File file) {

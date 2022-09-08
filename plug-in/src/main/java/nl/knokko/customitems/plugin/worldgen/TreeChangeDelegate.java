@@ -29,7 +29,6 @@ public class TreeChangeDelegate implements BlockChangeDelegate {
     public boolean setBlockData(int x, int y, int z, @NotNull BlockData blockData) {
         Block block = world.getBlockAt(x, y, z);
 
-        // TODO Test this
         boolean isLeaves = blockData.getMaterial().name().contains("LEAVES");
         BlockProducerValues blockProducer = isLeaves ? generator.getLeavesMaterial() : generator.getLogMaterial();
         ProducedBlock producedBlock = blockProducer.produce(random);

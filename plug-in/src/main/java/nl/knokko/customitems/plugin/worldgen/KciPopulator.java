@@ -56,10 +56,7 @@ public class KciPopulator extends BlockPopulator {
 
                     if (world.generateTree(location, treeType, customTreeDelegate)) {
                         numGeneratedTrees += 1;
-                        System.out.println("Generated tree at " + location);
                         if (numGeneratedTrees >= desiredNumTrees) return;
-                    } else {
-                        System.out.println("Failed to generate tree at " + location);
                     }
                 }
             }
@@ -78,7 +75,6 @@ public class KciPopulator extends BlockPopulator {
             if (toPlace.isCustom()) {
                 MushroomBlockHelper.place(destination, toPlace.getCustomBlock().get());
             } else {
-                // TODO Test this!
                 destination.setType(Material.valueOf(toPlace.getVanillaBlock().name()), false);
             }
         }
@@ -130,24 +126,26 @@ public class KciPopulator extends BlockPopulator {
                     int x = initialLocation.getBlockX();
                     int z = initialLocation.getBlockZ();
 
-                    // Adjacent chunks are guaranteed to exist, but we shouldn't go any further
-                    // However, 'corner adjacent' chunks are not guaranteed to exist, so we should avoid those
+                    // The late populator guarantees that all chunks with coordinates
+                    // (sourceX - 2 <= X <= sourceX + 2) and (sourceZ - 2 <= Z <= sourceZ + 2) have already
+                    // been generated. Going any further could result in a loop when these chunks are populated and
+                    // in turn cause their nearby chunks to be populated...
                     Block minCorner = source.getBlock(0, 0, 0);
                     Block maxCorner = source.getBlock(15, 0, 15);
-                    int softMinX = minCorner.getX();
-                    int softMinZ = minCorner.getZ();
-                    int softMaxX = maxCorner.getX();
-                    int softMaxZ = maxCorner.getZ();
-                    int hardMinX = softMinX - 16;
-                    int hardMinZ = softMinZ - 16;
-                    int hardMaxX = softMaxX + 16;
-                    int hardMaxZ = softMaxZ + 16;
+                    int minSourceX = minCorner.getX();
+                    int minSourceZ = minCorner.getZ();
+                    int maxSourceX = maxCorner.getX();
+                    int maxSourceZ = maxCorner.getZ();
+                    int minX = minSourceX - 32;
+                    int minZ = minSourceZ - 32;
+                    int maxX = maxSourceX + 32;
+                    int maxZ = maxSourceZ + 32;
 
                     int desiredVeinSize = generator.getMinVeinSize() + random.nextInt(1 + generator.getMaxVeinSize() - generator.getMinVeinSize());
 
                     for (int growCounter = 0; growCounter < generator.getMaxNumGrowAttempts(); growCounter++) {
 
-                        // Try to replace a stone with the custom block
+                        // Try to replace a block with the custom block
                         Block currentBlock = world.getBlockAt(x, y, z);
                         PlacedBlockLocation currentLocation = new PlacedBlockLocation(currentBlock);
 
@@ -186,12 +184,10 @@ public class KciPopulator extends BlockPopulator {
                                 break;
                         }
 
-                        // Don't go further than 1 chunk away from the source chunk
-                        if (nextX < hardMinX || nextX > hardMaxX) continue;
-                        if (nextZ < hardMinZ || nextZ > hardMaxZ) continue;
-
-                        // Don't go to the corner-adjacent chunks of the source chunk
-                        if ((nextX < softMinX || nextX > softMaxX) && (nextZ < softMinZ || nextZ > softMaxZ)) continue;
+                        // Don't go further than 2 chunks away from the source chunk because the late populator doesn't
+                        // guarantee that further chunks have been generated already
+                        if (nextX < minX || nextX > maxX) continue;
+                        if (nextZ < minZ || nextZ > maxZ) continue;
 
                         // Don't go below minY and maxY
                         if (nextY < generator.getMinY() || nextY > generator.getMaxY()) continue;
@@ -199,8 +195,9 @@ public class KciPopulator extends BlockPopulator {
                         Block nextBlock = world.getBlockAt(nextX, nextY, nextZ);
 
                         // Don't generate the ore in forbidden biomes
-                        if (!generator.getAllowedBiomes().isAllowed(CIBiome.valueOf(nextBlock.getBiome().name())))
+                        if (!generator.getAllowedBiomes().isAllowed(CIBiome.valueOf(nextBlock.getBiome().name()))) {
                             continue;
+                        }
 
                         // Don't generate the ore on forbidden blocks
                         if (!shouldAcceptBlock(nextBlock, generator.getBlocksToReplace()) && !placedLocations.contains(new PlacedBlockLocation(nextBlock))) {
@@ -212,8 +209,6 @@ public class KciPopulator extends BlockPopulator {
                         z = nextZ;
                     }
 
-                    // For some reason, IntelliJ believes numPlacedBlocks > 0 is always false, but putting a println in this
-                    // block proves the opposite.
                     if (placedLocations.size() > 0) {
                         numGeneratedVeins++;
                         if (numGeneratedVeins >= desiredNumVeins) break;
