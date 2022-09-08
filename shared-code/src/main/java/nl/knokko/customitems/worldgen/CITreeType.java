@@ -1,5 +1,7 @@
 package nl.knokko.customitems.worldgen;
 
+import nl.knokko.customitems.NameHelper;
+
 import static nl.knokko.customitems.MCVersions.*;
 
 public enum CITreeType {
@@ -32,5 +34,10 @@ public enum CITreeType {
     CITreeType(int firstVersion, int lastVersion) {
         this.firstVersion = firstVersion;
         this.lastVersion = lastVersion;
+    }
+
+    @Override
+    public String toString() {
+        return NameHelper.getNiceEnumName(name(), firstVersion, lastVersion);
     }
 }
