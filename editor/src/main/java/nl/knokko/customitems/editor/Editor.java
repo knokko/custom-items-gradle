@@ -24,10 +24,9 @@
 package nl.knokko.customitems.editor;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 
@@ -43,20 +42,12 @@ public class Editor {
 	public static GuiWindow getWindow() {
 		return window;
 	}
-	
-	/**
-	 * This method is made for the Editor tester
-	 * @param window The testing window instance
-	 */
-	public static void setWindow(GuiWindow window) {
-		Editor.window = window;
-	}
 
 	public static void main(String[] args) {
 		EditorFileManager.startLogging();
 
 		window = new AWTGuiWindow();
-		
+
 		SystemTestResult systemTestResult = SystemTests.performTests();
 		if (systemTestResult == SystemTestResult.SUCCESS) {
 			System.out.println("All system tests succeeded");
@@ -67,6 +58,7 @@ public class Editor {
 		}
 
 		BufferedImage icon = null;
+		String version = "?";
 		try {
 			InputStream iconStream = Editor.class.getClassLoader().getResourceAsStream("nl/knokko/customitems/editor/icon.png");
 			if (iconStream != null) {
@@ -75,11 +67,25 @@ public class Editor {
 			} else {
 				System.err.println("Couldn't find Editor icon");
 			}
+
+			InputStream versionStream = Editor.class.getClassLoader().getResourceAsStream("plugin.yml");
+			if (versionStream != null) {
+				Scanner versionScanner = new Scanner(versionStream);
+				while (versionScanner.hasNextLine()) {
+					String currentLine = versionScanner.nextLine();
+					if (currentLine.startsWith("version: ")) {
+						version = currentLine.substring("version: ".length()).replaceAll("\"", "");
+					}
+				}
+				versionScanner.close();
+			} else {
+				System.out.println("Couldn't determine Editor version");
+			}
 		} catch (IOException io) {
-			System.err.println("Failed to find Editor icon:");
+			System.err.println("Failed to find Editor icon and/or version:");
 			io.printStackTrace();
 		}
-		window.open("Custom Items Editor", true, icon);
+		window.open("Custom Items Editor " + version, true, icon);
 		window.run(30);
 	}
 }

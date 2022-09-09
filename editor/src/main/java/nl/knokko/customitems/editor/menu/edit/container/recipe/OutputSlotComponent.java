@@ -9,10 +9,13 @@ import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.color.SimpleGuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.state.GuiComponentState;
+import nl.knokko.gui.keycode.KeyCode;
 import nl.knokko.gui.mousecode.MouseCode;
 import nl.knokko.gui.render.GuiRenderer;
 import nl.knokko.gui.texture.GuiTexture;
 import nl.knokko.gui.util.TextBuilder;
+
+import java.awt.event.KeyEvent;
 
 public class OutputSlotComponent implements GuiComponent {
 	
@@ -23,17 +26,21 @@ public class OutputSlotComponent implements GuiComponent {
 	private final GuiComponent outerMenu;
 	private final ItemSet set;
 	private final ContainerRecipeValues recipe;
+	private final OutputTableValues[] pClipboardResult;
 	
 	private GuiComponentState state;
 	private GuiTexture topTextTexture;
 	private GuiTexture bottomTextTexture;
 	
-	public OutputSlotComponent(String name, GuiComponent outerMenu, 
-			ContainerRecipeValues recipe, ItemSet set) {
+	public OutputSlotComponent(
+			String name, GuiComponent outerMenu, OutputTableValues[] pClipboardResult,
+			ContainerRecipeValues recipe, ItemSet set
+	) {
 		this.name = name;
 		this.outerMenu = outerMenu;
 		this.recipe = recipe;
 		this.set = set;
+		this.pClipboardResult = pClipboardResult;
 	}
 	
 	public String getName() {
@@ -110,7 +117,14 @@ public class OutputSlotComponent implements GuiComponent {
 	}
 
 	@Override
-	public void keyPressed(int keyCode) {}
+	public void keyPressed(int keyCode) {
+		if (keyCode == KeyCode.KEY_P && state.isMouseOver()) {
+			this.setResultTable(pClipboardResult[0]);
+		}
+		if (keyCode == KeyCode.KEY_C && state.isMouseOver()) {
+			pClipboardResult[0] = recipe.getOutput(this.name);
+		}
+	}
 
 	@Override
 	public void keyPressed(char character) {}

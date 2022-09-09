@@ -36,7 +36,7 @@ public class EditMultiBlockBreak extends GuiMenu {
     }
 
     private GuiTexture getShapeTexture(MultiBlockBreakValues.Shape shape) {
-        String texturePath = "nl/knokko/customitems/editor/edit/item/multiblockbreak/shape/" + shape.name().toUpperCase(Locale.ROOT) + ".png";
+        String texturePath = "nl/knokko/customitems/editor/edit/item/multiblockbreak/shape/" + shape.name().toLowerCase(Locale.ROOT) + ".png";
         return state.getWindow().getTextureLoader().loadTexture(texturePath);
     }
 

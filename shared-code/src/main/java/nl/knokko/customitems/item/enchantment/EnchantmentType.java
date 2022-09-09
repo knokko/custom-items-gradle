@@ -70,6 +70,7 @@ public enum EnchantmentType {
 	QUICK_CHARGE("quick_charge", VERSION1_14),
 	
 	SOUL_SPEED("soul_speed", VERSION1_16),
+    SWIFT_SNEAK("swift_sneak", VERSION1_19),
 	
 	GEARS("Gears", CustomEnchantmentProvider.CRAZY_ENCHANTMENTS),
     WINGS("Wings", CustomEnchantmentProvider.CRAZY_ENCHANTMENTS),

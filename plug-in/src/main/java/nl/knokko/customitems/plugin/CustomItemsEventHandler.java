@@ -40,6 +40,7 @@ import nl.knokko.core.plugin.entity.EntityDamageHelper;
 import nl.knokko.core.plugin.item.GeneralItemNBT;
 import nl.knokko.customitems.attack.effect.*;
 import nl.knokko.customitems.block.CustomBlockValues;
+import nl.knokko.customitems.block.MushroomBlockMapping;
 import nl.knokko.customitems.block.drop.CustomBlockDropValues;
 import nl.knokko.customitems.block.drop.RequiredItemValues;
 import nl.knokko.customitems.block.drop.SilkTouchRequirement;
@@ -270,7 +271,9 @@ public class CustomItemsEventHandler implements Listener {
 
 				// Don't let custom items be used as their internal item
 				boolean canBeTilled = type == CIMaterial.DIRT || type == CIMaterial.GRASS
-						|| type == CIMaterial.GRASS_BLOCK || type == CIMaterial.GRASS_PATH;
+						|| type == CIMaterial.GRASS_BLOCK || type == CIMaterial.GRASS_PATH
+						|| type == CIMaterial.COARSE_DIRT || type == CIMaterial.DIRT_PATH
+						|| type == CIMaterial.ROOTED_DIRT;
 				boolean canBeSheared = type == CIMaterial.PUMPKIN || type == CIMaterial.BEE_NEST
 						|| type == CIMaterial.BEEHIVE;
 
@@ -483,13 +486,17 @@ public class CustomItemsEventHandler implements Listener {
 	@EventHandler
 	public void handleReplacement (PlayerInteractEvent event) {
 		if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-			ItemStack item = event.getItem();
-			CustomItemValues custom = itemSet.getItem(item);
-			if (custom != null) {
 
-				//Delay replacing by half a second to give all other handlers time to do their thing. Especially
-				//important for wands.
-				CustomItemsPlugin.getInstance().getServer().getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
+			int heldItemSlot = event.getPlayer().getInventory().getHeldItemSlot();
+			boolean isMainHand = event.getHand() == EquipmentSlot.HAND;
+
+			// Delay replacing by 3 ticks to give all other handlers time to do their thing. Especially
+			// important for wands.
+			Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
+				ItemStack item = isMainHand ? event.getPlayer().getInventory().getItem(heldItemSlot) : event.getPlayer().getInventory().getItemInOffHand();
+				CustomItemValues custom = itemSet.getItem(item);
+
+				if (custom != null) {
 					List<ReplacementConditionValues> conditions = custom.getReplacementConditions();
 					ConditionOperation op = custom.getConditionOp();
 					boolean replace = false;
@@ -539,7 +546,6 @@ public class CustomItemsEventHandler implements Listener {
 								}
 
 								replaceItem = conditions.get(replaceIndex).getReplaceItem();
-								EquipmentSlot slot = event.getHand();
 
 								boolean replaceSelf = false;
 								for (ReplacementConditionValues condition : conditions) {
@@ -556,10 +562,10 @@ public class CustomItemsEventHandler implements Listener {
 								if (replaceItem != null) {
 									ItemStack stack = wrap(replaceItem).create(1);
 									if (item.getAmount() <= 0) {
-										if (slot.equals(EquipmentSlot.OFF_HAND)) {
-											player.getInventory().setItemInOffHand(stack);
+										if (isMainHand) {
+											player.getInventory().setItem(heldItemSlot, stack);
 										} else {
-											player.getInventory().setItemInMainHand(stack);
+											player.getInventory().setItemInOffHand(stack);
 										}
 									} else {
 										addItemToInventory(player, stack);
@@ -582,14 +588,13 @@ public class CustomItemsEventHandler implements Listener {
 									item.setAmount(item.getAmount() - 1);
 
 								replaceItem = conditions.get(replaceIndex).getReplaceItem();
-								slot = event.getHand();
 								if (replaceItem != null) {
 									ItemStack stack = wrap(replaceItem).create(1);
 									if (item.getAmount() <= 0) {
-										if (slot.equals(EquipmentSlot.OFF_HAND)) {
-											player.getInventory().setItemInOffHand(stack);
+										if (isMainHand) {
+											player.getInventory().setItem(heldItemSlot, stack);
 										} else {
-											player.getInventory().setItemInMainHand(stack);
+											player.getInventory().setItemInOffHand(stack);
 										}
 									} else {
 										addItemToInventory(player, stack);
@@ -614,14 +619,13 @@ public class CustomItemsEventHandler implements Listener {
 									item.setAmount(item.getAmount() - 1);
 
 								replaceItem = conditions.get(replaceIndex).getReplaceItem();
-								slot = event.getHand();
 								if (replaceItem != null) {
 									ItemStack stack = wrap(replaceItem).create(1);
 									if (item.getAmount() <= 0) {
-										if (slot.equals(EquipmentSlot.OFF_HAND)) {
-											player.getInventory().setItemInOffHand(stack);
+										if (isMainHand) {
+											player.getInventory().setItem(heldItemSlot, stack);
 										} else {
-											player.getInventory().setItemInMainHand(stack);
+											player.getInventory().setItemInOffHand(stack);
 										}
 									} else {
 										addItemToInventory(player, stack);
@@ -636,8 +640,8 @@ public class CustomItemsEventHandler implements Listener {
 
 						}
 					}
-				}, 10L);
-			}
+				}
+			}, 3L);
 		}
 	}
 
@@ -2687,7 +2691,10 @@ public class CustomItemsEventHandler implements Listener {
 				}
 			}
 		} else if (action == InventoryAction.NOTHING || action == InventoryAction.PICKUP_ONE
-				|| action == InventoryAction.PICKUP_SOME || action == InventoryAction.SWAP_WITH_CURSOR) {
+				|| action == InventoryAction.PICKUP_SOME || action == InventoryAction.SWAP_WITH_CURSOR
+				|| action == InventoryAction.PLACE_ONE || action == InventoryAction.PLACE_SOME
+				|| action == InventoryAction.PLACE_ALL
+		) {
 			ItemStack cursor = event.getCursor();
 			ItemStack current = event.getCurrentItem();
 			
@@ -2696,7 +2703,6 @@ public class CustomItemsEventHandler implements Listener {
 			
 			// This block makes custom items stackable
 			if (customCursor != null && customCursor == customCurrent && wrap(customCursor).needsStackingHelp()) {
-				
 				event.setResult(Result.DENY);
 				if (event.isLeftClick()) {
 					int amount = current.getAmount() + cursor.getAmount();
@@ -2721,6 +2727,7 @@ public class CustomItemsEventHandler implements Listener {
 		} else if (action == InventoryAction.COLLECT_TO_CURSOR) {
 			CustomItemValues customItem = itemSet.getItem(event.getCursor());
 			if (customItem != null && wrap(customItem).needsStackingHelp()) {
+				event.setCancelled(true);
 				int currentStacksize = event.getCursor().getAmount();
 				InventoryView view = event.getView();
 				/*
@@ -2903,20 +2910,12 @@ public class CustomItemsEventHandler implements Listener {
 	    // Don't mess with creative clicks
 	    if (event.getClick() != ClickType.CREATIVE) {
 
-	    	/*
-	    	 * There is 1 minecraft action that can legitimately do more than 1 inventory transaction per tick:
-	    	 * the shift + double-click while having an item on your cursor and holding the cursor over another item.
-	    	 * This can cause many move-to-other-inventory actions.
-	    	 *
-	    	 * This check gives that specific action a free pass to avoid the inventory guard, provided that the
-	    	 * clicked item and cursor item are not custom items.
-	    	 */
-	    	if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
-	    		if (itemSet.getItem(event.getCurrentItem()) == null && itemSet.getItem(event.getCursor()) == null) {
-	    			return;
-				}
+	    	CustomItemValues customCurrent = itemSet.getItem(event.getCurrentItem());
+	    	CustomItemValues customCursor = itemSet.getItem(event.getCursor());
+
+	    	if ((customCurrent != null && wrap(customCurrent).needsStackingHelp()) || (customCursor != null && wrap(customCursor).needsStackingHelp())) {
+				guardInventoryEvents(event, event.getWhoClicked().getUniqueId());
 			}
-			guardInventoryEvents(event, event.getWhoClicked().getUniqueId());
 		}
 	}
 
@@ -2927,31 +2926,45 @@ public class CustomItemsEventHandler implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void handleCustomItemDragging(InventoryDragEvent event) {
-	    if (event.getType() == DragType.EVEN) {
-			ItemStack remainingCursor = event.getCursor();
-			CustomItemValues customItem = itemSet.getItem(remainingCursor);
-			if (customItem != null && wrap(customItem).needsStackingHelp()) {
-			    int numSlots = event.getNewItems().size();
-			    int remainingSize = remainingCursor.getAmount();
-			    int extraPerSlot = remainingSize / numSlots;
-			    if (extraPerSlot > 0) {
-			    	for (Entry<Integer,ItemStack> entry : event.getNewItems().entrySet()) {
-			    		ItemStack toIncrease = entry.getValue();
-			    		int oldSize = toIncrease.getAmount();
-			    		int newSize = Math.min(oldSize + extraPerSlot, customItem.getMaxStacksize());
-			    		if (oldSize != newSize) {
-							remainingSize -= newSize - oldSize;
-							ItemStack replacement = toIncrease.clone();
-							replacement.setAmount(newSize);
-							Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () ->
-								event.getView().setItem(entry.getKey(), replacement)
-							);
-						}
-					}
-				}
+		CustomItemValues customItem = itemSet.getItem(event.getOldCursor());
+		if (customItem != null && wrap(customItem).needsStackingHelp()) {
+			int numSlots = event.getNewItems().size();
 
-			    if (remainingSize != remainingCursor.getAmount()) {
-			    	remainingCursor.setAmount(remainingSize);
+			ItemStack remainingCursor = event.getCursor();
+			int remainingSize = event.getOldCursor().getAmount();
+			int desiredAmountPerSlot = event.getType() == DragType.EVEN ? remainingSize / numSlots : 1;
+			int naturalStacksize = event.getOldCursor().getMaxStackSize();
+
+			for (Entry<Integer, ItemStack> entry : event.getNewItems().entrySet()) {
+				ItemStack toIncrease = entry.getValue();
+				ItemStack oldItem = event.getView().getItem(entry.getKey());
+				int oldSize = oldItem != null ? oldItem.getAmount() : 0;
+				int newSize = Math.min(oldSize + desiredAmountPerSlot, customItem.getMaxStacksize());
+				int amountToAdd = newSize - oldSize;
+				if (amountToAdd > 0 && amountToAdd <= remainingSize) {
+					remainingSize -= amountToAdd;
+					ItemStack replacement = toIncrease.clone();
+					replacement.setAmount(newSize);
+					Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () ->
+						event.getView().setItem(entry.getKey(), replacement)
+					);
+				} else {
+					Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () ->
+							event.getView().setItem(entry.getKey(), oldItem)
+					);
+				}
+			}
+
+			if (remainingCursor != null) {
+				if (remainingSize != remainingCursor.getAmount()) {
+					remainingCursor.setAmount(remainingSize);
+					event.setCursor(remainingCursor);
+				}
+			} else {
+				if (remainingSize != 0) {
+					ItemStack newCursor = event.getOldCursor().clone();
+					newCursor.setAmount(remainingSize);
+					event.setCursor(newCursor);
 				}
 			}
 		}
@@ -3275,6 +3288,26 @@ public class CustomItemsEventHandler implements Listener {
 		}
 	}
 
+	private static final boolean[] DEFAULT_MUSHROOM_BLOCK_DIRECTIONS = {
+			true, true, true, true, true, true
+	};
+
+	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+	public void handleVanillaMushroomBlockPlacements(BlockPlaceEvent event) {
+		if (MushroomBlocks.areEnabled()) {
+			String itemName = ItemHelper.getMaterialName(event.getItemInHand());
+			if (MushroomBlockMapping.getType(itemName) != null) {
+				event.setCancelled(true);
+				Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
+					MushroomBlocks.place(event.getBlock(), DEFAULT_MUSHROOM_BLOCK_DIRECTIONS, itemName);
+				});
+				if (event.getPlayer().getGameMode() != GameMode.CREATIVE) {
+					event.getItemInHand().setAmount(event.getItemInHand().getAmount() - 1);
+				}
+			}
+		}
+	}
+
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void handleCustomBlockPlacements(PlayerInteractEvent event) {
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
@@ -3404,8 +3437,8 @@ public class CustomItemsEventHandler implements Listener {
 				}
 
 				boolean matchesCustomItem = false;
-				for (Object candidateItem : ri.getCustomItems()) {
-					if (candidateItem == usedCustomItem) {
+				for (ItemReference candidateItem : ri.getCustomItems()) {
+					if (candidateItem.get() == usedCustomItem) {
 						matchesCustomItem = true;
 						break;
 					}

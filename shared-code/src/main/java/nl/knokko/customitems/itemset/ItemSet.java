@@ -1613,6 +1613,10 @@ public class ItemSet {
         removeModel(this.soundTypes, soundToRemove.getModel());
     }
 
+    public void removeBlock(BlockReference blockToRemove) throws ValidationException, ProgrammingValidationException {
+        removeModel(this.blocks, blockToRemove.getModel());
+    }
+
     public enum Side {
         EDITOR,
         PLUGIN

@@ -167,7 +167,7 @@ public class PluginData {
 			
 			if (typeInfo != null) {
 				ContainerStorageKey location = new ContainerStorageKey(typeName, new PassiveLocation(worldId, x, y, z), null, null);
-				ContainerInstance instance = ContainerInstance.load1(input, typeInfo, new ArrayList<>(), null, location, storedEnergy);
+				ContainerInstance instance = ContainerInstance.load1(input, typeInfo, null, location, storedEnergy, new ArrayList<>());
 				persistentContainers.put(location, instance);
 			} else {
 				ContainerInstance.discard1(input);

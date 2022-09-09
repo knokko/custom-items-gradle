@@ -21,17 +21,21 @@ class CommandCustomItemsRepair {
         this.itemSet = itemSet;
     }
 
-    void handle(String[] args, CommandSender sender) {
+    void handle(String[] args, CommandSender sender, boolean enableOutput) {
         if (
                 (args[0].equals("repair") && !sender.hasPermission("customitems.repair"))
                         || (args[0].equals("damage") && !sender.hasPermission("customitems.damage"))
         ) {
-            sender.sendMessage(ChatColor.DARK_RED + "You don't have access to this command.");
+            if (enableOutput) {
+                sender.sendMessage(ChatColor.DARK_RED + "You don't have access to this command.");
+            }
             return;
         }
 
         if (args.length <= 1) {
-            sender.sendMessage(ChatColor.RED + "You should use /kci " + args[0] + "<amount> [player]");
+            if (enableOutput) {
+                sender.sendMessage(ChatColor.RED + "You should use /kci " + args[0] + "<amount> [player]");
+            }
             return;
         }
 
@@ -39,12 +43,16 @@ class CommandCustomItemsRepair {
         try {
             amount = Integer.parseInt(args[1]);
         } catch (NumberFormatException notAnInteger) {
-            sender.sendMessage(ChatColor.RED + "The amount (" + args[1] + ") should be an integer");
+            if (enableOutput) {
+                sender.sendMessage(ChatColor.RED + "The amount (" + args[1] + ") should be an integer");
+            }
             return;
         }
 
         if (amount <= 0) {
-            sender.sendMessage(ChatColor.RED + "The amount should be positive");
+            if (enableOutput) {
+                sender.sendMessage(ChatColor.RED + "The amount should be positive");
+            }
             return;
         }
 
@@ -52,45 +60,59 @@ class CommandCustomItemsRepair {
         if (args.length > 2) {
             target = getOnlinePlayer(args[2]);
             if (target == null) {
-                sender.sendMessage(ChatColor.RED + "No online player with name " + args[2] + " was found");
+                if (enableOutput) {
+                    sender.sendMessage(ChatColor.RED + "No online player with name " + args[2] + " was found");
+                }
                 return;
             }
         } else {
             if (sender instanceof Player) {
                 target = (Player) sender;
             } else {
-                sender.sendMessage(ChatColor.RED + "You should use /kci " + args[0] + " <amount> <player>");
+                if (enableOutput) {
+                    sender.sendMessage(ChatColor.RED + "You should use /kci " + args[0] + " <amount> <player>");
+                }
                 return;
             }
         }
 
         ItemStack item = target.getInventory().getItemInMainHand();
         if (ItemUtils.isEmpty(item)) {
-            sender.sendMessage(ChatColor.RED + target.getName() + " should hold the item to " + args[0] + "in the main hand");
+            if (enableOutput) {
+                sender.sendMessage(ChatColor.RED + target.getName() + " should hold the item to " + args[0] + "in the main hand");
+            }
             return;
         }
 
         CustomItemValues customItem = itemSet.getItem(item);
         if (customItem == null) {
-            sender.sendMessage(ChatColor.RED + "The item in the main hand of " + target.getName() + " should be a custom item");
+            if (enableOutput) {
+                sender.sendMessage(ChatColor.RED + "The item in the main hand of " + target.getName() + " should be a custom item");
+            }
             return;
         }
 
         if (!(customItem instanceof CustomToolValues)) {
-            sender.sendMessage(ChatColor.RED + "The item in the main hand of " + target.getName() + " should be a custom tool");
+            if (enableOutput) {
+                sender.sendMessage(ChatColor.RED + "The item in the main hand of " + target.getName() + " should be a custom tool");
+            }
             return;
         }
 
         CustomToolValues customTool = (CustomToolValues) customItem;
         if (customTool.getMaxDurabilityNew() == null) {
-            sender.sendMessage(ChatColor.RED + "The tool in the main hand of " + target.getName() + " is unbreakable");
+            if (enableOutput) {
+                sender.sendMessage(ChatColor.RED + "The tool in the main hand of " + target.getName() + " is unbreakable");
+            }
             return;
         }
 
         if (args[0].equals("repair")) {
             CustomToolWrapper.IncreaseDurabilityResult result = wrap(customTool).increaseDurability(item, amount);
             if (result.increasedAmount == 0) {
-                sender.sendMessage(ChatColor.RED + "The tool in the main hand of " + target.getName() + " wasn't damaged");
+                if (enableOutput) {
+                    sender.sendMessage(ChatColor.RED + "The tool in the main hand of " + target.getName() + " wasn't damaged");
+                }
                 return;
             }
 
@@ -101,6 +123,5 @@ class CommandCustomItemsRepair {
             ItemStack result = wrap(customTool).decreaseDurability(item, amount);
             target.getInventory().setItemInMainHand(result);
         }
-
     }
 }

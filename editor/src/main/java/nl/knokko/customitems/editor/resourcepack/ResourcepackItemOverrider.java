@@ -1,6 +1,7 @@
 package nl.knokko.customitems.editor.resourcepack;
 
 import nl.knokko.customitems.MCVersions;
+import nl.knokko.customitems.editor.util.VanillaModelProperties;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.item.CustomItemType;
 import nl.knokko.customitems.item.CustomItemValues;
@@ -97,9 +98,18 @@ class ResourcepackItemOverrider {
         }
 
         for (CIMaterial currentOtherMaterial : usedOtherMaterials) {
-            // TODO I'm not sure this will always be the right model name. If not, I will have to add case distinctions later
             String modelName = currentOtherMaterial.name().toLowerCase(Locale.ROOT);
-            String textureName = modelName;
+            String textureName;
+            String parent;
+
+            try {
+                VanillaModelProperties vanillaModelProperties = VanillaModelProperties.valueOf(currentOtherMaterial.name());
+                textureName = vanillaModelProperties.texture;
+                parent = vanillaModelProperties.parent;
+            } catch (IllegalArgumentException noModelInfo) {
+                textureName = "item/" + modelName;
+                parent = "item/handheld";
+            }
 
             ZipEntry zipEntry = new ZipEntry("assets/minecraft/models/item/" + modelName + ".json");
             zipOutput.putNextEntry(zipEntry);
@@ -107,11 +117,12 @@ class ResourcepackItemOverrider {
 
             // Begin of the json file
             jsonWriter.println("{");
-            jsonWriter.println("    \"parent\": \"item/handheld\",");
-            jsonWriter.println("    \"textures\": {");
-            jsonWriter.print("        \"layer0\": \"item/" + textureName + "\"");
-            jsonWriter.println();
-            jsonWriter.println("    },");
+            jsonWriter.println("    \"parent\": \"" + parent + "\",");
+            if (textureName != null) {
+                jsonWriter.println("    \"textures\": {");
+                jsonWriter.println("        \"layer0\": \"" + textureName + "\"");
+                jsonWriter.println("    },");
+            }
             jsonWriter.println("    \"overrides\": [");
 
             // Some bookkeeping
@@ -160,7 +171,7 @@ class ResourcepackItemOverrider {
         if (this.mcVersion >= VERSION1_13) {
             jsonWriter.println("        \"layer0\": \"item/bow\"");
         } else {
-            jsonWriter.println("        \"layer0\": \"items/bow\"");
+            jsonWriter.println("        \"layer0\": \"items/bow_standby\"");
         }
         jsonWriter.println("    },");
 

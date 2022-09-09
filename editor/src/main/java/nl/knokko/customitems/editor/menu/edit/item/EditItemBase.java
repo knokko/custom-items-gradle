@@ -34,6 +34,7 @@ import nl.knokko.customitems.editor.menu.edit.item.command.EditCommandSystem;
 import nl.knokko.customitems.editor.menu.edit.item.model.EditItemModel;
 import nl.knokko.customitems.editor.menu.edit.texture.TextureEdit;
 import nl.knokko.customitems.editor.util.Validation;
+import nl.knokko.customitems.editor.util.VanillaModelProperties;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.TextureReference;
@@ -220,7 +221,14 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 			);
 		}
 		DynamicTextButton otherMaterialButton = EnumSelect.createSelectButton(
-				CIMaterial.class, currentValues::setOtherMaterial, currentValues.getOtherMaterial()
+				CIMaterial.class, currentValues::setOtherMaterial, candidateType -> {
+					try {
+						VanillaModelProperties.valueOf(candidateType.name());
+						return true;
+					} catch (IllegalArgumentException noCorrespondingMaterial) {
+						return false;
+					}
+				}, currentValues.getOtherMaterial()
 		);
 		addComponent(EnumSelect.createSelectButton(
 				CustomItemType.class, 

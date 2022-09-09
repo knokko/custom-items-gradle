@@ -186,6 +186,7 @@ public class CustomBlockValues extends ModelValues {
         if (name == null) throw new ProgrammingValidationException("No name");
         if (name.isEmpty()) throw new ValidationException("The name is empty");
         if (name.contains(" ")) throw new ValidationException("The name contains spaces");
+        Validation.safeName(name);
 
         if (drops == null) throw new ProgrammingValidationException("No drops");
         for (CustomBlockDropValues drop : drops) {

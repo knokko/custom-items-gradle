@@ -14,6 +14,7 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,16 +25,17 @@ public class CustomItemsTabCompletions implements TabCompleter {
         return full.stream().filter(element -> element.startsWith(prefix)).collect(Collectors.toList());
     }
 
-    private List<String> getRootCompletions(CommandSender sender) {
-        return Lists.newArrayList(
+    private List<String> getRootCompletions(CommandSender sender, boolean showDisableOutput) {
+        List<String> result = Lists.newArrayList(
                 "give", "take", "list", "debug", "encode", "reload", "repair", "damage", "setblock", "container"
-                ).stream().filter(
-                        element -> element.equals("container") || sender.hasPermission("customitems." + element) ||
-                                (element.equals("give") && itemSet.get().getItems().stream().anyMatch(
-                                        item -> sender.hasPermission("customitems.give." + item.getName())
-                                ))
-                ).collect(Collectors.toList()
-        );
+        ).stream().filter(
+                element -> element.equals("container") || sender.hasPermission("customitems." + element) ||
+                        (element.equals("give") && itemSet.get().getItems().stream().anyMatch(
+                                item -> sender.hasPermission("customitems.give." + item.getName())
+                        ))
+        ).collect(Collectors.toList());
+        if (showDisableOutput) result.add("disableoutput");
+        return result;
     }
 
     private final ItemSetWrapper itemSet;
@@ -44,11 +46,16 @@ public class CustomItemsTabCompletions implements TabCompleter {
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+        boolean showDisableOutput = true;
+        if (args.length > 0 && args[0].equals("disableoutput")) {
+            args = Arrays.copyOfRange(args, 1, args.length);
+            showDisableOutput = false;
+        }
         if (args.length == 0) {
-            return getRootCompletions(sender);
+            return getRootCompletions(sender, showDisableOutput);
         } else if (args.length == 1) {
             String prefix = args[0];
-            return filter(getRootCompletions(sender), prefix);
+            return filter(getRootCompletions(sender, showDisableOutput), prefix);
         } else if (args.length == 2) {
             String first = args[0];
             String prefix = args[1];

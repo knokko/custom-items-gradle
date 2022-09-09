@@ -25,6 +25,11 @@ class PassiveLocation {
 				bukkitLocation.getBlockZ()
 		);
 	}
+
+	@Override
+	public String toString() {
+		return "(x=" + x + ",y=" + y + ",z=" + z + ")";
+	}
 	
 	@Override
 	public boolean equals(Object other) {

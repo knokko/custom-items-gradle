@@ -178,6 +178,9 @@ public class EditMenu extends GuiMenu {
 		addComponent(new DynamicTextButton("Export for 1.18", SAVE_BASE, SAVE_HOVER, () -> {
 			saveAndExport(VERSION1_18);
 		}), 0.3F, 0.32F, 0.5F, 0.4F);
+		addComponent(new DynamicTextButton("Export for 1.19", SAVE_BASE, SAVE_HOVER, () -> {
+			saveAndExport(VERSION1_19);
+		}), 0.3f, 0.23F, 0.5F, 0.31F);
 
 		addComponent(new DynamicTextButton("Generate wiki", BUTTON, HOVER, () -> {
 			try {
@@ -207,7 +210,7 @@ public class EditMenu extends GuiMenu {
 			state.getWindow().setMainComponent(containerPortal);
 		}), 0.6f, 0.375f, 0.875f, 0.45f);
 		addComponent(new DynamicTextButton("Blocks (1.13+)", BUTTON, HOVER, () -> {
-			state.getWindow().setMainComponent(new BlockCollectionEdit(this));
+			state.getWindow().setMainComponent(new BlockCollectionEdit(this, false));
 		}), 0.6f, 0.285f, 0.875f, 0.36f);
 		addComponent(new DynamicTextButton("Sounds", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new SoundTypeCollectionEdit(this, set));

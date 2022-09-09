@@ -86,12 +86,18 @@ public class CommandCustomItems implements CommandExecutor {
 		if(args.length == 0) {
 			return false;
 		} else {
+			boolean enableOutput = true;
+			if (args[0].equals("disableoutput")) {
+				enableOutput = false;
+				args = Arrays.copyOfRange(args, 1, args.length);
+			}
+
 			switch (args[0]) {
 				case "give":
-				    new CommandCustomItemsGive(itemSet, lang).handle(args, sender);
+				    new CommandCustomItemsGive(itemSet, lang).handle(args, sender, enableOutput);
 					break;
 				case "take": {
-					new CommandCustomItemsTake(itemSet).handle(args, sender);
+					new CommandCustomItemsTake(itemSet).handle(args, sender, enableOutput);
 					break;
 				}
 				case "list": {
@@ -103,7 +109,7 @@ public class CommandCustomItems implements CommandExecutor {
 					// the *break*
 				}
 				case "repair": {
-					new CommandCustomItemsRepair(itemSet).handle(args, sender);
+					new CommandCustomItemsRepair(itemSet).handle(args, sender, enableOutput);
 					break;
 				}
 				case "debug": {
@@ -111,18 +117,21 @@ public class CommandCustomItems implements CommandExecutor {
 					break;
 				}
 				case "setblock": {
-					new CommandCustomItemsSetBlock(itemSet).handle(args, sender);
+					new CommandCustomItemsSetBlock(itemSet).handle(args, sender, enableOutput);
 					break;
 				}
-				case "encode":
+				case "encode": {
 					new CommandCustomItemsEncode().handle(sender);
 					break;
-				case "reload":
+				}
+				case "reload": {
 					new CommandCustomItemsReload().handle(sender);
 					break;
-				case "container":
-					new CommandCustomItemsContainer(itemSet).handle(args, sender);
+				}
+				case "container": {
+					new CommandCustomItemsContainer(itemSet).handle(args, sender, enableOutput);
 					break;
+				}
 				default:
 					return false;
 			}

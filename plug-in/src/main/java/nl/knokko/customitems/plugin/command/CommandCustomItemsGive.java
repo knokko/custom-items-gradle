@@ -4,9 +4,11 @@ import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.LanguageFile;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
+import nl.knokko.customitems.plugin.util.ItemUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Collection;
 
@@ -27,7 +29,7 @@ class CommandCustomItemsGive {
         sender.sendMessage(lang.getCommandGiveUseage());
     }
 
-    void handle(String[] args, CommandSender sender) {
+    void handle(String[] args, CommandSender sender, boolean enableOutput) {
         if (
                 !sender.hasPermission("customitems.give") && itemSet.get().getItems().stream().noneMatch(
                         item -> sender.hasPermission("customitems.give." + item.getName())
@@ -104,7 +106,7 @@ class CommandCustomItemsGive {
                 }
                 if (receiver != null) {
                     if (receiver == sender || sender.hasPermission("customitems.give") || sender.hasPermission("customitems.giveother")) {
-                        receiver.getInventory().addItem(wrap(item).create(amount));
+                        giveTheItem(sender, receiver, item, amount, enableOutput);
                         sender.sendMessage(lang.getCommandItemGiven());
                     } else {
                         sender.sendMessage(ChatColor.DARK_RED + "You don't have permission to give custom items to other players");
@@ -115,6 +117,41 @@ class CommandCustomItemsGive {
             }
         } else {
             sendGiveUseage(sender);
+        }
+    }
+
+    private void giveTheItem(CommandSender sender, Player receiver, CustomItemValues item, int amount, boolean enableOutput) {
+        boolean wasGiven = false;
+
+        if (wrap(item).needsStackingHelp()) {
+            ItemStack[] contents = receiver.getInventory().getStorageContents();
+            int freeSlotIndex = -1;
+            for (int index = 0; index < contents.length; index++) {
+                if (ItemUtils.isEmpty(contents[index])) {
+                    if (freeSlotIndex == -1) freeSlotIndex = index;
+                } else {
+                    ItemStack existingStack = contents[index];
+                    CustomItemValues existingItem = itemSet.getItem(existingStack);
+                    if (existingItem == item && item.getMaxStacksize() >= existingStack.getAmount() + amount) {
+                        existingStack.setAmount(existingStack.getAmount() + amount);
+                        receiver.getInventory().setStorageContents(contents);
+                        wasGiven = true;
+                        break;
+                    }
+                }
+            }
+
+            if (freeSlotIndex != -1 && !wasGiven) {
+                contents[freeSlotIndex] = wrap(item).create(amount);
+                receiver.getInventory().setStorageContents(contents);
+                wasGiven = true;
+            }
+        } else {
+            wasGiven = receiver.getInventory().addItem(wrap(item).create(amount)).isEmpty();
+        }
+        if (enableOutput) {
+            if (wasGiven) sender.sendMessage(lang.getCommandItemGiven());
+            else sender.sendMessage(ChatColor.RED + "No available inventory slot was found");
         }
     }
 }

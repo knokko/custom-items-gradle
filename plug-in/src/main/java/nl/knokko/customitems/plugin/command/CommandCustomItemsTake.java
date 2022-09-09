@@ -24,19 +24,23 @@ class CommandCustomItemsTake {
         this.itemSet = itemSet;
     }
 
-    void handle(String[] args, CommandSender sender) {
+    void handle(String[] args, CommandSender sender, boolean enableOutput) {
         if (!sender.hasPermission("customitems.take")) {
-            sender.sendMessage(ChatColor.DARK_RED + "You don't have access to this command.");
+            if (enableOutput) {
+                sender.sendMessage(ChatColor.DARK_RED + "You don't have access to this command.");
+            }
             return;
         }
         if (args.length == 1 || args.length == 2 || args.length == 3) {
 
-            Collection<String> errors = CustomItemsPlugin.getInstance().getLoadErrors();
-            if (!errors.isEmpty()) {
-                sender.sendMessage(ChatColor.RED + "The following errors occurred while enabling " +
-                        "this plug-in. These errors will likely cause this command to fail:");
-                for (String error : errors) {
-                    sender.sendMessage(ChatColor.DARK_RED + error);
+            if (enableOutput) {
+                Collection<String> errors = CustomItemsPlugin.getInstance().getLoadErrors();
+                if (!errors.isEmpty()) {
+                    sender.sendMessage(ChatColor.RED + "The following errors occurred while enabling " +
+                            "this plug-in. These errors will likely cause this command to fail:");
+                    for (String error : errors) {
+                        sender.sendMessage(ChatColor.DARK_RED + error);
+                    }
                 }
             }
 
@@ -45,11 +49,15 @@ class CommandCustomItemsTake {
                 try {
                     page = Integer.parseInt(args[1]);
                     if (page < 1) {
-                        sender.sendMessage(ChatColor.RED + "The page (" + page + ") must be at least 1");
+                        if (enableOutput) {
+                            sender.sendMessage(ChatColor.RED + "The page (" + page + ") must be at least 1");
+                        }
                         return;
                     }
                 } catch (NumberFormatException badPageNumber) {
-                    sender.sendMessage(ChatColor.RED + "The page number (" + args[1] + ") should be an integer");
+                    if (enableOutput) {
+                        sender.sendMessage(ChatColor.RED + "The page number (" + args[1] + ") should be an integer");
+                    }
                     return;
                 }
             }
@@ -63,14 +71,18 @@ class CommandCustomItemsTake {
                 if (maybeTarget.isPresent()) {
                     target = maybeTarget.get();
                 } else {
-                    sender.sendMessage(ChatColor.RED + "Can't find player " + targetName);
+                    if (enableOutput) {
+                        sender.sendMessage(ChatColor.RED + "Can't find player " + targetName);
+                    }
                     return;
                 }
             } else {
                 if (sender instanceof Player) {
                     target = (Player) sender;
                 } else {
-                    sender.sendMessage(ChatColor.RED + "You should use /kci take <page number> <player name>");
+                    if (enableOutput) {
+                        sender.sendMessage(ChatColor.RED + "You should use /kci take <page number> <player name>");
+                    }
                     return;
                 }
             }
@@ -80,7 +92,9 @@ class CommandCustomItemsTake {
             int firstItemIndex = numItemsPerPage * (page - 1);
 
             if (firstItemIndex >= itemList.size()) {
-                sender.sendMessage(ChatColor.RED + "Page " + page + " shows custom item " + (firstItemIndex + 1) + " and later, but you only have " + itemList.size() + " custom items");
+                if (enableOutput) {
+                    sender.sendMessage(ChatColor.RED + "Page " + page + " shows custom item " + (firstItemIndex + 1) + " and later, but you only have " + itemList.size() + " custom items");
+                }
                 return;
             }
             int lastItemIndex = Math.min(firstItemIndex + numItemsPerPage - 1, itemList.size() - 1);
@@ -98,8 +112,9 @@ class CommandCustomItemsTake {
             }
             target.openInventory(takeInventory);
         } else {
-            sender.sendMessage(ChatColor.RED + "Use /kci take [page number] [player name]");
-            return;
+            if (enableOutput) {
+                sender.sendMessage(ChatColor.RED + "Use /kci take [page number] [player name]");
+            }
         }
     }
 }

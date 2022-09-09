@@ -5,6 +5,8 @@ import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.slot.*;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.customitems.recipe.OutputTableValues;
+import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -15,6 +17,9 @@ public class RecipeSlotsGrid extends GuiMenu {
 	private final ItemSet itemSet;
 	private final CustomContainerValues container;
 	private final ContainerRecipeValues recipe;
+
+	private final IngredientValues[] pClipboardIngredient = { null };
+	private final OutputTableValues[] pClipboardResult = { null };
 
 	public RecipeSlotsGrid(
 			GuiComponent outerMenu, ItemSet itemSet,
@@ -35,12 +40,12 @@ public class RecipeSlotsGrid extends GuiMenu {
 				if (slot instanceof InputSlotValues) {
 					InputSlotValues inputSlot = (InputSlotValues) slot;
 					slotComponent = new InputSlotComponent(
-							inputSlot.getName(), outerMenu, recipe, itemSet
+							inputSlot.getName(), outerMenu, pClipboardIngredient, recipe, itemSet
 					);
 				} else if (slot instanceof OutputSlotValues) {
 					OutputSlotValues outputSlot = (OutputSlotValues) slot;
 					slotComponent = new OutputSlotComponent(
-							outputSlot.getName(), outerMenu, recipe, itemSet
+							outputSlot.getName(), outerMenu, pClipboardResult, recipe, itemSet
 					);
 				} else if (slot instanceof ManualOutputSlotValues) {
 					ManualOutputSlotValues outputSlot = (ManualOutputSlotValues) slot;

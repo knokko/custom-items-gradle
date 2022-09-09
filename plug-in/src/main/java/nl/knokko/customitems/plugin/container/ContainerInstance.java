@@ -204,10 +204,11 @@ public class ContainerInstance {
 	}
 	
 	public static ContainerInstance load1(
-			BitInput input, ContainerInfo typeInfo, Collection<ItemStack> orphanStacks, UUID ownerID,
-			ContainerStorageKey storageKey, StoredEnergy storedEnergy
+			BitInput input, ContainerInfo typeInfo, UUID ownerID,
+			ContainerStorageKey storageKey, StoredEnergy storedEnergy, Collection<ItemStack> orphanStacks
 	) {
 		ContainerInstance instance = new ContainerInstance(typeInfo, ownerID, storageKey, storedEnergy);
+
 		Inventory inv = instance.inventory;
 		
 		class StringStack {
@@ -400,7 +401,7 @@ public class ContainerInstance {
 	) {
 		Collection<ItemStack> orphanStacks = new ArrayList<>(0);
 
-		ContainerInstance base = load1(input, typeInfo, orphanStacks, ownerID, storageKey, storedEnergy);
+		ContainerInstance base = load1(input, typeInfo, ownerID, storageKey, storedEnergy, orphanStacks);
 
 		int numStoredStacks = input.readInt();
 		for (int counter = 0; counter < numStoredStacks; counter++) {
@@ -522,7 +523,7 @@ public class ContainerInstance {
 	
 	private static <T, U> Iterable<Entry<T, Integer>> mapEntries(Iterable<Entry<T, U>> entries, Function<U, Integer> getIndex) {
 		return StreamSupport.stream(entries.spliterator(), false).map(entry -> {
-			Entry<T, Integer> resultEntry = new SimpleEntry<T, Integer>(entry.getKey(), getIndex.apply(entry.getValue()));
+			Entry<T, Integer> resultEntry = new SimpleEntry<>(entry.getKey(), getIndex.apply(entry.getValue()));
 			return resultEntry;
 		}).collect(Collectors.toList());
 	}

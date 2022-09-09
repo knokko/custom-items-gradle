@@ -22,26 +22,34 @@ public class CommandCustomItemsSetBlock {
         this.itemSet = itemSet;
     }
 
-    void handle(String[] args, CommandSender sender) {
+    void handle(String[] args, CommandSender sender, boolean enableOutput) {
         if (!sender.hasPermission("customitems.setblock")) {
-            sender.sendMessage(ChatColor.DARK_RED + "You don't have access to this command");
+            if (enableOutput) {
+                sender.sendMessage(ChatColor.DARK_RED + "You don't have access to this command");
+            }
             return;
         }
 
         if (args.length < 2 || args.length > 6) {
-            sender.sendMessage(ChatColor.RED + "You should use /kci setblock <block> [x] [y] [z] [world]");
+            if (enableOutput) {
+                sender.sendMessage(ChatColor.RED + "You should use /kci setblock <block> [x] [y] [z] [world]");
+            }
             return;
         }
 
         if (!MushroomBlocks.areEnabled()) {
-            sender.sendMessage(ChatColor.RED + "Custom blocks are not possible in this minecraft version");
+            if (enableOutput) {
+                sender.sendMessage(ChatColor.RED + "Custom blocks are not possible in this minecraft version");
+            }
             return;
         }
 
         Optional<CustomBlockValues> block = itemSet.get().getBlock(args[1]);
 
         if (!block.isPresent()) {
-            sender.sendMessage(ChatColor.RED + "There is no custom block with name '" + args[1] + "'");
+            if (enableOutput) {
+                sender.sendMessage(ChatColor.RED + "There is no custom block with name '" + args[1] + "'");
+            }
             return;
         }
 
@@ -55,7 +63,9 @@ public class CommandCustomItemsSetBlock {
         }
 
         if (args.length < 6 && senderLocation == null) {
-            sender.sendMessage("You should use /kci setblock <block> <x> <y> <z> <world>");
+            if (enableOutput) {
+                sender.sendMessage("You should use /kci setblock <block> <x> <y> <z> <world>");
+            }
             return;
         }
 
@@ -64,7 +74,7 @@ public class CommandCustomItemsSetBlock {
 
         Integer parsedX = getCoordinate(
                 senderLocation == null ? null : senderLocation.getBlockX(), args,
-                2, "x", sender
+                2, "x", sender, enableOutput
         );
         if (parsedX != null) {
             x = parsedX;
@@ -74,7 +84,7 @@ public class CommandCustomItemsSetBlock {
 
         Integer parsedY = getCoordinate(
                 senderLocation == null ? null : senderLocation.getBlockY(), args,
-                3, "y", sender
+                3, "y", sender, enableOutput
         );
         if (parsedY != null) {
             y = parsedY;
@@ -84,7 +94,7 @@ public class CommandCustomItemsSetBlock {
 
         Integer parsedZ = getCoordinate(
                 senderLocation == null ? null : senderLocation.getBlockZ(), args,
-                4, "z", sender
+                4, "z", sender, enableOutput
         );
         if (parsedZ != null) {
             z = parsedZ;
@@ -95,7 +105,9 @@ public class CommandCustomItemsSetBlock {
         if (args.length >= 6) {
             world = Bukkit.getWorld(args[5]);
             if (world == null) {
-                sender.sendMessage(ChatColor.RED + "There is no world with name '" + args[5] + "'");
+                if (enableOutput) {
+                    sender.sendMessage(ChatColor.RED + "There is no world with name '" + args[5] + "'");
+                }
                 return;
             }
         } else {
@@ -107,7 +119,7 @@ public class CommandCustomItemsSetBlock {
 
     private static Integer getCoordinate(
             Integer current, String[] arguments, int argIndex,
-            String description, CommandSender sender
+            String description, CommandSender sender, boolean enableOutput
     ) {
         if (argIndex >= arguments.length) {
             return current;
@@ -126,7 +138,9 @@ public class CommandCustomItemsSetBlock {
         try {
             return Integer.parseInt(coordinateString) + offset;
         } catch (NumberFormatException invalid) {
-            sender.sendMessage(ChatColor.RED + "The <" + description + "> (" + coordinateString + ") is not an integer");
+            if (enableOutput) {
+                sender.sendMessage(ChatColor.RED + "The <" + description + "> (" + coordinateString + ") is not an integer");
+            }
             return null;
         }
     }
