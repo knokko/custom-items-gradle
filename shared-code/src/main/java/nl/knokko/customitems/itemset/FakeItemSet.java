@@ -1,6 +1,7 @@
 package nl.knokko.customitems.itemset;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 /**
  * This is a dirty subclass of SItemSet that overrides all reference getter methods
@@ -12,6 +13,7 @@ public class FakeItemSet extends ItemSet {
 
         this.intReferences = new ArrayList<>();
         this.stringReferences = new ArrayList<>();
+        this.uuidReferences = new ArrayList<>();
     }
 
     @Override
@@ -52,5 +54,10 @@ public class FakeItemSet extends ItemSet {
     @Override
     public ProjectileCoverReference getProjectileCoverReference(String name) {
         return new ProjectileCoverReference(name, this);
+    }
+
+    @Override
+    public SoundTypeReference getSoundTypeReference(UUID id) {
+        return new SoundTypeReference(id, this);
     }
 }

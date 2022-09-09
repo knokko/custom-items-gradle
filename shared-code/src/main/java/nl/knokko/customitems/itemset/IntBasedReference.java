@@ -42,6 +42,12 @@ abstract class IntBasedReference<M extends Model<V>, V extends ModelValues> impl
     }
 
     @Override
+    public String toString() {
+        int obtainedID = model != null ? extractIdentity(model.getValues()) : id;
+        return getDescription() + " " + obtainedID;
+    }
+
+    @Override
     public int hashCode() {
         return this.model != null ? extractIdentity(this.model.getValues()) : this.id;
     }

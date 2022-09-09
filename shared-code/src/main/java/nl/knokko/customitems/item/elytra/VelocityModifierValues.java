@@ -12,6 +12,8 @@ import nl.knokko.customitems.util.ValidationException;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static nl.knokko.customitems.util.Checks.isClose;
+
 public class VelocityModifierValues extends ModelValues {
 
     public static VelocityModifierValues load(BitInput input) throws UnknownEncodingException {
@@ -142,6 +144,21 @@ public class VelocityModifierValues extends ModelValues {
     @Override
     public VelocityModifierValues copy(boolean mutable) {
         return new VelocityModifierValues(this, mutable);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof VelocityModifierValues) {
+            VelocityModifierValues otherVelocity = (VelocityModifierValues) other;
+            return this.accelerations.equals(otherVelocity.accelerations) && isClose(this.minPitch, otherVelocity.minPitch)
+                    && isClose(this.maxPitch, otherVelocity.maxPitch)
+                    && isClose(this.minVerticalVelocity, otherVelocity.minVerticalVelocity)
+                    && isClose(this.maxVerticalVelocity, otherVelocity.maxVerticalVelocity)
+                    && isClose(this.minHorizontalVelocity, otherVelocity.minHorizontalVelocity)
+                    && isClose(this.maxHorizontalVelocity, otherVelocity.maxHorizontalVelocity);
+        } else {
+            return false;
+        }
     }
 
     public void validate() throws ValidationException, ProgrammingValidationException {

@@ -83,6 +83,11 @@ public class ReplaceBlocksValues extends ModelValues {
         }
     }
 
+    @Override
+    public String toString() {
+        return "ReplaceBlocks(" + customBlocks + "," + vanillaBlocks + ")";
+    }
+
     public Set<BlockReference> getCustomBlocks() {
         return new HashSet<>(customBlocks);
     }

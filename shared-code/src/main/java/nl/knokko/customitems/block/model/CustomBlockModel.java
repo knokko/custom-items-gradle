@@ -53,6 +53,10 @@ public class CustomBlockModel implements BlockModel {
         }
     }
 
+    public ModernCustomItemModel getItemModel() {
+        return itemModel;
+    }
+
     @Override
     public TextureReference getPrimaryTexture() {
         return editorTexture;

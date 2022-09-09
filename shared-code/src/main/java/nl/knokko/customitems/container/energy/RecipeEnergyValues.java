@@ -25,6 +25,16 @@ public class RecipeEnergyValues extends ModelValues {
         return result;
     }
 
+    public static RecipeEnergyValues createQuick(
+            EnergyTypeReference energyType, RecipeEnergyOperation operation, int amount
+    ) {
+        RecipeEnergyValues result = new RecipeEnergyValues(true);
+        result.setEnergyType(energyType);
+        result.setOperation(operation);
+        result.setAmount(amount);
+        return result;
+    }
+
     private EnergyTypeReference energyType;
     private RecipeEnergyOperation operation;
     private int amount;

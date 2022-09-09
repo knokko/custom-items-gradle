@@ -14,6 +14,7 @@ import nl.knokko.customitems.util.ValidationException;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 import static nl.knokko.customitems.texture.BaseTextureValues.loadImage;
 import static nl.knokko.customitems.texture.BaseTextureValues.saveImage;
@@ -44,6 +45,17 @@ public class CustomElytraValues extends CustomArmorValues {
     @Override
     public CustomElytraValues copy(boolean mutable) {
         return new CustomElytraValues(this, mutable);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof CustomElytraValues) {
+            CustomElytraValues otherElytra = (CustomElytraValues) other;
+            // Don't test the worn texture because it is Editor-only
+            return this.areArmorPropertiesEqual(otherElytra) && this.velocityModifiers.equals(otherElytra.velocityModifiers);
+        } else {
+            return false;
+        }
     }
 
     @Override

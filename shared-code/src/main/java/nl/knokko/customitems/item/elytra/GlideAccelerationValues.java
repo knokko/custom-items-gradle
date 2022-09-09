@@ -8,6 +8,8 @@ import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
 
+import static nl.knokko.customitems.util.Checks.isClose;
+
 public class GlideAccelerationValues extends ModelValues {
 
     public static GlideAccelerationValues load(BitInput input) throws UnknownEncodingException {
@@ -18,6 +20,14 @@ public class GlideAccelerationValues extends ModelValues {
         result.sourceAxis = GlideAxis.valueOf(input.readString());
         result.targetAxis = GlideAxis.valueOf(input.readString());
         result.factor = input.readFloat();
+        return result;
+    }
+
+    public static GlideAccelerationValues createQuick(GlideAxis sourceAxis, GlideAxis targetAxis, float factor) {
+        GlideAccelerationValues result = new GlideAccelerationValues(true);
+        result.setSourceAxis(sourceAxis);
+        result.setTargetAxis(targetAxis);
+        result.setFactor(factor);
         return result;
     }
 
@@ -50,6 +60,22 @@ public class GlideAccelerationValues extends ModelValues {
     @Override
     public GlideAccelerationValues copy(boolean mutable) {
         return new GlideAccelerationValues(this, mutable);
+    }
+
+    @Override
+    public String toString() {
+        return "Glide(" + factor + " * " + sourceAxis + " to " + targetAxis + ")";
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof GlideAccelerationValues) {
+            GlideAccelerationValues otherGlide = (GlideAccelerationValues) other;
+            return this.sourceAxis == otherGlide.sourceAxis && this.targetAxis == otherGlide.targetAxis
+                    && isClose(this.factor, otherGlide.factor);
+        } else {
+            return false;
+        }
     }
 
     public GlideAxis getSourceAxis() {

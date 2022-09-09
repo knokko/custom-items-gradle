@@ -56,6 +56,14 @@ public class ModernCustomItemModel implements ItemModel {
         this.includedImages = new ArrayList<>(includedImages);
     }
 
+    public byte[] getRawModel() {
+        return rawModel;
+    }
+
+    public Collection<IncludedImage> getIncludedImages() {
+        return new ArrayList<>(includedImages);
+    }
+
     @Override
     public void write(
             ZipOutputStream zipOutput, String itemName, String textureName,

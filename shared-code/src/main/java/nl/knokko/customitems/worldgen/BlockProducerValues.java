@@ -6,8 +6,6 @@ import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.model.Mutability;
-import nl.knokko.customitems.recipe.OutputTableValues;
-import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Chance;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -77,6 +75,11 @@ public class BlockProducerValues extends ModelValues {
     @Override
     public boolean equals(Object other) {
         return other instanceof BlockProducerValues && this.entries.equals(((BlockProducerValues) other).entries);
+    }
+
+    @Override
+    public String toString() {
+        return "BlockProducer( " + entries + ")";
     }
 
     public Chance getNothingChance() {
@@ -188,6 +191,11 @@ public class BlockProducerValues extends ModelValues {
             } else {
                 return false;
             }
+        }
+
+        @Override
+        public String toString() {
+            return "(" + chance + " for " + block + ")";
         }
 
         public ProducedBlock getBlock() {

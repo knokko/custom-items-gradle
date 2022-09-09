@@ -76,8 +76,10 @@ public class CustomSoundTypeValues extends ModelValues {
     public boolean equals(Object other) {
         if (other instanceof CustomSoundTypeValues) {
             CustomSoundTypeValues otherSound = (CustomSoundTypeValues) other;
+
+            // Don't test the sound data because it is only available on the Editor side
             return this.id.equals(otherSound.id) && this.name.equals(otherSound.name)
-                    && Arrays.equals(this.oggData, otherSound.oggData) && this.soundCategory == otherSound.soundCategory;
+                    && this.soundCategory == otherSound.soundCategory;
         } else {
             return false;
         }

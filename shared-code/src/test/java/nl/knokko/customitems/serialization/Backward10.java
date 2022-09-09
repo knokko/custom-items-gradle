@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import static nl.knokko.customitems.serialization.Backward11.*;
 import static nl.knokko.customitems.serialization.Backward3.testTextures3;
 import static nl.knokko.customitems.serialization.Backward6.testProjectileCoversOld6;
 import static nl.knokko.customitems.serialization.Backward6.testRecipesNew6;
@@ -137,6 +138,9 @@ public class Backward10 {
 
     static void testItemsNew10(ItemSet set, int numItems) {
         testItemsNew9(set, numItems);
+
+        testCrossbowDefault10((CustomCrossbowValues) set.getItem("crossbow1").get());
+        testBlockItemDefault10((CustomBlockItemValues) set.getItem("block_item1").get());
 
         testTrident3((CustomTridentValues) set.getItem("trident3").get());
         testCrossbow2((CustomCrossbowValues) set.getItem("crossbow2").get());
@@ -674,88 +678,98 @@ public class Backward10 {
         assertFalse(item.shouldKeepOnDeath());
         assertTrue(item.shouldUpdateAutomatically());
         assertNull(item.getSpecialMeleeDamage());
-        // TODO Call testBaseDefault11
+        testBaseDefault11(item);
     }
 
     static void testSimpleDefault10(SimpleCustomItemValues item) {
         testBaseDefault10(item);
-        // TODO Call testSimpleDefault11
+        testSimpleDefault11(item);
     }
 
     static void testToolDefault10(CustomToolValues item) {
         testBaseDefault10(item);
-        // TODO Call testToolDefault11
+        testToolDefault11(item);
     }
 
     static void testArmorDefault10(CustomArmorValues item) {
         testToolDefault10(item);
-        // TODO Call testArmorDefault11
+        testArmorDefault11(item);
     }
 
     static void testHoeDefault10(CustomHoeValues item) {
         testToolDefault10(item);
-        // TODO Call testHoeDefault11
+        testHoeDefault11(item);
     }
 
     static void testShearsDefault10(CustomShearsValues item) {
         testToolDefault10(item);
-        // TODO Call testShearsDefault11
+        testShearsDefault11(item);
     }
 
     static void testBowDefault10(CustomBowValues item) {
         testToolDefault10(item);
-        // TODO Call testBowDefault11
+        testBowDefault11(item);
     }
 
     static void testShieldDefault10(CustomShieldValues item) {
         testToolDefault10(item);
         assertEquals(new ArrayList<>(), item.getBlockingEffects());
-        // TODO Call testShieldDefault11
+        testShieldDefault11(item);
     }
 
     static void testWandDefault10(CustomWandValues item) {
         testBaseDefault10(item);
-        // TODO Call testWandDefault11
+        testWandDefault11(item);
     }
 
     static void testGunDefault10(CustomGunValues item) {
         testBaseDefault10(item);
-        // TODO Call testGunDefault11
+        testGunDefault11(item);
     }
 
     static void testFoodDefault10(CustomFoodValues item) {
         testBaseDefault10(item);
-        // TODO Call testFoodDefault11
+        testFoodDefault11(item);
     }
 
     static void testPocketContainerDefault10(CustomPocketContainerValues item) {
         testBaseDefault10(item);
-        // TODO Call testPocketContainerDefault11
+        testPocketContainerDefault11(item);
     }
 
     static void test3dHelmetDefault10(CustomHelmet3dValues item) {
         testArmorDefault10(item);
-        // TODO Call test3dHelmetDefault11
+        test3dHelmetDefault11(item);
     }
 
     static void testTridentDefault10(CustomTridentValues item) {
         testToolDefault10(item);
-        // TODO Call testTridentDefault11
+        testTridentDefault11(item);
+    }
+
+    static void testCrossbowDefault10(CustomCrossbowValues item) {
+        testToolDefault10(item);
+        testCrossbowDefault11(item);
+    }
+
+    static void testBlockItemDefault10(CustomBlockItemValues item) {
+        testBaseDefault10(item);
+        testBlockItemDefault11(item);
     }
 
     static void testDefaultDrop10(DropValues drop) {
         assertEquals(0, drop.getAllowedBiomes().getWhitelist().size());
         assertEquals(0, drop.getAllowedBiomes().getBlacklist().size());
-        // TODO Call testDefaultDrop11
+        // TODO Call testDefaultDrop12
     }
 
     static void testDefaultBlockDrop10(BlockDropValues blockDrop) {
         testDefaultDrop10(blockDrop.getDrop());
-        // TODO Call testDefaultBlockDrop11
+        // TODO Call testDefaultBlockDrop12
     }
 
     static void testDefaultMobDrop10(MobDropValues mobDrop) {
         testDefaultDrop10(mobDrop.getDrop());
-        // TODO Call testDefaultMobDrop11
+        // TODO Call testDefaultMobDrop12
     }
 }

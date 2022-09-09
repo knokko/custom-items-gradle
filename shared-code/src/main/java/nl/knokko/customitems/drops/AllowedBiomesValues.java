@@ -75,6 +75,16 @@ public class AllowedBiomesValues extends ModelValues {
     }
 
     @Override
+    public String toString() {
+        if (whitelist.isEmpty()) {
+            if (blacklist.isEmpty()) return "All biomes";
+            else return "All biomes except " + blacklist;
+        } else {
+            return whitelist.toString();
+        }
+    }
+
+    @Override
     public AllowedBiomesValues copy(boolean mutable) {
         return new AllowedBiomesValues(this, mutable);
     }
