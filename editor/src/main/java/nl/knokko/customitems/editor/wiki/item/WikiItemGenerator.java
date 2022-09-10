@@ -4,12 +4,17 @@ import nl.knokko.customitems.effect.ChancePotionEffectValues;
 import nl.knokko.customitems.effect.EquippedPotionEffectValues;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.enchantment.EnchantmentValues;
+import nl.knokko.customitems.item.equipment.EquipmentEntry;
+import nl.knokko.customitems.item.equipment.EquipmentSet;
+import nl.knokko.customitems.item.equipment.EquipmentSetValues;
 import nl.knokko.customitems.itemset.ItemSet;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import static nl.knokko.customitems.editor.wiki.WikiHelper.*;
 
@@ -17,10 +22,12 @@ public class WikiItemGenerator {
 
     private final ItemSet itemSet;
     private final CustomItemValues item;
+    private final List<EquipmentSetValues> equipmentSets;
 
-    public WikiItemGenerator(ItemSet itemSet, CustomItemValues item) {
+    public WikiItemGenerator(ItemSet itemSet, CustomItemValues item, List<EquipmentSetValues> equipmentSets) {
         this.itemSet = itemSet;
         this.item = item;
+        this.equipmentSets = equipmentSets;
     }
 
     public void generate(File file) throws IOException {
@@ -32,6 +39,7 @@ public class WikiItemGenerator {
             new ItemSubclassGenerator(item).generate(output);
             generateBasicProperties(output);
             generateSpecialProperties(output);
+            generateEquipmentSetInfo(output);
 
             ItemDropGenerator dropGenerator = new ItemDropGenerator(itemSet, item);
             ItemRecipeGenerator recipeGenerator = new ItemRecipeGenerator(itemSet, item);
@@ -150,6 +158,30 @@ public class WikiItemGenerator {
 
                 output.println("\t\tUpon breaking a block, this item destroys equivalent blocks " + areaString + durabilityString);
             }
+        }
+    }
+
+    private void generateEquipmentSetInfo(PrintWriter output) {
+        if (itemSet.getEquipmentSets().stream().anyMatch(
+                equipmentSet -> equipmentSet.getEntries().keySet().stream().anyMatch(
+                        entry -> entry.item.get().getName().equals(item.getName())
+                )
+        )) {
+            output.println("\t\t<h2>Equipment sets</h2>");
+            output.println("\t\tThis item is part of the following equipment sets:");
+            output.println("\t\t<ul>");
+
+            for (int index = 0; index < equipmentSets.size(); index++) {
+                EquipmentSetValues equipmentSet = equipmentSets.get(index);
+                for (EquipmentEntry equipmentEntry : equipmentSet.getEntries().keySet()) {
+                    if (equipmentEntry.item.get().getName().equals(item.getName())) {
+                        output.println("\t\t\t<li><a href=\"equipment/set" + index + ".html\">in slot "
+                                + equipmentEntry.slot + "</a></li>");
+                    }
+                }
+            }
+
+            output.println("\t\t</ul>");
         }
     }
 

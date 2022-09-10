@@ -5,11 +5,14 @@ import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.energy.EnergyTypeValues;
 import nl.knokko.customitems.editor.wiki.item.WikiItemGenerator;
 import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.equipment.EquipmentSetValues;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static nl.knokko.customitems.editor.wiki.WikiHelper.copyResource;
 
@@ -36,10 +39,17 @@ public class WikiGenerator {
         copyResource("containers.css", new File(destinationFolder + "/containers.css"));
         copyResource("blocks.css", new File(destinationFolder + "/blocks.css"));
 
+        List<EquipmentSetValues> equipmentSets = itemSet.getEquipmentSets().stream().collect(Collectors.toList());
         File itemsFolder = new File(destinationFolder + "/items");
         if (!itemsFolder.exists() && !itemsFolder.mkdir()) throw new IOException("Failed to create items folder");
         for (CustomItemValues item : itemSet.getItems()) {
-            new WikiItemGenerator(itemSet, item).generate(new File(itemsFolder + "/" + item.getName() + ".html"));
+            new WikiItemGenerator(itemSet, item, equipmentSets).generate(new File(itemsFolder + "/" + item.getName() + ".html"));
+        }
+
+        File equipmentSetsFolder = new File(itemsFolder + "/equipment");
+        if (!equipmentSetsFolder.exists() && !equipmentSetsFolder.mkdirs()) throw new IOException("Failed to create equipment sets folder");
+        for (int index = 0; index < equipmentSets.size(); index++) {
+            new WikiEquipmentSetGenerator(equipmentSets.get(index)).generate(new File(equipmentSetsFolder + "/set" + index + ".html"));
         }
 
         File projectilesFolder = new File(destinationFolder + "/projectiles");
