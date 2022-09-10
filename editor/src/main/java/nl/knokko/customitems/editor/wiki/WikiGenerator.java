@@ -75,5 +75,9 @@ public class WikiGenerator {
         for (CustomBlockValues block : itemSet.getBlocks()) {
             new WikiBlockGenerator(itemSet, block).generate(new File(blocksFolder + "/" + block.getName() + ".html"));
         }
+
+        File soundsFolder = new File(destinationFolder + "/sounds");
+        if (!soundsFolder.exists() && !soundsFolder.mkdirs()) throw new IOException("Failed to create sounds folder");
+        new WikiSoundGenerator(itemSet).generate(soundsFolder);
     }
 }

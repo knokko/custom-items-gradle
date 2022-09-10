@@ -59,6 +59,7 @@ public class WikiIndexGenerator {
             generateItems(output, item -> item instanceof CustomFoodValues, "Food & potions", "h3");
             generateItems(output, item -> item instanceof CustomPocketContainerValues, "Pocket containers", "h3");
             generateItems(output, item -> item instanceof CustomBlockItemValues, "Block items", "h3");
+            generateItems(output, item -> item instanceof CustomMusicDiscValues, "Music discs", "h3");
 
             if (itemSet.getContainers().size() > 0) {
                 output.println("\t\t<h2 id=\"containers-header\">Containers</h2>");

@@ -1,5 +1,6 @@
 package nl.knokko.customitems.editor.wiki.item;
 
+import nl.knokko.customitems.NameHelper;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.damage.DamageSource;
 import nl.knokko.customitems.effect.PotionEffectValues;
@@ -8,6 +9,7 @@ import nl.knokko.customitems.item.gun.DirectGunAmmoValues;
 import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
+import nl.knokko.customitems.sound.SoundValues;
 
 import java.io.PrintWriter;
 
@@ -23,6 +25,7 @@ class ItemSubclassGenerator {
 
     void generate(PrintWriter output) {
         generateFoodProperties(output);
+        generateMusicDiscProperties(output);
         generateWandProperties(output);
         generateGunProperties(output);
         generatePocketContainerProperties(output);
@@ -53,6 +56,21 @@ class ItemSubclassGenerator {
                     output.println("\t\t\t<li class=\"eat-effect\">" + describePotionEffect(effect) + "</li>");
                 }
                 output.println("\t\t</ul>");
+            }
+        }
+    }
+
+    private void generateMusicDiscProperties(PrintWriter output) {
+        if (item instanceof CustomMusicDiscValues) {
+            output.println("\t\t<h2>Music</h2>");
+            SoundValues music = ((CustomMusicDiscValues) item).getMusic();
+            if (music.getCustomSound() != null) {
+                output.println("\t\t<audio controls>");
+                output.println("\t\t\t<source src=\"../sounds/" + music.getCustomSound().getName() + ".ogg\" type=\"audio/ogg\">");
+                output.println("\t\t\tYour browser does not support (ogg) audio.");
+                output.println("\t\t</audio>");
+            } else {
+                output.println("\t\tThis music disc plays the vanilla music " + NameHelper.getNiceEnumName(music.getVanillaSound().name()));
             }
         }
     }
