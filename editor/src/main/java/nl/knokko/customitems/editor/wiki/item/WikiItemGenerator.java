@@ -81,7 +81,7 @@ public class WikiItemGenerator {
                 output.println("\t\tDefault enchantments:");
                 output.println("\t\t<ul class=\"enchantments\">");
                 for (EnchantmentValues enchantment : item.getDefaultEnchantments()) {
-                    output.println("\t\t\t<li class=\"enchantment\">" + enchantment.getType() + " " + enchantment.getLevel() + "</li>");
+                    output.println("\t\t\t<li class=\"enchantment\">" + enchantment.getType().getKey() + " " + enchantment.getLevel() + "</li>");
                 }
                 output.println("\t\t</ul>");
             }
