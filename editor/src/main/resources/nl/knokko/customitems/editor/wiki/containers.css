@@ -1,13 +1,17 @@
 .layout-table {
     border-spacing: 0;
-    background-color: rgb(150,150,150);
-    padding: 2vw;
+    background-repeat: no-repeat;
+    background-size: cover;
+    image-rendering: pixelated;
+    padding-left: 3.5vw;
+    padding-right: 3.5vw;
+    padding-top: 8.5vw;
     font-size: 1.5vw;
 }
 
 .layout-slot {
-    width: 8vw;
-    height: 8vw;
+    width: 9vw;
+    height: 9vw;
     padding: 0;
     border: 1px solid black;
     position: relative;
@@ -15,45 +19,45 @@
 
 .layout-image {
     image-rendering: pixelated;
-    width: 7.5vw;
-    height: 7.5vw;
+    width: 8vw;
+    height: 8vw;
     position: relative;
     display: block;
-    left: 0.25vw;
+    left: 0.5vw;
 }
 
 .layout-decoration-slot {
-    background-color: rgb(170,140,160);
+    background-color: rgba(170,140,160,0.8);
 }
 
 .layout-empty-slot {
-    background-color: rgb(100,100,100);
+    background-color: rgba(100,100,100,0.8);
 }
 
 .layout-fuel-indicator-slot {
-    background-color: rgb(250,200,100);
+    background-color: rgba(250,200,100,0.8);
 }
 
 .layout-fuel-slot {
-    background-color: rgb(250,150,50);
+    background-color: rgba(250,150,50,0.8);
 }
 
 .layout-input-slot {
-    background-color: rgb(150,150,255);
+    background-color: rgba(150,150,255,0.8);
 }
 
 .layout-manual-output-slot {
-    background-color: rgb(200,100,100);
+    background-color: rgba(200,100,100,0.8);
 }
 
 .layout-output-slot {
-    background-color: rgb(250,100,100);
+    background-color: rgba(250,100,100,0.8);
 }
 
 .layout-progress-indicator-slot {
-    background-color: rgb(150,250,150);
+    background-color: rgba(150,250,150,0.8);
 }
 
 .layout-storage-slot {
-    background-color: rgb(200,200,200);
+    background-color: rgba(200,200,200,0.8);
 }

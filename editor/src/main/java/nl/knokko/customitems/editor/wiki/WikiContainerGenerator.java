@@ -12,6 +12,7 @@ import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomPocketContainerValues;
 import nl.knokko.customitems.itemset.ItemSet;
 
+import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -31,7 +32,22 @@ class WikiContainerGenerator {
         this.container = container;
     }
 
+    private void generateOverlayTexture(File destination) throws IOException {
+        if (container.getOverlayTexture() != null) {
+            File overlayFolder = new File(destination.getParent() + "/overlay");
+            if (!overlayFolder.isDirectory() && !overlayFolder.mkdirs()) {
+                throw new IOException("Failed to create container overlay textures folder");
+            }
+            int height = container.getOverlayTexture().getHeight();
+            ImageIO.write(
+                    container.getOverlayTexture().getSubimage(40, 3, 176, height - 3), "PNG",
+                    new File(overlayFolder + "/" + container.getName() + ".png")
+            );
+        }
+    }
+
     void generate(File destination) throws IOException {
+        generateOverlayTexture(destination);
         generateHtml(destination, "../containers.css", getDisplayName(container), output -> {
             output.println("\t\t<h1>" + getDisplayName(container) + "</h1>");
             output.println("\t\t<h2>Basic information</h2>");
@@ -116,7 +132,11 @@ class WikiContainerGenerator {
     }
 
     private void generateLayout(PrintWriter output) {
-        output.println("\t\t<table class=\"layout-table\">");
+        String tableStyle;
+        if (container.getOverlayTexture() != null) tableStyle = "background-image: url(overlay/" + container.getName() + ".png);";
+        else tableStyle = "background-color: rgb(150,150,150);";
+
+        output.println("\t\t<table class=\"layout-table\" style=\"" + tableStyle + "\">");
         output.println("\t\t\t<tbody>");
 
         for (int row = 0; row < container.getHeight(); row++) {
