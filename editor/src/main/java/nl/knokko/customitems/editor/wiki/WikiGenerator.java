@@ -2,6 +2,7 @@ package nl.knokko.customitems.editor.wiki;
 
 import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.container.energy.EnergyTypeValues;
 import nl.knokko.customitems.editor.wiki.item.WikiItemGenerator;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.itemset.ItemSet;
@@ -51,6 +52,12 @@ public class WikiGenerator {
         if (!containersFolder.exists() && !containersFolder.mkdir()) throw new IOException("Failed to create containers folder");
         for (CustomContainerValues container : itemSet.getContainers()) {
             new WikiContainerGenerator(itemSet, container).generate(new File(containersFolder + "/" + container.getName() + ".html"));
+        }
+
+        File energyFolder = new File(containersFolder + "/energy");
+        if (!energyFolder.exists() && !energyFolder.mkdir()) throw new IOException("Failed to create container energy folder");
+        for (EnergyTypeValues energyType : itemSet.getEnergyTypes()) {
+            new WikiEnergyTypeGenerator(itemSet, energyType).generate(new File(energyFolder + "/" + energyType.getName() + ".html"));
         }
 
         File blocksFolder = new File(destinationFolder + "/blocks");

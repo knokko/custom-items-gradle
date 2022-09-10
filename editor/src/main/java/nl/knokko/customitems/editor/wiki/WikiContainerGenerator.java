@@ -5,6 +5,8 @@ import nl.knokko.customitems.container.ContainerRecipeValues;
 import nl.knokko.customitems.container.ContainerStorageMode;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.VanillaContainerType;
+import nl.knokko.customitems.container.energy.RecipeEnergyOperation;
+import nl.knokko.customitems.container.energy.RecipeEnergyValues;
 import nl.knokko.customitems.container.fuel.FuelMode;
 import nl.knokko.customitems.container.slot.*;
 import nl.knokko.customitems.container.slot.display.*;
@@ -125,6 +127,23 @@ class WikiContainerGenerator {
                 for (ContainerRecipeValues recipe : container.getRecipes()) {
                     output.println("\t\tDuration: " + recipe.getDuration() + " ticks<br>");
                     output.println("\t\tExperience: " + recipe.getExperience() + "<br>");
+                    for (RecipeEnergyValues energy : recipe.getEnergy()) {
+                        String energyLink = "<a href=\"energy/" + energy.getEnergyType().getName()
+                                + ".html\">" + energy.getEnergyType().getName() + "</a>";
+                        if (energy.getOperation() == RecipeEnergyOperation.REQUIRE_AT_LEAST) {
+                            output.println("\t\tThis container must have at least " + energy.getAmount() + " " + energyLink + "<br>");
+                        } else if (energy.getOperation() == RecipeEnergyOperation.DECREASE) {
+                            output.println("\t\tPerforming this recipe decreases the " + energyLink + " of this container by "
+                                    + energy.getAmount() + "<br>");
+                        } else if (energy.getOperation() == RecipeEnergyOperation.REQUIRE_AT_MOST) {
+                            output.println("\t\tThis container can have at most " + energy.getAmount() + " " + energyLink + "<br>");
+                        } else if (energy.getOperation() == RecipeEnergyOperation.INCREASE) {
+                            output.println("\t\tPerforming this recipe increases the " + energyLink + " of this container by "
+                                    + energy.getAmount() + "<br>");
+                        } else {
+                            output.println("\t\tUnknown interaction with energy type " + energyLink + "<br>");
+                        }
+                    }
                     generateContainerRecipe(output, "\t\t", container, recipe, "../");
                 }
             }
