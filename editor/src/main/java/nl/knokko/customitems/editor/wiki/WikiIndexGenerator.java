@@ -53,6 +53,7 @@ public class WikiIndexGenerator {
             generateSpecificArmor(output, CustomItemType.Category.CHESTPLATE, "Chestplates");
             generateSpecificArmor(output, CustomItemType.Category.LEGGINGS, "Leggings");
             generateSpecificArmor(output, CustomItemType.Category.BOOTS, "Boots");
+            generateSpecificArmor(output, CustomItemType.Category.ELYTRA, "Elytra");
             generateItems(output, item -> item instanceof CustomShieldValues, "Shields", "h4");
 
             generateItems(output, item -> item instanceof CustomFoodValues, "Food & potions", "h3");

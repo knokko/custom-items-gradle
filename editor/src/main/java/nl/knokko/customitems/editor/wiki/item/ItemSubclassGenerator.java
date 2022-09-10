@@ -33,6 +33,7 @@ class ItemSubclassGenerator {
         generateShieldProperties(output);
         generateHoeProperties(output);
         generateShearsProperties(output);
+        generateElytraProperties(output);
         generateArmorProperties(output);
         generateToolProperties(output);
     }
@@ -225,6 +226,14 @@ class ItemSubclassGenerator {
             CustomShearsValues shears = (CustomShearsValues) item;
             if (shears.getMaxDurabilityNew() != null) {
                 output.println("\t\tShearing sheep decreases its durability by " + shears.getShearDurabilityLoss() + "<br>");
+            }
+        }
+    }
+
+    private void generateElytraProperties(PrintWriter output) {
+        if (item instanceof CustomElytraValues) {
+            if (!((CustomElytraValues) item).getVelocityModifiers().isEmpty()) {
+                output.println("\t\t<p>This elytra has custom gliding mechanics</p>");
             }
         }
     }
