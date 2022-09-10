@@ -3,6 +3,8 @@ package nl.knokko.customitems.editor.wiki;
 import nl.knokko.customitems.NameHelper;
 import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.block.drop.CustomBlockDropValues;
+import nl.knokko.customitems.block.miningspeed.CustomMiningSpeedEntry;
+import nl.knokko.customitems.block.miningspeed.VanillaMiningSpeedEntry;
 import nl.knokko.customitems.drops.AllowedBiomesValues;
 import nl.knokko.customitems.drops.CIBiome;
 import nl.knokko.customitems.editor.wiki.item.ItemDropGenerator;
@@ -55,6 +57,30 @@ class WikiBlockGenerator {
                             placingItem.getTexture().getName() + ".png\" class=\"item-icon\" />" +
                             stripColorCodes(placingItem.getDisplayName()) + "</a></li>");
                 }
+                output.println("\t\t</ul>");
+            }
+
+            output.println("\t\t<h2>Mining speed</h2>");
+            output.println("\t\tDefault mining speed: " + displayMiningSpeed(block.getMiningSpeed().getDefaultValue()));
+            if (!block.getMiningSpeed().getVanillaEntries().isEmpty() || !block.getMiningSpeed().getCustomEntries().isEmpty()) {
+                output.println("\t\t<ul>");
+
+                for (VanillaMiningSpeedEntry vanillaEntry : block.getMiningSpeed().getVanillaEntries()) {
+                    String prefix = "\t\t\t<li>Mining speed when using a ";
+                    if (!vanillaEntry.shouldAcceptCustomItems()) {
+                        prefix += "vanilla ";
+                    }
+                    output.println(prefix + NameHelper.getNiceEnumName(vanillaEntry.getMaterial().name())
+                            + ": " + displayMiningSpeed(vanillaEntry.getValue()) + "</li>");
+                }
+
+                for (CustomMiningSpeedEntry customEntry : block.getMiningSpeed().getCustomEntries()) {
+                    output.println("\t\t\t<li>Mining speed when using a <a href=\"../items/"
+                            + customEntry.getItem().getName() + ".html\">"
+                            + stripColorCodes(customEntry.getItem().getDisplayName()) + "</a>: "
+                            + displayMiningSpeed(customEntry.getValue()) + "</li>");
+                }
+
                 output.println("\t\t</ul>");
             }
 
@@ -130,6 +156,16 @@ class WikiBlockGenerator {
                 }
             }
         });
+    }
+
+    private String displayMiningSpeed(int value) {
+        if (value <= -4) return value + " (extremely slow)";
+        if (value == -3) return "-3 (very slow)";
+        if (value == -2) return "-2 (slow)";
+        if (value == -1) return "-1 (normal)";
+        if (value == 0) return "0 (fast)";
+        if (value <= 20) return value + " (very fast)";
+        return value + " (breaks (almost) instantly)";
     }
 
     private void generateTreeGenerationInfo(
