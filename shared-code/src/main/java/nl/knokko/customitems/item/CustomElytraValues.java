@@ -14,7 +14,6 @@ import nl.knokko.customitems.util.ValidationException;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Objects;
 
 import static nl.knokko.customitems.texture.BaseTextureValues.loadImage;
 import static nl.knokko.customitems.texture.BaseTextureValues.saveImage;
