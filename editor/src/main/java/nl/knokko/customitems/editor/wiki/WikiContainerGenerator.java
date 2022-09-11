@@ -70,7 +70,10 @@ class WikiContainerGenerator {
             } else {
                 output.println("\t\tUnknown storage mode: " + container.getStorageMode());
             }
-
+            if(container.requiresPermission()){
+                output.println("<h2>Permissions Required: </h2>");
+                output.println("<b>customitems.container.openany</b> or <b>customitems.container.open."+container.getName()+"</b> is required to use this container.");
+            }
             output.println("\t\t<h2>Opening this container</h2>");
 
             if (container.getHost().getVanillaType() != null && container.getHost().getVanillaType() != VanillaContainerType.NONE) {
@@ -109,7 +112,11 @@ class WikiContainerGenerator {
                 for (ContainerRecipeValues recipe : container.getRecipes()) {
                     output.println("\t\tDuration: " + recipe.getDuration() + " ticks<br>");
                     output.println("\t\tExperience: " + recipe.getExperience() + "<br>");
+                    if(recipe.getRequiredPermission()!=null){
+                        output.println("<b>"+recipe.getRequiredPermission()+"</b> or <b>customitems.container.recipe.any</b> permission is required by player to craft this item.");
+                    }
                     generateContainerRecipe(output, "\t\t", container, recipe, "../");
+                    output.println("<br>");
                 }
             }
         });
