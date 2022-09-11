@@ -95,6 +95,10 @@ class ItemSubclassGenerator {
             if (wand.getCharges() != null) {
                 output.println("\t\t" + wand.getCharges().getMaxCharges() + " with " + wand.getCharges().getRechargeTime() + " ticks recharge time<br>");
             }
+            if(wand.requiresPermission()){
+                output.println("\t\t<h3>Permissions: </h3>");
+                output.println("\t\tPlayers need <b>customitems.shootall</b> or <b>customitems.shoot." +item.getName() + "</b> to use this wand.");
+            }
         }
     }
 
@@ -114,6 +118,10 @@ class ItemSubclassGenerator {
                 output.println("\t\tReload item: " + createTextBasedIngredientHtml(ammo.getReloadItem(), "../") + "<br>");
                 output.println("\t\tMaximum stored ammo: " + ammo.getStoredAmmo() + "<br>");
                 output.println("\t\tReload time: " + ammo.getReloadTime() + " ticks<br>");
+            }
+            if(gun.requiresPermission()){
+                output.println("\t\t<h3>Permissions: </h3>");
+                output.println("\t\tPlayers need <b>customitems.shootall</b> or <b>customitems.shoot."+item.getName()+"</b> to shoot with this gun.");
             }
         }
     }

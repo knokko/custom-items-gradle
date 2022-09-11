@@ -131,12 +131,16 @@ class ItemRecipeGenerator {
             output.println("\t\t" + title);
             for (CraftingRecipeValues recipe : recipes) {
                 if (predicate.test(recipe)) {
+                    if(recipe.getRequiredPermission() !=null){
+                        output.println("\t\tPlayers need <b>" + recipe.getRequiredPermission() + "</b> or <b>customitems.craftall</b> permission to craft this item.");
+                    }
                     if (recipe instanceof ShapedRecipeValues) {
                         generateShapedRecipe(output, "\t\t", (ShapedRecipeValues) recipe, "../");
                     }
                     if (recipe instanceof ShapelessRecipeValues) {
                         generateShapelessRecipe(output, "\t\t", (ShapelessRecipeValues) recipe, "../");
                     }
+                    output.println("<br><br>");
                 }
             }
         }
