@@ -48,6 +48,7 @@ import nl.knokko.customitems.worldgen.*;
 import org.junit.Test;
 
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashSet;
 
 import static nl.knokko.customitems.serialization.Backward10.*;
@@ -311,6 +312,10 @@ public class Backward11 {
         AllowedBiomesValues allowedBiomes = new AllowedBiomesValues(true);
         allowedBiomes.setWhitelist(listOf(CIBiome.FOREST));
         tree1.setAllowedBiomes(allowedBiomes);
+        ReplaceBlocksValues allowedTerrain = new ReplaceBlocksValues(true);
+        allowedTerrain.setVanillaBlocks(EnumSet.of(CIMaterial.GRASS_BLOCK, CIMaterial.SNOW_BLOCK));
+        allowedTerrain.setCustomBlocks(new HashSet<>(listOf(set.getBlockReference(1))));
+        tree1.setAllowedTerrain(allowedTerrain);
         tree1.setLogMaterial(BlockProducerValues.createQuick(
                 BlockProducerValues.Entry.createQuick(new ProducedBlock(set.getBlockReference(3)), Chance.percentage(100))
         ));

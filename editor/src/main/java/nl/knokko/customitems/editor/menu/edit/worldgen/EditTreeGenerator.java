@@ -64,16 +64,21 @@ public class EditTreeGenerator extends GuiMenu {
                     currentValues.getAllowedBiomes(), currentValues::setAllowedBiomes, this
             ));
         }), 0.2f, 0.55f, 0.4f, 0.65f);
+        addComponent(new DynamicTextButton("Allowed terrain...", BUTTON, HOVER, () -> {
+            state.getWindow().setMainComponent(new EditReplaceBlocks(
+                    this, itemSet, currentValues.getAllowedTerrain(), currentValues::setAllowedTerrain
+            ));
+        }), 0.2f, 0.4f, 0.45f, 0.5f);
         addComponent(new DynamicTextButton("Log material...", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new EditBlockProducer(
                     this, itemSet, currentValues.getLogMaterial(), currentValues::setLogMaterial
             ));
-        }), 0.2f, 0.4f, 0.35f, 0.5f);
+        }), 0.2f, 0.25f, 0.35f, 0.35f);
         addComponent(new DynamicTextButton("Leaves material...", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new EditBlockProducer(
                     this, itemSet, currentValues.getLeavesMaterial(), currentValues::setLeavesMaterial
             ));
-        }), 0.2f, 0.25f, 0.375f, 0.35f);
+        }), 0.2f, 0.1f, 0.375f, 0.2f);
 
         addComponent(new DynamicTextComponent("Chance:", LABEL), 0.75f, 0.8f, 0.85f, 0.9f);
         addComponent(new FixedPointEditField(

@@ -56,7 +56,7 @@ public class KciPopulator extends BlockPopulator {
                     Block block = source.getBlock(x, y, z);
                     if (!block.getType().isSolid()) block = block.getRelative(BlockFace.DOWN);
 
-                    if (block.getType().isSolid() && block.getType().isOccluding()
+                    if (shouldAcceptBlock(block, generator.getAllowedTerrain())
                             && generator.getAllowedBiomes().isAllowed(CIBiome.valueOf(block.getBiome().name()))) {
 
                         if (world.generateTree(block.getRelative(BlockFace.UP).getLocation(), treeType, customTreeDelegate)) {

@@ -4,6 +4,7 @@ import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 import nl.knokko.customitems.drops.AllowedBiomesValues;
+import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -13,6 +14,7 @@ import nl.knokko.customitems.util.Validation;
 import nl.knokko.customitems.util.ValidationException;
 
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -28,6 +30,7 @@ public class TreeGeneratorValues extends ModelValues {
         TreeGeneratorValues result = new TreeGeneratorValues(false);
         result.treeType = CITreeType.valueOf(input.readString());
         result.allowedBiomes = AllowedBiomesValues.load(input);
+        result.allowedTerrain = ReplaceBlocksValues.load(input, itemSet);
         result.logMaterial = BlockProducerValues.load(input, itemSet);
         result.leavesMaterial = BlockProducerValues.load(input, itemSet);
         result.chance = Chance.load(input);
@@ -40,6 +43,7 @@ public class TreeGeneratorValues extends ModelValues {
 
     private CITreeType treeType;
     private AllowedBiomesValues allowedBiomes;
+    private ReplaceBlocksValues allowedTerrain;
 
     private BlockProducerValues logMaterial, leavesMaterial;
 
@@ -50,6 +54,9 @@ public class TreeGeneratorValues extends ModelValues {
         super(mutable);
         this.treeType = CITreeType.TREE;
         this.allowedBiomes = new AllowedBiomesValues(false);
+        this.allowedTerrain = new ReplaceBlocksValues(true);
+        this.allowedTerrain.setVanillaBlocks(EnumSet.of(CIMaterial.DIRT, CIMaterial.GRASS_BLOCK));
+        this.allowedTerrain = this.allowedTerrain.copy(false);
 
         this.logMaterial = new BlockProducerValues(false);
         this.leavesMaterial = new BlockProducerValues(false);
@@ -64,6 +71,7 @@ public class TreeGeneratorValues extends ModelValues {
         super(mutable);
         this.treeType = toCopy.getTreeType();
         this.allowedBiomes = toCopy.getAllowedBiomes();
+        this.allowedTerrain = toCopy.getAllowedTerrain();
         this.logMaterial = toCopy.getLogMaterial();
         this.leavesMaterial = toCopy.getLeavesMaterial();
         this.chance = toCopy.getChance();
@@ -77,6 +85,7 @@ public class TreeGeneratorValues extends ModelValues {
 
         output.addString(treeType.name());
         allowedBiomes.save(output);
+        allowedTerrain.save(output);
         logMaterial.save(output);
         leavesMaterial.save(output);
         chance.save(output);
@@ -93,6 +102,7 @@ public class TreeGeneratorValues extends ModelValues {
         if (other instanceof TreeGeneratorValues) {
             TreeGeneratorValues otherTree = (TreeGeneratorValues) other;
             return this.treeType == otherTree.treeType && this.allowedBiomes.equals(otherTree.allowedBiomes)
+                    && this.allowedTerrain.equals(otherTree.allowedTerrain)
                     && this.logMaterial.equals(otherTree.logMaterial) && this.leavesMaterial.equals(otherTree.leavesMaterial)
                     && this.chance.equals(otherTree.chance) && this.minNumTrees == otherTree.minNumTrees
                     && this.maxNumTrees == otherTree.maxNumTrees && this.maxNumAttempts == otherTree.maxNumAttempts;
@@ -119,6 +129,10 @@ public class TreeGeneratorValues extends ModelValues {
 
     public AllowedBiomesValues getAllowedBiomes() {
         return allowedBiomes;
+    }
+
+    public ReplaceBlocksValues getAllowedTerrain() {
+        return allowedTerrain;
     }
 
     public BlockProducerValues getLogMaterial() {
@@ -155,6 +169,11 @@ public class TreeGeneratorValues extends ModelValues {
         this.allowedBiomes = allowedBiomes.copy(false);
     }
 
+    public void setAllowedTerrain(ReplaceBlocksValues allowedTerrain) {
+        assertMutable();
+        this.allowedTerrain = allowedTerrain.copy(false);
+    }
+
     public void setLogMaterial(BlockProducerValues logMaterial) {
         assertMutable();
         this.logMaterial = logMaterial.copy(false);
@@ -189,6 +208,8 @@ public class TreeGeneratorValues extends ModelValues {
         if (treeType == null) throw new ProgrammingValidationException("No tree type");
         if (allowedBiomes == null) throw new ProgrammingValidationException("No allowed biomes");
         Validation.scope("Allowed biomes", allowedBiomes::validate);
+        if (allowedTerrain == null) throw new ProgrammingValidationException("No allowed terrain");
+        Validation.scope("Allowed terrain", allowedTerrain::validate, itemSet);
 
         if (logMaterial == null) throw new ProgrammingValidationException("No log material");
         Validation.scope("Log material", logMaterial::validate, itemSet);
@@ -217,6 +238,7 @@ public class TreeGeneratorValues extends ModelValues {
         }
 
         Validation.scope("Biomes", allowedBiomes::validateExportVersion, version);
+        Validation.scope("Allowed terrain", allowedTerrain::validateExportVersion, version);
         Validation.scope("Log material", logMaterial::validateExportVersion, version);
         Validation.scope("Leaves material", leavesMaterial::validateExportVersion, version);
     }
