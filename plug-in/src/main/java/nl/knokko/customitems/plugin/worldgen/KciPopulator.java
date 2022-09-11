@@ -12,6 +12,7 @@ import nl.knokko.customitems.worldgen.ReplaceBlocksValues;
 import nl.knokko.customitems.worldgen.TreeGeneratorValues;
 import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.generator.BlockPopulator;
 
 import java.util.HashSet;
@@ -49,14 +50,19 @@ public class KciPopulator extends BlockPopulator {
                 int x = random.nextInt(16);
                 int z = random.nextInt(16);
                 int y = world.getHighestBlockYAt(source.getBlock(x, 1, z).getLocation());
-                Block block = source.getBlock(x, y, z);
 
-                if (generator.getAllowedBiomes().isAllowed(CIBiome.valueOf(block.getBiome().name()))) {
-                    Location location = block.getLocation();
+                // y can be -1 if there are no blocks at all (like in some 'void' chunks in the End)
+                if (y >= 0) {
+                    Block block = source.getBlock(x, y, z);
+                    if (!block.getType().isSolid()) block = block.getRelative(BlockFace.DOWN);
 
-                    if (world.generateTree(location, treeType, customTreeDelegate)) {
-                        numGeneratedTrees += 1;
-                        if (numGeneratedTrees >= desiredNumTrees) return;
+                    if (block.getType().isSolid() && block.getType().isOccluding()
+                            && generator.getAllowedBiomes().isAllowed(CIBiome.valueOf(block.getBiome().name()))) {
+
+                        if (world.generateTree(block.getRelative(BlockFace.UP).getLocation(), treeType, customTreeDelegate)) {
+                            numGeneratedTrees += 1;
+                            if (numGeneratedTrees >= desiredNumTrees) return;
+                        }
                     }
                 }
             }

@@ -28,9 +28,9 @@ public class WorldGenerationPortal extends GuiMenu {
         addComponent(new DynamicTextButton("Ore veins", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new OreVeinGeneratorCollectionEdit(this, itemSet));
         }), 0.7f, 0.7f, 0.85f, 0.8f);
-        addComponent(new DynamicTextButton("Trees", BUTTON, HOVER, () -> {
+        addComponent(new DynamicTextButton("Trees (1.13+ except 1.16)", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new TreeGeneratorCollectionEdit(this, itemSet));
-        }), 0.7f, 0.55f, 0.8f, 0.65f);
+        }), 0.7f, 0.55f, 0.9f, 0.65f);
 
         HelpButtons.addHelpLink(this, "edit menu/worldgen/index.html");
     }

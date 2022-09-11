@@ -2,7 +2,7 @@ package nl.knokko.customitems.plugin.multisupport.denizen;
 
 import com.denizenscript.denizen.objects.ItemTag;
 import com.denizenscript.denizen.objects.LocationTag;
-import com.denizenscript.denizen.scripts.commands.BukkitCommandRegistry;
+import com.denizenscript.denizencore.DenizenCore;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import nl.knokko.customitems.plugin.CustomItemsApi;
 
@@ -51,8 +51,8 @@ class CIDenizenAddon {
             return new ElementTag(CustomItemsApi.getBlockName(object.getBlock()));
         });
 
-        BukkitCommandRegistry.instance.registerCommand(PlaceKciBlockCommand.class);
-        BukkitCommandRegistry.instance.registerCommand(KciContainerCommand.class);
+        DenizenCore.commandRegistry.registerCommand(PlaceKciBlockCommand.class);
+        DenizenCore.commandRegistry.registerCommand(KciContainerCommand.class);
         new KciItemsTag();
     }
 }

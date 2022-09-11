@@ -16,6 +16,9 @@ import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 
+import static nl.knokko.customitems.MCVersions.VERSION1_13;
+import static nl.knokko.customitems.MCVersions.VERSION1_16;
+
 public class TreeGeneratorValues extends ModelValues {
 
     public static TreeGeneratorValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
@@ -203,6 +206,9 @@ public class TreeGeneratorValues extends ModelValues {
     }
 
     public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
+        if (version < VERSION1_13) throw new ValidationException("Custom trees are only supported in MC 1.13 and later");
+        if (version == VERSION1_16) throw new ValidationException("Custom trees are not supported in MC 1.16");
+
         if (version < treeType.firstVersion) {
             throw new ValidationException(treeType + " doesn't exist yet in MC " + MCVersions.createString(version));
         }
