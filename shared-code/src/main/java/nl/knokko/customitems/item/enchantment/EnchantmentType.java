@@ -192,7 +192,7 @@ public enum EnchantmentType {
 	
 	@Override
 	public String toString() {
-		if (provider == null) return NameHelper.getNiceEnumName(key, version, VERSION1_18);
+		if (provider == null) return NameHelper.getNiceEnumName(key, version, LAST_VERSION);
 		else if (provider == CustomEnchantmentProvider.CRAZY_ENCHANTMENTS) return key + " [CRAZY]";
 		else throw new Error("Unknown provider: " + provider);
 	}

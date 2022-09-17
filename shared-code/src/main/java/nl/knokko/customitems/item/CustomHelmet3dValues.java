@@ -71,5 +71,8 @@ public class CustomHelmet3dValues extends CustomArmorValues {
         super.validateIndependent();
 
         if (model == null || model instanceof DefaultItemModel) throw new ValidationException("3d helmets must have a custom model");
+        if (itemType == CustomItemType.OTHER && otherMaterial.name().contains("HELMET")) {
+            throw new ValidationException("You must not use a vanilla helmet as internal item type");
+        }
     }
 }

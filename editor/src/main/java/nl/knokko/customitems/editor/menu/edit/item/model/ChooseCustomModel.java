@@ -5,7 +5,6 @@ import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
 import nl.knokko.customitems.editor.menu.edit.texture.TextureEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.item.model.ItemModel;
 import nl.knokko.customitems.item.model.ModernCustomItemModel;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -55,6 +54,7 @@ public class ChooseCustomModel extends GuiMenu {
         addComponent(includedImagesComponent, 0.3f, 0.05f, 0.8f, 0.75f);
 
         addComponent(new DynamicTextButton("Choose file...", BUTTON, HOVER, () -> {
+            errorComponent.setText("");
             state.getWindow().setMainComponent(new FileChooserMenu(this, chosenFile -> {
                 try {
                     byte[] rawBytes = Files.readAllBytes(chosenFile.toPath());
@@ -65,14 +65,18 @@ public class ChooseCustomModel extends GuiMenu {
                     if (rawJson instanceof JsonObject) {
                         JsonObject json = (JsonObject) rawJson;
                         Map<String, String> textureMap = json.getMap(TEXTURES_KEY);
+                        if (textureMap != null) {
 
-                        this.imageNameMap = new TreeMap<>();
-                        for (Map.Entry<String, String> namePair : textureMap.entrySet()) {
-                            imageNameMap.put(namePair.getKey(), namePair.getValue().toLowerCase(Locale.ROOT));
+                            this.imageNameMap = new TreeMap<>();
+                            for (Map.Entry<String, String> namePair : textureMap.entrySet()) {
+                                imageNameMap.put(namePair.getKey(), namePair.getValue().toLowerCase(Locale.ROOT));
+                            }
+                            this.imageMap = new HashMap<>();
+                            includedImagesComponent.clearComponents();
+                            includedImagesComponent.addComponents();
+                        } else {
+                            errorComponent.setText("Model doesn't have a \"textures\" map");
                         }
-                        this.imageMap = new HashMap<>();
-                        includedImagesComponent.clearComponents();
-                        includedImagesComponent.addComponents();
                     } else {
                         errorComponent.setText("Expected top-level JSON element to be an object");
                     }
