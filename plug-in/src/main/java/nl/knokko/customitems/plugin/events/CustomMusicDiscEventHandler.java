@@ -24,6 +24,8 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Locale;
 
+import static nl.knokko.core.plugin.CorePlugin.useNewCommands;
+
 public class CustomMusicDiscEventHandler implements Listener {
 
     private final ItemSetWrapper itemSet;
@@ -34,6 +36,8 @@ public class CustomMusicDiscEventHandler implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void handleCustomMusicDiscs(PlayerInteractEvent event) {
+        // Jukebox doesn't have a getRecord() method in MC 1.12.2
+        if (!useNewCommands()) return;
 
         Block block = event.getClickedBlock();
         if (block == null || event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
@@ -72,6 +76,9 @@ public class CustomMusicDiscEventHandler implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void stopCustomMusicDisc(BlockBreakEvent event) {
+        // Jukebox doesn't have a getRecord() method in MC 1.12.2
+        if (!useNewCommands()) return;
+
         BlockState blockState = event.getBlock().getState();
         if (!(blockState instanceof Jukebox)) return;
 
