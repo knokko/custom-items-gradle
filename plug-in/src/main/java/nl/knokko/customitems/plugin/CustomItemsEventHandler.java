@@ -1470,10 +1470,8 @@ public class CustomItemsEventHandler implements Listener {
 				cancelDefaultDrops = true;
 			}
 		}
-		
-		if (cancelDefaultDrops) {
-			event.getDrops().clear();
-		} else if (event.getEntity() instanceof Player) {
+
+		if (event.getEntity() instanceof Player) {
 			Player player = (Player) event.getEntity();
 			Collection<ItemStack> stacksToKeep = new ArrayList<>();
 			event.getDrops().removeIf(droppedItem -> {
@@ -1493,7 +1491,11 @@ public class CustomItemsEventHandler implements Listener {
 				});
 			}
 		}
-		
+
+		if (cancelDefaultDrops) {
+			event.getDrops().clear();
+		}
+
 		event.getDrops().addAll(stacksToDrop);
 	}
 
