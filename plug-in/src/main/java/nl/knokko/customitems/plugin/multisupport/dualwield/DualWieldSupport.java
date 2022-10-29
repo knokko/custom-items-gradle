@@ -2,6 +2,7 @@ package nl.knokko.customitems.plugin.multisupport.dualwield;
 
 import nl.knokko.core.plugin.item.GeneralItemNBT;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -15,11 +16,8 @@ public class DualWieldSupport {
         Plugin dualWieldPlugin = Bukkit.getServer().getPluginManager().getPlugin("DualWield");
         if (dualWieldPlugin != null && dualWieldPlugin.isEnabled()) {
             try {
-                Method apiGetter = dualWieldPlugin.getClass().getMethod("getDualWieldAPI");
-                Object dualWieldApi = apiGetter.invoke(dualWieldPlugin);
-
-                Method blockBreakChecker = dualWieldApi.getClass().getMethod("isBlockBreakEventOffHand", BlockBreakEvent.class);
-                return (Boolean) blockBreakChecker.invoke(dualWieldApi, event);
+                Method dualWieldChecker = dualWieldPlugin.getClass().getMethod("isDualWielding", Player.class);
+                return (Boolean) dualWieldChecker.invoke(null, event.getPlayer());
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ex) {
                 throw new RuntimeException("Failed to get/use DualWield API", ex);
             }
