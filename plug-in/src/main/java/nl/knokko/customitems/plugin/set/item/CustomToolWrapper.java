@@ -21,14 +21,12 @@ import static nl.knokko.customitems.item.CustomItemValues.UNBREAKABLE_TOOL_DURAB
 
 public class CustomToolWrapper extends CustomItemWrapper {
 
-    private static final String DURABILITY_SPLIT = " / ";
-
-    private static String prefix() {
+    public static String prefix() {
         return CustomItemsPlugin.getInstance().getLanguageFile().getDurabilityPrefix();
     }
 
     protected static String createDurabilityLine(long current, long max) {
-        return prefix() + " " + current + DURABILITY_SPLIT + max;
+        return LoreUpdater.createDurabilityLine(prefix(), current, max);
     }
 
     private static final Collection<Class<?>> BASIC_TOOL_WRAPPERS = Lists.newArrayList(
@@ -149,10 +147,12 @@ public class CustomToolWrapper extends CustomItemWrapper {
         if (Math.random() <= 1.0 / (1 + stack.getEnchantmentLevel(Enchantment.DURABILITY))) {
 
             ItemStack[] pResult = {stack};
+            Long[] pOldDurability = {null};
             Long[] pNewDurability = {null};
 
             CustomItemNBT.readWrite(stack, nbt -> {
                 Long durability = nbt.getDurability();
+                pOldDurability[0] = durability;
                 if (durability != null) {
                     if (durability > damage) {
                         durability -= damage;
@@ -184,7 +184,12 @@ public class CustomToolWrapper extends CustomItemWrapper {
                     return null;
                 }
                 ItemMeta meta = stack.getItemMeta();
-                meta.setLore(createLore(newDurability));
+                assert meta != null;
+                if (LoreUpdater.updateDurability(
+                        meta, pOldDurability[0], newDurability, tool.getMaxDurabilityNew(), tool.getMaxDurabilityNew(), prefix())
+                ) {
+                    meta.setLore(createLore(newDurability));
+                }
                 stack.setItemMeta(meta);
             }
         }
@@ -209,10 +214,12 @@ public class CustomToolWrapper extends CustomItemWrapper {
 
         ItemStack[] pStack = {stack};
         long[] pIncreasedAmount = {0L};
+        Long[] pOldDurability = {null};
         long[] pNewDurability = {-1L};
 
         CustomItemNBT.readWrite(stack, nbt -> {
             Long oldDurability = nbt.getDurability();
+            pOldDurability[0] = oldDurability;
             if (oldDurability != null) {
                 long newDurability;
                 if (oldDurability + amount <= this.tool.getMaxDurabilityNew()) {
@@ -242,7 +249,12 @@ public class CustomToolWrapper extends CustomItemWrapper {
         if (increasedAmount > 0) {
             long newDurability = pNewDurability[0];
             ItemMeta meta = stack.getItemMeta();
-            meta.setLore(createLore(newDurability));
+            assert meta != null;
+            if (LoreUpdater.updateDurability(
+                    meta, pOldDurability[0], newDurability, tool.getMaxDurabilityNew(), tool.getMaxDurabilityNew(), prefix()
+            )) {
+                meta.setLore(createLore(newDurability));
+            }
             stack.setItemMeta(meta);
         }
 

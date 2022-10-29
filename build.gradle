@@ -21,7 +21,6 @@ allprojects {
 
         maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
         maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
-        maven { url = 'https://nexus.badbones69.com/repository/maven-releases' }
         maven { url = 'https://maven.enginehub.org/repo/' }
         maven { url = 'https://repo.citizensnpcs.co' }
         maven { url = 'https://jitpack.io' }
@@ -42,14 +41,20 @@ project(':shared-code') {
     }
 }
 
+project(':dummy-ce-api') {
+    dependencies {
+        compileOnly 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
+    }
+}
+
 project(':plug-in') {
     apply plugin: 'com.github.johnrengelman.shadow'
     dependencies {
         implementation project(':shared-code')
         compileOnly project(':bit-helper')
         compileOnly project(':core-plugin-12')
+        compileOnly project(':dummy-ce-api')
         compileOnly 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
-        compileOnly 'me.badbones69:crazyenchantments-plugin:1.8-Dev-Build-v8@jar'
         compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.0'
         compileOnly 'ru.endlesscode.mimic:mimic-bukkit-api:0.7.1'
         compileOnly 'com.github.jojodmo:ItemBridge:master-SNAPSHOT'
@@ -58,6 +63,7 @@ project(':plug-in') {
 
         testImplementation project(':bit-helper')
         testImplementation project(':core-plugin-12')
+        testImplementation project(':dummy-ce-api')
         testImplementation 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
     }
 }

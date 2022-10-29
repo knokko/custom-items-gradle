@@ -59,6 +59,12 @@ Editor, deserializes it, and makes sure that everything configured in the Editor
 ### shared-code
 This module contains the code that is used by both the Editor and the plug-in.
 
+### dummy-ce-api
+This is a module that mimics the part of the API of the Crazy Enchantments plug-in that is needed for this plug-in.
+This module is only supposed to be used for compilation, and should never be exported. All method signatures of this
+module match those of the real Crazy Enchantments API, but the implementation is useless. This module should be
+removed as soon as Crazy Enchantments has a proper maven repository.
+
 ## Development
 ### Getting started
 #### BuildTools

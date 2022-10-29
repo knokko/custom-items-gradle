@@ -37,7 +37,7 @@ public class CrazyEnchantmentsSupport {
 	public static void onEnable() {
 		try {
 			Class.forName(
-					"me.badbones69.crazyenchantments.api.enums.CEnchantments"
+					"com.badbones69.crazyenchantments.api.enums.CEnchantments"
 			);
 
 			// Load support for this plugin
@@ -45,7 +45,7 @@ public class CrazyEnchantmentsSupport {
 					"nl.knokko.customitems.plugin.multisupport.crazyenchantments.CrazyEnchantmentsEventHandler"
 			).getDeclaredConstructor().newInstance(), CustomItemsPlugin.getInstance());
 		} catch (ClassNotFoundException ex) {
-			Bukkit.getLogger().info("Can't load class me.badbones69.crazyenchantments.api.enums.CEnchantments, so I assume Crazy Enchantments is not installed.");
+			Bukkit.getLogger().info("Can't load class com.badbones69.crazyenchantments.api.enums.CEnchantments, so I assume Crazy Enchantments is not installed.");
 		} catch (InstantiationException e) {
 			throw new Error("It should be possible to instantiate CrazyEnchantmentsEventHandler", e);
 		} catch (IllegalAccessException e) {

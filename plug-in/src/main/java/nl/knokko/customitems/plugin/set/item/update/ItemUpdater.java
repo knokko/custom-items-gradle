@@ -14,8 +14,7 @@ import nl.knokko.customitems.item.enchantment.EnchantmentType;
 import nl.knokko.customitems.item.enchantment.EnchantmentValues;
 import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
-import nl.knokko.customitems.plugin.set.item.BukkitEnchantments;
-import nl.knokko.customitems.plugin.set.item.CustomItemWrapper;
+import nl.knokko.customitems.plugin.set.item.*;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import org.bukkit.Bukkit;
@@ -34,8 +33,6 @@ import nl.knokko.core.plugin.item.attributes.ItemAttributes;
 import nl.knokko.customitems.item.nbt.NbtValueType;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.container.ContainerInstance;
-import nl.knokko.customitems.plugin.set.item.BooleanRepresentation;
-import nl.knokko.customitems.plugin.set.item.CustomItemNBT;
 
 public class ItemUpdater {
 
@@ -432,13 +429,21 @@ public class ItemUpdater {
 	}
 	
 	private void upgradeLore(ItemMeta toUpgrade, CustomItemValues oldItem, CustomItemValues newItem, Long oldDurability, Long newDurability) {
-		if (!Objects.equals(oldDurability, newDurability) || !Objects.deepEquals(oldItem.getLore(), newItem.getLore())) {
-			/*
-			 * I will do no attempt to 'upgrade' the lore rather than replacing it,
-			 * because tools will overwrite lore each time they take durability
-			 * anyway.
-			 */
-			toUpgrade.setLore(wrap(newItem).createLore(newDurability));
+		if (!Objects.equals(oldDurability, newDurability)) {
+			Long oldMaxDurability = oldItem instanceof CustomToolValues ? ((CustomToolValues) oldItem).getMaxDurabilityNew() : null;
+			Long newMaxDurability = newItem instanceof CustomToolValues ? ((CustomToolValues) newItem).getMaxDurabilityNew() : null;
+			if (LoreUpdater.updateDurability(
+					toUpgrade, oldDurability, newDurability, oldMaxDurability, newMaxDurability, CustomToolWrapper.prefix()
+			)) {
+				toUpgrade.setLore(wrap(newItem).createLore(newDurability));
+				return;
+			}
+		}
+
+		if (!Objects.deepEquals(oldItem.getLore(), newItem.getLore())) {
+			if (LoreUpdater.updateBaseLore(toUpgrade, oldItem.getLore(), newItem.getLore())) {
+				toUpgrade.setLore(wrap(newItem).createLore(newDurability));
+			}
 		}
 	}
 	
@@ -516,7 +521,7 @@ public class ItemUpdater {
 			
 			// Don't stack dummy attributes
 			if (oldStackAttribute.isDummy()) {
-				continue oldStackLoop;
+				continue;
 			}
 			
 			newStackAttributes.add(oldStackAttribute);

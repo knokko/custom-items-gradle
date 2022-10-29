@@ -6,7 +6,7 @@ public interface CrazyEnchantmentsFunctions {
 
     int getLevel(ItemStack itemStack, String enchantmentName);
 
-    void add(ItemStack itemStack, String enchantmentName, int level);
+    ItemStack add(ItemStack itemStack, String enchantmentName, int level);
 
-    void remove(ItemStack itemStack, String enchantmentName);
+    ItemStack remove(ItemStack itemStack, String enchantmentName);
 }
