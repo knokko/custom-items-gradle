@@ -107,7 +107,6 @@ class CommandCustomItemsGive {
                 if (receiver != null) {
                     if (receiver == sender || sender.hasPermission("customitems.give") || sender.hasPermission("customitems.giveother")) {
                         giveTheItem(sender, receiver, item, amount, enableOutput);
-                        sender.sendMessage(lang.getCommandItemGiven());
                     } else {
                         sender.sendMessage(ChatColor.DARK_RED + "You don't have permission to give custom items to other players");
                     }
