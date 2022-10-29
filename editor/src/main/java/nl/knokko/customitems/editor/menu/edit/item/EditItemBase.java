@@ -222,6 +222,8 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 		}
 		DynamicTextButton otherMaterialButton = EnumSelect.createSelectButton(
 				CIMaterial.class, currentValues::setOtherMaterial, candidateType -> {
+					// Choosing AIR is not really an option
+					if (candidateType == CIMaterial.AIR) return false;
 					try {
 						VanillaModelProperties.valueOf(candidateType.name());
 						return true;
