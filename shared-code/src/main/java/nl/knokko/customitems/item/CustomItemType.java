@@ -80,7 +80,7 @@ public enum CustomItemType {
 	GOLD_CHESTPLATE(112, true, VERSION1_12, LAST_VERSION, CHESTPLATE, PROJECTILE_COVER),
 	GOLD_LEGGINGS(105, true, VERSION1_12, LAST_VERSION, LEGGINGS, PROJECTILE_COVER),
 	GOLD_BOOTS(91, true, VERSION1_12, LAST_VERSION, BOOTS, PROJECTILE_COVER),
-	FISHING_ROD(64, true, VERSION1_12, LAST_VERSION, FISHING, PROJECTILE_COVER),
+	FISHING_ROD(64, true, VERSION1_12, LAST_VERSION, FISHING),
 	SHEARS(238, true, VERSION1_12, LAST_VERSION, SHEAR, DEFAULT, WAND, GUN, FOOD, BLOCK, PROJECTILE_COVER),
 	CARROT_STICK(25, true, VERSION1_12, LAST_VERSION, CARROTSTICK, PROJECTILE_COVER),
 	SHIELD(336, false, VERSION1_12, LAST_VERSION, Category.SHIELD),
@@ -102,7 +102,6 @@ public enum CustomItemType {
 	private final short maxDurability;
 	private final Category[] categories;
 	
-	private final String minecraftName;
 	private final String textureName12;
 	private final String modelName12;
 	private final String textureName14;
@@ -120,28 +119,27 @@ public enum CustomItemType {
 		
 		String lowerCaseName = this.name().toLowerCase(Locale.ROOT);
 		if (lowerCaseName.equals("carrot_stick")) {
-			this.minecraftName = "carrot_on_a_stick";
-			this.textureName12 = this.minecraftName;
-			this.modelName12 = this.minecraftName;
-			this.textureName14 = this.minecraftName;
-			this.modelName14 = this.minecraftName;
+			String minecraftName = "carrot_on_a_stick";
+			this.textureName12 = minecraftName;
+			this.modelName12 = minecraftName;
+			this.textureName14 = minecraftName;
+			this.modelName14 = minecraftName;
 		}
 		else if (lowerCaseName.startsWith("gold")) {
-			this.minecraftName = lowerCaseName.replace("gold", "golden");
+			String minecraftName = lowerCaseName.replace("gold", "golden");
 			this.textureName12 = lowerCaseName;
-			this.modelName12 = this.minecraftName;
-			this.textureName14 = this.minecraftName;
-			this.modelName14 = this.minecraftName;
+			this.modelName12 = minecraftName;
+			this.textureName14 = minecraftName;
+			this.modelName14 = minecraftName;
 		}
 		else if (lowerCaseName.startsWith("wood")) {
-			this.minecraftName = lowerCaseName.replace("wood", "wooden");
+			String minecraftName = lowerCaseName.replace("wood", "wooden");
 			this.textureName12 = lowerCaseName;
-			this.modelName12 = this.minecraftName;
-			this.textureName14 = this.minecraftName;
-			this.modelName14 = this.minecraftName;
+			this.modelName12 = minecraftName;
+			this.textureName14 = minecraftName;
+			this.modelName14 = minecraftName;
 		}
 		else {
-			this.minecraftName = lowerCaseName;
 			this.textureName12 = lowerCaseName;
 			this.modelName12 = lowerCaseName;
 			this.textureName14 = lowerCaseName;
@@ -153,14 +151,7 @@ public enum CustomItemType {
 	public String toString() {
 		return NameHelper.getNiceEnumName(name(), firstVersion, lastVersion);
 	}
-	
-	/**
-	 * @return The in-game name of the item that this CustomItemType represents
-	 */
-	public String getMinecraftName() {
-		return minecraftName;
-	}
-	
+
 	/**
 	 * The file name (without extension) of the texture of the in-game item represented by this CustomItemType
 	 * in the assets/minecraft/textures/items folder. This method is only for minecraft version 1.12 (these

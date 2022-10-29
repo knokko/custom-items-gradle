@@ -83,7 +83,7 @@ public class CustomProjectileCoverValues extends ProjectileCoverValues {
     public void setModel(ItemModel newModel) {
         assertMutable();
         Checks.notNull(newModel);
-        if (!(model instanceof LegacyCustomItemModel || model instanceof ModernCustomItemModel)) {
+        if (!(newModel instanceof LegacyCustomItemModel || newModel instanceof ModernCustomItemModel)) {
             throw new IllegalArgumentException("Custom projectile covers can only have custom models");
         }
         this.model = newModel;

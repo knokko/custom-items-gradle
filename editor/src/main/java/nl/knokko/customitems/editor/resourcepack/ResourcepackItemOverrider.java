@@ -401,9 +401,12 @@ class ResourcepackItemOverrider {
             CustomItemType itemType, String modelName, String textureName
     ) {
 
+        String parentModelName = "item/handheld";
+        if (itemType == CustomItemType.CARROT_STICK) parentModelName = "item/handheld_rod";
+
         // Begin of the json file
         jsonWriter.println("{");
-        jsonWriter.println("    \"parent\": \"item/handheld\",");
+        jsonWriter.println("    \"parent\": \"" + parentModelName + "\",");
         jsonWriter.println("    \"textures\": {");
         if (this.mcVersion >= VERSION1_13) {
             jsonWriter.print("        \"layer0\": \"item/" + textureName + "\"");
