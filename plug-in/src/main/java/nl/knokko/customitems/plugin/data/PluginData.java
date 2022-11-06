@@ -10,7 +10,6 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-import nl.knokko.core.plugin.item.GeneralItemNBT;
 import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.container.ContainerStorageMode;
 import nl.knokko.customitems.container.CustomContainerHost;
@@ -21,6 +20,8 @@ import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.command.ItemCommandEvent;
 import nl.knokko.customitems.item.gun.DirectGunAmmoValues;
 import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
+import nl.knokko.customitems.nms.GeneralItemNBT;
+import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.SoundPlayer;
 import nl.knokko.customitems.plugin.multisupport.worldguard.WorldGuardSupport;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
@@ -40,7 +41,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import nl.knokko.core.plugin.item.ItemHelper;
 import nl.knokko.customitems.container.VanillaContainerType;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.container.ContainerInfo;
@@ -362,7 +362,7 @@ public class PluginData {
 		
 		Inventory menu = Bukkit.createInventory(null, invSize, "Choose custom container");
 		{
-			ItemStack cancelStack = ItemHelper.createStack(CIMaterial.BARRIER.name(), 1);
+			ItemStack cancelStack = KciNms.instance.items.createStack(CIMaterial.BARRIER.name(), 1);
 			ItemMeta meta = cancelStack.getItemMeta();
 			meta.setDisplayName("Cancel");
 			cancelStack.setItemMeta(meta);
@@ -747,7 +747,7 @@ public class PluginData {
 
 				if (acceptsCurrentContainer) {
 					String[] nbtKey = storageMode != ContainerStorageMode.NOT_PERSISTENT ? getPocketContainerNbtKey(pd.openPocketContainer.getType(), player) : null;
-					GeneralItemNBT destNbt = GeneralItemNBT.readWriteInstance(closeDestination);
+					GeneralItemNBT destNbt = KciNms.instance.items.generalReadWriteNbt(closeDestination);
 
 					if (storageMode != ContainerStorageMode.NOT_PERSISTENT && destNbt.getOrDefault(nbtKey, null) != null) {
 						// Don't overwrite the contents of another pocket container
@@ -922,8 +922,10 @@ public class PluginData {
 	 * 
 	 * This method should be called in the onDisable() of CustomItemsPlugin, but could be called on 
 	 * additional moments.
+	 *
+	 * Returns true if and only if the data was saved successfully
 	 */
-	public void saveData() {
+	public boolean saveData() {
 		ByteArrayBitOutput output = new ByteArrayBitOutput();
 		output.addByte(ENCODING_5);
 		save5(output);
@@ -932,8 +934,10 @@ public class PluginData {
 			fileOutput.write(output.getBytes());
 			fileOutput.flush();
 			fileOutput.close();
+			return true;
 		} catch (IOException io) {
 			Bukkit.getLogger().log(Level.SEVERE, "Failed to save the CustomItems data", io);
+			return false;
 		}
 	}
 	
@@ -1291,13 +1295,13 @@ public class PluginData {
 			boolean hostBlockStillValid;
 			if (selected.getHost().getVanillaType() != null) {
 				CIMaterial blockMaterial = CIMaterial.valueOf(
-						ItemHelper.getMaterialName(containerLocation.getBlock())
+						KciNms.instance.items.getMaterialName(containerLocation.getBlock())
 				);
 				VanillaContainerType vanillaType = VanillaContainerType.fromMaterial(blockMaterial);
 				hostBlockStillValid = selected.getHost().getVanillaType() == vanillaType;
 			} else if (selected.getHost().getVanillaMaterial() != null) {
 				CIMaterial blockMaterial = CIMaterial.valueOf(
-						ItemHelper.getMaterialName(containerLocation.getBlock())
+						KciNms.instance.items.getMaterialName(containerLocation.getBlock())
 				);
 				hostBlockStillValid = selected.getHost().getVanillaMaterial() == blockMaterial;
 			} else if (selected.getHost().getCustomBlockReference() != null) {
@@ -1342,7 +1346,7 @@ public class PluginData {
 
 			if (pocketContainer != null) {
 
-				GeneralItemNBT nbt = GeneralItemNBT.readWriteInstance(pocketContainerStack);
+				GeneralItemNBT nbt = KciNms.instance.items.generalReadWriteNbt(pocketContainerStack);
 
 				String stringContainerState = null;
 				ContainerStorageMode storageMode = selected.getStorageMode();
@@ -1501,12 +1505,14 @@ public class PluginData {
 		}
 
 		@Override
-		public void saveData() {
+		public boolean saveData() {
 			File dataFile = getDataFile();
 			if (!dataFile.exists()) {
-				super.saveData();
+				return super.saveData();
 			} else {
 				Bukkit.getLogger().warning("The CustomItems data wasn't saved to protect the original data");
+				// I think returning true is the least-bad option from a practical perspective
+				return true;
 			}
 		}
 	}

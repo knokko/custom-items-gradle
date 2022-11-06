@@ -4,6 +4,7 @@ import nl.knokko.customitems.editor.EditorFileManager;
 import nl.knokko.customitems.editor.menu.edit.block.BlockCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.container.ContainerPortal;
 import nl.knokko.customitems.editor.menu.edit.drops.DropsMenu;
+import nl.knokko.customitems.editor.menu.edit.export.ExportMenu;
 import nl.knokko.customitems.editor.menu.edit.item.ItemCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.projectile.ProjectileMenu;
 import nl.knokko.customitems.editor.menu.edit.recipe.RecipeCollectionEdit;
@@ -25,7 +26,6 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import java.io.File;
 import java.io.IOException;
 
-import static nl.knokko.customitems.MCVersions.*;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class EditMenu extends GuiMenu {
@@ -99,19 +99,6 @@ public class EditMenu extends GuiMenu {
 		errorComponent.setText(info);
 	}
 
-	private void saveAndExport(int mcVersion) {
-		try {
-			this.set.validateExportVersion(mcVersion);
-			EditorFileManager.export(this.set, mcVersion, fileName);
-			EditorFileManager.saveAndBackUp(this.set, fileName);
-			state.getWindow().setMainComponent(new AfterExportMenu(this));
-		} catch (IOException | ValidationException ex) {
-			setError(ex.getLocalizedMessage());
-		} catch (ProgrammingValidationException ex) {
-			setError("Programming error: " + ex.getMessage());
-		}
-	}
-
 	@Override
 	protected void addComponents() {
 		addComponent(this.errorComponent, 0.255F, 0.9F, 0.995F, 1.0F);
@@ -134,30 +121,9 @@ public class EditMenu extends GuiMenu {
 				setError(io.getLocalizedMessage());
 			}
 		}), 0.1F, 0.59F, 0.35F, 0.69F);
-		addComponent(new DynamicTextButton("Export for 1.12", SAVE_BASE, SAVE_HOVER, () -> {
-			saveAndExport(VERSION1_12);
-		}), 0.05F, 0.50F, 0.25F, 0.58F);
-		addComponent(new DynamicTextButton("Export for 1.13", SAVE_BASE, SAVE_HOVER, () -> {
-			saveAndExport(VERSION1_13);
-		}), 0.05F, 0.41F, 0.25F, 0.49F);
-		addComponent(new DynamicTextButton("Export for 1.14", SAVE_BASE, SAVE_HOVER, () -> {
-			saveAndExport(VERSION1_14);
-		}), 0.05F, 0.32F, 0.25F, 0.40F);
-		addComponent(new DynamicTextButton("Export for 1.15", SAVE_BASE, SAVE_HOVER, () -> {
-			saveAndExport(VERSION1_15);
-		}), 0.05F, 0.23F, 0.25F, 0.31F);
-		addComponent(new DynamicTextButton("Export for 1.16", SAVE_BASE, SAVE_HOVER, () -> {
-			saveAndExport(VERSION1_16);
-		}), 0.3F, 0.5F, 0.5F, 0.58F);
-		addComponent(new DynamicTextButton("Export for 1.17", SAVE_BASE, SAVE_HOVER, () -> {
-			saveAndExport(VERSION1_17);
-		}), 0.3F, 0.41F, 0.5F, 0.49F);
-		addComponent(new DynamicTextButton("Export for 1.18", SAVE_BASE, SAVE_HOVER, () -> {
-			saveAndExport(VERSION1_18);
-		}), 0.3F, 0.32F, 0.5F, 0.4F);
-		addComponent(new DynamicTextButton("Export for 1.19", SAVE_BASE, SAVE_HOVER, () -> {
-			saveAndExport(VERSION1_19);
-		}), 0.3f, 0.23F, 0.5F, 0.31F);
+		addComponent(new DynamicTextButton("Export...", SAVE_BASE, SAVE_HOVER, () -> {
+			state.getWindow().setMainComponent(new ExportMenu(set, this, fileName));
+		}), 0.1f, 0.48f, 0.3f, 0.58f);
 
 		addComponent(new DynamicTextButton("Generate wiki", BUTTON, HOVER, () -> {
 			try {

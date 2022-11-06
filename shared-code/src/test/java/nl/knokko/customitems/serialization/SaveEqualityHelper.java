@@ -16,6 +16,7 @@ import nl.knokko.customitems.sound.CustomSoundTypeValues;
 import nl.knokko.customitems.texture.ArmorTextureValues;
 import nl.knokko.customitems.texture.BaseTextureValues;
 import nl.knokko.customitems.trouble.IntegrityException;
+import nl.knokko.customitems.trouble.OutdatedItemSetException;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.bithelper.ByteArrayBitInput;
 import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
@@ -27,12 +28,14 @@ import static org.junit.Assert.assertTrue;
 
 public class SaveEqualityHelper {
 
-    public static void testSaveEquality(ItemSet originalSet) throws UnknownEncodingException, IntegrityException {
+    public static void testSaveEquality(
+            ItemSet originalSet
+    ) throws UnknownEncodingException, IntegrityException, OutdatedItemSetException {
         for (ItemSet.Side side : ItemSet.Side.values()) {
             ByteArrayBitOutput bitOutput = new ByteArrayBitOutput();
             originalSet.save(bitOutput, side);
 
-            ItemSet testSet = new ItemSet(new ByteArrayBitInput(bitOutput.getBytes()), side);
+            ItemSet testSet = new ItemSet(new ByteArrayBitInput(bitOutput.getBytes()), side, true);
             if (side == ItemSet.Side.EDITOR) {
                 assertEquals(originalSet.getTextures().size(), testSet.getTextures().size());
                 for (BaseTextureValues originalTexture : originalSet.getTextures()) {

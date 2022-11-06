@@ -52,4 +52,9 @@ public class SetEncoding {
 	 * Added equipment sets
 	 */
 	public static final byte ENCODING_10 = 9;
+
+	/**
+	 * Added export settings
+	 */
+	public static final byte ENCODING_11 = 10;
 }

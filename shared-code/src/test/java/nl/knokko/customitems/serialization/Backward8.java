@@ -526,7 +526,7 @@ public class Backward8 {
         ), item.getItemFlags());
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
-            assertResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", ((LegacyCustomItemModel) item.getModel()).getRawModel());
+            assertStringResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", ((LegacyCustomItemModel) item.getModel()).getRawModel());
         } else {
             assertNull(item.getTextureReference());
             assertNull(item.getModel());

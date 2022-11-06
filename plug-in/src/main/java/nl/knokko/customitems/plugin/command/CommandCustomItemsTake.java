@@ -1,7 +1,6 @@
 package nl.knokko.customitems.plugin.command;
 
 import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -9,7 +8,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -32,17 +30,6 @@ class CommandCustomItemsTake {
             return;
         }
         if (args.length == 1 || args.length == 2 || args.length == 3) {
-
-            if (enableOutput) {
-                Collection<String> errors = CustomItemsPlugin.getInstance().getLoadErrors();
-                if (!errors.isEmpty()) {
-                    sender.sendMessage(ChatColor.RED + "The following errors occurred while enabling " +
-                            "this plug-in. These errors will likely cause this command to fail:");
-                    for (String error : errors) {
-                        sender.sendMessage(ChatColor.DARK_RED + error);
-                    }
-                }
-            }
 
             int page = 1;
             if (args.length > 1) {

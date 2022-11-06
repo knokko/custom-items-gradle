@@ -23,10 +23,12 @@ import nl.knokko.customitems.projectile.cover.ProjectileCoverValues;
 import nl.knokko.customitems.projectile.cover.ProjectileCover;
 import nl.knokko.customitems.recipe.CraftingRecipeValues;
 import nl.knokko.customitems.recipe.CustomCraftingRecipe;
+import nl.knokko.customitems.settings.ExportSettingsValues;
 import nl.knokko.customitems.sound.CustomSoundType;
 import nl.knokko.customitems.sound.CustomSoundTypeValues;
 import nl.knokko.customitems.texture.*;
 import nl.knokko.customitems.trouble.IntegrityException;
+import nl.knokko.customitems.trouble.OutdatedItemSetException;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.*;
 import nl.knokko.customitems.bithelper.BitInput;
@@ -64,6 +66,7 @@ public class ItemSet {
 
         ItemSet result = new ItemSet(Side.EDITOR);
 
+        result.exportSettings = primary.exportSettings;
         result.textures.addAll(primary.textures);
         result.textures.addAll(secondary.textures);
         result.armorTextures.addAll(primary.armorTextures);
@@ -137,6 +140,7 @@ public class ItemSet {
 
     private long exportTime;
 
+    private ExportSettingsValues exportSettings;
     Collection<CustomTexture> textures;
     Collection<ArmorTexture> armorTextures;
     Collection<CustomItem> items;
@@ -164,13 +168,16 @@ public class ItemSet {
         initialize();
     }
 
-    public ItemSet(BitInput input, Side side) throws IntegrityException, UnknownEncodingException {
+    public ItemSet(
+            BitInput input, Side side, boolean allowOutdated
+    ) throws IntegrityException, UnknownEncodingException, OutdatedItemSetException {
         Checks.notNull(side);
         this.side = side;
-        load(input);
+        load(input, allowOutdated);
     }
 
     private void initialize() {
+        exportSettings = new ExportSettingsValues(false);
         textures = new ArrayList<>();
         armorTextures = new ArrayList<>();
         items = new ArrayList<>();
@@ -193,7 +200,20 @@ public class ItemSet {
         finishedLoading = true;
     }
 
-    public Map<CustomItemType, ItemDurabilityAssignments> assignInternalItemDamages(int mcVersion) throws ValidationException {
+    public boolean isEmpty() {
+        for (Collection<?> relevantCollection : new Collection<?>[]{
+                this.textures, this.armorTextures, this.items, this.equipmentSets, this.craftingRecipes,
+                this.blockDrops, this.mobDrops, this.blocks, this.oreVeinGenerators, this.treeGenerators,
+                this.containers, this.fuelRegistries, this.energyTypes, this.soundTypes,
+                this.projectiles, this.projectileCovers, this.removedItemNames
+        }) {
+            if (!relevantCollection.isEmpty()) return false;
+        }
+
+        return true;
+    }
+
+    public Map<CustomItemType, ItemDurabilityAssignments> assignInternalItemDamages() throws ValidationException {
         Map<CustomItemType, ItemDurabilityAssignments> assignmentMap = new EnumMap<>(CustomItemType.class);
 
         Map<CustomItemType, Set<Short>> lockedDamageAssignments = new EnumMap<>(CustomItemType.class);
@@ -249,11 +269,11 @@ public class ItemSet {
                 }
 
                 if (!reuseExistingModel) {
-                    short nextItemDamage = assignments.getNextItemDamage(itemType, mcVersion);
+                    short nextItemDamage = assignments.getNextItemDamage(itemType, exportSettings.getMcVersion());
                     Set<Short> lockedDamages = lockedDamageAssignments.get(item.getItemType());
                     if (lockedDamages != null) {
                         while (lockedDamages.contains(nextItemDamage)) {
-                            nextItemDamage = assignments.getNextItemDamage(itemType, mcVersion);
+                            nextItemDamage = assignments.getNextItemDamage(itemType, exportSettings.getMcVersion());
                         }
                     }
 
@@ -289,7 +309,7 @@ public class ItemSet {
                 assignmentMap.put(itemType, assignments);
             }
 
-            short itemDamage = assignments.getNextItemDamage(itemType, mcVersion);
+            short itemDamage = assignments.getNextItemDamage(itemType, exportSettings.getMcVersion());
             cover.setItemDamage(itemDamage);
             String resourcePath = "customprojectiles/" + cover.getName();
             assignments.claimList.add(new ItemDurabilityClaim(resourcePath, itemDamage, null));
@@ -305,7 +325,7 @@ public class ItemSet {
     }
 
     public void save(BitOutput output, Side targetSide) {
-        output.addByte(SetEncoding.ENCODING_10);
+        output.addByte(SetEncoding.ENCODING_11);
 
         ByteArrayBitOutput checkedOutput = new ByteArrayBitOutput();
         saveContent(checkedOutput, targetSide);
@@ -317,6 +337,8 @@ public class ItemSet {
     }
 
     private void saveContent(BitOutput output, Side targetSide) {
+        exportSettings.save(output);
+
         if (targetSide == Side.EDITOR) {
             output.addInt(textures.size());
             for (CustomTexture texture : textures) {
@@ -408,12 +430,15 @@ public class ItemSet {
         }
     }
 
-    private void load(BitInput input) throws IntegrityException, UnknownEncodingException {
+    private void load(
+            BitInput input, boolean allowOutdated
+    ) throws IntegrityException, UnknownEncodingException, OutdatedItemSetException {
         this.intReferences = new ArrayList<>();
         this.stringReferences = new ArrayList<>();
         this.uuidReferences = new ArrayList<>();
 
         byte encoding = input.readByte();
+        if (!allowOutdated && encoding < SetEncoding.ENCODING_11) throw new OutdatedItemSetException();
         if (encoding == SetEncoding.ENCODING_1) {
             load1(input);
             initDefaults1();
@@ -444,6 +469,9 @@ public class ItemSet {
         } else if (encoding == SetEncoding.ENCODING_10) {
             load10(input);
             initDefaults10();
+        } else if (encoding == SetEncoding.ENCODING_11) {
+            load11(input);
+            initDefaults11();
         } else {
             throw new UnknownEncodingException("ItemSet", encoding);
         }
@@ -512,10 +540,16 @@ public class ItemSet {
         this.soundTypes = new ArrayList<>();
         this.oreVeinGenerators = new ArrayList<>();
         this.treeGenerators = new ArrayList<>();
+        initDefaults10();
     }
 
     private void initDefaults10() {
-        // Nothing to be done until encoding 11 has been made
+        this.exportSettings = new ExportSettingsValues(false);
+        initDefaults11();
+    }
+
+    private void initDefaults11() {
+        // Nothing to be done until encoding 12 has been made
     }
 
     private void loadExportTime(BitInput input) {
@@ -821,8 +855,36 @@ public class ItemSet {
         });
     }
 
+    private void load11(BitInput rawInput) throws IntegrityException, UnknownEncodingException {
+        loadWithIntegrityCheck(rawInput, (input, hash) -> {
+            this.exportSettings = ExportSettingsValues.load(input);
+            loadExportTime(input);
+            loadTextures(input, true, true);
+            loadArmorTextures(input);
+            loadProjectileCovers(input);
+            loadProjectiles(input);
+            loadItems(input, true);
+            loadEquipmentSets(input);
+            loadBlocks(input);
+            loadOreVeinGenerators(input);
+            loadTreeGenerators(input);
+            loadCraftingRecipes(input);
+            loadBlockDrops(input);
+            loadMobDrops(input);
+            loadFuelRegistries(input);
+            loadEnergyTypes(input);
+            loadSoundTypes(input);
+            loadContainers(input);
+            loadDeletedItemNames(input);
+        });
+    }
+
     public Side getSide() {
         return side;
+    }
+
+    public ExportSettingsValues getExportSettings() {
+        return exportSettings;
     }
 
     public long getExportTime() {
@@ -1327,6 +1389,11 @@ public class ItemSet {
                     () -> treeGenerator.getValues().validate(this)
             );
         }
+    }
+
+    public void setExportSettings(ExportSettingsValues newExportSettings) throws ValidationException, ProgrammingValidationException {
+        newExportSettings.validate();
+        this.exportSettings = newExportSettings;
     }
 
     public void addTexture(BaseTextureValues newTexture) throws ValidationException, ProgrammingValidationException {

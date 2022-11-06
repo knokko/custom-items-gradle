@@ -4,14 +4,24 @@ import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 
+import java.util.function.Consumer;
+
 class CommandCustomItemsReload {
 
-    void handle(CommandSender sender) {
+    void handle(String[] args, CommandSender sender, boolean enableOutput) {
         if (!sender.hasPermission("customitems.reload")) {
-            sender.sendMessage(ChatColor.DARK_RED + "You don't have access to this command.");
+            if (enableOutput) sender.sendMessage(ChatColor.DARK_RED + "You don't have access to this command.");
             return;
         }
-        CustomItemsPlugin.getInstance().reload();
-        sender.sendMessage("The item set and config should have been reloaded");
+
+        Consumer<String> sendMessage = message -> {
+            if (enableOutput) sender.sendMessage(message);
+        };
+
+        if (args.length == 1) {
+            CustomItemsPlugin.getInstance().getItemSetLoader().reload(sendMessage);
+        } else {
+            CustomItemsPlugin.getInstance().getItemSetLoader().reload(sendMessage, args[1]);
+        }
     }
 }

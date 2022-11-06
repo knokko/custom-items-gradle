@@ -1,8 +1,9 @@
 package nl.knokko.customitems.plugin.set.item;
 
-import nl.knokko.core.plugin.item.GeneralItemNBT;
 import nl.knokko.customitems.item.CustomGunValues;
 import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
+import nl.knokko.customitems.nms.GeneralItemNBT;
+import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -46,7 +47,7 @@ public class CustomGunWrapper extends CustomItemWrapper {
         IndirectGunAmmoValues indirectAmmo = (IndirectGunAmmoValues) gun.getAmmo();
 
         ItemStack beforeNbt = super.create(1, createLore(indirectAmmo, remainingAmmo));
-        GeneralItemNBT nbt = GeneralItemNBT.readWriteInstance(beforeNbt);
+        GeneralItemNBT nbt = KciNms.instance.items.generalReadWriteNbt(beforeNbt);
         nbt.set(KEY_INDIRECT_AMMO, remainingAmmo);
 
         return nbt.backToBukkit();
@@ -70,7 +71,7 @@ public class CustomGunWrapper extends CustomItemWrapper {
         if (gun.getAmmo() instanceof IndirectGunAmmoValues) {
 
             IndirectGunAmmoValues indirectAmmo = (IndirectGunAmmoValues) gun.getAmmo();
-            GeneralItemNBT nbt = GeneralItemNBT.readWriteInstance(original);
+            GeneralItemNBT nbt = KciNms.instance.items.generalReadWriteNbt(original);
 
             int currentAmmo = nbt.getOrDefault(KEY_INDIRECT_AMMO, 0);
             if (currentAmmo <= 0) {
@@ -95,7 +96,7 @@ public class CustomGunWrapper extends CustomItemWrapper {
     public int getCurrentAmmo(ItemStack gunStack) {
         if (gun.getAmmo() instanceof IndirectGunAmmoValues) {
 
-            GeneralItemNBT nbt = GeneralItemNBT.readOnlyInstance(gunStack);
+            GeneralItemNBT nbt = KciNms.instance.items.generalReadOnlyNbt(gunStack);
             return nbt.getOrDefault(KEY_INDIRECT_AMMO, 0);
         } else {
             throw new UnsupportedOperationException("Only guns with indirect ammo can have internal ammo");
@@ -107,7 +108,7 @@ public class CustomGunWrapper extends CustomItemWrapper {
 
             IndirectGunAmmoValues indirectAmmo = (IndirectGunAmmoValues) gun.getAmmo();
 
-            GeneralItemNBT nbt = GeneralItemNBT.readWriteInstance(gunStack);
+            GeneralItemNBT nbt = KciNms.instance.items.generalReadWriteNbt(gunStack);
             nbt.set(KEY_INDIRECT_AMMO, indirectAmmo.getStoredAmmo());
             ItemStack reloaded = nbt.backToBukkit();
 

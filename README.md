@@ -24,33 +24,37 @@ This repository is split into several modules:
 
 ### bit-helper
 The bit-helper module is a small library of mine that is used for compact binary (de)serialization. When I started this plug-in, I thought it
-was a good idea to use this, but I am starting to see the its limitations. Nevertheless, it is very stable (has been used in production for more 
-than 2 years without any failures) and its results are still quite good (although they could be improved).
+was a good idea to use this, but I am starting to see its limitations. Nevertheless, it is very stable (has been used in production for more 
+than 4 years without any failures) and its results are still quite good (although they could be improved).
 
-### core-plugin-12
-This module is the source code of the KnokkoCore plug-in for minecraft 1.12.2. When I started this custom items plug-in, my plan was to use this 
-core plug-in as a library to include functionality shared by this custom items plug-in and my future plug-ins. However, I have been too busy with 
-this custom items plug-in to start a new one, so this custom items plug-in is the only one that depends on this core plug-in... 
-But, I did find another use case for this core plug-in: To achieve some things, I need a different implementation for each minecraft version. So
-when the custom items plug-in needs such functionality, it calls the function provided by this core plug-in. If the minecraft version is 1.12.2,
-this will work well. If not, the server admin needs to install a different version of my core-plugin. These other versions expose the exact same
-API, but handle a different minecraft version. This trick allows the custom items plug-in to work on any minecraft version, as long as the right
-version of the core plug-in (also known as KnokkoCore) is installed.
+### dummy-ce-api
+This is a module that mimics the part of the API of the Crazy Enchantments plug-in that is needed for this plug-in.
+This module is only supposed to be used for compilation, and should never be exported. All method signatures of this
+module match those of the real Crazy Enchantments API, but the implementation is useless. This module should be
+removed as soon as Crazy Enchantments has a proper maven repository.
 
 ### editor
 This module is the source code for *the Editor*. This is a GUI application that users must use to configure the plug-in. The users must download it
 and run it on their computer. Using this GUI, they can configure their custom items (choose their textures, attack damage, display name, and
-lots of other stuff...). This application also has *Export* buttons that will generate a binary configuration file and a resourcepack. The
-configuration file must be uploaded to the server, the resourcepack must be uploaded to some static page host, and the resourcepack-url in the
-server.properties must point to that static page host.
+lots of other stuff...).
 
 ### gui
 This module is a small gui library that I made a couple of years ago. When I started this custom items plug-in, I thought it was a good idea to use
-this library to write the Editor. Recently, I started seeing the limitations of this library: the scale of everything is based on the size of the
+this library to write the Editor. After using it for a few years, I started seeing the limitations of this library: the scale of everything is based on the size of the
 window. This has the benefit that the editor will look the same to everyone, regardless of their screen resolution (try resizing your window to
 see what I mean), but has the drawback that this can cause distortion of text and images. Also, it lacks many interesting features that would have
 avoided the need of implementing all views myself. Switching to a different GUI library might be a good idea, but I am not so sure the amount of
 work is worth it.
+
+### kci-nms...
+This project has many `kci-nms` modules. These modules take care of features that require a different implementation for each minecraft version.
+For instance, these modules take care of NMS and some features that were added to the Bukkit API in later minecraft versions. The `kci-nms`
+module itself defines the interface that is implemented by all the `kci-nmsXX` modules. Each `kci-nmsXX` module implements these interfaces
+for minecraft `1.XX`. The modules `kci-nms13plus` and `kci-nms16plus` facilitate code reuse between `kci-nms13` and later and `kci-nms16`
+and later, respectively. Unfortunately, not every `kci-nmsXX` module requires the same Java version, so this system is annoying. To work
+around this problem, `kci-nms17` and later are 'disabled' by default: they are commented out in `build.gradle` and are not present in
+`settings.gradle`. So, unless you 'enable' them manually, development builds of this plug-in will **not** support minecraft 1.17 and later.
+However, I did enable them in GitHub Actions, so these versions **will be** supported by release builds.
 
 ### plug-in
 This module is the source code of the custom items plug-in itself. The plug-in essentially finds the binary configuration file generated by the
@@ -59,19 +63,18 @@ Editor, deserializes it, and makes sure that everything configured in the Editor
 ### shared-code
 This module contains the code that is used by both the Editor and the plug-in.
 
-### dummy-ce-api
-This is a module that mimics the part of the API of the Crazy Enchantments plug-in that is needed for this plug-in.
-This module is only supposed to be used for compilation, and should never be exported. All method signatures of this
-module match those of the real Crazy Enchantments API, but the implementation is useless. This module should be
-removed as soon as Crazy Enchantments has a proper maven repository.
-
 ## Development
 ### Getting started
 #### BuildTools
 Before you can compile this project, you will need to get BuildTools from https://www.spigotmc.org/wiki/buildtools/ and then run
-`java -jar BuildTools.jar --rev 1.12.2` with *really 1.12.2*, regardless of the minecraft version you are interested in: The custom items plug-in
-is always compiled against craftbukkit 1.12.2 (it can also be used on later versions, don't worry, but it had to be compiled against *some* version
-and this version is safest because it has the least features). Due to some juridical conflict, it is illegal to publish the entire craftbukkit jar,
+the following commands using Java **8**:
+- `java -jar BuildTools.jar --rev 1.12.2` 
+- `java -jar BuildTools.jar --rev 1.13.2`
+- `java -jar BuildTools.jar --rev 1.14.4`
+- `java -jar BuildTools.jar --rev 1.15.2`
+- `java -jar BuildTools.jar --rev 1.16.5`
+
+Due to some juridical conflict, it is illegal to publish the entire craftbukkit jar,
 but it is legal to build it on your own computer using BuildTools...
 
 #### IDE
@@ -87,11 +90,28 @@ on my computer). You can fix it by restarting Intellij.
 Run `./gradlew test` to execute the unit tests.
 
 #### Deployment
-For production deployment, make sure you are using Java 8! This is necessary because most minecraft server hosts don't like updating and only
-accept plug-ins compiled against Java 8. Also, since Java doesn't have JREs for Java 9+, you will probably want to compile the Editor with
-Java 8 (unless you take the effort to use something like jlink to create a native executable for every single operating system).
-Also, you might want to run `./gradlew test` or `gradlew test` (to do a couple of quick automatic tests) before deploying.
-To deploy, you need to run `./gradlew shadowJar` or `gradlew shadowJar` (which one to use depends on your operating system). The Editor should
-be put in `editor/build/libs/editor-all.jar`, the custom items plug-in should be put in `plug-in/build/libs/plug-in-all.jar`, and the KnokkoCore
-plug-in for minecraft 1.12.2 should be put in `core-plug-in/build/libs/core-plug-in-12-all.jar`. Different versions of KnokkoCore are another story...
-All other versions of KnokkoCore can be found at https://github.com/knokko/knokko-core-gradle .
+In development, you can use `./gradlew shadowJar` to create a plug-in jar that should work on
+minecraft 1.12 to minecraft 1.16. You can find it in `plug-in/build/libs/plug-in-all.jar`.
+Testing on later minecraft versions can be done by manually modifying `build.gradle` and
+`settings.gradle`. In particular, you need to uncomment the `kci-nmsXX` project for the
+corresponding minecraft version in `build.gradle` and add it to `settings.gradle`.
+The Editor can be found in `editor/build/libs/editor-all.jar`, which you can double-click
+to run it. However, this is not very interesting since you can also just run the Editor via
+your IDE.
+
+For production, you should simply push all your changes to GitHub, which will cause a
+GitHub Actions workflow to produce everything. Unlike the development build, this will
+work on all minecraft versions supported by this plug-in. Everything will be put in a
+`releases.zip` artifact for the commit, which contains the following files:
+- `CustomItems.jar`: the jar file that should be put in the `plugins` folder of the server
+- `Editor.jar` the 'raw' Editor: people with a Java installation can double-click it to run
+the Editor.
+- `editor-linux.zip`: Linux users without Java installation can download this, extract
+the contents, and double-click `editor` to run the Editor
+- `editor-macosx.zip`: Mac users without Java installation should be able to run the
+Editor using this file, but I'm not exactly sure how since I don't have a Mac
+- `editor-windows.zip`: Windows users without Java installation can download this,
+extract the contents, and double-click `editor.exe` to run the Editor
+
+The primary advantage of the 'raw' `Editor.jar` over the native editors is that it is significantly smaller since
+it doesn't need to bundle a complete JRE.

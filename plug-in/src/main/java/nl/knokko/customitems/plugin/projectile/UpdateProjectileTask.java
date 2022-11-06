@@ -1,5 +1,8 @@
 package nl.knokko.customitems.plugin.projectile;
 
+import nl.knokko.customitems.nms.GeneralItemNBT;
+import nl.knokko.customitems.nms.KciNms;
+import nl.knokko.customitems.nms.RaytraceResult;
 import nl.knokko.customitems.plugin.set.item.CustomItemWrapper;
 import org.bukkit.World;
 import org.bukkit.entity.Item;
@@ -10,11 +13,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-import nl.knokko.core.plugin.entity.EntityDamageHelper;
-import nl.knokko.core.plugin.item.GeneralItemNBT;
-import nl.knokko.core.plugin.item.ItemHelper;
-import nl.knokko.core.plugin.world.RaytraceResult;
-import nl.knokko.core.plugin.world.Raytracer;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 
@@ -38,7 +36,7 @@ public class UpdateProjectileTask implements Runnable {
 		long currentTick = CustomItemsPlugin.getInstance().getData().getCurrentTick();
 
 		if (projectile.currentVelocity.length() > 0.0001) {
-			RaytraceResult ray = Raytracer.raytrace(projectile.currentPosition.toLocation(world),
+			RaytraceResult ray = KciNms.instance.raytrace(projectile.currentPosition.toLocation(world),
 					projectile.currentVelocity, projectile.directShooter == null
 							|| currentTick - projectile.launchTick > 20 ? null : projectile.directShooter);
 
@@ -67,7 +65,7 @@ public class UpdateProjectileTask implements Runnable {
 
 				// If we hit an entity, damage it
 				if (ray.getHitEntity() != null && projectile.prototype.getDamage() > 0) {
-					EntityDamageHelper.causeFakeProjectileDamage(ray.getHitEntity(),
+					KciNms.instance.entities.causeFakeProjectileDamage(ray.getHitEntity(),
 							projectile.responsibleShooter, projectile.prototype.getDamage(),
 							projectile.currentPosition.getX(), projectile.currentPosition.getY(),
 							projectile.currentPosition.getZ(),
@@ -113,12 +111,12 @@ public class UpdateProjectileTask implements Runnable {
 	private void createCoverItem(Vector position) {
 		
 		CIMaterial coverMaterial = CustomItemWrapper.getMaterial(projectile.prototype.getCover().getItemType(), null);
-		ItemStack coverStack = ItemHelper.createStack(coverMaterial.name(), 1);
+		ItemStack coverStack = KciNms.instance.items.createStack(coverMaterial.name(), 1);
 		ItemMeta coverMeta = coverStack.getItemMeta();
 		coverMeta.setUnbreakable(true);
 		coverStack.setItemMeta(coverMeta);
 		coverStack.setDurability(projectile.prototype.getCover().getItemDamage());
-		GeneralItemNBT nbt = GeneralItemNBT.readWriteInstance(coverStack);
+		GeneralItemNBT nbt = KciNms.instance.items.generalReadWriteNbt(coverStack);
 		nbt.set(FlyingProjectile.KEY_COVER_ITEM, 1);
 		coverStack = nbt.backToBukkit();
 		

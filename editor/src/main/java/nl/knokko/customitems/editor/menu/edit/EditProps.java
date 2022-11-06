@@ -5,6 +5,7 @@ import java.awt.Font;
 
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.color.SimpleGuiColor;
+import nl.knokko.gui.util.TextBuilder;
 import nl.knokko.gui.util.TextBuilder.Properties;
 
 public class EditProps {
@@ -31,6 +32,18 @@ public class EditProps {
 	
 	public static final Properties EDIT_BASE = Properties.createEdit(new Color(200, 200, 200), new Color(50, 50, 50));
 	public static final Properties EDIT_ACTIVE = Properties.createEdit(new Color(255, 255, 255), new Color(65, 65, 65));
+
+	public static final Properties LONG_EDIT_BASE = new Properties(
+			FONT, Color.BLACK, new Color(200, 200, 200), new Color(50, 50, 50),
+			TextBuilder.HorAlignment.LEFT, TextBuilder.VerAlignment.MIDDLE,
+			0.005f, 0.05f, 0.01f, 0.1f, -1, -1
+	);
+
+	public static final Properties LONG_EDIT_ACTIVE = new Properties(
+			FONT, Color.BLACK, new Color(255, 255, 255), new Color(65, 65, 65),
+			TextBuilder.HorAlignment.LEFT, TextBuilder.VerAlignment.MIDDLE,
+			0.005f, 0.05f, 0.01f, 0.1f, -1, -1
+	);
 	
 	public static final Properties SELECT_BASE = Properties.createText(FONT, Color.BLACK, new Color(170, 200, 200), 512, 128);
 	public static final Properties SELECT_HOVER = Properties.createText(FONT, new Color(50, 50, 50), new Color(210, 250, 250), 512, 128);

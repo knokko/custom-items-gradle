@@ -10,6 +10,7 @@ import nl.knokko.customitems.container.slot.OutputSlotValues;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomPocketContainerValues;
 import nl.knokko.customitems.itemset.BlockReference;
+import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
 import nl.knokko.customitems.recipe.result.CustomItemResultValues;
@@ -34,8 +35,6 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import nl.knokko.core.plugin.item.GeneralItemNBT;
-import nl.knokko.core.plugin.item.ItemHelper;
 import nl.knokko.customitems.container.VanillaContainerType;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
@@ -110,7 +109,7 @@ public class ContainerEventHandler implements Listener {
 		Bukkit.getScheduler().scheduleSyncDelayedTask(
 				CustomItemsPlugin.getInstance(), () -> {
 					ItemStack cursor = clicker.getItemOnCursor();
-					if (GeneralItemNBT.readOnlyInstance(cursor).getOrDefault(
+					if (KciNms.instance.items.generalReadOnlyNbt(cursor).getOrDefault(
 							ContainerInstance.PLACEHOLDER_KEY, 0) == 1) {
 						clicker.setItemOnCursor(null);
 					}
@@ -504,7 +503,7 @@ public class ContainerEventHandler implements Listener {
 
 		if (event.getAction() == Action.LEFT_CLICK_BLOCK && event.getPlayer().isSneaking()) {
 			
-			String blockName = ItemHelper.getMaterialName(event.getClickedBlock());
+			String blockName = KciNms.instance.items.getMaterialName(event.getClickedBlock());
 			CIMaterial blockType;
 			try {
 				blockType = CIMaterial.valueOf(blockName);
@@ -525,7 +524,7 @@ public class ContainerEventHandler implements Listener {
 			}
 		} else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && !event.getPlayer().isSneaking()) {
 			try {
-				String blockName = ItemHelper.getMaterialName(event.getClickedBlock());
+				String blockName = KciNms.instance.items.getMaterialName(event.getClickedBlock());
 				CIMaterial blockType = CIMaterial.valueOf(blockName);
 				Inventory maybeMenu = pluginData().getCustomContainerMenu(
 						event.getClickedBlock().getLocation(), event.getPlayer(), new CustomContainerHost(blockType)

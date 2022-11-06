@@ -1,0 +1,203 @@
+name: test-and-shadow
+run-name: Running unit tests and shadowJar on all modules that support Java 8
+on: [push]
+jobs:
+  test-and-shadow-general:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 8
+          cache: gradle
+      - run: cp github-actions-helper/VersionTrimmer.java VersionTrimmer.java
+      - run: javac VersionTrimmer.java
+      - run: curl -o BuildTools.jar https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
+      - run: java -jar BuildTools.jar --rev 1.12.2
+      - run: java VersionTrimmer 1.12
+      - run: ./gradlew test --no-daemon
+      - run: ./gradlew shadowJar --no-daemon
+      - run: curl -L -o packr.jar https://github.com/libgdx/packr/releases/download/4.0.0/packr-all-4.0.0.jar
+      - run: java -jar packr.jar --platform windows64 --jdk https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u352-b08/OpenJDK8U-jdk_x64_windows_hotspot_8u352b08.zip --executable editor --classpath editor/build/libs/editor-all.jar --mainclass nl.knokko.customitems.editor.Editor --output editor-windows
+      - run: cd editor-windows && zip -r editor-windows.zip * && cd ..
+      - run: java -jar packr.jar --platform linux64 --jdk https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u352-b08/OpenJDK8U-jdk_x64_linux_hotspot_8u352b08.tar.gz --executable editor --classpath editor/build/libs/editor-all.jar --mainclass nl.knokko.customitems.editor.Editor --output editor-linux
+      - run: cd editor-linux && zip -r editor-linux.zip * && cd ..
+      - run: java -jar packr.jar --platform mac --jdk https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u352-b08/OpenJDK8U-jdk_x64_mac_hotspot_8u352b08.tar.gz --executable editor --classpath editor/build/libs/editor-all.jar --mainclass nl.knokko.customitems.editor.Editor --output editor-macosx
+      - run: cd editor-macosx && zip -r editor-macosx.zip * && cd ..
+      - uses: actions/upload-artifact@v3
+        with:
+          name: editor
+          path: editor/build/libs/editor-all.jar
+      - uses: actions/upload-artifact@v3
+        with:
+          name: editor-windows
+          path: editor-windows/editor-windows.zip
+      - uses: actions/upload-artifact@v3
+        with:
+          name: editor-linux
+          path: editor-linux/editor-linux.zip
+      - uses: actions/upload-artifact@v3
+        with:
+          name: editor-macosx
+          path: editor-macosx/editor-macosx.zip
+      - uses: actions/upload-artifact@v3
+        with:
+          name: plug-in-incomplete
+          path: plug-in/build/libs/plug-in-all.jar
+  nms13-to-16:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 8
+          cache: gradle
+      - run: cp github-actions-helper/VersionTrimmer.java VersionTrimmer.java
+      - run: javac VersionTrimmer.java
+      - run: curl -o BuildTools.jar https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
+      - run: java -jar BuildTools.jar --rev 1.13.2
+      - run: java -jar BuildTools.jar --rev 1.14.4
+      - run: java -jar BuildTools.jar --rev 1.15.2
+      - run: java -jar BuildTools.jar --rev 1.16.5
+      - run: java VersionTrimmer 1.13-to-1.16
+      - run: ./gradlew build --no-daemon
+      - uses: actions/upload-artifact@v3
+        with:
+          name: kci-nms13plus
+          path: kci-nms13plus/build/classes/java/main
+      - uses: actions/upload-artifact@v3
+        with:
+          name: kci-nms13
+          path: kci-nms13/build/classes/java/main
+      - uses: actions/upload-artifact@v3
+        with:
+          name: kci-nms14
+          path: kci-nms14/build/classes/java/main
+      - uses: actions/upload-artifact@v3
+        with:
+          name: kci-nms15
+          path: kci-nms15/build/classes/java/main
+      - uses: actions/upload-artifact@v3
+        with:
+          name: kci-nms16plus
+          path: kci-nms16plus/build/classes/java/main
+      - uses: actions/upload-artifact@v3
+        with:
+          name: kci-nms16
+          path: kci-nms16/build/classes/java/main
+  nms17:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 16
+          cache: gradle
+      - run: cp github-actions-helper/VersionTrimmer.java VersionTrimmer.java
+      - run: javac VersionTrimmer.java
+      - run: curl -o BuildTools.jar https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
+      - run: java -jar BuildTools.jar --rev 1.17.1
+      - run: java VersionTrimmer 1.17
+      - run: ./gradlew build --no-daemon
+      - uses: actions/upload-artifact@v3
+        with:
+          name: kci-nms17
+          path: kci-nms17/build/classes/java/main
+  nms18-to-19:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: gradle
+      - run: cp github-actions-helper/VersionTrimmer.java VersionTrimmer.java
+      - run: javac VersionTrimmer.java
+      - run: curl -o BuildTools.jar https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
+      - run: java -jar BuildTools.jar --rev 1.18.2
+      - run: java -jar BuildTools.jar --rev 1.19.2
+      - run: java VersionTrimmer 1.18-to-1.19
+      - run: ./gradlew build --no-daemon
+      - uses: actions/upload-artifact@v3
+        with:
+          name: kci-nms18
+          path: kci-nms18/build/classes/java/main
+      - uses: actions/upload-artifact@v3
+        with:
+          name: kci-nms19
+          path: kci-nms19/build/classes/java/main
+  combine-plugin-with-nms:
+    runs-on: ubuntu-latest
+    needs: [test-and-shadow-general, nms13-to-16, nms17, nms18-to-19]
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: plug-in-incomplete
+          path: combined
+      - run: unzip -d combined combined/plug-in-all.jar
+      - run: rm combined/plug-in-all.jar
+      - uses: actions/download-artifact@v3
+        with:
+          name: kci-nms13plus
+          path: combined
+      - uses: actions/download-artifact@v3
+        with:
+          name: kci-nms13
+          path: combined
+      - uses: actions/download-artifact@v3
+        with:
+          name: kci-nms14
+          path: combined
+      - uses: actions/download-artifact@v3
+        with:
+          name: kci-nms15
+          path: combined
+      - uses: actions/download-artifact@v3
+        with:
+          name: kci-nms16plus
+          path: combined
+      - uses: actions/download-artifact@v3
+        with:
+          name: kci-nms16
+          path: combined
+      - uses: actions/download-artifact@v3
+        with:
+          name: kci-nms17
+          path: combined
+      - uses: actions/download-artifact@v3
+        with:
+          name: kci-nms18
+          path: combined
+      - uses: actions/download-artifact@v3
+        with:
+          name: kci-nms19
+          path: combined
+      - run: cd combined && zip -r CustomItems.jar * && cd ..
+      - run: mkdir releases
+      - run: cp combined/CustomItems.jar releases/CustomItems.jar
+      - uses: actions/download-artifact@v3
+        with:
+          name: editor
+          path: releases
+      - run: cp releases/editor-all.jar releases/Editor.jar
+      - run: rm releases/editor-all.jar
+      - uses: actions/download-artifact@v3
+        with:
+          name: editor-windows
+          path: releases
+      - uses: actions/download-artifact@v3
+        with:
+          name: editor-linux
+          path: releases
+      - uses: actions/download-artifact@v3
+        with:
+          name: editor-macosx
+          path: releases
+      - uses: actions/upload-artifact@v3
+        with:
+          name: releases
+          path: releases

@@ -26,12 +26,10 @@ import static nl.knokko.customitems.MCVersions.VERSION1_12;
 class ResourcepackTextureWriter {
 
     private final ItemSet itemSet;
-    private final int mcVersion;
     private final ZipOutputStream zipOutput;
 
-    ResourcepackTextureWriter(ItemSet itemSet, int mcVersion, ZipOutputStream zipOutput) {
+    ResourcepackTextureWriter(ItemSet itemSet, ZipOutputStream zipOutput) {
         this.itemSet = itemSet;
-        this.mcVersion = mcVersion;
         this.zipOutput = zipOutput;
     }
 
@@ -133,7 +131,7 @@ class ResourcepackTextureWriter {
 
     void writeOptifineArmorTextures() throws IOException {
         String citPrefix;
-        if (mcVersion <= VERSION1_12) {
+        if (itemSet.getExportSettings().getMcVersion() <= VERSION1_12) {
             citPrefix = "assets/minecraft/mcpatcher/cit/";
         } else {
             citPrefix = "assets/minecraft/optifine/cit/";
@@ -191,7 +189,7 @@ class ResourcepackTextureWriter {
 
     void writeOptifineElytraTextures() throws IOException {
         String citPrefix;
-        if (mcVersion <= VERSION1_12) {
+        if (itemSet.getExportSettings().getMcVersion() <= VERSION1_12) {
             citPrefix = "assets/minecraft/mcpatcher/cit/";
         } else {
             citPrefix = "assets/minecraft/optifine/cit/";

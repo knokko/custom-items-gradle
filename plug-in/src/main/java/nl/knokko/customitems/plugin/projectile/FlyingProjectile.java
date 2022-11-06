@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Random;
 
 import nl.knokko.customitems.plugin.SoundPlayer;
+import nl.knokko.customitems.plugin.util.ParticleHelper;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 import nl.knokko.customitems.projectile.effect.*;
 import org.bukkit.*;
@@ -15,7 +16,6 @@ import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.potion.*;
 import org.bukkit.util.Vector;
 
-import nl.knokko.core.plugin.particles.ParticleHelper;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 
 /**
@@ -117,7 +117,7 @@ class FlyingProjectile {
 					int currentBlue = cr.getMinBlue() + random.nextInt(cr.getMaxBlue() - cr.getMinBlue() + 1);
 					
 					// Spawn the actual particle
-					ParticleHelper.spawnColoredParticle(next, 
+					ParticleHelper.spawnColoredParticle(next,
 							currentRed / 255.0, currentGreen / 255.0, currentBlue / 255.0);
 					
 					// Reset next

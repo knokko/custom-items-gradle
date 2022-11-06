@@ -1,9 +1,8 @@
 package nl.knokko.customitems.plugin.set.block;
 
-import nl.knokko.core.plugin.block.MushroomBlocks;
-import nl.knokko.core.plugin.item.ItemHelper;
 import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.block.MushroomBlockMapping;
+import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import org.bukkit.block.Block;
 
@@ -17,15 +16,11 @@ import static nl.knokko.customitems.block.MushroomBlockMapping.getType;
 public class MushroomBlockHelper {
 
     public static boolean isMushroomBlock(Block block) {
-        return getType(ItemHelper.getMaterialName(block)) != null;
-    }
-
-    public static boolean isCustomMushroomBlock(Block block) {
-        return getMushroomBlock(block) != null;
+        return getType(KciNms.instance.items.getMaterialName(block)) != null;
     }
 
     public static void place(Block destination, CustomBlockValues customBlock) {
-        MushroomBlocks.place(
+        KciNms.instance.blocks.place(
                 destination,
                 MushroomBlockMapping.getDirections(customBlock.getInternalID()),
                 getType(customBlock.getInternalID()).material.name()
@@ -33,10 +28,10 @@ public class MushroomBlockHelper {
     }
 
     public static CustomBlockValues getMushroomBlock(Block location) {
-        MushroomBlockMapping.Type mushroomType = getType(ItemHelper.getMaterialName(location));
+        MushroomBlockMapping.Type mushroomType = getType(KciNms.instance.items.getMaterialName(location));
         if (mushroomType != null) {
 
-            boolean[] directions = MushroomBlocks.getDirections(location);
+            boolean[] directions = KciNms.instance.blocks.getDirections(location);
             for (int id = MIN_BLOCK_ID; id <= MAX_BLOCK_ID; id++) {
                 if (getType(id) == mushroomType && Arrays.equals(directions, getDirections(id))) {
 

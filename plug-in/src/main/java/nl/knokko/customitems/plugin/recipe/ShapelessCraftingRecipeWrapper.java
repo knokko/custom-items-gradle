@@ -1,10 +1,10 @@
 package nl.knokko.customitems.plugin.recipe;
 
+import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.recipe.ShapelessRecipeValues;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import org.bukkit.inventory.ItemStack;
 
-import nl.knokko.core.plugin.item.ItemHelper;
 import nl.knokko.customitems.item.CIMaterial;
 
 import java.util.ArrayList;
@@ -45,7 +45,7 @@ public class ShapelessCraftingRecipeWrapper implements CraftingRecipeWrapper {
 		outerLoop:
 		for (int ingredientIndex = 0; ingredientIndex < ingredients.length; ingredientIndex++) {
 		    ItemStack ingredient = ingredients[ingredientIndex];
-			if (!ItemHelper.getMaterialName(ingredient).equals(CIMaterial.AIR.name())) {
+			if (!KciNms.instance.items.getMaterialName(ingredient).equals(CIMaterial.AIR.name())) {
 				for (int index = 0; index < has.length; index++) {
 					if (!has[index] && shouldIngredientAcceptItemStack(recipeIngredients.get(index), ingredient)) {
 						has[index] = true;

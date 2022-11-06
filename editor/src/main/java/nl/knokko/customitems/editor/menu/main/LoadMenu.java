@@ -10,6 +10,7 @@ import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.IntegrityException;
+import nl.knokko.customitems.trouble.OutdatedItemSetException;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -149,7 +150,7 @@ public class LoadMenu extends GuiMenu {
 					addComponent(new DynamicTextButton(displayName, EditProps.BUTTON, EditProps.HOVER, () -> {
 						try {
 							BitInput input = ByteArrayBitInput.fromFile(file);
-							ItemSet set = new ItemSet(input, ItemSet.Side.EDITOR);
+							ItemSet set = new ItemSet(input, ItemSet.Side.EDITOR, true);
 							input.terminate();
 							state.getWindow().setMainComponent(new EditMenu(set, finalSetName));
 						} catch(IOException ioex) {
@@ -158,6 +159,8 @@ public class LoadMenu extends GuiMenu {
 							errorComponent.setText("It looks like this version of the editor is too old. Please download a newer one.");
 						} catch (IntegrityException integrity) {
 							errorComponent.setText("It looks like this back-up is corrupted. Please try another back-up.");
+						} catch (OutdatedItemSetException outdated) {
+							throw new Error("This should only happen when allowOutdated is false", outdated);
 						}
 					}), 0, 0.9f - index * 0.1f, 1, 1 - index * 0.1f);
 				}
@@ -188,7 +191,7 @@ public class LoadMenu extends GuiMenu {
 						try {
 							BitInput input = ByteArrayBitInput.fromFile(file);
 							String fileName = file.getName().substring(0, file.getName().length() - 5);
-							ItemSet set = new ItemSet(input, ItemSet.Side.EDITOR);
+							ItemSet set = new ItemSet(input, ItemSet.Side.EDITOR, true);
 							input.terminate();
 							state.getWindow().setMainComponent(new EditMenu(set, fileName));
 						} catch(IOException ioex) {
@@ -197,6 +200,8 @@ public class LoadMenu extends GuiMenu {
 							errorComponent.setText("This editor is too old to edit this item set. Please download a newer one.");
 						} catch (IntegrityException integrity) {
 							errorComponent.setText("It looks like this file is corrupted. Please load a back-up of it instead.");
+						} catch (OutdatedItemSetException outdated) {
+							throw new Error("This should only happen when allowOutdated is false", outdated);
 						}
 					}), 0, 0.9f - index * 0.1f, 1, 1 - index * 0.1f);
 				}

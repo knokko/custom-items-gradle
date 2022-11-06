@@ -2,6 +2,8 @@ package nl.knokko.customitems.plugin.set.item;
 
 import com.google.common.collect.Lists;
 import nl.knokko.customitems.item.*;
+import nl.knokko.customitems.nms.CustomItemNBT;
+import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.CustomItemsEventHandler;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
@@ -82,7 +84,7 @@ public class CustomToolWrapper extends CustomItemWrapper {
         ItemStack[] pResult = {partialResult};
 
         if (this.tool.getMaxDurabilityNew() != null) {
-            CustomItemNBT.readWrite(partialResult, nbt -> {
+            KciNms.instance.items.customReadWriteNbt(partialResult, nbt -> {
                 nbt.setDurability(durability);
             }, result -> pResult[0] = result);
         }
@@ -150,7 +152,7 @@ public class CustomToolWrapper extends CustomItemWrapper {
             Long[] pOldDurability = {null};
             Long[] pNewDurability = {null};
 
-            CustomItemNBT.readWrite(stack, nbt -> {
+            KciNms.instance.items.customReadWriteNbt(stack, nbt -> {
                 Long durability = nbt.getDurability();
                 pOldDurability[0] = durability;
                 if (durability != null) {
@@ -217,7 +219,7 @@ public class CustomToolWrapper extends CustomItemWrapper {
         Long[] pOldDurability = {null};
         long[] pNewDurability = {-1L};
 
-        CustomItemNBT.readWrite(stack, nbt -> {
+        KciNms.instance.items.customReadWriteNbt(stack, nbt -> {
             Long oldDurability = nbt.getDurability();
             pOldDurability[0] = oldDurability;
             if (oldDurability != null) {
@@ -263,7 +265,7 @@ public class CustomToolWrapper extends CustomItemWrapper {
 
     public long getDurability(ItemStack stack) {
         long[] pResult = {0};
-        CustomItemNBT.readOnly(stack, nbt -> {
+        KciNms.instance.items.customReadOnlyNbt(stack, nbt -> {
             Long durability = nbt.getDurability();
             if (durability != null) {
                 pResult[0] = durability;

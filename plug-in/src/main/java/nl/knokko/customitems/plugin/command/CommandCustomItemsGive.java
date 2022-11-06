@@ -11,8 +11,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Collection;
-
 import static nl.knokko.customitems.plugin.command.CommandCustomItems.getOnlinePlayer;
 import static nl.knokko.customitems.plugin.set.item.CustomItemWrapper.wrap;
 
@@ -41,15 +39,6 @@ public class CommandCustomItemsGive {
         }
 
         if (args.length == 2 || args.length == 3 || args.length == 4) {
-
-            Collection<String> errors = CustomItemsPlugin.getInstance().getLoadErrors();
-            if (!errors.isEmpty()) {
-                sender.sendMessage(ChatColor.RED + "The following errors occurred while enabling " +
-                        "this plug-in. These errors will likely cause this command to fail:");
-                for (String error : errors) {
-                    sender.sendMessage(ChatColor.DARK_RED + error);
-                }
-            }
 
             // Try to find a custom item with the give name
             CustomItemValues item = itemSet.getItem(args[1]);

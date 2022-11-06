@@ -19,6 +19,8 @@ import nl.knokko.customitems.container.slot.ContainerSlotValues;
 import nl.knokko.customitems.container.slot.StorageSlotValues;
 import nl.knokko.customitems.container.slot.display.*;
 import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.nms.GeneralItemNBT;
+import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.data.ContainerStorageKey;
 import nl.knokko.customitems.plugin.data.StoredEnergy;
 import nl.knokko.customitems.recipe.OutputTableValues;
@@ -36,8 +38,6 @@ import org.bukkit.material.MaterialData;
 
 import com.google.common.collect.Lists;
 
-import nl.knokko.core.plugin.item.GeneralItemNBT;
-import nl.knokko.core.plugin.item.ItemHelper;
 import nl.knokko.customitems.container.IndicatorDomain;
 import nl.knokko.customitems.container.fuel.FuelMode;
 import nl.knokko.customitems.item.CIMaterial;
@@ -78,7 +78,7 @@ public class ContainerInstance {
 			} else {
 				throw new Error("Unknown display type: " + display);
 			}
-			stack = ItemHelper.createStack(material.name(), display.getAmount());
+			stack = KciNms.instance.items.createStack(material.name(), display.getAmount());
 			if (display.getDisplayItem() instanceof DataVanillaDisplayItemValues) {
 				MaterialData data = stack.getData();
 				data.setData(((DataVanillaDisplayItemValues) display.getDisplayItem()).getDataValue());
@@ -99,7 +99,7 @@ public class ContainerInstance {
 		// Store changes in item meta
 		stack.setItemMeta(meta);
 		
-		GeneralItemNBT nbt = GeneralItemNBT.readWriteInstance(stack);
+		GeneralItemNBT nbt = KciNms.instance.items.generalReadWriteNbt(stack);
 		nbt.set(PLACEHOLDER_KEY, 1);
 		return nbt.backToBukkit();
 	}
@@ -835,7 +835,7 @@ public class ContainerInstance {
 				if (
 						currentItem == null 
 						|| currentItem.getAmount() <= 0
-						|| ItemHelper.getMaterialName(currentItem)
+						|| KciNms.instance.items.getMaterialName(currentItem)
 						.equals(CIMaterial.AIR.name())
 				) {
 					inventory.setItem(
@@ -872,7 +872,7 @@ public class ContainerInstance {
 				if (
 						currentItem == null
 								|| currentItem.getAmount() <= 0
-								|| ItemHelper.getMaterialName(currentItem)
+								|| KciNms.instance.items.getMaterialName(currentItem)
 								.equals(CIMaterial.AIR.name())
 				) {
 					inventory.setItem(

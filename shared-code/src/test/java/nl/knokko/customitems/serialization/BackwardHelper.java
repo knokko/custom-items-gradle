@@ -38,7 +38,7 @@ public class BackwardHelper {
         BitInputStream bitInput = new BitInputStream(new BufferedInputStream(rawInput));
         ItemSet result;
         try {
-            result = new ItemSet(bitInput, side);
+            result = new ItemSet(bitInput, side, true);
             if (side == ItemSet.Side.EDITOR) {
                 SaveEqualityHelper.testSaveEquality(result);
             }

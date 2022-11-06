@@ -5,6 +5,7 @@ import static java.lang.Math.*;
 import java.util.Collection;
 import java.util.LinkedList;
 
+import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -16,7 +17,6 @@ import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-import nl.knokko.core.plugin.item.GeneralItemNBT;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 
 public class ProjectileManager implements Listener {
@@ -105,7 +105,7 @@ public class ProjectileManager implements Listener {
 	}
 	
 	private boolean isProjectileCover(ItemStack item) {
-		return GeneralItemNBT.readOnlyInstance(item).getOrDefault(FlyingProjectile.KEY_COVER_ITEM, 0) == 1;
+		return KciNms.instance.items.generalReadOnlyNbt(item).getOrDefault(FlyingProjectile.KEY_COVER_ITEM, 0) == 1;
 	}
 	
 	@EventHandler

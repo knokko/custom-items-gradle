@@ -16,17 +16,17 @@ import static nl.knokko.customitems.MCVersions.VERSION1_19;
 public class ResourcepackGenerator {
 
     private final ItemSet itemSet;
-    private final int mcVersion;
 
-    public ResourcepackGenerator(ItemSet itemSet, int mcVersion) {
+    public ResourcepackGenerator(ItemSet itemSet) {
         this.itemSet = itemSet;
-        this.mcVersion = mcVersion;
     }
 
-    public void write(OutputStream rawOutputStream) throws IOException, ValidationException, ProgrammingValidationException {
+    public void write(
+            OutputStream rawOutputStream, byte[] cisTxtFileContent, boolean closeOutput
+    ) throws IOException, ValidationException, ProgrammingValidationException {
         ZipOutputStream zipOutput = new ZipOutputStream(rawOutputStream);
 
-        ResourcepackTextureWriter textureWriter = new ResourcepackTextureWriter(itemSet, mcVersion, zipOutput);
+        ResourcepackTextureWriter textureWriter = new ResourcepackTextureWriter(itemSet, zipOutput);
         textureWriter.writeBaseTextures();
         textureWriter.writeOptifineArmorTextures();
         textureWriter.writeOptifineElytraTextures();
@@ -47,17 +47,28 @@ public class ResourcepackGenerator {
         ResourcepackBlockOverrider blockOverrider = new ResourcepackBlockOverrider(itemSet, zipOutput);
         blockOverrider.overrideMushroomBlocks();
 
-        ResourcepackItemOverrider itemOverrider = new ResourcepackItemOverrider(itemSet, mcVersion, zipOutput);
+        ResourcepackItemOverrider itemOverrider = new ResourcepackItemOverrider(itemSet, zipOutput);
         itemOverrider.overrideItems();
 
         writePackMcMeta(zipOutput);
         writeAtlases(zipOutput);
+
+        if (cisTxtFileContent != null) {
+            ZipEntry cisTxtEntry = new ZipEntry("items.cis.txt");
+            zipOutput.putNextEntry(cisTxtEntry);
+            zipOutput.write(cisTxtFileContent);
+            zipOutput.flush();
+            zipOutput.closeEntry();
+        }
+
         zipOutput.flush();
-        zipOutput.close();
+        if (closeOutput) zipOutput.close();
+        else zipOutput.finish();
     }
 
     private void writePackMcMeta(ZipOutputStream zipOutput) throws IOException, ProgrammingValidationException {
 
+        int mcVersion = itemSet.getExportSettings().getMcVersion();
         int packFormat;
         if (mcVersion == MCVersions.VERSION1_12) {
             packFormat = 3;
@@ -91,7 +102,7 @@ public class ResourcepackGenerator {
     }
 
     private void writeAtlases(ZipOutputStream zipOutput) throws IOException {
-        if (mcVersion >= VERSION1_19) {
+        if (itemSet.getExportSettings().getMcVersion() >= VERSION1_19) {
             ZipEntry customAtlas = new ZipEntry("assets/minecraft/atlases/blocks.json");
             zipOutput.putNextEntry(customAtlas);
 

@@ -1,7 +1,7 @@
 package nl.knokko.customitems.plugin.command;
 
-import nl.knokko.core.plugin.block.MushroomBlocks;
 import nl.knokko.customitems.block.CustomBlockValues;
+import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
 import org.bukkit.Bukkit;
@@ -37,7 +37,7 @@ public class CommandCustomItemsSetBlock {
             return;
         }
 
-        if (!MushroomBlocks.areEnabled()) {
+        if (!KciNms.instance.blocks.areEnabled()) {
             if (enableOutput) {
                 sender.sendMessage(ChatColor.RED + "Custom blocks are not possible in this minecraft version");
             }

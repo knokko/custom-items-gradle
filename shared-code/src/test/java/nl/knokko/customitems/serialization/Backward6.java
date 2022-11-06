@@ -244,7 +244,7 @@ public class Backward6 {
 
         if (set.getSide() == ItemSet.Side.EDITOR) {
             CustomProjectileCoverValues custom1 = (CustomProjectileCoverValues) set.getProjectileCover("custom_one").get();
-            assertResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", ((LegacyCustomItemModel) custom1.getModel()).getRawModel());
+            assertStringResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", ((LegacyCustomItemModel) custom1.getModel()).getRawModel());
         }
     }
 
@@ -313,7 +313,7 @@ public class Backward6 {
         ), item.getItemFlags());
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
-            assertResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", ((LegacyCustomItemModel) item.getModel()).getRawModel());
+            assertStringResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", ((LegacyCustomItemModel) item.getModel()).getRawModel());
             assertStringResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", ((LegacyCustomItemModel) item.getBlockingModel()).getRawModel());
         } else {
             assertNull(item.getTextureReference());
@@ -352,7 +352,7 @@ public class Backward6 {
         ), item.getItemFlags());
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
-            assertResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", ((LegacyCustomItemModel) item.getModel()).getRawModel());
+            assertStringResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", ((LegacyCustomItemModel) item.getModel()).getRawModel());
         } else {
             assertNull(item.getTextureReference());
             assertTrue(item.getModel() instanceof DefaultItemModel);

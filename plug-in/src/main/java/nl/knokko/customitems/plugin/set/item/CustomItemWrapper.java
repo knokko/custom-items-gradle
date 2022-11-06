@@ -1,14 +1,11 @@
 package nl.knokko.customitems.plugin.set.item;
 
 import com.google.common.collect.Lists;
-import nl.knokko.core.plugin.CorePlugin;
-import nl.knokko.core.plugin.item.GeneralItemNBT;
-import nl.knokko.core.plugin.item.ItemHelper;
-import nl.knokko.core.plugin.item.attributes.ItemAttributes;
 import nl.knokko.customitems.effect.ChancePotionEffectValues;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.enchantment.EnchantmentValues;
 import nl.knokko.customitems.item.nbt.NbtValueType;
+import nl.knokko.customitems.nms.*;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import org.bukkit.entity.Entity;
@@ -31,7 +28,7 @@ public abstract class CustomItemWrapper {
 
         // This method distinguishes minecraft 1.12 and before from minecraft 1.13 and later
         // That is what we need here, because Bukkit renamed all WOOD_* tools to WOODEN_* tools
-        if (CorePlugin.useNewCommands()) {
+        if (KciNms.instance.useNewCommands()) {
             materialName = materialName.replace("WOOD", "WOODEN").replace("GOLD", "GOLDEN");
         } else {
             materialName = materialName.replace("SHOVEL", "SPADE");
@@ -40,8 +37,8 @@ public abstract class CustomItemWrapper {
         return CIMaterial.valueOf(materialName);
     }
 
-    public static ItemAttributes.Single convertAttributeModifier(AttributeModifierValues modifier) {
-        return new ItemAttributes.Single(
+    public static RawAttribute convertAttributeModifier(AttributeModifierValues modifier) {
+        return new RawAttribute(
                 modifier.getAttribute().getName(),
                 modifier.getSlot().getSlot(),
                 modifier.getOperation().getOperation(),
@@ -49,8 +46,8 @@ public abstract class CustomItemWrapper {
         );
     }
 
-    public static ItemAttributes.Single[] convertAttributeModifiers(Collection<AttributeModifierValues> attributeModifiers) {
-        ItemAttributes.Single[] result = new ItemAttributes.Single[attributeModifiers.size()];
+    public static RawAttribute[] convertAttributeModifiers(Collection<AttributeModifierValues> attributeModifiers) {
+        RawAttribute[] result = new RawAttribute[attributeModifiers.size()];
         int index = 0;
         for (AttributeModifierValues modifier : attributeModifiers) {
             result[index] = convertAttributeModifier(modifier);
@@ -110,7 +107,7 @@ public abstract class CustomItemWrapper {
     }
 
     public ItemStack create(int amount, List<String> lore){
-        ItemStack item = ItemAttributes.createWithAttributes(
+        ItemStack item = KciNms.instance.items.createWithAttributes(
                 getMaterial(this.item.getItemType(), this.item.getOtherMaterial()).name(),
                 amount, convertAttributeModifiers(this.item.getAttributeModifiers())
         );
@@ -123,7 +120,7 @@ public abstract class CustomItemWrapper {
         }
 
         ItemStack[] pResult = {null};
-        CustomItemNBT.readWrite(item, nbt -> {
+        KciNms.instance.items.customReadWriteNbt(item, nbt -> {
             long lastModified = CustomItemsPlugin.getInstance().getSet().get().getExportTime();
             nbt.set(this.item.getName(), lastModified, null, new BooleanRepresentation(this.item.getBooleanRepresentation()));
             initNBT(nbt);
@@ -132,7 +129,7 @@ public abstract class CustomItemWrapper {
         // Give it the extra nbt, if needed
         Collection<ExtraItemNbtValues.Entry> extraNbtPairs = this.item.getExtraNbt().getEntries();
         if (!extraNbtPairs.isEmpty() || this.item.getItemType() == CustomItemType.OTHER) {
-            GeneralItemNBT nbt = GeneralItemNBT.readWriteInstance(pResult[0]);
+            GeneralItemNBT nbt = KciNms.instance.items.generalReadWriteNbt(pResult[0]);
             for (ExtraItemNbtValues.Entry extraPair : extraNbtPairs) {
                 ExtraItemNbtValues.Value value = extraPair.getValue();
                 if (value.type == NbtValueType.INTEGER) {
@@ -165,7 +162,7 @@ public abstract class CustomItemWrapper {
 
     public boolean needsStackingHelp() {
         if (item.getItemType() == CustomItemType.OTHER) {
-            return item.getMaxStacksize() != ItemHelper.createStack(item.getOtherMaterial().name(), 1).getMaxStackSize();
+            return item.getMaxStacksize() != KciNms.instance.items.createStack(item.getOtherMaterial().name(), 1).getMaxStackSize();
         } else {
             return item.canStack();
         }
@@ -174,7 +171,7 @@ public abstract class CustomItemWrapper {
     public boolean is(ItemStack item){
         if (!ItemUtils.isEmpty(item)) {
             boolean[] pResult = {false};
-            CustomItemNBT.readOnly(item, nbt -> {
+            KciNms.instance.items.customReadOnlyNbt(item, nbt -> {
                 if (nbt.hasOurNBT()) {
                     if (nbt.getName().equals(this.item.getName())) {
                         pResult[0] = true;

@@ -7,15 +7,10 @@ import static nl.knokko.customitems.plugin.set.item.CustomToolWrapper.wrap;
 import static nl.knokko.customitems.util.ColorCodes.stripColorCodes;
 import static org.bukkit.enchantments.Enchantment.*;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 
-import nl.knokko.core.plugin.block.MushroomBlocks;
-import nl.knokko.core.plugin.entity.EntityDamageHelper;
-import nl.knokko.core.plugin.item.GeneralItemNBT;
 import nl.knokko.customitems.attack.effect.*;
 import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.block.MushroomBlockMapping;
@@ -36,6 +31,8 @@ import nl.knokko.customitems.item.equipment.EquipmentBonusValues;
 import nl.knokko.customitems.itemset.BlockDropsView;
 import nl.knokko.customitems.itemset.CustomRecipesView;
 import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.nms.KciNms;
+import nl.knokko.customitems.nms.RaytraceResult;
 import nl.knokko.customitems.plugin.data.PluginData;
 import nl.knokko.customitems.plugin.equipment.EquipmentSetHelper;
 import nl.knokko.customitems.plugin.miningspeed.MiningSpeedManager;
@@ -72,11 +69,6 @@ import org.bukkit.inventory.meta.Repairable;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
 
-import nl.knokko.core.plugin.CorePlugin;
-import nl.knokko.core.plugin.entity.EntityLineIntersection;
-import nl.knokko.core.plugin.item.ItemHelper;
-import nl.knokko.core.plugin.world.RaytraceResult;
-import nl.knokko.core.plugin.world.Raytracer;
 import nl.knokko.customitems.damage.DamageSource;
 import nl.knokko.customitems.item.ReplacementConditionValues.ConditionOperation;
 import nl.knokko.customitems.item.ReplacementConditionValues.ReplacementCondition;
@@ -110,7 +102,7 @@ public class CustomItemsEventHandler implements Listener {
 				double attackRange = baseAttackRange * customMain.getAttackRange();
 				double damageAmount = player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getValue();
 				
-				RaytraceResult raytrace = Raytracer.raytrace(
+				RaytraceResult raytrace = KciNms.instance.raytrace(
 						player.getEyeLocation(), 
 						player.getEyeLocation().getDirection().multiply(attackRange), 
 						player
@@ -133,7 +125,7 @@ public class CustomItemsEventHandler implements Listener {
 				double baseAttackRange = getBaseAttackRange(damager.getGameMode());
 				double attackRange = baseAttackRange * customMain.getAttackRange();
 				
-				double attackDistance = EntityLineIntersection.distanceToStart(
+				double attackDistance = KciNms.instance.entities.distanceToLineStart(
 						event.getEntity(), 
 						damager.getEyeLocation(), 
 						damager.getEyeLocation().getDirection(), 
@@ -146,20 +138,7 @@ public class CustomItemsEventHandler implements Listener {
 			}
 		}
 	}
-	
-	@EventHandler
-	public void sendErrors(PlayerJoinEvent event) {
-		Player player = event.getPlayer();
-		if (player.isOp()) {
-			Collection<String> errors = CustomItemsPlugin.getInstance().getLoadErrors();
-			if (!errors.isEmpty()) {
-				player.sendMessage(ChatColor.RED + "There were errors while enabling the CustomItems plugin:");
-				for (String error : errors) player.sendMessage(ChatColor.YELLOW + error);
-				player.sendMessage(ChatColor.RED + "You are receiving this error because you are a server operator");
-			}
-		}
-	}
-	
+
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void equip3dHelmets(InventoryClickEvent event) {
 		if (event.getSlotType() == SlotType.ARMOR) {
@@ -228,7 +207,7 @@ public class CustomItemsEventHandler implements Listener {
 	
 	private double getBaseAttackRange(GameMode gamemode) {
 		if (gamemode == GameMode.CREATIVE) {
-			if (CorePlugin.useNewCommands()) {
+			if (KciNms.instance.useNewCommands()) {
 				// In 1.13 and later versions, the creative range is 5 blocks
 				return 5;
 			} else {
@@ -250,7 +229,7 @@ public class CustomItemsEventHandler implements Listener {
 			
 			if (custom != null) {
 
-				CIMaterial type = CIMaterial.getOrNull(ItemHelper.getMaterialName(event.getClickedBlock()));
+				CIMaterial type = CIMaterial.getOrNull(KciNms.instance.items.getMaterialName(event.getClickedBlock()));
 
 				// Don't let custom items be used as their internal item
 				boolean canBeTilled = type == CIMaterial.DIRT || type == CIMaterial.GRASS
@@ -858,26 +837,17 @@ public class CustomItemsEventHandler implements Listener {
 			CustomTridentValues customTrident = null;
 
 			/*
-			 * This works around a bug that causes console spam in minecraft 1.17 each time a trident is thrown. The bug
-			 * occurs because the reflection hack below no longer works in 1.17 (probably due to some internal
-			 * reorganization in Bukkit). We could try to find a way to do this in minecraft 1.17, but that would not
-			 * be useful because custom tridents aren't supported in 1.17 anyway. (And thus we can't even test it even
-			 * if we would try to fix it.)
+			 * KciNms will throw an error when we attempt to use tridents in a minecraft version where tridents are
+			 * not supported. To prevent this, we only proceed when the item set has at least 1 custom trident (and
+			 * the Editor makes it impossible to export item sets with custom tridents for minecraft versions that
+			 * don't support custom tridents).
 			 */
 			if (!itemSet.hasCustomTridents()) {
 				return;
 			}
 
-			// Not my cleanest piece of code, but it was necessary...
 			try {
-				Object handle = trident.getClass().getMethod("getHandle").invoke(trident);
-				Object nmsTridentItem = handle.getClass().getField("trident").get(handle);
-
-				Constructor<GeneralItemNBT> generalNbtConstructor = GeneralItemNBT.class.getDeclaredConstructor(
-						nmsTridentItem.getClass(), boolean.class
-				);
-				generalNbtConstructor.setAccessible(true);
-				ItemStack tridentItem = generalNbtConstructor.newInstance(nmsTridentItem, false).backToBukkit();
+				ItemStack tridentItem = KciNms.instance.entities.getTridentItem(trident);
 
 				CustomItemValues customTridentItem = itemSet.getItem(tridentItem);
 				if (customTridentItem instanceof CustomTridentValues) {
@@ -887,17 +857,8 @@ public class CustomItemsEventHandler implements Listener {
 					if (newTridentItem == null) {
 						trident.setMetadata("CustomTridentBreak", TRIDENT_BREAK_META);
 					} else if (newTridentItem != tridentItem) {
-						GeneralItemNBT helperNbt = GeneralItemNBT.readOnlyInstance(newTridentItem);
-						Field nmsStackField = helperNbt.getClass().getDeclaredField("nmsStack");
-						nmsStackField.setAccessible(true);
-						Object newTridentNmsItem = nmsStackField.get(helperNbt);
-
 						Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
-							try {
-								handle.getClass().getField("trident").set(handle, newTridentNmsItem);
-							} catch (IllegalAccessException | NoSuchFieldException e) {
-								throw new RuntimeException("Failed custom trident throw: ", e);
-							}
+							KciNms.instance.entities.setTridentItem(trident, newTridentItem);
 						});
 					}
 				}
@@ -1127,9 +1088,9 @@ public class CustomItemsEventHandler implements Listener {
 		ItemStack main = event.getPlayer().getInventory().getItemInMainHand();
 		ItemStack off = event.getPlayer().getInventory().getItemInOffHand();
 		
-		CustomItemValues customMain = CIMaterial.getOrNull(ItemHelper.getMaterialName(main)) == CIMaterial.SHEARS
+		CustomItemValues customMain = CIMaterial.getOrNull(KciNms.instance.items.getMaterialName(main)) == CIMaterial.SHEARS
 				? itemSet.getItem(main) : null;
-		CustomItemValues customOff = CIMaterial.getOrNull(ItemHelper.getMaterialName(off)) == CIMaterial.SHEARS
+		CustomItemValues customOff = CIMaterial.getOrNull(KciNms.instance.items.getMaterialName(off)) == CIMaterial.SHEARS
 				? itemSet.getItem(off) : null;
 				
 		if (customMain != null) {
@@ -1252,7 +1213,7 @@ public class CustomItemsEventHandler implements Listener {
 		CustomItemValues custom = itemSet.getItem(mainItem);
 
 		BlockDropsView customDrops = itemSet.getBlockDrops(
-				CIMaterial.getOrNull(ItemHelper.getMaterialName(event.getBlock()))
+				CIMaterial.getOrNull(KciNms.instance.items.getMaterialName(event.getBlock()))
 		);
 
 		Random random = new Random();
@@ -1270,7 +1231,7 @@ public class CustomItemsEventHandler implements Listener {
 
 		// To avoid endless recursion, don't enter this branch while performing a multi block break
 		if (custom != null && !this.isPerformingMultiBlockBreak) {
-			boolean wasSolid = ItemHelper.isMaterialSolid(event.getBlock());
+			boolean wasSolid = KciNms.instance.items.isMaterialSolid(event.getBlock());
 			boolean wasFakeMainHand = DualWieldSupport.isFakeMainHand(event);
 
 			MultiBlockBreakValues mbb = custom.getMultiBlockBreak();
@@ -1282,7 +1243,7 @@ public class CustomItemsEventHandler implements Listener {
 				int coreY = event.getBlock().getY();
 				int coreZ = event.getBlock().getZ();
 
-				String blockType = ItemHelper.getMaterialName(event.getBlock());
+				String blockType = KciNms.instance.items.getMaterialName(event.getBlock());
 				CustomBlockValues customBlock = MushroomBlockHelper.getMushroomBlock(event.getBlock());
 
 				for (int x = 1 + coreX - mbb.getSize(); x < coreX + mbb.getSize(); x++) {
@@ -1307,7 +1268,7 @@ public class CustomItemsEventHandler implements Listener {
 										CustomBlockValues candidateCustomBlock = MushroomBlockHelper.getMushroomBlock(candidateBlock);
 										isSameBlock = candidateCustomBlock != null && candidateCustomBlock.getInternalID() == customBlock.getInternalID();
 									} else {
-										String candidateBlockType = ItemHelper.getMaterialName(candidateBlock);
+										String candidateBlockType = KciNms.instance.items.getMaterialName(candidateBlock);
 										isSameBlock = candidateBlockType.equals(blockType);
 									}
 
@@ -1443,7 +1404,7 @@ public class CustomItemsEventHandler implements Listener {
 			} else if (cause == DamageCause.PROJECTILE) {
 				if (customMain instanceof CustomBowValues) {
 					usedItem = customMain;
-				} else if (!ItemHelper.getMaterialName(killer.getInventory().getItemInMainHand()).equals(CIMaterial.BOW.name())){
+				} else if (!KciNms.instance.items.getMaterialName(killer.getInventory().getItemInMainHand()).equals(CIMaterial.BOW.name())){
 					CustomItemValues customOff = itemSet.getItem(killer.getInventory().getItemInOffHand());
 					if (customOff instanceof CustomBowValues) {
 						usedItem = customOff;
@@ -1535,7 +1496,7 @@ public class CustomItemsEventHandler implements Listener {
 									rawDamageSourceName = "mob";
 								}
 							}
-							EntityDamageHelper.causeCustomPhysicalAttack(
+							KciNms.instance.entities.causeCustomPhysicalAttack(
 									damager, event.getEntity(), (float) event.getDamage(),
 									rawDamageSourceName, specialDamage.shouldIgnoreArmor(), specialDamage.isFire()
 							);
@@ -1784,7 +1745,7 @@ public class CustomItemsEventHandler implements Listener {
 					if (!ItemUtils.isEmpty(mainItem)) {
 						equipment.setItemInMainHand(null);
 						entity.getWorld().dropItemNaturally(entity.getLocation(), mainItem);
-					} else if (ItemHelper.getMaterialName(offItem).equals(CIMaterial.SHIELD.name())) {
+					} else if (KciNms.instance.items.getMaterialName(offItem).equals(CIMaterial.SHIELD.name())) {
 						equipment.setItemInOffHand(null);
 						entity.getWorld().dropItemNaturally(entity.getLocation(), offItem);
 					}
@@ -1972,7 +1933,7 @@ public class CustomItemsEventHandler implements Listener {
 		if (customMain instanceof CustomShieldValues) {
 			shield = (CustomShieldValues) customMain;
 			offhand = false;
-		} else if (ItemHelper.getMaterialName(mainStack).equals(CIMaterial.SHIELD.name())) {
+		} else if (KciNms.instance.items.getMaterialName(mainStack).equals(CIMaterial.SHIELD.name())) {
 			shield = null;
 			offhand = false;
 		}
@@ -2153,7 +2114,7 @@ public class CustomItemsEventHandler implements Listener {
 				if (custom1 instanceof CustomToolValues) {
 					CustomToolValues tool = (CustomToolValues) custom1;
 					String renameText = event.getInventory().getRenameText();
-					String oldName = ItemHelper.getStackName(contents[0]);
+					String oldName = KciNms.instance.items.getStackName(contents[0]);
 					boolean isRenaming = !renameText.isEmpty() && !renameText.equals(oldName);
 					if (custom1 == custom2) {
 						long durability1 = wrap(tool).getDurability(contents[0]);
@@ -2225,8 +2186,8 @@ public class CustomItemsEventHandler implements Listener {
 						} else {
 							event.setResult(null);
 						}
-					} else if (contents[1] != null && !ItemHelper.getMaterialName(contents[1]).equals(CIMaterial.AIR.name())) {
-						if (ItemHelper.getMaterialName(contents[1]).equals(CIMaterial.ENCHANTED_BOOK.name())) {
+					} else if (contents[1] != null && !KciNms.instance.items.getMaterialName(contents[1]).equals(CIMaterial.AIR.name())) {
+						if (KciNms.instance.items.getMaterialName(contents[1]).equals(CIMaterial.ENCHANTED_BOOK.name())) {
 						    // This case is handled by minecraft automagically
 						} else if (shouldIngredientAcceptAmountless(tool.getRepairItem(), contents[1])) {
 							// We use AcceptAmountless because we need to handle remaining items differently
@@ -2325,19 +2286,6 @@ public class CustomItemsEventHandler implements Listener {
 		return 1;
 	}
 
-	/*
-	 * private static int getBookEnchantFactor(Enchantment e) { if (e ==
-	 * Enchantment.PROTECTION_EXPLOSIONS || e == Enchantment.OXYGEN || e ==
-	 * Enchantment.WATER_WORKER || e == Enchantment.DEPTH_STRIDER || e ==
-	 * Enchantment.FROST_WALKER || e == Enchantment.LOOT_BONUS_MOBS || e ==
-	 * Enchantment.SWEEPING_EDGE || e == Enchantment.LOOT_BONUS_BLOCKS || e ==
-	 * Enchantment.ARROW_KNOCKBACK || e == Enchantment.ARROW_FIRE || e ==
-	 * Enchantment.LUCK || e == Enchantment.LURE || e == Enchantment.MENDING) {
-	 * return 2; } if (e == Enchantment.THORNS || e == Enchantment.BINDING_CURSE ||
-	 * e == Enchantment.SILK_TOUCH || e == Enchantment.ARROW_INFINITE || e ==
-	 * Enchantment.VANISHING_CURSE) { return 4; } return 1; }
-	 */
-
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void cancelEnchanting(PrepareItemEnchantEvent event) {
 		CustomItemValues custom = itemSet.getItem(event.getItem());
@@ -2400,13 +2348,13 @@ public class CustomItemsEventHandler implements Listener {
 								if (event.getAction() == InventoryAction.PICKUP_ALL) {
 
 									// We will have to do this manually...
-									if (event.getCursor() == null || ItemHelper.getMaterialName(event.getCursor()).equals(CIMaterial.AIR.name())) {
+									if (event.getCursor() == null || KciNms.instance.items.getMaterialName(event.getCursor()).equals(CIMaterial.AIR.name())) {
 										event.setCursor(recipe.getResult());
 									} else {
 										event.getCursor().setAmount(
 												event.getCursor().getAmount() + recipe.getResult().getAmount());
 									}
-									if (contents[0] != null && !ItemHelper.getMaterialName(contents[0]).equals(CIMaterial.AIR.name())) {
+									if (contents[0] != null && !KciNms.instance.items.getMaterialName(contents[0]).equals(CIMaterial.AIR.name())) {
 										int newAmount = contents[0].getAmount() - recipeAmount0;
 										if (newAmount > 0) {
 											contents[0].setAmount(newAmount);
@@ -2414,7 +2362,7 @@ public class CustomItemsEventHandler implements Listener {
 											contents[0] = null;
 										}
 									}
-									if (contents[1] != null && !ItemHelper.getMaterialName(contents[1]).equals(CIMaterial.AIR.name())
+									if (contents[1] != null && !KciNms.instance.items.getMaterialName(contents[1]).equals(CIMaterial.AIR.name())
 											&& ingredients.size() > 1 && ingredients.get(1) != null) {
 										int newAmount = contents[1].getAmount() - recipeAmount1;
 										if (newAmount > 0) {
@@ -2563,7 +2511,7 @@ public class CustomItemsEventHandler implements Listener {
 
 								if (action == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
 									ItemStack result = currentItem.clone();
-									event.getInventory().setItem(0, ItemHelper.createStack(CIMaterial.AIR.name(), 1));
+									event.getInventory().setItem(0, KciNms.instance.items.createStack(CIMaterial.AIR.name(), 1));
 									CustomItemValues customResult = itemSet.getItem(result);
 									int amountToGive = baseAmountsToRemove * result.getAmount();
 
@@ -2643,7 +2591,7 @@ public class CustomItemsEventHandler implements Listener {
 							player.setLevel(player.getLevel() - repairCost);
 							ItemStack[] contents = ai.getContents();
 							if (custom instanceof CustomToolValues && contents[1] != null
-									&& !ItemHelper.getMaterialName(contents[1]).equals(CIMaterial.AIR.name())) {
+									&& !KciNms.instance.items.getMaterialName(contents[1]).equals(CIMaterial.AIR.name())) {
 								CustomToolValues tool = (CustomToolValues) custom;
 
 								// Use AcceptAmountless because we need to handle remaining item differently
@@ -2986,14 +2934,14 @@ public class CustomItemsEventHandler implements Listener {
 		ItemStack result = inventory.getResult();
 
 		// Block vanilla recipes that attempt to use custom items
-		if (result != null && !ItemHelper.getMaterialName(result).equals(CIMaterial.AIR.name())) {
+		if (result != null && !KciNms.instance.items.getMaterialName(result).equals(CIMaterial.AIR.name())) {
 			// When the result is a custom item, the recipe can't be an accident, so we can proceed safely
 			// This improves cooperation with other crafting plug-ins
 		    if (!ItemUtils.isCustom(result)) {
 				ItemStack[] ingredients = inventory.getStorageContents();
 				for (ItemStack ingredient : ingredients) {
 					if (ItemUtils.isCustom(ingredient)) {
-						inventory.setResult(ItemHelper.createStack(CIMaterial.AIR.name(), 1));
+						inventory.setResult(KciNms.instance.items.createStack(CIMaterial.AIR.name(), 1));
 						break;
 					}
 				}
@@ -3176,7 +3124,7 @@ public class CustomItemsEventHandler implements Listener {
 				ShulkerBox shulker = (ShulkerBox) block.getState();
 				event.setDropItems(false);
 
-				ItemStack stackToDrop = ItemHelper.createStack(ItemHelper.getMaterialName(block), 1);
+				ItemStack stackToDrop = KciNms.instance.items.createStack(KciNms.instance.items.getMaterialName(block), 1);
 				ItemMeta meta = stackToDrop.getItemMeta();
 				BlockStateMeta bms = (BlockStateMeta) meta;
 				bms.setBlockState(shulker);
@@ -3277,7 +3225,7 @@ public class CustomItemsEventHandler implements Listener {
 
 	@EventHandler(ignoreCancelled = true)
 	public void maintainCustomBlocks(BlockPhysicsEvent event) {
-	    if (MushroomBlocks.areEnabled() && MushroomBlockHelper.isMushroomBlock(event.getBlock())) {
+	    if (KciNms.instance.blocks.areEnabled() && MushroomBlockHelper.isMushroomBlock(event.getBlock())) {
 	    	event.setCancelled(true);
 		}
 	}
@@ -3288,12 +3236,12 @@ public class CustomItemsEventHandler implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void handleVanillaMushroomBlockPlacements(BlockPlaceEvent event) {
-		if (MushroomBlocks.areEnabled()) {
-			String itemName = ItemHelper.getMaterialName(event.getItemInHand());
+		if (KciNms.instance.blocks.areEnabled()) {
+			String itemName = KciNms.instance.items.getMaterialName(event.getItemInHand());
 			if (MushroomBlockMapping.getType(itemName) != null) {
 				event.setCancelled(true);
 				Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
-					MushroomBlocks.place(event.getBlock(), DEFAULT_MUSHROOM_BLOCK_DIRECTIONS, itemName);
+					KciNms.instance.blocks.place(event.getBlock(), DEFAULT_MUSHROOM_BLOCK_DIRECTIONS, itemName);
 				});
 				if (event.getPlayer().getGameMode() != GameMode.CREATIVE) {
 					event.getItemInHand().setAmount(event.getItemInHand().getAmount() - 1);
@@ -3347,7 +3295,7 @@ public class CustomItemsEventHandler implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void handleCustomBlockDrops(BlockBreakEvent event) {
-		if (MushroomBlocks.areEnabled()) {
+		if (KciNms.instance.blocks.areEnabled()) {
 		    CustomBlockValues customBlock = MushroomBlockHelper.getMushroomBlock(event.getBlock());
 		    if (customBlock != null) {
 				event.setDropItems(false);
@@ -3374,7 +3322,7 @@ public class CustomItemsEventHandler implements Listener {
 	}
 
 	private void handleExplosion(Collection<Block> blockList, float yield) {
-		if (MushroomBlocks.areEnabled()) {
+		if (KciNms.instance.blocks.areEnabled()) {
 			Random rng = new Random();
 			for (Block block : blockList) {
 				CustomBlockValues customBlock = MushroomBlockHelper.getMushroomBlock(block);
@@ -3406,7 +3354,7 @@ public class CustomItemsEventHandler implements Listener {
 
 		    if (!ItemUtils.isEmpty(usedTool)) {
 		    	usedSilkTouch = usedTool.containsEnchantment(SILK_TOUCH);
-		    	usedMaterial = CIMaterial.valueOf(ItemHelper.getMaterialName(usedTool));
+		    	usedMaterial = CIMaterial.valueOf(KciNms.instance.items.getMaterialName(usedTool));
 		    	usedCustomItem = itemSet.getItem(usedTool);
 			}
 
@@ -3539,7 +3487,7 @@ public class CustomItemsEventHandler implements Listener {
 
 	@EventHandler
 	public void handleCustomBlockMiningSpeed(PlayerInteractEvent event) {
-		if (event.getAction() == Action.LEFT_CLICK_BLOCK && MushroomBlocks.areEnabled()) {
+		if (event.getAction() == Action.LEFT_CLICK_BLOCK && KciNms.instance.blocks.areEnabled()) {
 
 			CustomBlockValues customBlock = MushroomBlockHelper.getMushroomBlock(event.getClickedBlock());
 			MiningSpeedManager miningSpeedManager = CustomItemsPlugin.getInstance().getMiningSpeedManager();
@@ -3552,7 +3500,7 @@ public class CustomItemsEventHandler implements Listener {
 					material = CIMaterial.AIR;
 					customItem = null;
 				} else {
-					material = CIMaterial.valueOf(ItemHelper.getMaterialName(item));
+					material = CIMaterial.valueOf(KciNms.instance.items.getMaterialName(item));
 					customItem = itemSet.getItem(item);
 				}
 

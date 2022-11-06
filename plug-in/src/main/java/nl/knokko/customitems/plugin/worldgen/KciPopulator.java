@@ -1,9 +1,9 @@
 package nl.knokko.customitems.plugin.worldgen;
 
-import nl.knokko.core.plugin.item.ItemHelper;
 import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.drops.CIBiome;
 import nl.knokko.customitems.item.CIMaterial;
+import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
 import nl.knokko.customitems.worldgen.OreVeinGeneratorValues;
@@ -72,7 +72,7 @@ public class KciPopulator extends BlockPopulator {
     private boolean shouldAcceptBlock(Block block, ReplaceBlocksValues blocksToReplace) {
         CustomBlockValues existingCustomBlock = MushroomBlockHelper.getMushroomBlock(block);
         boolean matchesCustomBlock = existingCustomBlock != null && blocksToReplace.contains(existingCustomBlock, itemSet.get());
-        boolean matchesVanillaBlock = blocksToReplace.contains(CIMaterial.valueOf(ItemHelper.getMaterialName(block)));
+        boolean matchesVanillaBlock = blocksToReplace.contains(CIMaterial.valueOf(KciNms.instance.items.getMaterialName(block)));
         return matchesCustomBlock || matchesVanillaBlock;
     }
 

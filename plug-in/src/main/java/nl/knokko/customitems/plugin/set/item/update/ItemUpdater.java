@@ -12,6 +12,10 @@ import java.util.logging.Level;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.enchantment.EnchantmentType;
 import nl.knokko.customitems.item.enchantment.EnchantmentValues;
+import nl.knokko.customitems.nms.BooleanRepresentation;
+import nl.knokko.customitems.nms.GeneralItemNBT;
+import nl.knokko.customitems.nms.KciNms;
+import nl.knokko.customitems.nms.RawAttribute;
 import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.item.*;
@@ -27,9 +31,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import nl.knokko.core.plugin.item.GeneralItemNBT;
-import nl.knokko.core.plugin.item.ItemHelper;
-import nl.knokko.core.plugin.item.attributes.ItemAttributes;
 import nl.knokko.customitems.item.nbt.NbtValueType;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.container.ContainerInstance;
@@ -104,7 +105,7 @@ public class ItemUpdater {
 			return null;
 		}
 		
-		GeneralItemNBT preNbt = GeneralItemNBT.readOnlyInstance(originalStack);
+		GeneralItemNBT preNbt = KciNms.instance.items.generalReadOnlyNbt(originalStack);
 		if (
 				// If players somehow obtain placeholder items, get rid of those!
 				preNbt.getOrDefault(ContainerInstance.PLACEHOLDER_KEY, 0) == 1
@@ -118,7 +119,7 @@ public class ItemUpdater {
 		CustomItemValues[] pNewItem = {null};
 		UpdateAction[] pAction = {null};
 		
-		CustomItemNBT.readOnly(originalStack, nbt -> {
+		KciNms.instance.items.customReadOnlyNbt(originalStack, nbt -> {
 			if (nbt.hasOurNBT()) {
 				String itemName = nbt.getName();
 				
@@ -267,7 +268,7 @@ public class ItemUpdater {
 			return null;
 		} else if (action == UpdateAction.UPDATE_LAST_EXPORT_TIME) {
 			ItemStack[] pResult = {null};
-			CustomItemNBT.readWrite(originalStack, nbt -> {
+			KciNms.instance.items.customReadWriteNbt(originalStack, nbt -> {
 				nbt.setLastExportTime(this.itemSet.get().getExportTime());
 			}, result -> pResult[0] = result);
 			return pResult[0];
@@ -289,16 +290,16 @@ public class ItemUpdater {
 	private ItemStack upgradeItem(ItemStack oldStack, CustomItemValues oldItem, CustomItemValues newItem) {
 		
 		// We start with the attribute modifiers
-		ItemAttributes.Single[] newStackAttributes = determineUpgradedAttributes(
+		RawAttribute[] newStackAttributes = determineUpgradedAttributes(
 				oldStack, oldItem, newItem
 		);
 		
-		ItemStack newStack = ItemAttributes.replaceAttributes(oldStack, newStackAttributes);
+		ItemStack newStack = KciNms.instance.items.replaceAttributes(oldStack, newStackAttributes);
 
 		ItemStack[] pNewStack = {null};
 		Long[] pOldDurability = {null};
 		Long[] pNewDurability = {null};
-		CustomItemNBT.readWrite(newStack, nbt -> {
+		KciNms.instance.items.customReadWriteNbt(newStack, nbt -> {
 			nbt.setLastExportTime(this.itemSet.get().getExportTime());
 			nbt.setBooleanRepresentation(new BooleanRepresentation(newItem.getBooleanRepresentation()));
 			Long currentDurability = nbt.getDurability();
@@ -363,7 +364,7 @@ public class ItemUpdater {
 		}, afterNbt -> pNewStack[0] = afterNbt);
 		newStack = pNewStack[0];
 		
-		GeneralItemNBT generalNbt = GeneralItemNBT.readWriteInstance(newStack);
+		GeneralItemNBT generalNbt = KciNms.instance.items.generalReadWriteNbt(newStack);
 		for (ExtraItemNbtValues.Entry oldPair : oldItem.getExtraNbt().getEntries()) {
 			generalNbt.remove(oldPair.getKey().toArray(new String[0]));
 		}
@@ -386,7 +387,7 @@ public class ItemUpdater {
 		
 		upgradeEnchantments(newStack, oldItem, newItem);
 
-		ItemHelper.setMaterial(newStack, CustomItemWrapper.getMaterial(newItem.getItemType(), newItem.getOtherMaterial()).name());
+		KciNms.instance.items.setMaterial(newStack, CustomItemWrapper.getMaterial(newItem.getItemType(), newItem.getOtherMaterial()).name());
 		
 		ItemMeta meta = newStack.getItemMeta();
 		
@@ -488,7 +489,7 @@ public class ItemUpdater {
 		}
 	}
 	
-	private ItemAttributes.Single[] determineUpgradedAttributes(
+	private RawAttribute[] determineUpgradedAttributes(
 			ItemStack oldStack, CustomItemValues oldItem, CustomItemValues newItem
 	) {
 		
@@ -498,22 +499,22 @@ public class ItemUpdater {
 		 * of the attribute modifiers of newItem.) This makes integration with other 
 		 * plug-ins that assign attribute modifiers a bit nicer.
 		 */
-		ItemAttributes.Single[] oldStackAttributes = ItemAttributes.getAttributes(oldStack);
-		Collection<ItemAttributes.Single> newStackAttributes = new ArrayList<>(
+		RawAttribute[] oldStackAttributes = KciNms.instance.items.getAttributes(oldStack);
+		Collection<RawAttribute> newStackAttributes = new ArrayList<>(
 				oldStackAttributes.length - oldItem.getAttributeModifiers().size()
 				+ newItem.getAttributeModifiers().size()
 		);
 		
 		oldStackLoop:
-		for (ItemAttributes.Single oldStackAttribute : oldStackAttributes) {
+		for (RawAttribute oldStackAttribute : oldStackAttributes) {
 			for (AttributeModifierValues rawOldAttribute : oldItem.getAttributeModifiers()) {
-				ItemAttributes.Single oldItemAttribute = convertAttributeModifier(rawOldAttribute);
+				RawAttribute oldItemAttribute = convertAttributeModifier(rawOldAttribute);
 				if (oldStackAttribute.equals(oldItemAttribute)) {
 					continue oldStackLoop;
 				}
 			}
 			for (AttributeModifierValues rawNewAttribute : newItem.getAttributeModifiers()) {
-				ItemAttributes.Single newItemAttribute = convertAttributeModifier(rawNewAttribute);
+				RawAttribute newItemAttribute = convertAttributeModifier(rawNewAttribute);
 				if (oldStackAttribute.equals(newItemAttribute)) {
 					continue oldStackLoop;
 				}
@@ -532,7 +533,7 @@ public class ItemUpdater {
 			newStackAttributes.add(convertAttributeModifier(rawNewAttribute));
 		}
 		
-		return newStackAttributes.toArray(new ItemAttributes.Single[0]);
+		return newStackAttributes.toArray(new RawAttribute[0]);
 	}
 	
 	private void upgradeEnchantments(ItemStack toUpgrade, CustomItemValues oldItem, CustomItemValues newItem) {

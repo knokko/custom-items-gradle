@@ -25,18 +25,16 @@ import static nl.knokko.customitems.editor.resourcepack.DefaultItemModels.getMin
 class ResourcepackItemOverrider {
 
     private final ItemSet itemSet;
-    private final int mcVersion;
     private final ZipOutputStream zipOutput;
 
-    ResourcepackItemOverrider(ItemSet itemSet, int mcVersion, ZipOutputStream zipOutput) {
+    ResourcepackItemOverrider(ItemSet itemSet, ZipOutputStream zipOutput) {
         this.itemSet = itemSet;
-        this.mcVersion = mcVersion;
         this.zipOutput = zipOutput;
     }
 
     void overrideItems() throws IOException, ValidationException {
 
-        Map<CustomItemType, ItemDurabilityAssignments> allDamageAssignments = itemSet.assignInternalItemDamages(this.mcVersion);
+        Map<CustomItemType, ItemDurabilityAssignments> allDamageAssignments = itemSet.assignInternalItemDamages();
         for (Map.Entry<CustomItemType, ItemDurabilityAssignments> typeEntry : allDamageAssignments.entrySet()) {
 
             CustomItemType itemType = typeEntry.getKey();
@@ -50,7 +48,7 @@ class ResourcepackItemOverrider {
 
                     String modelName;
                     String textureName;
-                    if (mcVersion <= MCVersions.VERSION1_12) {
+                    if (itemSet.getExportSettings().getMcVersion() <= MCVersions.VERSION1_12) {
                         modelName = itemType.getModelName12();
                         textureName = itemType.getTextureName12();
                     } else {
@@ -172,7 +170,7 @@ class ResourcepackItemOverrider {
         jsonWriter.println("{");
         jsonWriter.println("    \"parent\": \"item/generated\",");
         jsonWriter.println("    \"textures\": {");
-        if (this.mcVersion >= VERSION1_13) {
+        if (itemSet.getExportSettings().getMcVersion() >= VERSION1_13) {
             jsonWriter.println("        \"layer0\": \"item/bow\"");
         } else {
             jsonWriter.println("        \"layer0\": \"items/bow_standby\"");
@@ -210,7 +208,7 @@ class ResourcepackItemOverrider {
         jsonWriter.println("        { \"predicate\": { \"pulling\": 1, \"pull\": 0.9 }, \"model\": \"item/bow_pulling_2\"},");
 
         for (ItemDurabilityClaim claim : damageAssignments.claimList) {
-            double damage = (double) claim.itemDamage / CustomItemType.BOW.getMaxDurability(this.mcVersion);
+            double damage = (double) claim.itemDamage / CustomItemType.BOW.getMaxDurability(itemSet.getExportSettings().getMcVersion());
             jsonWriter.println("        { \"predicate\": {\"damaged\": 0, \"damage\": " + damage + "}, \"model\": \"" + claim.resourcePath + "\"},");
             List<BowTextureEntry> pullTextures = claim.pullTextures;
 
@@ -271,7 +269,7 @@ class ResourcepackItemOverrider {
         // This is where things get interesting...
         for (ItemDurabilityClaim claim : assignments.claimList) {
 
-            double damageFraction = (double) claim.itemDamage / CustomItemType.CROSSBOW.getMaxDurability(this.mcVersion);
+            double damageFraction = (double) claim.itemDamage / CustomItemType.CROSSBOW.getMaxDurability(itemSet.getExportSettings().getMcVersion());
             jsonWriter.println("        { \"predicate\": { \"damaged\": 0, \"damage\": "
                     + damageFraction + " }, \"model\": \"" + claim.resourcePath + "\" },");
 
@@ -307,7 +305,7 @@ class ResourcepackItemOverrider {
         jsonWriter.println("{");
         jsonWriter.println("    \"parent\": \"builtin/entity\",");
         jsonWriter.println("    \"textures\": {");
-        if (this.mcVersion >= VERSION1_13) {
+        if (itemSet.getExportSettings().getMcVersion() >= VERSION1_13) {
             jsonWriter.println("        \"particle\": \"block/dark_oak_planks\"");
         }
         jsonWriter.println("    },");
@@ -356,7 +354,7 @@ class ResourcepackItemOverrider {
 
         // Now the part for the custom shield predicates...
         for (ItemDurabilityClaim claim : damageAssignments.claimList) {
-            double damage = (double) claim.itemDamage / CustomItemType.SHIELD.getMaxDurability(this.mcVersion);
+            double damage = (double) claim.itemDamage / CustomItemType.SHIELD.getMaxDurability(itemSet.getExportSettings().getMcVersion());
             jsonWriter.println("        { \"predicate\": { \"blocking\": 0, \"damaged\": 0, \"damage\": "
                     + damage + " }, \"model\": \"" + claim.resourcePath + "\" },");
             jsonWriter.println("        { \"predicate\": { \"blocking\": 1, \"damaged\": 0, \"damage\": "
@@ -385,7 +383,7 @@ class ResourcepackItemOverrider {
 
         // Now the part for the custom elytra predicates...
         for (ItemDurabilityClaim claim : damageAssignments.claimList) {
-            double damage = (double) claim.itemDamage / CustomItemType.ELYTRA.getMaxDurability(this.mcVersion);
+            double damage = (double) claim.itemDamage / CustomItemType.ELYTRA.getMaxDurability(itemSet.getExportSettings().getMcVersion());
             jsonWriter.println("        { \"predicate\": { \"broken\": 0, \"damaged\": 0, \"damage\": "
                     + damage + " }, \"model\": \"" + claim.resourcePath + "\" },");
         }
@@ -412,7 +410,7 @@ class ResourcepackItemOverrider {
         jsonWriter.println("{");
         jsonWriter.println("    \"parent\": \"" + parentModelName + "\",");
         jsonWriter.println("    \"textures\": {");
-        if (this.mcVersion >= VERSION1_13) {
+        if (itemSet.getExportSettings().getMcVersion() >= VERSION1_13) {
             jsonWriter.print("        \"layer0\": \"item/" + textureName + "\"");
         } else {
             jsonWriter.print("        \"layer0\": \"items/" + textureName + "\"");
@@ -423,7 +421,7 @@ class ResourcepackItemOverrider {
         }
         jsonWriter.println();
         if (isLeatherArmor) {
-            if (this.mcVersion >= VERSION1_13) {
+            if (itemSet.getExportSettings().getMcVersion() >= VERSION1_13) {
                 jsonWriter.print("        \"layer1\": \"item/" + textureName + "_overlay\"");
             } else {
                 jsonWriter.print("        \"layer1\": \"items/" + textureName + "_overlay\"");
@@ -434,7 +432,7 @@ class ResourcepackItemOverrider {
 
         // Now the interesting part
         for (ItemDurabilityClaim claim : damageAssignments.claimList) {
-            double damage = (double) claim.itemDamage / itemType.getMaxDurability(this.mcVersion);
+            double damage = (double) claim.itemDamage / itemType.getMaxDurability(itemSet.getExportSettings().getMcVersion());
             jsonWriter.println("        { \"predicate\": {\"damaged\": 0, \"damage\": " + damage + "}, \"model\": \"" + claim.resourcePath + "\"},");
         }
 
@@ -458,7 +456,7 @@ class ResourcepackItemOverrider {
         }
 
         for (ItemDurabilityClaim claim : damageAssignments.claimList) {
-            double damage = (double) claim.itemDamage / CustomItemType.TRIDENT.getMaxDurability(this.mcVersion);
+            double damage = (double) claim.itemDamage / CustomItemType.TRIDENT.getMaxDurability(itemSet.getExportSettings().getMcVersion());
             jsonWriter.println("        { \"predicate\": { \"throwing\": 0, \"damaged\": 0, \"damage\": "
                     + damage + " }, \"model\": \"" + claim.resourcePath + "_in_hand\" },");
             jsonWriter.println("        { \"predicate\": { \"throwing\": 1, \"damaged\": 0, \"damage\": "

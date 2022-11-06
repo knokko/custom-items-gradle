@@ -1,7 +1,7 @@
 package nl.knokko.customitems.plugin.recipe;
 
-import nl.knokko.core.plugin.item.ItemHelper;
 import nl.knokko.customitems.item.CIMaterial;
+import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.multisupport.itembridge.ItemBridgeSupport;
 import nl.knokko.customitems.plugin.multisupport.mimic.MimicSupport;
 import nl.knokko.customitems.plugin.set.item.CustomItemWrapper;
@@ -58,7 +58,7 @@ public class RecipeHelper {
                 return ItemUtils.isEmpty(item);
             } else {
                 return !ItemUtils.isEmpty(item) && !ItemUtils.isCustom(item)
-                        && ItemHelper.getMaterialName(item).equals(type.name());
+                        && KciNms.instance.items.getMaterialName(item).equals(type.name());
             }
         }
 
@@ -69,7 +69,7 @@ public class RecipeHelper {
             } else {
                 return !ItemUtils.isEmpty(item)
                         && !ItemUtils.isCustom(item)
-                        && ItemHelper.getMaterialName(item).equals(dataIngredient.getMaterial().name())
+                        && KciNms.instance.items.getMaterialName(item).equals(dataIngredient.getMaterial().name())
                         && item.getData().getData() == dataIngredient.getDataValue();
             }
         }
@@ -95,12 +95,12 @@ public class RecipeHelper {
 
         if (result instanceof SimpleVanillaResultValues) {
             SimpleVanillaResultValues simpleResult = (SimpleVanillaResultValues) result;
-            return ItemHelper.createStack(simpleResult.getMaterial().name(), simpleResult.getAmount());
+            return KciNms.instance.items.createStack(simpleResult.getMaterial().name(), simpleResult.getAmount());
         }
 
         if (result instanceof DataVanillaResultValues) {
             DataVanillaResultValues dataResult = (DataVanillaResultValues) result;
-            ItemStack stack = ItemHelper.createStack(dataResult.getMaterial().name(), dataResult.getAmount());
+            ItemStack stack = KciNms.instance.items.createStack(dataResult.getMaterial().name(), dataResult.getAmount());
             MaterialData stackData = stack.getData();
             stackData.setData(dataResult.getDataValue());
             stack.setData(stackData);

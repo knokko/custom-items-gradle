@@ -34,16 +34,16 @@ public class EditorFileManager {
         System.err.println("test error");
     }
 
-    public static void export(
-            ItemSet itemSet, int mcVersion, String fileName
+    public static void exportFiles(
+            ItemSet itemSet
     ) throws IOException, ValidationException, ProgrammingValidationException {
 
         FOLDER.mkdirs();
 
         // Generate the resourcepack...
         // NOTE: This must happen BEFORE writing the .cis file since this also assigns internal item damages
-        try (OutputStream outputStream = Files.newOutputStream(new File(FOLDER + "/" + fileName + ".zip").toPath())) {
-            new ResourcepackGenerator(itemSet, mcVersion).write(outputStream);
+        try (OutputStream outputStream = Files.newOutputStream(new File(FOLDER + "/resource-pack.zip").toPath())) {
+            new ResourcepackGenerator(itemSet).write(outputStream, null, true);
         }
 
         ByteArrayBitOutput output = new ByteArrayBitOutput();
@@ -52,24 +52,17 @@ public class EditorFileManager {
 
         byte[] bytes = output.getBytes();
 
-        // Write the .cis file, which stands for Custom Item Set
-        File file = new File(FOLDER + "/" + fileName + ".cis");
-        OutputStream fileOutput = Files.newOutputStream(file.toPath());
-        fileOutput.write(bytes);
-        fileOutput.flush();
-        fileOutput.close();
-
         /*
-         * Write the .txt file, which can be used as alternative for the .cis file.
-         * It has a bigger file size and will be a bit slower to read, but it is useful
-         * for servers hosts like Aternos that do not allow users to upload (binary files).
+         * The file is eventually stored as text file because some hosts like Aternos don't allow users to upload
+         * binary files. Besides, the storage required for storing .cis files was never big anyway, so I no longer
+         * bother to generate both a binary and a text file.
          *
          * This file is basically hexadecimal, except that it uses only characters from the alphabet rather than both
          * alphabet characters and digits. (When I wrote this, I didn't think about hexadecimal...)
          */
         byte[] textBytes = StringEncoder.encodeTextyBytes(bytes, true);
-        File textFile = new File(FOLDER + "/" + fileName + ".txt");
-        fileOutput = Files.newOutputStream(textFile.toPath());
+        File textFile = new File(FOLDER + "/items.cis.txt");
+        OutputStream fileOutput = Files.newOutputStream(textFile.toPath());
         fileOutput.write(textBytes);
         fileOutput.flush();
         fileOutput.close();

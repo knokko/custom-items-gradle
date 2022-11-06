@@ -6,7 +6,6 @@ import nl.knokko.customitems.item.equipment.EquipmentEntry;
 import nl.knokko.customitems.item.equipment.EquipmentSetValues;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.EntityEquipment;
 
 import java.util.ArrayList;

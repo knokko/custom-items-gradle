@@ -550,7 +550,7 @@ public class Backward10 {
     static void test3dHelmet2(CustomHelmet3dValues item, ItemSet.Side side) {
         assertEquals("3dhelmet2", item.getName());
         if (side == ItemSet.Side.EDITOR) {
-            assertResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", ((LegacyCustomItemModel) item.getModel()).getRawModel());
+            assertStringResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", ((LegacyCustomItemModel) item.getModel()).getRawModel());
         }
         assertEquals(ItemCommandSystem.createQuick(ItemCommandEvent.RIGHT_CLICK_BLOCK, listOf(
                 ItemCommand.createQuick(

@@ -10,8 +10,8 @@ import nl.knokko.customitems.itemset.BlockDropsView;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.MobDropsView;
 import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.container.ContainerInfo;
-import nl.knokko.customitems.plugin.set.item.CustomItemNBT;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
@@ -109,7 +109,7 @@ public class ItemSetWrapper {
         if (ItemUtils.isEmpty(itemStack)) return null;
 
         String[] pItemName = {null};
-        CustomItemNBT.readOnly(itemStack, nbt -> {
+        KciNms.instance.items.customReadOnlyNbt(itemStack, nbt -> {
             if (nbt.hasOurNBT()) {
                 pItemName[0] = nbt.getName();
             }

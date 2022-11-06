@@ -126,7 +126,7 @@ public class CombineMenu extends GuiMenu {
 					input.readFully(primaryBytes);
 					input.close();
 					try {
-						primarySet = new ItemSet(new ByteArrayBitInput(primaryBytes), ItemSet.Side.EDITOR);
+						primarySet = new ItemSet(new ByteArrayBitInput(primaryBytes), ItemSet.Side.EDITOR, true);
 					} catch (Exception ex) {
 						errorComponent.setText("Error in primary item set: " + ex.getMessage());
 						return;
@@ -143,7 +143,7 @@ public class CombineMenu extends GuiMenu {
 					input.readFully(secundaryBytes);
 					input.close();
 					try {
-						secundarySet = new ItemSet(new ByteArrayBitInput(secundaryBytes), ItemSet.Side.EDITOR);
+						secundarySet = new ItemSet(new ByteArrayBitInput(secundaryBytes), ItemSet.Side.EDITOR, true);
 					} catch (Exception ex) {
 						errorComponent.setText("Error in secondary item set: " + ex.getMessage());
 						return;
