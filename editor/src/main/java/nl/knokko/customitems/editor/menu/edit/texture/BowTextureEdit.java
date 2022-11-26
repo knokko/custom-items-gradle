@@ -23,7 +23,6 @@
  *******************************************************************************/
 package nl.knokko.customitems.editor.menu.edit.texture;
 
-import java.awt.image.BufferedImage;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -98,16 +97,13 @@ public class BowTextureEdit extends GuiMenu {
 				new DynamicTextComponent("Base texture: ", LABEL),
 				0.2f, 0.55f, 0.4f, 0.65f
 		);
-		addComponent(
-				TextureEdit.createImageSelect(new TextureEdit.PartialTransparencyFilter(
-						this, (BufferedImage texture, String imageName) -> {
-			defaultTexture.setComponent(new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(texture)));
-			currentValues.setImage(texture);
+		addComponent(TextureEdit.createImageSelect(new TextureEdit.PartialTransparencyFilter(this, chosenTexture -> {
+			defaultTexture.setComponent(new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(chosenTexture.getImage())));
+			currentValues.setImage(chosenTexture.getImage());
 			if (nameField.getText().isEmpty()) {
-				nameField.setText(imageName);
+				nameField.setText(chosenTexture.getName());
 			}
-			return this;
-		}), errorComponent, this), 0.425f, 0.55f, 0.525f, 0.65f);
+		}), errorComponent), 0.425f, 0.55f, 0.525f, 0.65f);
 		addComponent(
 				new DynamicTextComponent("Name: ", LABEL),
 				0.2f, 0.4f, 0.325f, 0.5f
@@ -214,16 +210,14 @@ public class BowTextureEdit extends GuiMenu {
 				imageWrapper = new WrapperComponent<>(null);
 			else
 				imageWrapper = new WrapperComponent<>(new SimpleImageComponent(loader.loadTexture(oldEntry.getImage())));
-			addComponent(TextureEdit.createImageSelect(new TextureEdit.PartialTransparencyFilter(this, 
-					(BufferedImage texture, String imageName) -> {
+			addComponent(TextureEdit.createImageSelect(new TextureEdit.PartialTransparencyFilter(BowTextureEdit.this, chosenTexture -> {
 				List<BowTextureEntry> pulls = currentValues.getPullTextures();
 				BowTextureEntry newEntry = pulls.get(index).copy(true);
-				newEntry.setImage(texture);
+				newEntry.setImage(chosenTexture.getImage());
 				pulls.set(index, newEntry);
 				currentValues.setPullTextures(pulls);
-				imageWrapper.setComponent(new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(texture)));
-				return BowTextureEdit.this;
-			}), errorComponent, BowTextureEdit.this), 0.5f, 0.05f, 0.75f, 0.45f);
+				imageWrapper.setComponent(new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(chosenTexture.getImage())));
+			}), errorComponent), 0.5f, 0.05f, 0.75f, 0.45f);
 			addComponent(imageWrapper, 0.75f, 0.55f, 0.85f, 0.9f);
 		}
 	}

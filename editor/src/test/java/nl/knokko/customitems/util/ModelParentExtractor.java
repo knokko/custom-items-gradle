@@ -3,7 +3,6 @@ package nl.knokko.customitems.util;
 import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.item.CIMaterial;
 
-import javax.swing.filechooser.FileSystemView;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

@@ -18,7 +18,6 @@ import nl.knokko.gui.component.text.EagerTextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
-import java.awt.image.BufferedImage;
 import java.util.Comparator;
 import java.util.List;
 
@@ -87,18 +86,17 @@ public class CrossbowTextureEdit extends GuiMenu {
         WrapperComponent<SimpleImageComponent> standbyImageWrapper = new WrapperComponent<>(
                 currentValues.getImage() == null ? null : new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(currentValues.getImage()))
         );
-        addComponent(TextureEdit.createImageSelect(new TextureEdit.PartialTransparencyFilter(this, (BufferedImage texture, String imageName) -> {
-            standbyImageWrapper.setComponent(new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(texture)));
-            currentValues.setImage(texture);
+        addComponent(TextureEdit.createImageSelect(new TextureEdit.PartialTransparencyFilter(this, chosenTexture -> {
+            standbyImageWrapper.setComponent(new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(chosenTexture.getImage())));
+            currentValues.setImage(chosenTexture.getImage());
             if (nameField.getText().isEmpty()) {
-                if (imageName.endsWith("_standby")) {
-                    nameField.setText(imageName.substring(0, imageName.length() - "_standby".length()));
+                if (chosenTexture.getName().endsWith("_standby")) {
+                    nameField.setText(chosenTexture.getName().substring(0, chosenTexture.getName().length() - "_standby".length()));
                 } else {
-                    nameField.setText(imageName);
+                    nameField.setText(chosenTexture.getName());
                 }
             }
-            return this;
-        }), errorComponent, this), 0.475f, 0.45f, 0.55f, 0.55f);
+        }), errorComponent), 0.475f, 0.45f, 0.55f, 0.55f);
         addComponent(standbyImageWrapper, 0.575f, 0.45f, 0.65f, 0.55f);
 
         addComponent(
@@ -108,11 +106,10 @@ public class CrossbowTextureEdit extends GuiMenu {
         WrapperComponent<SimpleImageComponent> arrowImageWrapper = new WrapperComponent<>(
                 currentValues.getArrowImage() == null ? null : new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(currentValues.getArrowImage()))
         );
-        addComponent(TextureEdit.createImageSelect(new TextureEdit.PartialTransparencyFilter(this, (BufferedImage texture, String imageName) -> {
-            arrowImageWrapper.setComponent(new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(texture)));
-            currentValues.setArrowImage(texture);
-            return this;
-        }), errorComponent, this), 0.475f, 0.3f, 0.55f, 0.4f);
+        addComponent(TextureEdit.createImageSelect(new TextureEdit.PartialTransparencyFilter(this, chosenTexture -> {
+            arrowImageWrapper.setComponent(new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(chosenTexture.getImage())));
+            currentValues.setArrowImage(chosenTexture.getImage());
+        }), errorComponent), 0.475f, 0.3f, 0.55f, 0.4f);
         addComponent(arrowImageWrapper, 0.575f, 0.3f, 0.65f, 0.4f);
 
         addComponent(
@@ -122,11 +119,10 @@ public class CrossbowTextureEdit extends GuiMenu {
         WrapperComponent<SimpleImageComponent> fireworkImageWrapper = new WrapperComponent<>(
                 currentValues.getFireworkImage() == null ? null : new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(currentValues.getFireworkImage()))
         );
-        addComponent(TextureEdit.createImageSelect(new TextureEdit.PartialTransparencyFilter(this, (BufferedImage texture, String imageName) -> {
-            fireworkImageWrapper.setComponent(new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(texture)));
-            currentValues.setFireworkImage(texture);
-            return this;
-        }), errorComponent, this), 0.475f, 0.15f, 0.55f, 0.25f);
+        addComponent(TextureEdit.createImageSelect(new TextureEdit.PartialTransparencyFilter(this, chosenTexture -> {
+            fireworkImageWrapper.setComponent(new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(chosenTexture.getImage())));
+            currentValues.setFireworkImage(chosenTexture.getImage());
+        }), errorComponent), 0.475f, 0.15f, 0.55f, 0.25f);
         addComponent(fireworkImageWrapper, 0.575f, 0.15f, 0.65f, 0.25f);
 
         HelpButtons.addHelpLink(this, "edit%20menu/textures/crossbow%20edit.html");
@@ -200,15 +196,14 @@ public class CrossbowTextureEdit extends GuiMenu {
                     oldEntry.getImage() == null ? null :
                             new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(oldEntry.getImage()))
             );
-            addComponent(TextureEdit.createImageSelect(new TextureEdit.PartialTransparencyFilter(CrossbowTextureEdit.this, (BufferedImage texture, String imageName) -> {
-                pullImageWrapper.setComponent(new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(texture)));
+            addComponent(TextureEdit.createImageSelect(new TextureEdit.PartialTransparencyFilter(CrossbowTextureEdit.this, chosenTexture -> {
+                pullImageWrapper.setComponent(new SimpleImageComponent(state.getWindow().getTextureLoader().loadTexture(chosenTexture.getImage())));
                 List<BowTextureEntry> pulls = currentValues.getPullTextures();
                 BowTextureEntry newEntry = pulls.get(index).copy(true);
-                newEntry.setImage(texture);
+                newEntry.setImage(chosenTexture.getImage());
                 pulls.set(index, newEntry);
                 currentValues.setPullTextures(pulls);
-                return CrossbowTextureEdit.this;
-            }), errorComponent, CrossbowTextureEdit.this), 0.6f, 0.05f, 0.775f, 0.45f);
+            }), errorComponent), 0.6f, 0.05f, 0.775f, 0.45f);
             addComponent(pullImageWrapper, 0.8f, 0.05f, 1.0f, 0.45f);
         }
 

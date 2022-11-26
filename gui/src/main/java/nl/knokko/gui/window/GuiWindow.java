@@ -40,7 +40,6 @@ import java.awt.image.BufferedImage;
 public abstract class GuiWindow {
 	
 	protected GuiComponent mainComponent;
-	protected WindowListener listener;
 	protected GuiComponentState state;
 	protected WindowInput input;
 	
@@ -52,20 +51,7 @@ public abstract class GuiWindow {
 	public GuiWindow(){
 		input = new WindowInput();
 	}
-	
-	/**
-	 * Settings this to true will cause the application to render every tick, regardless of whether or not
-	 * anything changed. By default this is false for AWT windows to spare power and performance, however, GL
-	 * windows are very glitchy if they don't render every frame, so it is true by default for GL windows. Settings 
-	 * this to true is only useful for applications like games that really have to render every tick or for components
-	 * that want to change their color continuously.
-	 * @param value True to render continuously, false to only render after changes
-	 */
-	public void setRenderContinuously(boolean value) {
-		renderContinuously = value;
-		getRenderer().setRenderAlways(value);
-	}
-	
+
 	/**
 	 * Notifies the window that something changed so that it should render again. Calling this only has
 	 * effect if the window is not in continuous render mode.
@@ -129,26 +115,14 @@ public abstract class GuiWindow {
 	}
 	
 	protected abstract GuiComponentState createState();
-	
-	/**
-	 * Sets the window listener of this window. The methods of the current listener will be called for events like clicking and closing. This allows more control over the window without overriding the class.
-	 * @param listener The new window listener
-	 */
-	public void setWindowListener(WindowListener listener){
-		this.listener = listener;
-	}
-	
+
 	/**
 	 * Updates the main component of this window and the listener if this window has a listener.
 	 */
 	public void update() {
-		if(listener == null || !listener.preUpdate()){
-			preUpdate();
-			mainComponent.update();
-			if(listener != null)
-				listener.postUpdate();
-			postUpdate();
-		}
+		preUpdate();
+		mainComponent.update();
+		postUpdate();
 	}
 	
 	protected abstract void preUpdate();
@@ -159,10 +133,8 @@ public abstract class GuiWindow {
 	 * Renders the main component of this window and calls the render methods of the window listener if there is a window listener
 	 */
 	public void render() {
-		if ((renderContinuously || needsRender) && (listener == null || !listener.preRender())) {
+		if ((renderContinuously || needsRender)) {
 			directRender();
-			if(listener != null)
-				listener.postRender();
 			needsRender = false;
 		}
 	}
@@ -173,12 +145,8 @@ public abstract class GuiWindow {
 	 * Closes this window and informs the window listener if there is one. Don't use this if the run method is still active!
 	 */
 	public void close() {
-		if(listener != null)
-			listener.preClose();
 		state = null;
 		directClose();
-		if(listener != null)
-			listener.postClose();
 	}
 	
 	/**
@@ -265,40 +233,20 @@ public abstract class GuiWindow {
 	 * @return the mouse movement in the y-direction
 	 */
 	public abstract float getMouseDY();
-	
-	/**
-	 * Determines the x-coordinate of the left border of this window. If this window is not yet open,
-	 * this method will return -1.
-	 * @return the x-coordinate of the left border of this window or -1 if the window isn't open
-	 */
-	public abstract int getWindowPosX();
-	
+
 	/**
 	 * Determines the x-coordinate of the left-most point where this window will render its components. If
 	 * this window is not yet open, this method will return -1.
 	 * @return the x-coordinate of the left most point where this window will render its components
 	 */
 	public abstract int getPosX();
-	
-	/**
-	 * @return The width of the window in pixels or -1 if the window isn't open
-	 */
-	public abstract int getWindowWidth();
-	
+
 	/**
 	 * @return The width of the space in pixels where this window will render its components or -1 if the
 	 * window isn't open
 	 */
 	public abstract int getWidth();
-	
-	/**
-	 * Determines the y-coordinate of the upper border of this window. If this window is not yet open,
-	 * this method will return -1.
-	 * @return the y-coordinate of the upper border of this window or -1 if the window isn't open
-	 */
-	public abstract int getWindowPosY();
-	
-	
+
 	/**
 	 * Determines the y-coordinate of the highest point on the screen where this window will render its
 	 * components. If this window isn't open, this method will return -1.
@@ -306,12 +254,7 @@ public abstract class GuiWindow {
 	 * window isn't open
 	 */
 	public abstract int getPosY();
-	
-	/**
-	 * @return The height of the window in pixels or -1 if the window isn't open
-	 */
-	public abstract int getWindowHeight();
-	
+
 	/**
 	 * @return The height of the space in pixels where this window will render its components or -1 if this
 	 * window isn't open

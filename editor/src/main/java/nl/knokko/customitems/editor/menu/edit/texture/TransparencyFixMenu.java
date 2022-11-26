@@ -2,36 +2,35 @@ package nl.knokko.customitems.editor.menu.edit.texture;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.util.function.Consumer;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.menu.edit.texture.TextureEdit.ImageListener;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
+import nl.knokko.customitems.texture.BaseTextureValues;
 import nl.knokko.gui.color.GuiColor;
+import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 public class TransparencyFixMenu extends GuiMenu {
-	
-	private final Runnable onCancel;
-	private final ImageListener listener;
-	
-	private final BufferedImage image;
-	private final String imageName;
-	
-	public TransparencyFixMenu(Runnable onCancel, ImageListener listener, 
-			BufferedImage original, String imageName) {
-		this.onCancel = onCancel;
-		this.listener = listener;
-		this.image = original;
-		this.imageName = imageName;
+
+	private final GuiComponent returnMenu;
+	private final Consumer<BaseTextureValues> confirmImage;
+	private final BaseTextureValues chosenImage;
+
+	public TransparencyFixMenu(GuiComponent returnMenu, Consumer<BaseTextureValues> confirmImage, BaseTextureValues chosenImage) {
+		this.returnMenu = returnMenu;
+		this.confirmImage = confirmImage;
+		this.chosenImage = chosenImage;
 	}
 
 	@Override
 	protected void addComponents() {
-		addComponent(new DynamicTextButton("Cancel", CANCEL_BASE, CANCEL_HOVER, onCancel), 
-				0.025f, 0.7f, 0.125f, 0.8f);
+		addComponent(new DynamicTextButton("Cancel", CANCEL_BASE, CANCEL_HOVER, () ->
+				state.getWindow().setMainComponent(returnMenu)
+		), 0.025f, 0.7f, 0.125f, 0.8f);
 		addComponent(new DynamicTextComponent(
 				"The texture you chose has pixels that are not fully solid and not fully transparent either.",
 				LABEL), 0.2f, 0.8f, 0.95f, 0.9f);
@@ -48,6 +47,7 @@ public class TransparencyFixMenu extends GuiMenu {
 				"The pixels that are almost solid will become completely solid.", 
 				LABEL), 0.2f, 0.4f, 0.8f, 0.5f);
 		addComponent(new DynamicTextButton("Yes", BUTTON, HOVER, () -> {
+			BufferedImage image = chosenImage.getImage();
 			for (int x = 0; x < image.getWidth(); x++) {
 				for (int y = 0; y < image.getHeight(); y++) {
 					Color pixel = new Color(image.getRGB(x, y), true);
@@ -62,11 +62,13 @@ public class TransparencyFixMenu extends GuiMenu {
 					}
 				}
 			}
-			state.getWindow().setMainComponent(listener.listen(image, imageName));
+			confirmImage.accept(BaseTextureValues.createQuick(chosenImage.getName(), image));
+			state.getWindow().setMainComponent(returnMenu);
 		}), 0.3f, 0.1f, 0.4f, 0.2f);
 		
 		addComponent(new DynamicTextButton("No", BUTTON, HOVER, () -> {
-			state.getWindow().setMainComponent(listener.listen(image, imageName));
+			confirmImage.accept(chosenImage);
+			state.getWindow().setMainComponent(returnMenu);
 		}), 0.7f, 0.1f, 0.8f, 0.2f);
 	}
 	

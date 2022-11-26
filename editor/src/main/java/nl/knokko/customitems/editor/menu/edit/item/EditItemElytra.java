@@ -25,9 +25,7 @@ public class EditItemElytra extends EditItemArmor<CustomElytraValues> {
                 0.6f, 0.19f, 0.84f, 0.25f
         );
         addComponent(new DynamicTextButton("Edit...", BUTTON, HOVER, () -> {
-            state.getWindow().setMainComponent(ArmorTexturesEdit.createImageSelect(
-                    currentValues::setWornElytraTexture, errorComponent, this
-            ));
+            ArmorTexturesEdit.selectArmorImage(currentValues::setWornElytraTexture, errorComponent);
         }), 0.85f, 0.19f, 0.99f, 0.25f);
 
         addComponent(

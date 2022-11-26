@@ -42,15 +42,14 @@ public class AnimationImageCollectionEdit extends InlineCollectionEdit<Animation
                         new SimpleImageComponent(textureLoader.loadTexture(image.getImageReference())) : null
         );
         addComponent(imageWrapper, 0.4f, minY, 0.47f, maxY);
-        addComponent(TextureEdit.createImageSelect((newImage, newLabel) -> {
-            image.setImage(newImage);
+        addComponent(TextureEdit.createImageSelect(newTexture -> {
+            image.setImage(newTexture.getImage());
             if (image.getLabel().isEmpty()) {
-                image.setLabel(newLabel);
-                labelField.setText(newLabel);
+                image.setLabel(newTexture.getName());
+                labelField.setText(newTexture.getName());
             }
-            imageWrapper.setComponent(new SimpleImageComponent(textureLoader.loadTexture(newImage)));
-            return this;
-        }, errorComponent, this), 0.5f, minY, 0.6f, maxY);
+            imageWrapper.setComponent(new SimpleImageComponent(textureLoader.loadTexture(newTexture.getImage())));
+        }, errorComponent), 0.5f, minY, 0.6f, maxY);
 
         addComponent(new DynamicTextComponent("Label:", LABEL), 0.65f, minY, 0.75f, maxY);
         addComponent(labelField, 0.75f, minY, 0.95f, maxY);

@@ -27,7 +27,7 @@ import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Locale;
+import java.util.function.Consumer;
 
 import javax.imageio.ImageIO;
 
@@ -41,14 +41,17 @@ import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
-import nl.knokko.gui.component.menu.FileChooserMenu;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.image.SimpleImageComponent;
 import nl.knokko.gui.component.text.EagerTextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
+import org.lwjgl.PointerBuffer;
+import org.lwjgl.system.MemoryStack;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
+import static org.lwjgl.system.MemoryUtil.memUTF8;
+import static org.lwjgl.util.nfd.NativeFileDialog.*;
 
 public class TextureEdit extends GuiMenu {
 	
@@ -144,47 +147,52 @@ public class TextureEdit extends GuiMenu {
 		}
 	}
 	
-	public static DynamicTextButton createImageSelect(ImageListener listener, DynamicTextComponent errorComponent, GuiComponent returnMenu) {
+	public static DynamicTextButton createImageSelect(
+			Consumer<BaseTextureValues> listener, DynamicTextComponent errorComponent
+	) {
 		return new DynamicTextButton("Edit...", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-			returnMenu.getState().getWindow().setMainComponent(new FileChooserMenu(returnMenu, file -> {
-				try {
-					BaseTextureValues loaded = loadBasicImage(file);
-					return listener.listen(loaded.getImage(), loaded.getName());
-				} catch (IllegalArgumentException error) {
-					errorComponent.setText(error.getMessage());
-					return returnMenu;
+			try (MemoryStack stack = MemoryStack.stackPush()) {
+				PointerBuffer pPath = stack.callocPointer(1);
+				int result = NFD_OpenDialog(stack.UTF8("png"), null, pPath);
+				if (result == NFD_OKAY) {
+					String path = memUTF8(pPath.get(0));
+					nNFD_Free(pPath.get(0));
+					try {
+						listener.accept(loadBasicImage(new File(path)));
+					} catch (IllegalArgumentException error) {
+						errorComponent.setText(error.getMessage());
+					}
+				} else if (result == NFD_ERROR) {
+					errorComponent.setText("Programming error: NFD_OpenDialog returned NFD_ERROR");
 				}
-			}, (File file) -> file.getName().toLowerCase(Locale.ROOT).endsWith(".png"),
-					EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER,
-					EditProps.BACKGROUND, EditProps.BACKGROUND2));
+			}
 		});
 	}
 	
 	private DynamicTextButton createImageSelect(EagerTextEditField nameField) {
-		return createImageSelect(new PartialTransparencyFilter(this, 
-				(BufferedImage loaded, String imageName) -> {
-					setImage(loaded, imageName, nameField);
-			return this;
-		}), errorComponent, this);
+		return createImageSelect(new PartialTransparencyFilter(this, chosenTexture -> {
+				setImage(chosenTexture.getImage(), chosenTexture.getName(), nameField);
+			}
+		), errorComponent);
 	}
 	
-	public static class PartialTransparencyFilter implements ImageListener {
+	public static class PartialTransparencyFilter implements Consumer<BaseTextureValues> {
+
+		private final GuiComponent returnMenu;
+		private final Consumer<BaseTextureValues> chooseTexture;
 		
-		private final GuiComponent cancelMenu;
-		private final ImageListener listener;
-		
-		public PartialTransparencyFilter(GuiComponent cancelMenu, ImageListener listener) {
-			this.cancelMenu = cancelMenu;
-			this.listener = listener;
+		public PartialTransparencyFilter(GuiComponent returnMenu, Consumer<BaseTextureValues> chooseTexture) {
+			this.returnMenu = returnMenu;
+			this.chooseTexture = chooseTexture;
 		}
 
 		@Override
-		public GuiComponent listen(BufferedImage loaded, String imageName) {
+		public void accept(BaseTextureValues chosenTexture) {
 			boolean hasPartialTransparency = false;
 			alphaLoop:
-			for (int x = 0; x < loaded.getWidth(); x++) {
-				for (int y = 0; y < loaded.getHeight(); y++) {
-					Color pixel = new Color(loaded.getRGB(x, y), true);
+			for (int x = 0; x < chosenTexture.getImage().getWidth(); x++) {
+				for (int y = 0; y < chosenTexture.getImage().getHeight(); y++) {
+					Color pixel = new Color(chosenTexture.getImage().getRGB(x, y), true);
 					if (pixel.getAlpha() > 0 && pixel.getAlpha() < 255) {
 						hasPartialTransparency = true;
 						break alphaLoop;
@@ -193,11 +201,12 @@ public class TextureEdit extends GuiMenu {
 			}
 			
 			if (hasPartialTransparency) {
-				return new TransparencyFixMenu(() -> {
-					cancelMenu.getState().getWindow().setMainComponent(cancelMenu);
-				}, listener, loaded, imageName);
+				returnMenu.getState().getWindow().setMainComponent(new TransparencyFixMenu(
+						returnMenu, chooseTexture, chosenTexture
+				));
 			} else {
-				return listener.listen(loaded, imageName);
+				chooseTexture.accept(chosenTexture);
+				returnMenu.getState().getWindow().setMainComponent(returnMenu);
 			}
 		}
 	}
@@ -208,10 +217,5 @@ public class TextureEdit extends GuiMenu {
 		if (nameField.getText().isEmpty()) {
 			nameField.setText(imageName);
 		}
-	}
-	
-	public interface ImageListener {
-		
-		GuiComponent listen(BufferedImage image, String imageName);
 	}
 }

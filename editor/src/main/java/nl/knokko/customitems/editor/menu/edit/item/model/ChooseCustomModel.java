@@ -10,13 +10,15 @@ import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
 import nl.knokko.gui.component.image.SimpleImageComponent;
-import nl.knokko.gui.component.menu.FileChooserMenu;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.ConditionalTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
+import org.lwjgl.PointerBuffer;
+import org.lwjgl.system.MemoryStack;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -25,6 +27,8 @@ import java.util.function.Consumer;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 import static nl.knokko.customitems.item.model.ModernCustomItemModel.TEXTURES_KEY;
+import static org.lwjgl.system.MemoryUtil.memUTF8;
+import static org.lwjgl.util.nfd.NativeFileDialog.*;
 
 public class ChooseCustomModel extends GuiMenu {
 
@@ -55,40 +59,46 @@ public class ChooseCustomModel extends GuiMenu {
 
         addComponent(new DynamicTextButton("Choose file...", BUTTON, HOVER, () -> {
             errorComponent.setText("");
-            state.getWindow().setMainComponent(new FileChooserMenu(this, chosenFile -> {
-                try {
-                    byte[] rawBytes = Files.readAllBytes(chosenFile.toPath());
-                    this.rawModel = rawBytes;
-                    String rawJsonString = new String(rawBytes, StandardCharsets.UTF_8);
-                    Object rawJson = Jsoner.deserialize(rawJsonString);
+            try (MemoryStack stack = MemoryStack.stackPush()) {
+                PointerBuffer pPath = stack.callocPointer(1);
+                int result = NFD_OpenDialog(stack.UTF8("json"), null, pPath);
+                if (result == NFD_OKAY) {
+                    String path = memUTF8(pPath.get(0));
+                    nNFD_Free(pPath.get(0));
 
-                    if (rawJson instanceof JsonObject) {
-                        JsonObject json = (JsonObject) rawJson;
-                        Map<String, String> textureMap = json.getMap(TEXTURES_KEY);
-                        if (textureMap != null) {
+                    try {
+                        byte[] rawBytes = Files.readAllBytes(new File(path).toPath());
+                        this.rawModel = rawBytes;
+                        String rawJsonString = new String(rawBytes, StandardCharsets.UTF_8);
+                        Object rawJson = Jsoner.deserialize(rawJsonString);
 
-                            this.imageNameMap = new TreeMap<>();
-                            for (Map.Entry<String, String> namePair : textureMap.entrySet()) {
-                                imageNameMap.put(namePair.getKey(), namePair.getValue().toLowerCase(Locale.ROOT));
+                        if (rawJson instanceof JsonObject) {
+                            JsonObject json = (JsonObject) rawJson;
+                            Map<String, String> textureMap = json.getMap(TEXTURES_KEY);
+                            if (textureMap != null) {
+
+                                this.imageNameMap = new TreeMap<>();
+                                for (Map.Entry<String, String> namePair : textureMap.entrySet()) {
+                                    imageNameMap.put(namePair.getKey(), namePair.getValue().toLowerCase(Locale.ROOT));
+                                }
+                                this.imageMap = new HashMap<>();
+                                includedImagesComponent.clearComponents();
+                                includedImagesComponent.addComponents();
+                            } else {
+                                errorComponent.setText("Model doesn't have a \"textures\" map");
                             }
-                            this.imageMap = new HashMap<>();
-                            includedImagesComponent.clearComponents();
-                            includedImagesComponent.addComponents();
                         } else {
-                            errorComponent.setText("Model doesn't have a \"textures\" map");
+                            errorComponent.setText("Expected top-level JSON element to be an object");
                         }
-                    } else {
-                        errorComponent.setText("Expected top-level JSON element to be an object");
+                    } catch (IOException io) {
+                        errorComponent.setText("Couldn't read file: " + io.getMessage());
+                    } catch (JsonException e) {
+                        errorComponent.setText("This file doesn't seem to be valid JSON");
                     }
-                } catch (IOException io) {
-                    errorComponent.setText("Couldn't read file: " + io.getMessage());
-                } catch (JsonException e) {
-                    errorComponent.setText("This file doesn't seem to be valid JSON");
+                } else if (result == NFD_ERROR) {
+                    errorComponent.setText("NFD_OpenDialog returned NFD_ERROR");
                 }
-                return this;
-            }, candidateFile -> candidateFile.getName().endsWith(".json"),
-                    CANCEL_BASE, CANCEL_HOVER, CHOOSE_BASE, CHOOSE_HOVER, BACKGROUND, BACKGROUND2
-            ));
+            }
         }), 0.3f, 0.8f, 0.5f, 0.9f);
 
         addComponent(new ConditionalTextButton("Apply", SAVE_BASE, SAVE_HOVER, () -> {
@@ -134,13 +144,12 @@ public class ChooseCustomModel extends GuiMenu {
                     WrapperComponent<SimpleImageComponent> chosenImageComponent = new WrapperComponent<>(null);
                     addComponent(new DynamicTextComponent(originalImageName, LABEL), 0f, minY, 0.5f, maxY);
                     addComponent(
-                            TextureEdit.createImageSelect((chosenImage, chosenImageName) -> {
-                                imageMap.put(originalImageName, chosenImage);
+                            TextureEdit.createImageSelect(chosenTexture -> {
+                                imageMap.put(originalImageName, chosenTexture.getImage());
                                 chosenImageComponent.setComponent(new SimpleImageComponent(
-                                        state.getWindow().getTextureLoader().loadTexture(chosenImage)
+                                        state.getWindow().getTextureLoader().loadTexture(chosenTexture.getImage())
                                 ));
-                                return ChooseCustomModel.this;
-                            }, errorComponent, ChooseCustomModel.this),
+                            }, errorComponent),
                             0.55f, minY, 0.75f, maxY
                     );
                     addComponent(chosenImageComponent, 0.8f, minY, 1f, maxY);

@@ -1,8 +1,8 @@
 package nl.knokko.customitems.editor.menu.edit.texture;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
-import java.util.Locale;
 import java.util.function.Consumer;
 
 import javax.imageio.ImageIO;
@@ -15,13 +15,16 @@ import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.texture.ArmorTextureValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
-import nl.knokko.gui.component.menu.FileChooserMenu;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.EagerTextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
+import org.lwjgl.PointerBuffer;
+import org.lwjgl.system.MemoryStack;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
+import static org.lwjgl.system.MemoryUtil.memUTF8;
+import static org.lwjgl.util.nfd.NativeFileDialog.*;
 
 public class ArmorTexturesEdit extends GuiMenu {
 	
@@ -65,14 +68,14 @@ public class ArmorTexturesEdit extends GuiMenu {
 				0.3f, 0.55f, 0.45f, 0.65f
 		);
 		addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
-			state.getWindow().setMainComponent(createImageSelect(currentValues::setLayer1, errorComponent, this));
+			selectArmorImage(currentValues::setLayer1, errorComponent);
 		}), 0.5f, 0.55f, 0.65f, 0.65f);
 		addComponent(
 				new DynamicTextComponent("Layer 2:", EditProps.LABEL),
 				0.3f, 0.4f, 0.45f, 0.5f
 		);
 		addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
-			state.getWindow().setMainComponent(createImageSelect(currentValues::setLayer2, errorComponent, this));
+			selectArmorImage(currentValues::setLayer2, errorComponent);
 		}), 0.5f, 0.4f, 0.65f, 0.5f);
 		
 		addComponent(new DynamicTextButton(toModify == null ? "Create" : "Apply", SAVE_BASE, SAVE_HOVER, () -> {
@@ -86,30 +89,32 @@ public class ArmorTexturesEdit extends GuiMenu {
 		
 		HelpButtons.addHelpLink(this, "edit%20menu/textures/armor edit.html");
 	}
-	
-	public static GuiComponent createImageSelect(
-			Consumer<BufferedImage> onChoose, DynamicTextComponent errorComponent, GuiComponent returnMenu
-	) {
-		return new FileChooserMenu(returnMenu, chosenFile -> {
-			try {
-				BufferedImage chosenImage = ImageIO.read(chosenFile);
-				if (chosenImage != null) {
-					onChoose.accept(chosenImage);
-				} else {
-					// A computer that doesn't know the PNG encoding? interesting...
-					errorComponent.setText("Couldn't decode the image");
+
+	public static void selectArmorImage(Consumer<BufferedImage> chooseImage, DynamicTextComponent errorComponent) {
+		try (MemoryStack stack = MemoryStack.stackPush()) {
+			PointerBuffer pPath = stack.callocPointer(1);
+			int result = NFD_OpenDialog(stack.UTF8("png"), null, pPath);
+			if (result == NFD_OKAY) {
+				String path = memUTF8(pPath.get(0));
+				nNFD_Free(pPath.get(0));
+
+				try {
+					BufferedImage chosenImage = ImageIO.read(new File(path));
+					if (chosenImage != null) {
+						chooseImage.accept(chosenImage);
+					} else {
+						// A computer that doesn't know the PNG encoding? interesting...
+						errorComponent.setText("Couldn't decode the image");
+					}
+				} catch (IOException io) {
+					errorComponent.setText("Couldn't load the image: " + io.getMessage());
 				}
-			} catch (IOException io) {
-				errorComponent.setText("Couldn't load the image: " + io.getMessage());
+			} else if (result == NFD_ERROR) {
+				errorComponent.setText("NFD_OpenDialog returned NFD_ERROR");
 			}
-			return returnMenu;
-		}, file -> file.getName().toLowerCase(Locale.ROOT).endsWith(".png"), 
-				EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, 
-				EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, 
-				EditProps.BACKGROUND, EditProps.BACKGROUND2
-		);
+		}
 	}
-	
+
 	@Override
 	public GuiColor getBackgroundColor() {
 		return EditProps.BACKGROUND;

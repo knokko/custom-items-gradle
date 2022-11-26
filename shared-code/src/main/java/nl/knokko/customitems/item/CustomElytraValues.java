@@ -116,7 +116,6 @@ public class CustomElytraValues extends CustomArmorValues {
     public void setWornElytraTexture(BufferedImage newTexture) {
         assertMutable();
         wornElytraTexture = newTexture;
-        System.out.println("Set wornElytraTexture to " + wornElytraTexture);
     }
 
     @Override

@@ -76,17 +76,7 @@ public class AWTGuiWindow extends GuiWindow {
 		guiRenderer = new AWTGuiRenderer(this);
 		charBuilder = new CharBuilder(textureLoader);
 	}
-	
-	public AWTGuiWindow(GuiComponent mainComponent){
-		this();
-		this.mainComponent = mainComponent;
-	}
-	
-	public void setFrame(JFrame frame){
-		this.frame = frame;
-		markChange();
-	}
-	
+
 	public JFrame getFrame(){
 		return frame;
 	}
@@ -130,9 +120,7 @@ public class AWTGuiWindow extends GuiWindow {
 	
 	@Override
 	public void update() {
-		invokeLater(() -> {
-			super.update();
-		});
+		invokeLater(super::update);
 	}
 	
 	@Override
@@ -151,9 +139,7 @@ public class AWTGuiWindow extends GuiWindow {
 	
 	@Override
 	protected void setMainComponentState() {
-		invokeLater(() -> {
-			super.setMainComponentState();
-		});
+		invokeLater(super::setMainComponentState);
 	}
 	
 	@Override
@@ -230,18 +216,14 @@ public class AWTGuiWindow extends GuiWindow {
 			
 			// Then start running
 			while(!shouldStopRunning && frame.isDisplayable()){
-				if(listener == null || !listener.preRunLoop()){
-					long startTime = System.nanoTime();
-					update();
-					render();
-					long sleepTime = startTime + frameTime - System.nanoTime();
-					if(sleepTime > 0){
-						long millis = sleepTime / 1000000;
-						Thread.sleep(millis, (int) (sleepTime - millis * 1000000));
-					}//if sleepTime smaller than 0, we are behind schedule
-					if(listener != null)
-						listener.postRunLoop();
-				}
+				long startTime = System.nanoTime();
+				update();
+				render();
+				long sleepTime = startTime + frameTime - System.nanoTime();
+				if(sleepTime > 0) {
+					long millis = sleepTime / 1000000;
+					Thread.sleep(millis, (int) (sleepTime - millis * 1000000));
+				} //if sleepTime smaller than 0, we are behind schedule
 			}
 		} catch(InterruptedException ex){
 			ex.printStackTrace();
@@ -309,18 +291,14 @@ public class AWTGuiWindow extends GuiWindow {
 		public void mouseWheelMoved(MouseWheelEvent event) {
 			//well... I will need magic numbers sometimes...
 			float amount = event.getUnitsToScroll() * -0.01f;
-			if(listener != null)
-				amount = listener.preScroll(amount);
 			if(amount != 0){
 				mainComponent.scroll(amount);
-				if(listener != null)
-					listener.postScroll(amount);
 			}
 		}
 
 		public void mouseClicked(MouseEvent event) {
 			/*
-			 * Because even moving the mouse a little bit between pressing and
+			 * Because even moving the mouse a little between pressing and
 			 * releasing causes Swing to consider it a drag event rather than a
 			 * click event, we use mouseReleased to handle clicks instead.
 			 */
@@ -334,12 +312,10 @@ public class AWTGuiWindow extends GuiWindow {
 			float x = getMouseX(frame, event.getX());
 			float y = getMouseY(frame, event.getY());
 			int button = AWTMouseConverter.getMouseButton(event.getButton());
-			if(listener == null || !listener.preClick(x, y, button)){
+			if (input.isMouseButtonDown(button)) {
 				mainComponent.click(x, y, button);
-				if(listener != null)
-					listener.postClick(x, y, button);
+				input.setMouseUp(AWTMouseConverter.getMouseButton(event.getButton()));
 			}
-			input.setMouseUp(AWTMouseConverter.getMouseButton(event.getButton()));
 		}
 
 		public void mouseEntered(MouseEvent e) {}
@@ -348,23 +324,16 @@ public class AWTGuiWindow extends GuiWindow {
 
 		public void keyTyped(KeyEvent event) {
 			char c = event.getKeyChar();
-			if(c != KeyEvent.CHAR_UNDEFINED && CharacterFilter.approve(c) && (listener == null || !listener.preKeyPressed(c))){
+			if(c != KeyEvent.CHAR_UNDEFINED && CharacterFilter.approve(c)){
 				mainComponent.keyPressed(c);
-				if(listener != null)
-					listener.postKeyPressed(c);
 			}
-		}//LWJGL doesn't have this event, but keyPressed doesn't give a meaningful character so I will have to use this event
-		//I can't find a way to get this equal in awt and lwjgl
+		}
 
 		public void keyPressed(KeyEvent event) {
 			int[] codes = AWTConverter.getDirect(event.getKeyCode());
-			if(codes != null && codes[0] != KeyCode.UNDEFINED){
-				for(int code : codes){
-					if(listener == null || !listener.preKeyPressed(code)){
-						mainComponent.keyPressed(code);
-						if(listener != null)
-							listener.postKeyPressed(code);
-					}
+			if (codes != null && codes[0] != KeyCode.UNDEFINED){
+				for (int code : codes){
+					mainComponent.keyPressed(code);
 					input.setKeyDown(code);
 				}
 			}
@@ -374,23 +343,10 @@ public class AWTGuiWindow extends GuiWindow {
 			int[] codes = AWTConverter.getDirect(event.getKeyCode());
 			if(codes != null && codes[0] != KeyCode.UNDEFINED){
 				for(int code : codes){
-					if(listener == null || !listener.preKeyReleased(code)){
-						mainComponent.keyReleased(code);
-						input.setKeyUp(code);
-						if(listener != null)
-							listener.postKeyReleased(code);
-					}
+					mainComponent.keyReleased(code);
+					input.setKeyUp(code);
 				}
 			}
-		}
-	}
-	
-	@Override
-	public int getWindowPosX() {
-		if (isOpen()) {
-			return frame.getX() + frame.getInsets().left;
-		} else {
-			return -1;
 		}
 	}
 
@@ -398,15 +354,6 @@ public class AWTGuiWindow extends GuiWindow {
 	public int getPosX() {
 		if (isOpen()) {
 			return frame.getX() + frame.getInsets().left;
-		} else {
-			return -1;
-		}
-	}
-	
-	@Override
-	public int getWindowWidth() {
-		if (isOpen()) {
-			return frame.getWidth();
 		} else {
 			return -1;
 		}
@@ -421,29 +368,11 @@ public class AWTGuiWindow extends GuiWindow {
 			return -1;
 		}
 	}
-	
-	@Override
-	public int getWindowPosY() {
-		if (isOpen()) {
-			return frame.getY();
-		} else {
-			return -1;
-		}
-	}
 
 	@Override
 	public int getPosY() {
 		if (isOpen()) {
 			return frame.getY() + frame.getInsets().top;
-		} else {
-			return -1;
-		}
-	}
-	
-	@Override
-	public int getWindowHeight() {
-		if (isOpen()) {
-			return frame.getHeight();
 		} else {
 			return -1;
 		}

@@ -2,7 +2,6 @@ package nl.knokko.customitems.editor.menu.edit.texture;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.util.Locale;
 
 import nl.knokko.customitems.editor.menu.edit.*;
 import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
@@ -14,8 +13,11 @@ import nl.knokko.customitems.texture.CrossbowTextureValues;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.texture.animated.AnimatedTextureValues;
 import nl.knokko.gui.component.GuiComponent;
-import nl.knokko.gui.component.menu.DirectoryChooserMenu;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.util.nfd.NFDPathSet;
+
+import static org.lwjgl.util.nfd.NativeFileDialog.*;
 
 public class TextureCollectionEdit extends DedicatedCollectionEdit<BaseTextureValues, TextureReference> {
 	
@@ -38,25 +40,39 @@ public class TextureCollectionEdit extends DedicatedCollectionEdit<BaseTextureVa
 		addComponent(new DynamicTextButton("Load texture", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new TextureCreate(menu));
 		}), 0.025f, 0.2f, 0.2f, 0.3f);
-		addComponent(new DynamicTextButton("Load all textures in a folder", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new DirectoryChooserMenu(
-					this, files -> {
-						for (File file : files) {
+		addComponent(new DynamicTextButton("Load multiple textures...", EditProps.BUTTON, EditProps.HOVER, () -> {
+			try (MemoryStack stack = MemoryStack.stackPush()) {
+				NFDPathSet pathSet = NFDPathSet.calloc(stack);
+				int result = NFD_OpenDialogMultiple(stack.UTF8("png"), null, pathSet);
+
+				if (result == NFD_OKAY) {
+					long numImages = NFD_PathSet_GetCount(pathSet);
+					for (long imageIndex = 0; imageIndex < numImages; imageIndex++) {
+						String path = NFD_PathSet_GetPath(pathSet, imageIndex);
+						if (path != null) {
 							try {
-								BaseTextureValues fileImage = TextureEdit.loadBasicImage(file);
+								BaseTextureValues fileImage = TextureEdit.loadBasicImage(new File(path));
 								String error = Validation.toErrorString(() -> menu.getSet().addTexture(fileImage));
 								if (error != null) {
 									errorComponent.setText(fileImage.getName() + ": " + error);
 								}
-							} catch (IllegalArgumentException invalid) {
-								errorComponent.setText(file.getName() + ": " + invalid.getMessage());
+							} catch (IllegalArgumentException invalidImage) {
+								errorComponent.setText("Image " + (imageIndex + 1) + " is invalid: " + invalidImage.getMessage());
 							}
+						} else {
+							errorComponent.setText("Missing image " + (imageIndex + 1));
 						}
-						return this;
-					}, file -> file.getName().toLowerCase(Locale.ROOT).endsWith(".png"),
-					EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, EditProps.SAVE_BASE, EditProps.SAVE_HOVER,
-					EditProps.BACKGROUND, EditProps.BACKGROUND2
-			));
+					}
+					NFD_PathSet_Free(pathSet);
+
+					// This is needed to refresh this view
+					String lastError = errorComponent.getText();
+					state.getWindow().setMainComponent(this);
+					errorComponent.setText(lastError);
+				} else if (result == NFD_ERROR) {
+					errorComponent.setText("NFD_OpenDialogMultiple returned NFD_ERROR");
+				}
+			}
 		}), 0f, 0.05f, 0.3f, 0.15f);
 		
 		HelpButtons.addHelpLink(this, "edit%20menu/textures/overview.html");
