@@ -11,6 +11,7 @@ import java.io.PrintWriter;
 import java.util.function.Predicate;
 
 import static nl.knokko.customitems.editor.wiki.WikiHelper.*;
+import static nl.knokko.customitems.util.ColorCodes.stripColorCodes;
 
 public class WikiIndexGenerator {
 

@@ -11,6 +11,8 @@ import java.io.*;
 import java.nio.file.Files;
 import java.util.Objects;
 
+import static nl.knokko.customitems.util.ColorCodes.stripColorCodes;
+
 public class WikiHelper {
 
     private static final String WIKI_RESOURCE_PREFIX = "nl/knokko/customitems/editor/wiki/";
@@ -59,20 +61,6 @@ public class WikiHelper {
     @FunctionalInterface
     public interface HtmlGeneratorFunction {
         void generate(PrintWriter output) throws IOException;
-    }
-
-    public static String stripColorCodes(String original) {
-        StringBuilder uncolored = new StringBuilder();
-        int[] originalChars = original.codePoints().toArray();
-        for (int index = 0; index < originalChars.length; index++) {
-            // 167 is the code of the color character
-            if (originalChars[index] == 167) {
-                index++;
-            } else {
-                uncolored.append(new String(originalChars, index, 1));
-            }
-        }
-        return uncolored.toString();
     }
 
     public static String createTextBasedIngredientHtml(IngredientValues ingredient, String pathRoToot) {

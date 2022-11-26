@@ -26,8 +26,8 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 import static nl.knokko.customitems.editor.wiki.WikiHelper.generateHtml;
-import static nl.knokko.customitems.editor.wiki.WikiHelper.stripColorCodes;
 import static nl.knokko.customitems.editor.wiki.WikiRecipeGenerator.generateOutputTable;
+import static nl.knokko.customitems.util.ColorCodes.stripColorCodes;
 
 class WikiBlockGenerator {
 

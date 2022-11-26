@@ -27,6 +27,7 @@ import static nl.knokko.customitems.plugin.recipe.RecipeHelper.wrap;
 import static nl.knokko.customitems.plugin.recipe.RecipeHelper.*;
 import static nl.knokko.customitems.plugin.set.item.CustomItemWrapper.wrap;
 import static nl.knokko.customitems.plugin.set.item.CustomToolWrapper.wrap;
+import static nl.knokko.customitems.util.ColorCodes.stripColorCodes;
 import static org.bukkit.enchantments.Enchantment.*;
 
 import java.lang.reflect.Constructor;
@@ -334,9 +335,16 @@ public class CustomItemsEventHandler implements Listener {
 	}
 
 	private Map<CommandSubstitution, String> createGeneralSubstitutionMap(Player player) {
+		String displayName = "";
+		ItemMeta meta = player.getInventory().getItemInMainHand().getItemMeta();
+		if (meta != null) {
+			displayName = meta.getDisplayName();
+		}
 		Map<CommandSubstitution, String> result = new EnumMap<>(CommandSubstitution.class);
 		result.put(CommandSubstitution.WORLD_NAME, player.getWorld().getName());
 		result.put(CommandSubstitution.PLAYER_NAME, player.getName());
+		result.put(CommandSubstitution.RAW_ITEM_NAME, displayName);
+		result.put(CommandSubstitution.ITEM_NAME, stripColorCodes(displayName));
 		result.put(CommandSubstitution.PLAYER_X, Double.toString(player.getLocation().getX()));
 		result.put(CommandSubstitution.PLAYER_Y, Double.toString(player.getLocation().getY()));
 		result.put(CommandSubstitution.PLAYER_Z, Double.toString(player.getLocation().getZ()));

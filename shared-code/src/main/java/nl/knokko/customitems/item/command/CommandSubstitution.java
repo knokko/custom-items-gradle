@@ -5,6 +5,12 @@ public enum CommandSubstitution {
     PLAYER_NAME(
             "player_name", "The name of the player that is holding this item"
     ),
+    RAW_ITEM_NAME(
+            "raw_item_name", "The display name of this item when the event occurs, including color codes"
+    ),
+    ITEM_NAME(
+            "item_name", "The display name of this item when the event occurs, excluding color codes"
+    ),
     WORLD_NAME(
             "world_name", "The name of the world in which the event takes place"
     ),
@@ -64,7 +70,8 @@ public enum CommandSubstitution {
     );
 
     static final CommandSubstitution[] IMPLICIT_SUBSTITUTIONS = {
-            CommandSubstitution.PLAYER_NAME, CommandSubstitution.WORLD_NAME,
+            CommandSubstitution.PLAYER_NAME, CommandSubstitution.ITEM_NAME, CommandSubstitution.RAW_ITEM_NAME,
+            CommandSubstitution.WORLD_NAME,
             CommandSubstitution.PLAYER_X, CommandSubstitution.PLAYER_Y, CommandSubstitution.PLAYER_Z,
             CommandSubstitution.PLAYER_BLOCK_X, CommandSubstitution.PLAYER_BLOCK_Y, CommandSubstitution.PLAYER_BLOCK_Z
     };

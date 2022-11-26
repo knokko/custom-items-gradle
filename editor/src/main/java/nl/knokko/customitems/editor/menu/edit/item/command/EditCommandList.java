@@ -41,7 +41,7 @@ public class EditCommandList extends GuiMenu {
                     0f, 0.93f - index * 0.03f, 0.7f, 0.96f - index * 0.03f
             );
         }
-        addComponent(new CommandCollectionEdit(oldCommands, changeCommands, returnMenu), 0f, 0f, 1f, 0.5f);
+        addComponent(new CommandCollectionEdit(oldCommands, changeCommands, returnMenu), 0f, 0f, 1f, 0.45f);
     }
 
     @Override

@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.stream.Collectors;
 
 import static nl.knokko.customitems.editor.wiki.WikiHelper.*;
+import static nl.knokko.customitems.util.ColorCodes.stripColorCodes;
 
 class WikiProjectileGenerator {
 

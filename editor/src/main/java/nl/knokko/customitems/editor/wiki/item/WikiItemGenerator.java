@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import static nl.knokko.customitems.editor.wiki.WikiHelper.*;
+import static nl.knokko.customitems.util.ColorCodes.stripColorCodes;
 
 public class WikiItemGenerator {
 

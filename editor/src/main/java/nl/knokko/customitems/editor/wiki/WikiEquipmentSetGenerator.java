@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import static nl.knokko.customitems.editor.wiki.WikiHelper.generateHtml;
-import static nl.knokko.customitems.editor.wiki.WikiHelper.stripColorCodes;
+import static nl.knokko.customitems.util.ColorCodes.stripColorCodes;
 
 class WikiEquipmentSetGenerator {
 

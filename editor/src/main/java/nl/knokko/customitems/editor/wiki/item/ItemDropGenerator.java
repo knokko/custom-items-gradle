@@ -20,9 +20,9 @@ import java.util.Collection;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-import static nl.knokko.customitems.editor.wiki.WikiHelper.stripColorCodes;
 import static nl.knokko.customitems.editor.wiki.item.ItemRecipeGenerator.hasItem;
 import static nl.knokko.customitems.editor.wiki.item.ItemRecipeGenerator.isItem;
+import static nl.knokko.customitems.util.ColorCodes.stripColorCodes;
 
 public class ItemDropGenerator {
 
