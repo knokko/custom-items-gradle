@@ -8,6 +8,7 @@ import nl.knokko.customitems.plugin.util.ItemUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Collection;
@@ -15,7 +16,7 @@ import java.util.Collection;
 import static nl.knokko.customitems.plugin.command.CommandCustomItems.getOnlinePlayer;
 import static nl.knokko.customitems.plugin.set.item.CustomItemWrapper.wrap;
 
-class CommandCustomItemsGive {
+public class CommandCustomItemsGive {
 
     final ItemSetWrapper itemSet;
     final LanguageFile lang;
@@ -119,11 +120,11 @@ class CommandCustomItemsGive {
         }
     }
 
-    private void giveTheItem(CommandSender sender, Player receiver, CustomItemValues item, int amount, boolean enableOutput) {
+    public static boolean giveCustomItemToInventory(ItemSetWrapper itemSet, Inventory inventory, CustomItemValues item, int amount) {
         boolean wasGiven = false;
 
         if (wrap(item).needsStackingHelp()) {
-            ItemStack[] contents = receiver.getInventory().getStorageContents();
+            ItemStack[] contents = inventory.getStorageContents();
             int freeSlotIndex = -1;
             for (int index = 0; index < contents.length; index++) {
                 if (ItemUtils.isEmpty(contents[index])) {
@@ -133,7 +134,7 @@ class CommandCustomItemsGive {
                     CustomItemValues existingItem = itemSet.getItem(existingStack);
                     if (existingItem == item && item.getMaxStacksize() >= existingStack.getAmount() + amount) {
                         existingStack.setAmount(existingStack.getAmount() + amount);
-                        receiver.getInventory().setStorageContents(contents);
+                        inventory.setStorageContents(contents);
                         wasGiven = true;
                         break;
                     }
@@ -142,12 +143,19 @@ class CommandCustomItemsGive {
 
             if (freeSlotIndex != -1 && !wasGiven) {
                 contents[freeSlotIndex] = wrap(item).create(amount);
-                receiver.getInventory().setStorageContents(contents);
-                wasGiven = true;
+                inventory.setStorageContents(contents);
+                return true;
             }
+
+            return wasGiven;
         } else {
-            wasGiven = receiver.getInventory().addItem(wrap(item).create(amount)).isEmpty();
+            return inventory.addItem(wrap(item).create(amount)).isEmpty();
         }
+    }
+
+    private void giveTheItem(CommandSender sender, Player receiver, CustomItemValues item, int amount, boolean enableOutput) {
+        boolean wasGiven = giveCustomItemToInventory(itemSet, receiver.getInventory(), item, amount);
+
         if (enableOutput) {
             if (wasGiven) sender.sendMessage(lang.getCommandItemGiven());
             else sender.sendMessage(ChatColor.RED + "No available inventory slot was found");

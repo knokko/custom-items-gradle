@@ -53,6 +53,7 @@ class CIDenizenAddon {
 
         DenizenCore.commandRegistry.registerCommand(PlaceKciBlockCommand.class);
         DenizenCore.commandRegistry.registerCommand(KciContainerCommand.class);
+        DenizenCore.commandRegistry.registerCommand(GiveKciItemCommand.class);
         new KciItemsTag();
     }
 }
