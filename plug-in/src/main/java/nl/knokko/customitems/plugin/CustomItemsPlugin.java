@@ -5,6 +5,7 @@ import java.io.File;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.command.CustomItemsTabCompletions;
 import nl.knokko.customitems.plugin.equipment.EquipmentSetAttributes;
+import nl.knokko.customitems.plugin.events.CustomBowEventHandler;
 import nl.knokko.customitems.plugin.events.CustomMusicDiscEventHandler;
 import nl.knokko.customitems.plugin.miningspeed.MiningSpeedManager;
 import nl.knokko.customitems.plugin.multisupport.denizen.DenizenSupport;
@@ -89,6 +90,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 			Bukkit.getPluginManager().registerEvents(projectileManager, this);
 			Bukkit.getPluginManager().registerEvents(new CustomMusicDiscEventHandler(itemSet), this);
 			Bukkit.getPluginManager().registerEvents(new WorldgenListener(itemSet), this);
+			Bukkit.getPluginManager().registerEvents(new CustomBowEventHandler(itemSet), this);
 			CustomItemPickups.start();
 			EquipmentEffectsManager.start();
 
