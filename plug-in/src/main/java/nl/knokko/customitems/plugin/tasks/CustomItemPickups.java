@@ -1,10 +1,11 @@
-package nl.knokko.customitems.plugin;
+package nl.knokko.customitems.plugin.tasks;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -17,7 +18,7 @@ import static nl.knokko.customitems.plugin.set.item.CustomItemWrapper.wrap;
 
 public class CustomItemPickups {
 
-	static void start() {
+	public static void start() {
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(CustomItemsPlugin.getInstance(), () -> {
 			
 			List<Player> interestingPlayers = new ArrayList<>();

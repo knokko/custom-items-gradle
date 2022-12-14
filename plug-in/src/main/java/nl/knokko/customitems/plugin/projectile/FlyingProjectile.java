@@ -5,7 +5,7 @@ import static java.lang.Math.*;
 import java.util.Collection;
 import java.util.Random;
 
-import nl.knokko.customitems.plugin.SoundPlayer;
+import nl.knokko.customitems.plugin.util.SoundPlayer;
 import nl.knokko.customitems.plugin.util.ParticleHelper;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 import nl.knokko.customitems.projectile.effect.*;

@@ -4,7 +4,7 @@ import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomMusicDiscValues;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
-import nl.knokko.customitems.plugin.SoundPlayer;
+import nl.knokko.customitems.plugin.util.SoundPlayer;
 import nl.knokko.customitems.plugin.multisupport.actionbarapi.ActionBarAPISupport;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.util.ItemUtils;

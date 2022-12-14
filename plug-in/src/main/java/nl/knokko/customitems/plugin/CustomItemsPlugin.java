@@ -4,7 +4,7 @@ import java.io.File;
 
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.command.CustomItemsTabCompletions;
-import nl.knokko.customitems.plugin.equipment.EquipmentSetAttributes;
+import nl.knokko.customitems.plugin.tasks.*;
 import nl.knokko.customitems.plugin.events.CustomBowEventHandler;
 import nl.knokko.customitems.plugin.events.CustomMusicDiscEventHandler;
 import nl.knokko.customitems.plugin.miningspeed.MiningSpeedManager;

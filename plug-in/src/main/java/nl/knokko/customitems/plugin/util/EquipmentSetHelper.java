@@ -1,4 +1,4 @@
-package nl.knokko.customitems.plugin.equipment;
+package nl.knokko.customitems.plugin.util;
 
 import nl.knokko.customitems.item.AttributeModifierValues;
 import nl.knokko.customitems.item.equipment.EquipmentBonusValues;

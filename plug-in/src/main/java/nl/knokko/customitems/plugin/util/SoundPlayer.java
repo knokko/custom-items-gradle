@@ -1,4 +1,4 @@
-package nl.knokko.customitems.plugin;
+package nl.knokko.customitems.plugin.util;
 
 import nl.knokko.customitems.sound.SoundValues;
 import org.bukkit.Location;

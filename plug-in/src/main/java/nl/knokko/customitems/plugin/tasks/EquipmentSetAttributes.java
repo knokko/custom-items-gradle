@@ -1,7 +1,8 @@
-package nl.knokko.customitems.plugin.equipment;
+package nl.knokko.customitems.plugin.tasks;
 
 import nl.knokko.customitems.item.AttributeModifierValues;
 import nl.knokko.customitems.item.equipment.EquipmentBonusValues;
+import nl.knokko.customitems.plugin.util.EquipmentSetHelper;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.World;

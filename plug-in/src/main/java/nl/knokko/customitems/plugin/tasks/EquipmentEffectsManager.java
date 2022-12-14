@@ -1,7 +1,8 @@
-package nl.knokko.customitems.plugin;
+package nl.knokko.customitems.plugin.tasks;
 
 import nl.knokko.customitems.effect.EquippedPotionEffectValues;
 import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.World;

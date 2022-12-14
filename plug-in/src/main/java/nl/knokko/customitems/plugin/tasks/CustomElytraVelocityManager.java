@@ -1,15 +1,15 @@
-package nl.knokko.customitems.plugin;
+package nl.knokko.customitems.plugin.tasks;
 
 import nl.knokko.customitems.item.CustomElytraValues;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.elytra.GlideAccelerationValues;
 import nl.knokko.customitems.item.elytra.GlideAxis;
 import nl.knokko.customitems.item.elytra.VelocityModifierValues;
+import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
 import static java.lang.Math.sqrt;
@@ -17,7 +17,7 @@ import static nl.knokko.customitems.plugin.set.item.CustomToolWrapper.wrap;
 
 public class CustomElytraVelocityManager {
 
-    static void start(ItemSetWrapper itemSet, CustomItemsPlugin plugin) {
+    public static void start(ItemSetWrapper itemSet, CustomItemsPlugin plugin) {
         Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (player.isGliding()) {
