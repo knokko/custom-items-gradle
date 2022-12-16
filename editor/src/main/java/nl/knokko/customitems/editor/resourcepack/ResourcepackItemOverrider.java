@@ -134,23 +134,27 @@ class ResourcepackItemOverrider {
             }
 
             // The interesting part...
-            for (CustomItemValues item : itemSet.getItems().stream().sorted(Comparator.comparingInt(CustomItemValues::getItemDamage)).collect(Collectors.toList())) {
-                if (item.getItemType() == CustomItemType.OTHER && item.getOtherMaterial() == currentOtherMaterial) {
+            List<CustomItemValues> currentItems = itemSet.getItems().stream().sorted(
+                    Comparator.comparingInt(CustomItemValues::getItemDamage)
+            ).filter(
+                    item -> item.getItemType() == CustomItemType.OTHER && item.getOtherMaterial() == currentOtherMaterial
+            ).collect(Collectors.toList());
+            for (int index = 0; index < currentItems.size(); index++) {
+                CustomItemValues item = currentItems.get(index);
 
-                    // Find the corresponding claim
-                    ItemDurabilityClaim claim = null;
-                    for (ItemDurabilityClaim candidateClaim : dataAssignments.claimList) {
-                        if (candidateClaim.itemDamage == item.getItemDamage()) {
-                            claim = candidateClaim;
-                        }
+                // Find the corresponding claim
+                ItemDurabilityClaim claim = null;
+                for (ItemDurabilityClaim candidateClaim : dataAssignments.claimList) {
+                    if (candidateClaim.itemDamage == item.getItemDamage()) {
+                        claim = candidateClaim;
                     }
-
-                    jsonWriter.print("        { \"predicate\": { \"custom_model_data\": " + claim.itemDamage + " }, \"model\": \"" + claim.resourcePath + "\" }");
-                    if (item.getItemDamage() != maxItemDamage) {
-                        jsonWriter.print(",");
-                    }
-                    jsonWriter.println();
                 }
+
+                jsonWriter.print("        { \"predicate\": { \"custom_model_data\": " + claim.itemDamage + " }, \"model\": \"" + claim.resourcePath + "\" }");
+                if (index != currentItems.size() - 1) {
+                    jsonWriter.print(",");
+                }
+                jsonWriter.println();
             }
 
             // End of the json file
