@@ -74,7 +74,7 @@ public enum CustomItemType {
 	NETHERITE_BOOTS(481, true, VERSION1_16, LAST_VERSION, BOOTS, PROJECTILE_COVER),
 	// The maximum durability of crossbow differs per minecraft version and is taken care of in getMaxDurability()
 	CROSSBOW(-1, false, VERSION1_14, LAST_VERSION, Category.CROSSBOW),
-	OTHER(-1, true, VERSION1_14, LAST_VERSION, DEFAULT, FOOD, BLOCK, MUSIC_DISC);
+	OTHER(-1, true, VERSION1_14, LAST_VERSION, DEFAULT, FOOD, BLOCK, MUSIC_DISC, ARROW);
 	
 	private final short maxDurability;
 	private final Category[] categories;
@@ -216,6 +216,7 @@ public enum CustomItemType {
 		GUN,
 		FOOD,
 		BLOCK,
-		MUSIC_DISC
+		MUSIC_DISC,
+		ARROW
 	}
 }

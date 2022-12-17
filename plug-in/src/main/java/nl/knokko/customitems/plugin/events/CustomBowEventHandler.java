@@ -1,29 +1,32 @@
 package nl.knokko.customitems.plugin.events;
 
 import nl.knokko.customitems.effect.ChancePotionEffectValues;
-import nl.knokko.customitems.item.CustomBowValues;
-import nl.knokko.customitems.item.CustomCrossbowValues;
-import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.item.CustomTridentValues;
+import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.item.CustomItemWrapper;
+import nl.knokko.customitems.plugin.util.ArrowTracker;
+import nl.knokko.customitems.plugin.util.AttackEffects;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.player.PlayerPickupArrowEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.projectiles.ProjectileSource;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -42,13 +45,62 @@ public class CustomBowEventHandler implements Listener {
         this.itemSet = itemSet;
     }
 
+    @EventHandler(priority = EventPriority.LOW)
+    public void pickupCustomArrows(PlayerPickupArrowEvent event) {
+        CustomArrowValues customArrow = null;
+
+        // This work-around is needed because the return type of event.getArrow() is either Arrow or AbstractArrow,
+        // depending on the minecraft version, which causes incompatible byte code problems
+        Arrow arrow;
+        try {
+            arrow = (Arrow) event.getClass().getMethod("getArrow").invoke(event);
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            // Let's try this as back-up
+            arrow = event.getArrow();
+        }
+
+        for (MetadataValue meta : arrow.getMetadata("CustomArrowName")) {
+            if (meta.getOwningPlugin() == CustomItemsPlugin.getInstance()) {
+                CustomItemValues customItem = itemSet.getItem(meta.asString());
+                if (customItem instanceof CustomArrowValues) {
+                    customArrow = (CustomArrowValues) customItem;
+                    break;
+                }
+            }
+        }
+
+        if (customArrow != null) {
+            event.getItem().setItemStack(wrap(customArrow).create(event.getItem().getItemStack().getAmount()));
+        }
+    }
+
     @EventHandler(ignoreCancelled = true)
     public void onBowShoot(EntityShootBowEvent event) {
+        Entity projectile = event.getProjectile();
+        if (event.getEntity() instanceof Player && projectile instanceof Arrow) {
+            PlayerInventory inv = ((Player) event.getEntity()).getInventory();
+
+            int[] oldArrowCounts = ArrowTracker.countArrows(inv);
+            CustomArrowValues[] oldArrowTypes = ArrowTracker.getArrowTypes(inv, itemSet);
+            Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
+                CustomArrowValues arrowType = ArrowTracker.determineUsedArrowType(oldArrowCounts, oldArrowTypes, inv);
+                if (arrowType != null) {
+
+                    Arrow arrow = (Arrow) projectile;
+                    arrow.setVelocity(arrow.getVelocity().multiply(arrowType.getSpeedMultiplier()));
+                    arrow.setKnockbackStrength(arrow.getKnockbackStrength() + arrowType.getKnockbackStrength());
+                    if (!arrowType.shouldHaveGravity()) arrow.setGravity(false);
+                    arrow.setMetadata(
+                            "CustomArrowName",
+                            new FixedMetadataValue(CustomItemsPlugin.getInstance(), arrowType.getName())
+                    );
+                }
+            });
+        }
 
         CustomItemValues customItem = itemSet.getItem(event.getBow());
 
         if (customItem instanceof CustomBowValues || customItem instanceof CustomCrossbowValues) {
-            Entity projectile = event.getProjectile();
             if (projectile instanceof Arrow || projectile instanceof Firework) {
 
                 // Only decrease durability when shot by a player
@@ -198,6 +250,29 @@ public class CustomBowEventHandler implements Listener {
                             }
 
                             ((LivingEntity) shooter).addPotionEffects(effects);
+                        }
+                    }
+                }
+            }
+
+            if (event.getDamager() instanceof Arrow) {
+                Arrow arrow = (Arrow) event.getDamager();
+                metas = arrow.getMetadata("CustomArrowName");
+                for (MetadataValue meta : metas) {
+                    if (meta.getOwningPlugin() == CustomItemsPlugin.getInstance()) {
+                        CustomItemValues customItem = itemSet.getItem(meta.asString());
+                        if (customItem instanceof CustomArrowValues) {
+
+                            CustomArrowValues customArrow = (CustomArrowValues) customItem;
+                            event.setDamage(event.getDamage() * customArrow.getDamageMultiplier());
+
+                            ProjectileSource shooter = arrow.getShooter();
+                            if (shooter instanceof Entity) {
+                                AttackEffects.apply(
+                                        (Entity) shooter, event.getEntity(), customArrow.getShootEffects(),
+                                        event.getDamage(), event.getFinalDamage()
+                                );
+                            }
                         }
                     }
                 }

@@ -50,6 +50,9 @@ public class CreateItem extends GuiMenu {
 		addComponent(new DynamicTextButton("Music disc (1.14+)", CHOOSE_BASE, CHOOSE_HOVER, () -> {
 			state.getWindow().setMainComponent(new EditItemMusicDisc(menu, new CustomMusicDiscValues(true), null));
 		}), 0f, 0.275f, 0.23f, 0.375f);
+		addComponent(new DynamicTextButton("Arrow (1.14+)", CHOOSE_BASE, CHOOSE_HOVER, () -> {
+			state.getWindow().setMainComponent(new EditItemArrow(menu, new CustomArrowValues(true), null));
+		}), 0f, 0.15f, 0.2f, 0.25f);
 
 		// The row for the special stuff
 		addComponent(new DynamicTextButton("Wand", CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {

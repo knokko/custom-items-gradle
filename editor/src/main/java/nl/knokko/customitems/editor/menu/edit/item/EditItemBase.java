@@ -201,6 +201,7 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 				CIMaterial.class, currentValues::setOtherMaterial, candidateType -> {
 					// Choosing AIR is not really an option
 					if (candidateType == CIMaterial.AIR) return false;
+					if (getCategory() == CustomItemType.Category.ARROW && candidateType != CIMaterial.ARROW) return false;
 					try {
 						VanillaModelProperties.valueOf(candidateType.name());
 						return true;

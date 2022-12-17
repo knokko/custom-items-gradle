@@ -75,6 +75,8 @@ public class ItemCollectionEdit extends DedicatedCollectionEdit<CustomItemValues
 			return new EditItemSimple(menu, (SimpleCustomItemValues) itemValues, toModify);
 		else if (itemValues instanceof CustomFoodValues)
 			return new EditItemFood(menu, (CustomFoodValues) itemValues, toModify);
+		else if (itemValues instanceof CustomArrowValues)
+			return new EditItemArrow(menu, (CustomArrowValues) itemValues, toModify);
 		else if (itemValues instanceof CustomBlockItemValues)
 			return new EditItemBlock(menu, (CustomBlockItemValues) itemValues, toModify);
 		else if (itemValues instanceof CustomMusicDiscValues)

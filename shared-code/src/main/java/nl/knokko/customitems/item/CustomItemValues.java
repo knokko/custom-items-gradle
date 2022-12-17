@@ -123,6 +123,8 @@ public abstract class CustomItemValues extends ModelValues {
             return CustomElytraValues.load(input, false, itemSet);
         } else if (encoding == ENCODING_MUSIC_DISC) {
             return CustomMusicDiscValues.load(input, itemSet);
+        } else if (encoding == ENCODING_ARROW) {
+            return CustomArrowValues.load(input, itemSet);
         } else {
             throw new UnknownEncodingException("CustomItem", encoding);
         }
