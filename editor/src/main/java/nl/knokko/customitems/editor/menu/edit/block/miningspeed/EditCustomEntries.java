@@ -37,7 +37,7 @@ class EditCustomEntries extends GuiMenu {
                     entry.getItemReference()
             ), 0.01f, minY, 0.6f, maxY);
             addComponent(new EagerIntEditField(
-                    entry.getValue(), -4, 25, EDIT_BASE, EDIT_ACTIVE, entry::setValue
+                    entry.getValue(), -5, 25, EDIT_BASE, EDIT_ACTIVE, entry::setValue
             ), 0.61f, minY, 0.89f, maxY);
 
             final int rememberIndex = index;

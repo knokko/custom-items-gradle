@@ -52,8 +52,6 @@ import nl.knokko.customitems.recipe.result.ResultValues;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.Jukebox;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
@@ -3552,14 +3550,22 @@ public class CustomItemsEventHandler implements Listener {
 				miningSpeedManager.startBreakingCustomBlock(
 						event.getPlayer(), event.getClickedBlock(), customBlock, material, customItem
 				);
+
+				// This code prevents some client-side glitches when using very fast axes
+				event.getPlayer().sendBlockChange(
+						Objects.requireNonNull(event.getClickedBlock()).getLocation(),
+						event.getClickedBlock().getBlockData()
+				);
 			} else {
-				miningSpeedManager.stopBreakingCustomBlock(event.getPlayer());
+				miningSpeedManager.stopBreakingCustomBlockEffect(event.getPlayer());
 			}
 		}
 	}
 
 	@EventHandler
 	public void handleCustomBlockMiningSpeed(BlockBreakEvent event) {
-		CustomItemsPlugin.getInstance().getMiningSpeedManager().stopBreakingCustomBlock(event.getPlayer());
+		MiningSpeedManager miningSpeed = CustomItemsPlugin.getInstance().getMiningSpeedManager();
+		miningSpeed.stopBreakingCustomBlockEffect(event.getPlayer());
+		miningSpeed.maybeCancelCustomBlockBreak(event, itemSet);
 	}
 }

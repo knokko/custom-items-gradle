@@ -35,7 +35,7 @@ class EditVanillaEntries extends GuiMenu {
                     0.01f, minY, 0.4f, maxY
             );
             addComponent(new EagerIntEditField(
-                    entry.getValue(), -4, 25, EDIT_BASE, EDIT_ACTIVE, entry::setValue
+                    entry.getValue(), -5, 25, EDIT_BASE, EDIT_ACTIVE, entry::setValue
             ), 0.41f, minY, 0.49f, maxY);
             addComponent(
                     new CheckboxComponent(entry.shouldAcceptCustomItems(), entry::setAcceptCustomItems),

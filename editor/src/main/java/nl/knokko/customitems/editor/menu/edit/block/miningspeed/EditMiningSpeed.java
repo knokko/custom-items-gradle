@@ -65,7 +65,7 @@ public class EditMiningSpeed extends GuiMenu {
                 0.01f, 0.5f, 0.2f, 0.6f
         );
         addComponent(new EagerIntEditField(
-                currentValues.getDefaultValue(), -4, 25, EDIT_BASE, EDIT_ACTIVE, currentValues::setDefaultValue
+                currentValues.getDefaultValue(), -5, 25, EDIT_BASE, EDIT_ACTIVE, currentValues::setDefaultValue
         ), 0.21f, 0.5f, 0.25f, 0.6f);
 
         addComponent(

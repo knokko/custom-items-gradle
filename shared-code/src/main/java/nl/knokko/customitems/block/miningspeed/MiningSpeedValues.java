@@ -19,7 +19,7 @@ import java.util.Collection;
 public class MiningSpeedValues extends ModelValues {
 
     static void validateValue(int value) throws ValidationException {
-        if (value < -4) throw new ValidationException("Value must be at least -2");
+        if (value < -5) throw new ValidationException("Value must be at least -5");
         if (value > 25) throw new ValidationException("Value can be at most 25");
     }
 
