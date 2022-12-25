@@ -64,6 +64,10 @@ public class Exporter {
     private static String uploadResourcePackToMyHost(
             ItemSet itemSet
     ) throws IOException, ValidationException, ProgrammingValidationException {
+
+        // Ensure that the right item damages are used when writing the .cis file
+        itemSet.assignInternalItemDamages();
+
         ByteArrayBitOutput cisOutput = new ByteArrayBitOutput();
         itemSet.save(cisOutput, ItemSet.Side.PLUGIN);
         cisOutput.terminate();
