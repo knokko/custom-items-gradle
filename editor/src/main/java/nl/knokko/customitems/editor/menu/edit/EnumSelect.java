@@ -11,6 +11,8 @@ import nl.knokko.gui.component.text.TextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
+import static java.lang.Float.min;
+
 public class EnumSelect<T extends Enum<?>> extends GuiMenu {
 	
 	public static <T extends Enum<?>> DynamicTextButton createSelectButton(Class<T> enumClass, Consumer<T> receiver, Predicate<T> filter, T current) {
@@ -109,7 +111,7 @@ public class EnumSelect<T extends Enum<?>> extends GuiMenu {
 						addComponent(new DynamicTextButton(currentType.toString(), EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
 							receiver.accept(currentType);
 							state.getWindow().setMainComponent(returnMenu);
-						}), x, y - 0.125f, x + 0.27f, y);
+						}), x, y - 0.125f, x + min(0.27f, 0.02f * currentType.toString().length()), y);
 						y -= 0.19f;
 						if (y < 0.1f) {
 							x += 0.333f;
@@ -128,7 +130,7 @@ public class EnumSelect<T extends Enum<?>> extends GuiMenu {
 						addComponent(new DynamicTextButton(currentType.toString(), EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
 							receiver.accept(currentType);
 							state.getWindow().setMainComponent(returnMenu);
-						}), x, y - 0.125f, x + 0.27f, y);
+						}), x, y - 0.125f, x + min(0.27f, 0.02f * currentType.toString().length()), y);
 						x += 0.333f;
 						if (x > 0.99f) {
 							x = 0f;
