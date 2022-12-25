@@ -112,7 +112,7 @@ public class Backward6 {
         assertFalse(trident1.allowEnchanting());
         assertFalse(trident1.allowAnvilActions());
         assertEquals(432, (long) trident1.getMaxDurabilityNew());
-        assertEquals(SimpleVanillaIngredientValues.createQuick(CIMaterial.ACACIA_LOG, (byte) 1, null), trident1.getRepairItem());
+        assertEquals(SimpleVanillaIngredientValues.createQuick(CIMaterial.ACACIA_LOG, (byte) 1), trident1.getRepairItem());
         assertEquals(5, trident1.getEntityHitDurabilityLoss());
         assertEquals(6, trident1.getBlockBreakDurabilityLoss());
         assertEquals(7, trident1.getThrowDurabilityLoss());
@@ -122,7 +122,7 @@ public class Backward6 {
 
     private static ShapelessRecipeValues createCoralRecipe() {
         return ShapelessRecipeValues.createQuick(
-                listOf(SimpleVanillaIngredientValues.createQuick(CIMaterial.ACACIA_PLANKS, 1, null)),
+                listOf(SimpleVanillaIngredientValues.createQuick(CIMaterial.ACACIA_PLANKS, 1)),
                 SimpleVanillaResultValues.createQuick(CIMaterial.BRAIN_CORAL, 3)
         );
     }
@@ -153,7 +153,7 @@ public class Backward6 {
 
     static ShapedRecipeValues createShapedRecipe2() {
         IngredientValues[] ingredients = {
-                new NoIngredientValues(), SimpleVanillaIngredientValues.createQuick(CIMaterial.COAL, 1, null), new NoIngredientValues(),
+                new NoIngredientValues(), SimpleVanillaIngredientValues.createQuick(CIMaterial.COAL, 1), new NoIngredientValues(),
                 new NoIngredientValues(), new NoIngredientValues(), new NoIngredientValues(),
                 new NoIngredientValues(), new NoIngredientValues(), new NoIngredientValues()
         };
@@ -332,7 +332,7 @@ public class Backward6 {
         assertFalse(item.allowEnchanting());
         assertTrue(item.allowAnvilActions());
         assertEquals(234, (long) item.getMaxDurabilityNew());
-        assertEquals(SimpleVanillaIngredientValues.createQuick(CIMaterial.DIAMOND, 1, null), item.getRepairItem());
+        assertEquals(SimpleVanillaIngredientValues.createQuick(CIMaterial.DIAMOND, 1), item.getRepairItem());
         assertEquals(1, item.getEntityHitDurabilityLoss());
         assertEquals(2, item.getBlockBreakDurabilityLoss());
         assertEquals(7.0, item.getThresholdDamage(), 0.0);

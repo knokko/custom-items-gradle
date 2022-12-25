@@ -71,7 +71,7 @@ public class ShapedRecipeEdit extends GuiMenu {
 		addComponent(errorComponent, 0.35f, 0.85f, 0.95f, 0.95f);
 		addComponent(resultComponent, 0.75f, 0.275f, 0.95f, 0.425f);
 		
-		HelpButtons.addHelpLink(this, "edit%20menu/recipes/shaped.html");
+		HelpButtons.addHelpLink(this, "edit menu/recipes/shaped.html");
 	}
 	
 	@Override

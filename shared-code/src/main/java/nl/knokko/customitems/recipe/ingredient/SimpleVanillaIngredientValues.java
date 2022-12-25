@@ -3,6 +3,7 @@ package nl.knokko.customitems.recipe.ingredient;
 import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.customitems.recipe.ingredient.constraint.IngredientConstraintsValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
@@ -24,6 +25,8 @@ public class SimpleVanillaIngredientValues extends IngredientValues {
             result.load1(input);
         } else if (encoding == VANILLA_SIMPLE_2) {
             result.load2(input, itemSet);
+        } else if (encoding == VANILLA_SIMPLE_NEW) {
+            result.loadNew(input, itemSet);
         } else {
             throw new UnknownEncodingException("SimpleVanillaIngredient", encoding);
         }
@@ -31,11 +34,18 @@ public class SimpleVanillaIngredientValues extends IngredientValues {
         return result;
     }
 
-    public static SimpleVanillaIngredientValues createQuick(CIMaterial material, int amount, ResultValues remainingItem) {
+    public static SimpleVanillaIngredientValues createQuick(CIMaterial material, int amount) {
+        return createQuick(material, amount, null, new IngredientConstraintsValues(true));
+    }
+
+    public static SimpleVanillaIngredientValues createQuick(
+            CIMaterial material, int amount, ResultValues remainingItem, IngredientConstraintsValues constraints
+    ) {
         SimpleVanillaIngredientValues result = new SimpleVanillaIngredientValues(true);
         result.setMaterial(material);
         result.setAmount((byte) amount);
         result.setRemainingItem(remainingItem);
+        result.setConstraints(constraints);
         return result;
     }
 
@@ -46,7 +56,7 @@ public class SimpleVanillaIngredientValues extends IngredientValues {
         super(mutable);
 
         this.amount = 1;
-        this.material = null;
+        this.material = CIMaterial.STONE;
     }
 
     public SimpleVanillaIngredientValues(SimpleVanillaIngredientValues toCopy, boolean mutable) {
@@ -87,7 +97,8 @@ public class SimpleVanillaIngredientValues extends IngredientValues {
         if (other instanceof SimpleVanillaIngredientValues) {
             SimpleVanillaIngredientValues otherIngredient = (SimpleVanillaIngredientValues) other;
             return this.material == otherIngredient.material && this.amount == otherIngredient.amount
-                    && Objects.equals(this.remainingItem, otherIngredient.remainingItem);
+                    && Objects.equals(this.remainingItem, otherIngredient.remainingItem)
+                    && this.constraints.equals(otherIngredient.constraints);
         } else {
             return false;
         }
@@ -110,16 +121,25 @@ public class SimpleVanillaIngredientValues extends IngredientValues {
         this.material = CIMaterial.valueOf(input.readJavaString());
     }
 
-    @Override
-    public void save(BitOutput output) {
-        output.addByte(VANILLA_SIMPLE_2);
-        save2(output);
+    private void loadNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("InternalSimpleIngredient", encoding);
+
+        this.amount = input.readByte();
+        this.material = CIMaterial.valueOf(input.readString());
+        loadRemainingItem(input, itemSet);
+        this.constraints = IngredientConstraintsValues.load(input);
     }
 
-    private void save2(BitOutput output) {
+    @Override
+    public void save(BitOutput output) {
+        output.addByte(VANILLA_SIMPLE_NEW);
+        output.addByte((byte) 1);
+
         output.addByte(amount);
+        output.addString(material.name());
         saveRemainingItem(output);
-        output.addJavaString(material.name());
+        constraints.save(output);
     }
 
     @Override

@@ -2,11 +2,12 @@ package nl.knokko.customitems.editor.menu.edit.container.recipe;
 
 import nl.knokko.customitems.container.ContainerRecipeValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.ChooseIngredient;
+import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.EditIngredient;
 import nl.knokko.customitems.editor.util.StringLength;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
+import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.color.SimpleGuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -102,8 +103,10 @@ public class InputSlotComponent implements GuiComponent {
 
 	@Override
 	public void click(float x, float y, int button) {
-		state.getWindow().setMainComponent(new ChooseIngredient(outerMenu, 
-				this::setIngredient, true, set
+		IngredientValues currentInput = recipe.getInput(name);
+		if (currentInput == null) currentInput = new SimpleVanillaIngredientValues(false);
+		state.getWindow().setMainComponent(new EditIngredient(outerMenu,
+				this::setIngredient, currentInput, true, set
 		));
 	}
 

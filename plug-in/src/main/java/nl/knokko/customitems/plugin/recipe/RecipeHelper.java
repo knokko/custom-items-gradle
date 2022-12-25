@@ -1,22 +1,32 @@
 package nl.knokko.customitems.plugin.recipe;
 
 import nl.knokko.customitems.item.CIMaterial;
+import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.CustomToolValues;
 import nl.knokko.customitems.nms.KciNms;
+import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.multisupport.itembridge.ItemBridgeSupport;
 import nl.knokko.customitems.plugin.multisupport.mimic.MimicSupport;
+import nl.knokko.customitems.plugin.set.item.BukkitEnchantments;
 import nl.knokko.customitems.plugin.set.item.CustomItemWrapper;
+import nl.knokko.customitems.plugin.set.item.CustomToolWrapper;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import nl.knokko.customitems.recipe.CraftingRecipeValues;
 import nl.knokko.customitems.recipe.ShapedRecipeValues;
 import nl.knokko.customitems.recipe.ShapelessRecipeValues;
 import nl.knokko.customitems.recipe.ingredient.*;
+import nl.knokko.customitems.recipe.ingredient.constraint.*;
 import nl.knokko.customitems.recipe.result.*;
 import nl.knokko.customitems.util.StringEncoder;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
+
+import static nl.knokko.customitems.item.CustomItemValues.UNBREAKABLE_TOOL_DURABILITY;
 
 public class RecipeHelper {
 
@@ -48,9 +58,84 @@ public class RecipeHelper {
         }
     }
 
+    private static float getDurabilityPercentage(ItemStack item) {
+        long currentDurability = 0;
+        long maxDurability = 0;
+
+        CustomItemValues customItem = CustomItemsPlugin.getInstance().getSet().getItem(item);
+        if (customItem != null) {
+            if (customItem instanceof CustomToolValues) {
+                CustomToolValues customTool = (CustomToolValues) customItem;
+                if (customTool.getMaxDurabilityNew() != null) {
+                    currentDurability = CustomToolWrapper.wrap(customTool).getDurability(item);
+                    if (currentDurability != UNBREAKABLE_TOOL_DURABILITY) maxDurability = customTool.getMaxDurabilityNew();
+                }
+            }
+        } else if (item != null) {
+            maxDurability = item.getType().getMaxDurability();
+            if (maxDurability > 0) {
+                ItemMeta meta = item.getItemMeta();
+                if (meta instanceof Damageable && !meta.isUnbreakable()) {
+                    currentDurability = maxDurability - ((Damageable) meta).getDamage();
+                } else {
+                    currentDurability = maxDurability;
+                }
+            }
+        }
+
+        if (maxDurability > 0) {
+            return 100f * currentDurability / maxDurability;
+        } else {
+            return 100f;
+        }
+    }
+
+    private static boolean satisfiesFloatConstraint(float value, ConstraintOperator operator, float referenceValue) {
+        switch (operator) {
+            case AT_LEAST: return value >= referenceValue;
+            case GREATER_THAN: return value > referenceValue;
+            case AT_MOST: return value <= referenceValue;
+            case SMALLER_THAN: return value < referenceValue;
+            // Note that EQUAL is not allowed for float constraints
+            default: throw new UnsupportedOperationException("Unexpected operator " + operator);
+        }
+    }
+
+    private static boolean satisfiesIntConstraint(int value, ConstraintOperator operator, int referenceValue) {
+        switch (operator) {
+            case AT_LEAST: return value >= referenceValue;
+            case GREATER_THAN: return value > referenceValue;
+            case EQUAL: return value == referenceValue;
+            case AT_MOST: return value <= referenceValue;
+            case SMALLER_THAN: return value < referenceValue;
+            default: throw new UnsupportedOperationException("Unexpected operator " + operator);
+        }
+    }
+
+    private static boolean doesItemStackSatisfyConstraints(IngredientConstraintsValues constraints, ItemStack item) {
+        float durabilityPercentage = getDurabilityPercentage(item);
+
+        for (DurabilityConstraintValues constraint : constraints.getDurabilityConstraints()) {
+            if (!satisfiesFloatConstraint(durabilityPercentage, constraint.getOperator(), constraint.getPercentage())) return false;
+        }
+
+        for (EnchantmentConstraintValues constraint : constraints.getEnchantmentConstraints()) {
+            int level = BukkitEnchantments.getLevel(item, constraint.getEnchantment());
+            if (!satisfiesIntConstraint(level, constraint.getOperator(), constraint.getLevel())) return false;
+        }
+
+        for (VariableConstraintValues constraint : constraints.getVariableConstraints()) {
+            // TODO Implement this when I introduce variables
+        }
+
+        return true;
+    }
+
     @SuppressWarnings("deprecation")
     public static boolean shouldIngredientAcceptAmountless(IngredientValues ingredient, ItemStack item) {
         if (ingredient instanceof NoIngredientValues) return ItemUtils.isEmpty(item);
+
+        if (!doesItemStackSatisfyConstraints(ingredient.getConstraints(), item)) return false;
 
         if (ingredient instanceof SimpleVanillaIngredientValues) {
             CIMaterial type = ((SimpleVanillaIngredientValues) ingredient).getMaterial();

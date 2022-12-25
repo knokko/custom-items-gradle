@@ -98,7 +98,7 @@ public class Backward4 {
         assertTrue(chestplate.allowEnchanting());
         assertFalse(chestplate.allowAnvilActions());
         assertEquals(500, (long) chestplate.getMaxDurabilityNew());
-        assertEquals(SimpleVanillaIngredientValues.createQuick(CIMaterial.DIAMOND, 1, null), chestplate.getRepairItem());
+        assertEquals(SimpleVanillaIngredientValues.createQuick(CIMaterial.DIAMOND, 1), chestplate.getRepairItem());
     }
 
     static void testLeggings1(CustomArmorValues leggings, ItemSet.Side side) {
@@ -118,7 +118,7 @@ public class Backward4 {
         assertFalse(leggings.allowEnchanting());
         assertTrue(leggings.allowAnvilActions());
         assertEquals(500, (long) leggings.getMaxDurabilityNew());
-        assertEquals(DataVanillaIngredientValues.createQuick(CIMaterial.WOOL, 5, 1, null), leggings.getRepairItem());
+        assertEquals(DataVanillaIngredientValues.createQuick(CIMaterial.WOOL, 5, 1), leggings.getRepairItem());
         assertEquals(160, leggings.getRed());
         assertEquals(101, leggings.getGreen());
         assertEquals(64, leggings.getBlue());

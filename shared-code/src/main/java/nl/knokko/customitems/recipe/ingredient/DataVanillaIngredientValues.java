@@ -4,6 +4,7 @@ import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.encoding.RecipeEncoding;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.customitems.recipe.ingredient.constraint.IngredientConstraintsValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
@@ -14,6 +15,8 @@ import nl.knokko.customitems.bithelper.BitOutput;
 
 import java.util.Objects;
 
+import static nl.knokko.customitems.encoding.RecipeEncoding.Ingredient.VANILLA_DATA_NEW;
+
 public class DataVanillaIngredientValues extends IngredientValues {
 
     static DataVanillaIngredientValues load(BitInput input, byte encoding, ItemSet itemSet) throws UnknownEncodingException {
@@ -23,6 +26,8 @@ public class DataVanillaIngredientValues extends IngredientValues {
             ingredient.load1(input);
         } else if (encoding == RecipeEncoding.Ingredient.VANILLA_DATA_2) {
             ingredient.load2(input, itemSet);
+        } else if (encoding == VANILLA_DATA_NEW) {
+            ingredient.loadNew(input, itemSet);
         } else {
             throw new UnknownEncodingException("DataVanillaIngredient", encoding);
         }
@@ -30,14 +35,20 @@ public class DataVanillaIngredientValues extends IngredientValues {
         return ingredient;
     }
 
+    public static DataVanillaIngredientValues createQuick(CIMaterial material, int dataValue, int amount) {
+        return createQuick(material, dataValue, amount, null, new IngredientConstraintsValues(true));
+    }
+
     public static DataVanillaIngredientValues createQuick(
-            CIMaterial material, int dataValue, int amount, ResultValues remainingItem
+            CIMaterial material, int dataValue, int amount,
+            ResultValues remainingItem, IngredientConstraintsValues constraints
     ) {
         DataVanillaIngredientValues result = new DataVanillaIngredientValues(true);
         result.setMaterial(material);
         result.setAmount((byte) amount);
         result.setDataValue((byte) dataValue);
         result.setRemainingItem(remainingItem);
+        result.setConstraints(constraints);
         return result;
     }
 
@@ -88,7 +99,8 @@ public class DataVanillaIngredientValues extends IngredientValues {
         if (other instanceof DataVanillaIngredientValues) {
             DataVanillaIngredientValues otherIngredient = (DataVanillaIngredientValues) other;
             return this.material == otherIngredient.material && this.dataValue == otherIngredient.dataValue
-                    && this.amount == otherIngredient.amount && Objects.equals(this.remainingItem, otherIngredient.remainingItem);
+                    && this.amount == otherIngredient.amount && Objects.equals(this.remainingItem, otherIngredient.remainingItem)
+                    && this.constraints.equals(otherIngredient.constraints);
         } else {
             return false;
         }
@@ -118,17 +130,27 @@ public class DataVanillaIngredientValues extends IngredientValues {
         this.dataValue = (byte) input.readNumber((byte) 4, false);
     }
 
-    @Override
-    public void save(BitOutput output) {
-        output.addByte(RecipeEncoding.Ingredient.VANILLA_DATA_2);
-        save2(output);
+    private void loadNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("InternalDataIngredient", encoding);
+
+        this.amount = input.readByte();
+        this.material = CIMaterial.valueOf(input.readString());
+        this.dataValue = input.readByte();
+        loadRemainingItem(input, itemSet);
+        this.constraints = IngredientConstraintsValues.load(input);
     }
 
-    private void save2(BitOutput output) {
+    @Override
+    public void save(BitOutput output) {
+        output.addByte(RecipeEncoding.Ingredient.VANILLA_DATA_NEW);
+        output.addByte((byte) 1);
+
         output.addByte(amount);
+        output.addString(material.name());
+        output.addByte(dataValue);
         saveRemainingItem(output);
-        output.addJavaString(material.name());
-        output.addNumber(dataValue, (byte) 4, false);
+        constraints.save(output);
     }
 
     @Override
@@ -163,6 +185,8 @@ public class DataVanillaIngredientValues extends IngredientValues {
     @Override
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {
         super.validateIndependent();
+
+        constraints.validate();
 
         if (amount < 1) throw new ValidationException("Amount must be positive");
         if (amount > 64) throw new ValidationException("Amount can be at most 64");

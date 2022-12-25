@@ -78,7 +78,7 @@ public class Backward3 {
         assertTrue(item.allowEnchanting());
         assertTrue(item.allowAnvilActions());
         assertEquals(100, (long) item.getMaxDurabilityNew());
-        assertEquals(SimpleVanillaIngredientValues.createQuick(CIMaterial.STICK, 1, null), item.getRepairItem());
+        assertEquals(SimpleVanillaIngredientValues.createQuick(CIMaterial.STICK, 1), item.getRepairItem());
     }
 
     static void testShears1(CustomShearsValues item, ItemSet.Side side) {
@@ -118,7 +118,7 @@ public class Backward3 {
         assertFalse(item.allowEnchanting());
         assertTrue(item.allowAnvilActions());
         assertEquals(123, (long) item.getMaxDurabilityNew());
-        assertEquals(CustomItemIngredientValues.createQuick(simple1, 1, null), item.getRepairItem());
+        assertEquals(CustomItemIngredientValues.createQuick(simple1, 1), item.getRepairItem());
         assertEquals(0.8, item.getDamageMultiplier(), 0.0);
         assertEquals(1.5, item.getSpeedMultiplier(), 0.0);
         assertEquals(1, item.getKnockbackStrength());

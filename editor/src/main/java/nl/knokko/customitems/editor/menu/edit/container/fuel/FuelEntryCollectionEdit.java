@@ -7,10 +7,11 @@ import java.util.function.Consumer;
 import nl.knokko.customitems.container.fuel.FuelEntryValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.collection.InlineCollectionEdit;
-import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.ChooseIngredient;
+import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.EditIngredient;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
+import nl.knokko.customitems.recipe.ingredient.constraint.IngredientConstraintsValues;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
@@ -33,11 +34,11 @@ public class FuelEntryCollectionEdit extends InlineCollectionEdit<FuelEntryValue
 		DynamicTextButton[] pFuelButton = new DynamicTextButton[1];
 		pFuelButton[0] = new DynamicTextButton(entry.getFuel().toString(), 
 				EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new ChooseIngredient(this, 
+			state.getWindow().setMainComponent(new EditIngredient(this,
 					newIngredient -> {
 						entry.setFuel(newIngredient);
 						pFuelButton[0].setText(newIngredient.toString());
-					}, false, set)
+					}, entry.getFuel(), false, set)
 			);
 		});
 		addComponent(pFuelButton[0], 0.5f, minY, 0.7f, maxY);
@@ -52,7 +53,7 @@ public class FuelEntryCollectionEdit extends InlineCollectionEdit<FuelEntryValue
 
 	@Override
 	protected FuelEntryValues addNew() {
-		return FuelEntryValues.createQuick(SimpleVanillaIngredientValues.createQuick(CIMaterial.COAL, 1, null), 100);
+		return FuelEntryValues.createQuick(SimpleVanillaIngredientValues.createQuick(CIMaterial.COAL, 1), 100);
 	}
 
 	@Override

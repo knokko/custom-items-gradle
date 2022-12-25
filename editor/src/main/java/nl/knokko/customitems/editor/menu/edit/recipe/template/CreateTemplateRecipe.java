@@ -1,13 +1,14 @@
 package nl.knokko.customitems.editor.menu.edit.recipe.template;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.ChooseIngredient;
+import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.EditIngredient;
 import nl.knokko.customitems.editor.menu.edit.recipe.result.ChooseResult;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.ShapedRecipeValues;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
+import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -54,8 +55,10 @@ public class CreateTemplateRecipe extends GuiMenu {
             addComponent(new DynamicTextComponent(materialName + ":", EditProps.LABEL),
                     0.4f, 0.7f - materialIndex * 0.15f, 0.55f, 0.8f - materialIndex * 0.15f);
             addComponent(new DynamicTextButton("Choose...", EditProps.BUTTON, EditProps.HOVER, () -> {
-                state.getWindow().setMainComponent(new ChooseIngredient(this,
-                        newIngredient -> selectedIngredients.set(rememberIndex, newIngredient), false, set));
+                state.getWindow().setMainComponent(new EditIngredient(this,
+                        newIngredient -> selectedIngredients.set(rememberIndex, newIngredient),
+                        new SimpleVanillaIngredientValues(false), false, set)
+                );
             }), 0.6f, 0.7f - materialIndex * 0.15f, 0.75f, 0.8f - materialIndex * 0.15f);
             materialIndex++;
         }

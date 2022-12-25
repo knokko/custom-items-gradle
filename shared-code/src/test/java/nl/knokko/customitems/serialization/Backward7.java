@@ -48,9 +48,9 @@ public class Backward7 {
         FuelEntryValues entry2 = registry1.getEntries().get(1);
 
         assertEquals(100, entry1.getBurnTime());
-        assertEquals(SimpleVanillaIngredientValues.createQuick(CIMaterial.COAL, 1, null), entry1.getFuel());
+        assertEquals(SimpleVanillaIngredientValues.createQuick(CIMaterial.COAL, 1), entry1.getFuel());
         assertEquals(500, entry2.getBurnTime());
-        assertEquals(CustomItemIngredientValues.createQuick(set.getItemReference("simple1"), 1, null), entry2.getFuel());
+        assertEquals(CustomItemIngredientValues.createQuick(set.getItemReference("simple1"), 1), entry2.getFuel());
     }
 
     static void testContainers7(ItemSet set, int numContainers) {
@@ -111,8 +111,8 @@ public class Backward7 {
         assertEquals(8, recipe.getExperience());
 
         assertEquals(2, recipe.getInputs().size());
-        assertEquals(SimpleVanillaIngredientValues.createQuick(CIMaterial.WOOD, 1, null), recipe.getInputs().get("input1"));
-        assertEquals(SimpleVanillaIngredientValues.createQuick(CIMaterial.COBBLESTONE, 1, null), recipe.getInputs().get("input2"));
+        assertEquals(SimpleVanillaIngredientValues.createQuick(CIMaterial.WOOD, 1), recipe.getInputs().get("input1"));
+        assertEquals(SimpleVanillaIngredientValues.createQuick(CIMaterial.COBBLESTONE, 1), recipe.getInputs().get("input2"));
 
         assertEquals(2, recipe.getOutputs().size());
 

@@ -16,8 +16,8 @@ public class TestShapelessRecipe {
 
     @Test
     public void testShapelessRecipeConflictCheckNoConflicts() throws ValidationException, ProgrammingValidationException {
-        IngredientValues stone1 = SimpleVanillaIngredientValues.createQuick(CIMaterial.STONE, 1, null);
-        IngredientValues log1 = SimpleVanillaIngredientValues.createQuick(CIMaterial.LOG, 1, null);
+        IngredientValues stone1 = SimpleVanillaIngredientValues.createQuick(CIMaterial.STONE, 1);
+        IngredientValues log1 = SimpleVanillaIngredientValues.createQuick(CIMaterial.LOG, 1);
 
         ResultValues testResult = SimpleVanillaResultValues.createQuick(CIMaterial.DIAMOND, 3);
 
@@ -34,7 +34,7 @@ public class TestShapelessRecipe {
 
     @Test(expected = ValidationException.class)
     public void testShapelessRecipeConflictsCheckSimpleConflict() throws ValidationException, ProgrammingValidationException {
-        IngredientValues stone1 = SimpleVanillaIngredientValues.createQuick(CIMaterial.STONE, 1, null);
+        IngredientValues stone1 = SimpleVanillaIngredientValues.createQuick(CIMaterial.STONE, 1);
         ResultValues testResult = SimpleVanillaResultValues.createQuick(CIMaterial.DIAMOND, 3);
 
         ItemSet itemSet = new ItemSet(ItemSet.Side.EDITOR);
@@ -44,8 +44,8 @@ public class TestShapelessRecipe {
 
     @Test(expected = ValidationException.class)
     public void testShapelessRecipeConflictsCheckSizeConflict() throws ValidationException, ProgrammingValidationException {
-        IngredientValues stone1 = SimpleVanillaIngredientValues.createQuick(CIMaterial.STONE, 1, null);
-        IngredientValues stone2 = SimpleVanillaIngredientValues.createQuick(CIMaterial.STONE, 2, null);
+        IngredientValues stone1 = SimpleVanillaIngredientValues.createQuick(CIMaterial.STONE, 1);
+        IngredientValues stone2 = SimpleVanillaIngredientValues.createQuick(CIMaterial.STONE, 2);
         ResultValues testResult = SimpleVanillaResultValues.createQuick(CIMaterial.DIAMOND, 3);
 
         ItemSet itemSet = new ItemSet(ItemSet.Side.EDITOR);
@@ -55,8 +55,8 @@ public class TestShapelessRecipe {
 
     @Test(expected = ValidationException.class)
     public void testShapelessRecipeConflictsCheckOrderConflict() throws ValidationException, ProgrammingValidationException {
-        IngredientValues stone1 = SimpleVanillaIngredientValues.createQuick(CIMaterial.STONE, 1, null);
-        IngredientValues log1 = SimpleVanillaIngredientValues.createQuick(CIMaterial.LOG, 1, null);
+        IngredientValues stone1 = SimpleVanillaIngredientValues.createQuick(CIMaterial.STONE, 1);
+        IngredientValues log1 = SimpleVanillaIngredientValues.createQuick(CIMaterial.LOG, 1);
         ResultValues testResult = SimpleVanillaResultValues.createQuick(CIMaterial.DIAMOND, 3);
 
         ItemSet itemSet = new ItemSet(ItemSet.Side.EDITOR);
@@ -66,8 +66,8 @@ public class TestShapelessRecipe {
 
     @Test(expected = ValidationException.class)
     public void testShapelessRecipeConflictsCheckNumOccurrencesConflict() throws ValidationException, ProgrammingValidationException {
-        IngredientValues stone1 = SimpleVanillaIngredientValues.createQuick(CIMaterial.STONE, 1, null);
-        IngredientValues log1 = SimpleVanillaIngredientValues.createQuick(CIMaterial.LOG, 1, null);
+        IngredientValues stone1 = SimpleVanillaIngredientValues.createQuick(CIMaterial.STONE, 1);
+        IngredientValues log1 = SimpleVanillaIngredientValues.createQuick(CIMaterial.LOG, 1);
         ResultValues testResult = SimpleVanillaResultValues.createQuick(CIMaterial.DIAMOND, 3);
 
         ItemSet itemSet = new ItemSet(ItemSet.Side.EDITOR);

@@ -22,6 +22,11 @@ public class RecipeEncoding {
 		public static final byte CUSTOM_2 = 7;
 		public static final byte MIMIC = 8;
 		public static final byte ITEM_BRIDGE = 9;
+
+		// The next encodings take care of themselves and have constraints
+		public static final byte VANILLA_SIMPLE_NEW = 10;
+		public static final byte VANILLA_DATA_NEW = 11;
+		public static final byte CUSTOM_NEW = 12;
 	}
 	
 	public static class Result {

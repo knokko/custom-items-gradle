@@ -88,7 +88,7 @@ public class Backward5 {
         assertFalse(item.allowEnchanting());
         assertFalse(item.allowAnvilActions());
         assertEquals(500, (long) item.getMaxDurabilityNew());
-        assertEquals(SimpleVanillaIngredientValues.createQuick(CIMaterial.IRON_INGOT, 1, null), item.getRepairItem());
+        assertEquals(SimpleVanillaIngredientValues.createQuick(CIMaterial.IRON_INGOT, 1), item.getRepairItem());
         assertEquals(0, item.getEntityHitDurabilityLoss());
         assertEquals(1, item.getBlockBreakDurabilityLoss());
         assertEquals(2, item.getShearDurabilityLoss());

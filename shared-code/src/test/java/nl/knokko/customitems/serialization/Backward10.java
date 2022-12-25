@@ -27,6 +27,7 @@ import nl.knokko.customitems.recipe.ShapelessRecipeValues;
 import nl.knokko.customitems.recipe.ingredient.ItemBridgeIngredientValues;
 import nl.knokko.customitems.recipe.ingredient.MimicIngredientValues;
 import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
+import nl.knokko.customitems.recipe.ingredient.constraint.IngredientConstraintsValues;
 import nl.knokko.customitems.recipe.result.ItemBridgeResultValues;
 import nl.knokko.customitems.recipe.result.MimicResultValues;
 import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
@@ -211,7 +212,7 @@ public class Backward10 {
         ContainerRecipeValues theRecipe = new ContainerRecipeValues(true);
         theRecipe.setDuration(0);
         theRecipe.setExperience(5);
-        theRecipe.setInput("the_input", SimpleVanillaIngredientValues.createQuick(CIMaterial.GRAVEL, 2, null));
+        theRecipe.setInput("the_input", SimpleVanillaIngredientValues.createQuick(CIMaterial.GRAVEL, 2));
         theRecipe.setManualOutput("the_output", SimpleVanillaResultValues.createQuick(CIMaterial.FLINT, 1));
 
         assertEquals(listOf(theRecipe), container4.getRecipes());
@@ -219,9 +220,10 @@ public class Backward10 {
 
     static ShapedRecipeValues createShapedRecipe4() {
         ShapedRecipeValues recipe = new ShapedRecipeValues(true);
-        recipe.setIngredientAt(0, 0, MimicIngredientValues.createQuick("dummy:item1", 1, null));
+        recipe.setIngredientAt(0, 0, MimicIngredientValues.createQuick("dummy:item1", 1));
         recipe.setIngredientAt(1, 0, MimicIngredientValues.createQuick(
-                "dummy:item2", 2, MimicResultValues.createQuick("dummy:item3", 3)
+                "dummy:item2", 2, MimicResultValues.createQuick("dummy:item3", 3),
+                new IngredientConstraintsValues(true)
         ));
         recipe.setResult(MimicResultValues.createQuick("dummy:item4", 4));
         return recipe;
@@ -230,7 +232,8 @@ public class Backward10 {
     static ShapelessRecipeValues createShapelessRecipe3() {
         ShapelessRecipeValues recipe = new ShapelessRecipeValues(true);
         recipe.setIngredients(listOf(ItemBridgeIngredientValues.createQuick(
-                "dummy:item7", 7, ItemBridgeResultValues.createQuick("dummy:item6", 6)
+                "dummy:item7", 7, ItemBridgeResultValues.createQuick("dummy:item6", 6),
+                new IngredientConstraintsValues(true)
         )));
         recipe.setResult(ItemBridgeResultValues.createQuick("dummy:item8", 8));
         return recipe;

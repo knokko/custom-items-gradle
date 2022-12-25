@@ -24,7 +24,9 @@ public class IngredientComponent extends DynamicTextButton {
 			String emptyText, GuiComponent menu, ItemSet set) {
 		super(recipe.getIngredientAt(x, y).toString(emptyText), EditProps.BUTTON, EditProps.HOVER, null);
 		this.clickAction = () -> {
-			state.getWindow().setMainComponent(new ChooseIngredient(menu, this::setIngredient, true, set));
+			state.getWindow().setMainComponent(new EditIngredient(
+					menu, this::setIngredient, recipe.getIngredientAt(x, y), true, set
+			));
 		};
 		this.recipe = recipe;
 		this.x = x;
@@ -44,20 +46,16 @@ public class IngredientComponent extends DynamicTextButton {
 		if (state.isMouseOver()) {
 			if (character == 'v') {
 				state.getWindow().setMainComponent(new EnumSelect<>(CIMaterial.class, vanillaMaterial -> {
-					IngredientComponent.this.setIngredient(SimpleVanillaIngredientValues.createQuick(
-							vanillaMaterial, 1, null
-					));
+					IngredientComponent.this.setIngredient(SimpleVanillaIngredientValues.createQuick(vanillaMaterial, 1));
 				}, candidateMaterial -> true, menu));
 			} else if (character == 'c') {
 				state.getWindow().setMainComponent(new CollectionSelect<>(set.getItems().references(), customItem -> {
-					IngredientComponent.this.setIngredient(CustomItemIngredientValues.createQuick(
-							customItem, 1, null
-					));
+					IngredientComponent.this.setIngredient(CustomItemIngredientValues.createQuick(customItem, 1));
 				}, candidateItem -> true, itemRef -> itemRef.get().getName(), menu));
 			} else if (character == 'd') {
 				state.getWindow().setMainComponent(new ChooseDataVanillaResult(menu, true, dataResult -> {
 					IngredientComponent.this.setIngredient(DataVanillaIngredientValues.createQuick(
-							dataResult.getMaterial(), dataResult.getDataValue(), dataResult.getAmount(), null
+							dataResult.getMaterial(), dataResult.getDataValue(), dataResult.getAmount()
 					));
 				}));
 			} else if (character == 'e') {

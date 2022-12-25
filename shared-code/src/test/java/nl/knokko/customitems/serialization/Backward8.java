@@ -175,8 +175,8 @@ public class Backward8 {
         FuelRegistryValues registry1 = set.getFuelRegistry("registry1").get();
         assertEquals("registry1", registry1.getName());
         assertEquals(listOf(
-                FuelEntryValues.createQuick(SimpleVanillaIngredientValues.createQuick(CIMaterial.COAL, 1, null), 100),
-                FuelEntryValues.createQuick(CustomItemIngredientValues.createQuick(set.getItemReference("simple1"), 1, null), 500)
+                FuelEntryValues.createQuick(SimpleVanillaIngredientValues.createQuick(CIMaterial.COAL, 1), 100),
+                FuelEntryValues.createQuick(CustomItemIngredientValues.createQuick(set.getItemReference("simple1"), 1), 500)
         ), registry1.getEntries());
     }
 
@@ -239,9 +239,9 @@ public class Backward8 {
 
     static ShapedRecipeValues createShapedRecipe3(ItemSet set) {
         IngredientValues[] ingredients = {
-                CustomItemIngredientValues.createQuick(set.getItemReference("simple1"), 1, null), new NoIngredientValues(), new NoIngredientValues(),
-                new NoIngredientValues(), CustomItemIngredientValues.createQuick(set.getItemReference("simple2"), 1, null), new NoIngredientValues(),
-                new NoIngredientValues(), new NoIngredientValues(), CustomItemIngredientValues.createQuick(set.getItemReference("simple3"), 1, null)
+                CustomItemIngredientValues.createQuick(set.getItemReference("simple1"), 1), new NoIngredientValues(), new NoIngredientValues(),
+                new NoIngredientValues(), CustomItemIngredientValues.createQuick(set.getItemReference("simple2"), 1), new NoIngredientValues(),
+                new NoIngredientValues(), new NoIngredientValues(), CustomItemIngredientValues.createQuick(set.getItemReference("simple3"), 1)
         };
         return ShapedRecipeValues.createQuick(ingredients, CopiedResultValues.createQuick(copiedFromServerString()));
     }

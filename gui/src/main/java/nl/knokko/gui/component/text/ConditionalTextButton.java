@@ -4,24 +4,26 @@ import nl.knokko.gui.render.GuiRenderer;
 import nl.knokko.gui.util.Condition;
 import nl.knokko.gui.util.TextBuilder.Properties;
 
+import java.util.function.BooleanSupplier;
+
 public class ConditionalTextButton extends TextButton {
 	
-	protected Condition condition;
+	protected BooleanSupplier condition;
 
-	public ConditionalTextButton(String text, Properties properties, Properties hoverProperties, Runnable action, Condition condition) {
+	public ConditionalTextButton(String text, Properties properties, Properties hoverProperties, Runnable action, BooleanSupplier condition) {
 		super(text, properties, hoverProperties, action);
 		this.condition = condition;
 	}
 	
 	@Override
 	public void click(float x, float y, int button){
-		if(condition.isTrue())
+		if(condition.getAsBoolean())
 			super.click(x, y, button);
 	}
 	
 	@Override
 	public void render(GuiRenderer renderer){
-		if(condition.isTrue())
+		if(condition.getAsBoolean())
 			super.render(renderer);
 	}
 }

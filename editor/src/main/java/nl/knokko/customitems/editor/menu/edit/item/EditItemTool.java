@@ -2,7 +2,7 @@ package nl.knokko.customitems.editor.menu.edit.item;
 
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.ChooseIngredient;
+import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.EditIngredient;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.CustomItemType.Category;
@@ -78,11 +78,11 @@ public class EditItemTool<V extends CustomToolValues> extends EditItemBase<V> {
 		DynamicTextButton[] pChangeRepairItemButton = { null };
 		pChangeRepairItemButton[0] = new DynamicTextButton(
 				currentValues.getRepairItem().toString("None"), BUTTON, HOVER, () -> {
-					state.getWindow().setMainComponent(new ChooseIngredient(
+					state.getWindow().setMainComponent(new EditIngredient(
 							this, newRepairItem -> {
 								currentValues.setRepairItem(newRepairItem);
 								pChangeRepairItemButton[0].setText(newRepairItem.toString("None"));
-					}, true, menu.getSet()
+					}, currentValues.getRepairItem(), true, menu.getSet()
 					));
 				}
 		);

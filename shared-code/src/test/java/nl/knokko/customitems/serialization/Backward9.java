@@ -26,6 +26,7 @@ import nl.knokko.customitems.recipe.ShapelessRecipeValues;
 import nl.knokko.customitems.recipe.ingredient.CustomItemIngredientValues;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
+import nl.knokko.customitems.recipe.ingredient.constraint.IngredientConstraintsValues;
 import nl.knokko.customitems.recipe.result.CustomItemResultValues;
 import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
 import nl.knokko.customitems.sound.SoundValues;
@@ -252,7 +253,8 @@ public class Backward9 {
         assertTrue(item.allowAnvilActions());
         assertEquals(567, (long) item.getMaxDurabilityNew());
         assertEquals(SimpleVanillaIngredientValues.createQuick(
-                CIMaterial.WHITE_WOOL, 2, SimpleVanillaResultValues.createQuick(CIMaterial.BLACK_WOOL, 5)
+                CIMaterial.WHITE_WOOL, 2, SimpleVanillaResultValues.createQuick(CIMaterial.BLACK_WOOL, 5),
+                new IngredientConstraintsValues(true)
         ), item.getRepairItem());
         assertEquals(1, item.getEntityHitDurabilityLoss());
         assertEquals(2, item.getBlockBreakDurabilityLoss());
@@ -322,7 +324,7 @@ public class Backward9 {
                         set.getItemReference("simple1"), 3,
                         CustomItemResultValues.createQuick(
                                 set.getItemReference("simple2"), 2
-                        )
+                        ), new IngredientConstraintsValues(true)
                 )
         );
         return ShapelessRecipeValues.createQuick(ingredients, SimpleVanillaResultValues.createQuick(CIMaterial.CHORUS_PLANT, 8));
@@ -403,7 +405,7 @@ public class Backward9 {
         assertEquals(1.25, item.getAttackRange(), 0.0);
         assertEquals("crazy1", item.getProjectile().getName());
         IndirectGunAmmoValues ammo = (IndirectGunAmmoValues) item.getAmmo();
-        assertEquals(CustomItemIngredientValues.createQuick(set.getItemReference("simple1"), 1, null), ammo.getReloadItem());
+        assertEquals(CustomItemIngredientValues.createQuick(set.getItemReference("simple1"), 1), ammo.getReloadItem());
         assertEquals(15, ammo.getCooldown());
         assertEquals(35, ammo.getStoredAmmo());
         assertEquals(25, ammo.getReloadTime());

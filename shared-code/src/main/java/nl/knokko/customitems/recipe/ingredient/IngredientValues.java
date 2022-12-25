@@ -2,6 +2,7 @@ package nl.knokko.customitems.recipe.ingredient;
 
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
+import nl.knokko.customitems.recipe.ingredient.constraint.IngredientConstraintsValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -17,11 +18,11 @@ public abstract class IngredientValues extends ModelValues {
     public static IngredientValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
 
-        if (encoding == VANILLA_SIMPLE || encoding == VANILLA_SIMPLE_2) {
+        if (encoding == VANILLA_SIMPLE || encoding == VANILLA_SIMPLE_2 || encoding == VANILLA_SIMPLE_NEW) {
             return SimpleVanillaIngredientValues.load(input, encoding, itemSet);
-        } else if (encoding == VANILLA_DATA || encoding == VANILLA_DATA_2) {
+        } else if (encoding == VANILLA_DATA || encoding == VANILLA_DATA_2 || encoding == VANILLA_DATA_NEW) {
             return DataVanillaIngredientValues.load(input, encoding, itemSet);
-        } else if (encoding == CUSTOM || encoding == CUSTOM_2) {
+        } else if (encoding == CUSTOM || encoding == CUSTOM_2 || encoding == CUSTOM_NEW) {
             return CustomItemIngredientValues.load(input, encoding, itemSet);
         } else if (encoding == MIMIC) {
             return MimicIngredientValues.load(input, itemSet);
@@ -35,17 +36,20 @@ public abstract class IngredientValues extends ModelValues {
     }
 
     protected ResultValues remainingItem;
+    protected IngredientConstraintsValues constraints;
 
     IngredientValues(boolean mutable) {
         super(mutable);
 
         remainingItem = null;
+        constraints = new IngredientConstraintsValues(false);
     }
 
     IngredientValues(IngredientValues toCopy, boolean mutable) {
         super(mutable);
 
         this.remainingItem = toCopy.getRemainingItem();
+        this.constraints = toCopy.getConstraints();
     }
 
     protected String remainingToString() {
@@ -94,6 +98,10 @@ public abstract class IngredientValues extends ModelValues {
         return remainingItem;
     }
 
+    public IngredientConstraintsValues getConstraints() {
+        return constraints;
+    }
+
     public void setRemainingItem(ResultValues newRemainingItem) {
         assertMutable();
         if (newRemainingItem != null) {
@@ -103,8 +111,14 @@ public abstract class IngredientValues extends ModelValues {
         }
     }
 
+    public void setConstraints(IngredientConstraintsValues constraints) {
+        assertMutable();
+        this.constraints = constraints.copy(false);
+    }
+
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {
         if (remainingItem != null) Validation.scope("Remaining item", remainingItem::validateIndependent);
+        constraints.validate();
     }
 
     public void validateComplete(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
@@ -117,5 +131,6 @@ public abstract class IngredientValues extends ModelValues {
 
     public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
         if (remainingItem != null) Validation.scope("Remaining", () -> remainingItem.validateExportVersion(version));
+        constraints.validateExportVersion(version);
     }
 }

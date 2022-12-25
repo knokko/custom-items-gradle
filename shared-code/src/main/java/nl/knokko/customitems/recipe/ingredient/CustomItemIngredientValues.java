@@ -4,6 +4,7 @@ import nl.knokko.customitems.encoding.RecipeEncoding;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.customitems.recipe.ingredient.constraint.IngredientConstraintsValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
@@ -14,6 +15,8 @@ import nl.knokko.customitems.bithelper.BitOutput;
 
 import java.util.Objects;
 
+import static nl.knokko.customitems.encoding.RecipeEncoding.Ingredient.CUSTOM_NEW;
+
 public class CustomItemIngredientValues extends IngredientValues {
 
     static CustomItemIngredientValues load(BitInput input, byte encoding, ItemSet itemSet) throws UnknownEncodingException {
@@ -23,6 +26,8 @@ public class CustomItemIngredientValues extends IngredientValues {
             ingredient.load1(input, itemSet);
         } else if (encoding == RecipeEncoding.Ingredient.CUSTOM_2) {
             ingredient.load2(input, itemSet);
+        } else if (encoding == CUSTOM_NEW) {
+            ingredient.loadNew(input, itemSet);
         } else {
             throw new UnknownEncodingException("CustomItemIngredient", encoding);
         }
@@ -30,11 +35,18 @@ public class CustomItemIngredientValues extends IngredientValues {
         return ingredient;
     }
 
-    public static CustomItemIngredientValues createQuick(ItemReference item, int amount, ResultValues remainingItem) {
+    public static CustomItemIngredientValues createQuick(ItemReference item, int amount) {
+        return createQuick(item, amount, null, new IngredientConstraintsValues(true));
+    }
+
+    public static CustomItemIngredientValues createQuick(
+            ItemReference item, int amount, ResultValues remainingItem, IngredientConstraintsValues constraints
+    ) {
         CustomItemIngredientValues result = new CustomItemIngredientValues(true);
         result.setItem(item);
         result.setAmount((byte) amount);
         result.setRemainingItem(remainingItem);
+        result.setConstraints(constraints);
         return result;
     }
 
@@ -72,10 +84,25 @@ public class CustomItemIngredientValues extends IngredientValues {
         this.item = itemSet.getItemReference(input.readJavaString());
     }
 
+    private void loadNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("InternalCustomIngredient", encoding);
+
+        this.amount = input.readByte();
+        this.item = itemSet.getItemReference(input.readString());
+        loadRemainingItem(input, itemSet);
+        this.constraints = IngredientConstraintsValues.load(input);
+    }
+
     @Override
     public void save(BitOutput output) {
-        output.addByte(RecipeEncoding.Ingredient.CUSTOM_2);
-        save2(output);
+        output.addByte(RecipeEncoding.Ingredient.CUSTOM_NEW);
+        output.addByte((byte) 1);
+
+        output.addByte(amount);
+        output.addString(item.get().getName());
+        saveRemainingItem(output);
+        constraints.save(output);
     }
 
     @Override
@@ -85,12 +112,6 @@ public class CustomItemIngredientValues extends IngredientValues {
         } else {
             return false;
         }
-    }
-
-    private void save2(BitOutput output) {
-        output.addByte(amount);
-        saveRemainingItem(output);
-        output.addJavaString(item.get().getName());
     }
 
     @Override
@@ -103,7 +124,8 @@ public class CustomItemIngredientValues extends IngredientValues {
         if (other instanceof CustomItemIngredientValues) {
             CustomItemIngredientValues otherIngredient = (CustomItemIngredientValues) other;
             return this.item.equals(otherIngredient.item) && this.amount == otherIngredient.amount
-                    && Objects.equals(this.remainingItem, otherIngredient.remainingItem);
+                    && Objects.equals(this.remainingItem, otherIngredient.remainingItem)
+                    && this.constraints.equals(otherIngredient.constraints);
         } else {
             return false;
         }

@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.recipe;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.ChooseIngredient;
+import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.EditIngredient;
 import nl.knokko.customitems.editor.menu.edit.recipe.result.ResultComponent;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
@@ -9,6 +9,7 @@ import nl.knokko.customitems.itemset.CraftingRecipeReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.ShapelessRecipeValues;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
+import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -17,7 +18,9 @@ import nl.knokko.gui.component.text.EagerTextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
@@ -49,12 +52,12 @@ public class ShapelessRecipeEdit extends GuiMenu {
             state.getWindow().setMainComponent(returnMenu);
         }), 0.025f, 0.7f, 0.175f, 0.8f);
         addComponent(new ConditionalTextButton("Add ingredient", BUTTON, HOVER, () -> {
-            state.getWindow().setMainComponent(new ChooseIngredient(this, newIngredient -> {
+            state.getWindow().setMainComponent(new EditIngredient(this, newIngredient -> {
                 Collection<IngredientValues> ingredients = currentValues.getIngredients();
                 ingredients.add(newIngredient);
                 currentValues.setIngredients(ingredients);
                 ingredientList.refresh();
-            }, false, itemSet));
+            }, new SimpleVanillaIngredientValues(false), false, itemSet));
         }, () -> {
             return currentValues.getIngredients().size() < 9;
         }), 0.025f, 0.55f, 0.19f, 0.65f);
@@ -102,12 +105,20 @@ public class ShapelessRecipeEdit extends GuiMenu {
         protected void addComponents() {
 
             int index = 0;
-            Collection<IngredientValues> ingredients = currentValues.getIngredients();
+            List<IngredientValues> ingredients = new ArrayList<>(currentValues.getIngredients());
             for (IngredientValues ingredient : ingredients) {
+                final int rememberIndex = index;
                 float maxY = 1f - index * 0.11f;
                 float minY = maxY - 0.11f;
 
-                addComponent(new DynamicTextComponent(ingredient.toString(), LABEL), 0f, minY, 0.69f, maxY);
+                addComponent(new DynamicTextComponent(ingredient.toString(), LABEL), 0f, minY, 0.55f, maxY);
+                addComponent(new DynamicTextButton("Edit", BUTTON, HOVER, () -> {
+                    state.getWindow().setMainComponent(new EditIngredient(ShapelessRecipeEdit.this, newIngredient -> {
+                        ingredients.set(rememberIndex, newIngredient);
+                        currentValues.setIngredients(ingredients);
+                        refresh();
+                    }, ingredient, false, itemSet));
+                }), 0.57f, minY, 0.69f, maxY);
                 if (ingredients.size() < 9) {
                     addComponent(new DynamicTextButton("Copy", BUTTON, HOVER, () -> {
                         ingredients.add(ingredient.copy(false));

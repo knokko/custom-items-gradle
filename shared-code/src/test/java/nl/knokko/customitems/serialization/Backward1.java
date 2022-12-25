@@ -66,9 +66,9 @@ public class Backward1 {
         IngredientValues[] ingredients = {
                 new NoIngredientValues(), new NoIngredientValues(), new NoIngredientValues(),
 
-                SimpleVanillaIngredientValues.createQuick(CIMaterial.IRON_INGOT, 1, null),
-                CustomItemIngredientValues.createQuick(simple1, 1, null),
-                DataVanillaIngredientValues.createQuick(CIMaterial.WOOL, 5, 1, null),
+                SimpleVanillaIngredientValues.createQuick(CIMaterial.IRON_INGOT, 1),
+                CustomItemIngredientValues.createQuick(simple1, 1),
+                DataVanillaIngredientValues.createQuick(CIMaterial.WOOL, 5, 1),
 
                 new NoIngredientValues(), new NoIngredientValues(), new NoIngredientValues()
         };
@@ -78,9 +78,9 @@ public class Backward1 {
     static ShapelessRecipeValues getShapelessRecipe1(ItemSet itemSet) {
         ItemReference simple1 = itemSet.getItemReference("simple1");
         Collection<IngredientValues> ingredients = listOf(
-                CustomItemIngredientValues.createQuick(simple1, 1, null),
-                SimpleVanillaIngredientValues.createQuick(CIMaterial.APPLE, 1, null),
-                DataVanillaIngredientValues.createQuick(CIMaterial.CARPET, 8, 1, null)
+                CustomItemIngredientValues.createQuick(simple1, 1),
+                SimpleVanillaIngredientValues.createQuick(CIMaterial.APPLE, 1),
+                DataVanillaIngredientValues.createQuick(CIMaterial.CARPET, 8, 1)
         );
         return ShapelessRecipeValues.createQuick(ingredients, SimpleVanillaResultValues.createQuick(CIMaterial.DIAMOND, 1));
     }

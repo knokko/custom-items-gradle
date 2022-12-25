@@ -4,6 +4,7 @@ import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 import nl.knokko.customitems.encoding.RecipeEncoding;
 import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.customitems.recipe.ingredient.constraint.IngredientConstraintsValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
@@ -16,20 +17,28 @@ public class MimicIngredientValues extends IngredientValues {
 
     public static MimicIngredientValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte internalEncoding = input.readByte();
-        if (internalEncoding != 1) throw new UnknownEncodingException("MimicIngredient", internalEncoding);
+        if (internalEncoding != 1 && internalEncoding != 2) throw new UnknownEncodingException("MimicIngredient", internalEncoding);
 
         MimicIngredientValues result = new MimicIngredientValues(false);
         result.itemId = input.readString();
         result.amount = input.readInt();
         result.loadRemainingItem(input, itemSet);
+        if (internalEncoding > 1) result.constraints = IngredientConstraintsValues.load(input);
         return result;
     }
 
-    public static MimicIngredientValues createQuick(String itemId, int amount, ResultValues remainingItem) {
+    public static MimicIngredientValues createQuick(String itemId, int amount) {
+        return createQuick(itemId, amount, null, new IngredientConstraintsValues(true));
+    }
+
+    public static MimicIngredientValues createQuick(
+            String itemId, int amount, ResultValues remainingItem, IngredientConstraintsValues constraints
+    ) {
         MimicIngredientValues result = new MimicIngredientValues(true);
         result.setItemId(itemId);
         result.setAmount(amount);
         result.setRemainingItem(remainingItem);
+        result.setConstraints(constraints);
         return result;
     }
 
@@ -78,7 +87,8 @@ public class MimicIngredientValues extends IngredientValues {
         if (other instanceof MimicIngredientValues) {
             MimicIngredientValues otherMimic = (MimicIngredientValues) other;
             return this.itemId.equals(otherMimic.itemId) && this.amount == otherMimic.amount
-                    && Objects.equals(this.remainingItem, otherMimic.remainingItem);
+                    && Objects.equals(this.remainingItem, otherMimic.remainingItem)
+                    && this.constraints.equals(otherMimic.constraints);
         } else {
             return false;
         }
@@ -92,10 +102,11 @@ public class MimicIngredientValues extends IngredientValues {
     @Override
     public void save(BitOutput output) {
         output.addByte(RecipeEncoding.Ingredient.MIMIC);
-        output.addByte((byte) 1);
+        output.addByte((byte) 2);
         output.addString(this.itemId);
         output.addInt(this.amount);
         this.saveRemainingItem(output);
+        constraints.save(output);
     }
 
     public String getItemId() {

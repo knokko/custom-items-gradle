@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.item;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.ChooseIngredient;
+import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.EditIngredient;
 import nl.knokko.customitems.editor.menu.edit.sound.EditSound;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
@@ -116,8 +116,8 @@ public class EditAmmoSystem extends GuiMenu {
         protected void addComponents() {
             addComponent(new DynamicTextComponent("Ammo item:", EditProps.LABEL), 0.5f, 0.7f, 0.7f, 0.77f);
             addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
-                state.getWindow().setMainComponent(new ChooseIngredient(
-                        EditAmmoSystem.this, directValues::setAmmoItem, false, set
+                state.getWindow().setMainComponent(new EditIngredient(
+                        EditAmmoSystem.this, directValues::setAmmoItem, directValues.getAmmoItem(), false, set
                 ));
             }), 0.72f, 0.7f, 0.95f, 0.77f);
 
@@ -141,10 +141,9 @@ public class EditAmmoSystem extends GuiMenu {
             addComponent(new DynamicTextComponent("Recharge item:", EditProps.LABEL),
                     0.45f, 0.7f, 0.7f, 0.77f);
             addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
-                state.getWindow().setMainComponent(new ChooseIngredient(
-                        EditAmmoSystem.this,
-                        indirectValues::setReloadItem,
-                        true, set
+                state.getWindow().setMainComponent(new EditIngredient(
+                        EditAmmoSystem.this, indirectValues::setReloadItem,
+                        indirectValues.getReloadItem(), true, set
                 ));
             }), 0.72f, 0.7f, 0.95f, 0.77f);
 
