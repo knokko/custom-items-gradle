@@ -28,6 +28,8 @@ public abstract class ResultValues extends ModelValues  {
             return MimicResultValues.load(input);
         } else if (encoding == RecipeEncoding.Result.ITEM_BRIDGE) {
             return ItemBridgeResultValues.load(input);
+        } else if (encoding == RecipeEncoding.Result.UPGRADE) {
+            return UpgradeResultValues.load(input, itemSet);
         } else {
             throw new UnknownEncodingException("Result", encoding);
         }

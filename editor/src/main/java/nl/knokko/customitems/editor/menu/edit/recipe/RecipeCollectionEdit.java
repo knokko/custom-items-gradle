@@ -6,6 +6,7 @@ import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.recipe.template.ChooseTemplateRecipeType;
+import nl.knokko.customitems.editor.menu.edit.upgrade.UpgradeCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.CraftingRecipeReference;
@@ -15,6 +16,9 @@ import nl.knokko.customitems.recipe.ShapelessRecipeValues;
 import nl.knokko.customitems.recipe.result.CustomItemResultValues;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
+
+import static nl.knokko.customitems.editor.menu.edit.EditProps.BUTTON;
+import static nl.knokko.customitems.editor.menu.edit.EditProps.HOVER;
 
 public class RecipeCollectionEdit extends DedicatedCollectionEdit<CraftingRecipeValues, CraftingRecipeReference> {
 	
@@ -28,17 +32,20 @@ public class RecipeCollectionEdit extends DedicatedCollectionEdit<CraftingRecipe
 	@Override
 	protected void addComponents() {
 		super.addComponents();
-		addComponent(new DynamicTextButton("Create template recipe", EditProps.BUTTON, EditProps.HOVER, () -> {
+		addComponent(new DynamicTextButton("Create template recipe", BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new ChooseTemplateRecipeType(this, menu.getSet()));
-		}), 0.025f, 0.35f, 0.29f, 0.45f);
-		addComponent(new DynamicTextButton("Create shaped recipe", EditProps.BUTTON, EditProps.HOVER, () -> {
+		}), 0.025f, 0.38f, 0.29f, 0.48f);
+		addComponent(new DynamicTextButton("Create shaped recipe", BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new ShapedRecipeEdit(menu, new ShapedRecipeValues(true), null));
-		}), 0.025f, 0.2f, 0.27f, 0.3f);
-		addComponent(new DynamicTextButton("Create shapeless recipe", EditProps.BUTTON, EditProps.HOVER, () -> {
+		}), 0.025f, 0.26f, 0.27f, 0.36f);
+		addComponent(new DynamicTextButton("Create shapeless recipe", BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new ShapelessRecipeEdit(new ShapelessRecipeValues(true), null, menu.getSet(), this));
-		}), 0.025f, 0.05f, 0.29f, 0.15f);
-		
-		HelpButtons.addHelpLink(this, "edit%20menu/recipes/overview.html");
+		}), 0.025f, 0.14f, 0.29f, 0.24f);
+		addComponent(new DynamicTextButton("Upgrades...", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new UpgradeCollectionEdit(this, menu.getSet()));
+		}), 0.025f, 0.02f, 0.15f, 0.12f);
+
+		HelpButtons.addHelpLink(this, "edit menu/recipes/overview.html");
 	}
 
 	@Override

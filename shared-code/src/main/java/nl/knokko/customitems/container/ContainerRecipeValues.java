@@ -12,6 +12,7 @@ import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
+import nl.knokko.customitems.recipe.result.UpgradeResultValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.*;
 import nl.knokko.customitems.bithelper.BitInput;
@@ -344,6 +345,14 @@ public class ContainerRecipeValues extends ModelValues {
                 throw new ValidationException("No output slot with name " + outputEntry.getKey() + " exists anymore");
             }
 
+            for (OutputTableValues outputTable : outputs.values()) {
+                for (OutputTableValues.Entry outputTableEntry : outputTable.getEntries()) {
+                    if (outputTableEntry.getResult() instanceof UpgradeResultValues) {
+                        validateUpgradeResult((UpgradeResultValues) outputTableEntry.getResult());
+                    }
+                }
+            }
+
             if (outputEntry.getValue() == null) throw new ProgrammingValidationException("Missing the result of output " + outputEntry.getKey());
             Validation.scope("Output " + outputEntry.getKey(), outputEntry.getValue()::validate, itemSet);
         }
@@ -359,6 +368,9 @@ public class ContainerRecipeValues extends ModelValues {
             if (duration != 0) {
                 throw new ValidationException("Duration must be 0 if a manual output is used");
             }
+            if (manualOutput instanceof UpgradeResultValues) {
+                validateUpgradeResult((UpgradeResultValues) manualOutput);
+            }
         }
 
         if (duration < 0) throw new ValidationException("Duration can't be negative");
@@ -370,6 +382,14 @@ public class ContainerRecipeValues extends ModelValues {
         for (RecipeEnergyValues energyEntry : energy) {
             if (energyEntry == null) throw new ProgrammingValidationException("Missing an energy entry");
             energyEntry.validateComplete(itemSet);
+        }
+    }
+
+    private void validateUpgradeResult(UpgradeResultValues upgrade) throws ValidationException {
+        String inputSlotName = upgrade.getInputSlotName();
+        IngredientValues ingredientToUpgrade = this.getInput(inputSlotName);
+        if (ingredientToUpgrade == null || ingredientToUpgrade instanceof NoIngredientValues) {
+            throw new ValidationException("Missing input " + inputSlotName + " to be upgraded");
         }
     }
 

@@ -33,6 +33,7 @@ import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.nms.RaytraceResult;
 import nl.knokko.customitems.plugin.data.PluginData;
+import nl.knokko.customitems.plugin.set.item.update.ItemUpgrader;
 import nl.knokko.customitems.plugin.util.AttackEffects;
 import nl.knokko.customitems.plugin.util.EquipmentSetHelper;
 import nl.knokko.customitems.plugin.miningspeed.MiningSpeedManager;
@@ -46,6 +47,7 @@ import nl.knokko.customitems.recipe.ShapedRecipeValues;
 import nl.knokko.customitems.recipe.ShapelessRecipeValues;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
+import nl.knokko.customitems.recipe.upgrade.UpgradeValues;
 import org.bukkit.*;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Block;
@@ -1439,7 +1441,7 @@ public class CustomItemsEventHandler implements Listener {
 				LivingEntity livingEntity = (LivingEntity) event.getEntity();
 
 				EntityEquipment e = livingEntity.getEquipment();
-				short[] individualDamageResistances = new short[4];
+				int[] individualDamageResistances = new int[4];
 				int totalDamageResistance = 0;
 
 				if (e != null) {
@@ -1453,7 +1455,7 @@ public class CustomItemsEventHandler implements Listener {
 					}
 				}
 
-				for (short damageResistance : individualDamageResistances) {
+				for (int damageResistance : individualDamageResistances) {
 					totalDamageResistance += damageResistance;
 				}
 
@@ -1487,13 +1489,16 @@ public class CustomItemsEventHandler implements Listener {
 				|| c == DamageCause.LAVA || c == DamageCause.PROJECTILE;
 	}
 
-	private void applyCustomArmorDamageReduction(ItemStack armorPiece, DamageSource source, short[] damageResistances, int resistanceIndex) {
+	private void applyCustomArmorDamageReduction(ItemStack armorPiece, DamageSource source, int[] damageResistances, int resistanceIndex) {
+		if (source == null) return;
+
 		CustomItemValues custom = itemSet.getItem(armorPiece);
+		for (UpgradeValues upgrade : ItemUpgrader.getUpgrades(armorPiece, itemSet)) {
+			damageResistances[resistanceIndex] += upgrade.getDamageResistances().getResistance(source);
+		}
 		if (custom instanceof CustomArmorValues) {
 			CustomArmorValues armor = (CustomArmorValues) custom;
-			if (source != null) {
-				damageResistances[resistanceIndex] = armor.getDamageResistances().getResistance(source);
-			}
+			damageResistances[resistanceIndex] += armor.getDamageResistances().getResistance(source);
 		}
 	}
 
@@ -2432,7 +2437,7 @@ public class CustomItemsEventHandler implements Listener {
 				if (hasPermission && recipe instanceof ShapedRecipeValues) {
 					List<IngredientEntry> ingredientMapping = wrap(recipe).shouldAccept(ingredients);
 					if (ingredientMapping != null) {
-						inventory.setResult(convertResultToItemStack(recipe.getResult()));
+						inventory.setResult(wrap(recipe).getResult(ingredientMapping, ingredients));
 						inventory.getViewers().forEach(viewer -> {
 							if (viewer instanceof Player) {
 								((Player) viewer).updateInventory();
@@ -2453,7 +2458,7 @@ public class CustomItemsEventHandler implements Listener {
 				if (hasPermission && recipe instanceof ShapelessRecipeValues) {
 					List<IngredientEntry> ingredientMapping = wrap(recipe).shouldAccept(ingredients);
 					if (ingredientMapping != null) {
-						inventory.setResult(convertResultToItemStack(recipe.getResult()));
+						inventory.setResult(wrap(recipe).getResult(ingredientMapping, ingredients));
 						inventory.getViewers().forEach(viewer -> {
 							if (viewer instanceof Player) {
 								((Player) viewer).updateInventory();
@@ -2868,7 +2873,7 @@ public class CustomItemsEventHandler implements Listener {
 
 			ItemStack itemToDrop = convertResultToItemStack(blockDrop.getItemsToDrop().pickResult(rng));
 		    if (itemToDrop != null) {
-		    	location.getWorld().dropItemNaturally(location, itemToDrop);
+		    	Objects.requireNonNull(location.getWorld()).dropItemNaturally(location, itemToDrop);
 			}
 		}
 	}

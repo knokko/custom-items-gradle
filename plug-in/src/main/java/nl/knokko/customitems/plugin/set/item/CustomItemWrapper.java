@@ -3,10 +3,13 @@ package nl.knokko.customitems.plugin.set.item;
 import com.google.common.collect.Lists;
 import nl.knokko.customitems.effect.ChancePotionEffectValues;
 import nl.knokko.customitems.item.*;
+import nl.knokko.customitems.item.enchantment.EnchantmentType;
 import nl.knokko.customitems.item.enchantment.EnchantmentValues;
 import nl.knokko.customitems.item.nbt.NbtValueType;
 import nl.knokko.customitems.nms.*;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
+import nl.knokko.customitems.plugin.set.item.update.ItemUpgrader;
+import nl.knokko.customitems.plugin.util.AttributeMerger;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -18,6 +21,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public abstract class CustomItemWrapper {
 
@@ -37,24 +41,7 @@ public abstract class CustomItemWrapper {
         return CIMaterial.valueOf(materialName);
     }
 
-    public static RawAttribute convertAttributeModifier(AttributeModifierValues modifier) {
-        return new RawAttribute(
-                modifier.getAttribute().getName(),
-                modifier.getSlot().getSlot(),
-                modifier.getOperation().getOperation(),
-                modifier.getValue()
-        );
-    }
 
-    public static RawAttribute[] convertAttributeModifiers(Collection<AttributeModifierValues> attributeModifiers) {
-        RawAttribute[] result = new RawAttribute[attributeModifiers.size()];
-        int index = 0;
-        for (AttributeModifierValues modifier : attributeModifiers) {
-            result[index] = convertAttributeModifier(modifier);
-            index++;
-        }
-        return result;
-    }
 
     private static final Collection<Class<? extends CustomItemValues>> SIMPLE_WRAPPER_CLASSES = Lists.newArrayList(
             CustomBlockItemValues.class, CustomFoodValues.class, CustomGunValues.class, CustomArrowValues.class,
@@ -107,16 +94,19 @@ public abstract class CustomItemWrapper {
     }
 
     public ItemStack create(int amount, List<String> lore){
+        RawAttribute[] attributeModifiers = AttributeMerger.merge(this.item, new ArrayList<>());
         ItemStack item = KciNms.instance.items.createWithAttributes(
                 getMaterial(this.item.getItemType(), this.item.getOtherMaterial()).name(),
-                amount, convertAttributeModifiers(this.item.getAttributeModifiers())
+                amount, attributeModifiers
         );
         item.setItemMeta(createItemMeta(item, lore));
         if (this.item.getItemType() != CustomItemType.OTHER) {
             item.setDurability(this.item.getItemDamage());
         }
+        Map<EnchantmentType, Integer> defaultEnchantmentMap = new HashMap<>();
         for (EnchantmentValues enchantment : this.item.getDefaultEnchantments()) {
             BukkitEnchantments.add(item, enchantment.getType(), enchantment.getLevel());
+            defaultEnchantmentMap.put(enchantment.getType(), enchantment.getLevel());
         }
 
         ItemStack[] pResult = {null};
@@ -128,26 +118,30 @@ public abstract class CustomItemWrapper {
 
         // Give it the extra nbt, if needed
         Collection<ExtraItemNbtValues.Entry> extraNbtPairs = this.item.getExtraNbt().getEntries();
-        if (!extraNbtPairs.isEmpty() || this.item.getItemType() == CustomItemType.OTHER) {
-            GeneralItemNBT nbt = KciNms.instance.items.generalReadWriteNbt(pResult[0]);
-            for (ExtraItemNbtValues.Entry extraPair : extraNbtPairs) {
-                ExtraItemNbtValues.Value value = extraPair.getValue();
-                if (value.type == NbtValueType.INTEGER) {
-                    nbt.set(extraPair.getKey().toArray(new String[0]), value.getIntValue());
-                } else if (value.type == NbtValueType.STRING) {
-                    nbt.set(extraPair.getKey().toArray(new String[0]), value.getStringValue());
-                } else {
-                    throw new Error("Unknown nbt value type: " + value.type);
-                }
-            }
 
-            if (this.item.getItemType() == CustomItemType.OTHER) {
-                String[] customModelDataKey = { "CustomModelData" };
-                nbt.set(customModelDataKey, this.item.getItemDamage());
+        GeneralItemNBT nbt = KciNms.instance.items.generalReadWriteNbt(pResult[0]);
+        for (ExtraItemNbtValues.Entry extraPair : extraNbtPairs) {
+            ExtraItemNbtValues.Value value = extraPair.getValue();
+            if (value.type == NbtValueType.INTEGER) {
+                nbt.set(extraPair.getKey().toArray(new String[0]), value.getIntValue());
+            } else if (value.type == NbtValueType.STRING) {
+                nbt.set(extraPair.getKey().toArray(new String[0]), value.getStringValue());
+            } else {
+                throw new Error("Unknown nbt value type: " + value.type);
             }
-
-            pResult[0] = nbt.backToBukkit();
         }
+
+        if (this.item.getItemType() == CustomItemType.OTHER) {
+            String[] customModelDataKey = { "CustomModelData" };
+            nbt.set(customModelDataKey, this.item.getItemDamage());
+        }
+
+        ItemUpgrader.setAttributeIDs(
+                nbt, Arrays.stream(attributeModifiers).map(attribute -> attribute.id).collect(Collectors.toList())
+        );
+        ItemUpgrader.setEnchantmentUpgrades(nbt, defaultEnchantmentMap);
+
+        pResult[0] = nbt.backToBukkit();
 
         return pResult[0];
     }

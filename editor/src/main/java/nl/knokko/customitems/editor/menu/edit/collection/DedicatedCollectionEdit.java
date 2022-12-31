@@ -23,19 +23,19 @@ public abstract class DedicatedCollectionEdit<V extends ModelValues, R extends S
 
     protected final GuiComponent returnMenu;
     protected final Iterable<R> liveCollection;
-    protected final Function<V, String> attemptAddModel;
+    protected final Function<V, String> attemptCopyModel;
 
     protected final ItemList itemList;
     protected final EagerTextEditField searchField;
     protected final DynamicTextComponent errorComponent;
 
     public DedicatedCollectionEdit(
-            GuiComponent returnMenu, Iterable<R> liveCollection, Function<V, String> attemptAddModel
+            GuiComponent returnMenu, Iterable<R> liveCollection, Function<V, String> attemptCopyModel
     ) {
         Checks.notNull(returnMenu);
         this.returnMenu = returnMenu;
         this.liveCollection = liveCollection;
-        this.attemptAddModel = attemptAddModel;
+        this.attemptCopyModel = attemptCopyModel;
 
         this.itemList = new ItemList();
         this.searchField = new EagerTextEditField("", EDIT_BASE, EDIT_ACTIVE, newText -> itemList.refresh());
@@ -130,7 +130,7 @@ public abstract class DedicatedCollectionEdit<V extends ModelValues, R extends S
                             if (copyMode == CopyMode.SEPARATE_MENU) {
                                 state.getWindow().setMainComponent(createCopyMenu(modelReference));
                             } else if (copyMode == CopyMode.INSTANT) {
-                                String error = attemptAddModel.apply(model);
+                                String error = attemptCopyModel.apply(model);
                                 if (error == null) {
                                     refresh();
                                 } else {

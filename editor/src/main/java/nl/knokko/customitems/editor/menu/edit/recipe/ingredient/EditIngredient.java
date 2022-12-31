@@ -90,7 +90,7 @@ public class EditIngredient extends GuiMenu {
 					this, newRemainingItem -> {
 						currentIngredient.setRemainingItem(newRemainingItem);
 						updateRemainingItemDescription.run();
-					}, set
+					}, set, true, currentIngredient.getRemainingItem(), null
 			));
 		}, () -> !(currentIngredient instanceof NoIngredientValues)
 		), 0.35f, 0.15f, 0.45f, 0.25f);

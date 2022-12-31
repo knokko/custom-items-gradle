@@ -1,14 +1,21 @@
 package nl.knokko.customitems.nms;
 
+import java.util.Objects;
+import java.util.UUID;
+
+import static java.lang.Math.abs;
+
 public class RawAttribute {
 
+    public final UUID id;
     public final String attribute;
     public final String slot;
     public final int operation;
 
     public final double value;
 
-    public RawAttribute(String attribute, String slot, int operation, double value) {
+    public RawAttribute(UUID id, String attribute, String slot, int operation, double value) {
+        this.id = id;
         this.attribute = attribute;
         this.slot = slot;
         this.operation = operation;
@@ -29,10 +36,15 @@ public class RawAttribute {
     public boolean equals(Object other) {
         if (other instanceof RawAttribute) {
             RawAttribute otherAttribute = (RawAttribute) other;
-            return otherAttribute.attribute.equals(attribute) && otherAttribute.slot.equals(slot)
-                    && otherAttribute.operation == operation && otherAttribute.value == value;
+            return Objects.equals(otherAttribute.id, this.id) && equalsIgnoreId(otherAttribute);
         } else {
             return false;
         }
+    }
+
+    public boolean equalsIgnoreId(RawAttribute otherAttribute) {
+        return otherAttribute.attribute.equals(attribute)
+                && otherAttribute.slot.equals(slot) && otherAttribute.operation == operation
+                && abs(otherAttribute.value - this.value) < 0.00001;
     }
 }

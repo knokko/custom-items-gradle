@@ -1,6 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.recipe;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
+import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.ChooseShapelessIngredientForUpgrade;
 import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.EditIngredient;
 import nl.knokko.customitems.editor.menu.edit.recipe.result.ResultComponent;
 import nl.knokko.customitems.editor.util.HelpButtons;
@@ -65,10 +66,10 @@ public class ShapelessRecipeEdit extends GuiMenu {
                 new DynamicTextComponent("Result", EditProps.LABEL),
                 0.025f, 0.4f, 0.175f, 0.5f
         );
-        addComponent(
-                new ResultComponent(currentValues.getResult(), currentValues::setResult, this, itemSet),
-                0.025f, 0.3f, 0.175f, 0.4f
-        );
+        addComponent(new ResultComponent(
+                currentValues.getResult(), currentValues::setResult, this, itemSet,
+                (returnMenu, upgrade) -> new ChooseShapelessIngredientForUpgrade(returnMenu, upgrade, currentValues)
+        ), 0.025f, 0.3f, 0.175f, 0.4f);
         addComponent(new DynamicTextButton(toModify == null ? "Create" : "Apply", SAVE_BASE, SAVE_HOVER, () -> {
             String error;
             if (toModify == null) error = Validation.toErrorString(() -> itemSet.addRecipe(currentValues));

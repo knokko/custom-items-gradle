@@ -32,8 +32,8 @@ public class CrazyEnchantmentsSupport {
 		}
 	}
 
-	public static CrazyEnchantmentsFunctions getCrazyEnchantmentsFunctions() {
-		if (crazyEnchantmentsFunctions == null) {
+	public static CrazyEnchantmentsFunctions getCrazyEnchantmentsFunctions(boolean warnIfNotInstalled) {
+		if (crazyEnchantmentsFunctions == null && warnIfNotInstalled) {
 			Bukkit.getLogger().warning("An attempt is made to use a crazy enchantment, but crazy enchantments is not installed.");
 		}
 		return crazyEnchantmentsFunctions;

@@ -1,6 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.container.recipe;
 
 import nl.knokko.customitems.container.ContainerRecipeValues;
+import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.recipe.result.ChooseResult;
 import nl.knokko.customitems.editor.util.StringLength;
@@ -23,6 +24,7 @@ public class ManualOutputSlotComponent implements GuiComponent {
     private final String name;
     private final GuiComponent outerMenu;
     private final ItemSet set;
+    private final CustomContainerValues container;
     private final ContainerRecipeValues recipe;
 
     private GuiComponentState state;
@@ -30,10 +32,13 @@ public class ManualOutputSlotComponent implements GuiComponent {
     private GuiTexture bottomTextTexture;
     private String currentBottomText;
 
-    public ManualOutputSlotComponent(String name, GuiComponent outerMenu,
-                               ContainerRecipeValues recipe, ItemSet set) {
+    public ManualOutputSlotComponent(
+            String name, GuiComponent outerMenu, CustomContainerValues container,
+            ContainerRecipeValues recipe, ItemSet set
+    ) {
         this.name = name;
         this.outerMenu = outerMenu;
+        this.container = container;
         this.recipe = recipe;
         this.set = set;
     }
@@ -103,7 +108,8 @@ public class ManualOutputSlotComponent implements GuiComponent {
     public void click(float x, float y, int button) {
         if (button == MouseCode.BUTTON_LEFT) {
             state.getWindow().setMainComponent(new ChooseResult(
-                    outerMenu, this::setResult, set
+                    outerMenu, this::setResult, set, false, recipe.getManualOutput(),
+                    (returnMenu, upgrade) -> new ChooseContainerIngredientForUpgrade(returnMenu, upgrade, container, recipe)
             ));
         } else if (button == MouseCode.BUTTON_RIGHT) {
             if (this.name.equals(recipe.getManualOutputSlotName())) {

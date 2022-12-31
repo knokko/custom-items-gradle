@@ -45,12 +45,12 @@ public class RecipeSlotsGrid extends GuiMenu {
 				} else if (slot instanceof OutputSlotValues) {
 					OutputSlotValues outputSlot = (OutputSlotValues) slot;
 					slotComponent = new OutputSlotComponent(
-							outputSlot.getName(), outerMenu, pClipboardResult, recipe, itemSet
+							outputSlot.getName(), outerMenu, pClipboardResult, container, recipe, itemSet
 					);
 				} else if (slot instanceof ManualOutputSlotValues) {
 					ManualOutputSlotValues outputSlot = (ManualOutputSlotValues) slot;
 					slotComponent = new ManualOutputSlotComponent(
-							outputSlot.getName(), outerMenu, recipe, itemSet
+							outputSlot.getName(), outerMenu, container, recipe, itemSet
 					);
 				} else {
 					slotComponent = new OtherSlotComponent();

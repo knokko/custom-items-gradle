@@ -43,8 +43,9 @@ import nl.knokko.customitems.plugin.util.ItemUtils;
 import org.bukkit.inventory.PlayerInventory;
 
 import java.util.List;
+import java.util.Map;
 
-import static nl.knokko.customitems.plugin.recipe.RecipeHelper.convertResultToItemStack;
+import static nl.knokko.customitems.plugin.container.ContainerRecipeWrapper.wrap;
 import static nl.knokko.customitems.plugin.set.item.CustomItemWrapper.wrap;
 
 public class ContainerEventHandler implements Listener {
@@ -175,7 +176,9 @@ public class ContainerEventHandler implements Listener {
 						if (currentManualRecipe != null && !ItemUtils.isEmpty(event.getCursor())) {
 							CustomItemValues customCursor = itemSet.getItem(event.getCursor());
 							if (customCursor == null) {
-								ItemStack manualOutputStack = convertResultToItemStack(currentManualRecipe.getManualOutput());
+								ItemStack manualOutputStack = wrap(
+										currentManualRecipe, customContainer.getCurrentIngredients()
+								).getManualOutput();
 								if (!event.getCursor().isSimilar(manualOutputStack) || event.getCursor().getAmount() + manualOutputStack.getAmount() > event.getCursor().getMaxStackSize()) {
 									currentManualRecipe = null;
 								}
@@ -290,6 +293,7 @@ public class ContainerEventHandler implements Listener {
 							if (currentManualRecipe != null) {
 
 								int numRecipeExecutions = 0;
+								Map<String, ItemStack> originalIngredients = customContainer.getCurrentIngredients();
 								while (customContainer.determineCurrentRecipe(currentManualRecipe) == currentManualRecipe) {
 									customContainer.consumeIngredientsAndEnergyOfCurrentRecipe();
 									numRecipeExecutions += 1;
@@ -299,13 +303,14 @@ public class ContainerEventHandler implements Listener {
 									player.giveExp(numRecipeExecutions * currentManualRecipe.getExperience());
 								}
 
-								ItemStack baseResultStack = convertResultToItemStack(currentManualRecipe.getManualOutput());
+								ItemStack baseResultStack = wrap(
+										currentManualRecipe, originalIngredients
+								).getManualOutput();
 								CustomItemValues customResult = currentManualRecipe.getManualOutput() instanceof CustomItemResultValues ?
 										((CustomItemResultValues) currentManualRecipe.getManualOutput()).getItem() : null;
 								int maxStackSize = customResult != null ? customResult.getMaxStacksize() : baseResultStack.getMaxStackSize();
 
 								int finalNumRecipeExecutions = numRecipeExecutions;
-								ContainerRecipeValues finalManualRecipe = currentManualRecipe;
 								Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
 
 									int remainingAmount = finalNumRecipeExecutions * baseResultStack.getAmount();
@@ -369,6 +374,7 @@ public class ContainerEventHandler implements Listener {
 					}
 
 					if (consumeManualRecipeOnce) {
+						Map<String, ItemStack> originalIngredients = customContainer.getCurrentIngredients();
 						customContainer.consumeIngredientsAndEnergyOfCurrentRecipe();
 						if (currentManualRecipe.getExperience() > 0) {
 							player.giveExp(currentManualRecipe.getExperience());
@@ -376,7 +382,7 @@ public class ContainerEventHandler implements Listener {
 						ContainerRecipeValues finalManualRecipe = currentManualRecipe;
 						boolean finalStackResultOnCursor = stackManualResultOnCursor;
 						Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
-							ItemStack cursor = convertResultToItemStack(finalManualRecipe.getManualOutput());
+							ItemStack cursor = wrap(finalManualRecipe, originalIngredients).getManualOutput();
 							if (finalStackResultOnCursor) {
 								cursor.setAmount(cursor.getAmount() + event.getCursor().getAmount());
 							}

@@ -58,7 +58,7 @@ public class EditCustomBlockDrop extends GuiMenu  {
                 0.3f, 0.7f, 0.49f, 0.8f);
         addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () ->
                 state.getWindow().setMainComponent(new EditOutputTable(
-                        this, currentDrop.getItemsToDrop(), currentDrop::setItemsToDrop, set
+                        this, currentDrop.getItemsToDrop(), currentDrop::setItemsToDrop, set, null
                 ))
         ), 0.5f, 0.7f, 0.62f, 0.8f);
 

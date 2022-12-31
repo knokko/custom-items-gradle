@@ -61,6 +61,19 @@ public class DamageResistanceValues extends ModelValues {
         return new DamageResistanceValues(this, mutable);
     }
 
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder("DamageResistances(");
+        for (DamageSource damageSource : DamageSource.values()) {
+            short resistance = this.resistanceMap[damageSource.ordinal()];
+            if (resistance != 0) {
+                result.append(damageSource + ": " + resistance + "%, ");
+            }
+        }
+        result.append(")");
+        return result.toString();
+    }
+
     public short getResistance(DamageSource damageSource) {
         return resistanceMap[damageSource.ordinal()];
     }

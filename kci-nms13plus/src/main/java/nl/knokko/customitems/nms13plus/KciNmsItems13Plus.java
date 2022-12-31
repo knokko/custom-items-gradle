@@ -25,18 +25,18 @@ public abstract class KciNmsItems13Plus implements KciNmsItems {
         ItemStack original = new ItemStack(type, amount);
         ItemMeta meta = Bukkit.getItemFactory().getItemMeta(type);
         if (attributes.length == 0) {
+            assert meta != null;
             meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
             addDummyAttributeModifier(meta);
-            original.setItemMeta(meta);
-            return original;
         } else {
             for (int index = 0; index < attributes.length; index++) {
                 RawAttribute attribute = attributes[index];
+                assert meta != null;
                 meta.addAttributeModifier(toBukkitAttribute(attribute.attribute), toBukkitAttributeModifier(attribute, index));
             }
-            original.setItemMeta(meta);
-            return original;
         }
+        original.setItemMeta(meta);
+        return original;
     }
 
     @Override
@@ -45,15 +45,19 @@ public abstract class KciNmsItems13Plus implements KciNmsItems {
         if (meta == null) {
             meta = Bukkit.getItemFactory().getItemMeta(original.getType());
         } else {
-            for (Attribute attribute : meta.getAttributeModifiers().keySet()) {
-                meta.removeAttributeModifier(attribute);
+            if (meta.hasAttributeModifiers()) {
+                for (Attribute attribute : meta.getAttributeModifiers().keySet()) {
+                    meta.removeAttributeModifier(attribute);
+                }
             }
         }
         for (int index = 0; index < attributes.length; index++) {
             RawAttribute attribute = attributes[index];
+            assert meta != null;
             meta.addAttributeModifier(toBukkitAttribute(attribute.attribute), toBukkitAttributeModifier(attribute, index));
         }
         if (attributes.length == 0) {
+            assert meta != null;
             meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
             addDummyAttributeModifier(meta);
         }
@@ -73,11 +77,12 @@ public abstract class KciNmsItems13Plus implements KciNmsItems {
             RawAttribute[] attributes = new RawAttribute[attributeModifiers.size()];
             int index = 0;
             for (Map.Entry<Attribute, AttributeModifier> attributePair : attributeModifiers.entries()) {
+                UUID id = attributePair.getValue().getUniqueId();
                 String attribute = fromBukkitAttribute(attributePair.getKey());
                 String slot = fromBukkitSlot(attributePair.getValue().getSlot());
                 int operation = attributePair.getValue().getOperation().ordinal();
                 double value = attributePair.getValue().getAmount();
-                attributes[index] = new RawAttribute(attribute, slot, operation, value);
+                attributes[index] = new RawAttribute(id, attribute, slot, operation, value);
                 index++;
             }
 
@@ -130,11 +135,17 @@ public abstract class KciNmsItems13Plus implements KciNmsItems {
     }
 
     private static AttributeModifier toBukkitAttributeModifier(RawAttribute attribute, int index) {
-        long most = index + 1 + slotHashCode(attribute.slot) * attribute.attribute.hashCode();
-        long least = index + 1 + slotHashCode(attribute.slot) + attribute.attribute.hashCode();
-        if (most == 0) most = -8;
-        if (least == 0) least = 12;
-        return new AttributeModifier(new UUID(most, least), attribute.attribute, attribute.value,
+        UUID id;
+        if (attribute.id == null) {
+            long most = index + 1 + slotHashCode(attribute.slot) * attribute.attribute.hashCode();
+            long least = index + 1 + slotHashCode(attribute.slot) + attribute.attribute.hashCode();
+            if (most == 0) most = -8;
+            if (least == 0) least = 12;
+            id = new UUID(most, least);
+        } else {
+            id = attribute.id;
+        }
+        return new AttributeModifier(id, attribute.attribute, attribute.value,
                 AttributeModifier.Operation.values()[attribute.operation], toBukkitSlot(attribute.slot));
     }
 
@@ -142,6 +153,8 @@ public abstract class KciNmsItems13Plus implements KciNmsItems {
     private static final UUID DUMMY_UUID = new UUID(39847328746L, -2742859264376L);
 
     private static void addDummyAttributeModifier(ItemMeta meta) {
-        meta.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, new AttributeModifier(DUMMY_UUID, "dummy", 0, AttributeModifier.Operation.ADD_NUMBER));
+        meta.addAttributeModifier(Attribute.GENERIC_MAX_HEALTH, new AttributeModifier(
+                DUMMY_UUID, "dummy", 0, AttributeModifier.Operation.ADD_NUMBER
+        ));
     }
 }

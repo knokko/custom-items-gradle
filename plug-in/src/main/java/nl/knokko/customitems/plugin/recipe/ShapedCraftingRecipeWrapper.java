@@ -7,14 +7,14 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 
-import static nl.knokko.customitems.plugin.recipe.RecipeHelper.convertResultToItemStack;
 import static nl.knokko.customitems.plugin.recipe.RecipeHelper.shouldIngredientAcceptItemStack;
 
-public class ShapedCraftingRecipeWrapper implements CraftingRecipeWrapper {
+public class ShapedCraftingRecipeWrapper extends CraftingRecipeWrapper {
 
 	private final ShapedRecipeValues recipe;
 
     public ShapedCraftingRecipeWrapper(ShapedRecipeValues recipe){
+    	super(recipe);
     	this.recipe = recipe;
     }
 
@@ -28,11 +28,6 @@ public class ShapedCraftingRecipeWrapper implements CraftingRecipeWrapper {
 	}
 
 	@Override
-	public ItemStack getResult() {
-		return convertResultToItemStack(this.recipe.getResult());
-	}
-
-	@Override
 	public List<IngredientEntry> shouldAccept(ItemStack[] ingredients) {
 
     	// For the 3x3 crafting grid
@@ -43,7 +38,7 @@ public class ShapedCraftingRecipeWrapper implements CraftingRecipeWrapper {
 				int y = index / 3;
 				if (shouldIngredientAcceptItemStack(this.recipe.getIngredientAt(x, y), ingredients[index])) {
 					if (!(this.recipe.getIngredientAt(x, y) instanceof NoIngredientValues)) {
-						result.add(new IngredientEntry(this.recipe.getIngredientAt(x, y), index));
+						result.add(new IngredientEntry(this.recipe.getIngredientAt(x, y), index, index));
 					}
 				} else {
 					return null;
@@ -63,7 +58,7 @@ public class ShapedCraftingRecipeWrapper implements CraftingRecipeWrapper {
 				if (!shouldIngredientAcceptItemStack(this.recipe.getIngredientAt(2, y), null)) return null;
 			}
 
-			// Compare the relevant ingredients (note the weird displacement)
+			// Compare the relevant ingredients
 			if (shouldIngredientAcceptItemStack(this.recipe.getIngredientAt(0, 0), ingredients[0])
 					&& shouldIngredientAcceptItemStack(this.recipe.getIngredientAt(1, 0), ingredients[1])
 					&& shouldIngredientAcceptItemStack(this.recipe.getIngredientAt(0, 1), ingredients[2])
@@ -71,16 +66,16 @@ public class ShapedCraftingRecipeWrapper implements CraftingRecipeWrapper {
 
 				List<IngredientEntry> result = new ArrayList<>(4);
 				if (!(this.recipe.getIngredientAt(0, 0) instanceof NoIngredientValues)) {
-					result.add(new IngredientEntry(this.recipe.getIngredientAt(0, 0), 0));
+					result.add(new IngredientEntry(this.recipe.getIngredientAt(0, 0), 0, 0));
 				}
 				if (!(this.recipe.getIngredientAt(1, 0) instanceof NoIngredientValues)) {
-					result.add(new IngredientEntry(this.recipe.getIngredientAt(1, 0), 1));
+					result.add(new IngredientEntry(this.recipe.getIngredientAt(1, 0), 1, 1));
 				}
 				if (!(this.recipe.getIngredientAt(0, 1) instanceof NoIngredientValues)) {
-					result.add(new IngredientEntry(this.recipe.getIngredientAt(0, 1), 2));
+					result.add(new IngredientEntry(this.recipe.getIngredientAt(0, 1), 3, 2));
 				}
 				if (!(this.recipe.getIngredientAt(1, 1) instanceof NoIngredientValues)) {
-					result.add(new IngredientEntry(this.recipe.getIngredientAt(1, 1), 3));
+					result.add(new IngredientEntry(this.recipe.getIngredientAt(1, 1), 4, 3));
 				}
 
 				return result;

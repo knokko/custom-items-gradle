@@ -10,6 +10,7 @@ import nl.knokko.customitems.plugin.multisupport.mimic.MimicSupport;
 import nl.knokko.customitems.plugin.set.item.BukkitEnchantments;
 import nl.knokko.customitems.plugin.set.item.CustomItemWrapper;
 import nl.knokko.customitems.plugin.set.item.CustomToolWrapper;
+import nl.knokko.customitems.plugin.set.item.update.ItemUpgrader;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import nl.knokko.customitems.recipe.CraftingRecipeValues;
 import nl.knokko.customitems.recipe.ShapedRecipeValues;
@@ -17,6 +18,8 @@ import nl.knokko.customitems.recipe.ShapelessRecipeValues;
 import nl.knokko.customitems.recipe.ingredient.*;
 import nl.knokko.customitems.recipe.ingredient.constraint.*;
 import nl.knokko.customitems.recipe.result.*;
+import nl.knokko.customitems.recipe.upgrade.UpgradeValues;
+import nl.knokko.customitems.recipe.upgrade.VariableUpgradeValues;
 import nl.knokko.customitems.util.StringEncoder;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -25,6 +28,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
+
+import java.util.List;
 
 import static nl.knokko.customitems.item.CustomItemValues.UNBREAKABLE_TOOL_DURABILITY;
 
@@ -58,7 +63,7 @@ public class RecipeHelper {
         }
     }
 
-    private static float getDurabilityPercentage(ItemStack item) {
+    public static float getDurabilityPercentage(ItemStack item) {
         long currentDurability = 0;
         long maxDurability = 0;
 
@@ -124,8 +129,19 @@ public class RecipeHelper {
             if (!satisfiesIntConstraint(level, constraint.getOperator(), constraint.getLevel())) return false;
         }
 
-        for (VariableConstraintValues constraint : constraints.getVariableConstraints()) {
-            // TODO Implement this when I introduce variables
+        if (!constraints.getVariableConstraints().isEmpty()) {
+            List<UpgradeValues> upgrades = ItemUpgrader.getUpgrades(item, CustomItemsPlugin.getInstance().getSet());
+            for (VariableConstraintValues constraint : constraints.getVariableConstraints()) {
+
+                int itemValue = 0;
+                for (UpgradeValues upgrade : upgrades) {
+                    for (VariableUpgradeValues variable : upgrade.getVariables()) {
+                        if (variable.getName().equals(constraint.getVariable())) itemValue += variable.getValue();
+                    }
+                }
+
+                if (!satisfiesIntConstraint(itemValue, constraint.getOperator(), constraint.getValue())) return false;
+            }
         }
 
         return true;

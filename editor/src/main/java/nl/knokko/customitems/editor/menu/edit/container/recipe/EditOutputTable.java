@@ -3,6 +3,7 @@ package nl.knokko.customitems.editor.menu.edit.container.recipe;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
@@ -13,6 +14,8 @@ import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.result.CustomItemResultValues;
+import nl.knokko.customitems.recipe.result.ResultValues;
+import nl.knokko.customitems.recipe.result.UpgradeResultValues;
 import nl.knokko.customitems.util.Chance;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
@@ -23,16 +26,20 @@ public class EditOutputTable extends SafeCollectionEdit<OutputTableValues.Entry>
 	private final Consumer<OutputTableValues> onApply;
 	private final boolean isCreatingNew;
 	private final ItemSet set;
-	
+	private final BiFunction<GuiComponent, UpgradeResultValues, GuiComponent> createUpgradeIngredientMenu;
+
 	private Chance previousNothingChance = null;
 	private final DynamicTextComponent nothingChanceComponent;
 
-	public EditOutputTable(GuiComponent returnMenu, OutputTableValues original,
-			Consumer<OutputTableValues> onApply, ItemSet set) {
+	public EditOutputTable(
+			GuiComponent returnMenu, OutputTableValues original, Consumer<OutputTableValues> onApply, ItemSet set,
+			BiFunction<GuiComponent, UpgradeResultValues, GuiComponent> createUpgradeIngredientMenu
+	) {
 		super(returnMenu, original == null ? new ArrayList<>() : Mutability.createDeepCopy(original.getEntries(), true));
 		this.onApply = onApply;
 		this.isCreatingNew = original == null;
 		this.set = set;
+		this.createUpgradeIngredientMenu = createUpgradeIngredientMenu;
 		
 		this.nothingChanceComponent = new DynamicTextComponent("", EditProps.LABEL);
 	}
@@ -57,8 +64,13 @@ public class EditOutputTable extends SafeCollectionEdit<OutputTableValues.Entry>
 		super.addComponents();
 		
 		addComponent(new DynamicTextButton("Add entry", EditProps.BUTTON, EditProps.HOVER, () -> {
+			ResultValues oldResult = null;
+			for (OutputTableValues.Entry entry : currentCollection) {
+				oldResult = entry.getResult();
+				break;
+			}
 			state.getWindow().setMainComponent(new CreateOutputTableEntry(
-					this, currentCollection::add, set
+					this, currentCollection::add, set, oldResult, createUpgradeIngredientMenu
 			));
 		}), 0.025f, 0.55f, 0.2f, 0.65f);
 		

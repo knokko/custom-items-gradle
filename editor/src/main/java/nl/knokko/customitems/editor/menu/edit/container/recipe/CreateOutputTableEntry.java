@@ -1,5 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.container.recipe;
 
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
@@ -10,25 +11,31 @@ import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
+import nl.knokko.customitems.recipe.result.UpgradeResultValues;
 import nl.knokko.customitems.util.Chance;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
-import nl.knokko.gui.util.Option;
 
 public class CreateOutputTableEntry extends GuiMenu {
 	
 	private final GuiComponent returnMenu;
 	private final Consumer<OutputTableValues.Entry> onCreate;
 	private final ItemSet set;
+	private final ResultValues oldResult;
+	private final BiFunction<GuiComponent, UpgradeResultValues, GuiComponent> createUpgradeIngredientMenu;
 	
 	public CreateOutputTableEntry(
-			GuiComponent returnMenu, Consumer<OutputTableValues.Entry> onCreate, ItemSet set) {
+			GuiComponent returnMenu, Consumer<OutputTableValues.Entry> onCreate, ItemSet set, ResultValues oldResult,
+			BiFunction<GuiComponent, UpgradeResultValues, GuiComponent> createUpgradeIngredientMenu
+	) {
 		this.returnMenu = returnMenu;
 		this.onCreate = onCreate;
 		this.set = set;
+		this.oldResult = oldResult;
+		this.createUpgradeIngredientMenu = createUpgradeIngredientMenu;
 	}
 
 	@Override
@@ -56,7 +63,8 @@ public class CreateOutputTableEntry extends GuiMenu {
 		ResultValues[] pResult = {null};
 		addComponent(new DynamicTextButton("Choose...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new ChooseResult(
-					this, newResult -> pResult[0] = newResult, set
+					this, newResult -> pResult[0] = newResult, set,
+					false, oldResult, createUpgradeIngredientMenu
 			));
 		}), 0.3f, 0.4f, 0.45f, 0.5f);
 		

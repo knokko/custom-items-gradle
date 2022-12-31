@@ -2,6 +2,7 @@ package nl.knokko.customitems.editor.menu.edit.recipe;
 
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
+import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.ChooseShapedIngredientForUpgrade;
 import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.IngredientComponent;
 import nl.knokko.customitems.editor.menu.edit.recipe.result.ResultComponent;
 import nl.knokko.customitems.editor.util.HelpButtons;
@@ -35,7 +36,8 @@ public class ShapedRecipeEdit extends GuiMenu {
 
 		this.ingredientsComponent = new Ingredients();
 		this.resultComponent = new ResultComponent(
-				currentValues.getResult(), currentValues::setResult, this, menu.getSet()
+				currentValues.getResult(), currentValues::setResult, this, menu.getSet(),
+				(returnMenu, upgrade) -> new ChooseShapedIngredientForUpgrade(returnMenu, upgrade, currentValues)
 		);
 		this.errorComponent = new DynamicTextComponent("", EditProps.ERROR);
 	}

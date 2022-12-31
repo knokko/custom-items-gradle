@@ -23,6 +23,8 @@ import nl.knokko.customitems.projectile.cover.ProjectileCoverValues;
 import nl.knokko.customitems.projectile.cover.ProjectileCover;
 import nl.knokko.customitems.recipe.CraftingRecipeValues;
 import nl.knokko.customitems.recipe.CustomCraftingRecipe;
+import nl.knokko.customitems.recipe.upgrade.Upgrade;
+import nl.knokko.customitems.recipe.upgrade.UpgradeValues;
 import nl.knokko.customitems.settings.ExportSettingsValues;
 import nl.knokko.customitems.sound.CustomSoundType;
 import nl.knokko.customitems.sound.CustomSoundTypeValues;
@@ -80,6 +82,9 @@ public class ItemSet {
 
         result.craftingRecipes.addAll(primary.craftingRecipes);
         result.craftingRecipes.addAll(secondary.craftingRecipes);
+
+        result.upgrades.addAll(primary.upgrades);
+        result.upgrades.addAll(secondary.upgrades);
 
         result.blockDrops.addAll(primary.blockDrops);
         result.blockDrops.addAll(secondary.blockDrops);
@@ -146,6 +151,7 @@ public class ItemSet {
     Collection<CustomItem> items;
     Collection<EquipmentSet> equipmentSets;
     Collection<CustomCraftingRecipe> craftingRecipes;
+    Collection<Upgrade> upgrades;
     Collection<BlockDrop> blockDrops;
     Collection<MobDrop> mobDrops;
     Collection<CustomContainer> containers;
@@ -183,6 +189,7 @@ public class ItemSet {
         items = new ArrayList<>();
         equipmentSets = new ArrayList<>();
         craftingRecipes = new ArrayList<>();
+        upgrades = new ArrayList<>();
         blockDrops = new ArrayList<>();
         mobDrops = new ArrayList<>();
         blocks = new ArrayList<>();
@@ -203,8 +210,8 @@ public class ItemSet {
     public boolean isEmpty() {
         for (Collection<?> relevantCollection : new Collection<?>[]{
                 this.textures, this.armorTextures, this.items, this.equipmentSets, this.craftingRecipes,
-                this.blockDrops, this.mobDrops, this.blocks, this.oreVeinGenerators, this.treeGenerators,
-                this.containers, this.fuelRegistries, this.energyTypes, this.soundTypes,
+                this.upgrades, this.blockDrops, this.mobDrops, this.blocks, this.oreVeinGenerators,
+                this.treeGenerators, this.containers, this.fuelRegistries, this.energyTypes, this.soundTypes,
                 this.projectiles, this.projectileCovers, this.removedItemNames
         }) {
             if (!relevantCollection.isEmpty()) return false;
@@ -394,6 +401,8 @@ public class ItemSet {
             recipe.getValues().save(output);
         }
 
+        CollectionHelper.save(upgrades, upgrade -> upgrade.getValues().save(output), output);
+
         output.addInt(blockDrops.size());
         for (BlockDrop drop : blockDrops) {
             drop.getValues().save(output);
@@ -545,6 +554,7 @@ public class ItemSet {
 
     private void initDefaults10() {
         this.exportSettings = new ExportSettingsValues(false);
+        this.upgrades = new ArrayList<>();
         initDefaults11();
     }
 
@@ -869,6 +879,7 @@ public class ItemSet {
             loadOreVeinGenerators(input);
             loadTreeGenerators(input);
             loadCraftingRecipes(input);
+            this.upgrades = CollectionHelper.load(input, input1 -> new Upgrade(UpgradeValues.load(input1)));
             loadBlockDrops(input);
             loadMobDrops(input);
             loadFuelRegistries(input);
@@ -913,6 +924,10 @@ public class ItemSet {
 
     public CustomRecipesView getCraftingRecipes() {
         return new CustomRecipesView(craftingRecipes);
+    }
+
+    public UpgradesView getUpgrades() {
+        return new UpgradesView(upgrades);
     }
 
     public BlockDropsView getBlockDrops() {
@@ -980,6 +995,14 @@ public class ItemSet {
             return new ItemReference(CollectionHelper.find(items, item -> item.getValues().getName(), itemName).get());
         } else {
             return new ItemReference(itemName, this);
+        }
+    }
+
+    public UpgradeReference getUpgradeReference(UUID upgradeID) throws NoSuchElementException {
+        if (finishedLoading) {
+            return new UpgradeReference(CollectionHelper.find(upgrades, upgrade -> upgrade.getValues().getId(), upgradeID).get());
+        } else {
+            return new UpgradeReference(upgradeID, this);
         }
     }
 
@@ -1051,6 +1074,10 @@ public class ItemSet {
         return CollectionHelper.find(items, item -> item.getValues().getName(), itemName).map(CustomItem::getValues);
     }
 
+    public Optional<UpgradeValues> getUpgrade(UUID upgradeID) {
+        return CollectionHelper.find(upgrades, upgrade -> upgrade.getValues().getId(), upgradeID).map(Upgrade::getValues);
+    }
+
     public Optional<CustomBlockValues> getBlock(int blockInternalId) {
         return CollectionHelper.find(blocks, block -> block.getValues().getInternalID(), blockInternalId).map(CustomBlock::getValues);
     }
@@ -1106,6 +1133,10 @@ public class ItemSet {
 
     public boolean isReferenceValid(CraftingRecipeReference reference) {
         return isReferenceValid(craftingRecipes, reference.getModel());
+    }
+
+    public boolean isReferenceValid(UpgradeReference reference) {
+        return isReferenceValid(upgrades, reference.getModel());
     }
 
     public boolean isReferenceValid(BlockDropReference reference) {
@@ -1193,6 +1224,10 @@ public class ItemSet {
                     "Recipe for " + recipe.getResult(),
                     () -> recipe.validateExportVersion(version)
             );
+        }
+
+        for (UpgradeValues upgrade : getUpgrades()) {
+            Validation.scope("Upgrade " + upgrade.getName(), upgrade::validateExportVersion, version);
         }
 
         for (BlockDropValues blockDrop : getBlockDrops()) {
@@ -1302,6 +1337,14 @@ public class ItemSet {
                     () -> recipe.getValues().validate(this, new CraftingRecipeReference(recipe))
             );
         }
+
+        for (UpgradeValues upgrade : getUpgrades()) {
+            Validation.scope(
+                    "Upgrade " + upgrade.getName(),
+                    () -> upgrade.validateComplete(this, upgrade.getId())
+            );
+        }
+        validateUniqueIDs("upgrade id", upgrades, upgrade -> upgrade.getValues().getId());
 
         for (BlockDrop blockDrop : blockDrops) {
             Validation.scope(
@@ -1455,6 +1498,19 @@ public class ItemSet {
         if (!isReferenceValid(recipeToChange)) throw new ProgrammingValidationException("Recipe to change is invalid");
         newRecipeValues.validate(this, recipeToChange);
         recipeToChange.getModel().setValues(newRecipeValues);
+    }
+
+    public void addUpgrade(UpgradeValues newUpgrade) throws ValidationException, ProgrammingValidationException {
+        newUpgrade.validateComplete(this, null);
+        this.upgrades.add(new Upgrade(newUpgrade));
+    }
+
+    public void changeUpgrade(
+            UpgradeReference upgradeToChange, UpgradeValues newUpgradeValues
+    ) throws ValidationException, ProgrammingValidationException {
+        if (!isReferenceValid(upgradeToChange)) throw new ProgrammingValidationException("Upgrade to change is invalid");
+        newUpgradeValues.validateComplete(this, upgradeToChange.get().getId());
+        upgradeToChange.getModel().setValues(newUpgradeValues);
     }
 
     public void addBlockDrop(BlockDropValues newBlockDrop) throws ValidationException, ProgrammingValidationException {
@@ -1638,6 +1694,10 @@ public class ItemSet {
 
     public void removeCraftingRecipe(CraftingRecipeReference recipeToRemove) throws ValidationException, ProgrammingValidationException {
         removeModel(this.craftingRecipes, recipeToRemove.getModel());
+    }
+
+    public void removeUpgrade(UpgradeReference upgradeToRemove) throws ValidationException, ProgrammingValidationException {
+        removeModel(this.upgrades, upgradeToRemove.getModel());
     }
 
     public void removeBlockDrop(BlockDropReference blockDropToRemove) throws ValidationException, ProgrammingValidationException {

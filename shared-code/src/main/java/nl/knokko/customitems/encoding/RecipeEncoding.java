@@ -39,6 +39,6 @@ public class RecipeEncoding {
 		public static final byte COPIED = 4;
 		public static final byte MIMIC = 5;
 		public static final byte ITEM_BRIDGE = 6;
-		
+		public static final byte UPGRADE = 7;
 	}
 }

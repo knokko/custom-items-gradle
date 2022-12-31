@@ -23,6 +23,7 @@ import nl.knokko.customitems.nms.GeneralItemNBT;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.data.ContainerStorageKey;
 import nl.knokko.customitems.plugin.data.StoredEnergy;
+import nl.knokko.customitems.plugin.set.item.update.ItemUpgrader;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -48,6 +49,7 @@ import nl.knokko.customitems.plugin.util.ItemUtils;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 
+import static nl.knokko.customitems.plugin.container.ContainerRecipeWrapper.wrap;
 import static nl.knokko.customitems.plugin.recipe.RecipeHelper.convertResultToItemStack;
 import static nl.knokko.customitems.plugin.recipe.RecipeHelper.shouldIngredientAcceptItemStack;
 import static nl.knokko.customitems.plugin.set.item.CustomItemWrapper.wrap;
@@ -800,15 +802,7 @@ public class ContainerInstance {
 			return null;
 		}
 	}
-	
-	public void setInput(String inputSlotName, ItemStack newStack) {
-		inventory.setItem(typeInfo.getInputSlot(inputSlotName).getSlotIndex(), newStack);
-	}
-	
-	public void setOutput(String outputSlotName, ItemStack newStack) {
-		inventory.setItem(typeInfo.getOutputSlot(outputSlotName).getSlotIndex(), newStack);
-	}
-	
+
 	public void setFuel(String fuelSlotName, ItemStack newStack) {
 		inventory.setItem(typeInfo.getFuelSlot(fuelSlotName).getSlotIndex(), newStack);
 	}
@@ -846,6 +840,8 @@ public class ContainerInstance {
 			}
 		});
 
+		Map<String, ItemStack> ingredients = getCurrentIngredients();
+
 		for (Entry<String, ContainerInfo.PlaceholderProps> manualSlot : typeInfo.getManualOutputSlots()) {
 			int slotIndex = manualSlot.getValue().getSlotIndex();
 			if (currentRecipe == null || !manualSlot.getKey().equals(currentRecipe.getManualOutputSlotName())) {
@@ -855,7 +851,7 @@ public class ContainerInstance {
 					inventory.setItem(slotIndex, fromDisplay(manualSlot.getValue().getPlaceholder()));
 				}
 			} else {
-				inventory.setItem(slotIndex, convertResultToItemStack(currentRecipe.getManualOutput()));
+				inventory.setItem(slotIndex, wrap(currentRecipe, ingredients).getManualOutput());
 			}
 		}
 
@@ -936,6 +932,17 @@ public class ContainerInstance {
 			}
 		}
 
+		// Forbid custom item ingredients that still need to be updated by the ItemUpdater to the 12.0 NBT format
+		Map<String, ItemStack> ingredients = getCurrentIngredients();
+		for (ItemStack ingredient : ingredients.values()) {
+			if (ItemUtils.isCustom(ingredient)) {
+				GeneralItemNBT nbt = KciNms.instance.items.generalReadOnlyNbt(ingredient);
+				if (!ItemUpgrader.hasStoredEnchantmentUpgrades(nbt) || !ItemUpgrader.hasStoredExistingAttributeIDs(nbt)) {
+					return false;
+				}
+			}
+		}
+
 		for (Entry<String, OutputTableValues> output : candidate.getOutputs().entrySet()) {
 			ItemStack outSlot = getOutput(output.getKey());
 			OutputTableValues outputTable = output.getValue();
@@ -946,7 +953,7 @@ public class ContainerInstance {
 				// All possible output entries must be able to stack on top of
 				// the current item stack in the output slot
 				for (OutputTableValues.Entry entry : outputTable.getEntries()) {
-					ItemStack potentialResult = convertResultToItemStack(entry.getResult());
+					ItemStack potentialResult = wrap(candidate, ingredients).convertResultToItemStack(entry.getResult());
 					if (!potentialResult.isSimilar(outSlot)) {
 						return false;
 					}
@@ -1037,7 +1044,9 @@ public class ContainerInstance {
 						// that all inputs are still present before producing a result.
 					    if (currentRecipe == determineCurrentRecipe(currentRecipe)) {
 
-							// Decrease the stacksize of all relevant input slots
+							// Decrease the stacksize of all relevant input slots, but remember the ingredients
+							// for upgrading purposes
+							Map<String, ItemStack> originalIngredients = getCurrentIngredients();
 							this.consumeIngredientsAndEnergyOfCurrentRecipe();
 
 							// Add the results to the output slots
@@ -1045,7 +1054,9 @@ public class ContainerInstance {
 
 								int invIndex = typeInfo.getOutputSlot(output.getKey()).getSlotIndex();
 								ItemStack outputItem = inventory.getItem(invIndex);
-								ItemStack result = convertResultToItemStack(output.getValue().pickResult(new Random()));
+								ItemStack result = wrap(
+										currentRecipe, originalIngredients
+								).convertResultToItemStack(output.getValue().pickResult(new Random()));
 
 								// result can be null because the chance to get something could be < 100%
 								if (result != null) {
@@ -1122,6 +1133,18 @@ public class ContainerInstance {
 
 			inventory.setItem(indicator.getInventoryIndex(), indicatingStack);
 		}
+	}
+
+	public Map<String, ItemStack> getCurrentIngredients() {
+		Map<String, ItemStack> ingredients = new HashMap<>();
+		typeInfo.getInputSlots().forEach(entry -> {
+			int inventoryIndex = entry.getValue().getSlotIndex();
+			String slotName = entry.getKey();
+			ItemStack stack = inventory.getItem(inventoryIndex);
+			if (stack != null) ingredients.put(slotName, stack.clone());
+			else ingredients.put(slotName, null);
+		});
+		return ingredients;
 	}
 
 	void consumeIngredientsAndEnergyOfCurrentRecipe() {

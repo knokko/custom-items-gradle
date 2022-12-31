@@ -1,16 +1,49 @@
 package nl.knokko.customitems.plugin.recipe;
 
+import nl.knokko.customitems.plugin.CustomItemsPlugin;
+import nl.knokko.customitems.plugin.set.item.update.ItemUpgrader;
+import nl.knokko.customitems.recipe.CraftingRecipeValues;
+import nl.knokko.customitems.recipe.result.ResultValues;
+import nl.knokko.customitems.recipe.result.UpgradeResultValues;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
-public interface CraftingRecipeWrapper {
+import static nl.knokko.customitems.plugin.recipe.RecipeHelper.convertResultToItemStack;
+
+public abstract class CraftingRecipeWrapper {
+
+    private final CraftingRecipeValues recipe;
+
+    CraftingRecipeWrapper(CraftingRecipeValues recipe) {
+        this.recipe = recipe;
+    }
     
     /**
      * @return The result of this recipe
      */
-    ItemStack getResult();
-    
+    public ItemStack getResult(List<IngredientEntry> ingredientMapping, ItemStack[] ingredients) {
+        ResultValues result = recipe.getResult();
+        if (result instanceof UpgradeResultValues) {
+            UpgradeResultValues upgrade = (UpgradeResultValues) result;
+            if (upgrade.getIngredientIndex() < 0) throw new IllegalArgumentException("Ingredient index can't be negative");
+
+            IngredientEntry ingredientEntry = null;
+            for (IngredientEntry candidate : ingredientMapping) {
+                if (candidate.ingredientIndex == upgrade.getIngredientIndex()) ingredientEntry = candidate;
+            }
+
+            if (ingredientEntry == null) {
+                throw new IllegalArgumentException("Can't find entry with ingredient index " + upgrade.getIngredientIndex());
+            }
+
+            ItemStack ingredientToUpgrade = ingredients[ingredientEntry.itemIndex].clone();
+            ingredientToUpgrade.setAmount(ingredientEntry.ingredient.getAmount());
+            return ItemUpgrader.addUpgrade(ingredientToUpgrade, CustomItemsPlugin.getInstance().getSet(), upgrade);
+        }
+        return convertResultToItemStack(result);
+    }
+
     /**
      * Checks if the specified ingredients are sufficient to craft the result of this recipe. The result
      * will be non-null if the ingredients are sufficient.
@@ -24,5 +57,5 @@ public interface CraftingRecipeWrapper {
      * @return A list of ingredient-index entries indicating which ingredient is at which position, or null
      * if the ingredients do not satisfy this recipe.
      */
-    List<IngredientEntry> shouldAccept(ItemStack[] ingredients);
+    public abstract List<IngredientEntry> shouldAccept(ItemStack[] ingredients);
 }

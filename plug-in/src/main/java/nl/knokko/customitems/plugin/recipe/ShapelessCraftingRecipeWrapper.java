@@ -10,14 +10,14 @@ import nl.knokko.customitems.item.CIMaterial;
 import java.util.ArrayList;
 import java.util.List;
 
-import static nl.knokko.customitems.plugin.recipe.RecipeHelper.convertResultToItemStack;
 import static nl.knokko.customitems.plugin.recipe.RecipeHelper.shouldIngredientAcceptItemStack;
 
-public class ShapelessCraftingRecipeWrapper implements CraftingRecipeWrapper {
+public class ShapelessCraftingRecipeWrapper extends CraftingRecipeWrapper {
 
 	private final ShapelessRecipeValues recipe;
 
 	public ShapelessCraftingRecipeWrapper(ShapelessRecipeValues recipe) {
+		super(recipe);
 		this.recipe = recipe;
 	}
 
@@ -31,11 +31,6 @@ public class ShapelessCraftingRecipeWrapper implements CraftingRecipeWrapper {
 	}
 
 	@Override
-	public ItemStack getResult() {
-		return convertResultToItemStack(this.recipe.getResult());
-	}
-
-	@Override
 	public List<IngredientEntry> shouldAccept(ItemStack[] ingredients) {
 
 		List<IngredientValues> recipeIngredients = new ArrayList<>(this.recipe.getIngredients());
@@ -43,13 +38,19 @@ public class ShapelessCraftingRecipeWrapper implements CraftingRecipeWrapper {
 		List<IngredientEntry> result = new ArrayList<>(recipeIngredients.size());
 
 		outerLoop:
-		for (int ingredientIndex = 0; ingredientIndex < ingredients.length; ingredientIndex++) {
-		    ItemStack ingredient = ingredients[ingredientIndex];
+		for (int itemIndex = 0; itemIndex < ingredients.length; itemIndex++) {
+		    ItemStack ingredient = ingredients[itemIndex];
 			if (!KciNms.instance.items.getMaterialName(ingredient).equals(CIMaterial.AIR.name())) {
-				for (int index = 0; index < has.length; index++) {
-					if (!has[index] && shouldIngredientAcceptItemStack(recipeIngredients.get(index), ingredient)) {
-						has[index] = true;
-						result.add(new IngredientEntry(recipeIngredients.get(index), ingredientIndex));
+				for (int ingredientIndex = 0; ingredientIndex < has.length; ingredientIndex++) {
+					if (!has[ingredientIndex]
+							&& shouldIngredientAcceptItemStack(recipeIngredients.get(ingredientIndex), ingredient)
+					) {
+						has[ingredientIndex] = true;
+						result.add(new IngredientEntry(
+								recipeIngredients.get(ingredientIndex),
+								ingredientIndex,
+								itemIndex
+						));
 						continue outerLoop;
 					}
 				}

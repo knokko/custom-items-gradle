@@ -51,7 +51,7 @@ public class SelectDrop extends GuiMenu {
 		addComponent(new DynamicTextComponent("Items to drop:", LABEL), 0.3f, 0.7f, 0.5f, 0.8f);
 		addComponent(new DynamicTextButton("Choose...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new EditOutputTable(
-					this, currentValues.getOutputTable(), currentValues::setOutputTable, set
+					this, currentValues.getOutputTable(), currentValues::setOutputTable, set, null
 			));
 		}), 0.55f, 0.7f, 0.7f, 0.8f);
 		

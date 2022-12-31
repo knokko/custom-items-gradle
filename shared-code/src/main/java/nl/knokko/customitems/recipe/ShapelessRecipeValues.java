@@ -7,6 +7,7 @@ import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
+import nl.knokko.customitems.recipe.result.UpgradeResultValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -123,6 +124,14 @@ public class ShapelessRecipeValues extends CraftingRecipeValues {
     @Override
     public void validate(ItemSet itemSet, CraftingRecipeReference selfReference) throws ValidationException, ProgrammingValidationException {
         super.validate(itemSet, selfReference);
+
+        if (result instanceof UpgradeResultValues) {
+            int ingredientIndex = ((UpgradeResultValues) result).getIngredientIndex();
+            if (ingredientIndex < 0) throw new ProgrammingValidationException("Upgrade ingredient index can't be negative");
+            if (ingredientIndex >= ingredients.size()) {
+                throw new ValidationException("Upgrade ingredient index must be smaller than number of ingredients");
+            }
+        }
 
         if (ingredients == null) throw new ProgrammingValidationException("No ingredients");
         int ingredientIndex = 0;

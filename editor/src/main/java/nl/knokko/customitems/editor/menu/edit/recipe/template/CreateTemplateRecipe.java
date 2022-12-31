@@ -66,7 +66,10 @@ public class CreateTemplateRecipe extends GuiMenu {
         addComponent(new DynamicTextComponent("Result:", EditProps.LABEL),
                 0.4f, 0.7f - materialIndex * 0.15f, 0.55f, 0.8f - materialIndex * 0.15f);
         addComponent(new DynamicTextButton("Choose...", EditProps.BUTTON, EditProps.HOVER, () -> {
-            state.getWindow().setMainComponent(new ChooseResult(this, newResult -> selectedResult = newResult, set));
+            state.getWindow().setMainComponent(new ChooseResult(
+                    this, newResult -> selectedResult = newResult, set,
+                    false, selectedResult, null
+            ));
         }),  0.6f, 0.7f - materialIndex * 0.15f, 0.75f, 0.8f - materialIndex * 0.15f);
 
         DynamicTextComponent errorComponent = new DynamicTextComponent("", EditProps.ERROR);

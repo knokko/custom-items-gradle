@@ -6,6 +6,7 @@ import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
+import nl.knokko.customitems.recipe.result.UpgradeResultValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.Validation;
@@ -118,6 +119,15 @@ public class ShapedRecipeValues extends CraftingRecipeValues {
     @Override
     public void validate(ItemSet itemSet, CraftingRecipeReference selfReference) throws ValidationException, ProgrammingValidationException {
         super.validate(itemSet, selfReference);
+
+        if (result instanceof UpgradeResultValues) {
+            int ingredientIndex = ((UpgradeResultValues) result).getIngredientIndex();
+            if (ingredientIndex < 0) throw new ProgrammingValidationException("Upgrade ingredient index can't be negative");
+            if (ingredientIndex >= 9) throw new ProgrammingValidationException("Upgrade ingredient index must be smaller than 9");
+            if (ingredients[ingredientIndex] instanceof NoIngredientValues) {
+                throw new ValidationException("Ingredient to be upgraded can't be empty");
+            }
+        }
 
         if (ingredients == null) throw new ProgrammingValidationException("No ingredients");
         for (int x = 0; x < 3; x++) {

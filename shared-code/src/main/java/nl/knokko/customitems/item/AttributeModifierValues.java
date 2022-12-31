@@ -71,6 +71,16 @@ public class AttributeModifierValues extends ModelValues  {
     }
 
     @Override
+    public int hashCode() {
+        return attribute.hashCode() + 13 * slot.hashCode() + 71 * operation.hashCode() + Float.floatToRawIntBits((float) value);
+    }
+
+    @Override
+    public String toString() {
+        return "AM(" + attribute + ", " + slot + ", " + operation + ", " + value + ")";
+    }
+
+    @Override
     public AttributeModifierValues copy(boolean mutable) {
         return new AttributeModifierValues(this, mutable);
     }
@@ -138,7 +148,7 @@ public class AttributeModifierValues extends ModelValues  {
 
         private final String attributeName;
 
-        private Attribute(String name) {
+        Attribute(String name) {
             attributeName = name;
         }
 

@@ -1,6 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.container.recipe;
 
 import nl.knokko.customitems.container.ContainerRecipeValues;
+import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.StringLength;
 import nl.knokko.customitems.itemset.ItemSet;
@@ -15,8 +16,6 @@ import nl.knokko.gui.render.GuiRenderer;
 import nl.knokko.gui.texture.GuiTexture;
 import nl.knokko.gui.util.TextBuilder;
 
-import java.awt.event.KeyEvent;
-
 public class OutputSlotComponent implements GuiComponent {
 	
 	private static final GuiColor BASE_COLOR = new SimpleGuiColor(200, 0, 0);
@@ -25,6 +24,7 @@ public class OutputSlotComponent implements GuiComponent {
 	private final String name;
 	private final GuiComponent outerMenu;
 	private final ItemSet set;
+	private final CustomContainerValues container;
 	private final ContainerRecipeValues recipe;
 	private final OutputTableValues[] pClipboardResult;
 	
@@ -34,10 +34,11 @@ public class OutputSlotComponent implements GuiComponent {
 	
 	public OutputSlotComponent(
 			String name, GuiComponent outerMenu, OutputTableValues[] pClipboardResult,
-			ContainerRecipeValues recipe, ItemSet set
+			CustomContainerValues container, ContainerRecipeValues recipe, ItemSet set
 	) {
 		this.name = name;
 		this.outerMenu = outerMenu;
+		this.container = container;
 		this.recipe = recipe;
 		this.set = set;
 		this.pClipboardResult = pClipboardResult;
@@ -101,7 +102,8 @@ public class OutputSlotComponent implements GuiComponent {
 		if (button == MouseCode.BUTTON_LEFT) {
 			OutputTableValues ownTable = recipe.getOutput(name);
 			state.getWindow().setMainComponent(new EditOutputTable(
-					outerMenu, ownTable == null ? new OutputTableValues(true) : ownTable, this::setResultTable, set
+					outerMenu, ownTable == null ? new OutputTableValues(true) : ownTable, this::setResultTable, set,
+					(returnMenu, upgrade) -> new ChooseContainerIngredientForUpgrade(returnMenu, upgrade, container, recipe)
 			));
 		} else if (button == MouseCode.BUTTON_RIGHT) {
 			this.setResultTable(null);
