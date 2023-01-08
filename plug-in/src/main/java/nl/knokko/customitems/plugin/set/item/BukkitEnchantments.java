@@ -11,8 +11,10 @@ import java.util.Objects;
 public class BukkitEnchantments {
 
     private static Enchantment vanillaEnchantment(EnchantmentType enchantment) {
+        // Work around MULTSHOT typo
+        String enchantmentName = enchantment == EnchantmentType.MULTSHOT ? "MULTISHOT" : enchantment.name();
         // Warning: do NOT use Enchantment.getByKey because that is not supported in minecraft 1.12
-        return Objects.requireNonNull(Enchantment.getByName(enchantment.name()));
+        return Objects.requireNonNull(Enchantment.getByName(enchantmentName));
     }
 
     /**
