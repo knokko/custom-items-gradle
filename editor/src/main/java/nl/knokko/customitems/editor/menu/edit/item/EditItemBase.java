@@ -162,6 +162,9 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 				new DynamicTextComponent("Multi block break:", LABEL),
 				LABEL_X, -0.45f, LABEL_X + 0.17f, -0.4f
 		);
+		addComponent(new DynamicTextComponent(
+				"Requires 2 hands", LABEL
+		), LABEL_X + 0.02f, -0.51f, LABEL_X + 0.18f, -0.46f);
 
 		if (toModify != null) {
 			addComponent(new DynamicTextButton("Apply", SAVE_BASE, EditProps.SAVE_HOVER, () -> {
@@ -319,6 +322,9 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 					currentValues.getMultiBlockBreak(), currentValues::setMultiBlockBreak, this
 			));
 		}), BUTTON_X, -0.45f, BUTTON_X + 0.1f, -0.4f);
+		addComponent(new CheckboxComponent(
+				currentValues.isTwoHanded(), currentValues::setTwoHanded
+		), LABEL_X, -0.5f, LABEL_X + 0.015f, -0.48f);
 	}
 
 	protected GuiComponent createLoadTextureMenu() {

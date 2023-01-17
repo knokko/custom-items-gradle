@@ -166,6 +166,7 @@ public abstract class CustomItemValues extends ModelValues {
     protected boolean updateAutomatically;
     protected boolean keepOnDeath;
     protected MultiBlockBreakValues multiBlockBreak;
+    protected boolean isTwoHanded;
 
     // Editor-only properties
     protected TextureReference texture;
@@ -210,6 +211,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.updateAutomatically = true;
         this.keepOnDeath = false;
         this.multiBlockBreak = new MultiBlockBreakValues(false);
+        this.isTwoHanded = false;
 
         this.texture = null;
         this.model = createDefaultItemModel(getDefaultModelType());
@@ -241,6 +243,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.updateAutomatically = source.shouldUpdateAutomatically();
         this.keepOnDeath = source.shouldKeepOnDeath();
         this.multiBlockBreak = source.getMultiBlockBreak();
+        this.isTwoHanded = source.isTwoHanded();
         this.texture = source.getTextureReference();
         this.model = source.getModel();
         this.booleanRepresentation = source.getBooleanRepresentation();
@@ -262,7 +265,8 @@ public abstract class CustomItemValues extends ModelValues {
                 && this.conditionOp == other.conditionOp && this.extraItemNbt.equals(other.extraItemNbt)
                 && isClose(this.attackRange, other.attackRange) && Objects.equals(this.specialMeleeDamage, other.specialMeleeDamage)
                 && this.attackEffects.equals(other.attackEffects) && this.updateAutomatically == other.updateAutomatically
-                && this.keepOnDeath == other.keepOnDeath && this.multiBlockBreak.equals(other.multiBlockBreak);
+                && this.keepOnDeath == other.keepOnDeath && this.multiBlockBreak.equals(other.multiBlockBreak)
+                && this.isTwoHanded == other.isTwoHanded;
     }
 
     public DefaultModelType getDefaultModelType() {
@@ -292,7 +296,7 @@ public abstract class CustomItemValues extends ModelValues {
 
     protected void loadSharedPropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
-        if (encoding < 1 || encoding > 3) throw new UnknownEncodingException("CustomItemBaseNew", encoding);
+        if (encoding < 1 || encoding > 4) throw new UnknownEncodingException("CustomItemBaseNew", encoding);
 
         this.loadIdentityProperties10(input);
         if (this.itemType == CustomItemType.OTHER) {
@@ -335,6 +339,12 @@ public abstract class CustomItemValues extends ModelValues {
             this.multiBlockBreak = new MultiBlockBreakValues(false);
         }
 
+        if (encoding >= 4) {
+            this.isTwoHanded = input.readBoolean();
+        } else {
+            this.isTwoHanded = false;
+        }
+
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             if (encoding >= 3) {
                 String textureName = input.readString();
@@ -347,7 +357,7 @@ public abstract class CustomItemValues extends ModelValues {
     }
 
     protected void saveSharedPropertiesNew(BitOutput output, ItemSet.Side targetSide) {
-        output.addByte((byte) 3);
+        output.addByte((byte) 4);
 
         this.saveIdentityProperties10(output);
         if (this.itemType == CustomItemType.OTHER) {
@@ -378,6 +388,7 @@ public abstract class CustomItemValues extends ModelValues {
         output.addBoolean(this.updateAutomatically);
         output.addBoolean(this.keepOnDeath);
         this.multiBlockBreak.save(output);
+        output.addBoolean(this.isTwoHanded);
 
         if (targetSide == ItemSet.Side.EDITOR) {
             output.addString(texture.get().getName());
@@ -610,7 +621,13 @@ public abstract class CustomItemValues extends ModelValues {
         loadExtraProperties10(input);
     }
 
+    protected void initBaseDefaults11() {
+        this.isTwoHanded = false;
+    }
+
     protected void initBaseDefaults10() {
+        initBaseDefaults11();
+
         this.specialMeleeDamage = null;
         this.attackEffects = new ArrayList<>(0);
         this.updateAutomatically = true;
@@ -779,6 +796,10 @@ public abstract class CustomItemValues extends ModelValues {
 
     public MultiBlockBreakValues getMultiBlockBreak() {
         return multiBlockBreak;
+    }
+
+    public boolean isTwoHanded() {
+        return isTwoHanded;
     }
 
     public BaseTextureValues getTexture() {
@@ -969,6 +990,11 @@ public abstract class CustomItemValues extends ModelValues {
         assertMutable();
         Checks.notNull(newBlockBreak);
         this.multiBlockBreak = newBlockBreak.copy(false);
+    }
+
+    public void setTwoHanded(boolean shouldBecomeTwoHanded) {
+        assertMutable();
+        this.isTwoHanded = shouldBecomeTwoHanded;
     }
 
     public void setTexture(TextureReference newTexture) {

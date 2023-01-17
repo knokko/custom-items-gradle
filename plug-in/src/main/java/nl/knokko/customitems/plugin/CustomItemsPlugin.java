@@ -88,6 +88,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 			itemUpdater = new ItemUpdater(itemSet);
 			Bukkit.getPluginManager().registerEvents(new ContainerEventHandler(itemSet), this);
 			Bukkit.getPluginManager().registerEvents(projectileManager, this);
+			Bukkit.getPluginManager().registerEvents(new TwoHandedEnforcer(itemSet), this);
 
 			Bukkit.getPluginManager().registerEvents(new AttackRangeEventHandler(itemSet), this);
 			Bukkit.getPluginManager().registerEvents(new BlockEventHandler(itemSet), this);
@@ -116,6 +117,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 			DenizenSupport.onEnable();
 			PluginIndicators.init();
 			CustomElytraVelocityManager.start(itemSet, this);
+			TwoHandedEnforcer.start(this, itemSet);
 			EquipmentSetAttributes.startUpdateTask(this, itemSet);
 			miningSpeedManager = new MiningSpeedManager();
 			miningSpeedManager.start(this);
