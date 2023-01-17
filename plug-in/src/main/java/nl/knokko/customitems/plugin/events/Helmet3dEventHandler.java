@@ -37,7 +37,8 @@ public class Helmet3dEventHandler implements Listener {
 
             // For some reason, the result is ALLOW, even when nothing will happen
             if (event.getResult() == Event.Result.ALLOW &&
-                    (action == InventoryAction.PLACE_ALL || action == InventoryAction.SWAP_WITH_CURSOR)) {
+                    (action == InventoryAction.PLACE_ALL || action == InventoryAction.SWAP_WITH_CURSOR || action == InventoryAction.NOTHING)
+            ) {
                 int slot = event.getSlot();
 
                 // 39 is the helmet slot
