@@ -1,7 +1,7 @@
 package nl.knokko.customitems.plugin.set.item;
 
 import nl.knokko.customitems.item.CustomToolValues;
-import nl.knokko.customitems.plugin.CustomItemsEventHandler;
+import nl.knokko.customitems.plugin.util.SoundPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -22,7 +22,7 @@ public class CustomShearsWrapper extends CustomToolWrapper {
             ItemStack newTool = decreaseDurability(tool, this.tool.getBlockBreakDurabilityLoss() * durabilityFactor);
             if (tool != newTool) {
                 if (newTool == null) {
-                    CustomItemsEventHandler.playBreakSound(player);
+                    SoundPlayer.playBreakSound(player);
                 }
                 if (wasFakeMainHand) {
                     player.getInventory().setItemInOffHand(newTool);

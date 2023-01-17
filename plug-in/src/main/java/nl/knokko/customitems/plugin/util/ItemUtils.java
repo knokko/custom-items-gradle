@@ -2,11 +2,16 @@ package nl.knokko.customitems.plugin.util;
 
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.nms.KciNms;
+import nl.knokko.customitems.plugin.command.CommandCustomItemsGive;
+import nl.knokko.customitems.plugin.set.ItemSetWrapper;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.container.ContainerInstance;
+
+import static nl.knokko.customitems.plugin.set.item.CustomItemWrapper.wrap;
 
 public class ItemUtils {
 
@@ -31,5 +36,17 @@ public class ItemUtils {
 		}
 		
 		return stack.getMaxStackSize();
+	}
+
+	public static void giveCustomItem(ItemSetWrapper itemSet, Player player, CustomItemValues item) {
+		if (wrap(item).needsStackingHelp()) {
+			if (!CommandCustomItemsGive.giveCustomItemToInventory(itemSet, player.getInventory(), item, 1)) {
+				player.getWorld().dropItem(player.getLocation(), wrap(item).create(1));
+			}
+		} else {
+			for (ItemStack didNotFit : player.getInventory().addItem(wrap(item).create(1)).values()) {
+				player.getWorld().dropItem(player.getLocation(), didNotFit);
+			}
+		}
 	}
 }

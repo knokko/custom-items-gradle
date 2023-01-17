@@ -4,10 +4,10 @@ import com.google.common.collect.Lists;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.nms.CustomItemNBT;
 import nl.knokko.customitems.nms.KciNms;
-import nl.knokko.customitems.plugin.CustomItemsEventHandler;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
 import nl.knokko.customitems.plugin.tasks.updater.LoreUpdater;
+import nl.knokko.customitems.plugin.util.SoundPlayer;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -108,7 +108,7 @@ public class CustomToolWrapper extends CustomItemWrapper {
                         player.getInventory().addItem(replace);
                     }
                 }
-                CustomItemsEventHandler.playBreakSound(player);
+                SoundPlayer.playBreakSound(player);
             }
             if (decreased != tool) {
                 if (wasFakeMainHand) {
@@ -126,7 +126,7 @@ public class CustomToolWrapper extends CustomItemWrapper {
         if (this.tool.getEntityHitDurabilityLoss() != 0) {
             ItemStack decreased = decreaseDurability(tool, this.tool.getEntityHitDurabilityLoss());
             if (decreased == null && attacker instanceof Player) {
-                CustomItemsEventHandler.playBreakSound((Player) attacker);
+                SoundPlayer.playBreakSound((Player) attacker);
             }
             if (decreased != tool) {
                 // This method can only be called when the attacker has equipment

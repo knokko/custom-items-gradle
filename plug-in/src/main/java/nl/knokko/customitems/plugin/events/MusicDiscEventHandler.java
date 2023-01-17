@@ -25,11 +25,11 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Locale;
 
-public class CustomMusicDiscEventHandler implements Listener {
+public class MusicDiscEventHandler implements Listener {
 
     private final ItemSetWrapper itemSet;
 
-    public CustomMusicDiscEventHandler(ItemSetWrapper itemSet) {
+    public MusicDiscEventHandler(ItemSetWrapper itemSet) {
         this.itemSet = itemSet;
     }
 

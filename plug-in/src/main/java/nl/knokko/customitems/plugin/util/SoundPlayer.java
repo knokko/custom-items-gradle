@@ -50,4 +50,8 @@ public class SoundPlayer {
             }
         }
     }
+
+    public static void playBreakSound(Player player) {
+        player.playSound(player.getLocation(), Sound.ENTITY_ITEM_BREAK, 1, 1);
+    }
 }

@@ -30,18 +30,18 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.logging.Level;
 
-import static nl.knokko.customitems.plugin.CustomItemsEventHandler.checkBrokenCondition;
-import static nl.knokko.customitems.plugin.CustomItemsEventHandler.playBreakSound;
+import static nl.knokko.customitems.plugin.events.ReplacementEventHandler.checkBrokenCondition;
 import static nl.knokko.customitems.plugin.set.item.CustomToolWrapper.wrap;
+import static nl.knokko.customitems.plugin.util.SoundPlayer.playBreakSound;
 
 /**
  * This class listens to events regarding custom (cross)bows and tridents.
  */
-public class CustomBowEventHandler implements Listener {
+public class BowEventHandler implements Listener {
 
     private final ItemSetWrapper itemSet;
 
-    public CustomBowEventHandler(ItemSetWrapper itemSet) {
+    public BowEventHandler(ItemSetWrapper itemSet) {
         this.itemSet = itemSet;
     }
 

@@ -6,9 +6,8 @@ import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.command.CustomItemsTabCompletions;
 import nl.knokko.customitems.plugin.config.EnabledAreas;
 import nl.knokko.customitems.plugin.config.LanguageFile;
+import nl.knokko.customitems.plugin.events.*;
 import nl.knokko.customitems.plugin.tasks.*;
-import nl.knokko.customitems.plugin.events.CustomBowEventHandler;
-import nl.knokko.customitems.plugin.events.CustomMusicDiscEventHandler;
 import nl.knokko.customitems.plugin.tasks.miningspeed.MiningSpeedManager;
 import nl.knokko.customitems.plugin.multisupport.denizen.DenizenSupport;
 import nl.knokko.customitems.plugin.multisupport.itembridge.ItemBridgeSupport;
@@ -84,15 +83,29 @@ public class CustomItemsPlugin extends JavaPlugin {
 		getCommand("customitems").setExecutor(new CommandCustomItems(this.itemSet, languageFile));
 		if (KciNms.instance != null) {
 			getCommand("customitems").setTabCompleter(new CustomItemsTabCompletions(itemSet));
-			Bukkit.getPluginManager().registerEvents(new CustomItemsEventHandler(itemSet), this);
 			Bukkit.getPluginManager().registerEvents(itemSetLoader, this);
 			projectileManager = new ProjectileManager();
 			itemUpdater = new ItemUpdater(itemSet);
 			Bukkit.getPluginManager().registerEvents(new ContainerEventHandler(itemSet), this);
 			Bukkit.getPluginManager().registerEvents(projectileManager, this);
-			Bukkit.getPluginManager().registerEvents(new CustomMusicDiscEventHandler(itemSet), this);
+
+			Bukkit.getPluginManager().registerEvents(new AttackRangeEventHandler(itemSet), this);
+			Bukkit.getPluginManager().registerEvents(new BlockEventHandler(itemSet), this);
+			Bukkit.getPluginManager().registerEvents(new BowEventHandler(itemSet), this);
+			Bukkit.getPluginManager().registerEvents(new CommandEventHandler(itemSet), this);
+			Bukkit.getPluginManager().registerEvents(new CustomDamageEventHandler(itemSet), this);
+			Bukkit.getPluginManager().registerEvents(new DropEventHandler(itemSet), this);
+			Bukkit.getPluginManager().registerEvents(new DurabilityEventHandler(itemSet), this);
+			Bukkit.getPluginManager().registerEvents(new EffectEventHandler(itemSet), this);
+			Bukkit.getPluginManager().registerEvents(new Helmet3dEventHandler(itemSet), this);
+			Bukkit.getPluginManager().registerEvents(new InventoryEventHandler(itemSet), this);
+			Bukkit.getPluginManager().registerEvents(new ItemInteractEventHandler(itemSet), this);
+			Bukkit.getPluginManager().registerEvents(new MiscellaneousEventHandler(itemSet), this);
+			Bukkit.getPluginManager().registerEvents(new MultiBlockBreakEventHandler(itemSet), this);
+			Bukkit.getPluginManager().registerEvents(new MusicDiscEventHandler(itemSet), this);
+			Bukkit.getPluginManager().registerEvents(new ReplacementEventHandler(itemSet), this);
+
 			Bukkit.getPluginManager().registerEvents(new WorldgenListener(itemSet), this);
-			Bukkit.getPluginManager().registerEvents(new CustomBowEventHandler(itemSet), this);
 			CustomItemPickups.start();
 			EquipmentEffectsManager.start();
 
