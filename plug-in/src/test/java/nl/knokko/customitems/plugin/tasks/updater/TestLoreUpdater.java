@@ -1,4 +1,4 @@
-package nl.knokko.customitems.plugin.set.item;
+package nl.knokko.customitems.plugin.tasks.updater;
 
 import org.junit.Test;
 
@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static nl.knokko.customitems.plugin.set.item.LoreUpdater.*;
+import static nl.knokko.customitems.plugin.tasks.updater.LoreUpdater.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 

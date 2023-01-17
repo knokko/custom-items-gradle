@@ -1,7 +1,7 @@
-package nl.knokko.customitems.plugin.set.item.update;
+package nl.knokko.customitems.plugin.tasks.updater;
 
 import static nl.knokko.customitems.plugin.set.item.CustomItemWrapper.*;
-import static nl.knokko.customitems.plugin.set.item.update.ItemUpgrader.LAST_VANILLA_UPGRADE_KEY;
+import static nl.knokko.customitems.plugin.tasks.updater.ItemUpgrader.LAST_VANILLA_UPGRADE_KEY;
 import static nl.knokko.customitems.plugin.util.AttributeMerger.convertAttributeModifier;
 
 import java.util.*;

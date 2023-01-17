@@ -3,7 +3,7 @@ package nl.knokko.customitems.plugin.container;
 import nl.knokko.customitems.container.ContainerRecipeValues;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.recipe.RecipeHelper;
-import nl.knokko.customitems.plugin.set.item.update.ItemUpgrader;
+import nl.knokko.customitems.plugin.tasks.updater.ItemUpgrader;
 import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.customitems.recipe.result.UpgradeResultValues;
 import org.bukkit.inventory.ItemStack;

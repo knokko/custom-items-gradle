@@ -1,4 +1,4 @@
-package nl.knokko.customitems.plugin.set.item;
+package nl.knokko.customitems.plugin.tasks.updater;
 
 import org.bukkit.inventory.meta.ItemMeta;
 

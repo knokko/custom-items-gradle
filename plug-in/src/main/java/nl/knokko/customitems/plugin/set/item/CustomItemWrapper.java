@@ -8,7 +8,7 @@ import nl.knokko.customitems.item.enchantment.EnchantmentValues;
 import nl.knokko.customitems.item.nbt.NbtValueType;
 import nl.knokko.customitems.nms.*;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
-import nl.knokko.customitems.plugin.set.item.update.ItemUpgrader;
+import nl.knokko.customitems.plugin.tasks.updater.ItemUpgrader;
 import nl.knokko.customitems.plugin.util.AttributeMerger;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import org.bukkit.entity.Entity;

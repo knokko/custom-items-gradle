@@ -1,7 +1,7 @@
 package nl.knokko.customitems.plugin.recipe;
 
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
-import nl.knokko.customitems.plugin.set.item.update.ItemUpgrader;
+import nl.knokko.customitems.plugin.tasks.updater.ItemUpgrader;
 import nl.knokko.customitems.recipe.CraftingRecipeValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.customitems.recipe.result.UpgradeResultValues;

@@ -10,7 +10,7 @@ import nl.knokko.customitems.plugin.multisupport.mimic.MimicSupport;
 import nl.knokko.customitems.plugin.set.item.BukkitEnchantments;
 import nl.knokko.customitems.plugin.set.item.CustomItemWrapper;
 import nl.knokko.customitems.plugin.set.item.CustomToolWrapper;
-import nl.knokko.customitems.plugin.set.item.update.ItemUpgrader;
+import nl.knokko.customitems.plugin.tasks.updater.ItemUpgrader;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import nl.knokko.customitems.recipe.CraftingRecipeValues;
 import nl.knokko.customitems.recipe.ShapedRecipeValues;

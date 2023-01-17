@@ -1,4 +1,4 @@
-package nl.knokko.customitems.plugin.set.item.update;
+package nl.knokko.customitems.plugin.tasks.updater;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.ByteArrayBitInput;
@@ -27,8 +27,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static nl.knokko.customitems.plugin.set.item.CustomToolWrapper.wrap;
-import static nl.knokko.customitems.plugin.set.item.update.ItemUpdater.applyEnchantmentAdjustments;
-import static nl.knokko.customitems.plugin.set.item.update.ItemUpdater.determineEnchantmentAdjustments;
 import static nl.knokko.customitems.util.Checks.isClose;
 
 public class ItemUpgrader {
@@ -152,7 +150,7 @@ public class ItemUpgrader {
         for (UUID id : newUpgradeIDs) {
             ItemUpdater.addEnchantmentsToMap(newKciEnchantments, itemSet.get().getUpgrade(id).get().getEnchantments());
         }
-        Map<EnchantmentType, Integer> enchantmentAdjustments = determineEnchantmentAdjustments(
+        Map<EnchantmentType, Integer> enchantmentAdjustments = ItemUpdater.determineEnchantmentAdjustments(
                 oldKciEnchantments, newKciEnchantments
         );
 
@@ -213,7 +211,7 @@ public class ItemUpgrader {
                 newAttributes.toArray(new RawAttribute[0])
         );
 
-        applyEnchantmentAdjustments(currentStack, enchantmentAdjustments);
+        ItemUpdater.applyEnchantmentAdjustments(currentStack, enchantmentAdjustments);
 
         if (!result.shouldKeepOldEnchantments()) {
             assert nonKciEnchantments != null;

@@ -1,4 +1,4 @@
-package nl.knokko.customitems.plugin;
+package nl.knokko.customitems.plugin.config;
 
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -11,7 +11,7 @@ public class EnabledAreas {
     private List<String> worldWhitelist;
     private List<String> worldBlacklist;
 
-    void update(FileConfiguration config) {
+    public void update(FileConfiguration config) {
         this.worldWhitelist = config.getStringList("World whitelist");
         this.worldBlacklist = config.getStringList("World blacklist");
     }

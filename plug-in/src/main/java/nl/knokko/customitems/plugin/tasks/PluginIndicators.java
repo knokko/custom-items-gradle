@@ -6,7 +6,7 @@ import nl.knokko.customitems.item.CustomToolValues;
 import nl.knokko.customitems.item.CustomWandValues;
 import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
-import nl.knokko.customitems.plugin.LanguageFile;
+import nl.knokko.customitems.plugin.config.LanguageFile;
 import nl.knokko.customitems.plugin.data.PlayerGunInfo;
 import nl.knokko.customitems.plugin.data.PlayerWandInfo;
 import nl.knokko.customitems.plugin.multisupport.actionbarapi.ActionBarAPISupport;

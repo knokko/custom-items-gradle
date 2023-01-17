@@ -1,4 +1,4 @@
-package nl.knokko.customitems.plugin.miningspeed;
+package nl.knokko.customitems.plugin.tasks.miningspeed;
 
 import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.block.miningspeed.CustomMiningSpeedEntry;

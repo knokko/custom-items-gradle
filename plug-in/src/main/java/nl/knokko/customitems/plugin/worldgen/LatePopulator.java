@@ -1,6 +1,6 @@
 package nl.knokko.customitems.plugin.worldgen;
 
-import nl.knokko.customitems.plugin.EnabledAreas;
+import nl.knokko.customitems.plugin.config.EnabledAreas;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;

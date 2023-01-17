@@ -7,6 +7,7 @@ import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.CustomItemsEventHandler;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
+import nl.knokko.customitems.plugin.tasks.updater.LoreUpdater;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;

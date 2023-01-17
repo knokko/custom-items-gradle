@@ -23,7 +23,7 @@ import nl.knokko.customitems.nms.GeneralItemNBT;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.data.ContainerStorageKey;
 import nl.knokko.customitems.plugin.data.StoredEnergy;
-import nl.knokko.customitems.plugin.set.item.update.ItemUpgrader;
+import nl.knokko.customitems.plugin.tasks.updater.ItemUpgrader;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;

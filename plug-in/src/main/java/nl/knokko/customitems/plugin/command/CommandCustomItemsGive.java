@@ -2,7 +2,7 @@ package nl.knokko.customitems.plugin.command;
 
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
-import nl.knokko.customitems.plugin.LanguageFile;
+import nl.knokko.customitems.plugin.config.LanguageFile;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import org.bukkit.ChatColor;

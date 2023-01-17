@@ -13,7 +13,7 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import nl.knokko.customitems.plugin.LanguageFile;
+import nl.knokko.customitems.plugin.config.LanguageFile;
 
 public class CommandCustomItems implements CommandExecutor {
 	

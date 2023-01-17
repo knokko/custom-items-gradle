@@ -4,10 +4,12 @@ import java.io.File;
 
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.command.CustomItemsTabCompletions;
+import nl.knokko.customitems.plugin.config.EnabledAreas;
+import nl.knokko.customitems.plugin.config.LanguageFile;
 import nl.knokko.customitems.plugin.tasks.*;
 import nl.knokko.customitems.plugin.events.CustomBowEventHandler;
 import nl.knokko.customitems.plugin.events.CustomMusicDiscEventHandler;
-import nl.knokko.customitems.plugin.miningspeed.MiningSpeedManager;
+import nl.knokko.customitems.plugin.tasks.miningspeed.MiningSpeedManager;
 import nl.knokko.customitems.plugin.multisupport.denizen.DenizenSupport;
 import nl.knokko.customitems.plugin.multisupport.itembridge.ItemBridgeSupport;
 import nl.knokko.customitems.plugin.multisupport.mimic.MimicSupport;
@@ -24,8 +26,8 @@ import nl.knokko.customitems.plugin.command.CommandCustomItems;
 import nl.knokko.customitems.plugin.container.ContainerEventHandler;
 import nl.knokko.customitems.plugin.data.PluginData;
 import nl.knokko.customitems.plugin.multisupport.crazyenchantments.CrazyEnchantmentsSupport;
-import nl.knokko.customitems.plugin.projectile.ProjectileManager;
-import nl.knokko.customitems.plugin.set.item.update.ItemUpdater;
+import nl.knokko.customitems.plugin.tasks.projectile.ProjectileManager;
+import nl.knokko.customitems.plugin.tasks.updater.ItemUpdater;
 
 public class CustomItemsPlugin extends JavaPlugin {
 

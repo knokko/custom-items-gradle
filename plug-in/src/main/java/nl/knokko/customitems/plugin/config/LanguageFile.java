@@ -1,4 +1,4 @@
-package nl.knokko.customitems.plugin;
+package nl.knokko.customitems.plugin.config;
 
 import java.io.File;
 import java.io.IOException;

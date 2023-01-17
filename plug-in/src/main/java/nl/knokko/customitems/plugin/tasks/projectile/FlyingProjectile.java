@@ -1,4 +1,4 @@
-package nl.knokko.customitems.plugin.projectile;
+package nl.knokko.customitems.plugin.tasks.projectile;
 
 import static java.lang.Math.*;
 

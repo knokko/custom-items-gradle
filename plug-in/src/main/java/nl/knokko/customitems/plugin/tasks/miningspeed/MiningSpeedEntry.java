@@ -1,4 +1,4 @@
-package nl.knokko.customitems.plugin.miningspeed;
+package nl.knokko.customitems.plugin.tasks.miningspeed;
 
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -6,8 +6,8 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.RayTraceResult;
 
-import static nl.knokko.customitems.plugin.miningspeed.MiningSpeedManager.EFFECT_DURATION;
-import static nl.knokko.customitems.plugin.miningspeed.MiningSpeedManager.UPDATE_PERIOD;
+import static nl.knokko.customitems.plugin.tasks.miningspeed.MiningSpeedManager.EFFECT_DURATION;
+import static nl.knokko.customitems.plugin.tasks.miningspeed.MiningSpeedManager.UPDATE_PERIOD;
 
 class MiningSpeedEntry {
 
