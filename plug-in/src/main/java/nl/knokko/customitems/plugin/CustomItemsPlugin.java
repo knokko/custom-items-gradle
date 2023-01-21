@@ -58,6 +58,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 	private int maxFlyingProjectiles;
 	private int chunkPopulationPeriod;
 	private int chunkPopulationCount;
+	private boolean cancelWhenDamageResistanceIsAtLeast100Percent;
 
 	public static CustomItemsPlugin getInstance() {
 		return instance;
@@ -146,6 +147,10 @@ public class CustomItemsPlugin extends JavaPlugin {
 		return maxFlyingProjectiles;
 	}
 
+	public boolean shouldCancelWhenDamageResistanceIsAtLeast100Percent() {
+		return cancelWhenDamageResistanceIsAtLeast100Percent;
+	}
+
 	public EnabledAreas getEnabledAreas() {
 		return enabledAreas;
 	}
@@ -157,6 +162,8 @@ public class CustomItemsPlugin extends JavaPlugin {
 	private static final String KEY_MAX_PROJECTILES = "Maximum number of flying projectiles";
 	private static final String KEY_CHUNK_POPULATION_PERIOD = "Chunk population period";
 	private static final String KEY_CHUNK_POPULATION_COUNT = "Chunks per population period";
+	private static final String KEY_CANCEL_WHEN_DAMAGE_RESISTANCE_IS_AT_LEAST_100_PERCENT
+			= "Cancel attacks when custom armor damage resistance is at least 100 percent";
 	
 	private void debugChecks() {
 		Plugin knokkoCore = Bukkit.getPluginManager().getPlugin("KnokkoCore");
@@ -230,7 +237,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 				"1.16.4", "1.16.5",
 				"1.17", "1.17.1",
 				"1.18.2",
-				"1.19", "1.19.1", "1.19.2"
+				"1.19", "1.19.1", "1.19.2", "1.19.3"
 		);
 		if (!versionWhiteList.contains(mcVersion)) {
 			this.loadErrors.add("Unsupported minecraft version: " + mcVersion);
@@ -276,6 +283,14 @@ public class CustomItemsPlugin extends JavaPlugin {
 		} else {
 			this.chunkPopulationCount = 10;
 			config.set(KEY_CHUNK_POPULATION_COUNT, chunkPopulationCount);
+			saveConfig = true;
+		}
+
+		if (config.contains(KEY_CANCEL_WHEN_DAMAGE_RESISTANCE_IS_AT_LEAST_100_PERCENT)) {
+			this.cancelWhenDamageResistanceIsAtLeast100Percent = config.getBoolean(KEY_CANCEL_WHEN_DAMAGE_RESISTANCE_IS_AT_LEAST_100_PERCENT);
+		} else {
+			this.cancelWhenDamageResistanceIsAtLeast100Percent = true;
+			config.set(KEY_CANCEL_WHEN_DAMAGE_RESISTANCE_IS_AT_LEAST_100_PERCENT, cancelWhenDamageResistanceIsAtLeast100Percent);
 			saveConfig = true;
 		}
 

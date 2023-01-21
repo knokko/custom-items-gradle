@@ -2030,7 +2030,9 @@ public class CustomItemsEventHandler implements Listener {
 						livingEntity.setHealth(Math.min(livingEntity.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue(), newHealth));
 					}
 
-					event.setCancelled(true);
+					if (CustomItemsPlugin.getInstance().shouldCancelWhenDamageResistanceIsAtLeast100Percent()) {
+						event.setCancelled(true);
+					}
 					event.setDamage(0);
 				}
 			} catch (IllegalArgumentException ex) {
