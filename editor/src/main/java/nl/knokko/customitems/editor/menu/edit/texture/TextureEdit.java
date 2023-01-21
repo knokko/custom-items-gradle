@@ -10,6 +10,7 @@ import javax.imageio.ImageIO;
 
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
+import nl.knokko.customitems.editor.util.FileDialog;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
@@ -23,12 +24,8 @@ import nl.knokko.gui.component.image.SimpleImageComponent;
 import nl.knokko.gui.component.text.EagerTextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
-import org.lwjgl.PointerBuffer;
-import org.lwjgl.system.MemoryStack;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
-import static org.lwjgl.system.MemoryUtil.memUTF8;
-import static org.lwjgl.util.nfd.NativeFileDialog.*;
 
 public class TextureEdit extends GuiMenu {
 	
@@ -128,21 +125,13 @@ public class TextureEdit extends GuiMenu {
 			Consumer<BaseTextureValues> listener, DynamicTextComponent errorComponent
 	) {
 		return new DynamicTextButton("Edit...", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
-			try (MemoryStack stack = MemoryStack.stackPush()) {
-				PointerBuffer pPath = stack.callocPointer(1);
-				int result = NFD_OpenDialog(stack.UTF8("png"), null, pPath);
-				if (result == NFD_OKAY) {
-					String path = memUTF8(pPath.get(0));
-					nNFD_Free(pPath.get(0));
-					try {
-						listener.accept(loadBasicImage(new File(path)));
-					} catch (IllegalArgumentException error) {
-						errorComponent.setText(error.getMessage());
-					}
-				} else if (result == NFD_ERROR) {
-					errorComponent.setText("Programming error: NFD_OpenDialog returned NFD_ERROR");
+			FileDialog.open("png", errorComponent::setText, errorComponent.getState().getWindow().getMainComponent(), chosenFile -> {
+				try {
+					listener.accept(loadBasicImage(chosenFile));
+				} catch (IllegalArgumentException error) {
+					errorComponent.setText(error.getMessage());
 				}
-			}
+			});
 		});
 	}
 	

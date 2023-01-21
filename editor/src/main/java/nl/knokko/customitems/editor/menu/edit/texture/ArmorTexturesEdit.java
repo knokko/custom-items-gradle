@@ -1,13 +1,13 @@
 package nl.knokko.customitems.editor.menu.edit.texture;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.function.Consumer;
 
 import javax.imageio.ImageIO;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
+import nl.knokko.customitems.editor.util.FileDialog;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ArmorTextureReference;
@@ -19,12 +19,8 @@ import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.EagerTextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
-import org.lwjgl.PointerBuffer;
-import org.lwjgl.system.MemoryStack;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
-import static org.lwjgl.system.MemoryUtil.memUTF8;
-import static org.lwjgl.util.nfd.NativeFileDialog.*;
 
 public class ArmorTexturesEdit extends GuiMenu {
 	
@@ -91,28 +87,19 @@ public class ArmorTexturesEdit extends GuiMenu {
 	}
 
 	public static void selectArmorImage(Consumer<BufferedImage> chooseImage, DynamicTextComponent errorComponent) {
-		try (MemoryStack stack = MemoryStack.stackPush()) {
-			PointerBuffer pPath = stack.callocPointer(1);
-			int result = NFD_OpenDialog(stack.UTF8("png"), null, pPath);
-			if (result == NFD_OKAY) {
-				String path = memUTF8(pPath.get(0));
-				nNFD_Free(pPath.get(0));
-
-				try {
-					BufferedImage chosenImage = ImageIO.read(new File(path));
-					if (chosenImage != null) {
-						chooseImage.accept(chosenImage);
-					} else {
-						// A computer that doesn't know the PNG encoding? interesting...
-						errorComponent.setText("Couldn't decode the image");
-					}
-				} catch (IOException io) {
-					errorComponent.setText("Couldn't load the image: " + io.getMessage());
+		FileDialog.open("png", errorComponent::setText, errorComponent.getState().getWindow().getMainComponent(), chosenFile -> {
+			try {
+				BufferedImage chosenImage = ImageIO.read(chosenFile);
+				if (chosenImage != null) {
+					chooseImage.accept(chosenImage);
+				} else {
+					// A computer that doesn't know the PNG encoding? interesting...
+					errorComponent.setText("Couldn't decode the image");
 				}
-			} else if (result == NFD_ERROR) {
-				errorComponent.setText("NFD_OpenDialog returned NFD_ERROR");
+			} catch (IOException io) {
+				errorComponent.setText("Couldn't load the image: " + io.getMessage());
 			}
-		}
+		});
 	}
 
 	@Override

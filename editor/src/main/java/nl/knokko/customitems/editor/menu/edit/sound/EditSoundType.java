@@ -1,6 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.sound;
 
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
+import nl.knokko.customitems.editor.util.FileDialog;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
@@ -13,16 +14,11 @@ import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.EagerTextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
-import org.lwjgl.PointerBuffer;
-import org.lwjgl.system.MemoryStack;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
-import static org.lwjgl.system.MemoryUtil.memUTF8;
-import static org.lwjgl.util.nfd.NativeFileDialog.*;
 
 public class EditSoundType extends GuiMenu {
 
@@ -67,21 +63,13 @@ public class EditSoundType extends GuiMenu {
         );
 
         addComponent(new DynamicTextButton("Sound (.ogg) file...", BUTTON, HOVER, () -> {
-            try (MemoryStack stack = MemoryStack.stackPush()) {
-                PointerBuffer pPath = stack.callocPointer(1);
-                int result = NFD_OpenDialog(stack.UTF8("ogg"), null, pPath);
-                if (result == NFD_OKAY) {
-                    try {
-                        String path = memUTF8(pPath.get(0));
-                        nNFD_Free(pPath.get(0));
-                        currentValues.setOggData(Files.readAllBytes(new File(path).toPath()));
-                    } catch (IOException failed) {
-                        errorComponent.setText("Failed to read file: " + failed.getMessage());
-                    }
-                } else if (result == NFD_ERROR) {
-                    errorComponent.setText("NFD_OpenDialog returned NFD_ERROR");
+            FileDialog.open("ogg", errorComponent::setText, this, chosenFile -> {
+                try {
+                    currentValues.setOggData(Files.readAllBytes(chosenFile.toPath()));
+                } catch (IOException failed) {
+                    errorComponent.setText("Failed to read file: " + failed.getMessage());
                 }
-            }
+            });
         }), 0.3f, 0.55f, 0.5f, 0.65f);
 
         addComponent(new DynamicTextComponent("Category:", LABEL), 0.3f, 0.4f, 0.45f, 0.5f);

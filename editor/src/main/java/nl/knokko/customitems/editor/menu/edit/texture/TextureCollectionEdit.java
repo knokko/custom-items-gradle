@@ -15,6 +15,7 @@ import nl.knokko.customitems.texture.animated.AnimatedTextureValues;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.system.Platform;
 import org.lwjgl.util.nfd.NFDPathSet;
 
 import static org.lwjgl.util.nfd.NativeFileDialog.*;
@@ -40,42 +41,46 @@ public class TextureCollectionEdit extends DedicatedCollectionEdit<BaseTextureVa
 		addComponent(new DynamicTextButton("Load texture", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new TextureCreate(menu));
 		}), 0.025f, 0.2f, 0.2f, 0.3f);
-		addComponent(new DynamicTextButton("Load multiple textures...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			try (MemoryStack stack = MemoryStack.stackPush()) {
-				NFDPathSet pathSet = NFDPathSet.calloc(stack);
-				int result = NFD_OpenDialogMultiple(stack.UTF8("png"), null, pathSet);
 
-				if (result == NFD_OKAY) {
-					long numImages = NFD_PathSet_GetCount(pathSet);
-					for (long imageIndex = 0; imageIndex < numImages; imageIndex++) {
-						String path = NFD_PathSet_GetPath(pathSet, imageIndex);
-						if (path != null) {
-							try {
-								BaseTextureValues fileImage = TextureEdit.loadBasicImage(new File(path));
-								String error = Validation.toErrorString(() -> menu.getSet().addTexture(fileImage));
-								if (error != null) {
-									errorComponent.setText(fileImage.getName() + ": " + error);
+		// MacOS is... special... see https://github.com/knokko/custom-items-gradle/issues/219
+		if (Platform.get() != Platform.MACOSX) {
+			addComponent(new DynamicTextButton("Load multiple textures...", EditProps.BUTTON, EditProps.HOVER, () -> {
+				try (MemoryStack stack = MemoryStack.stackPush()) {
+					NFDPathSet pathSet = NFDPathSet.calloc(stack);
+					int result = NFD_OpenDialogMultiple(stack.UTF8("png"), null, pathSet);
+
+					if (result == NFD_OKAY) {
+						long numImages = NFD_PathSet_GetCount(pathSet);
+						for (long imageIndex = 0; imageIndex < numImages; imageIndex++) {
+							String path = NFD_PathSet_GetPath(pathSet, imageIndex);
+							if (path != null) {
+								try {
+									BaseTextureValues fileImage = TextureEdit.loadBasicImage(new File(path));
+									String error = Validation.toErrorString(() -> menu.getSet().addTexture(fileImage));
+									if (error != null) {
+										errorComponent.setText(fileImage.getName() + ": " + error);
+									}
+								} catch (IllegalArgumentException invalidImage) {
+									errorComponent.setText("Image " + (imageIndex + 1) + " is invalid: " + invalidImage.getMessage());
 								}
-							} catch (IllegalArgumentException invalidImage) {
-								errorComponent.setText("Image " + (imageIndex + 1) + " is invalid: " + invalidImage.getMessage());
+							} else {
+								errorComponent.setText("Missing image " + (imageIndex + 1));
 							}
-						} else {
-							errorComponent.setText("Missing image " + (imageIndex + 1));
 						}
-					}
-					NFD_PathSet_Free(pathSet);
+						NFD_PathSet_Free(pathSet);
 
-					// This is needed to refresh this view
-					String lastError = errorComponent.getText();
-					state.getWindow().setMainComponent(this);
-					errorComponent.setText(lastError);
-				} else if (result == NFD_ERROR) {
-					errorComponent.setText("NFD_OpenDialogMultiple returned NFD_ERROR");
+						// This is needed to refresh this view
+						String lastError = errorComponent.getText();
+						state.getWindow().setMainComponent(this);
+						errorComponent.setText(lastError);
+					} else if (result == NFD_ERROR) {
+						errorComponent.setText("NFD_OpenDialogMultiple returned NFD_ERROR");
+					}
 				}
-			}
-		}), 0f, 0.05f, 0.3f, 0.15f);
+			}), 0f, 0.05f, 0.3f, 0.15f);
+		}
 		
-		HelpButtons.addHelpLink(this, "edit%20menu/textures/overview.html");
+		HelpButtons.addHelpLink(this, "edit menu/textures/overview.html");
 	}
 
 	@Override

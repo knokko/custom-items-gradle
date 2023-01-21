@@ -4,6 +4,7 @@ import com.github.cliftonlabs.json_simple.JsonException;
 import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
 import nl.knokko.customitems.editor.menu.edit.texture.TextureEdit;
+import nl.knokko.customitems.editor.util.FileDialog;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.model.ModernCustomItemModel;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -17,11 +18,8 @@ import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.ConditionalTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
-import org.lwjgl.PointerBuffer;
-import org.lwjgl.system.MemoryStack;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -30,8 +28,6 @@ import java.util.function.Consumer;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 import static nl.knokko.customitems.item.model.ModernCustomItemModel.TEXTURES_KEY;
-import static org.lwjgl.system.MemoryUtil.memUTF8;
-import static org.lwjgl.util.nfd.NativeFileDialog.*;
 
 public class ChooseCustomModel extends GuiMenu {
 
@@ -63,78 +59,66 @@ public class ChooseCustomModel extends GuiMenu {
         addComponent(new DynamicTextButton("Choose file...", BUTTON, HOVER, () -> {
             errorComponent.setText("");
 
-            String filePath = null;
-            try (MemoryStack stack = MemoryStack.stackPush()) {
-                PointerBuffer pPath = stack.callocPointer(1);
-                int result = NFD_OpenDialog(stack.UTF8("json"), null, pPath);
-                if (result == NFD_OKAY) {
-                    filePath = memUTF8(pPath.get(0));
-                    nNFD_Free(pPath.get(0));
-                } else if (result == NFD_ERROR) {
-                    errorComponent.setText("NFD_OpenDialog returned NFD_ERROR");
-                }
-            }
-
-            if (filePath == null) return;
-
-            byte[] rawBytes;
-            try {
-                rawBytes = Files.readAllBytes(new File(filePath).toPath());
-            } catch (IOException io) {
-                errorComponent.setText("Couldn't read file: " + io.getMessage());
-                return;
-            }
-
-            Object rawJson;
-            try {
-                this.rawModel = rawBytes;
-                String rawJsonString = new String(rawBytes, StandardCharsets.UTF_8);
-                rawJson = Jsoner.deserialize(rawJsonString);
-            } catch (JsonException e) {
-                errorComponent.setText("This file doesn't seem to be valid JSON");
-                return;
-            }
-
-            if (!(rawJson instanceof JsonObject)) {
-                errorComponent.setText("Expected top-level JSON element to be an object");
-                return;
-            }
-
-            JsonObject json = (JsonObject) rawJson;
-            Map<String, String> textureMap = json.getMap(TEXTURES_KEY);
-
-            if (textureMap == null) {
-                errorComponent.setText("Model doesn't have a \"textures\" map");
-                return;
-            }
-
-            boolean hasElementsSection = json.get("elements") != null;
-            Map<String, String> newImageNameMap = new TreeMap<>();
-
-            for (Map.Entry<String, String> namePair : textureMap.entrySet()) {
-
-                String key = namePair.getKey();
-                if (!hasElementsSection && key.length() == 1 && Character.isDigit(key.charAt(0))) {
-                    errorComponent.setText("You should not use single-digit texture keys unless you have an elements section");
-                    return;
-                }
-
-                String value = namePair.getValue().toLowerCase(Locale.ROOT)
-                        .replace(':', '_').replace('/', '_');
+            FileDialog.open("json", errorComponent::setText, this, chosenFile -> {
+                byte[] rawBytes;
                 try {
-                    Validation.safeName(value);
-                } catch (ValidationException | ProgrammingValidationException invalidValue) {
-                    errorComponent.setText("Invalid texture value: " + namePair.getValue());
+                    rawBytes = Files.readAllBytes(chosenFile.toPath());
+                } catch (IOException io) {
+                    errorComponent.setText("Couldn't read file: " + io.getMessage());
                     return;
                 }
 
-                newImageNameMap.put(key, value);
-            }
+                Object rawJson;
+                try {
+                    this.rawModel = rawBytes;
+                    String rawJsonString = new String(rawBytes, StandardCharsets.UTF_8);
+                    rawJson = Jsoner.deserialize(rawJsonString);
+                } catch (JsonException e) {
+                    errorComponent.setText("This file doesn't seem to be valid JSON");
+                    return;
+                }
 
-            this.imageMap = new HashMap<>();
-            this.imageNameMap = newImageNameMap;
-            includedImagesComponent.clearComponents();
-            includedImagesComponent.addComponents();
+                if (!(rawJson instanceof JsonObject)) {
+                    errorComponent.setText("Expected top-level JSON element to be an object");
+                    return;
+                }
+
+                JsonObject json = (JsonObject) rawJson;
+                Map<String, String> textureMap = json.getMap(TEXTURES_KEY);
+
+                if (textureMap == null) {
+                    errorComponent.setText("Model doesn't have a \"textures\" map");
+                    return;
+                }
+
+                boolean hasElementsSection = json.get("elements") != null;
+                Map<String, String> newImageNameMap = new TreeMap<>();
+
+                for (Map.Entry<String, String> namePair : textureMap.entrySet()) {
+
+                    String key = namePair.getKey();
+                    if (!hasElementsSection && key.length() == 1 && Character.isDigit(key.charAt(0))) {
+                        errorComponent.setText("You should not use single-digit texture keys unless you have an elements section");
+                        return;
+                    }
+
+                    String value = namePair.getValue().toLowerCase(Locale.ROOT)
+                            .replace(':', '_').replace('/', '_');
+                    try {
+                        Validation.safeName(value);
+                    } catch (ValidationException | ProgrammingValidationException invalidValue) {
+                        errorComponent.setText("Invalid texture value: " + namePair.getValue());
+                        return;
+                    }
+
+                    newImageNameMap.put(key, value);
+                }
+
+                this.imageMap = new HashMap<>();
+                this.imageNameMap = newImageNameMap;
+                includedImagesComponent.clearComponents();
+                includedImagesComponent.addComponents();
+            });
         }), 0.3f, 0.8f, 0.5f, 0.9f);
 
         addComponent(new ConditionalTextButton("Apply", SAVE_BASE, SAVE_HOVER, () -> {

@@ -2,6 +2,7 @@ package nl.knokko.customitems.editor.menu.edit.container.overlay;
 
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.editor.EditorFileManager;
+import nl.knokko.customitems.editor.util.FileDialog;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -9,8 +10,6 @@ import nl.knokko.gui.component.image.SimpleImageComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
-import org.lwjgl.PointerBuffer;
-import org.lwjgl.system.MemoryStack;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -18,8 +17,6 @@ import java.io.File;
 import java.io.IOException;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
-import static org.lwjgl.system.MemoryUtil.memUTF8;
-import static org.lwjgl.util.nfd.NativeFileDialog.*;
 
 public class EditContainerOverlayTexture extends GuiMenu {
 
@@ -112,22 +109,14 @@ public class EditContainerOverlayTexture extends GuiMenu {
         }), 0.6f, 0.8f, 0.8f, 0.9f);
 
         addComponent(new DynamicTextButton("Choose overlay texture...", BUTTON, HOVER, () -> {
-            try (MemoryStack stack = MemoryStack.stackPush()) {
-                PointerBuffer pPath = stack.callocPointer(1);
-                int result = NFD_OpenDialog(stack.UTF8("png"), null, pPath);
-                if (result == NFD_OKAY) {
-                    try {
-                        String path = memUTF8(pPath.get(0));
-                        container.setOverlayTexture(ImageIO.read(new File(path)));
-                        nNFD_Free(pPath.get(0));
-                        state.getWindow().setMainComponent(returnMenu);
-                    } catch (IOException failed) {
-                        errorComponent.setText("Failed to load image: " + failed.getMessage());
-                    }
-                } else if (result == NFD_ERROR) {
-                    errorComponent.setText("NFD_OpenDialog returned NFD_ERROR");
+            FileDialog.open("png", errorComponent::setText, this, chosenFile -> {
+                try {
+                    container.setOverlayTexture(ImageIO.read(chosenFile));
+                    state.getWindow().setMainComponent(returnMenu);
+                } catch (IOException failed) {
+                    errorComponent.setText("Failed to load image: " + failed.getMessage());
                 }
-            }
+            });
         }), 0.6f, 0.6f, 0.8f, 0.7f);
 
         addComponent(new DynamicTextButton("Choose template file as overlay texture", BUTTON, HOVER, () -> {
