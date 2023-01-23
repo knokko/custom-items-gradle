@@ -11,6 +11,8 @@ import java.io.PrintWriter;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static nl.knokko.customitems.MCVersions.VERSION1_19;
+
 public class ResourcepackGenerator {
 
     private final ItemSet itemSet;
@@ -49,6 +51,7 @@ public class ResourcepackGenerator {
         itemOverrider.overrideItems();
 
         writePackMcMeta(zipOutput);
+        writeAtlases(zipOutput);
         zipOutput.flush();
         zipOutput.close();
     }
@@ -68,8 +71,8 @@ public class ResourcepackGenerator {
             packFormat = 7;
         } else if (mcVersion == MCVersions.VERSION1_18) {
             packFormat = 8;
-        } else if (mcVersion == MCVersions.VERSION1_19) {
-            packFormat = 9;
+        } else if (mcVersion == VERSION1_19) {
+            packFormat = 12;
         } else {
             throw new ProgrammingValidationException("Unknown pack format for mc version " + mcVersion);
         }
@@ -85,5 +88,25 @@ public class ResourcepackGenerator {
         jsonWriter.println("}");
         jsonWriter.flush();
         zipOutput.closeEntry();
+    }
+
+    private void writeAtlases(ZipOutputStream zipOutput) throws IOException {
+        if (mcVersion >= VERSION1_19) {
+            ZipEntry customAtlas = new ZipEntry("assets/minecraft/atlases/blocks.json");
+            zipOutput.putNextEntry(customAtlas);
+
+            PrintWriter jsonWriter = new PrintWriter(zipOutput);
+            jsonWriter.println("{");
+            jsonWriter.println("    \"sources\": [");
+            jsonWriter.println("        {");
+            jsonWriter.println("            \"type\": \"directory\",");
+            jsonWriter.println("            \"source\": \"customitems\",");
+            jsonWriter.println("            \"prefix\": \"customitems/\"");
+            jsonWriter.println("        }");
+            jsonWriter.println("    ]");
+            jsonWriter.println("}");
+            jsonWriter.flush();
+            zipOutput.closeEntry();
+        }
     }
 }
