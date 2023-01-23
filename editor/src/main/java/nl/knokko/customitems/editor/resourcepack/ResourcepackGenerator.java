@@ -61,6 +61,8 @@ public class ResourcepackGenerator {
             zipOutput.closeEntry();
         }
 
+        writeAtlases(zipOutput);
+
         zipOutput.flush();
         if (closeOutput) zipOutput.close();
         else zipOutput.finish();
