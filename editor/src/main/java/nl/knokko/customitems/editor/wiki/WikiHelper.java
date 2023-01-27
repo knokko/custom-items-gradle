@@ -8,6 +8,7 @@ import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.recipe.ingredient.*;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Objects;
 
@@ -40,7 +41,7 @@ public class WikiHelper {
     }
 
     public static void generateHtml(File file, String cssPath, String title, HtmlGeneratorFunction generator) throws IOException {
-        PrintWriter output = new PrintWriter(Files.newOutputStream(file.toPath()));
+        PrintWriter output = new PrintWriter(new OutputStreamWriter(Files.newOutputStream(file.toPath()), StandardCharsets.UTF_8));
         output.println("<!DOCTYPE html>");
         output.println("<html>");
         output.println("\t<head>");
