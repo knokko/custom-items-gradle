@@ -1,6 +1,7 @@
 package nl.knokko.customitems.editor;
 
 import nl.knokko.customitems.editor.resourcepack.ResourcepackGenerator;
+import nl.knokko.customitems.editor.util.ItemSetBackups;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.StringEncoder;
@@ -13,6 +14,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class EditorFileManager {
 
@@ -90,5 +93,29 @@ public class EditorFileManager {
         backupOutput.write(bytes);
         mainOutput.flush();
         backupOutput.close();
+
+        Collection<ItemSetBackups> newBackups = getAllBackups();
+        for (ItemSetBackups backup : newBackups) {
+            Collection<Long> backupsToRemove = backup.cleanOldBackups(System.currentTimeMillis());
+            for (Long saveTime : backupsToRemove) {
+                try {
+                    Files.delete(getBackupFile(backup.name, saveTime).toPath());
+                } catch (IOException failedToDelete) {
+                    System.err.println("Failed to delete back-up of " + backup.name + " at " + saveTime
+                            + ": " + failedToDelete.getLocalizedMessage());
+                }
+            }
+        }
+    }
+
+    public static Collection<ItemSetBackups> getAllBackups() {
+        String[] backupFileNames = BACKUPS_FOLDER.list();
+        if (backupFileNames != null) {
+            return ItemSetBackups.getAll(backupFileNames);
+        } else return new ArrayList<>(0);
+    }
+
+    public static File getBackupFile(String itemSetName, long saveTime) {
+        return new File(BACKUPS_FOLDER + "/" + itemSetName + " " + saveTime + ".cisb");
     }
 }
