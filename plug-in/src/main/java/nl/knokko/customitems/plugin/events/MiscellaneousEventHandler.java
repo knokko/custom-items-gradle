@@ -171,4 +171,20 @@ public class MiscellaneousEventHandler implements Listener {
 			}
 		}
 	}
+
+	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+	public void enforceIndestructibleDroppedCustomItems(EntityDamageEvent event) {
+		if (event.getCause() != EntityDamageEvent.DamageCause.VOID && event.getEntity() instanceof Item) {
+			Item droppedItem = (Item) event.getEntity();
+			CustomItemValues customItem = itemSet.getItem(droppedItem.getItemStack());
+
+			if (customItem != null && customItem.isIndestructible()) {
+				event.setCancelled(true);
+
+				// Making the item invulnerable is not absolutely required, but it will prevent subsequent
+				// EntityDamageEvent's from being fired for this item
+				droppedItem.setInvulnerable(true);
+			}
+		}
+	}
 }

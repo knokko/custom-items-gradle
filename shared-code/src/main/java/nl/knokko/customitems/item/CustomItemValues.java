@@ -167,6 +167,7 @@ public abstract class CustomItemValues extends ModelValues {
     protected boolean keepOnDeath;
     protected MultiBlockBreakValues multiBlockBreak;
     protected boolean isTwoHanded;
+    protected boolean indestructible;
 
     // Editor-only properties
     protected TextureReference texture;
@@ -212,6 +213,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.keepOnDeath = false;
         this.multiBlockBreak = new MultiBlockBreakValues(false);
         this.isTwoHanded = false;
+        this.indestructible = false;
 
         this.texture = null;
         this.model = createDefaultItemModel(getDefaultModelType());
@@ -244,6 +246,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.keepOnDeath = source.shouldKeepOnDeath();
         this.multiBlockBreak = source.getMultiBlockBreak();
         this.isTwoHanded = source.isTwoHanded();
+        this.indestructible = source.isIndestructible();
         this.texture = source.getTextureReference();
         this.model = source.getModel();
         this.booleanRepresentation = source.getBooleanRepresentation();
@@ -266,7 +269,7 @@ public abstract class CustomItemValues extends ModelValues {
                 && isClose(this.attackRange, other.attackRange) && Objects.equals(this.specialMeleeDamage, other.specialMeleeDamage)
                 && this.attackEffects.equals(other.attackEffects) && this.updateAutomatically == other.updateAutomatically
                 && this.keepOnDeath == other.keepOnDeath && this.multiBlockBreak.equals(other.multiBlockBreak)
-                && this.isTwoHanded == other.isTwoHanded;
+                && this.isTwoHanded == other.isTwoHanded && this.indestructible == other.indestructible;
     }
 
     public DefaultModelType getDefaultModelType() {
@@ -341,8 +344,10 @@ public abstract class CustomItemValues extends ModelValues {
 
         if (encoding >= 4) {
             this.isTwoHanded = input.readBoolean();
+            this.indestructible = input.readBoolean();
         } else {
             this.isTwoHanded = false;
+            this.indestructible = false;
         }
 
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
@@ -389,6 +394,7 @@ public abstract class CustomItemValues extends ModelValues {
         output.addBoolean(this.keepOnDeath);
         this.multiBlockBreak.save(output);
         output.addBoolean(this.isTwoHanded);
+        output.addBoolean(this.indestructible);
 
         if (targetSide == ItemSet.Side.EDITOR) {
             output.addString(texture.get().getName());
@@ -802,6 +808,10 @@ public abstract class CustomItemValues extends ModelValues {
         return isTwoHanded;
     }
 
+    public boolean isIndestructible() {
+        return indestructible;
+    }
+
     public BaseTextureValues getTexture() {
         return texture.get();
     }
@@ -995,6 +1005,11 @@ public abstract class CustomItemValues extends ModelValues {
     public void setTwoHanded(boolean shouldBecomeTwoHanded) {
         assertMutable();
         this.isTwoHanded = shouldBecomeTwoHanded;
+    }
+
+    public void setIndestructible(boolean indestructible) {
+        assertMutable();
+        this.indestructible = indestructible;
     }
 
     public void setTexture(TextureReference newTexture) {

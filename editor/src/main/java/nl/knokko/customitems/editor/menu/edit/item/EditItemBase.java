@@ -165,6 +165,9 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 		addComponent(new DynamicTextComponent(
 				"Requires 2 hands", LABEL
 		), LABEL_X + 0.02f, -0.51f, LABEL_X + 0.18f, -0.46f);
+		addComponent(new DynamicTextComponent(
+				"Is indestructible while dropped", LABEL
+		), LABEL_X + 0.02f, -0.57f, LABEL_X + 0.25f, -0.52f);
 
 		if (toModify != null) {
 			addComponent(new DynamicTextButton("Apply", SAVE_BASE, EditProps.SAVE_HOVER, () -> {
@@ -325,6 +328,9 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 		addComponent(new CheckboxComponent(
 				currentValues.isTwoHanded(), currentValues::setTwoHanded
 		), LABEL_X, -0.5f, LABEL_X + 0.015f, -0.48f);
+		addComponent(new CheckboxComponent(
+				currentValues.isIndestructible(), currentValues::setIndestructible
+		), LABEL_X, -0.56f, LABEL_X + 0.015f, -0.54f);
 	}
 
 	protected GuiComponent createLoadTextureMenu() {
