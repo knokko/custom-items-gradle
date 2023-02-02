@@ -28,7 +28,7 @@ public class CustomContainerValues extends ModelValues {
         byte encoding = input.readByte();
         CustomContainerValues result = new CustomContainerValues(false);
 
-        if (encoding < 1 || encoding > 3) throw new UnknownEncodingException("CustomContainer", encoding);
+        if (encoding < 1 || encoding > 4) throw new UnknownEncodingException("CustomContainer", encoding);
 
         result.name = input.readString();
         result.selectionIcon = SlotDisplayValues.load(input, itemSet);
@@ -73,6 +73,12 @@ public class CustomContainerValues extends ModelValues {
             result.requiresPermission = input.readBoolean();
         }
 
+        if (encoding >= 4) {
+            result.hidden = input.readBoolean();
+        } else {
+            result.hidden = false;
+        }
+
         return result;
     }
 
@@ -89,6 +95,7 @@ public class CustomContainerValues extends ModelValues {
     private char overlayChar;
     private BufferedImage overlayTexture;
     private boolean requiresPermission;
+    private boolean hidden;
 
     public CustomContainerValues(boolean mutable) {
         super(mutable);
@@ -107,6 +114,7 @@ public class CustomContainerValues extends ModelValues {
         this.overlayChar = 0;
         this.overlayTexture = null;
         this.requiresPermission = false;
+        this.hidden = false;
     }
 
     public CustomContainerValues(CustomContainerValues toCopy, boolean mutable) {
@@ -121,10 +129,11 @@ public class CustomContainerValues extends ModelValues {
         this.overlayChar = toCopy.getOverlayChar();
         this.overlayTexture = toCopy.getOverlayTexture();
         this.requiresPermission = toCopy.requiresPermission();
+        this.hidden = toCopy.isHidden();
     }
 
     public void save(BitOutput output) {
-        output.addByte((byte) 3);
+        output.addByte((byte) 4);
         output.addString(name);
         selectionIcon.save(output);
         output.addInt(recipes.size());
@@ -146,6 +155,7 @@ public class CustomContainerValues extends ModelValues {
             saveImage(output, overlayTexture);
         }
         output.addBoolean(requiresPermission);
+        output.addBoolean(hidden);
     }
 
     @Override
@@ -156,7 +166,8 @@ public class CustomContainerValues extends ModelValues {
                     && this.recipes.equals(otherContainer.recipes) && this.fuelMode == otherContainer.fuelMode
                     && Arrays.deepEquals(this.slots, otherContainer.slots) && this.host.equals(otherContainer.host)
                     && this.storageMode == otherContainer.storageMode && areImagesEqual(this.overlayTexture, otherContainer.overlayTexture)
-                    && this.overlayChar == otherContainer.overlayChar && this.requiresPermission == otherContainer.requiresPermission;
+                    && this.overlayChar == otherContainer.overlayChar && this.requiresPermission == otherContainer.requiresPermission
+                    && this.hidden == otherContainer.hidden;
         } else {
             return false;
         }
@@ -246,6 +257,10 @@ public class CustomContainerValues extends ModelValues {
 
     public boolean requiresPermission() {
         return requiresPermission;
+    }
+
+    public boolean isHidden() {
+        return hidden;
     }
 
     public void setName(String name) {
@@ -341,6 +356,11 @@ public class CustomContainerValues extends ModelValues {
     public void setRequiresPermission(boolean requiresPermission) {
         assertMutable();
         this.requiresPermission = requiresPermission;
+    }
+
+    public void setHidden(boolean hidden) {
+        assertMutable();
+        this.hidden = hidden;
     }
 
     public void validate(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {

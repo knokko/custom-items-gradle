@@ -600,7 +600,11 @@ public class ContainerInstance {
 	private boolean isHot() {
 		return remainingHotTime > 0;
 	}
-	
+
+	public ContainerStorageKey getStorageKey() {
+		return storageKey;
+	}
+
 	public int getStoredExperience() {
 		return storedExperience;
 	}

@@ -31,7 +31,7 @@ public class ContainerInfo {
 	private final Collection<EnergyIndicatorProps> energyIndicators;
 	
 	private final Collection<DecorationProps> decorations;
-	
+
 	public ContainerInfo(CustomContainerValues container) {
 		this.container = container;
 		
@@ -96,6 +96,9 @@ public class ContainerInfo {
 					));
 				} else if (slot instanceof DecorationSlotValues) {
 					decorations.add(new DecorationProps(invIndex, ((DecorationSlotValues) slot).getDisplay()));
+				} else if (slot instanceof LinkSlotValues) {
+					LinkSlotValues linkSlot = (LinkSlotValues) slot;
+					if (linkSlot.getDisplay() != null) decorations.add(new DecorationProps(invIndex, linkSlot.getDisplay()));
 				} else if (slot instanceof StorageSlotValues) {
 					StorageSlotValues storageSlot = (StorageSlotValues) slot;
 					storageSlots.add(new PlaceholderProps(invIndex, storageSlot.getPlaceholder()));
@@ -128,10 +131,6 @@ public class ContainerInfo {
 		return outputSlots.get(slotName);
 	}
 
-	public PlaceholderProps getManualOutputSlot(String slotName) {
-		return manualOutputSlots.get(slotName);
-	}
-	
 	public Iterable<IndicatorProps> getCraftingIndicators() {
 		return craftingIndicators;
 	}

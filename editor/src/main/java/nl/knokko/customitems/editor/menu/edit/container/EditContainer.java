@@ -53,30 +53,40 @@ public class EditContainer extends GuiMenu {
 		
 		addComponent(
 				new DynamicTextComponent("Name:", LABEL),
-				0.05f, 0.675f, 0.15f, 0.725f
+				0.05f, 0.735f, 0.15f, 0.785f
 		);
 		
 		// Name can't be changed anymore once a container has been created
 		if (toModify == null) {
 			addComponent(
 					new EagerTextEditField(currentValues.getName(), EDIT_BASE, EDIT_ACTIVE, currentValues::setName),
-					0.175f, 0.675f, 0.3f, 0.725f
+					0.175f, 0.735f, 0.3f, 0.785f
 			);
 		} else {
 			addComponent(
 					new DynamicTextComponent(currentValues.getName(), LABEL),
-					0.175f, 0.675f, 0.3f, 0.725f
+					0.175f, 0.735f, 0.3f, 0.785f
 			);
 		}
 
 		addComponent(
 				new CheckboxComponent(currentValues.requiresPermission(), currentValues::setRequiresPermission),
-				0.07f, 0.61f, 0.09f, 0.63f
+				0.07f, 0.67f, 0.09f, 0.69f
 		);
 		addComponent(
 				new DynamicTextComponent("Requires permission", LABEL),
-				0.1f, 0.6f, 0.35f, 0.65f
+				0.1f, 0.66f, 0.35f, 0.71f
 		);
+
+		addComponent(
+				new CheckboxComponent(currentValues.isHidden(), currentValues::setHidden),
+				0.07f, 0.61f, 0.09f, 0.63f
+		);
+		addComponent(
+				new DynamicTextComponent("Hide from selection", LABEL),
+				0.1f, 0.60f, 0.35f, 0.65f
+		);
+
 		addComponent(
 				new DynamicTextComponent("Selection icon: ", LABEL),
 				0.01f, 0.525f, 0.16f, 0.575f
@@ -156,6 +166,7 @@ public class EditContainer extends GuiMenu {
 				}
 			}), 0.025f, 0.025f, 0.175f, 0.125f);
 		}
+
 		HelpButtons.addHelpLink(this, "edit menu/containers/edit.html");
 	}
 

@@ -58,6 +58,10 @@ public class SlotComponent implements GuiComponent {
 			DecorationSlotValues decorationSlot = (DecorationSlotValues) newSlot;
 			topText = "decoration";
 			bottomText = decorationSlot.getDisplay().toString();
+		} else if (newSlot instanceof LinkSlotValues) {
+			LinkSlotValues linkSlot = (LinkSlotValues) newSlot;
+			topText = "link";
+			bottomText = linkSlot.getLinkedContainer().getName();
 		} else if (newSlot instanceof EmptySlotValues) {
 			topText = "empty";
 			bottomText = "";

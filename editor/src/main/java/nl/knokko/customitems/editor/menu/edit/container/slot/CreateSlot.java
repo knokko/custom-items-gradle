@@ -40,8 +40,17 @@ public class CreateSlot extends GuiMenu {
 		
 		addComponent(
 				new DynamicTextComponent("Change to", LABEL),
-				0.6f, 0.775f, 0.75f, 0.875f
+				0.6f, 0.885f, 0.75f, 0.985f
 		);
+
+		addComponent(new DynamicTextButton("Execute script", BUTTON, HOVER, () -> {
+			//state.getWindow().setMainComponent(new CreateScriptSlot());
+		}), 0.6f, 0.825f, 0.75f, 0.875f);
+		addComponent(new DynamicTextButton("Link to other container", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new CreateLinkSlot(
+					returnMenu, itemSet, changeSlot
+			));
+		}), 0.6f, 0.75f, 0.85f, 0.8f);
 		addComponent(new DynamicTextButton("Energy indicator", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new CreateEnergyIndicatorSlot(
 					returnMenu, itemSet, changeSlot
@@ -92,6 +101,7 @@ public class CreateSlot extends GuiMenu {
 			));
 		}), 0.6f, 0f, 0.8f, 0.05f);
 
+		// TODO Update help button
 		HelpButtons.addHelpLink(this, "edit menu/containers/slots/create.html");
 	}
 

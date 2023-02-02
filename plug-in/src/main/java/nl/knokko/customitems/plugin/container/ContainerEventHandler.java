@@ -5,6 +5,7 @@ import nl.knokko.customitems.container.ContainerRecipeValues;
 import nl.knokko.customitems.container.CustomContainerHost;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.slot.ContainerSlotValues;
+import nl.knokko.customitems.container.slot.LinkSlotValues;
 import nl.knokko.customitems.container.slot.ManualOutputSlotValues;
 import nl.knokko.customitems.container.slot.OutputSlotValues;
 import nl.knokko.customitems.item.CustomItemValues;
@@ -87,7 +88,7 @@ public class ContainerEventHandler implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onEntityExplode(EntityExplodeEvent event) {
 		
-		// Delay to prevent items from being destroyed by the explosion
+		// Delay dropping the items to prevent the items from being destroyed by the explosion
 		Bukkit.getScheduler().scheduleSyncDelayedTask(
 				CustomItemsPlugin.getInstance(), () -> {
 					for (Block block : event.blockList()) {
@@ -198,6 +199,10 @@ public class ContainerEventHandler implements Listener {
 								stackManualResultOnCursor = true;
 							}
 						}
+					} else if (slot instanceof LinkSlotValues) {
+						Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
+							pluginData().attemptToSwitchToLinkedContainer(player, ((LinkSlotValues) slot).getLinkedContainer());
+						});
 					}
 
 					boolean consumeManualRecipeOnce = false;

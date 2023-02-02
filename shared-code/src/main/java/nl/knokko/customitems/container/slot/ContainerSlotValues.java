@@ -13,7 +13,7 @@ import java.util.Collection;
 
 public abstract class ContainerSlotValues extends ModelValues {
 
-    class Encodings {
+    static class Encodings {
 
         public static final byte DECORATION1 = 0;
         public static final byte EMPTY = 1;
@@ -38,6 +38,8 @@ public abstract class ContainerSlotValues extends ModelValues {
         public static final byte MANUAL_OUTPUT = 11;
 
         public static final byte ENERGY_INDICATOR = 12;
+
+        public static final byte LINK = 13;
     }
 
     public static ContainerSlotValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
@@ -53,6 +55,7 @@ public abstract class ContainerSlotValues extends ModelValues {
         else if (encoding == Encodings.STORAGE1) return StorageSlotValues.load(input, encoding, itemSet);
         else if (encoding == Encodings.MANUAL_OUTPUT) return ManualOutputSlotValues.loadManual(input, itemSet);
         else if (encoding == Encodings.ENERGY_INDICATOR) return EnergyIndicatorSlotValues.loadEnergy(input, itemSet);
+        else if (encoding == Encodings.LINK) return LinkSlotValues.loadLink(input, itemSet);
         else throw new UnknownEncodingException("ContainerSlot", encoding);
     }
 

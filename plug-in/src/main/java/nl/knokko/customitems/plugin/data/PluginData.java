@@ -320,8 +320,11 @@ public class PluginData {
 	private void initContainerTypeMap() {
 		containerSelectionMap = new HashMap<>();
 		for (Map.Entry<CustomContainerHost, List<CustomContainerValues>> hostEntry : itemSet.getContainerHostMap().entrySet()) {
-			if (hostEntry.getValue().size() > 1) {
-				containerSelectionMap.put(hostEntry.getKey(), createContainerSelectionMenu(hostEntry.getValue()));
+			Collection<CustomContainerValues> visibleContainers = hostEntry.getValue().stream().filter(
+					candidate -> !candidate.isHidden()
+			).collect(Collectors.toList());
+			if (visibleContainers.size() > 1) {
+				containerSelectionMap.put(hostEntry.getKey(), createContainerSelectionMenu(visibleContainers));
 			}
 		}
 	}
@@ -332,10 +335,13 @@ public class PluginData {
 		for (CustomItemValues item : itemSet.get().getItems()) {
 			if (item instanceof CustomPocketContainerValues) {
 				CustomPocketContainerValues pocketContainer = (CustomPocketContainerValues) item;
-				if (pocketContainer.getContainers().size() > 1) {
+				Collection<CustomContainerValues> visibleContainers = pocketContainer.getContainers().stream().filter(
+						candidate -> !candidate.isHidden()
+				).collect(Collectors.toList());
+				if (visibleContainers.size() > 1) {
 					pocketContainerSelectionMap.put(
 							item.getName(),
-							createContainerSelectionMenu(new ArrayList<>(pocketContainer.getContainers()))
+							createContainerSelectionMenu(new ArrayList<>(visibleContainers))
 					);
 				}
 			}
@@ -347,10 +353,12 @@ public class PluginData {
 				player.hasPermission("customitems.container.open." + container.getName());
 	}
 
-	private Collection<CustomContainerValues> getAllowedContainers(
+	private Collection<CustomContainerValues> getContainersToChooseFrom(
 			Player player, Collection<CustomContainerValues> candidates
 	) {
-		return candidates.stream().filter(candidate -> hasPermission(player, candidate)).collect(Collectors.toList());
+		return candidates.stream().filter(
+				candidate -> hasPermission(player, candidate) && !candidate.isHidden()
+		).collect(Collectors.toList());
 	}
 	
 	private Inventory createContainerSelectionMenu(
@@ -1209,6 +1217,30 @@ public class PluginData {
 		}
 	}
 
+	public void attemptToSwitchToLinkedContainer(Player player, CustomContainerValues newContainer) {
+		if (hasPermission(player, newContainer)) {
+			ContainerInstance oldInstance = getCustomContainer(player);
+			if (oldInstance != null) {
+
+				PlayerData pd = getPlayerData(player);
+				if (pd.openPocketContainer != null) {
+
+					// If the player is currently viewing a pocket container, we must close it and save its state
+					maybeClosePocketContainer(pd, player, true);
+					pd.pocketContainerSelection = true;
+					selectCustomContainer(player, newContainer);
+				} else {
+					ContainerStorageKey oldKey = oldInstance.getStorageKey();
+					Location oldBukkitLocation = oldKey.location != null ? oldKey.location.toBukkitLocation() : null;
+					ContainerInstance newInstance = getCustomContainer(oldBukkitLocation, oldKey.stringHost, player, newContainer);
+					player.openInventory(newInstance.getInventory());
+				}
+			}
+		} else {
+			player.sendMessage(ChatColor.RED + "You don't have permission to open this container");
+		}
+	}
+
 	public Inventory getCustomContainerMenu(
 			Location location, Player player, CustomContainerHost host
 	) {
@@ -1217,7 +1249,8 @@ public class PluginData {
 			return null;
 		}
 
-		Collection<CustomContainerValues> correspondingContainers = getAllowedContainers(player, itemSet.getContainers(host));
+		Collection<CustomContainerValues> correspondingContainers = getContainersToChooseFrom(player, itemSet.getContainers(host));
+
 		if (correspondingContainers.isEmpty()) {
 			return null;
 		} else if (correspondingContainers.size() == 1) {
@@ -1230,9 +1263,9 @@ public class PluginData {
 	}
 
 	public void openPocketContainerMenu(Player player, CustomPocketContainerValues pocketContainer) {
-		Collection<CustomContainerValues> containers = getAllowedContainers(player, pocketContainer.getContainers());
+		Collection<CustomContainerValues> containers = getContainersToChooseFrom(player, pocketContainer.getContainers());
 		PlayerData pd = getPlayerData(player);
-		pd.pocketContainerSelection = true;
+		pd.pocketContainerSelection = !containers.isEmpty();
 
 		if (containers.isEmpty()) {
 			player.sendMessage(ChatColor.DARK_RED + "You don't have permission to open any container of this item");
@@ -1246,14 +1279,18 @@ public class PluginData {
 	public List<CustomContainerValues> getCustomContainerSelection(HumanEntity player) {
 		for (Entry<CustomContainerHost, Inventory> entry : containerSelectionMap.entrySet()) {
 			if (entry.getValue().getViewers().contains(player)) {
-				return itemSet.getContainers(entry.getKey());
+				return itemSet.getContainers(entry.getKey()).stream().filter(
+						candidate -> !candidate.isHidden()
+				).collect(Collectors.toList());
 			}
 		}
 
 		for (Entry<String, Inventory> entry : pocketContainerSelectionMap.entrySet()) {
 			if (entry.getValue().getViewers().contains(player)) {
 				CustomItemValues pocketContainer = CustomItemsPlugin.getInstance().getSet().getItem(entry.getKey());
-				return new ArrayList<>(((CustomPocketContainerValues) pocketContainer).getContainers());
+				return ((CustomPocketContainerValues) pocketContainer).getContainers().stream().filter(
+						candidate -> !candidate.isHidden()
+				).collect(Collectors.toList());
 			}
 		}
 
@@ -1276,12 +1313,9 @@ public class PluginData {
 			throw new IllegalArgumentException("Storage mode must be PER_LOCATION or PER_LOCATION_PER_PLAYER, but is " + containerType.getStorageMode());
 		}
 	}
-	
+
 	public void selectCustomContainer(Player player, CustomContainerValues selected) {
-		if (
-				selected.requiresPermission() && !player.hasPermission("customitems.container.openany") &&
-						!player.hasPermission("customitems.container.open." + selected.getName())
-		) {
+		if (!hasPermission(player, selected)) {
 			player.sendMessage(ChatColor.DARK_RED + "You don't have permission to open this custom container");
 			return;
 		}
@@ -1342,6 +1376,14 @@ public class PluginData {
 			} else if (customOff instanceof CustomPocketContainerValues) {
 				pocketContainer = (CustomPocketContainerValues) customOff;
 				pocketContainerStack = offItem;
+			}
+
+			if (pocketContainer != null && pocketContainer.getContainers().stream().noneMatch(
+					candidate -> candidate.getName().equals(selected.getName())
+			)) {
+				pocketContainer = null;
+				pocketContainerStack = null;
+				player.sendMessage(ChatColor.RED + "This pocket container can't hold this custom container");
 			}
 
 			if (pocketContainer != null) {
