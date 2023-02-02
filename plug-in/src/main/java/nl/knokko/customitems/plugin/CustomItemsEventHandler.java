@@ -197,11 +197,12 @@ public class CustomItemsEventHandler implements Listener {
 	
 	@EventHandler
 	public void equip3dHelmets(PlayerInteractEvent event) {
-		ItemStack item = event.getItem();
-		CustomItemValues custom = itemSet.getItem(item);
+		ItemStack eventItem = event.getItem();
+		CustomItemValues customEventItem = itemSet.getItem(eventItem);
 		
 		// Equip 3d custom helmets upon right click
-		if ((event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR) && custom instanceof CustomHelmet3dValues) {
+		if ((event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR)
+				&& customEventItem instanceof CustomHelmet3dValues) {
 			PlayerInventory inv = event.getPlayer().getInventory();
 			
 			EquipmentSlot hand = event.getHand();
@@ -209,11 +210,17 @@ public class CustomItemsEventHandler implements Listener {
 			Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
 				ItemStack oldHelmet = inv.getHelmet();
 				if (hand == EquipmentSlot.HAND) {
-					inv.setItemInMainHand(oldHelmet);
-					inv.setHelmet(item);
+					ItemStack oldItem = inv.getItemInMainHand();
+					if (itemSet.getItem(oldItem) instanceof CustomHelmet3dValues) {
+						inv.setItemInMainHand(oldHelmet);
+						inv.setHelmet(oldItem);
+					}
 				} else if (hand == EquipmentSlot.OFF_HAND) {
-					inv.setItemInOffHand(oldHelmet);
-					inv.setHelmet(item);
+					ItemStack oldItem = inv.getItemInOffHand();
+					if (itemSet.getItem(oldItem) instanceof CustomHelmet3dValues) {
+						inv.setItemInOffHand(oldHelmet);
+						inv.setHelmet(oldItem);
+					}
 				}
 			});
 		}
