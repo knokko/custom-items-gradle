@@ -612,6 +612,10 @@ public class ContainerInstance {
 	public void clearStoredExperience() {
 		storedExperience = 0;
 	}
+
+	public void setStoredExperience(int newExperience) {
+		storedExperience = newExperience;
+	}
 	
 	private void initFuelSlots() {
 		for (Entry<String, FuelProps> fuelSlot : typeInfo.getFuelSlots()) {
@@ -784,6 +788,10 @@ public class ContainerInstance {
 			return null;
 		}
 	}
+
+	public boolean hasInput(String inputSlotName) {
+		return typeInfo.getInputSlot(inputSlotName) != null;
+	}
 	
 	public ItemStack getOutput(String outputSlotName) {
 		ItemStack potentialOutput = inventory.getItem(
@@ -794,6 +802,10 @@ public class ContainerInstance {
 		} else {
 			return null;
 		}
+	}
+
+	public boolean hasOutput(String outputSlotName) {
+		return typeInfo.getOutputSlot(outputSlotName) != null;
 	}
 	
 	public ItemStack getFuel(String fuelSlotName) {
@@ -807,10 +819,57 @@ public class ContainerInstance {
 		}
 	}
 
+	public boolean hasFuel(String fuelSlotName) {
+		return typeInfo.getFuelSlot(fuelSlotName) != null;
+	}
+
+	private int getStorageInventoryIndex(int storageSlotIndex) {
+		int currentIndex = 0;
+		for (ContainerInfo.PlaceholderProps storageSlot : typeInfo.getStorageSlots()) {
+			if (currentIndex == storageSlotIndex) {
+				return storageSlot.getSlotIndex();
+			}
+			currentIndex++;
+		}
+		throw new IllegalArgumentException("No storage slot has index " + storageSlotIndex);
+	}
+
+	public ItemStack getStorageItem(int storageSlotIndex) {
+		ItemStack storedItem = inventory.getItem(getStorageInventoryIndex(storageSlotIndex));
+		if (!ItemUtils.isEmpty(storedItem)) return storedItem;
+		else return null;
+	}
+
+	public int getNumStorageSlots() {
+		return typeInfo.getNumStorageSlots();
+	}
+
+	public int getRemainingFuelBurnTime(String fuelSlotName) {
+		return fuelSlots.get(fuelSlotName).remainingBurnTime;
+	}
+
 	public void setFuel(String fuelSlotName, ItemStack newStack) {
 		inventory.setItem(typeInfo.getFuelSlot(fuelSlotName).getSlotIndex(), newStack);
 	}
 
+	public void setRemainingFuelBurnTime(String fuelSlotName, int newBurnTime) {
+		FuelBurnEntry entry = fuelSlots.get(fuelSlotName);
+		entry.maxBurnTime = newBurnTime;
+		entry.remainingBurnTime = newBurnTime;
+		updateFuelIndicator(fuelSlotName);
+	}
+
+	public void setOutput(String outputSlotName, ItemStack newStack) {
+		inventory.setItem(typeInfo.getOutputSlot(outputSlotName).getSlotIndex(), newStack);
+	}
+
+	public void setInput(String inputSlotName, ItemStack newStack) {
+		inventory.setItem(typeInfo.getInputSlot(inputSlotName).getSlotIndex(), newStack);
+	}
+
+	public void setStorageItem(int storageSlotIndex, ItemStack newStack) {
+		inventory.setItem(getStorageInventoryIndex(storageSlotIndex), newStack);
+	}
 	/**
 	 * NOTE: This might be out of date. Confirm with determineCurrentRecipe to be certain!
 	 */
@@ -1139,16 +1198,28 @@ public class ContainerInstance {
 		}
 	}
 
-	public Map<String, ItemStack> getCurrentIngredients() {
-		Map<String, ItemStack> ingredients = new HashMap<>();
-		typeInfo.getInputSlots().forEach(entry -> {
-			int inventoryIndex = entry.getValue().getSlotIndex();
+	private <T> Map<String, ItemStack> getItemMap(Iterable<Map.Entry<String, T>> entries, Function<T, Integer> getSlotIndex) {
+		Map<String, ItemStack> items = new HashMap<>();
+		entries.forEach(entry -> {
+			int inventoryIndex = getSlotIndex.apply(entry.getValue());
 			String slotName = entry.getKey();
 			ItemStack stack = inventory.getItem(inventoryIndex);
-			if (stack != null) ingredients.put(slotName, stack.clone());
-			else ingredients.put(slotName, null);
+			if (stack != null) items.put(slotName, stack.clone());
+			else items.put(slotName, null);
 		});
-		return ingredients;
+		return items;
+	}
+
+	public Map<String, ItemStack> getCurrentIngredients() {
+		return getItemMap(typeInfo.getInputSlots(), ContainerInfo.PlaceholderProps::getSlotIndex);
+	}
+
+	public Map<String, ItemStack> getCurrentResults() {
+		return getItemMap(typeInfo.getOutputSlots(), ContainerInfo.PlaceholderProps::getSlotIndex);
+	}
+
+	public Map<String, ItemStack> getCurrentFuel() {
+		return getItemMap(typeInfo.getFuelSlots(), FuelProps::getSlotIndex);
 	}
 
 	void consumeIngredientsAndEnergyOfCurrentRecipe() {

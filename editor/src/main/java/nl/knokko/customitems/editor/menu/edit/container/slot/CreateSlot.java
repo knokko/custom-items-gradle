@@ -44,7 +44,7 @@ public class CreateSlot extends GuiMenu {
 		);
 
 		addComponent(new DynamicTextButton("Execute script", BUTTON, HOVER, () -> {
-			//state.getWindow().setMainComponent(new CreateScriptSlot());
+			state.getWindow().setMainComponent(new CreateActionSlot(returnMenu, itemSet, changeSlot));
 		}), 0.6f, 0.825f, 0.75f, 0.875f);
 		addComponent(new DynamicTextButton("Link to other container", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new CreateLinkSlot(
@@ -101,7 +101,6 @@ public class CreateSlot extends GuiMenu {
 			));
 		}), 0.6f, 0f, 0.8f, 0.05f);
 
-		// TODO Update help button
 		HelpButtons.addHelpLink(this, "edit menu/containers/slots/create.html");
 	}
 

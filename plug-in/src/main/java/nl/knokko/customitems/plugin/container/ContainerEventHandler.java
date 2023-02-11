@@ -4,14 +4,12 @@ import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.container.ContainerRecipeValues;
 import nl.knokko.customitems.container.CustomContainerHost;
 import nl.knokko.customitems.container.CustomContainerValues;
-import nl.knokko.customitems.container.slot.ContainerSlotValues;
-import nl.knokko.customitems.container.slot.LinkSlotValues;
-import nl.knokko.customitems.container.slot.ManualOutputSlotValues;
-import nl.knokko.customitems.container.slot.OutputSlotValues;
+import nl.knokko.customitems.container.slot.*;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomPocketContainerValues;
 import nl.knokko.customitems.itemset.BlockReference;
 import nl.knokko.customitems.nms.KciNms;
+import nl.knokko.customitems.plugin.events.CustomContainerActionEvent;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
 import nl.knokko.customitems.recipe.result.CustomItemResultValues;
@@ -203,6 +201,10 @@ public class ContainerEventHandler implements Listener {
 						Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
 							pluginData().attemptToSwitchToLinkedContainer(player, ((LinkSlotValues) slot).getLinkedContainer());
 						});
+					} else if (slot instanceof ActionSlotValues) {
+						Bukkit.getPluginManager().callEvent(new CustomContainerActionEvent(
+								((ActionSlotValues) slot).getActionID(), customContainer, event, itemSet
+						));
 					}
 
 					boolean consumeManualRecipeOnce = false;

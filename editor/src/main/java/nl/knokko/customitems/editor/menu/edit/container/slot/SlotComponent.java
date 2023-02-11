@@ -62,6 +62,10 @@ public class SlotComponent implements GuiComponent {
 			LinkSlotValues linkSlot = (LinkSlotValues) newSlot;
 			topText = "link";
 			bottomText = linkSlot.getLinkedContainer().getName();
+		} else if (newSlot instanceof ActionSlotValues) {
+			ActionSlotValues actionSlot = (ActionSlotValues) newSlot;
+			topText = "script action";
+			bottomText = actionSlot.getActionID();
 		} else if (newSlot instanceof EmptySlotValues) {
 			topText = "empty";
 			bottomText = "";

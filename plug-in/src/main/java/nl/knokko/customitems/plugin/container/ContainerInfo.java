@@ -99,6 +99,9 @@ public class ContainerInfo {
 				} else if (slot instanceof LinkSlotValues) {
 					LinkSlotValues linkSlot = (LinkSlotValues) slot;
 					if (linkSlot.getDisplay() != null) decorations.add(new DecorationProps(invIndex, linkSlot.getDisplay()));
+				} else if (slot instanceof ActionSlotValues) {
+					ActionSlotValues actionSlot = (ActionSlotValues) slot;
+					if (actionSlot.getDisplay() != null) decorations.add(new DecorationProps(invIndex, actionSlot.getDisplay()));
 				} else if (slot instanceof StorageSlotValues) {
 					StorageSlotValues storageSlot = (StorageSlotValues) slot;
 					storageSlots.add(new PlaceholderProps(invIndex, storageSlot.getPlaceholder()));
@@ -165,6 +168,10 @@ public class ContainerInfo {
 
 	public Iterable<PlaceholderProps> getStorageSlots() {
 		return storageSlots;
+	}
+
+	public int getNumStorageSlots() {
+		return storageSlots.size();
 	}
 	
 	public static class IndicatorProps {

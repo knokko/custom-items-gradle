@@ -40,6 +40,8 @@ public abstract class ContainerSlotValues extends ModelValues {
         public static final byte ENERGY_INDICATOR = 12;
 
         public static final byte LINK = 13;
+
+        public static final byte ACTION = 14;
     }
 
     public static ContainerSlotValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
@@ -56,6 +58,7 @@ public abstract class ContainerSlotValues extends ModelValues {
         else if (encoding == Encodings.MANUAL_OUTPUT) return ManualOutputSlotValues.loadManual(input, itemSet);
         else if (encoding == Encodings.ENERGY_INDICATOR) return EnergyIndicatorSlotValues.loadEnergy(input, itemSet);
         else if (encoding == Encodings.LINK) return LinkSlotValues.loadLink(input, itemSet);
+        else if (encoding == Encodings.ACTION) return ActionSlotValues.loadAction(input, itemSet);
         else throw new UnknownEncodingException("ContainerSlot", encoding);
     }
 

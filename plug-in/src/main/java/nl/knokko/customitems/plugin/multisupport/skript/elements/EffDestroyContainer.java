@@ -31,7 +31,7 @@ public class EffDestroyContainer extends Effect {
                 containerName.getSingle(event), stringHost.getSingle(event), dropLocation != null ? dropLocation.getSingle(event) : null
         );
         if (numDestroyedContainers == -1) {
-            Bukkit.getLogger().warning("Tried to destroy instances of non-existing container '" + containerName.getSingle(event) + "'");
+            Skript.error("Tried to destroy instances of non-existing container '" + containerName.getSingle(event) + "'");
         }
     }
 

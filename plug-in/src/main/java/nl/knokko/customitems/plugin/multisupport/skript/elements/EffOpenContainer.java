@@ -27,7 +27,7 @@ public class EffOpenContainer extends Effect {
     @Override
     protected void execute(Event event) {
         if (!CustomItemsApi.openContainerAtStringHost(player.getSingle(event), containerName.getSingle(event), hostString.getSingle(event))) {
-            Bukkit.getLogger().warning("Attempted to open non-existing container '" + containerName.getSingle(event) + "' via Skript");
+            Skript.error("Attempted to open non-existing container '" + containerName.getSingle(event) + "' via Skript");
         }
     }
 

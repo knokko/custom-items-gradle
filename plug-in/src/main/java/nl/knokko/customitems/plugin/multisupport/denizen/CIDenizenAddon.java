@@ -5,6 +5,8 @@ import com.denizenscript.denizen.objects.LocationTag;
 import com.denizenscript.denizencore.DenizenCore;
 import com.denizenscript.denizencore.objects.core.ElementTag;
 import nl.knokko.customitems.plugin.CustomItemsApi;
+import nl.knokko.customitems.plugin.CustomItemsPlugin;
+import org.bukkit.Bukkit;
 
 class CIDenizenAddon {
 
@@ -55,5 +57,7 @@ class CIDenizenAddon {
         DenizenCore.commandRegistry.registerCommand(KciContainerCommand.class);
         DenizenCore.commandRegistry.registerCommand(GiveKciItemCommand.class);
         new KciItemsTag();
+
+        Bukkit.getPluginManager().registerEvents(new KciContainerActionEvent(), CustomItemsPlugin.getInstance());
     }
 }
