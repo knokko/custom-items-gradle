@@ -11,11 +11,17 @@ import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
+import nl.knokko.gui.component.WrapperComponent;
+import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
+import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 import java.util.function.Consumer;
+
+import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
+import static nl.knokko.customitems.editor.menu.edit.EditProps.LABEL;
 
 public class EditCustomBlockDrop extends GuiMenu  {
 
@@ -76,6 +82,35 @@ public class EditCustomBlockDrop extends GuiMenu  {
                         set, this
                 ))
         ), 0.5f, 0.4f, 0.625f, 0.5f);
+
+        addComponent(new DynamicTextComponent(
+                "Minimum fortune level:", LABEL
+        ), 0.3f, 0.25f, 0.6f, 0.35f);
+        addComponent(new EagerIntEditField(
+                currentDrop.getMinFortuneLevel(), 0, EDIT_BASE, EDIT_ACTIVE, currentDrop::setMinFortuneLevel
+        ), 0.61f, 0.25f, 0.7f, 0.35f);
+
+        EagerIntEditField maxFortuneLevelField = new EagerIntEditField(
+                currentDrop.getMaxFortuneLevel() != null ? currentDrop.getMaxFortuneLevel() : 0, 0,
+                EDIT_BASE, EDIT_ACTIVE, currentDrop::setMaxFortuneLevel
+        );
+        addComponent(new CheckboxComponent(currentDrop.getMaxFortuneLevel() != null, newValue -> {
+            if (newValue) {
+                currentDrop.setMaxFortuneLevel(0);
+                maxFortuneLevelField.setText("0");
+            }
+            else currentDrop.setMaxFortuneLevel(null);
+        }), 0.25f, 0.125f, 0.275f, 0.15f);
+        addComponent(new DynamicTextComponent(
+                "Maximum fortune level:", LABEL
+        ), 0.3f, 0.1f, 0.6f, 0.2f);
+
+        addComponent(new WrapperComponent<EagerIntEditField>(maxFortuneLevelField) {
+            @Override
+            public boolean isActive() {
+                return currentDrop.getMaxFortuneLevel() != null;
+            }
+        }, 0.61f, 0.1f, 0.7f, 0.2f);
 
         HelpButtons.addHelpLink(this, "edit menu/blocks/drops/edit.html");
     }

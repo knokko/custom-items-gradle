@@ -58,6 +58,7 @@ public class EvtContainerAction extends SkriptEvent {
     private Literal<String> actionID;
 
     @Override
+    @SuppressWarnings("unchecked")
     public boolean init(Literal<?>[] args, int matchedPattern, SkriptParser.ParseResult parseResult) {
         this.actionID = (Literal<String>) args[0];
         return true;

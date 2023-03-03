@@ -1,5 +1,6 @@
 package nl.knokko.customitems.serialization;
 
+import nl.knokko.customitems.block.drop.SilkTouchRequirement;
 import nl.knokko.customitems.drops.*;
 import nl.knokko.customitems.effect.ChancePotionEffectValues;
 import nl.knokko.customitems.effect.EffectType;
@@ -163,7 +164,7 @@ public class Backward6 {
     private static BlockDropValues createBlockDrop1(ItemSet itemSet, boolean useFlatChance) {
         ItemReference simple1 = itemSet.getItemReference("simple1");
         return BlockDropValues.createQuick(
-                BlockType.STONE, false,
+                BlockType.STONE, SilkTouchRequirement.FORBIDDEN,
                 DropValues.createQuick(
                         OutputTableValues.createQuick(
                                 OutputTableValues.Entry.createQuick(
@@ -184,7 +185,7 @@ public class Backward6 {
                                 )
                         ),
                         true, new ArrayList<>(), new AllowedBiomesValues(false)
-                )
+                ), 0, null
         );
     }
 

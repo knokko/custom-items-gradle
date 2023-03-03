@@ -1,6 +1,7 @@
 package nl.knokko.customitems.plugin.events;
 
 import nl.knokko.customitems.block.CustomBlockValues;
+import nl.knokko.customitems.block.drop.SilkTouchRequirement;
 import nl.knokko.customitems.drops.BlockDropValues;
 import nl.knokko.customitems.drops.DropValues;
 import nl.knokko.customitems.item.*;
@@ -51,6 +52,7 @@ public class MultiBlockBreakEventHandler implements Listener {
 
         ItemStack mainItem = event.getPlayer().getInventory().getItemInMainHand();
         boolean usedSilkTouch = !ItemUtils.isEmpty(mainItem) && mainItem.containsEnchantment(Enchantment.SILK_TOUCH);
+        int fortuneLevel = ItemUtils.isEmpty(mainItem) ? 0 : mainItem.getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS);
         CustomItemValues custom = itemSet.getItem(mainItem);
 
         BlockDropsView customDrops = itemSet.getBlockDrops(
@@ -62,11 +64,15 @@ public class MultiBlockBreakEventHandler implements Listener {
         Collection<ItemStack> stacksToDrop = new ArrayList<>();
 
         for (BlockDropValues blockDrop : customDrops) {
-            if (!usedSilkTouch || blockDrop.shouldAllowSilkTouch()) {
-                DropValues drop = blockDrop.getDrop();
-                if (collectDrops(stacksToDrop, drop, event.getBlock().getLocation(), random, itemSet, custom)) {
-                    cancelDefaultDrops = true;
-                }
+            if (usedSilkTouch && blockDrop.getSilkTouchRequirement() == SilkTouchRequirement.FORBIDDEN) continue;
+            if (!usedSilkTouch && blockDrop.getSilkTouchRequirement() == SilkTouchRequirement.REQUIRED) continue;
+
+            if (fortuneLevel < blockDrop.getMinFortuneLevel()) continue;
+            if (blockDrop.getMaxFortuneLevel() != null && fortuneLevel > blockDrop.getMaxFortuneLevel()) continue;
+
+            DropValues drop = blockDrop.getDrop();
+            if (collectDrops(stacksToDrop, drop, event.getBlock().getLocation(), random, itemSet, custom)) {
+                cancelDefaultDrops = true;
             }
         }
 

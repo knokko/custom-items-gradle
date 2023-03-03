@@ -34,6 +34,7 @@ import java.util.Objects;
 import java.util.Random;
 
 import static nl.knokko.customitems.plugin.recipe.RecipeHelper.convertResultToItemStack;
+import static org.bukkit.enchantments.Enchantment.LOOT_BONUS_BLOCKS;
 import static org.bukkit.enchantments.Enchantment.SILK_TOUCH;
 
 public class BlockEventHandler implements Listener {
@@ -170,11 +171,13 @@ public class BlockEventHandler implements Listener {
         for (CustomBlockDropValues blockDrop : block.getDrops()) {
 
             boolean usedSilkTouch = false;
+            int fortuneLevel = 0;
             CIMaterial usedMaterial = CIMaterial.AIR;
             CustomItemValues usedCustomItem = null;
 
             if (!ItemUtils.isEmpty(usedTool)) {
                 usedSilkTouch = usedTool.containsEnchantment(SILK_TOUCH);
+                fortuneLevel = usedTool.getEnchantmentLevel(LOOT_BONUS_BLOCKS);
                 usedMaterial = CIMaterial.valueOf(KciNms.instance.items.getMaterialName(usedTool));
                 usedCustomItem = itemSet.getItem(usedTool);
             }
@@ -185,6 +188,9 @@ public class BlockEventHandler implements Listener {
             if (!usedSilkTouch && blockDrop.getSilkTouchRequirement() == SilkTouchRequirement.REQUIRED) {
                 continue;
             }
+
+            if (fortuneLevel < blockDrop.getMinFortuneLevel()) continue;
+            if (blockDrop.getMaxFortuneLevel() != null && fortuneLevel > blockDrop.getMaxFortuneLevel()) continue;
 
             RequiredItemValues ri = blockDrop.getRequiredItems();
             if (ri.isEnabled()) {

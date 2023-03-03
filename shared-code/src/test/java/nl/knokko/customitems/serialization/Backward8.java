@@ -1,5 +1,6 @@
 package nl.knokko.customitems.serialization;
 
+import nl.knokko.customitems.block.drop.SilkTouchRequirement;
 import nl.knokko.customitems.container.ContainerRecipeValues;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.fuel.FuelEntryValues;
@@ -197,7 +198,7 @@ public class Backward8 {
 
         BlockDropValues blockDrop = blockDropIterator.next();
         assertEquals(BlockType.STONE, blockDrop.getBlockType());
-        assertTrue(blockDrop.shouldAllowSilkTouch());
+        assertEquals(SilkTouchRequirement.OPTIONAL, blockDrop.getSilkTouchRequirement());
         DropValues drop = blockDrop.getDrop();
 
         assertFalse(drop.shouldCancelNormalDrops());
@@ -216,7 +217,7 @@ public class Backward8 {
     }
 
     static void testDefaultBlockDrop8(BlockDropValues blockDrop) {
-        assertFalse(blockDrop.shouldAllowSilkTouch());
+        assertEquals(SilkTouchRequirement.FORBIDDEN, blockDrop.getSilkTouchRequirement());
         testDefaultDrop8(blockDrop.getDrop());
         testDefaultBlockDrop10(blockDrop);
     }
