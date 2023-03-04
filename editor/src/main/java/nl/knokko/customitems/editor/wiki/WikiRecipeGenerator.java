@@ -3,6 +3,7 @@ package nl.knokko.customitems.editor.wiki;
 import nl.knokko.customitems.container.ContainerRecipeValues;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.slot.*;
+import nl.knokko.customitems.item.WikiVisibility;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.ShapedRecipeValues;
 import nl.knokko.customitems.recipe.ShapelessRecipeValues;
@@ -130,10 +131,14 @@ public class WikiRecipeGenerator {
         if (ingredient instanceof CustomItemIngredientValues) {
             CustomItemIngredientValues customIngredient = (CustomItemIngredientValues) ingredient;
 
-            output.println(tabs + "\t<a href=\"" + pathToRoot + "items/" + customIngredient.getItem().getName() + ".html\" >");
+            if (customIngredient.getItem().getWikiVisibility() != WikiVisibility.DECORATION) {
+                output.println(tabs + "\t<a href=\"" + pathToRoot + "items/" + customIngredient.getItem().getName() + ".html\" >");
+            }
             output.print(tabs + "\t\t<img src=\"" + pathToRoot + "textures/" + customIngredient.getItem().getTexture().getName() + ".png\" ");
             output.println("class=\"recipe-image result-image\" />");
-            output.println(tabs + "\t</a>");
+            if (customIngredient.getItem().getWikiVisibility() != WikiVisibility.DECORATION) {
+                output.println(tabs + "\t</a>");
+            }
         }
 
         if (ingredient instanceof SimpleVanillaIngredientValues) {
@@ -197,7 +202,7 @@ public class WikiRecipeGenerator {
         output.println(tabs + "\t</div>");
 
         output.println(tabs + "\t<div class=\"hover-recipe-list hover-recipe-list-" + resultID + " \">");
-        generateOutputTable(output, tabs + "\t\t", "", results);
+        generateOutputTable(output, tabs + "\t\t", "<br>", results);
         output.println(tabs + "\t</div>");
 
         if (amount > 1) {
@@ -211,17 +216,25 @@ public class WikiRecipeGenerator {
 
     public static void generateOutputTable(PrintWriter output, String prefix, String suffix, OutputTableValues outputTable) {
         for (OutputTableValues.Entry outputEntry : outputTable.getEntries()) {
-            output.print(prefix + outputEntry.getChance() + " chance to get ");
-            int amount;
-            if (outputEntry.getResult() instanceof CustomItemResultValues) {
-                CustomItemResultValues customResult = (CustomItemResultValues) outputEntry.getResult();
-                output.print("<a href=\"../items/" + customResult.getItem().getName() + ".html\"><img src=\"../textures/" +
-                        customResult.getItem().getTexture().getName() + ".png\" class=\"mini-item-icon\" /></a>");
-                amount = customResult.getAmount();
-            } else {
-                amount = generateInnerResult(output, "", outputEntry.getResult(), "../");
+            if (!WikiProtector.isResultSecret(outputEntry.getResult())) {
+                output.print(prefix + outputEntry.getChance() + " chance to get ");
+                int amount;
+                if (outputEntry.getResult() instanceof CustomItemResultValues) {
+                    CustomItemResultValues customResult = (CustomItemResultValues) outputEntry.getResult();
+                    if (customResult.getItem().getWikiVisibility() != WikiVisibility.DECORATION) {
+                        output.print("<a href=\"../items/" + customResult.getItem().getName() + ".html\">");
+                    }
+                    output.print("<img src=\"../textures/" + customResult.getItem().getTexture().getName()
+                            + ".png\" class=\"mini-item-icon\" />");
+                    if (customResult.getItem().getWikiVisibility() != WikiVisibility.DECORATION) {
+                        output.print("</a>");
+                    }
+                    amount = customResult.getAmount();
+                } else {
+                    amount = generateInnerResult(output, "", outputEntry.getResult(), "../");
+                }
+                output.println(" x " + amount + suffix);
             }
-            output.println(" x " + amount + suffix);
         }
     }
 
@@ -232,10 +245,14 @@ public class WikiRecipeGenerator {
         if (result instanceof CustomItemResultValues) {
             CustomItemResultValues customResult = (CustomItemResultValues) result;
 
-            output.println(tabs + "<a href=\"" + pathToRoot + "items/" + customResult.getItem().getName() + ".html\" >");
+            if (customResult.getItem().getWikiVisibility() != WikiVisibility.DECORATION) {
+                output.println(tabs + "<a href=\"" + pathToRoot + "items/" + customResult.getItem().getName() + ".html\" >");
+            }
             output.print(tabs + "\t<img src=\"" + pathToRoot + "textures/" + customResult.getItem().getTexture().getName() + ".png\" ");
             output.print("class=\"recipe-image result-image\" />");
-            output.println(tabs + "</a>");
+            if (customResult.getItem().getWikiVisibility() != WikiVisibility.DECORATION) {
+                output.println(tabs + "</a>");
+            }
 
             amount = customResult.getAmount();
         }

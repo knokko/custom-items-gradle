@@ -11,8 +11,10 @@ import nl.knokko.customitems.editor.wiki.item.ItemDropGenerator;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.item.CustomBlockItemValues;
 import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.WikiVisibility;
 import nl.knokko.customitems.itemset.BlockReference;
 import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.customitems.recipe.result.CustomItemResultValues;
 import nl.knokko.customitems.util.Chance;
 import nl.knokko.customitems.worldgen.BlockProducerValues;
 import nl.knokko.customitems.worldgen.CITreeType;
@@ -45,7 +47,9 @@ class WikiBlockGenerator {
             output.println("\t\t<img src=\"../textures/" + block.getModel().getPrimaryTexture().get().getName() + ".png\" class=\"block-icon\" /><br>");
 
             Collection<CustomItemValues> placingItems = itemSet.getItems().stream().filter(
-                    item -> item instanceof CustomBlockItemValues && ((CustomBlockItemValues) item).getBlock().getName().equals(block.getName())
+                    item -> item instanceof CustomBlockItemValues
+                            && ((CustomBlockItemValues) item).getBlock().getName().equals(block.getName())
+                            && item.getWikiVisibility() == WikiVisibility.VISIBLE
             ).collect(Collectors.toList());
             if (!placingItems.isEmpty()) {
                 output.println("\t\t<h2>Placing this block</h2>");
@@ -62,7 +66,10 @@ class WikiBlockGenerator {
 
             output.println("\t\t<h2>Mining speed</h2>");
             output.println("\t\tDefault mining speed: " + displayMiningSpeed(block.getMiningSpeed().getDefaultValue()));
-            if (!block.getMiningSpeed().getVanillaEntries().isEmpty() || !block.getMiningSpeed().getCustomEntries().isEmpty()) {
+            Collection<CustomMiningSpeedEntry> customSpeedEntries = block.getMiningSpeed().getCustomEntries().stream().filter(
+                    entry -> entry.getItem().getWikiVisibility() == WikiVisibility.VISIBLE
+            ).collect(Collectors.toList());
+            if (!block.getMiningSpeed().getVanillaEntries().isEmpty() || !customSpeedEntries.isEmpty()) {
                 output.println("\t\t<ul>");
 
                 for (VanillaMiningSpeedEntry vanillaEntry : block.getMiningSpeed().getVanillaEntries()) {
@@ -74,7 +81,7 @@ class WikiBlockGenerator {
                             + ": " + displayMiningSpeed(vanillaEntry.getValue()) + "</li>");
                 }
 
-                for (CustomMiningSpeedEntry customEntry : block.getMiningSpeed().getCustomEntries()) {
+                for (CustomMiningSpeedEntry customEntry : customSpeedEntries) {
                     output.println("\t\t\t<li>Mining speed when using a <a href=\"../items/"
                             + customEntry.getItem().getName() + ".html\">"
                             + stripColorCodes(customEntry.getItem().getDisplayName()) + "</a>: "
@@ -84,10 +91,16 @@ class WikiBlockGenerator {
                 output.println("\t\t</ul>");
             }
 
-            if (!block.getDrops().isEmpty()) {
+            Collection<CustomBlockDropValues> drops = block.getDrops().stream().filter(
+                    drop -> drop.getItemsToDrop().getEntries().stream().anyMatch(
+                            entry -> !WikiProtector.isResultSecret(entry.getResult())
+                    )
+            ).collect(Collectors.toList());
+
+            if (!drops.isEmpty()) {
                 output.println("\t\t<h2>Drops</h2>");
                 output.println("\t\t<ul class=\"custom-block-drops\">");
-                for (CustomBlockDropValues drop : block.getDrops()) {
+                for (CustomBlockDropValues drop : drops) {
                     output.println("\t\t\t<li class=\"custom-block-drop\">");
                     ItemDropGenerator.generateCustomBlockDropInfo(output, drop);
                     output.println("\t\t\t\tThe following items will be dropped:");

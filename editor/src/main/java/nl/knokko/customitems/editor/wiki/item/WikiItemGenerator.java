@@ -5,7 +5,6 @@ import nl.knokko.customitems.effect.EquippedPotionEffectValues;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.enchantment.EnchantmentValues;
 import nl.knokko.customitems.item.equipment.EquipmentEntry;
-import nl.knokko.customitems.item.equipment.EquipmentSet;
 import nl.knokko.customitems.item.equipment.EquipmentSetValues;
 import nl.knokko.customitems.itemset.ItemSet;
 
@@ -14,7 +13,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import static nl.knokko.customitems.editor.wiki.WikiHelper.*;
 import static nl.knokko.customitems.util.ColorCodes.stripColorCodes;

@@ -3,11 +3,13 @@ package nl.knokko.customitems.editor.wiki.item;
 import nl.knokko.customitems.NameHelper;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.damage.DamageSource;
+import nl.knokko.customitems.editor.wiki.WikiProtector;
 import nl.knokko.customitems.effect.PotionEffectValues;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.gun.DirectGunAmmoValues;
 import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
+import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.customitems.sound.SoundValues;
 
@@ -110,12 +112,17 @@ class ItemSubclassGenerator {
             generateWandOrGunProperties(output, gun.getProjectile(), gun.getAmountPerShot(), gun.getAmmo().getCooldown(), "shot");
 
             if (gun.getAmmo() instanceof DirectGunAmmoValues) {
-                output.println("\t\tUses " + createTextBasedIngredientHtml(((DirectGunAmmoValues) gun.getAmmo()).getAmmoItem(), "../") + " as ammo<br>");
+                IngredientValues ammoItem = ((DirectGunAmmoValues) gun.getAmmo()).getAmmoItem();
+                if (!WikiProtector.isIngredientSecret(ammoItem)) {
+                    output.println("\t\tUses " + createTextBasedIngredientHtml(ammoItem, "../") + " as ammo<br>");
+                }
             }
             if (gun.getAmmo() instanceof IndirectGunAmmoValues) {
                 IndirectGunAmmoValues ammo = (IndirectGunAmmoValues) gun.getAmmo();
                 output.println("\t\t<h3>Ammo</h3>");
-                output.println("\t\tReload item: " + createTextBasedIngredientHtml(ammo.getReloadItem(), "../") + "<br>");
+                if (!WikiProtector.isIngredientSecret(ammo.getReloadItem())) {
+                    output.println("\t\tReload item: " + createTextBasedIngredientHtml(ammo.getReloadItem(), "../") + "<br>");
+                }
                 output.println("\t\tMaximum stored ammo: " + ammo.getStoredAmmo() + "<br>");
                 output.println("\t\tReload time: " + ammo.getReloadTime() + " ticks<br>");
             }
@@ -299,7 +306,7 @@ class ItemSubclassGenerator {
                 output.println("\t\tThis item can't be enchanted<br>");
             }
             if (tool.allowAnvilActions()) {
-                if (!(tool.getRepairItem() instanceof NoIngredientValues)) {
+                if (!(tool.getRepairItem() instanceof NoIngredientValues) && !WikiProtector.isIngredientSecret(tool.getRepairItem())) {
                     output.println("\t\tThis item can be repaired using " + createTextBasedIngredientHtml(tool.getRepairItem(), "../") + "<br>");
                 }
             } else {

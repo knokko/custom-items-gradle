@@ -5,6 +5,7 @@ import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.energy.EnergyTypeValues;
 import nl.knokko.customitems.editor.wiki.item.WikiItemGenerator;
 import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.WikiVisibility;
 import nl.knokko.customitems.item.equipment.EquipmentSetValues;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
@@ -43,7 +44,11 @@ public class WikiGenerator {
         File itemsFolder = new File(destinationFolder + "/items");
         if (!itemsFolder.exists() && !itemsFolder.mkdir()) throw new IOException("Failed to create items folder");
         for (CustomItemValues item : itemSet.getItems()) {
-            new WikiItemGenerator(itemSet, item, equipmentSets).generate(new File(itemsFolder + "/" + item.getName() + ".html"));
+            if (item.getWikiVisibility() == WikiVisibility.VISIBLE) {
+                new WikiItemGenerator(itemSet, item, equipmentSets).generate(
+                        new File(itemsFolder + "/" + item.getName() + ".html")
+                );
+            }
         }
 
         File equipmentSetsFolder = new File(itemsFolder + "/equipment");

@@ -172,6 +172,7 @@ public abstract class CustomItemValues extends ModelValues {
     // Editor-only properties
     protected TextureReference texture;
     protected ItemModel model;
+    protected WikiVisibility wikiVisibility;
 
     // Plugin-only properties
     private byte[] booleanRepresentation;
@@ -217,6 +218,7 @@ public abstract class CustomItemValues extends ModelValues {
 
         this.texture = null;
         this.model = createDefaultItemModel(getDefaultModelType());
+        this.wikiVisibility = WikiVisibility.VISIBLE;
     }
 
     public CustomItemValues(CustomItemValues source, boolean mutable) {
@@ -249,6 +251,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.indestructible = source.isIndestructible();
         this.texture = source.getTextureReference();
         this.model = source.getModel();
+        this.wikiVisibility = source.getWikiVisibility();
         this.booleanRepresentation = source.getBooleanRepresentation();
     }
 
@@ -355,6 +358,11 @@ public abstract class CustomItemValues extends ModelValues {
                 String textureName = input.readString();
                 this.texture = itemSet.getTextureReference(textureName);
                 this.model = ItemModel.load(input);
+                if (encoding >= 4) {
+                    this.wikiVisibility = WikiVisibility.valueOf(input.readString());
+                } else {
+                    this.wikiVisibility = WikiVisibility.VISIBLE;
+                }
             } else {
                 this.loadEditorOnlyProperties1(input, itemSet, true);
             }
@@ -400,6 +408,7 @@ public abstract class CustomItemValues extends ModelValues {
             output.addString(texture.get().getName());
             if (model != null) model.save(output);
             else output.addByte(MODEL_TYPE_NONE);
+            output.addString(wikiVisibility.name());
         }
     }
 
@@ -824,6 +833,10 @@ public abstract class CustomItemValues extends ModelValues {
         return model;
     }
 
+    public WikiVisibility getWikiVisibility() {
+        return wikiVisibility;
+    }
+
     public byte[] getBooleanRepresentation() {
         return CollectionHelper.arrayCopy(booleanRepresentation);
     }
@@ -1023,6 +1036,11 @@ public abstract class CustomItemValues extends ModelValues {
         this.model = newModel;
     }
 
+    public void setWikiVisibility(WikiVisibility wikiVisibility) {
+        assertMutable();
+        this.wikiVisibility = Objects.requireNonNull(wikiVisibility);
+    }
+
     private void setBooleanRepresentation(byte[] newRepresentation) {
         this.booleanRepresentation = CollectionHelper.arrayCopy(newRepresentation);
     }
@@ -1125,6 +1143,7 @@ public abstract class CustomItemValues extends ModelValues {
 
         if (texture == null) throw new ValidationException("No texture");
         if (getDefaultModelType() != null && model == null) throw new ProgrammingValidationException("No model");
+        if (wikiVisibility == null) throw new ProgrammingValidationException("No wiki visibility");
     }
 
     public void validateComplete(

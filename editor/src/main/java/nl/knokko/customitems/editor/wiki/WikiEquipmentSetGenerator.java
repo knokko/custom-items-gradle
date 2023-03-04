@@ -3,6 +3,7 @@ package nl.knokko.customitems.editor.wiki;
 import nl.knokko.customitems.NameHelper;
 import nl.knokko.customitems.damage.DamageSource;
 import nl.knokko.customitems.item.AttributeModifierValues;
+import nl.knokko.customitems.item.WikiVisibility;
 import nl.knokko.customitems.item.equipment.EquipmentBonusValues;
 import nl.knokko.customitems.item.equipment.EquipmentEntry;
 import nl.knokko.customitems.item.equipment.EquipmentSetValues;
@@ -27,9 +28,11 @@ class WikiEquipmentSetGenerator {
             output.println("\t\t<h1 id=\"items-header\">Items</h1>");
             output.println("\t\t<ul>");
             for (Map.Entry<EquipmentEntry, Integer> entry : equipmentSet.getEntries().entrySet()) {
-                output.println("\t\t\t<li>Equipping <a href=\"../" + entry.getKey().item.get().getName() + ".html\">"
-                        + stripColorCodes(entry.getKey().item.get().getDisplayName()) + "</a> in "
-                        + entry.getKey().slot + " grants you " + entry.getValue() + " points</li>");
+                if (entry.getKey().item.get().getWikiVisibility() == WikiVisibility.VISIBLE) {
+                    output.println("\t\t\t<li>Equipping <a href=\"../" + entry.getKey().item.get().getName() + ".html\">"
+                            + stripColorCodes(entry.getKey().item.get().getDisplayName()) + "</a> in "
+                            + entry.getKey().slot + " grants you " + entry.getValue() + " points</li>");
+                }
             }
             output.println("\t\t</ul>");
 

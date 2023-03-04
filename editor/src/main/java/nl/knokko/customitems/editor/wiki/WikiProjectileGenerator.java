@@ -5,6 +5,7 @@ import nl.knokko.customitems.effect.PotionEffectValues;
 import nl.knokko.customitems.item.CustomGunValues;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomWandValues;
+import nl.knokko.customitems.item.WikiVisibility;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 import nl.knokko.customitems.projectile.effect.*;
@@ -80,7 +81,7 @@ class WikiProjectileGenerator {
                 } else {
                     return false;
                 }
-            }).collect(Collectors.toList());
+            }).filter(candidateItem -> candidateItem.getWikiVisibility() == WikiVisibility.VISIBLE).collect(Collectors.toList());
 
             if (!gunsAndWands.isEmpty()) {
                 output.println("\t\t<h2 id=\"launch-items-header\">Items that can launch this projectile</h2>");

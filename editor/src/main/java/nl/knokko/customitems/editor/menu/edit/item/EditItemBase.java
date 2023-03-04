@@ -168,6 +168,9 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 		addComponent(new DynamicTextComponent(
 				"Is indestructible while dropped", LABEL
 		), LABEL_X + 0.02f, -0.57f, LABEL_X + 0.25f, -0.52f);
+		addComponent(new DynamicTextComponent(
+				"Wiki visibility:", LABEL
+		), LABEL_X, -0.63f, LABEL_X + 0.15f, -0.58f);
 
 		if (toModify != null) {
 			addComponent(new DynamicTextButton("Apply", SAVE_BASE, EditProps.SAVE_HOVER, () -> {
@@ -331,6 +334,9 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 		addComponent(new CheckboxComponent(
 				currentValues.isIndestructible(), currentValues::setIndestructible
 		), LABEL_X, -0.56f, LABEL_X + 0.015f, -0.54f);
+		addComponent(EnumSelect.createSelectButton(
+				WikiVisibility.class, currentValues::setWikiVisibility, currentValues.getWikiVisibility()
+		), BUTTON_X, -0.63f, BUTTON_X + 0.1f, -0.58f);
 	}
 
 	protected GuiComponent createLoadTextureMenu() {

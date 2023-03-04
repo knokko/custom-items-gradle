@@ -15,8 +15,6 @@ import nl.knokko.customitems.editor.menu.main.MainMenu;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.wiki.WikiGenerator;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.util.ProgrammingValidationException;
-import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;

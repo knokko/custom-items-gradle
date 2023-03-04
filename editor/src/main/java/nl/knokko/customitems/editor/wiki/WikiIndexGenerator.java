@@ -96,11 +96,11 @@ public class WikiIndexGenerator {
     }
 
     private void generateItems(PrintWriter output, Predicate<CustomItemValues> belongsToCategory, String categoryName, String headerType) {
-        if (itemSet.getItems().stream().anyMatch(belongsToCategory)) {
+        if (itemSet.getItems().stream().anyMatch(item -> item.getWikiVisibility() == WikiVisibility.VISIBLE && belongsToCategory.test(item))) {
             output.println("\t\t<" + headerType + " class=\"item-category-header\" >" + categoryName + "</" + headerType + ">");
             output.println("\t\t<ul class=\"item-list\" >");
             for (CustomItemValues item : itemSet.getItems()) {
-                if (belongsToCategory.test(item)) {
+                if (item.getWikiVisibility() == WikiVisibility.VISIBLE && belongsToCategory.test(item)) {
                     String link = "items/" + item.getName() + ".html";
                     output.print("\t\t\t<li><a href=\"" + link + "\"><img src=\"textures/" + item.getTexture().getName());
                     output.println(".png\" class=\"item-icon\" />" + stripColorCodes(item.getDisplayName()) + "</a></li>");

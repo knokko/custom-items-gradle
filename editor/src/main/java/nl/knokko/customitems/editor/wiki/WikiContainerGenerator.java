@@ -12,6 +12,7 @@ import nl.knokko.customitems.container.slot.*;
 import nl.knokko.customitems.container.slot.display.*;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomPocketContainerValues;
+import nl.knokko.customitems.item.WikiVisibility;
 import nl.knokko.customitems.itemset.ItemSet;
 
 import javax.imageio.ImageIO;
@@ -19,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static nl.knokko.customitems.editor.wiki.WikiHelper.*;
@@ -110,7 +112,7 @@ class WikiContainerGenerator {
             Collection<CustomItemValues> pocketContainers = itemSet.getItems().stream().filter(
                     item -> item instanceof CustomPocketContainerValues && ((CustomPocketContainerValues) item).getContainers().stream().anyMatch(
                             candidateContainer -> candidateContainer.getName().equals(container.getName())
-                    )
+                    ) && item.getWikiVisibility() == WikiVisibility.VISIBLE
             ).collect(Collectors.toList());
             if (!pocketContainers.isEmpty()) {
                 output.println("\t\tRight-click while holding 1 of these pocket containers in your hand:");
@@ -125,10 +127,13 @@ class WikiContainerGenerator {
             output.println("\t\t<h2>Layout</h2>");
             generateLayout(output);
 
-            if (!container.getRecipes().isEmpty()) {
+            List<ContainerRecipeValues> recipes = container.getRecipes().stream().filter(
+                    recipe -> !WikiProtector.isRecipeSecret(recipe)
+            ).collect(Collectors.toList());
+            if (!recipes.isEmpty()) {
                 output.println("\t\t<h2>Recipes</h2>");
                 output.println("\t\t<link rel=\"stylesheet\" href=\"../recipe.css\" />");
-                for (ContainerRecipeValues recipe : container.getRecipes()) {
+                for (ContainerRecipeValues recipe : recipes) {
                     output.println("\t\tDuration: " + recipe.getDuration() + " ticks<br>");
                     output.println("\t\tExperience: " + recipe.getExperience() + "<br>");
                     for (RecipeEnergyValues energy : recipe.getEnergy()) {
@@ -210,8 +215,12 @@ class WikiContainerGenerator {
         SlotDisplayItemValues item = display.getDisplayItem();
         if (item instanceof CustomDisplayItemValues) {
             CustomItemValues custom = ((CustomDisplayItemValues) item).getItem();
-            return "<a href=\"../items/" + custom.getName() + ".html\"><img src=\"../textures/" + custom.getTexture().getName() +
-                    ".png\" class=\"layout-image\" /></a>";
+            String result = "<img src=\"../textures/" + custom.getTexture().getName() +
+                    ".png\" class=\"layout-image\" />";
+            if (custom.getWikiVisibility() == WikiVisibility.VISIBLE) {
+                result = "<a href=\"../items/" + custom.getName() + ".html\">" + result + "</a>";
+            }
+            return result;
         } else if (item instanceof SimpleVanillaDisplayItemValues) {
             return "Decoration: " + NameHelper.getNiceEnumName(((SimpleVanillaDisplayItemValues) item).getMaterial().name());
         } else if (item instanceof DataVanillaDisplayItemValues) {

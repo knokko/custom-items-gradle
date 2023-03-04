@@ -9,6 +9,7 @@ import nl.knokko.customitems.drops.BlockDropValues;
 import nl.knokko.customitems.drops.CIBiome;
 import nl.knokko.customitems.drops.MobDropValues;
 import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.WikiVisibility;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.OutputTableValues;
@@ -102,8 +103,10 @@ public class ItemDropGenerator {
                 output.println("</li>");
             }
             for (ItemReference itemRef : blockDrop.getRequiredItems().getCustomItems()) {
-                output.print("\t\t\t\t\t<li class=\"required-custom-item\"><a href=\"./" + itemRef.get().getName() + ".html\">");
-                output.println(stripColorCodes(itemRef.get().getDisplayName()) + "</a></li>");
+                if (itemRef.get().getWikiVisibility() == WikiVisibility.VISIBLE) {
+                    output.print("\t\t\t\t\t<li class=\"required-custom-item\"><a href=\"./" + itemRef.get().getName() + ".html\">");
+                    output.println(stripColorCodes(itemRef.get().getDisplayName()) + "</a></li>");
+                }
             }
             output.println("\t\t\t\t</ul>");
         }
@@ -132,6 +135,7 @@ public class ItemDropGenerator {
     }
 
     private void generateRequiredHeldItems(PrintWriter output, String tabs, Collection<ItemReference> requiredItems) {
+        requiredItems = requiredItems.stream().filter(item -> item.get().getWikiVisibility() == WikiVisibility.VISIBLE).collect(Collectors.toList());
         if (!requiredItems.isEmpty()) {
             output.println(tabs + "When the player uses one of the following custom items:");
             output.println(tabs + "<ul class=\"required-held-items\">");

@@ -2,6 +2,7 @@ package nl.knokko.customitems.editor.wiki.item;
 
 import nl.knokko.customitems.container.ContainerRecipeValues;
 import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.editor.wiki.WikiProtector;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.CraftingRecipeValues;
@@ -73,7 +74,7 @@ class ItemRecipeGenerator {
 
             throw new IllegalArgumentException("Unknown crafting recipe class: " + recipe.getClass());
 
-        }).collect(Collectors.toList());
+        }).filter(recipe -> !WikiProtector.isRecipeSecret(recipe)).collect(Collectors.toList());
 
         this.resultContainerRecipes = new HashMap<>();
         for (CustomContainerValues container : itemSet.getContainers()) {
@@ -82,7 +83,7 @@ class ItemRecipeGenerator {
                     recipe -> isItem(item, recipe.getManualOutput()) || recipe.getOutputs().values().stream().anyMatch(
                             outputs -> hasItem(item, outputs)
                     ) || recipe.getInputs().values().stream().anyMatch(input -> remainsItem(item, input))
-            ).collect(Collectors.toList());
+            ).filter(recipe -> !WikiProtector.isRecipeSecret(recipe)).collect(Collectors.toList());
 
             if (!relevantRecipes.isEmpty()) {
                 resultContainerRecipes.put(container.getName(), relevantRecipes);
@@ -106,13 +107,13 @@ class ItemRecipeGenerator {
             }
 
             return false;
-        }).collect(Collectors.toList());
+        }).filter(recipe -> !WikiProtector.isRecipeSecret(recipe)).collect(Collectors.toList());
 
         this.ingredientContainerRecipes = new HashMap<>();
         for (CustomContainerValues container : itemSet.getContainers()) {
             Collection<ContainerRecipeValues> relevantRecipes = container.getRecipes().stream().filter(candidateRecipe ->
                 candidateRecipe.getInputs().values().stream().anyMatch(candidateIngredient -> isItem(item, candidateIngredient))
-            ).collect(Collectors.toList());
+            ).filter(recipe -> !WikiProtector.isRecipeSecret(recipe)).collect(Collectors.toList());
 
             if (!relevantRecipes.isEmpty()) {
                 this.ingredientContainerRecipes.put(container.getName(), relevantRecipes);
@@ -175,25 +176,27 @@ class ItemRecipeGenerator {
     }
 
     void generateResultRecipes(PrintWriter output) {
-        output.println("\t\t<link rel=\"stylesheet\" href=\"../recipe.css\" />");
-        output.println("\t\t<h3>Crafting this item<h3>");
-        generateCraftingRecipes(
-                output, resultCraftingRecipes, "<h4>Shaped recipes</h4>",
-                recipe -> recipe instanceof ShapedRecipeValues
-        );
-        generateCraftingRecipes(
-                output, resultCraftingRecipes, "<h4>Shapeless recipes</h4>",
-                recipe -> recipe instanceof ShapelessRecipeValues
-        );
+        if (!resultCraftingRecipes.isEmpty() || !resultContainerRecipes.isEmpty()) {
+            output.println("\t\t<link rel=\"stylesheet\" href=\"../recipe.css\" />");
+            output.println("\t\t<h3>Crafting this item<h3>");
+            generateCraftingRecipes(
+                    output, resultCraftingRecipes, "<h4>Shaped recipes</h4>",
+                    recipe -> recipe instanceof ShapedRecipeValues
+            );
+            generateCraftingRecipes(
+                    output, resultCraftingRecipes, "<h4>Shapeless recipes</h4>",
+                    recipe -> recipe instanceof ShapelessRecipeValues
+            );
 
-        for (String containerName : resultContainerRecipes.keySet()) {
-            output.println("\t\t<h4><a href=\"../containers/" + containerName + ".html\">" +
-                    getDisplayName(itemSet.getContainer(containerName).get()) + " recipes</a></h4>");
-            CustomContainerValues container = itemSet.getContainer(containerName).get();
+            for (String containerName : resultContainerRecipes.keySet()) {
+                output.println("\t\t<h4><a href=\"../containers/" + containerName + ".html\">" +
+                        getDisplayName(itemSet.getContainer(containerName).get()) + " recipes</a></h4>");
+                CustomContainerValues container = itemSet.getContainer(containerName).get();
 
-            Collection<ContainerRecipeValues> recipes = resultContainerRecipes.get(containerName);
-            for (ContainerRecipeValues recipe : recipes) {
-                generateContainerRecipe(output, "\t\t", container, recipe, "../");
+                Collection<ContainerRecipeValues> recipes = resultContainerRecipes.get(containerName);
+                for (ContainerRecipeValues recipe : recipes) {
+                    generateContainerRecipe(output, "\t\t", container, recipe, "../");
+                }
             }
         }
     }
