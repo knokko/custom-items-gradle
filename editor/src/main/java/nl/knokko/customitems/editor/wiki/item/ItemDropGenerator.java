@@ -84,6 +84,22 @@ public class ItemDropGenerator {
                 output.println("\t\t</ul>");
             }
         }
+
+        if (!mobDrops.isEmpty()) {
+            output.println("\t\t<h3>Dropped by mobs</h3>");
+            output.println("\t\tThis item can be obtained by killing one of the following mobs:");
+
+            for (MobDropValues mobDrop : mobDrops) {
+                output.println("\t\t<h4>" + NameHelper.getNiceEnumName(mobDrop.getEntityType().name()) + "</h4>");
+                if (mobDrop.getRequiredName() != null) {
+                    output.println("\t\tRequires a specific custom name");
+                }
+
+                generateAllowedBiomes(output, "\t\t", mobDrop.getDrop().getAllowedBiomes());
+                generateRequiredHeldItems(output, "\t\t", mobDrop.getDrop().getRequiredHeldItems());
+                generateRelevantDrops(output, "\t\t", mobDrop.getDrop().getOutputTable());
+            }
+        }
     }
 
     public static void generateCustomBlockDropInfo(PrintWriter output, CustomBlockDropValues blockDrop) {
