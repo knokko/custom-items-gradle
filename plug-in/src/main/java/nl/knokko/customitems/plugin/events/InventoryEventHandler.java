@@ -931,7 +931,14 @@ public class InventoryEventHandler implements Listener {
                 }
             }
         }
-        shouldInterfere.remove(owner.getUniqueId());
+        if (shouldInterfere.remove(owner.getUniqueId()) != null) {
+            inventory.setResult(null);
+            inventory.getViewers().forEach(viewer -> {
+                if (viewer instanceof Player) {
+                    ((Player) viewer).updateInventory();
+                }
+            });
+        }
     }
 
     @EventHandler
