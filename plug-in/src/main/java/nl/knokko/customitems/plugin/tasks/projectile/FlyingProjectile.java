@@ -29,17 +29,17 @@ class FlyingProjectile {
 	final CustomProjectileValues prototype;
 	
 	/** 
-	 * <p>If this projectile was shot by a player, this field will refer to that player.</p>
+	 * <p>If this projectile was shot by a living entity, this field will refer to that entity.</p>
 	 * <p>If this projectile was shot as effect of another projectile, this field will be null.</p>
 	 */
-	final Player directShooter;
+	final LivingEntity directShooter;
 	
 	/** 
-	 * <p>If this projectile was shot by a player, this field will refer to that player.</p>
+	 * <p>If this projectile was shot by a living entity, this field will refer to that entity.</p>
 	 * <p>If this projectile was shot as effect of another projectile, this field will refer to the
 	 * responsibleShooter of that projectile.</p>
 	 */
-	final Player responsibleShooter;
+	final LivingEntity responsibleShooter;
 	
 	final World world;
 	final Vector currentPosition;
@@ -59,7 +59,7 @@ class FlyingProjectile {
 	
 	private UpdateProjectileTask updateTask;
 
-	public FlyingProjectile(CustomProjectileValues prototype, Player directShooter, Player responsibleShooter,
+	public FlyingProjectile(CustomProjectileValues prototype, LivingEntity directShooter, LivingEntity responsibleShooter,
 							Vector startPosition, Vector startVelocity, int remainingLifetime) {
 		this.prototype = prototype;
 		this.directShooter = directShooter;

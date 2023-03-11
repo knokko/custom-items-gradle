@@ -9,6 +9,7 @@ import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -36,21 +37,21 @@ public class ProjectileManager implements Listener {
 	}
 	
 	/**
-	 * Lets the given player launch a custom projectile. 
+	 * Lets the given entity launch a custom projectile.
 	 * 
-	 * <p>This method will NOT check whether the player is
-	 * holding the right weapon or check whether the player is allowed to fire that projectile now (that
+	 * <p>This method will NOT check whether the entity is
+	 * holding the right weapon or check whether the entity is allowed to fire that projectile now (that
 	 * should have been done before calling this method).</p>
 	 * 
 	 * <p>This method will make sure that all (special) effects of the projectile will be applied and it will
 	 * make sure that the projectile will be cleaned up when it despawns or the server stops.</p>
 	 */
-	public void fireProjectile(Player player, CustomProjectileValues projectile) {
-		fireProjectile(player, player, player.getEyeLocation(), player.getLocation().getDirection(), projectile, 
+	public void fireProjectile(LivingEntity shooter, CustomProjectileValues projectile) {
+		fireProjectile(shooter, shooter, shooter.getEyeLocation(), shooter.getLocation().getDirection(), projectile,
 				projectile.getMaxLifetime(), 0.0);
 	}
 	
-	void fireProjectile(Player directShooter, Player responsibleShooter, Location launchPosition, Vector look, 
+	void fireProjectile(LivingEntity directShooter, LivingEntity responsibleShooter, Location launchPosition, Vector look,
 			CustomProjectileValues projectile, int lifetime, double baseAngle) {
 		
 		if (flyingProjectiles.size() >= CustomItemsPlugin.getInstance().getMaxFlyingProjectiles()) {

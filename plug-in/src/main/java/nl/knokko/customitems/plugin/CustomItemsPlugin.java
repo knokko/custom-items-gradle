@@ -123,6 +123,10 @@ public class CustomItemsPlugin extends JavaPlugin {
 			miningSpeedManager.start(this);
 			latePopulator = new LatePopulator(itemSet, getDataFolder(), enabledAreas);
 			latePopulator.start(this, chunkPopulationPeriod, chunkPopulationCount);
+			new MobWands(
+					itemSet, this::getEnabledAreas, () -> getData().getCurrentTick(),
+					(shooter, projectile) -> getProjectileManager().fireProjectile(shooter, projectile)
+			).start(this);
 
 			// Prevent custom items from being upgraded in a smithing table
 			KciNms.instance.items.blockSmithingTableUpgrades(itemStack -> this.getSet().getItem(itemStack) != null, this);
