@@ -220,6 +220,7 @@ public class Backward10 {
 
     static ShapedRecipeValues createShapedRecipe4() {
         ShapedRecipeValues recipe = new ShapedRecipeValues(true);
+        recipe.setIgnoreDisplacement(false);
         recipe.setIngredientAt(0, 0, MimicIngredientValues.createQuick("dummy:item1", 1));
         recipe.setIngredientAt(1, 0, MimicIngredientValues.createQuick(
                 "dummy:item2", 2, MimicResultValues.createQuick("dummy:item3", 3),

@@ -158,7 +158,7 @@ public class Backward6 {
                 new NoIngredientValues(), new NoIngredientValues(), new NoIngredientValues(),
                 new NoIngredientValues(), new NoIngredientValues(), new NoIngredientValues()
         };
-        return ShapedRecipeValues.createQuick(ingredients, SimpleVanillaResultValues.createQuick(CIMaterial.TORCH, 3));
+        return ShapedRecipeValues.createQuick(ingredients, SimpleVanillaResultValues.createQuick(CIMaterial.TORCH, 3), false);
     }
 
     private static BlockDropValues createBlockDrop1(ItemSet itemSet, boolean useFlatChance) {

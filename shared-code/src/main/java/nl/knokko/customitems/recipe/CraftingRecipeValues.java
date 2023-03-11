@@ -15,6 +15,8 @@ import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 
+import static nl.knokko.customitems.encoding.RecipeEncoding.*;
+
 public abstract class CraftingRecipeValues extends ModelValues {
 
     public static CraftingRecipeValues load(
@@ -22,9 +24,9 @@ public abstract class CraftingRecipeValues extends ModelValues {
     ) throws UnknownEncodingException {
         byte encoding = input.readByte();
 
-        if (encoding == RecipeEncoding.SHAPED_RECIPE || encoding == RecipeEncoding.SHAPED_RECIPE_2) {
+        if (encoding == SHAPED_RECIPE || encoding == SHAPED_RECIPE_2 || encoding == SHAPED_RECIPE_NEW) {
             return ShapedRecipeValues.load(input, encoding, itemSet);
-        } else if (encoding == RecipeEncoding.SHAPELESS_RECIPE || encoding == RecipeEncoding.SHAPELESS_RECIPE_2) {
+        } else if (encoding == SHAPELESS_RECIPE || encoding == SHAPELESS_RECIPE_2) {
             return ShapelessRecipeValues.load(input, encoding, itemSet);
         } else {
             throw new UnknownEncodingException("CraftingRecipe", encoding);

@@ -6,6 +6,7 @@ public class RecipeEncoding {
 	public static final byte SHAPELESS_RECIPE = 1;
 	public static final byte SHAPED_RECIPE_2 = 2;
 	public static final byte SHAPELESS_RECIPE_2 = 3;
+	public static final byte SHAPED_RECIPE_NEW = 4;
 	
 	public static class Ingredient {
 		

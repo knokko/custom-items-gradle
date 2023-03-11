@@ -1,6 +1,7 @@
 package nl.knokko.customitems.plugin.recipe;
 
 import nl.knokko.customitems.recipe.ShapedRecipeValues;
+import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import org.bukkit.inventory.ItemStack;
 
@@ -12,10 +13,16 @@ import static nl.knokko.customitems.plugin.recipe.RecipeHelper.shouldIngredientA
 public class ShapedCraftingRecipeWrapper extends CraftingRecipeWrapper {
 
 	private final ShapedRecipeValues recipe;
+	private final int recipeWidth, recipeHeight;
+	private final int recipeMinX, recipeMinY;
 
     public ShapedCraftingRecipeWrapper(ShapedRecipeValues recipe){
     	super(recipe);
     	this.recipe = recipe;
+		this.recipeMinX = recipe.getEffectiveMinX();
+		this.recipeMinY = recipe.getEffectiveMinY();
+		this.recipeWidth = recipe.getEffectiveWidth();
+		this.recipeHeight = recipe.getEffectiveHeight();
     }
 
     @Override
@@ -27,62 +34,63 @@ public class ShapedCraftingRecipeWrapper extends CraftingRecipeWrapper {
 		}
 	}
 
-	@Override
-	public List<IngredientEntry> shouldAccept(ItemStack[] ingredients) {
+	private IngredientValues getIngredientPossiblyOutOfBounds(int x, int y) {
+		if (x < 0 || x >= 3 || y < 0 || y >= 3) return new NoIngredientValues();
+		return this.recipe.getIngredientAt(x, y);
+	}
 
-    	// For the 3x3 crafting grid
-		if (ingredients.length == 9) {
-		    List<IngredientEntry> result = new ArrayList<>(9);
-			for (int index = 0; index < 9; index++) {
-				int x = index % 3;
-				int y = index / 3;
-				if (shouldIngredientAcceptItemStack(this.recipe.getIngredientAt(x, y), ingredients[index])) {
-					if (!(this.recipe.getIngredientAt(x, y) instanceof NoIngredientValues)) {
-						result.add(new IngredientEntry(this.recipe.getIngredientAt(x, y), index, index));
+	private List<IngredientEntry> shouldAccept(
+			ItemStack[] ingredients, int offsetX, int offsetY,
+			int inventoryGridWidth, int inventoryGridHeight
+	) {
+		List<IngredientEntry> result = new ArrayList<>(9);
+		for (int itemX = 0; itemX < 3; itemX++) {
+			for (int itemY = 0; itemY < 3; itemY++) {
+
+				int itemIndex = itemX + inventoryGridWidth * itemY;
+				ItemStack actualIngredient = itemX < inventoryGridWidth && itemY < inventoryGridHeight ? ingredients[itemIndex] : null;
+
+				int ingredientX = itemX + (recipe.shouldIgnoreDisplacement() ? recipeMinX : 0) - offsetX;
+				int ingredientY = itemY + (recipe.shouldIgnoreDisplacement() ? recipeMinY : 0) - offsetY;
+				IngredientValues expectedIngredient = getIngredientPossiblyOutOfBounds(ingredientX, ingredientY);
+
+				if (shouldIngredientAcceptItemStack(expectedIngredient, actualIngredient)) {
+					if (!(expectedIngredient instanceof NoIngredientValues)) {
+						result.add(new IngredientEntry(
+								expectedIngredient, ingredientX + 3 * ingredientY, itemIndex
+						));
 					}
 				} else {
 					return null;
 				}
 			}
-			return result;
 		}
 
-		// For the 2x2 crafting grid
-		if (ingredients.length == 4) {
+		return result;
+	}
 
-			// So we should only accept this if this recipe has no ingredients at x == 2 or y == 2
-			for (int x = 0; x < 3; x++) {
-				if (!shouldIngredientAcceptItemStack(this.recipe.getIngredientAt(x, 2), null)) return null;
-			}
-			for (int y = 0; y < 3; y++) {
-				if (!shouldIngredientAcceptItemStack(this.recipe.getIngredientAt(2, y), null)) return null;
-			}
-
-			// Compare the relevant ingredients
-			if (shouldIngredientAcceptItemStack(this.recipe.getIngredientAt(0, 0), ingredients[0])
-					&& shouldIngredientAcceptItemStack(this.recipe.getIngredientAt(1, 0), ingredients[1])
-					&& shouldIngredientAcceptItemStack(this.recipe.getIngredientAt(0, 1), ingredients[2])
-					&& shouldIngredientAcceptItemStack(this.recipe.getIngredientAt(1, 1), ingredients[3])) {
-
-				List<IngredientEntry> result = new ArrayList<>(4);
-				if (!(this.recipe.getIngredientAt(0, 0) instanceof NoIngredientValues)) {
-					result.add(new IngredientEntry(this.recipe.getIngredientAt(0, 0), 0, 0));
+	private List<IngredientEntry> shouldAccept(ItemStack[] ingredients, int inventoryGridWidth, int inventoryGridHeight) {
+		if (ingredients.length == inventoryGridWidth * inventoryGridHeight) {
+			int maxOffsetX = recipe.shouldIgnoreDisplacement() ? inventoryGridWidth - recipeWidth : 0;
+			int maxOffsetY = recipe.shouldIgnoreDisplacement() ? inventoryGridHeight - recipeHeight : 0;
+			for (int offsetX = 0; offsetX <= maxOffsetX; offsetX++) {
+				for (int offsetY = 0; offsetY <= maxOffsetY; offsetY++) {
+					List<IngredientEntry> possibleMatch = this.shouldAccept(
+							ingredients, offsetX, offsetY, inventoryGridWidth, inventoryGridHeight
+					);
+					if (possibleMatch != null) return possibleMatch;
 				}
-				if (!(this.recipe.getIngredientAt(1, 0) instanceof NoIngredientValues)) {
-					result.add(new IngredientEntry(this.recipe.getIngredientAt(1, 0), 1, 1));
-				}
-				if (!(this.recipe.getIngredientAt(0, 1) instanceof NoIngredientValues)) {
-					result.add(new IngredientEntry(this.recipe.getIngredientAt(0, 1), 3, 2));
-				}
-				if (!(this.recipe.getIngredientAt(1, 1) instanceof NoIngredientValues)) {
-					result.add(new IngredientEntry(this.recipe.getIngredientAt(1, 1), 4, 3));
-				}
-
-				return result;
-			} else {
-				return null;
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public List<IngredientEntry> shouldAccept(ItemStack[] ingredients) {
+
+		List<IngredientEntry> possibleMatch = this.shouldAccept(ingredients, 3, 3);
+		if (possibleMatch != null) return possibleMatch;
+
+		return this.shouldAccept(ingredients, 2, 2);
 	}
 }

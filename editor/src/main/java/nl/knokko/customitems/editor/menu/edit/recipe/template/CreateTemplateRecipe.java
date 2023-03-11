@@ -93,7 +93,7 @@ public class CreateTemplateRecipe extends GuiMenu {
                     }
                 }
 
-                ShapedRecipeValues shapedRecipe = ShapedRecipeValues.createQuick(ingredientMatrix, selectedResult);
+                ShapedRecipeValues shapedRecipe = ShapedRecipeValues.createQuick(ingredientMatrix, selectedResult, true);
                 String error = Validation.toErrorString(() -> set.addRecipe(shapedRecipe));
                 if (error != null) {
                     errorComponent.setText(error);

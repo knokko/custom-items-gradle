@@ -244,7 +244,7 @@ public class Backward8 {
                 new NoIngredientValues(), CustomItemIngredientValues.createQuick(set.getItemReference("simple2"), 1), new NoIngredientValues(),
                 new NoIngredientValues(), new NoIngredientValues(), CustomItemIngredientValues.createQuick(set.getItemReference("simple3"), 1)
         };
-        return ShapedRecipeValues.createQuick(ingredients, CopiedResultValues.createQuick(copiedFromServerString()));
+        return ShapedRecipeValues.createQuick(ingredients, CopiedResultValues.createQuick(copiedFromServerString()), false);
     }
 
     static void testArmorTexturesOld8(ItemSet set, int numArmorTextures) {

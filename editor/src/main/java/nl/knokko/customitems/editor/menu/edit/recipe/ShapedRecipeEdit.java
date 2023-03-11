@@ -10,6 +10,7 @@ import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.CraftingRecipeReference;
 import nl.knokko.customitems.recipe.ShapedRecipeValues;
 import nl.knokko.gui.color.GuiColor;
+import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.EagerTextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
@@ -70,6 +71,13 @@ public class ShapedRecipeEdit extends GuiMenu {
 		String initialRequiredPermission = currentValues.getRequiredPermission() == null ? "" : currentValues.getRequiredPermission();
 		this.permissionField = new EagerTextEditField(initialRequiredPermission, EDIT_BASE, EDIT_ACTIVE, currentValues::setRequiredPermission);
 		addComponent(permissionField, 0.325f, 0.01f, 0.6f, 0.09f);
+
+		addComponent(new CheckboxComponent(
+				currentValues.shouldIgnoreDisplacement(), currentValues::setIgnoreDisplacement
+		), 0.65f, 0.03f, 0.68f, 0.06f);
+		addComponent(new DynamicTextComponent(
+				"Ignore displacement", LABEL
+		), 0.7f, 0.01f, 0.9f, 0.09f);
 		addComponent(errorComponent, 0.35f, 0.85f, 0.95f, 0.95f);
 		addComponent(resultComponent, 0.75f, 0.275f, 0.95f, 0.425f);
 		

@@ -72,7 +72,7 @@ public class Backward1 {
 
                 new NoIngredientValues(), new NoIngredientValues(), new NoIngredientValues()
         };
-        return ShapedRecipeValues.createQuick(ingredients, CustomItemResultValues.createQuick(simple1, (byte) 1));
+        return ShapedRecipeValues.createQuick(ingredients, CustomItemResultValues.createQuick(simple1, (byte) 1), false);
     }
 
     static ShapelessRecipeValues getShapelessRecipe1(ItemSet itemSet) {
