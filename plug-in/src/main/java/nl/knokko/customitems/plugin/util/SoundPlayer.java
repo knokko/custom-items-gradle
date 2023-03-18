@@ -26,15 +26,31 @@ public class SoundPlayer {
 
     public static void playSound(Location location, SoundValues sound) {
         Objects.requireNonNull(location.getWorld());
-        SoundCategory category = determineSoundCategory(sound);
-        if (category == null) location.getWorld().playSound(location, determineSoundName(sound), sound.getVolume(), sound.getPitch());
-        else location.getWorld().playSound(location, determineSoundName(sound), category, sound.getVolume(), sound.getPitch());
+        if (sound.getVanillaSound() != null) {
+            location.getWorld().playSound(
+                    location, Sound.valueOf(sound.getVanillaSound().name()), sound.getVolume(), sound.getPitch()
+            );
+        } else {
+            location.getWorld().playSound(
+                    location, "kci_" + sound.getCustomSound().getName(),
+                    SoundCategory.valueOf(sound.getCustomSound().getSoundCategory().name()),
+                    sound.getVolume(), sound.getPitch()
+            );
+        }
     }
 
     public static void playSound(Player player, SoundValues sound) {
-        SoundCategory category = determineSoundCategory(sound);
-        if (category == null) player.playSound(player.getLocation(), determineSoundName(sound), sound.getVolume(), sound.getPitch());
-        else player.playSound(player.getLocation(), determineSoundName(sound), category, sound.getVolume(), sound.getPitch());
+        if (sound.getVanillaSound() != null) {
+            player.playSound(
+                    player.getLocation(), Sound.valueOf(sound.getVanillaSound().name()), sound.getVolume(), sound.getPitch()
+            );
+        } else {
+            player.playSound(
+                    player.getLocation(), "kci_" + sound.getCustomSound().getName(),
+                    SoundCategory.valueOf(sound.getCustomSound().getSoundCategory().name()),
+                    sound.getVolume(), sound.getPitch()
+            );
+        }
     }
 
     private static final int JUKEBOX_RANGE = 16;
