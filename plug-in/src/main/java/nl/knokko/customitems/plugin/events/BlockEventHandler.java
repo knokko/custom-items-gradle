@@ -15,17 +15,18 @@ import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
 import nl.knokko.customitems.plugin.tasks.miningspeed.MiningSpeedManager;
 import nl.knokko.customitems.plugin.util.ItemUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import nl.knokko.customitems.plugin.util.SoundPlayer;
+import nl.knokko.customitems.sound.SoundValues;
+import org.bukkit.*;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
@@ -111,6 +112,53 @@ public class BlockEventHandler implements Listener {
                         }
                     }
                 });
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void playCustomBlockSounds(BlockBreakEvent event) {
+        if (KciNms.instance.blocks.areEnabled()) {
+            CustomBlockValues customBlock = MushroomBlockHelper.getMushroomBlock(event.getBlock());
+            if (customBlock != null) {
+                SoundValues breakSound = customBlock.getSounds().getBreakSound();
+                if (breakSound != null) SoundPlayer.playSound(event.getBlock().getLocation(), breakSound);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void playCustomBlockSounds(PlayerInteractEvent event) {
+        if ((event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_BLOCK)
+                && KciNms.instance.blocks.areEnabled()) {
+            CustomBlockValues customBlock = MushroomBlockHelper.getMushroomBlock(event.getClickedBlock());
+            if (customBlock != null) {
+                SoundValues sound;
+                if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
+                    sound = customBlock.getSounds().getLeftClickSound();
+                } else {
+                    sound = customBlock.getSounds().getRightClickSound();
+                }
+                if (sound != null) SoundPlayer.playSound(Objects.requireNonNull(event.getClickedBlock()).getLocation(), sound);
+            }
+        }
+    }
+
+    @EventHandler
+    public void playCustomBlockSounds(PlayerMoveEvent event) {
+        if (KciNms.instance.blocks.areEnabled()) {
+            Block from = event.getFrom().getBlock().getRelative(BlockFace.DOWN);
+            if (event.getTo() != null) {
+                Block to = event.getTo().getBlock().getRelative(BlockFace.DOWN);
+                if (from.getX() != to.getX() || from.getY() != to.getY() || from.getZ() != to.getZ()) {
+                    CustomBlockValues customTo = MushroomBlockHelper.getMushroomBlock(to);
+                    if (customTo != null && customTo.getSounds().getStepSound() != null) {
+                        CustomBlockValues customFrom = MushroomBlockHelper.getMushroomBlock(from);
+                        if (customFrom == null || customFrom.getInternalID() != customTo.getInternalID()) {
+                            SoundPlayer.playSound(event.getTo(), customTo.getSounds().getStepSound());
+                        }
+                    }
+                }
             }
         }
     }

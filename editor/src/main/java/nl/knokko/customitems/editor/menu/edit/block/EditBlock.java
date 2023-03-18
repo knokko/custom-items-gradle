@@ -70,6 +70,12 @@ public class EditBlock extends GuiMenu  {
                 ))
         ), 0.45f, 0.68f, 0.6f, 0.78f);
 
+        addComponent(new DynamicTextButton("Sounds...", BUTTON, HOVER, () -> {
+            state.getWindow().setMainComponent(new EditBlockSounds(
+                    this, set, currentValues::setSounds, currentValues.getSounds()
+            ));
+        }), 0.7f, 0.68f, 0.85f, 0.78f);
+
         addComponent(new DynamicTextComponent("Texture and model:", LABEL),
                 0.15f, 0.56f, 0.44f, 0.66f);
         addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {

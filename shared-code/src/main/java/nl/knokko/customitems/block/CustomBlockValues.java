@@ -38,6 +38,7 @@ public class CustomBlockValues extends ModelValues {
 
     private Collection<CustomBlockDropValues> drops;
     private MiningSpeedValues miningSpeed;
+    private BlockSoundsValues sounds;
 
     // Only use this in the Editor; Keep it null on the plug-in
     private BlockModel model;
@@ -49,6 +50,7 @@ public class CustomBlockValues extends ModelValues {
         this.name = "";
         this.drops = new ArrayList<>(0);
         this.miningSpeed = new MiningSpeedValues(false);
+        this.sounds = new BlockSoundsValues(false);
         this.model = null;
     }
 
@@ -59,6 +61,7 @@ public class CustomBlockValues extends ModelValues {
         this.name = toCopy.getName();
         this.drops = toCopy.getDrops();
         this.miningSpeed = toCopy.getMiningSpeed();
+        this.sounds = toCopy.getSounds();
         this.model = toCopy.getModel();
     }
 
@@ -72,7 +75,8 @@ public class CustomBlockValues extends ModelValues {
         if (other instanceof CustomBlockValues) {
             CustomBlockValues otherBlock = (CustomBlockValues) other;
             return otherBlock.internalId == this.internalId && otherBlock.name.equals(this.name)
-                    && otherBlock.drops.equals(this.drops) && otherBlock.miningSpeed.equals(this.miningSpeed);
+                    && otherBlock.drops.equals(this.drops) && otherBlock.miningSpeed.equals(this.miningSpeed)
+                    && otherBlock.sounds.equals(this.sounds);
         } else {
             return false;
         }
@@ -101,7 +105,7 @@ public class CustomBlockValues extends ModelValues {
     private void loadNew(
             BitInput input, ItemSet itemSet, byte encoding
     ) throws UnknownEncodingException {
-        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("CustomBlock", encoding);
+        if (encoding < 1 || encoding > 3) throw new UnknownEncodingException("CustomBlock", encoding);
 
         this.name = input.readString();
         this.loadDrops1(input, itemSet);
@@ -117,15 +121,18 @@ public class CustomBlockValues extends ModelValues {
         } else {
             this.miningSpeed = new MiningSpeedValues(false);
         }
+        if (encoding >= 3) this.sounds = BlockSoundsValues.load(input, itemSet);
+        else this.sounds = new BlockSoundsValues(false);
     }
 
     public void save(BitOutput output, ItemSet.Side targetSide) {
-        output.addByte((byte) 2);
+        output.addByte((byte) 3);
 
         output.addString(name);
         saveDrops1(output);
         if (targetSide == ItemSet.Side.EDITOR) model.save(output);
         miningSpeed.save(output);
+        sounds.save(output);
     }
 
     private void saveDrops1(BitOutput output) {
@@ -155,6 +162,10 @@ public class CustomBlockValues extends ModelValues {
         return miningSpeed;
     }
 
+    public BlockSoundsValues getSounds() {
+        return sounds;
+    }
+
     public void setInternalId(int newId) {
         assertMutable();
         this.internalId = newId;
@@ -180,6 +191,11 @@ public class CustomBlockValues extends ModelValues {
         this.model = Objects.requireNonNull(newModel);
     }
 
+    public void setSounds(BlockSoundsValues sounds) {
+        assertMutable();
+        this.sounds = sounds.copy(false);
+    }
+
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {
         if (!MushroomBlockMapping.isValidId(internalId)) throw new ProgrammingValidationException("Invalid id " + internalId);
 
@@ -195,6 +211,8 @@ public class CustomBlockValues extends ModelValues {
         }
 
         if (miningSpeed == null) throw new ProgrammingValidationException("No mining speed");
+
+        if (sounds == null) throw new ProgrammingValidationException("No sounds");
 
         if (model == null) throw new ValidationException("You haven't chosen a texture");
     }
@@ -221,6 +239,8 @@ public class CustomBlockValues extends ModelValues {
 
         Validation.scope("Mining speed", miningSpeed::validate, itemSet);
 
+        Validation.scope("Sounds", sounds::validate, itemSet);
+
         Validation.scope("Model", model::validate, itemSet);
     }
 
@@ -228,5 +248,6 @@ public class CustomBlockValues extends ModelValues {
         for (CustomBlockDropValues drop : drops) {
             Validation.scope("Drops", () -> drop.validateExportVersion(version));
         }
+        Validation.scope("Sounds", sounds::validateExportVersion, version);
     }
 }
