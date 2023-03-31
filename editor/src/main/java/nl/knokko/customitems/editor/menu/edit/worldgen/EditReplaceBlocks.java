@@ -80,7 +80,7 @@ public class EditReplaceBlocks extends GuiMenu {
                         currentValues.setCustomBlocks(newBlocks);
                         customBlocks.refresh();
                     }, candidateBlock -> !currentValues.contains(candidateBlock),
-                    candidateBlock -> candidateBlock.get().getName(), this
+                    candidateBlock -> candidateBlock.get().getName(), this, false
             ));
         }), 0.825f, 0.8f, 0.9f, 0.9f);
         addComponent(customBlocks, 0.625f, 0.05f, 0.975f, 0.8f);

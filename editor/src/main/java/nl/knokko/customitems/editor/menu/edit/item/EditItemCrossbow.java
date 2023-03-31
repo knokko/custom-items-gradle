@@ -1,5 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.item;
 
+import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.texture.CrossbowTextureEdit;
@@ -15,8 +16,7 @@ import nl.knokko.gui.component.text.EagerFloatEditField;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
-import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
-import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
+import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class EditItemCrossbow extends EditItemTool<CustomCrossbowValues> {
 
@@ -108,6 +108,13 @@ public class EditItemCrossbow extends EditItemTool<CustomCrossbowValues> {
                 new CheckboxComponent(currentValues.hasArrowGravity(), currentValues::setArrowGravity),
                 0.96f, -0.165f, 0.98f, -0.13f
         );
+        addComponent(new DynamicTextComponent(
+                "Custom shoot damage source:", LABEL
+        ), 0.55f, -0.25f, 0.84f, -0.175f);
+        addComponent(CollectionSelect.createButton(
+                menu.getSet().getDamageSources().references(), currentValues::setCustomShootDamageSource,
+                damageSource -> damageSource.get().getName(), currentValues.getCustomShootDamageSourceReference(), true
+        ), 0.85f, -0.25f, 0.98f, -0.175f);
 
         HelpButtons.addHelpLink(this, "edit%20menu/items/edit/crossbow.html");
     }

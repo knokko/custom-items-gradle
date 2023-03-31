@@ -3,16 +3,14 @@ package nl.knokko.customitems.item;
 import nl.knokko.customitems.attack.effect.AttackEffectGroupValues;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
+import nl.knokko.customitems.itemset.CustomDamageSourceReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.Validation;
 import nl.knokko.customitems.util.ValidationException;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static nl.knokko.customitems.encoding.ItemEncoding.ENCODING_ARROW;
 import static nl.knokko.customitems.util.Checks.isClose;
@@ -21,7 +19,7 @@ public class CustomArrowValues extends CustomItemValues {
 
     static CustomArrowValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
-        if (encoding != 1) throw new UnknownEncodingException("CustomArrow", encoding);
+        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("CustomArrow", encoding);
 
         CustomArrowValues arrow = new CustomArrowValues(false);
         arrow.loadSharedPropertiesNew(input, itemSet);
@@ -37,6 +35,9 @@ public class CustomArrowValues extends CustomItemValues {
             shootEffects.add(AttackEffectGroupValues.load(input, itemSet));
         }
         arrow.shootEffects = Collections.unmodifiableList(shootEffects);
+        if (encoding >= 2 && input.readBoolean()) arrow.customShootDamageSource = itemSet.getDamageSourceReference(
+                new UUID(input.readLong(), input.readLong())
+        ); else arrow.customShootDamageSource = null;
 
         return arrow;
     }
@@ -47,6 +48,7 @@ public class CustomArrowValues extends CustomItemValues {
     private int knockbackStrength;
     private boolean hasGravity;
     private Collection<AttackEffectGroupValues> shootEffects;
+    private CustomDamageSourceReference customShootDamageSource;
 
     public CustomArrowValues(boolean mutable) {
         super(mutable, CustomItemType.OTHER);
@@ -57,6 +59,7 @@ public class CustomArrowValues extends CustomItemValues {
         this.knockbackStrength = 0;
         this.hasGravity = true;
         this.shootEffects = Collections.emptyList();
+        this.customShootDamageSource = null;
     }
 
     public CustomArrowValues(CustomArrowValues toCopy, boolean mutable) {
@@ -67,6 +70,7 @@ public class CustomArrowValues extends CustomItemValues {
         this.knockbackStrength = toCopy.getKnockbackStrength();
         this.hasGravity = toCopy.shouldHaveGravity();
         this.shootEffects = toCopy.getShootEffects();
+        this.customShootDamageSource = toCopy.getCustomShootDamageSourceReference();
     }
 
     @Override
@@ -77,7 +81,7 @@ public class CustomArrowValues extends CustomItemValues {
     @Override
     public void save(BitOutput output, ItemSet.Side side) {
         output.addByte(ENCODING_ARROW);
-        output.addByte((byte) 1);
+        output.addByte((byte) 2);
         saveSharedPropertiesNew(output, side);
 
         output.addByte(maxStacksize);
@@ -87,6 +91,11 @@ public class CustomArrowValues extends CustomItemValues {
         output.addBoolean(hasGravity);
         output.addInt(shootEffects.size());
         for (AttackEffectGroupValues effect : shootEffects) effect.save(output);
+        output.addBoolean(customShootDamageSource != null);
+        if (customShootDamageSource != null) {
+            output.addLong(customShootDamageSource.get().getId().getMostSignificantBits());
+            output.addLong(customShootDamageSource.get().getId().getLeastSignificantBits());
+        }
     }
 
     @Override
@@ -100,7 +109,8 @@ public class CustomArrowValues extends CustomItemValues {
                 && isClose(other.speedMultiplier, this.speedMultiplier)
                 && other.knockbackStrength == this.knockbackStrength
                 && other.hasGravity == this.hasGravity
-                && other.shootEffects.equals(this.shootEffects);
+                && other.shootEffects.equals(this.shootEffects)
+                && Objects.equals(other.customShootDamageSource, this.customShootDamageSource);
     }
 
     @Override
@@ -126,6 +136,10 @@ public class CustomArrowValues extends CustomItemValues {
 
     public Collection<AttackEffectGroupValues> getShootEffects() {
         return shootEffects;
+    }
+
+    public CustomDamageSourceReference getCustomShootDamageSourceReference() {
+        return customShootDamageSource;
     }
 
     public void setMaxStacksize(byte newStacksize) {
@@ -158,6 +172,11 @@ public class CustomArrowValues extends CustomItemValues {
         this.shootEffects = Collections.unmodifiableList(new ArrayList<>(newShootEffects));
     }
 
+    public void setCustomShootDamageSource(CustomDamageSourceReference newDamageSource) {
+        assertMutable();
+        this.customShootDamageSource = newDamageSource;
+    }
+
     @Override
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {
         super.validateIndependent();
@@ -178,6 +197,9 @@ public class CustomArrowValues extends CustomItemValues {
         super.validateComplete(itemSet, oldName);
 
         for (AttackEffectGroupValues effects : shootEffects) Validation.scope("Shoot effect", effects::validate, itemSet);
+        if (customShootDamageSource != null && !itemSet.isReferenceValid(customShootDamageSource)) {
+            throw new ProgrammingValidationException("Invalid custom shoot damage source");
+        }
     }
 
     @Override

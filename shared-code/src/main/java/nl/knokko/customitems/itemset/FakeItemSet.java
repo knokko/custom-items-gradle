@@ -60,4 +60,9 @@ public class FakeItemSet extends ItemSet {
     public SoundTypeReference getSoundTypeReference(UUID id) {
         return new SoundTypeReference(id, this);
     }
+
+    @Override
+    public CustomDamageSourceReference getDamageSourceReference(UUID id) {
+        return new CustomDamageSourceReference(id, this);
+    }
 }

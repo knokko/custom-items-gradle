@@ -145,7 +145,7 @@ public class EditProjectile extends GuiMenu {
 		);
 		addComponent(CollectionSelect.createButton(
 				menu.getSet().getProjectileCovers().references(), currentValues::setCover,
-				coverRef -> coverRef.get().getName(), currentValues.getCoverReference()
+				coverRef -> coverRef.get().getName(), currentValues.getCoverReference(), true
 		), BUTTON_X2, 0.64f, BUTTON_X2 + 0.09f, 0.71f);
 
 		// Third column of the form
@@ -174,6 +174,13 @@ public class EditProjectile extends GuiMenu {
 					currentValues.getImpactPotionEffects(), currentValues::setImpactPotionEffects, this
 			));
 		}), BUTTON_X2, 0.33f, BUTTON_X2 + 0.09f, 0.41f);
+		addComponent(new DynamicTextComponent(
+				"Custom damage source:", LABEL
+		), LABEL_X2 - 0.3f, 0.24f, LABEL_X2, 0.32f);
+		addComponent(CollectionSelect.createButton(
+				menu.getSet().getDamageSources().references(), currentValues::setCustomDamageSource,
+				damageSource -> damageSource.get().getName(), currentValues.getCustomDamageSourceReference(), true
+		), BUTTON_X2, 0.24f, BUTTON_X2 + 0.1f, 0.32f);
 
 		// The Create/Apply button
 		addComponent(new DynamicTextButton(toModify == null ? "Create" : "Apply", SAVE_BASE, SAVE_HOVER, () -> {

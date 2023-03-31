@@ -2,6 +2,7 @@ package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.attack.effect.AttackEffectGroupValues;
+import nl.knokko.customitems.damage.CustomDamageSourceValues;
 import nl.knokko.customitems.damage.SpecialMeleeDamageValues;
 import nl.knokko.customitems.effect.*;
 import nl.knokko.customitems.item.command.ItemCommand;
@@ -12,6 +13,7 @@ import nl.knokko.customitems.item.model.DefaultItemModel;
 import nl.knokko.customitems.item.model.DefaultModelType;
 import nl.knokko.customitems.item.model.ItemModel;
 import nl.knokko.customitems.item.model.LegacyCustomItemModel;
+import nl.knokko.customitems.itemset.CustomDamageSourceReference;
 import nl.knokko.customitems.itemset.FakeItemSet;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
@@ -25,10 +27,7 @@ import nl.knokko.customitems.bithelper.BitInputTracker;
 import nl.knokko.customitems.bithelper.BitOutput;
 import nl.knokko.customitems.bithelper.ByteArrayBitInput;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -162,6 +161,7 @@ public abstract class CustomItemValues extends ModelValues {
     protected ExtraItemNbtValues extraItemNbt;
     protected float attackRange;
     protected SpecialMeleeDamageValues specialMeleeDamage;
+    protected CustomDamageSourceReference customMeleeDamageSource;
     protected Collection<AttackEffectGroupValues> attackEffects;
     protected boolean updateAutomatically;
     protected boolean keepOnDeath;
@@ -209,6 +209,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.extraItemNbt = new ExtraItemNbtValues(false);
         this.attackRange = 1f;
         this.specialMeleeDamage = null;
+        this.customMeleeDamageSource = null;
         this.attackEffects = new ArrayList<>();
         this.updateAutomatically = true;
         this.keepOnDeath = false;
@@ -243,6 +244,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.extraItemNbt = source.getExtraNbt();
         this.attackRange = source.getAttackRange();
         this.specialMeleeDamage = source.getSpecialMeleeDamage();
+        this.customMeleeDamageSource = source.getCustomMeleeDamageSourceReference();
         this.attackEffects = source.getAttackEffects();
         this.updateAutomatically = source.shouldUpdateAutomatically();
         this.keepOnDeath = source.shouldKeepOnDeath();
@@ -270,6 +272,7 @@ public abstract class CustomItemValues extends ModelValues {
                 && this.commandSystem.equals(other.commandSystem) && this.replaceConditions.equals(other.replaceConditions)
                 && this.conditionOp == other.conditionOp && this.extraItemNbt.equals(other.extraItemNbt)
                 && isClose(this.attackRange, other.attackRange) && Objects.equals(this.specialMeleeDamage, other.specialMeleeDamage)
+                && Objects.equals(this.customMeleeDamageSource, other.customMeleeDamageSource)
                 && this.attackEffects.equals(other.attackEffects) && this.updateAutomatically == other.updateAutomatically
                 && this.keepOnDeath == other.keepOnDeath && this.multiBlockBreak.equals(other.multiBlockBreak)
                 && this.isTwoHanded == other.isTwoHanded && this.indestructible == other.indestructible;
@@ -348,9 +351,13 @@ public abstract class CustomItemValues extends ModelValues {
         if (encoding >= 4) {
             this.isTwoHanded = input.readBoolean();
             this.indestructible = input.readBoolean();
+            if (input.readBoolean()) this.customMeleeDamageSource = itemSet.getDamageSourceReference(new UUID(
+                    input.readLong(), input.readLong())
+            ); else this.customMeleeDamageSource = null;
         } else {
             this.isTwoHanded = false;
             this.indestructible = false;
+            this.customMeleeDamageSource = null;
         }
 
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
@@ -403,6 +410,11 @@ public abstract class CustomItemValues extends ModelValues {
         this.multiBlockBreak.save(output);
         output.addBoolean(this.isTwoHanded);
         output.addBoolean(this.indestructible);
+        output.addBoolean(this.customMeleeDamageSource != null);
+        if (this.customMeleeDamageSource != null) {
+            output.addLong(this.customMeleeDamageSource.get().getId().getMostSignificantBits());
+            output.addLong(this.customMeleeDamageSource.get().getId().getLeastSignificantBits());
+        }
 
         if (targetSide == ItemSet.Side.EDITOR) {
             output.addString(texture.get().getName());
@@ -638,6 +650,8 @@ public abstract class CustomItemValues extends ModelValues {
 
     protected void initBaseDefaults11() {
         this.isTwoHanded = false;
+        this.indestructible = false;
+        this.customMeleeDamageSource = null;
     }
 
     protected void initBaseDefaults10() {
@@ -795,6 +809,14 @@ public abstract class CustomItemValues extends ModelValues {
 
     public SpecialMeleeDamageValues getSpecialMeleeDamage() {
         return specialMeleeDamage;
+    }
+
+    public CustomDamageSourceReference getCustomMeleeDamageSourceReference() {
+        return customMeleeDamageSource;
+    }
+
+    public CustomDamageSourceValues getCustomMeleeDamageSource() {
+        return customMeleeDamageSource != null ? customMeleeDamageSource.get() : null;
     }
 
     public Collection<AttackEffectGroupValues> getAttackEffects() {
@@ -993,6 +1015,11 @@ public abstract class CustomItemValues extends ModelValues {
         this.specialMeleeDamage = newSpecialDamage != null ? newSpecialDamage.copy(false) : null;
     }
 
+    public void setCustomMeleeDamageSource(CustomDamageSourceReference newDamageSource) {
+        assertMutable();
+        this.customMeleeDamageSource = newDamageSource;
+    }
+
     public void setAttackEffects(Collection<AttackEffectGroupValues> attackEffects) {
         assertMutable();
         Checks.nonNull(attackEffects);
@@ -1172,6 +1199,10 @@ public abstract class CustomItemValues extends ModelValues {
 
         for (AttackEffectGroupValues attackEffectGroup : attackEffects) {
             Validation.scope("Attack effects", attackEffectGroup::validate, itemSet);
+        }
+
+        if (customMeleeDamageSource != null && !itemSet.isReferenceValid(customMeleeDamageSource)) {
+            throw new ProgrammingValidationException("Custom melee damage source is invalid");
         }
     }
 

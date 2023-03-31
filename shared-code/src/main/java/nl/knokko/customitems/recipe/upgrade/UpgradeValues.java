@@ -20,7 +20,7 @@ import java.util.UUID;
 
 public class UpgradeValues extends ModelValues {
 
-    public static UpgradeValues load(BitInput input) throws UnknownEncodingException {
+    public static UpgradeValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
         if (encoding != 1) throw new UnknownEncodingException("Upgrade", encoding);
 
@@ -30,7 +30,7 @@ public class UpgradeValues extends ModelValues {
 
         upgrade.enchantments = Collections.unmodifiableList(CollectionHelper.load(input, EnchantmentValues::load1));
         upgrade.attributeModifiers = Collections.unmodifiableList(CollectionHelper.load(input, AttributeModifierValues::load1));
-        upgrade.damageResistances = DamageResistanceValues.loadNew(input);
+        upgrade.damageResistances = DamageResistanceValues.loadNew(input, itemSet);
         upgrade.variables = Collections.unmodifiableList(CollectionHelper.load(input, VariableUpgradeValues::load));
         return upgrade;
     }
@@ -191,6 +191,8 @@ public class UpgradeValues extends ModelValues {
         if (oldId == null && itemSet.getUpgrade(id).isPresent()) {
             throw new ProgrammingValidationException("Another upgrade already has this ID");
         }
+
+        Validation.scope("Damage resistances", damageResistances::validate, itemSet);
     }
 
     public void validateExportVersion(int mcVersion) throws ValidationException, ProgrammingValidationException {

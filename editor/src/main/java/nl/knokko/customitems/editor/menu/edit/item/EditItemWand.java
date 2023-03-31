@@ -42,7 +42,7 @@ public class EditItemWand extends EditItemBase<CustomWandValues> {
 				menu.getSet().getProjectiles().references(),
 				currentValues::setProjectile,
 				projectile -> projectile.get().getName(),
-				currentValues.getProjectileReference()
+				currentValues.getProjectileReference(), false
 		), BUTTON_X2, 0.8f, BUTTON_X2 + 0.15f, 0.85f);
 		
 		addComponent(

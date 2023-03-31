@@ -99,7 +99,7 @@ public class CreateDisplay extends GuiMenu {
 					itemSet.getItems().references(), selectedItem -> {
 						selectedItemDisplay.setText(selectedItem.get().getName());
 						currentValues.setDisplayItem(CustomDisplayItemValues.createQuick(selectedItem));
-					}, candidate -> true, selectedItem -> selectedItem.get().getName(), this
+					}, candidate -> true, selectedItem -> selectedItem.get().getName(), this, false
 			));
 		}), 0.6f, 0.6f, 0.75f, 0.65f);
 		addComponent(new DynamicTextButton("Simple vanilla item", BUTTON, HOVER, () -> {

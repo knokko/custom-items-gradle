@@ -71,7 +71,7 @@ public class EditSubProjectiles extends EditProjectileEffect<SubProjectilesValue
 		);
 		addComponent(CollectionSelect.createButton(
 				itemSet.getProjectiles().references(), currentValues::setChild,
-				candidate -> candidate.get().getName(), currentValues.getChildReference()
+				candidate -> candidate.get().getName(), currentValues.getChildReference(), false
 		), BUTTON_X, 0.31f, BUTTON_X + 0.2f, 0.39f);
 
 		HelpButtons.addHelpLink(this, "edit%20menu/projectiles/effects/edit/projectile.html");

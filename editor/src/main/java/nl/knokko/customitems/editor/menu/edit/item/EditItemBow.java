@@ -1,5 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.item;
 
+import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.texture.BowTextureEdit;
@@ -15,8 +16,7 @@ import nl.knokko.gui.component.text.EagerFloatEditField;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
-import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
-import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
+import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class EditItemBow extends EditItemTool<CustomBowValues> {
 	
@@ -50,7 +50,7 @@ public class EditItemBow extends EditItemTool<CustomBowValues> {
 	protected void addComponents() {
 		super.addComponents();
 		addComponent(
-				new DynamicTextComponent("Durability loss on shooting:", EditProps.LABEL),
+				new DynamicTextComponent("Durability loss on shooting:", LABEL),
 				0.55f, 0.35f, 0.84f, 0.425f
 		);
 		addComponent(
@@ -58,7 +58,7 @@ public class EditItemBow extends EditItemTool<CustomBowValues> {
 				0.85f, 0.35f, 0.9f, 0.425f
 		);
 		addComponent(
-				new DynamicTextComponent("Damage multiplier: ", EditProps.LABEL),
+				new DynamicTextComponent("Damage multiplier: ", LABEL),
 				0.71f, 0.245f, 0.895f, 0.32f
 		);
 		addComponent(
@@ -66,7 +66,7 @@ public class EditItemBow extends EditItemTool<CustomBowValues> {
 				0.895f, 0.245f, 0.965f, 0.32f
 		);
 		addComponent(
-				new DynamicTextComponent("Speed multiplier: ", EditProps.LABEL),
+				new DynamicTextComponent("Speed multiplier: ", LABEL),
 				0.71f, 0.17f, 0.88f, 0.245f
 		);
 		addComponent(
@@ -74,7 +74,7 @@ public class EditItemBow extends EditItemTool<CustomBowValues> {
 				0.895f, 0.17f, 0.965f, 0.245f
 		);
 		addComponent(
-				new DynamicTextComponent("knockback strength: ", EditProps.LABEL),
+				new DynamicTextComponent("knockback strength: ", LABEL),
 				0.71f, 0.095f, 0.9f, 0.17f
 		);
 		addComponent(
@@ -82,14 +82,21 @@ public class EditItemBow extends EditItemTool<CustomBowValues> {
 				0.9f, 0.095f, 0.95f, 0.17f
 		);
 		addComponent(
-				new DynamicTextComponent("Arrow gravity", EditProps.LABEL),
+				new DynamicTextComponent("Arrow gravity", LABEL),
 				0.8f, 0.02f, 0.95f, 0.095f
 		);
 		addComponent(
 				new CheckboxComponent(currentValues.hasGravity(), currentValues::setGravity),
 				0.75f, 0.02f, 0.775f, 0.045f
 		);
-		
+		addComponent(new DynamicTextComponent(
+				"Custom shoot damage source:", LABEL
+		), 0.55f, -0.055f, 0.84f, 0.02f);
+		addComponent(CollectionSelect.createButton(
+				menu.getSet().getDamageSources().references(), currentValues::setCustomShootDamageSource,
+				damageSource -> damageSource.get().getName(), currentValues.getCustomShootDamageSourceReference(), true
+		), 0.85f, -0.055f, 0.98f, 0.02f);
+
 		HelpButtons.addHelpLink(this, "edit%20menu/items/edit/bow.html");
 	}
 

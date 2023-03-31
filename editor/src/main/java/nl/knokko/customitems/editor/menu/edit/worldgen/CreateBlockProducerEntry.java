@@ -76,7 +76,7 @@ public class CreateBlockProducerEntry extends GuiMenu {
                     itemSet.getBlocks().references(), block -> {
                         currentValues.setBlock(new ProducedBlock(block));
                         selectedBlockLabel.setText("Block: " + block.get().getName());
-                    }, candidateBlock -> true, candidateBlock -> candidateBlock.get().getName(), this
+                    }, candidateBlock -> true, candidateBlock -> candidateBlock.get().getName(), this, false
             ));
         }), 0.7f, 0.55f, 0.8f, 0.65f);
     }

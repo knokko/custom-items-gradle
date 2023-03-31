@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.upgrade;
 
 import nl.knokko.customitems.editor.menu.edit.item.AttributeCollectionEdit;
-import nl.knokko.customitems.editor.menu.edit.item.EditDamageResistances;
+import nl.knokko.customitems.editor.menu.edit.item.damage.EditDamageResistances;
 import nl.knokko.customitems.editor.menu.edit.item.EnchantmentCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
@@ -72,7 +72,7 @@ public class EditUpgrade extends GuiMenu {
         }), 0.55f, 0.5f, 0.65f, 0.6f);
         addComponent(new DynamicTextComponent("Damage resistances:", LABEL), 0.3f, 0.35f, 0.5f, 0.45f);
         addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
-            state.getWindow().setMainComponent(new EditDamageResistances(currentValues.getDamageResistances(),
+            state.getWindow().setMainComponent(new EditDamageResistances(itemSet, currentValues.getDamageResistances(),
                     () -> state.getWindow().setMainComponent(this), newResistances -> {
                         currentValues.setDamageResistances(newResistances);
                         state.getWindow().setMainComponent(this);

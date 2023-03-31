@@ -4,6 +4,7 @@ import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 import nl.knokko.customitems.item.AttributeModifierValues;
 import nl.knokko.customitems.item.DamageResistanceValues;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -17,7 +18,7 @@ import java.util.Collection;
 
 public class EquipmentBonusValues extends ModelValues {
 
-    public static EquipmentBonusValues load(BitInput input) throws UnknownEncodingException {
+    public static EquipmentBonusValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
         if (encoding != 1) throw new UnknownEncodingException("EquipmentBonus", encoding);
 
@@ -31,7 +32,7 @@ public class EquipmentBonusValues extends ModelValues {
             result.attributeModifiers.add(AttributeModifierValues.load1(input, false));
         }
 
-        result.damageResistances = DamageResistanceValues.loadNew(input);
+        result.damageResistances = DamageResistanceValues.loadNew(input, itemSet);
 
         return result;
     }

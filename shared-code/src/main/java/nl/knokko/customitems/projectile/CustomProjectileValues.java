@@ -1,6 +1,7 @@
 package nl.knokko.customitems.projectile;
 
 import nl.knokko.customitems.effect.PotionEffectValues;
+import nl.knokko.customitems.itemset.CustomDamageSourceReference;
 import nl.knokko.customitems.itemset.ProjectileCoverReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
@@ -18,6 +19,8 @@ import nl.knokko.customitems.bithelper.BitOutput;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
+import java.util.UUID;
 
 import static nl.knokko.customitems.util.Checks.isClose;
 
@@ -25,6 +28,7 @@ public class CustomProjectileValues extends ModelValues {
 
     private static final byte ENCODING_1 = 0;
     private static final byte ENCODING_2 = 1;
+    private static final byte ENCODING_NEW = 2;
 
     public static CustomProjectileValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
@@ -35,6 +39,9 @@ public class CustomProjectileValues extends ModelValues {
             result.initDefaults1();
         } else if (encoding == ENCODING_2) {
             result.load2(input, itemSet);
+            result.initDefaults2();
+        } else if (encoding == ENCODING_NEW) {
+            result.loadNew(input, itemSet);
         } else {
             throw new UnknownEncodingException("CustomProjectile", encoding);
         }
@@ -54,6 +61,7 @@ public class CustomProjectileValues extends ModelValues {
     private int maxLifetime;
     private Collection<ProjectileEffectsValues> inFlightEffects;
     private Collection<ProjectileEffectValues> impactEffects;
+    private CustomDamageSourceReference customDamageSource;
 
     private ProjectileCoverReference cover;
 
@@ -72,6 +80,7 @@ public class CustomProjectileValues extends ModelValues {
         this.maxLifetime = 200;
         this.inFlightEffects = new ArrayList<>();
         this.impactEffects = new ArrayList<>();
+        this.customDamageSource = null;
     }
 
     public CustomProjectileValues(CustomProjectileValues toCopy, boolean mutable) {
@@ -90,6 +99,7 @@ public class CustomProjectileValues extends ModelValues {
         this.inFlightEffects = toCopy.getInFlightEffects();
         this.impactEffects = toCopy.getImpactEffects();
         this.cover = toCopy.getCoverReference();
+        this.customDamageSource = toCopy.getCustomDamageSourceReference();
     }
 
     private void loadProjectileEffects(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
@@ -152,14 +162,54 @@ public class CustomProjectileValues extends ModelValues {
         }
     }
 
+    private void loadNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("CustomProjectileNew", encoding);
+
+        this.name = input.readString();
+        this.damage = input.readFloat();
+        this.minLaunchAngle = input.readFloat();
+        this.maxLaunchAngle = input.readFloat();
+        this.minLaunchSpeed = input.readFloat();
+        this.maxLaunchSpeed = input.readFloat();
+        this.gravity = input.readFloat();
+        this.launchKnockback = input.readFloat();
+        this.impactKnockback = input.readFloat();
+
+        int numImpactPotionEffects = input.readInt();
+        this.impactPotionEffects = new ArrayList<>(numImpactPotionEffects);
+        for (int counter = 0; counter < numImpactPotionEffects; counter++) {
+            this.impactPotionEffects.add(PotionEffectValues.load2(input, false));
+        }
+
+        this.maxLifetime = input.readInt();
+        loadProjectileEffects(input, itemSet);
+
+        String coverName = input.readString();
+        if (coverName != null) {
+            this.cover = itemSet.getProjectileCoverReference(coverName);
+        } else {
+            this.cover = null;
+        }
+        if (input.readBoolean()) {
+            this.customDamageSource = itemSet.getDamageSourceReference(new UUID(input.readLong(), input.readLong()));
+        } else this.customDamageSource = null;
+    }
+
     private void initDefaults1() {
         this.launchKnockback = 0f;
         this.impactKnockback = 0f;
         this.impactPotionEffects = new ArrayList<>(0);
+        initDefaults2();
+    }
+
+    private void initDefaults2() {
+        this.customDamageSource = null;
     }
 
     public void save(BitOutput output) {
-        output.addByte(ENCODING_2);
+        output.addByte(ENCODING_NEW);
+        output.addByte((byte) 1);
         output.addString(name);
         output.addFloats(damage, minLaunchAngle, maxLaunchAngle, minLaunchSpeed, maxLaunchSpeed, gravity, launchKnockback, impactKnockback);
 
@@ -179,6 +229,11 @@ public class CustomProjectileValues extends ModelValues {
             effect.save(output);
         }
         output.addString(cover == null ? null : cover.get().getName());
+        output.addBoolean(customDamageSource != null);
+        if (customDamageSource != null) {
+            output.addLong(customDamageSource.get().getId().getMostSignificantBits());
+            output.addLong(customDamageSource.get().getId().getLeastSignificantBits());
+        }
     }
 
     @Override
@@ -196,7 +251,8 @@ public class CustomProjectileValues extends ModelValues {
                     && this.impactPotionEffects.equals(otherProjectile.impactPotionEffects)
                     && this.maxLifetime == otherProjectile.maxLifetime
                     && this.inFlightEffects.equals(otherProjectile.inFlightEffects)
-                    && this.impactEffects.equals(otherProjectile.impactEffects);
+                    && this.impactEffects.equals(otherProjectile.impactEffects)
+                    && Objects.equals(this.customDamageSource, otherProjectile.customDamageSource);
         } else {
             return false;
         }
@@ -265,6 +321,10 @@ public class CustomProjectileValues extends ModelValues {
 
     public ProjectileCoverValues getCover() {
         return cover == null ? null : cover.get();
+    }
+
+    public CustomDamageSourceReference getCustomDamageSourceReference() {
+        return customDamageSource;
     }
 
     public void setName(String newName) {
@@ -341,6 +401,11 @@ public class CustomProjectileValues extends ModelValues {
         this.cover = newCover;
     }
 
+    public void setCustomDamageSource(CustomDamageSourceReference customDamageSource) {
+        assertMutable();
+        this.customDamageSource = customDamageSource;
+    }
+
     public void validate(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         if (name == null) throw new ProgrammingValidationException("No name");
         if (name.isEmpty()) throw new ValidationException("You need to choose a name");
@@ -393,6 +458,9 @@ public class CustomProjectileValues extends ModelValues {
 
         if (cover != null && !itemSet.isReferenceValid(cover))
             throw new ProgrammingValidationException("Projectile cover is no longer valid");
+
+        if (customDamageSource != null && !itemSet.isReferenceValid(customDamageSource))
+            throw new ProgrammingValidationException("Invalid custom damage source");
     }
 
     public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {

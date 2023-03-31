@@ -61,7 +61,7 @@ class EditEquipmentSet extends GuiMenu {
         addComponent(new DynamicTextComponent("Equipment bonuses:", LABEL), 0.55f, 0.8f, 0.8f, 0.9f);
         addComponent(new DynamicTextComponent("Minimum value", LABEL), 0.55f, 0.75f, 0.65f, 0.8f);
         addComponent(new DynamicTextComponent("Maximum value", LABEL), 0.66f, 0.75f, 0.76f, 0.8f);
-        addComponent(new EquipmentBonusList(this, bonuses), 0.55f, 0f, 0.975f, 0.75f);
+        addComponent(new EquipmentBonusList(itemSet, this, bonuses), 0.55f, 0f, 0.975f, 0.75f);
 
         HelpButtons.addHelpLink(this, "edit menu/items/equipment/edit.html");
     }

@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import nl.knokko.customitems.editor.menu.commandhelp.CommandBlockHelpOverview;
 import nl.knokko.customitems.editor.menu.edit.*;
 import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
+import nl.knokko.customitems.editor.menu.edit.item.damage.DamageSourceCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.item.equipment.EquipmentSetCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
@@ -30,13 +31,16 @@ public class ItemCollectionEdit extends DedicatedCollectionEdit<CustomItemValues
 		super.addComponents();
 		addComponent(new DynamicTextButton("Create item", BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new CreateItem(menu));
-		}), 0.025f, 0.3f, 0.225f, 0.4f);
+		}), 0.025f, 0.385f, 0.225f, 0.485f);
+		addComponent(new DynamicTextButton("Custom damage sources", BUTTON, EditProps.HOVER, () -> {
+			state.getWindow().setMainComponent(new DamageSourceCollectionEdit(this, menu.getSet()));
+		}), 0.025f, 0.26f, 0.275f, 0.36f);
 		addComponent(new DynamicTextButton("Equipment sets", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new EquipmentSetCollectionEdit(menu));
-		}), 0.025f, 0.175f, 0.23f, 0.275f);
+		}), 0.025f, 0.135f, 0.23f, 0.235f);
 		addComponent(new DynamicTextButton("Command block help", BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new CommandBlockHelpOverview(menu.getSet(), this));
-		}), 0.025f, 0.05f, 0.275f, 0.15f);
+		}), 0.025f, 0.01f, 0.275f, 0.11f);
 
 		HelpButtons.addHelpLink(this, "edit menu/items/overview.html");
 	}

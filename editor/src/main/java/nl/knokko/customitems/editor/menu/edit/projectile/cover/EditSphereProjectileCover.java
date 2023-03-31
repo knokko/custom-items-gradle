@@ -48,7 +48,7 @@ public class EditSphereProjectileCover extends EditProjectileCover<SphereProject
 						menu.getSet().getTextures().references(),
 						currentValues::setTexture,
 						textureReference -> textureReference.get().getName(),
-						currentValues.getTextureReference()
+						currentValues.getTextureReference(), false
 				),
 				0.6f, 0.11f, 0.8f, 0.19f
 		);

@@ -7,6 +7,8 @@ import nl.knokko.customitems.container.energy.EnergyType;
 import nl.knokko.customitems.container.energy.EnergyTypeValues;
 import nl.knokko.customitems.container.fuel.FuelRegistryValues;
 import nl.knokko.customitems.container.fuel.CustomFuelRegistry;
+import nl.knokko.customitems.damage.CustomDamageSource;
+import nl.knokko.customitems.damage.CustomDamageSourceValues;
 import nl.knokko.customitems.drops.*;
 import nl.knokko.customitems.encoding.SetEncoding;
 import nl.knokko.customitems.item.*;
@@ -80,6 +82,9 @@ public class ItemSet {
         result.equipmentSets.addAll(primary.equipmentSets);
         result.equipmentSets.addAll(secondary.equipmentSets);
 
+        result.damageSources.addAll(primary.damageSources);
+        result.damageSources.addAll(secondary.damageSources);
+
         result.craftingRecipes.addAll(primary.craftingRecipes);
         result.craftingRecipes.addAll(secondary.craftingRecipes);
 
@@ -150,6 +155,7 @@ public class ItemSet {
     Collection<ArmorTexture> armorTextures;
     Collection<CustomItem> items;
     Collection<EquipmentSet> equipmentSets;
+    Collection<CustomDamageSource> damageSources;
     Collection<CustomCraftingRecipe> craftingRecipes;
     Collection<Upgrade> upgrades;
     Collection<BlockDrop> blockDrops;
@@ -188,6 +194,7 @@ public class ItemSet {
         armorTextures = new ArrayList<>();
         items = new ArrayList<>();
         equipmentSets = new ArrayList<>();
+        damageSources = new ArrayList<>();
         craftingRecipes = new ArrayList<>();
         upgrades = new ArrayList<>();
         blockDrops = new ArrayList<>();
@@ -209,10 +216,10 @@ public class ItemSet {
 
     public boolean isEmpty() {
         for (Collection<?> relevantCollection : new Collection<?>[]{
-                this.textures, this.armorTextures, this.items, this.equipmentSets, this.craftingRecipes,
-                this.upgrades, this.blockDrops, this.mobDrops, this.blocks, this.oreVeinGenerators,
-                this.treeGenerators, this.containers, this.fuelRegistries, this.energyTypes, this.soundTypes,
-                this.projectiles, this.projectileCovers, this.removedItemNames
+                this.textures, this.armorTextures, this.items, this.equipmentSets, this.damageSources,
+                this.craftingRecipes, this.upgrades, this.blockDrops, this.mobDrops, this.blocks,
+                this.oreVeinGenerators, this.treeGenerators, this.containers, this.fuelRegistries, this.energyTypes,
+                this.soundTypes, this.projectiles, this.projectileCovers, this.removedItemNames
         }) {
             if (!relevantCollection.isEmpty()) return false;
         }
@@ -378,6 +385,11 @@ public class ItemSet {
         output.addInt(equipmentSets.size());
         for (EquipmentSet equipmentSet : equipmentSets) {
             equipmentSet.getValues().save(output);
+        }
+
+        output.addInt(damageSources.size());
+        for (CustomDamageSource damageSource : damageSources) {
+            damageSource.getValues().save(output);
         }
 
         output.addInt(blocks.size());
@@ -554,6 +566,7 @@ public class ItemSet {
 
     private void initDefaults10() {
         this.exportSettings = new ExportSettingsValues(false);
+        this.damageSources = new ArrayList<>();
         this.upgrades = new ArrayList<>();
         initDefaults11();
     }
@@ -609,6 +622,14 @@ public class ItemSet {
         this.equipmentSets = new ArrayList<>(numEquipmentSets);
         for (int counter = 0; counter < numEquipmentSets; counter++) {
             this.equipmentSets.add(new EquipmentSet(EquipmentSetValues.load(input, this)));
+        }
+    }
+
+    private void loadDamageSources(BitInput input) throws UnknownEncodingException {
+        int numDamageSources = input.readInt();
+        this.damageSources = new ArrayList<>(numDamageSources);
+        for (int counter = 0; counter < numDamageSources; counter++) {
+            this.damageSources.add(new CustomDamageSource(CustomDamageSourceValues.load(input)));
         }
     }
 
@@ -875,11 +896,12 @@ public class ItemSet {
             loadProjectiles(input);
             loadItems(input, true);
             loadEquipmentSets(input);
+            loadDamageSources(input);
             loadBlocks(input);
             loadOreVeinGenerators(input);
             loadTreeGenerators(input);
             loadCraftingRecipes(input);
-            this.upgrades = CollectionHelper.load(input, input1 -> new Upgrade(UpgradeValues.load(input1)));
+            this.upgrades = CollectionHelper.load(input, input1 -> new Upgrade(UpgradeValues.load(input1, this)));
             loadBlockDrops(input);
             loadMobDrops(input);
             loadFuelRegistries(input);
@@ -920,6 +942,10 @@ public class ItemSet {
 
     public EquipmentSetsView getEquipmentSets() {
         return new EquipmentSetsView(equipmentSets);
+    }
+
+    public CustomDamageSourcesView getDamageSources() {
+        return new CustomDamageSourcesView(damageSources);
     }
 
     public CustomRecipesView getCraftingRecipes() {
@@ -995,6 +1021,14 @@ public class ItemSet {
             return new ItemReference(CollectionHelper.find(items, item -> item.getValues().getName(), itemName).get());
         } else {
             return new ItemReference(itemName, this);
+        }
+    }
+
+    public CustomDamageSourceReference getDamageSourceReference(UUID damageSourceID) throws NoSuchElementException {
+        if (finishedLoading) {
+            return new CustomDamageSourceReference(CollectionHelper.find(damageSources, damageSource -> damageSource.getValues().getId(), damageSourceID).get());
+        } else {
+            return new CustomDamageSourceReference(damageSourceID, this);
         }
     }
 
@@ -1074,6 +1108,10 @@ public class ItemSet {
         return CollectionHelper.find(items, item -> item.getValues().getName(), itemName).map(CustomItem::getValues);
     }
 
+    public Optional<CustomDamageSourceValues> getDamageSource(UUID damageSourceID) {
+        return CollectionHelper.find(damageSources, damageSource -> damageSource.getValues().getId(), damageSourceID).map(CustomDamageSource::getValues);
+    }
+
     public Optional<UpgradeValues> getUpgrade(UUID upgradeID) {
         return CollectionHelper.find(upgrades, upgrade -> upgrade.getValues().getId(), upgradeID).map(Upgrade::getValues);
     }
@@ -1129,6 +1167,10 @@ public class ItemSet {
 
     public boolean isReferenceValid(EquipmentSetReference reference) {
         return isReferenceValid(equipmentSets, reference.getModel());
+    }
+
+    public boolean isReferenceValid(CustomDamageSourceReference reference) {
+        return isReferenceValid(damageSources, reference.getModel());
     }
 
     public boolean isReferenceValid(CraftingRecipeReference reference) {
@@ -1331,6 +1373,14 @@ public class ItemSet {
             );
         }
 
+        for (CustomDamageSourceValues damageSource : getDamageSources()) {
+            Validation.scope(
+                    "Damage source " + damageSource.getName(),
+                    () -> damageSource.validateComplete(this, damageSource.getId())
+            );
+        }
+        validateUniqueIDs("Damage sources", damageSources, damageSource -> damageSource.getValues().getId());
+
         for (CustomCraftingRecipe recipe : craftingRecipes) {
             Validation.scope(
                     "Recipe for " + recipe.getValues().getResult(),
@@ -1485,6 +1535,18 @@ public class ItemSet {
         if (!isReferenceValid(setToChange)) throw new ProgrammingValidationException("Equipment set is invalid");
         newSetValues.validate(this);
         setToChange.getModel().setValues(newSetValues);
+    }
+
+    public void addDamageSource(CustomDamageSourceValues newDamageSource) throws ValidationException, ProgrammingValidationException {
+        newDamageSource.validateComplete(this, null);
+        this.damageSources.add(new CustomDamageSource(newDamageSource));
+    }
+
+    public void changeDamageSource(
+            CustomDamageSourceReference sourceToChange, CustomDamageSourceValues newSourceValues
+    ) throws ValidationException, ProgrammingValidationException {
+        newSourceValues.validateComplete(this, sourceToChange.get().getId());
+        sourceToChange.getModel().setValues(newSourceValues);
     }
 
     public void addRecipe(CraftingRecipeValues newRecipe) throws ValidationException, ProgrammingValidationException {
@@ -1690,6 +1752,10 @@ public class ItemSet {
 
     public void removeEquipmentSet(EquipmentSetReference setToRemove) throws ValidationException, ProgrammingValidationException {
         removeModel(this.equipmentSets, setToRemove.getModel());
+    }
+
+    public void removeDamageSource(CustomDamageSourceReference sourceToRemove) throws ValidationException, ProgrammingValidationException {
+        removeModel(this.damageSources, sourceToRemove.getModel());
     }
 
     public void removeCraftingRecipe(CraftingRecipeReference recipeToRemove) throws ValidationException, ProgrammingValidationException {

@@ -70,7 +70,7 @@ public class ChooseContainerHost extends GuiMenu {
                     chosenBlock -> onSelect.accept(new CustomContainerHost(chosenBlock)),
                     candidateBlock -> true,
                     candidateBlock -> candidateBlock.get().getName(),
-                    returnMenu
+                    returnMenu, false
             ));
         }), 0.3f, 0.4f, 0.5f, 0.5f);
         addComponent(

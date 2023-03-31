@@ -45,7 +45,7 @@ public class HelpMobSpawner extends GuiMenu {
 			selectedImage.setComponent(new SimpleImageComponent(
 					state.getWindow().getTextureLoader().loadTexture(chosenItem.get().getTexture().getImage())
 			));
-		}, candidateItem -> true, itemRef -> itemRef.get().getName(), returnMenu));
+		}, candidateItem -> true, itemRef -> itemRef.get().getName(), returnMenu, true));
 	}
 
 	@Override

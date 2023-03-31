@@ -51,7 +51,7 @@ public class IngredientComponent extends DynamicTextButton {
 			} else if (character == 'c') {
 				state.getWindow().setMainComponent(new CollectionSelect<>(set.getItems().references(), customItem -> {
 					IngredientComponent.this.setIngredient(CustomItemIngredientValues.createQuick(customItem, 1));
-				}, candidateItem -> true, itemRef -> itemRef.get().getName(), menu));
+				}, candidateItem -> true, itemRef -> itemRef.get().getName(), menu, false));
 			} else if (character == 'd') {
 				state.getWindow().setMainComponent(new ChooseDataVanillaResult(menu, true, dataResult -> {
 					IngredientComponent.this.setIngredient(DataVanillaIngredientValues.createQuick(

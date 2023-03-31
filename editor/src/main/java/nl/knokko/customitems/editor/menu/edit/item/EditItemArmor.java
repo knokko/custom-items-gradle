@@ -2,6 +2,7 @@ package nl.knokko.customitems.editor.menu.edit.item;
 
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
+import nl.knokko.customitems.editor.menu.edit.item.damage.EditDamageResistances;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.AttributeModifierValues;
 import nl.knokko.customitems.item.CustomArmorValues;
@@ -124,7 +125,7 @@ public class EditItemArmor<V extends CustomArmorValues> extends EditItemTool<V> 
 		super.addComponents();
 		addComponent(new DynamicTextComponent("Damage resistances: ", EditProps.LABEL), 0.62f, 0.35f, 0.84f, 0.425f);
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new EditDamageResistances(currentValues.getDamageResistances(), () -> {
+			state.getWindow().setMainComponent(new EditDamageResistances(menu.getSet(), currentValues.getDamageResistances(), () -> {
 				state.getWindow().setMainComponent(this);
 			}, (DamageResistanceValues newResistances) -> {
 				state.getWindow().setMainComponent(this);

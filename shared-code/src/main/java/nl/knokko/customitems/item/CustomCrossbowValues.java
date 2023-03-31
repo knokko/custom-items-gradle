@@ -2,6 +2,7 @@ package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.encoding.ItemEncoding;
 import nl.knokko.customitems.item.model.DefaultModelType;
+import nl.knokko.customitems.itemset.CustomDamageSourceReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.texture.CrossbowTextureValues;
@@ -10,6 +11,9 @@ import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
+
+import java.util.Objects;
+import java.util.UUID;
 
 import static nl.knokko.customitems.util.Checks.isClose;
 
@@ -48,6 +52,7 @@ public class CustomCrossbowValues extends CustomToolValues {
 
     private int arrowKnockbackStrength;
     private boolean arrowGravity;
+    private CustomDamageSourceReference customShootDamageSource;
 
     public CustomCrossbowValues(boolean mutable) {
         super(mutable, CustomItemType.CROSSBOW);
@@ -60,6 +65,7 @@ public class CustomCrossbowValues extends CustomToolValues {
         this.fireworkSpeedMultiplier = 1f;
         this.arrowKnockbackStrength = 0;
         this.arrowGravity = true;
+        this.customShootDamageSource = null;
     }
 
     public CustomCrossbowValues(CustomCrossbowValues toCopy, boolean mutable) {
@@ -73,6 +79,7 @@ public class CustomCrossbowValues extends CustomToolValues {
         this.fireworkSpeedMultiplier = toCopy.getFireworkSpeedMultiplier();
         this.arrowKnockbackStrength = toCopy.getArrowKnockbackStrength();
         this.arrowGravity = toCopy.hasArrowGravity();
+        this.customShootDamageSource = toCopy.getCustomShootDamageSourceReference();
     }
 
     @Override
@@ -84,7 +91,7 @@ public class CustomCrossbowValues extends CustomToolValues {
         this.loadToolPropertiesNew(input, itemSet);
 
         byte encoding = input.readByte();
-        if (encoding != 1) throw new UnknownEncodingException("CustomCrossbowNew" , encoding);
+        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("CustomCrossbowNew" , encoding);
 
         this.arrowDurabilityLoss = input.readInt();
         this.fireworkDurabilityLoss = input.readInt();
@@ -94,12 +101,17 @@ public class CustomCrossbowValues extends CustomToolValues {
         this.arrowSpeedMultiplier = input.readFloat();
         this.fireworkSpeedMultiplier = input.readFloat();
         this.arrowGravity = input.readBoolean();
+        if (encoding >= 2) {
+            if (input.readBoolean()) this.customShootDamageSource = itemSet.getDamageSourceReference(new UUID(
+                    input.readLong(), input.readLong()
+            )); else this.customShootDamageSource = null;
+        } else this.customShootDamageSource = null;
     }
 
     protected void saveCrossbowPropertiesNew(BitOutput output, ItemSet.Side side) {
         this.saveToolPropertiesNew(output, side);
 
-        output.addByte((byte) 1);
+        output.addByte((byte) 2);
 
         output.addInts(this.arrowDurabilityLoss, this.fireworkDurabilityLoss, this.arrowKnockbackStrength);
         output.addFloats(
@@ -107,6 +119,11 @@ public class CustomCrossbowValues extends CustomToolValues {
                 this.arrowSpeedMultiplier, this.fireworkSpeedMultiplier
         );
         output.addBoolean(this.arrowGravity);
+        output.addBoolean(this.customShootDamageSource != null);
+        if (this.customShootDamageSource != null) {
+            output.addLong(this.customShootDamageSource.get().getId().getMostSignificantBits());
+            output.addLong(this.customShootDamageSource.get().getId().getLeastSignificantBits());
+        }
     }
 
     private void load10(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
@@ -145,7 +162,12 @@ public class CustomCrossbowValues extends CustomToolValues {
     }
 
     private void initCrossbowOnlyDefaults10() {
-        // There is nothing to be done until the next encoding
+        this.customShootDamageSource = null;
+        initCrossbowOnlyDefaults11();
+    }
+
+    private void initCrossbowOnlyDefaults11() {
+        // There is nothing to be done until the next encoding is known
     }
 
     protected boolean areCrossbowPropertiesEqual(CustomCrossbowValues other) {
@@ -155,7 +177,8 @@ public class CustomCrossbowValues extends CustomToolValues {
                 && isClose(this.fireworkDamageMultiplier, other.fireworkDamageMultiplier)
                 && isClose(this.arrowSpeedMultiplier, other.arrowSpeedMultiplier)
                 && isClose(this.fireworkSpeedMultiplier, other.fireworkSpeedMultiplier)
-                && this.arrowKnockbackStrength == other.arrowKnockbackStrength && this.arrowGravity == other.arrowGravity;
+                && this.arrowKnockbackStrength == other.arrowKnockbackStrength && this.arrowGravity == other.arrowGravity
+                && Objects.equals(this.customShootDamageSource, other.customShootDamageSource);
     }
 
     @Override
@@ -211,6 +234,10 @@ public class CustomCrossbowValues extends CustomToolValues {
         return arrowGravity;
     }
 
+    public CustomDamageSourceReference getCustomShootDamageSourceReference() {
+        return customShootDamageSource;
+    }
+
     @Override
     public void setTexture(TextureReference newTexture) {
         if (!(newTexture.get() instanceof CrossbowTextureValues)) {
@@ -259,6 +286,11 @@ public class CustomCrossbowValues extends CustomToolValues {
         this.arrowGravity = newArrowGravity;
     }
 
+    public void setCustomShootDamageSource(CustomDamageSourceReference newDamageSource) {
+        assertMutable();
+        this.customShootDamageSource = newDamageSource;
+    }
+
     @Override
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {
         super.validateIndependent();
@@ -275,6 +307,15 @@ public class CustomCrossbowValues extends CustomToolValues {
 
         if (!(texture.get() instanceof CrossbowTextureValues)) {
             throw new ProgrammingValidationException("Only crossbow textures are allowed");
+        }
+    }
+
+    @Override
+    public void validateComplete(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
+        super.validateComplete(itemSet, oldName);
+
+        if (customShootDamageSource != null && !itemSet.isReferenceValid(customShootDamageSource)) {
+            throw new ProgrammingValidationException("Custom shoot damage source is invalid");
         }
     }
 }

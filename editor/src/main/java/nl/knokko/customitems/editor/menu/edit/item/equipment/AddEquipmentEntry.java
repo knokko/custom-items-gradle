@@ -44,7 +44,7 @@ class AddEquipmentEntry extends GuiMenu {
                 itemSet.getItems().references(),
                 chosenItem -> pItem[0] = chosenItem,
                 candidateItem -> candidateItem.get().getName(),
-                pItem[0]
+                pItem[0], false
         ), 0.4f, 0.7f, 0.6f, 0.8f);
 
         addComponent(new DynamicTextComponent("Slot:", LABEL), 0.25f, 0.55f, 0.35f, 0.65f);

@@ -60,7 +60,6 @@ public class ItemSetBackups {
         return Collections.unmodifiableList(saveTimes);
     }
 
-    // TODO Test this
     public Collection<Long> cleanOldBackups(long currentTime) {
         Collection<Long> savesToRemove = new ArrayList<>();
         int numSaves = this.saveTimes.size();

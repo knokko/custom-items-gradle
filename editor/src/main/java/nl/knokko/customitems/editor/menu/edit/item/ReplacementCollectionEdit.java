@@ -101,13 +101,15 @@ public class ReplacementCollectionEdit extends InlineCollectionEdit<ReplacementC
 		);
 
 		GuiComponent itemButton = CollectionSelect.createButton(
-				backingItems, replaceCondition::setItem, item -> item.get().getName(), replaceCondition.getItemReference()
+				backingItems, replaceCondition::setItem, item -> item.get().getName(),
+				replaceCondition.getItemReference(), false
 		);
 		GuiComponent operationButton = EnumSelect.createSelectButton(
 				ReplacementConditionValues.ReplacementOperation.class, replaceCondition::setOperation, replaceCondition.getOperation()
 		);
 		GuiComponent replacingItemButton = CollectionSelect.createButton(
-				backingItems, replaceCondition::setReplaceItem, item -> item.get().getName(), replaceCondition.getReplaceItemReference()
+				backingItems, replaceCondition::setReplaceItem,
+				item -> item.get().getName(), replaceCondition.getReplaceItemReference(), false
 		);
 		addComponent(new ImageButton(deleteBase, deleteHover, () -> {
 			removeItem(itemIndex);

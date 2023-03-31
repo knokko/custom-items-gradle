@@ -8,6 +8,7 @@ import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.texture.ArmorTextureValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
+import nl.knokko.customitems.util.Validation;
 import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
@@ -87,7 +88,7 @@ public class CustomArmorValues extends CustomToolValues {
         if (encoding != 1) throw new UnknownEncodingException("CustomArmorNew", encoding);
 
         this.loadLeatherColors(input);
-        this.damageResistances = DamageResistanceValues.loadNew(input);
+        this.damageResistances = DamageResistanceValues.loadNew(input, itemSet);
         if (itemSet.getSide() == ItemSet.Side.EDITOR && input.readBoolean()) {
             this.armorTexture = itemSet.getArmorTextureReference(input.readString());
         } else {
@@ -136,12 +137,12 @@ public class CustomArmorValues extends CustomToolValues {
 
     private void load7(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         load6(input, itemSet);
-        this.damageResistances = DamageResistanceValues.load12(input);
+        this.damageResistances = DamageResistanceValues.load12(input, itemSet);
     }
 
     private void load8(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         load6(input, itemSet);
-        this.damageResistances = DamageResistanceValues.load14(input);
+        this.damageResistances = DamageResistanceValues.load14(input, itemSet);
     }
 
     private void load9(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
@@ -179,13 +180,13 @@ public class CustomArmorValues extends CustomToolValues {
 
     protected void load10(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadPre10(input, itemSet);
-        this.damageResistances = DamageResistanceValues.load14(input);
+        this.damageResistances = DamageResistanceValues.load14(input, itemSet);
         loadPost10(input, itemSet);
     }
 
     protected void load11(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadPre10(input, itemSet);
-        this.damageResistances = DamageResistanceValues.load17(input);
+        this.damageResistances = DamageResistanceValues.load17(input, itemSet);
         loadPost10(input, itemSet);
     }
 
@@ -350,6 +351,8 @@ public class CustomArmorValues extends CustomToolValues {
         if (armorTexture != null && !itemSet.isReferenceValid(armorTexture)) {
             throw new ProgrammingValidationException("Armor texture is no longer valid");
         }
+
+        Validation.scope("Damage resistances", damageResistances::validate, itemSet);
     }
 
     @Override

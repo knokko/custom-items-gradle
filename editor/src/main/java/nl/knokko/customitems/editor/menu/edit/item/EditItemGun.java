@@ -40,7 +40,7 @@ public class EditItemGun extends EditItemBase<CustomGunValues> {
                 menu.getSet().getProjectiles().references(),
                 currentValues::setProjectile,
                 projectileReference -> projectileReference.get().getName(),
-                currentValues.getProjectileReference()
+                currentValues.getProjectileReference(), false
         ), 0.73f, 0.8f, 0.8f, 0.85f);
 
         addComponent(

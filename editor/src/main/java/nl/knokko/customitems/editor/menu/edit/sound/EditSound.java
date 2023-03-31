@@ -80,7 +80,7 @@ public class EditSound extends GuiMenu {
                         currentValues.setVanillaSound(null);
                         currentValues.setCustomSound(newSound);
                         currentSoundComponent.setText(currentSoundString());
-                    }, candidateSound -> true, candidateSound -> candidateSound.get().getName(), this
+                    }, candidateSound -> true, candidateSound -> candidateSound.get().getName(), this, false
             ));
         }), 0.85f, 0.6f, 0.95f, 0.7f);
 

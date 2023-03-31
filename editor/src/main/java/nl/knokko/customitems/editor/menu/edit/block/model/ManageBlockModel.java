@@ -47,7 +47,7 @@ public class ManageBlockModel extends GuiMenu {
             state.getWindow().setMainComponent(new CollectionSelect<>(itemSet.getTextures().references(), chosenTexture -> {
                 changeModel.accept(new SimpleBlockModel(chosenTexture));
             }, candidateTexture -> candidateTexture.get().getClass() == BaseTextureValues.class,
-                    candidateTexture -> candidateTexture.get().getName(), returnMenu
+                    candidateTexture -> candidateTexture.get().getName(), returnMenu, false
             ));
         }), 0.55f, 0.55f, 0.95f, 0.65f);
 

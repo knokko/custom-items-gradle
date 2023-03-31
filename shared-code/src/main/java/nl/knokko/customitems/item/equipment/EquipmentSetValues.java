@@ -32,7 +32,7 @@ public class EquipmentSetValues extends ModelValues {
         int numBonuses = input.readInt();
         result.bonuses = new ArrayList<>(numBonuses);
         for (int counter = 0; counter < numBonuses; counter++) {
-            result.bonuses.add(EquipmentBonusValues.load(input));
+            result.bonuses.add(EquipmentBonusValues.load(input, itemSet));
         }
 
         return result;

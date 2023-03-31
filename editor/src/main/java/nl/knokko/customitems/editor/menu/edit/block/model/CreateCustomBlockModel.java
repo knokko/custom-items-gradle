@@ -57,7 +57,7 @@ public class CreateCustomBlockModel extends GuiMenu {
         addComponent(new DynamicTextComponent("Editor texture:", LABEL), 0.4f, 0.55f, 0.6f, 0.65f);
         addComponent(CollectionSelect.createButton(
                 itemSet.getTextures().references(), newTexture -> pTexture[0] = newTexture,
-                candidateTexture -> candidateTexture.get().getName(), null
+                candidateTexture -> candidateTexture.get().getName(), null, false
         ), 0.625f, 0.55f, 0.8f, 0.65f);
 
         addComponent(new DynamicTextButton("Done", SAVE_BASE, SAVE_HOVER, () -> {

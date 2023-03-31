@@ -1,5 +1,6 @@
 package nl.knokko.customitems.plugin.tasks.projectile;
 
+import nl.knokko.customitems.itemset.CustomDamageSourceReference;
 import nl.knokko.customitems.nms.GeneralItemNBT;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.nms.RaytraceResult;
@@ -9,6 +10,7 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
@@ -17,7 +19,7 @@ import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 
 public class UpdateProjectileTask implements Runnable {
-	
+
 	private final FlyingProjectile projectile;
 	
 	private Item coverItem;
@@ -64,13 +66,18 @@ public class UpdateProjectileTask implements Runnable {
 				projectile.applyEffects(projectile.prototype.getImpactEffects());
 
 				// If we hit an entity, damage it
+
 				if (ray.getHitEntity() != null && projectile.prototype.getDamage() > 0) {
+					ray.getHitEntity().setMetadata("HitByCustomProjectile", new FixedMetadataValue(
+							CustomItemsPlugin.getInstance(), projectile.prototype.getName()
+					));
 					KciNms.instance.entities.causeFakeProjectileDamage(ray.getHitEntity(),
 							projectile.responsibleShooter, projectile.prototype.getDamage(),
 							projectile.currentPosition.getX(), projectile.currentPosition.getY(),
 							projectile.currentPosition.getZ(),
 							projectile.currentVelocity.getX(), projectile.currentVelocity.getY(),
 							projectile.currentVelocity.getZ());
+					ray.getHitEntity().removeMetadata("HitByCustomProjectile", CustomItemsPlugin.getInstance());
 				}
 
 				if (ray.getHitEntity() != null && projectile.currentVelocity.lengthSquared() > 0.0001) {

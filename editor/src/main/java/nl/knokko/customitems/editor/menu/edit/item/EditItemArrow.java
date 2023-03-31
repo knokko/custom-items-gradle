@@ -1,5 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.item;
 
+import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.attack.effect.AttackEffectGroupCollectionEdit;
@@ -85,6 +86,14 @@ public class EditItemArrow extends EditItemBase<CustomArrowValues> {
                     false, this, menu.getSet()
             ));
         }), 0.8f, 0.26f, 0.975f, 0.34f);
+
+        addComponent(new DynamicTextComponent(
+                "Custom shoot damage source:", LABEL
+        ), 0.6f, 0.16f, 0.84f, 0.24f);
+        addComponent(CollectionSelect.createButton(
+                menu.getSet().getDamageSources().references(), currentValues::setCustomShootDamageSource,
+                damageSource -> damageSource.get().getName(), currentValues.getCustomShootDamageSourceReference(), true
+        ), 0.85f, 0.16f, 0.98f, 0.24f);
 
         HelpButtons.addHelpLink(this, "edit menu/items/edit/arrow.html");
     }

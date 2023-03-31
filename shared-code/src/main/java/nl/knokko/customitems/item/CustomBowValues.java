@@ -2,6 +2,7 @@ package nl.knokko.customitems.item;
 
 import nl.knokko.customitems.encoding.ItemEncoding;
 import nl.knokko.customitems.item.model.DefaultModelType;
+import nl.knokko.customitems.itemset.CustomDamageSourceReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
@@ -11,6 +12,9 @@ import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
+
+import java.util.Objects;
+import java.util.UUID;
 
 import static nl.knokko.customitems.util.Checks.isClose;
 
@@ -54,6 +58,7 @@ public class CustomBowValues extends CustomToolValues {
     private int knockbackStrength;
     private boolean hasGravity;
     private int shootDurabilityLoss;
+    private CustomDamageSourceReference customShootDamageSource;
 
     public CustomBowValues(boolean mutable) {
         super(mutable, CustomItemType.BOW);
@@ -63,6 +68,7 @@ public class CustomBowValues extends CustomToolValues {
         this.knockbackStrength = 0;
         this.hasGravity = true;
         this.shootDurabilityLoss = 1;
+        this.customShootDamageSource = null;
     }
 
     public CustomBowValues(CustomBowValues toCopy, boolean mutable) {
@@ -73,6 +79,7 @@ public class CustomBowValues extends CustomToolValues {
         this.knockbackStrength = toCopy.getKnockbackStrength();
         this.hasGravity = toCopy.hasGravity();
         this.shootDurabilityLoss = toCopy.getShootDurabilityLoss();
+        this.customShootDamageSource = toCopy.getCustomShootDamageSourceReference();
     }
 
     @Override
@@ -84,31 +91,42 @@ public class CustomBowValues extends CustomToolValues {
         this.loadToolPropertiesNew(input, itemSet);
 
         byte encoding = input.readByte();
-        if (encoding != 1) throw new UnknownEncodingException("CustomBowNew", encoding);
+        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("CustomBowNew", encoding);
 
         this.damageMultiplier = input.readDouble();
         this.speedMultiplier = input.readDouble();
         this.knockbackStrength = input.readInt();
         this.hasGravity = input.readBoolean();
         this.shootDurabilityLoss = input.readInt();
+        if (encoding >= 2) {
+            if (input.readBoolean()) {
+                this.customShootDamageSource = itemSet.getDamageSourceReference(new UUID(input.readLong(), input.readLong()));
+            } else this.customShootDamageSource = null;
+        } else this.customShootDamageSource = null;
     }
 
     protected void saveBowPropertiesNew(BitOutput output, ItemSet.Side targetSide) {
         this.saveToolPropertiesNew(output, targetSide);
 
-        output.addByte((byte) 1);
+        output.addByte((byte) 2);
 
         output.addDouble(this.damageMultiplier);
         output.addDouble(this.speedMultiplier);
         output.addInt(this.knockbackStrength);
         output.addBoolean(this.hasGravity);
         output.addInt(this.shootDurabilityLoss);
+        output.addBoolean(this.customShootDamageSource != null);
+        if (customShootDamageSource != null) {
+            output.addLong(customShootDamageSource.get().getId().getMostSignificantBits());
+            output.addLong(customShootDamageSource.get().getId().getLeastSignificantBits());
+        }
     }
 
     protected boolean areBowPropertiesEqual(CustomBowValues other) {
         return areToolPropertiesEqual(other) && isClose(this.damageMultiplier, other.damageMultiplier)
                 && isClose(this.speedMultiplier, other.speedMultiplier) && this.knockbackStrength == other.knockbackStrength
-                && this.hasGravity == other.hasGravity && this.shootDurabilityLoss == other.shootDurabilityLoss;
+                && this.hasGravity == other.hasGravity && this.shootDurabilityLoss == other.shootDurabilityLoss
+                && Objects.equals(this.customShootDamageSource, other.customShootDamageSource);
     }
 
     @Override
@@ -202,24 +220,6 @@ public class CustomBowValues extends CustomToolValues {
         loadExtraProperties10(input);
     }
 
-    private void saveBowIdentityProperties10(BitOutput output) {
-        output.addShort(itemDamage);
-        output.addJavaString(name);
-        output.addString(alias);
-    }
-
-    private void saveBowPropertiesA4(BitOutput output) {
-        if (maxDurability != null) {
-            output.addLong(maxDurability);
-        } else {
-            output.addLong(-1L);
-        }
-        output.addDoubles(damageMultiplier, speedMultiplier);
-        output.addInt(knockbackStrength);
-        output.addBooleans(hasGravity, allowEnchanting, allowAnvilActions);
-        repairItem.save(output);
-    }
-
     private void initDefaults3() {
         initToolDefaults3();
         initBowOnlyDefaults3();
@@ -266,6 +266,11 @@ public class CustomBowValues extends CustomToolValues {
     }
 
     private void initBowOnlyDefaults10() {
+        this.customShootDamageSource = null;
+        initBowOnlyDefaults11();
+    }
+
+    private void initBowOnlyDefaults11() {
         // Nothing to be done until the next encoding is known
     }
 
@@ -297,6 +302,10 @@ public class CustomBowValues extends CustomToolValues {
 
     public int getShootDurabilityLoss() {
         return shootDurabilityLoss;
+    }
+
+    public CustomDamageSourceReference getCustomShootDamageSourceReference() {
+        return customShootDamageSource;
     }
 
     @Override
@@ -332,6 +341,11 @@ public class CustomBowValues extends CustomToolValues {
         this.shootDurabilityLoss = newShootDurabilityLoss;
     }
 
+    public void setCustomShootDamageSource(CustomDamageSourceReference newDamageSource) {
+        assertMutable();
+        this.customShootDamageSource = newDamageSource;
+    }
+
     @Override
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {
         super.validateIndependent();
@@ -352,5 +366,8 @@ public class CustomBowValues extends CustomToolValues {
         super.validateComplete(itemSet, oldName);
 
         if (!(texture.get() instanceof BowTextureValues)) throw new ProgrammingValidationException("Texture must be a bow texture");
+        if (customShootDamageSource != null && !itemSet.isReferenceValid(customShootDamageSource)) {
+            throw new ProgrammingValidationException("Custom shoot damage source is invalid");
+        }
     }
 }

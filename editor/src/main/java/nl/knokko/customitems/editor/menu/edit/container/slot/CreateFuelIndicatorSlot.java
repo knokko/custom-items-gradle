@@ -67,7 +67,7 @@ public class CreateFuelIndicatorSlot extends GuiMenu {
 								slot -> (FuelSlotValues) slot
 						).collect(Collectors.toList()),
 						newSlot -> currentValues.setFuelSlotName(newSlot.getName()),
-						FuelSlotValues::getName, null
+						FuelSlotValues::getName, null, false
 				), 0.425f, 0.7f, 0.6f, 0.75f
 		);
 		

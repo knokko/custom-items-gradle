@@ -67,7 +67,7 @@ public class CreateFuelSlot extends GuiMenu {
 				itemSet.getFuelRegistries().references(),
 				currentValues::setFuelRegistry,
 				registry -> registry == null ? "Select..." : registry.get().getName(),
-				null
+				null, false
 			), 0.425f, 0.6f, 0.55f, 0.65f
 		);
 		addComponent(new DynamicTextButton("Create new", BUTTON, HOVER, () -> {

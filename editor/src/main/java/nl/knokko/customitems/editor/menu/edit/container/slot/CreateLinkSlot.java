@@ -52,7 +52,7 @@ public class CreateLinkSlot extends GuiMenu {
                         itemSet.getContainers().references(),
                         currentValues::setLinkedContainer,
                         containerReference -> containerReference.get().getName(),
-                        currentValues.getLinkedContainerReference()
+                        currentValues.getLinkedContainerReference(), false
                 ), 0.425f, 0.7f, 0.6f, 0.75f
         );
 

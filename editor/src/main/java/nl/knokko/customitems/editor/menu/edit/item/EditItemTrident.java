@@ -1,5 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.item;
 
+import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.item.model.EditItemModel;
@@ -13,8 +14,9 @@ import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
-import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
-import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
+import java.util.Collection;
+
+import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class EditItemTrident extends EditItemTool<CustomTridentValues> {
 	
@@ -72,7 +74,14 @@ public class EditItemTrident extends EditItemTool<CustomTridentValues> {
 					DefaultModelType.TRIDENT_THROWING, false, this
 			));
 		}), 0.85f, 0.05f, 0.95f, 0.125f);
-		
+		addComponent(new DynamicTextComponent(
+				"Custom throw damage source:", LABEL
+		), 0.6f, -0.025f, 0.84f, 0.05f);
+		addComponent(CollectionSelect.createButton(
+				menu.getSet().getDamageSources().references(), currentValues::setCustomThrowDamageSource,
+				damageSource -> damageSource.get().getName(), currentValues.getCustomThrowDamageSourceReference(), true
+		), 0.85f, -0.025f, 0.95f, 0.05f);
+
 		HelpButtons.addHelpLink(this, "edit%20menu/items/edit/trident.html");
 	}
 }

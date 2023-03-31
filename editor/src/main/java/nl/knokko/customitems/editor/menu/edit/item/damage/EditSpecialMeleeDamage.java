@@ -1,4 +1,4 @@
-package nl.knokko.customitems.editor.menu.edit.item;
+package nl.knokko.customitems.editor.menu.edit.item.damage;
 
 import nl.knokko.customitems.damage.RawDamageSource;
 import nl.knokko.customitems.damage.SpecialMeleeDamageValues;

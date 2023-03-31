@@ -1,9 +1,11 @@
-package nl.knokko.customitems.editor.menu.edit.item;
+package nl.knokko.customitems.editor.menu.edit.item.damage;
 
 import nl.knokko.customitems.damage.DamageSource;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
+import nl.knokko.customitems.editor.menu.edit.item.damage.EditCustomDamageResistances;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.DamageResistanceValues;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.EagerIntEditField;
@@ -12,19 +14,23 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 import java.util.function.Consumer;
 
-import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
-import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
+import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class EditDamageResistances extends GuiMenu {
 	
 	private final Runnable onCancel;
+	private final ItemSet itemSet;
 	private final Consumer<DamageResistanceValues> onApply;
 	
 	private final DamageResistanceValues resistances;
 	
 	private final DynamicTextComponent errorComponent;
 	
-	public EditDamageResistances(DamageResistanceValues oldResistances, Runnable onCancel, Consumer<DamageResistanceValues> onApply) {
+	public EditDamageResistances(
+			ItemSet itemSet, DamageResistanceValues oldResistances, Runnable onCancel,
+			Consumer<DamageResistanceValues> onApply
+	) {
+		this.itemSet = itemSet;
 		this.resistances = oldResistances.copy(true);
 		this.errorComponent = new DynamicTextComponent("", EditProps.ERROR);
 		
@@ -41,6 +47,9 @@ public class EditDamageResistances extends GuiMenu {
 	@Override
 	protected void addComponents() {
 		addComponent(new DynamicTextButton("Cancel", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, onCancel), 0.025f, 0.8f, 0.15f, 0.875f);
+		addComponent(new DynamicTextButton("Custom...", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new EditCustomDamageResistances(itemSet.getDamageSources(), this, resistances));
+		}), 0.025f, 0.5f, 0.175f, 0.6f);
 		DamageSource[] damageSources = DamageSource.values();
 		addComponent(new DynamicTextButton("Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
 			onApply.accept(resistances);
@@ -59,7 +68,7 @@ public class EditDamageResistances extends GuiMenu {
 			addComponent(new DynamicTextComponent("%", EditProps.LABEL), x + 0.17f, y, x + 0.19f, y + 0.1f);
 		}
 		addComponent(errorComponent, 0.05f, 0.9f, 0.95f, 1f);
-		
+
 		HelpButtons.addHelpLink(this, "edit%20menu/items/edit/damage%20resistances.html");
 	}
 	

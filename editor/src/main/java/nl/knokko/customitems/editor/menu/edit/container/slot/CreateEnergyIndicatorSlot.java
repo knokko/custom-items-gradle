@@ -54,7 +54,7 @@ public class CreateEnergyIndicatorSlot extends GuiMenu {
                         itemSet.getEnergyTypes().references(),
                         currentValues::setEnergyType,
                         energyTypeReference -> energyTypeReference.get().getName(),
-                        currentValues.getEnergyTypeReference()
+                        currentValues.getEnergyTypeReference(), false
                 ), 0.425f, 0.7f, 0.6f, 0.75f
         );
 

@@ -1,9 +1,10 @@
 package nl.knokko.customitems.editor.menu.edit.item.equipment;
 
 import nl.knokko.customitems.editor.menu.edit.item.AttributeCollectionEdit;
-import nl.knokko.customitems.editor.menu.edit.item.EditDamageResistances;
+import nl.knokko.customitems.editor.menu.edit.item.damage.EditDamageResistances;
 import nl.knokko.customitems.item.AttributeModifierValues;
 import nl.knokko.customitems.item.equipment.EquipmentBonusValues;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -23,10 +24,12 @@ class EquipmentBonusList extends GuiMenu {
             5.0
     );
 
+    private final ItemSet itemSet;
     private final GuiComponent outerMenu;
     private final List<EquipmentBonusValues> bonuses;
 
-    EquipmentBonusList(GuiComponent outerMenu, List<EquipmentBonusValues> bonuses) {
+    EquipmentBonusList(ItemSet itemSet, GuiComponent outerMenu, List<EquipmentBonusValues> bonuses) {
+        this.itemSet = itemSet;
         this.outerMenu = outerMenu;
         this.bonuses = bonuses;
     }
@@ -51,7 +54,7 @@ class EquipmentBonusList extends GuiMenu {
             }), 0.46f, minY, 0.68f, maxY);
             addComponent(new DynamicTextButton("Damage resistances...", BUTTON, HOVER, () -> {
                 state.getWindow().setMainComponent(new EditDamageResistances(
-                        bonus.getDamageResistances(), () -> state.getWindow().setMainComponent(outerMenu), newResistances -> {
+                        itemSet, bonus.getDamageResistances(), () -> state.getWindow().setMainComponent(outerMenu), newResistances -> {
                             bonus.setDamageResistances(newResistances);
                             state.getWindow().setMainComponent(outerMenu);
                         }

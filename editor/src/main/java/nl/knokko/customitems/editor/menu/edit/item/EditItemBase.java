@@ -8,6 +8,7 @@ import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.menu.edit.attack.effect.AttackEffectGroupCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.item.command.EditCommandSystem;
+import nl.knokko.customitems.editor.menu.edit.item.damage.EditSpecialMeleeDamage;
 import nl.knokko.customitems.editor.menu.edit.item.model.EditItemModel;
 import nl.knokko.customitems.editor.menu.edit.texture.TextureEdit;
 import nl.knokko.customitems.editor.util.Validation;
@@ -171,6 +172,9 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 		addComponent(new DynamicTextComponent(
 				"Wiki visibility:", LABEL
 		), LABEL_X, -0.63f, LABEL_X + 0.15f, -0.58f);
+		addComponent(new DynamicTextComponent(
+				"Custom melee damage source", LABEL
+		), LABEL_X, -0.69f, LABEL_X + 0.19f, -0.64f);
 
 		if (toModify != null) {
 			addComponent(new DynamicTextButton("Apply", SAVE_BASE, EditProps.SAVE_HOVER, () -> {
@@ -264,7 +268,7 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 							currentValues::setTexture,
 							this::allowTexture,
 							textureReference -> textureReference.get().getName(),
-							currentValues.getTextureReference()
+							currentValues.getTextureReference(), false
 					),
 					BUTTON_X, 0.32f, BUTTON_X + 0.1f, 0.37f
 			);
@@ -337,6 +341,10 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 		addComponent(EnumSelect.createSelectButton(
 				WikiVisibility.class, currentValues::setWikiVisibility, currentValues.getWikiVisibility()
 		), BUTTON_X, -0.63f, BUTTON_X + 0.1f, -0.58f);
+		addComponent(CollectionSelect.createButton(
+				menu.getSet().getDamageSources().references(), currentValues::setCustomMeleeDamageSource,
+				damageSource -> damageSource.get().getName(), currentValues.getCustomMeleeDamageSourceReference(), true
+		), BUTTON_X, -0.69f, BUTTON_X + 0.1f, -0.64f);
 	}
 
 	protected GuiComponent createLoadTextureMenu() {

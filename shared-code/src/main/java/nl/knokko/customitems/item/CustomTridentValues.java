@@ -6,12 +6,16 @@ import nl.knokko.customitems.item.model.DefaultItemModel;
 import nl.knokko.customitems.item.model.DefaultModelType;
 import nl.knokko.customitems.item.model.ItemModel;
 import nl.knokko.customitems.item.model.LegacyCustomItemModel;
+import nl.knokko.customitems.itemset.CustomDamageSourceReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
+
+import java.util.Objects;
+import java.util.UUID;
 
 import static nl.knokko.customitems.util.Checks.isClose;
 
@@ -53,6 +57,8 @@ public class CustomTridentValues extends CustomToolValues {
     private ItemModel inHandModel;
     private ItemModel throwingModel;
 
+    private CustomDamageSourceReference customThrowDamageSource;
+
     public CustomTridentValues(boolean mutable) {
         super(mutable, CustomItemType.TRIDENT);
 
@@ -63,6 +69,7 @@ public class CustomTridentValues extends CustomToolValues {
 
         this.inHandModel = new DefaultItemModel(DefaultModelType.TRIDENT_IN_HAND.recommendedParents.get(0));
         this.throwingModel = new DefaultItemModel(DefaultModelType.TRIDENT_THROWING.recommendedParents.get(0));
+        this.customThrowDamageSource = null;
     }
 
     public CustomTridentValues(CustomTridentValues toCopy, boolean mutable) {
@@ -73,6 +80,7 @@ public class CustomTridentValues extends CustomToolValues {
         this.throwSpeedMultiplier = toCopy.getThrowSpeedMultiplier();
         this.inHandModel = toCopy.getInHandModel();
         this.throwingModel = toCopy.getThrowingModel();
+        this.customThrowDamageSource = toCopy.getCustomThrowDamageSourceReference();
     }
 
     @Override
@@ -84,7 +92,7 @@ public class CustomTridentValues extends CustomToolValues {
         this.loadToolPropertiesNew(input, itemSet);
 
         byte encoding = input.readByte();
-        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("CustomTridentNew", encoding);
+        if (encoding < 1 || encoding > 3) throw new UnknownEncodingException("CustomTridentNew", encoding);
 
         this.throwDurabilityLoss = input.readInt();
         this.throwDamageMultiplier = input.readDouble();
@@ -107,18 +115,27 @@ public class CustomTridentValues extends CustomToolValues {
                 }
             }
         }
+
+        if (encoding >= 3 && input.readBoolean()) {
+            this.customThrowDamageSource = itemSet.getDamageSourceReference(new UUID(input.readLong(), input.readLong()));
+        } else this.customThrowDamageSource = null;
     }
 
     protected void saveTridentPropertiesNew(BitOutput output, ItemSet.Side side) {
         this.saveToolPropertiesNew(output, side);
 
-        output.addByte((byte) 2);
+        output.addByte((byte) 3);
 
         output.addInt(this.throwDurabilityLoss);
         output.addDoubles(this.throwDamageMultiplier, this.throwSpeedMultiplier);
         if (side == ItemSet.Side.EDITOR) {
             this.inHandModel.save(output);
             this.throwingModel.save(output);
+        }
+        output.addBoolean(this.customThrowDamageSource != null);
+        if (this.customThrowDamageSource != null) {
+            output.addLong(this.customThrowDamageSource.get().getId().getMostSignificantBits());
+            output.addLong(this.customThrowDamageSource.get().getId().getLeastSignificantBits());
         }
     }
 
@@ -173,7 +190,12 @@ public class CustomTridentValues extends CustomToolValues {
     }
 
     private void initTridentOnlyDefaults10() {
-        // Nothing to be done until the next encoding
+        initTridentOnlyDefaults11();
+        this.customThrowDamageSource = null;
+    }
+
+    private void initTridentOnlyDefaults11() {
+        // Nothing to be done until the next encoding is known
     }
 
     private void initTridentDefaults9() {
@@ -213,7 +235,8 @@ public class CustomTridentValues extends CustomToolValues {
     protected boolean areTridentPropertiesEqual(CustomTridentValues other) {
         return areToolPropertiesEqual(other) && this.throwDurabilityLoss == other.throwDurabilityLoss
                 && isClose(this.throwDamageMultiplier, other.throwDamageMultiplier)
-                && isClose(this.throwSpeedMultiplier, other.throwSpeedMultiplier);
+                && isClose(this.throwSpeedMultiplier, other.throwSpeedMultiplier)
+                && Objects.equals(this.customThrowDamageSource, other.customThrowDamageSource);
     }
 
     @Override
@@ -252,6 +275,10 @@ public class CustomTridentValues extends CustomToolValues {
         return throwingModel;
     }
 
+    public CustomDamageSourceReference getCustomThrowDamageSourceReference() {
+        return customThrowDamageSource;
+    }
+
     public void setThrowDurabilityLoss(int newThrowDurabilityLoss) {
         assertMutable();
         this.throwDurabilityLoss = newThrowDurabilityLoss;
@@ -277,6 +304,11 @@ public class CustomTridentValues extends CustomToolValues {
         this.throwingModel = newModel;
     }
 
+    public void setCustomThrowDamageSource(CustomDamageSourceReference newDamageSource) {
+        assertMutable();
+        this.customThrowDamageSource = newDamageSource;
+    }
+
     @Override
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {
         super.validateIndependent();
@@ -287,6 +319,15 @@ public class CustomTridentValues extends CustomToolValues {
 
         if (inHandModel == null) throw new ProgrammingValidationException("No in-hand model");
         if (throwingModel == null) throw new ProgrammingValidationException("No throwing model");
+    }
+
+    @Override
+    public void validateComplete(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
+        super.validateComplete(itemSet, oldName);
+
+        if (customThrowDamageSource != null && !itemSet.isReferenceValid(customThrowDamageSource)) {
+            throw new ProgrammingValidationException("Invalid custom throw damage source");
+        }
     }
 
     @Override

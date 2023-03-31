@@ -12,26 +12,29 @@ import nl.knokko.gui.component.text.TextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
+import static nl.knokko.customitems.editor.menu.edit.EditProps.CANCEL_BASE;
+import static nl.knokko.customitems.editor.menu.edit.EditProps.CANCEL_HOVER;
+
 public class CollectionSelect<T> extends GuiMenu {
 	
 	public static <T> DynamicTextButton createButton(Iterable<T> backingCollection, Consumer<T> onSelect,
-			Predicate<T> filter, Function<T, String> formatter, T current) {
+			Predicate<T> filter, Function<T, String> formatter, T current, boolean allowNone) {
 		String text = current == null ? "None" : formatter.apply(current);
 		return new DynamicTextButton(text, EditProps.BUTTON, EditProps.HOVER, null) {
 			
 			@Override
 			public void click(float x, float y, int button) {
 				state.getWindow().setMainComponent(new CollectionSelect<>(backingCollection, (T selected) -> {
-					setText(formatter.apply(selected));
+					setText(selected != null ? formatter.apply(selected) : "None");
 					onSelect.accept(selected);
-				}, filter, formatter, state.getWindow().getMainComponent()));
+				}, filter, formatter, state.getWindow().getMainComponent(), allowNone));
 			}
 		};
 	}
 	
 	public static <T> DynamicTextButton createButton(Iterable<T> backingCollection, Consumer<T> onSelect,
-			Function<T, String> formatter, T current) {
-		return createButton(backingCollection, onSelect, (T item) -> { return true; }, formatter, current);
+			Function<T, String> formatter, T current, boolean allowNone) {
+		return createButton(backingCollection, onSelect, (T item) -> { return true; }, formatter, current, allowNone);
 	}
 	
 	private final Iterable<T> collection;
@@ -40,19 +43,21 @@ public class CollectionSelect<T> extends GuiMenu {
 	private final Function<T, String> formatter;
 	
 	private final GuiComponent returnMenu;
+	private final boolean allowNone;
 
 	public CollectionSelect(Iterable<T> backingCollection, Consumer<T> onSelect, Predicate<T> filter,
-							Function<T, String> formatter, GuiComponent returnMenu) {
+							Function<T, String> formatter, GuiComponent returnMenu, boolean allowNone) {
 		this.collection = backingCollection;
 		this.onSelect = onSelect;
 		this.filter = filter;
 		this.returnMenu = returnMenu;
 		this.formatter = formatter;
+		this.allowNone = allowNone;
 	}
 
 	@Override
 	protected void addComponents() {
-		addComponent(new DynamicTextButton("Cancel", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
+		addComponent(new DynamicTextButton("Cancel", CANCEL_BASE, CANCEL_HOVER, () -> {
 			state.getWindow().setMainComponent(returnMenu);
 		}), 0.025f, 0.7f, 0.15f, 0.8f);
 		
@@ -61,6 +66,13 @@ public class CollectionSelect<T> extends GuiMenu {
 		);
 		TextEditField searchField = new TextEditField("", EditProps.EDIT_BASE, EditProps.EDIT_ACTIVE);
 		addComponent(searchField, 0.025f, 0.4f, 0.15f, 0.5f);
+
+		if (allowNone) {
+			addComponent(new DynamicTextButton("Reset", CANCEL_BASE, CANCEL_HOVER, () -> {
+				onSelect.accept(null);
+				state.getWindow().setMainComponent(returnMenu);
+			}), 0.025f, 0.1f, 0.15f, 0.2f);
+		}
 		
 		addComponent(new EntryList(searchField), 0.3f, 0f, 1f, 0.9f);
 	}

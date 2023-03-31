@@ -46,7 +46,7 @@ public class EditItemBlock extends EditItemBase<CustomBlockItemValues> {
                 menu.getSet().getBlocks().references(),
                 currentValues::setBlock,
                 block -> block.get().getName(),
-                currentValues.getBlockReference()
+                currentValues.getBlockReference(), false
         ), 0.82f, 0.5f, 0.99f, 0.6f);
         addComponent(new DynamicTextComponent("Max stacksize:", EditProps.LABEL),
                 0.71f, 0.35f, 0.895f, 0.45f);

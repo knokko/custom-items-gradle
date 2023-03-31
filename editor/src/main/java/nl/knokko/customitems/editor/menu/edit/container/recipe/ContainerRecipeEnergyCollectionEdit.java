@@ -38,7 +38,7 @@ public class ContainerRecipeEnergyCollectionEdit extends InlineCollectionEdit<Re
                 itemSet.getEnergyTypes().references(),
                 item::setEnergyType,
                 energyTypeReference -> energyTypeReference.get().getName(),
-                item.getEnergyTypeReference()
+                item.getEnergyTypeReference(), false
         ), 0.33f, minY, 0.45f, maxY);
 
         addComponent(EnumSelect.createSelectButton(
