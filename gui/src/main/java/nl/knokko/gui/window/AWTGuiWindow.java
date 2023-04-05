@@ -1,15 +1,11 @@
 package nl.knokko.gui.window;
 
 import java.awt.*;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
+import java.awt.event.*;
+import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
+import java.util.function.Function;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
@@ -44,6 +40,8 @@ public class AWTGuiWindow extends GuiWindow {
 	private final AWTTextureLoader textureLoader;
 	private final AWTGuiRenderer guiRenderer;
 	private final CharBuilder charBuilder;
+
+	private Function<GuiComponent, GuiComponent> createCloseComponent;
 	
 	private int prevMouseX;
 	private int prevMouseY;
@@ -52,6 +50,11 @@ public class AWTGuiWindow extends GuiWindow {
 		textureLoader = new AWTTextureLoader();
 		guiRenderer = new AWTGuiRenderer(this);
 		charBuilder = new CharBuilder(textureLoader);
+	}
+
+	@Override
+	public void setWindowCloseComponent(Function<GuiComponent, GuiComponent> createCloseComponent) {
+		this.createCloseComponent = createCloseComponent;
 	}
 
 	public JFrame getFrame(){
@@ -131,13 +134,14 @@ public class AWTGuiWindow extends GuiWindow {
 			frame.setSize(width, height);
 			frame.setTitle(title);
 			frame.setVisible(true);
-			frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+			frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 			frame.setFocusTraversalKeysEnabled(false);
 			Listener l = new Listener();
 			frame.addKeyListener(l);
 			frame.addMouseListener(l);
 			frame.addMouseWheelListener(l);
 			frame.addMouseMotionListener(l);
+			frame.addWindowListener(l);
 		});
 	}
 	
@@ -164,13 +168,14 @@ public class AWTGuiWindow extends GuiWindow {
 			
 			frame.setTitle(title);
 			frame.setVisible(true);
-			frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+			frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 			frame.setFocusTraversalKeysEnabled(false);
 			Listener l = new Listener();
 			frame.addKeyListener(l);
 			frame.addMouseListener(l);
 			frame.addMouseWheelListener(l);
 			frame.addMouseMotionListener(l);
+			frame.addWindowListener(l);
 		});
 	}
 	
@@ -259,7 +264,7 @@ public class AWTGuiWindow extends GuiWindow {
 		return 0;
 	}
 	
-	private class Listener implements KeyListener, MouseListener, MouseWheelListener, MouseMotionListener {
+	private class Listener implements KeyListener, MouseListener, MouseWheelListener, MouseMotionListener, WindowListener {
 
 		public void mouseDragged(MouseEvent e) {}
 
@@ -325,6 +330,35 @@ public class AWTGuiWindow extends GuiWindow {
 				}
 			}
 		}
+
+		@Override
+		public void windowOpened(WindowEvent e) {}
+
+		@Override
+		public void windowClosing(WindowEvent e) {
+			if (createCloseComponent != null) {
+				setMainComponent(createCloseComponent.apply(getMainComponent()));
+			} else {
+				stopRunning();
+			}
+		}
+
+		@Override
+		public void windowClosed(WindowEvent e) {
+			System.out.println("The window was closed");
+		}
+
+		@Override
+		public void windowIconified(WindowEvent e) {}
+
+		@Override
+		public void windowDeiconified(WindowEvent e) {}
+
+		@Override
+		public void windowActivated(WindowEvent e) {}
+
+		@Override
+		public void windowDeactivated(WindowEvent e) {}
 	}
 
 	@Override

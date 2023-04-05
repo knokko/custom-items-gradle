@@ -28,6 +28,7 @@ public abstract class AfterExportMenu extends GuiMenu {
             state.getWindow().stopRunning();
         }), 0.1f, 0.1f, 0.25f, 0.2f);
         addComponent(new DynamicTextButton("Back to main menu", EditProps.BUTTON, EditProps.HOVER, () -> {
+            state.getWindow().setWindowCloseComponent(null);
             state.getWindow().setMainComponent(MainMenu.INSTANCE);
         }), 0.35f, 0.1f, 0.55f, 0.2f);
         addComponent(new DynamicTextButton("Back to edit menu", EditProps.BUTTON, EditProps.HOVER, () -> {

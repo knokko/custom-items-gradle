@@ -8,6 +8,7 @@ import nl.knokko.gui.util.CharBuilder;
 import nl.knokko.gui.window.input.WindowInput;
 
 import java.awt.image.BufferedImage;
+import java.util.function.Function;
 
 /**
  * The GuiWindow is the core of this library. The 2 types of GuiWindow are AWTGuiWindow and GLGuiWindow. GLGuiWindow is part of the GLGui library because it requires LWJGL. AWTGuiWindow is part of this library because everything it needs is part of java. Applications should create 1 instance of GuiWindow for their window. The getTextureLoader() should be used to create textures for the components of the window.
@@ -50,6 +51,8 @@ public abstract class GuiWindow {
 		setMainComponentState();
 		markChange();
 	}
+
+	public abstract void setWindowCloseComponent(Function<GuiComponent, GuiComponent> createCloseComponent);
 	
 	protected abstract void directOpen(String title, int width, int height, boolean border, BufferedImage iconImage);
 	

@@ -56,6 +56,9 @@ public class EditMenu extends GuiMenu {
 	public void init() {
 		super.init();
 		errorComponent.setText("");
+		state.getWindow().setWindowCloseComponent(oldComponent -> new ConfirmQuitMenu(
+				this, set, fileName
+		));
 	}
 
 	public ItemSet getSet() {
@@ -100,9 +103,10 @@ public class EditMenu extends GuiMenu {
 	@Override
 	protected void addComponents() {
 		addComponent(this.errorComponent, 0.255F, 0.9F, 0.995F, 1.0F);
-		addComponent(new DynamicTextButton("Quit", QUIT_BASE, QUIT_HOVER,
-						() -> this.state.getWindow().setMainComponent(MainMenu.INSTANCE)
-				), 0.05F, 0.88F, 0.25F, 0.98F);
+		addComponent(new DynamicTextButton("Quit", QUIT_BASE, QUIT_HOVER, () -> {
+				this.state.getWindow().setWindowCloseComponent(null);
+				this.state.getWindow().setMainComponent(MainMenu.INSTANCE);
+		}), 0.05F, 0.88F, 0.25F, 0.98F);
 		addComponent(new DynamicTextButton("Save", SAVE_BASE, SAVE_HOVER, () -> {
 			try {
 				EditorFileManager.saveAndBackUp(this.set, fileName);
@@ -114,6 +118,7 @@ public class EditMenu extends GuiMenu {
 		addComponent(new DynamicTextButton("Save and quit", SAVE_BASE, SAVE_HOVER, () -> {
 			try {
 				EditorFileManager.saveAndBackUp(this.set, fileName);
+				this.state.getWindow().setWindowCloseComponent(null);
 				this.state.getWindow().setMainComponent(MainMenu.INSTANCE);
 			} catch (IOException io) {
 				setError(io.getLocalizedMessage());
