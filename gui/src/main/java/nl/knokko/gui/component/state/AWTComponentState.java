@@ -4,18 +4,18 @@ import javax.swing.JFrame;
 
 import nl.knokko.gui.window.AWTGuiWindow;
 
+import java.util.Objects;
+
 public class AWTComponentState implements GuiComponentState {
 	
-	private final JFrame frame;
 	private final AWTGuiWindow window;
 
 	public AWTComponentState(AWTGuiWindow window) {
-		this.frame = window.getFrame();
 		this.window = window;
 	}
 
 	public boolean isMouseOver() {
-		return frame.getMousePosition() != null;
+		return window.getFrame().getMousePosition() != null;
 	}
 
 	public float getMouseX() {
