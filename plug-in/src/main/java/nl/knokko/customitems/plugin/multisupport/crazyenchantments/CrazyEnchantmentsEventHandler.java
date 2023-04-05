@@ -1,8 +1,8 @@
 package nl.knokko.customitems.plugin.multisupport.crazyenchantments;
 
-import com.badbones69.crazyenchantments.api.CrazyManager;
 import com.badbones69.crazyenchantments.api.enums.CEnchantments;
 import com.badbones69.crazyenchantments.api.events.HellForgedUseEvent;
+import com.badbones69.crazyenchantments.api.objects.CEItem;
 import com.badbones69.crazyenchantments.api.objects.CEnchantment;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomToolValues;
@@ -20,26 +20,30 @@ import static nl.knokko.customitems.plugin.set.item.CustomToolWrapper.wrap;
 
 public class CrazyEnchantmentsEventHandler implements Listener {
 
-	private static CEnchantment fromName(String enchantmentName) {
-		return CEnchantment.getCEnchantmentFromName(enchantmentName);
-	}
-
 	public CrazyEnchantmentsEventHandler() {
 		CrazyEnchantmentsSupport.crazyEnchantmentsFunctions = new CrazyEnchantmentsFunctions() {
 
+			private CEnchantment fromName(String enchantmentName) {
+				return CEnchantments.getFromName(enchantmentName).getEnchantment();
+			}
+
 			@Override
 			public int getLevel(ItemStack itemStack, String enchantmentName) {
-				return CrazyManager.getInstance().getLevel(itemStack, fromName(enchantmentName));
+				return fromName(enchantmentName).getLevel(itemStack);
 			}
 
 			@Override
 			public ItemStack add(ItemStack itemStack, String enchantmentName, int level) {
-				return CrazyManager.getInstance().addEnchantment(itemStack, fromName(enchantmentName), level);
+				CEItem ceItem = new CEItem(itemStack);
+				ceItem.setCEnchantment(fromName(enchantmentName), level);
+				return ceItem.build();
 			}
 
 			@Override
 			public ItemStack remove(ItemStack itemStack, String enchantmentName) {
-				return CrazyManager.getInstance().removeEnchantment(itemStack, fromName(enchantmentName));
+				CEItem ceItem = new CEItem(itemStack);
+				ceItem.removeCEnchantment(fromName(enchantmentName));
+				return ceItem.build();
 			}
 		};
 	}
