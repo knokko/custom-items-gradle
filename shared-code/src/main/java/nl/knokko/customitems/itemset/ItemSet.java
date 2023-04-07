@@ -19,6 +19,8 @@ import nl.knokko.customitems.item.equipment.EquipmentSetValues;
 import nl.knokko.customitems.item.model.DefaultItemModel;
 import nl.knokko.customitems.item.model.DefaultModelType;
 import nl.knokko.customitems.item.model.ItemModel;
+import nl.knokko.customitems.misc.CombinedResourcepack;
+import nl.knokko.customitems.misc.CombinedResourcepackValues;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 import nl.knokko.customitems.projectile.CustomProjectile;
 import nl.knokko.customitems.projectile.cover.ProjectileCoverValues;
@@ -71,6 +73,8 @@ public class ItemSet {
         ItemSet result = new ItemSet(Side.EDITOR);
 
         result.exportSettings = primary.exportSettings;
+        result.combinedResourcepacks.addAll(primary.combinedResourcepacks);
+        result.combinedResourcepacks.addAll(secondary.combinedResourcepacks);
         result.textures.addAll(primary.textures);
         result.textures.addAll(secondary.textures);
         result.armorTextures.addAll(primary.armorTextures);
@@ -151,6 +155,7 @@ public class ItemSet {
     private long exportTime;
 
     private ExportSettingsValues exportSettings;
+    Collection<CombinedResourcepack> combinedResourcepacks;
     Collection<CustomTexture> textures;
     Collection<ArmorTexture> armorTextures;
     Collection<CustomItem> items;
@@ -190,6 +195,7 @@ public class ItemSet {
 
     private void initialize() {
         exportSettings = new ExportSettingsValues(false);
+        combinedResourcepacks = new ArrayList<>();
         textures = new ArrayList<>();
         armorTextures = new ArrayList<>();
         items = new ArrayList<>();
@@ -219,7 +225,8 @@ public class ItemSet {
                 this.textures, this.armorTextures, this.items, this.equipmentSets, this.damageSources,
                 this.craftingRecipes, this.upgrades, this.blockDrops, this.mobDrops, this.blocks,
                 this.oreVeinGenerators, this.treeGenerators, this.containers, this.fuelRegistries, this.energyTypes,
-                this.soundTypes, this.projectiles, this.projectileCovers, this.removedItemNames
+                this.soundTypes, this.projectiles, this.projectileCovers, this.removedItemNames,
+                this.combinedResourcepacks
         }) {
             if (!relevantCollection.isEmpty()) return false;
         }
@@ -354,6 +361,11 @@ public class ItemSet {
         exportSettings.save(output);
 
         if (targetSide == Side.EDITOR) {
+            output.addInt(combinedResourcepacks.size());
+            for (CombinedResourcepackValues pack : getCombinedResourcepacks()) {
+                pack.save(output);
+            }
+
             output.addInt(textures.size());
             for (CustomTexture texture : textures) {
                 texture.getValues().save(output);
@@ -566,6 +578,7 @@ public class ItemSet {
 
     private void initDefaults10() {
         this.exportSettings = new ExportSettingsValues(false);
+        this.combinedResourcepacks = new ArrayList<>();
         this.damageSources = new ArrayList<>();
         this.upgrades = new ArrayList<>();
         initDefaults11();
@@ -579,6 +592,16 @@ public class ItemSet {
         if (side == Side.PLUGIN) {
             this.exportTime = input.readLong();
         }
+    }
+
+    private void loadCombinedResourcepacks(BitInput input) throws UnknownEncodingException {
+        if (this.side == Side.EDITOR) {
+            int numPacks = input.readInt();
+            this.combinedResourcepacks = new ArrayList<>(numPacks);
+            for (int counter = 0; counter < numPacks; counter++) {
+                this.combinedResourcepacks.add(new CombinedResourcepack(CombinedResourcepackValues.load(input)));
+            }
+        } else this.combinedResourcepacks = new ArrayList<>(0);
     }
 
     private void loadTextures(BitInput input, boolean readEncoding, boolean expectCompressed) throws UnknownEncodingException {
@@ -890,6 +913,7 @@ public class ItemSet {
         loadWithIntegrityCheck(rawInput, (input, hash) -> {
             this.exportSettings = ExportSettingsValues.load(input);
             loadExportTime(input);
+            loadCombinedResourcepacks(input);
             loadTextures(input, true, true);
             loadArmorTextures(input);
             loadProjectileCovers(input);
@@ -922,6 +946,10 @@ public class ItemSet {
 
     public long getExportTime() {
         return exportTime;
+    }
+
+    public CombinedResourcepacksView getCombinedResourcepacks() {
+        return new CombinedResourcepacksView(combinedResourcepacks);
     }
 
     public CustomTexturesView getTextures() {
@@ -1153,6 +1181,10 @@ public class ItemSet {
         return collection.contains(model);
     }
 
+    public boolean isReferenceValid(CombinedResourcepackReference reference) {
+        return isReferenceValid(combinedResourcepacks, reference.getModel());
+    }
+
     public boolean isReferenceValid(TextureReference reference) {
         return isReferenceValid(textures, reference.getModel());
     }
@@ -1342,6 +1374,15 @@ public class ItemSet {
     }
 
     private void validate() throws ValidationException, ProgrammingValidationException {
+        for (CombinedResourcepackValues combinedPack : getCombinedResourcepacks()) {
+            Validation.scope(
+                    "Combined resourcepack " + combinedPack.getName(),
+                    () -> combinedPack.validate(this, combinedPack.getName(), combinedPack.getPriority())
+            );
+        }
+        validateUniqueIDs("Combined resourcepack name", combinedResourcepacks, pack -> pack.getValues().getName());
+        validateUniqueIDs("Combined resourcepack priority", combinedResourcepacks, pack -> pack.getValues().getPriority());
+
         for (CustomTexture texture : textures) {
             Validation.scope(
                     "Texture " + texture.getValues().getName(),
@@ -1487,6 +1528,19 @@ public class ItemSet {
     public void setExportSettings(ExportSettingsValues newExportSettings) throws ValidationException, ProgrammingValidationException {
         newExportSettings.validate();
         this.exportSettings = newExportSettings;
+    }
+
+    public void addCombinedResourcepack(CombinedResourcepackValues newPack) throws ValidationException, ProgrammingValidationException {
+        newPack.validate(this, null, null);
+        this.combinedResourcepacks.add(new CombinedResourcepack(newPack));
+    }
+
+    public void changeCombinedResourcepack(
+            CombinedResourcepackReference packToChange, CombinedResourcepackValues newPackValues
+    ) throws ValidationException, ProgrammingValidationException {
+        if (!isReferenceValid(packToChange)) throw new ProgrammingValidationException("Pack to change is invalid");
+        newPackValues.validate(this, packToChange.get().getName(), packToChange.get().getPriority());
+        packToChange.getModel().setValues(newPackValues);
     }
 
     public void addTexture(BaseTextureValues newTexture) throws ValidationException, ProgrammingValidationException {
@@ -1735,6 +1789,10 @@ public class ItemSet {
             collection.add(model);
             throw new ValidationException(errorMessage);
         }
+    }
+
+    public void removeCombinedResourcepack(CombinedResourcepackReference packToRemove) throws ValidationException, ProgrammingValidationException {
+        removeModel(this.combinedResourcepacks, packToRemove.getModel());
     }
 
     public void removeTexture(TextureReference textureToRemove) throws ValidationException, ProgrammingValidationException {

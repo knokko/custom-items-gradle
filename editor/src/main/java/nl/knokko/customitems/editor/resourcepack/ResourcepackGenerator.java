@@ -24,7 +24,10 @@ public class ResourcepackGenerator {
     public void write(
             OutputStream rawOutputStream, byte[] cisTxtFileContent, boolean closeOutput
     ) throws IOException, ValidationException, ProgrammingValidationException {
-        ZipOutputStream zipOutput = new ZipOutputStream(rawOutputStream);
+        ZipOutputStream zipOutput = new PriorityZipOutputStream(rawOutputStream);
+
+        ResourcepackCombiner combiner = new ResourcepackCombiner(itemSet, zipOutput);
+        combiner.writeEarly();
 
         ResourcepackTextureWriter textureWriter = new ResourcepackTextureWriter(itemSet, zipOutput);
         textureWriter.writeBaseTextures();
@@ -62,6 +65,8 @@ public class ResourcepackGenerator {
         }
 
         writeAtlases(zipOutput);
+
+        combiner.writeLate();
 
         zipOutput.flush();
         if (closeOutput) zipOutput.close();

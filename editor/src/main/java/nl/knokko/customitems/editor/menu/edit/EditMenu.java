@@ -6,6 +6,7 @@ import nl.knokko.customitems.editor.menu.edit.container.ContainerPortal;
 import nl.knokko.customitems.editor.menu.edit.drops.DropsMenu;
 import nl.knokko.customitems.editor.menu.edit.export.ExportMenu;
 import nl.knokko.customitems.editor.menu.edit.item.ItemCollectionEdit;
+import nl.knokko.customitems.editor.menu.edit.misc.CombinedResourcepackCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.projectile.ProjectileMenu;
 import nl.knokko.customitems.editor.menu.edit.recipe.RecipeCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.sound.SoundTypeCollectionEdit;
@@ -164,6 +165,9 @@ public class EditMenu extends GuiMenu {
 		addComponent(new DynamicTextButton("World generation", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new WorldGenerationPortal(this, set));
 		}), 0.6f, 0.105f, 0.9f, 0.18f);
+		addComponent(new DynamicTextButton("Combined resourcepacks", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new CombinedResourcepackCollectionEdit(this, set));
+		}), 0.6f, 0.015f, 0.95f, 0.09f);
 
 		HelpButtons.addHelpLink(this, "edit menu/index.html");
 	}
