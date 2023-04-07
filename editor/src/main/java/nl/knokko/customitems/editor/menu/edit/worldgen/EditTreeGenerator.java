@@ -54,31 +54,36 @@ public class EditTreeGenerator extends GuiMenu {
             else errorComponent.setText(error);
         }), 0.025f, 0.1f, 0.175f, 0.2f);
 
-        addComponent(new DynamicTextComponent("Tree shape:", LABEL), 0.2f, 0.7f, 0.35f, 0.8f);
+        addComponent(new DynamicTextComponent("Tree shape:", LABEL), 0.2f, 0.8f, 0.35f, 0.9f);
         addComponent(
                 EnumSelect.createSelectButton(CITreeType.class, currentValues::setTreeType, currentValues.getTreeType()),
-                0.36f, 0.7f, 0.5f, 0.8f
+                0.36f, 0.8f, 0.5f, 0.9f
         );
         addComponent(new DynamicTextButton("Allowed biomes...", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new EditAllowedBiomes(
                     currentValues.getAllowedBiomes(), currentValues::setAllowedBiomes, this
             ));
-        }), 0.2f, 0.55f, 0.4f, 0.65f);
+        }), 0.2f, 0.65f, 0.4f, 0.75f);
+        addComponent(new DynamicTextButton("Allowed worlds...", BUTTON, HOVER, () -> {
+            state.getWindow().setMainComponent(new EditAllowedWorlds(
+                    currentValues.getAllowedWorlds(), currentValues::setAllowedWorlds, this
+            ));
+        }), 0.2f, 0.5f, 0.4f, 0.6f);
         addComponent(new DynamicTextButton("Allowed terrain...", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new EditReplaceBlocks(
                     this, itemSet, currentValues.getAllowedTerrain(), currentValues::setAllowedTerrain
             ));
-        }), 0.2f, 0.4f, 0.45f, 0.5f);
+        }), 0.2f, 0.35f, 0.45f, 0.45f);
         addComponent(new DynamicTextButton("Log material...", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new EditBlockProducer(
                     this, itemSet, currentValues.getLogMaterial(), currentValues::setLogMaterial
             ));
-        }), 0.2f, 0.25f, 0.35f, 0.35f);
+        }), 0.2f, 0.2f, 0.35f, 0.3f);
         addComponent(new DynamicTextButton("Leaves material...", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new EditBlockProducer(
                     this, itemSet, currentValues.getLeavesMaterial(), currentValues::setLeavesMaterial
             ));
-        }), 0.2f, 0.1f, 0.375f, 0.2f);
+        }), 0.2f, 0.05f, 0.375f, 0.15f);
 
         addComponent(new DynamicTextComponent("Chance:", LABEL), 0.75f, 0.8f, 0.85f, 0.9f);
         addComponent(new FixedPointEditField(

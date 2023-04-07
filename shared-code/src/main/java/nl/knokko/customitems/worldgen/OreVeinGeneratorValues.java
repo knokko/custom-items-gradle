@@ -11,14 +11,13 @@ import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.Validation;
 import nl.knokko.customitems.util.ValidationException;
 
-import java.util.Comparator;
-import java.util.Optional;
+import java.util.*;
 
 public class OreVeinGeneratorValues extends ModelValues {
 
     public static OreVeinGeneratorValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
-        if (encoding != 1) throw new UnknownEncodingException("OreVeinGenerator", encoding);
+        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("OreVeinGenerator", encoding);
 
         OreVeinGeneratorValues result = new OreVeinGeneratorValues(false);
         result.blocksToReplace = ReplaceBlocksValues.load(input, itemSet);
@@ -34,11 +33,21 @@ public class OreVeinGeneratorValues extends ModelValues {
         result.maxVeinSize = input.readInt();
         result.maxNumGrowAttempts = input.readInt();
 
+        if (encoding >= 2) {
+            int numAllowedWorlds = input.readInt();
+            List<String> allowedWorlds = new ArrayList<>(numAllowedWorlds);
+            for (int counter = 0; counter < numAllowedWorlds; counter++) {
+                allowedWorlds.add(input.readString());
+            }
+            result.allowedWorlds = Collections.unmodifiableList(allowedWorlds);
+        } else result.allowedWorlds = Collections.emptyList();
+
         return result;
     }
 
     private ReplaceBlocksValues blocksToReplace;
     private AllowedBiomesValues allowedBiomes;
+    private List<String> allowedWorlds;
 
     private BlockProducerValues oreMaterial;
 
@@ -52,6 +61,7 @@ public class OreVeinGeneratorValues extends ModelValues {
         super(mutable);
         this.blocksToReplace = new ReplaceBlocksValues(false);
         this.allowedBiomes = new AllowedBiomesValues(false);
+        this.allowedWorlds = Collections.emptyList();
         this.oreMaterial = new BlockProducerValues(false);
         this.minY = 20;
         this.maxY = 40;
@@ -68,6 +78,7 @@ public class OreVeinGeneratorValues extends ModelValues {
         super(mutable);
         this.blocksToReplace = toCopy.getBlocksToReplace();
         this.allowedBiomes = toCopy.getAllowedBiomes();
+        this.allowedWorlds = toCopy.getAllowedWorlds();
         this.oreMaterial = toCopy.getOreMaterial();
         this.minY = toCopy.getMinY();
         this.maxY = toCopy.getMaxY();
@@ -81,7 +92,7 @@ public class OreVeinGeneratorValues extends ModelValues {
     }
 
     public void save(BitOutput output) {
-        output.addByte((byte) 1);
+        output.addByte((byte) 2);
 
         blocksToReplace.save(output);
         allowedBiomes.save(output);
@@ -90,6 +101,8 @@ public class OreVeinGeneratorValues extends ModelValues {
         chance.save(output);
         output.addInts(minNumVeins, maxNumVeins, maxNumVeinAttempts);
         output.addInts(minVeinSize, maxVeinSize, maxNumGrowAttempts);
+        output.addInt(allowedWorlds.size());
+        for (String worldName : allowedWorlds) output.addString(worldName);
     }
 
     @Override
@@ -102,6 +115,7 @@ public class OreVeinGeneratorValues extends ModelValues {
         if (other instanceof OreVeinGeneratorValues) {
             OreVeinGeneratorValues otherVein = (OreVeinGeneratorValues) other;
             return this.blocksToReplace.equals(otherVein.blocksToReplace) && this.allowedBiomes.equals(otherVein.allowedBiomes)
+                    && this.allowedWorlds.equals(otherVein.allowedWorlds)
                     && this.oreMaterial.equals(otherVein.oreMaterial) && this.minY == otherVein.minY
                     && this.maxY == otherVein.maxY && this.chance.equals(otherVein.chance)
                     && this.minNumVeins == otherVein.minNumVeins && this.maxNumVeins == otherVein.maxNumVeins
@@ -130,6 +144,10 @@ public class OreVeinGeneratorValues extends ModelValues {
 
     public AllowedBiomesValues getAllowedBiomes() {
         return allowedBiomes;
+    }
+
+    public List<String> getAllowedWorlds() {
+        return allowedWorlds;
     }
 
     public BlockProducerValues getOreMaterial() {
@@ -180,6 +198,11 @@ public class OreVeinGeneratorValues extends ModelValues {
     public void setAllowedBiomes(AllowedBiomesValues allowedBiomes) {
         assertMutable();
         this.allowedBiomes = allowedBiomes.copy(false);
+    }
+
+    public void setAllowedWorlds(List<String> newWorlds) {
+        assertMutable();
+        this.allowedWorlds = Collections.unmodifiableList(newWorlds);
     }
 
     public void setOreMaterial(BlockProducerValues oreMaterial) {
@@ -238,6 +261,9 @@ public class OreVeinGeneratorValues extends ModelValues {
 
         if (allowedBiomes == null) throw new ProgrammingValidationException("No allowed biomes");
         Validation.scope("Allowed biomes", allowedBiomes::validate);
+
+        if (allowedWorlds == null) throw new ProgrammingValidationException("No allowed worlds");
+        if (allowedWorlds.contains(null)) throw new ProgrammingValidationException("Missing an allowed world");
 
         if (oreMaterial == null) throw new ProgrammingValidationException("No ore material");
         Validation.scope("Ore material", oreMaterial::validate, itemSet);

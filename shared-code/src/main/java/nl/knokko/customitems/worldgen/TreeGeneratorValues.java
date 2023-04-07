@@ -13,10 +13,7 @@ import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.Validation;
 import nl.knokko.customitems.util.ValidationException;
 
-import java.util.Comparator;
-import java.util.EnumSet;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static nl.knokko.customitems.MCVersions.VERSION1_13;
 import static nl.knokko.customitems.MCVersions.VERSION1_16;
@@ -25,7 +22,7 @@ public class TreeGeneratorValues extends ModelValues {
 
     public static TreeGeneratorValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
-        if (encoding != 1) throw new UnknownEncodingException("TreeGenerator", encoding);
+        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("TreeGenerator", encoding);
 
         TreeGeneratorValues result = new TreeGeneratorValues(false);
         result.treeType = CITreeType.valueOf(input.readString());
@@ -38,11 +35,19 @@ public class TreeGeneratorValues extends ModelValues {
         result.maxNumTrees = input.readInt();
         result.maxNumAttempts = input.readInt();
 
+        if (encoding >= 2) {
+            int numAllowedWorlds = input.readInt();
+            List<String> allowedWorlds = new ArrayList<>(numAllowedWorlds);
+            for (int counter = 0; counter < numAllowedWorlds; counter++) allowedWorlds.add(input.readString());
+            result.allowedWorlds = Collections.unmodifiableList(allowedWorlds);
+        } else result.allowedWorlds = Collections.emptyList();
+
         return result;
     }
 
     private CITreeType treeType;
     private AllowedBiomesValues allowedBiomes;
+    private List<String> allowedWorlds;
     private ReplaceBlocksValues allowedTerrain;
 
     private BlockProducerValues logMaterial, leavesMaterial;
@@ -54,6 +59,7 @@ public class TreeGeneratorValues extends ModelValues {
         super(mutable);
         this.treeType = CITreeType.TREE;
         this.allowedBiomes = new AllowedBiomesValues(false);
+        this.allowedWorlds = Collections.emptyList();
         this.allowedTerrain = new ReplaceBlocksValues(true);
         this.allowedTerrain.setVanillaBlocks(EnumSet.of(CIMaterial.DIRT, CIMaterial.GRASS_BLOCK));
         this.allowedTerrain = this.allowedTerrain.copy(false);
@@ -71,6 +77,7 @@ public class TreeGeneratorValues extends ModelValues {
         super(mutable);
         this.treeType = toCopy.getTreeType();
         this.allowedBiomes = toCopy.getAllowedBiomes();
+        this.allowedWorlds = toCopy.getAllowedWorlds();
         this.allowedTerrain = toCopy.getAllowedTerrain();
         this.logMaterial = toCopy.getLogMaterial();
         this.leavesMaterial = toCopy.getLeavesMaterial();
@@ -81,7 +88,7 @@ public class TreeGeneratorValues extends ModelValues {
     }
 
     public void save(BitOutput output) {
-        output.addByte((byte) 1);
+        output.addByte((byte) 2);
 
         output.addString(treeType.name());
         allowedBiomes.save(output);
@@ -90,6 +97,8 @@ public class TreeGeneratorValues extends ModelValues {
         leavesMaterial.save(output);
         chance.save(output);
         output.addInts(minNumTrees, maxNumTrees, maxNumAttempts);
+        output.addInt(allowedWorlds.size());
+        for (String allowedWorld : allowedWorlds) output.addString(allowedWorld);
     }
 
     @Override
@@ -102,7 +111,7 @@ public class TreeGeneratorValues extends ModelValues {
         if (other instanceof TreeGeneratorValues) {
             TreeGeneratorValues otherTree = (TreeGeneratorValues) other;
             return this.treeType == otherTree.treeType && this.allowedBiomes.equals(otherTree.allowedBiomes)
-                    && this.allowedTerrain.equals(otherTree.allowedTerrain)
+                    && this.allowedTerrain.equals(otherTree.allowedTerrain) && this.allowedWorlds.equals(otherTree.allowedWorlds)
                     && this.logMaterial.equals(otherTree.logMaterial) && this.leavesMaterial.equals(otherTree.leavesMaterial)
                     && this.chance.equals(otherTree.chance) && this.minNumTrees == otherTree.minNumTrees
                     && this.maxNumTrees == otherTree.maxNumTrees && this.maxNumAttempts == otherTree.maxNumAttempts;
@@ -129,6 +138,10 @@ public class TreeGeneratorValues extends ModelValues {
 
     public AllowedBiomesValues getAllowedBiomes() {
         return allowedBiomes;
+    }
+
+    public List<String> getAllowedWorlds() {
+        return allowedWorlds;
     }
 
     public ReplaceBlocksValues getAllowedTerrain() {
@@ -167,6 +180,11 @@ public class TreeGeneratorValues extends ModelValues {
     public void setAllowedBiomes(AllowedBiomesValues allowedBiomes) {
         assertMutable();
         this.allowedBiomes = allowedBiomes.copy(false);
+    }
+
+    public void setAllowedWorlds(List<String> allowedWorlds) {
+        assertMutable();
+        this.allowedWorlds = Collections.unmodifiableList(allowedWorlds);
     }
 
     public void setAllowedTerrain(ReplaceBlocksValues allowedTerrain) {
@@ -208,6 +226,8 @@ public class TreeGeneratorValues extends ModelValues {
         if (treeType == null) throw new ProgrammingValidationException("No tree type");
         if (allowedBiomes == null) throw new ProgrammingValidationException("No allowed biomes");
         Validation.scope("Allowed biomes", allowedBiomes::validate);
+        if (allowedWorlds == null) throw new ProgrammingValidationException("No allowed worlds");
+        if (allowedWorlds.contains(null)) throw new ProgrammingValidationException("Missing an allowed world");
         if (allowedTerrain == null) throw new ProgrammingValidationException("No allowed terrain");
         Validation.scope("Allowed terrain", allowedTerrain::validate, itemSet);
 

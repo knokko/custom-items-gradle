@@ -62,27 +62,32 @@ public class EditOreVeinGenerator extends GuiMenu {
                     currentValues.getAllowedBiomes(), currentValues::setAllowedBiomes, this
             ));
         }), 0.2f, 0.71f, 0.4f, 0.8f);
+        addComponent(new DynamicTextButton("Allowed worlds...", BUTTON, HOVER, () -> {
+            state.getWindow().setMainComponent(new EditAllowedWorlds(
+                    currentValues.getAllowedWorlds(), currentValues::setAllowedWorlds, this
+            ));
+        }), 0.2f, 0.61f, 0.4f, 0.7f);
         addComponent(new DynamicTextButton("Ore blocks...", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new EditBlockProducer(
                     this, itemSet, currentValues.getOreMaterial(), currentValues::setOreMaterial
             ));
-        }), 0.2f, 0.61f, 0.35f, 0.7f);
+        }), 0.2f, 0.51f, 0.35f, 0.6f);
 
         addComponent(
                 new DynamicTextComponent("Minimum Y-coordinate:", LABEL),
-                0.2f, 0.51f, 0.44f, 0.6f
-        );
-        addComponent(new EagerIntEditField(
-                currentValues.getMinY(), 0, 9999, EDIT_BASE, EDIT_ACTIVE, currentValues::setMinY
-        ), 0.45f, 0.51f, 0.55f, 0.6f);
-
-        addComponent(
-                new DynamicTextComponent("Maximum Y-coordinate:", LABEL),
                 0.2f, 0.41f, 0.44f, 0.5f
         );
         addComponent(new EagerIntEditField(
-                currentValues.getMaxY(), 0, 9999, EDIT_BASE, EDIT_ACTIVE, currentValues::setMaxY
+                currentValues.getMinY(), 0, 9999, EDIT_BASE, EDIT_ACTIVE, currentValues::setMinY
         ), 0.45f, 0.41f, 0.55f, 0.5f);
+
+        addComponent(
+                new DynamicTextComponent("Maximum Y-coordinate:", LABEL),
+                0.2f, 0.31f, 0.44f, 0.4f
+        );
+        addComponent(new EagerIntEditField(
+                currentValues.getMaxY(), 0, 9999, EDIT_BASE, EDIT_ACTIVE, currentValues::setMaxY
+        ), 0.45f, 0.31f, 0.55f, 0.4f);
 
         addComponent(new DynamicTextComponent("Chance:", LABEL), 0.75f, 0.81f, 0.85f, 0.9f);
         addComponent(new FixedPointEditField(
