@@ -87,7 +87,10 @@ class ResourcePackIO {
 
         ZipEntry zipEntry = contentStream.getNextEntry();
         while (zipEntry != null) {
-            if (zipEntry.isDirectory()) continue;
+            if (zipEntry.isDirectory()) {
+                zipEntry = contentStream.getNextEntry();
+                continue;
+            }
 
             if (zipEntry.getName().equals("items.cis.txt")) {
                 OutputStream itemsOutput = Files.newOutputStream(new File(dataFolder + "/items.cis.txt").toPath());
