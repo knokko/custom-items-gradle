@@ -79,6 +79,8 @@ public class ItemSet {
         result.textures.addAll(secondary.textures);
         result.armorTextures.addAll(primary.armorTextures);
         result.armorTextures.addAll(secondary.armorTextures);
+        result.fancyPantsArmorTextures.addAll(primary.fancyPantsArmorTextures);
+        result.fancyPantsArmorTextures.addAll(secondary.fancyPantsArmorTextures);
 
         result.items.addAll(primary.items);
         result.items.addAll(secondary.items);
@@ -158,6 +160,7 @@ public class ItemSet {
     Collection<CombinedResourcepack> combinedResourcepacks;
     Collection<CustomTexture> textures;
     Collection<ArmorTexture> armorTextures;
+    Collection<FancyPantsArmorTexture> fancyPantsArmorTextures;
     Collection<CustomItem> items;
     Collection<EquipmentSet> equipmentSets;
     Collection<CustomDamageSource> damageSources;
@@ -198,6 +201,7 @@ public class ItemSet {
         combinedResourcepacks = new ArrayList<>();
         textures = new ArrayList<>();
         armorTextures = new ArrayList<>();
+        fancyPantsArmorTextures = new ArrayList<>();
         items = new ArrayList<>();
         equipmentSets = new ArrayList<>();
         damageSources = new ArrayList<>();
@@ -222,8 +226,8 @@ public class ItemSet {
 
     public boolean isEmpty() {
         for (Collection<?> relevantCollection : new Collection<?>[]{
-                this.textures, this.armorTextures, this.items, this.equipmentSets, this.damageSources,
-                this.craftingRecipes, this.upgrades, this.blockDrops, this.mobDrops, this.blocks,
+                this.textures, this.armorTextures, this.fancyPantsArmorTextures, this.items, this.equipmentSets,
+                this.damageSources, this.craftingRecipes, this.upgrades, this.blockDrops, this.mobDrops, this.blocks,
                 this.oreVeinGenerators, this.treeGenerators, this.containers, this.fuelRegistries, this.energyTypes,
                 this.soundTypes, this.projectiles, this.projectileCovers, this.removedItemNames,
                 this.combinedResourcepacks
@@ -377,6 +381,11 @@ public class ItemSet {
             }
         } else {
             output.addLong(System.currentTimeMillis());
+        }
+
+        output.addInt(fancyPantsArmorTextures.size());
+        for (FancyPantsArmorTextureValues fpTexture : getFancyPantsArmorTextures()) {
+            fpTexture.save(output, targetSide);
         }
 
         output.addInt(projectileCovers.size());
@@ -578,6 +587,7 @@ public class ItemSet {
 
     private void initDefaults10() {
         this.exportSettings = new ExportSettingsValues(false);
+        this.fancyPantsArmorTextures = new ArrayList<>();
         this.combinedResourcepacks = new ArrayList<>();
         this.damageSources = new ArrayList<>();
         this.upgrades = new ArrayList<>();
@@ -629,6 +639,14 @@ public class ItemSet {
             }
         } else {
             this.armorTextures = new ArrayList<>(0);
+        }
+    }
+
+    private void loadFancyPantsArmorTextures(BitInput input) throws UnknownEncodingException {
+        int numFpTextures = input.readInt();
+        this.fancyPantsArmorTextures = new ArrayList<>(numFpTextures);
+        for (int counter = 0; counter < numFpTextures; counter++) {
+            this.fancyPantsArmorTextures.add(new FancyPantsArmorTexture(FancyPantsArmorTextureValues.load(input, side)));
         }
     }
 
@@ -916,6 +934,7 @@ public class ItemSet {
             loadCombinedResourcepacks(input);
             loadTextures(input, true, true);
             loadArmorTextures(input);
+            loadFancyPantsArmorTextures(input);
             loadProjectileCovers(input);
             loadProjectiles(input);
             loadItems(input, true);
@@ -958,6 +977,10 @@ public class ItemSet {
 
     public ArmorTexturesView getArmorTextures() {
         return new ArmorTexturesView(armorTextures);
+    }
+
+    public FancyPantsArmorTexturesView getFancyPantsArmorTextures() {
+        return new FancyPantsArmorTexturesView(fancyPantsArmorTextures);
     }
 
     public CustomItemsView getItems() {
@@ -1041,6 +1064,16 @@ public class ItemSet {
             return new ArmorTextureReference(CollectionHelper.find(armorTextures, texture -> texture.getValues().getName(), textureName).get());
         } else {
             return new ArmorTextureReference(textureName, this);
+        }
+    }
+
+    public FancyPantsArmorTextureReference getFancyPantsArmorTextureReference(UUID id) throws NoSuchElementException {
+        if (finishedLoading) {
+            return new FancyPantsArmorTextureReference(CollectionHelper.find(
+                    fancyPantsArmorTextures, fpTexture -> fpTexture.getValues().getId(), id
+            ).get());
+        } else {
+            return new FancyPantsArmorTextureReference(id, this);
         }
     }
 
@@ -1132,6 +1165,10 @@ public class ItemSet {
         return CollectionHelper.find(armorTextures, texture -> texture.getValues().getName(), textureName).map(ArmorTexture::getValues);
     }
 
+    public Optional<FancyPantsArmorTextureValues> getFancyPantsArmorTexture(UUID id) {
+        return CollectionHelper.find(fancyPantsArmorTextures, fpTexture -> fpTexture.getValues().getId(), id).map(FancyPantsArmorTexture::getValues);
+    }
+
     public Optional<CustomItemValues> getItem(String itemName) {
         return CollectionHelper.find(items, item -> item.getValues().getName(), itemName).map(CustomItem::getValues);
     }
@@ -1191,6 +1228,10 @@ public class ItemSet {
 
     public boolean isReferenceValid(ArmorTextureReference reference) {
         return isReferenceValid(armorTextures, reference.getModel());
+    }
+
+    public boolean isReferenceValid(FancyPantsArmorTextureReference reference) {
+        return isReferenceValid(fancyPantsArmorTextures, reference.getModel());
     }
 
     public boolean isReferenceValid(ItemReference reference) {
@@ -1277,6 +1318,10 @@ public class ItemSet {
                     "Armor texture " + armorTexture.getName(),
                     () -> armorTexture.validateExportVersion(version)
             );
+        }
+
+        for (FancyPantsArmorTextureValues fpTexture : getFancyPantsArmorTextures()) {
+            Validation.scope("FP texture " + fpTexture.getName(), fpTexture::validateExportVersion, version);
         }
 
         for (CustomItemValues item : getItems()) {
@@ -1398,6 +1443,16 @@ public class ItemSet {
             );
         }
         validateUniqueIDs("armor texture name", armorTextures, armorTexture -> armorTexture.getValues().getName());
+
+        for (FancyPantsArmorTextureValues fpTexture : getFancyPantsArmorTextures()) {
+            Validation.scope(
+                    "FP texture " + fpTexture.getName(),
+                    () -> fpTexture.validate(this, fpTexture.getId())
+            );
+        }
+        validateUniqueIDs("FP texture ID", fancyPantsArmorTextures, fpTexture -> fpTexture.getValues().getId());
+        validateUniqueIDs("FP texture name", fancyPantsArmorTextures, fpTexture -> fpTexture.getValues().getName());
+        validateUniqueIDs("FP texture RGB value", fancyPantsArmorTextures, fpTexture -> fpTexture.getValues().getRgb());
 
         for (CustomItem item : items) {
             Validation.scope(
@@ -1564,6 +1619,33 @@ public class ItemSet {
     ) throws ValidationException, ProgrammingValidationException {
         if (!isReferenceValid(textureToChange)) throw new ProgrammingValidationException("Armor texture to change is invalid");
         newTextureValues.validate(this, textureToChange.get().getName());
+        textureToChange.getModel().setValues(newTextureValues);
+    }
+
+    public int findFreeFancyPantsArmorRgb() {
+        int candidateRgb = 0;
+        whileLoop:
+        while (true) {
+            for (FancyPantsArmorTextureValues existing : getFancyPantsArmorTextures()) {
+                if (existing.getRgb() == candidateRgb) {
+                    candidateRgb += 1;
+                    continue whileLoop;
+                }
+            }
+            return candidateRgb;
+        }
+    }
+
+    public void addFancyPantsArmorTexture(FancyPantsArmorTextureValues newTexture) throws ValidationException, ProgrammingValidationException {
+        newTexture.validate(this, null);
+        this.fancyPantsArmorTextures.add(new FancyPantsArmorTexture(newTexture));
+    }
+
+    public void changeFancyPantsArmorTexture(
+            FancyPantsArmorTextureReference textureToChange, FancyPantsArmorTextureValues newTextureValues
+    ) throws ValidationException, ProgrammingValidationException {
+        if (!isReferenceValid(textureToChange)) throw new ProgrammingValidationException("FP texture to change is invalid");
+        newTextureValues.validate(this, textureToChange.get().getId());
         textureToChange.getModel().setValues(newTextureValues);
     }
 
@@ -1801,6 +1883,12 @@ public class ItemSet {
 
     public void removeArmorTexture(ArmorTextureReference textureToRemove) throws ValidationException, ProgrammingValidationException {
         removeModel(this.armorTextures, textureToRemove.getModel());
+    }
+
+    public void removeFancyPantsArmorTexture(
+            FancyPantsArmorTextureReference textureToRemove
+    ) throws ValidationException, ProgrammingValidationException {
+        removeModel(this.fancyPantsArmorTextures, textureToRemove.getModel());
     }
 
     public void removeItem(ItemReference itemToRemove) throws ValidationException, ProgrammingValidationException {

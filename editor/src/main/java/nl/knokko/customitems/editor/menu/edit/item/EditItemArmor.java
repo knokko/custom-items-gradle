@@ -1,5 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.item;
 
+import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.item.damage.EditDamageResistances;
@@ -18,8 +19,7 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 import java.util.function.IntConsumer;
 
-import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
-import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
+import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 import static nl.knokko.customitems.item.AttributeModifierValues.*;
 
 public class EditItemArmor<V extends CustomArmorValues> extends EditItemTool<V> {
@@ -166,6 +166,13 @@ public class EditItemArmor<V extends CustomArmorValues> extends EditItemTool<V> 
 					new ColorEditField(currentValues.getBlue(), currentValues::setBlue),
 					0.85f, 0.12f, 0.9f, 0.19f
 			);
+			addComponent(new ConditionalTextButton("FancyPants texture...", BUTTON, HOVER, () -> {
+				state.getWindow().setMainComponent(new CollectionSelect<>(
+						menu.getSet().getFancyPantsArmorTextures().references(),
+						currentValues::setFancyPantsTexture, candidate -> true,
+						candidate -> candidate.get().getName(), this, true
+				));
+			}, () -> currentValues.getItemType().isLeatherArmor()), 0.65f, 0.05f, 0.9f, 0.11f);
 		}
 		errorComponent.setProperties(EditProps.LABEL);
 		errorComponent.setText("Hint: Use attribute modifiers to set the armor (toughness) of this piece.");
@@ -177,7 +184,7 @@ public class EditItemArmor<V extends CustomArmorValues> extends EditItemTool<V> 
 	}
 	
 	private boolean showColors() {
-		return currentValues.getItemType().isLeatherArmor();
+		return currentValues.getItemType().isLeatherArmor() && currentValues.getFancyPantsTexture() == null;
 	}
 	
 	private class ColorEditField extends WrapperComponent<EagerIntEditField> {

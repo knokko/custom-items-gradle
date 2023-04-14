@@ -18,6 +18,8 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.Platform;
 import org.lwjgl.util.nfd.NFDPathSet;
 
+import static nl.knokko.customitems.editor.menu.edit.EditProps.BUTTON;
+import static nl.knokko.customitems.editor.menu.edit.EditProps.HOVER;
 import static org.lwjgl.util.nfd.NativeFileDialog.*;
 
 public class TextureCollectionEdit extends DedicatedCollectionEdit<BaseTextureValues, TextureReference> {
@@ -32,19 +34,22 @@ public class TextureCollectionEdit extends DedicatedCollectionEdit<BaseTextureVa
 	@Override
 	protected void addComponents() {
 		super.addComponents();
+		addComponent(new DynamicTextButton("FancyPants armor textures [1.17+]", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new FancyPantsArmorCollectionEdit(this, menu.getSet()));
+		}), 0f, 0.37f, 0.3f, 0.47f);
 		addComponent(new DynamicTextButton("Worn armor textures", 
-				EditProps.BUTTON, EditProps.HOVER, () -> {
+				BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(
 					new ArmorTexturesCollectionEdit(this, menu.getSet())
 			);
-		}), 0.025f, 0.35f, 0.25f, 0.45f);
-		addComponent(new DynamicTextButton("Load texture", EditProps.BUTTON, EditProps.HOVER, () -> {
+		}), 0.025f, 0.25f, 0.25f, 0.35f);
+		addComponent(new DynamicTextButton("Load texture", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new TextureCreate(menu));
-		}), 0.025f, 0.2f, 0.2f, 0.3f);
+		}), 0.025f, 0.13f, 0.2f, 0.23f);
 
 		// MacOS is... special... see https://github.com/knokko/custom-items-gradle/issues/219
 		if (Platform.get() != Platform.MACOSX) {
-			addComponent(new DynamicTextButton("Load multiple textures...", EditProps.BUTTON, EditProps.HOVER, () -> {
+			addComponent(new DynamicTextButton("Load multiple textures...", BUTTON, HOVER, () -> {
 				try (MemoryStack stack = MemoryStack.stackPush()) {
 					NFDPathSet pathSet = NFDPathSet.calloc(stack);
 					int result = NFD_OpenDialogMultiple(stack.UTF8("png"), null, pathSet);
@@ -77,9 +82,9 @@ public class TextureCollectionEdit extends DedicatedCollectionEdit<BaseTextureVa
 						errorComponent.setText("NFD_OpenDialogMultiple returned NFD_ERROR");
 					}
 				}
-			}), 0f, 0.05f, 0.3f, 0.15f);
+			}), 0f, 0.01f, 0.3f, 0.11f);
 		}
-		
+
 		HelpButtons.addHelpLink(this, "edit menu/textures/overview.html");
 	}
 

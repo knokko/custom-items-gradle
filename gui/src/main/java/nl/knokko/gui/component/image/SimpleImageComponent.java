@@ -25,6 +25,11 @@ public class SimpleImageComponent extends AbstractGuiComponent implements ImageS
 		this.texture = texture;
 	}
 
+	public void setTexture(GuiTexture newTexture) {
+		this.texture = newTexture;
+		this.getState().getWindow().markChange();
+	}
+
 	@Override
 	public void update() {
 	}

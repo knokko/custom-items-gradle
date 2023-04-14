@@ -35,6 +35,11 @@ public class ResourcepackGenerator {
         textureWriter.writeOptifineElytraTextures();
         textureWriter.writeContainerOverlayTextures();
 
+        ResourcepackFancyPants fancyPants = new ResourcepackFancyPants(itemSet, zipOutput);
+        fancyPants.copyShaderAndLicense();
+        fancyPants.generateEmptyTextures();
+        fancyPants.generateFullTextures();
+
         ResourcepackFontOverrider fontWriter = new ResourcepackFontOverrider(itemSet, zipOutput);
         fontWriter.overrideContainerOverlayChars();
 

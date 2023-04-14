@@ -4,14 +4,19 @@ import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.damage.DamageSource;
 import nl.knokko.customitems.encoding.ItemEncoding;
 import nl.knokko.customitems.itemset.ArmorTextureReference;
+import nl.knokko.customitems.itemset.FancyPantsArmorTextureReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.texture.ArmorTextureValues;
+import nl.knokko.customitems.texture.FancyPantsArmorTextureValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.Validation;
 import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
+
+import java.util.Objects;
+import java.util.UUID;
 
 public class CustomArmorValues extends CustomToolValues {
 
@@ -60,6 +65,7 @@ public class CustomArmorValues extends CustomToolValues {
 
     private DamageResistanceValues damageResistances;
     private ArmorTextureReference armorTexture;
+    private FancyPantsArmorTextureReference fancyPantsTexture;
 
     public CustomArmorValues(boolean mutable, CustomItemType initialItemType) {
         super(mutable, initialItemType);
@@ -69,6 +75,7 @@ public class CustomArmorValues extends CustomToolValues {
         this.blue = 64;
         this.damageResistances = new DamageResistanceValues(false);
         this.armorTexture = null;
+        this.fancyPantsTexture = null;
     }
 
     public CustomArmorValues(CustomArmorValues toCopy, boolean mutable) {
@@ -79,13 +86,14 @@ public class CustomArmorValues extends CustomToolValues {
         this.blue = toCopy.getBlue();
         this.damageResistances = toCopy.getDamageResistances();
         this.armorTexture = toCopy.getArmorTextureReference();
+        this.fancyPantsTexture = toCopy.getFancyPantsTextureReference();
     }
 
     protected void loadArmorPropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         this.loadToolPropertiesNew(input, itemSet);
 
         byte encoding = input.readByte();
-        if (encoding != 1) throw new UnknownEncodingException("CustomArmorNew", encoding);
+        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("CustomArmorNew", encoding);
 
         this.loadLeatherColors(input);
         this.damageResistances = DamageResistanceValues.loadNew(input, itemSet);
@@ -94,12 +102,16 @@ public class CustomArmorValues extends CustomToolValues {
         } else {
             this.armorTexture = null;
         }
+
+        if (encoding >= 2 && input.readBoolean()) {
+            this.fancyPantsTexture = itemSet.getFancyPantsArmorTextureReference(new UUID(input.readLong(), input.readLong()));
+        } else this.fancyPantsTexture = null;
     }
 
     protected void saveArmorPropertiesNew(BitOutput output, ItemSet.Side targetSide) {
         this.saveToolPropertiesNew(output, targetSide);
 
-        output.addByte((byte) 1);
+        output.addByte((byte) 2);
         if (this.itemType.isLeatherArmor()) {
             output.addBytes((byte) this.red, (byte) this.green, (byte) this.blue);
         }
@@ -109,6 +121,12 @@ public class CustomArmorValues extends CustomToolValues {
             if (this.armorTexture != null) {
                 output.addString(this.armorTexture.get().getName());
             }
+        }
+
+        output.addBoolean(this.fancyPantsTexture != null);
+        if (this.fancyPantsTexture != null) {
+            output.addLong(this.fancyPantsTexture.get().getId().getMostSignificantBits());
+            output.addLong(this.fancyPantsTexture.get().getId().getLeastSignificantBits());
         }
     }
 
@@ -193,7 +211,8 @@ public class CustomArmorValues extends CustomToolValues {
     protected boolean areArmorPropertiesEqual(CustomArmorValues other) {
         return areToolPropertiesEqual(other) && (!itemType.isLeatherArmor() || (
                 this.red == other.red && this.green == other.green && this.blue == other.blue))
-                && this.damageResistances.equals(other.damageResistances);
+                && this.damageResistances.equals(other.damageResistances)
+                && Objects.equals(this.fancyPantsTexture, other.fancyPantsTexture);
     }
 
     @Override
@@ -273,7 +292,7 @@ public class CustomArmorValues extends CustomToolValues {
     }
 
     private void initArmorOnlyDefaults11() {
-        // Nothing to be done until the next encoding is known
+        this.fancyPantsTexture = null;
     }
 
     @Override
@@ -305,6 +324,14 @@ public class CustomArmorValues extends CustomToolValues {
         return armorTexture != null ? armorTexture.get() : null;
     }
 
+    public FancyPantsArmorTextureReference getFancyPantsTextureReference() {
+        return fancyPantsTexture;
+    }
+
+    public FancyPantsArmorTextureValues getFancyPantsTexture() {
+        return fancyPantsTexture == null ? null : fancyPantsTexture.get();
+    }
+
     public void setRed(int newRed) {
         assertMutable();
         this.red = newRed;
@@ -330,6 +357,11 @@ public class CustomArmorValues extends CustomToolValues {
         this.armorTexture = newArmorTexture;
     }
 
+    public void setFancyPantsTexture(FancyPantsArmorTextureReference newFpTexture) {
+        assertMutable();
+        this.fancyPantsTexture = newFpTexture;
+    }
+
     @Override
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {
         super.validateIndependent();
@@ -342,6 +374,9 @@ public class CustomArmorValues extends CustomToolValues {
         if (blue > 255) throw new ValidationException("Blue can be at most 255");
 
         if (damageResistances == null) throw new ProgrammingValidationException("No damage resistances");
+        if (fancyPantsTexture != null && !itemType.isLeatherArmor()) {
+            throw new ValidationException("FancyPants armor only works on leather armor");
+        }
     }
 
     @Override
@@ -350,6 +385,9 @@ public class CustomArmorValues extends CustomToolValues {
 
         if (armorTexture != null && !itemSet.isReferenceValid(armorTexture)) {
             throw new ProgrammingValidationException("Armor texture is no longer valid");
+        }
+        if (fancyPantsTexture != null && !itemSet.isReferenceValid(fancyPantsTexture)) {
+            throw new ProgrammingValidationException("FP texture is no longer valid");
         }
 
         Validation.scope("Damage resistances", damageResistances::validate, itemSet);

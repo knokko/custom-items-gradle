@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 /**
- * This is a dirty subclass of SItemSet that overrides all reference getter methods
+ * This is a dirty subclass of ItemSet that overrides all reference getter methods
  * (getItemReference, getBlockReference, ...) such that they always return uninitialized references.
  */
 public class FakeItemSet extends ItemSet {
@@ -24,6 +24,11 @@ public class FakeItemSet extends ItemSet {
     @Override
     public ArmorTextureReference getArmorTextureReference(String name) {
         return new ArmorTextureReference(name, this);
+    }
+
+    @Override
+    public FancyPantsArmorTextureReference getFancyPantsArmorTextureReference(UUID id) {
+        return new FancyPantsArmorTextureReference(id, this);
     }
 
     @Override
