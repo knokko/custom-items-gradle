@@ -58,7 +58,7 @@ public class EditMenu extends GuiMenu {
 		super.init();
 		errorComponent.setText("");
 		state.getWindow().setWindowCloseComponent(oldComponent -> new ConfirmQuitMenu(
-				this, set, fileName
+				oldComponent, set, fileName
 		));
 	}
 
