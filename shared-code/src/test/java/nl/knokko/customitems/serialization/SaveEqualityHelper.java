@@ -132,6 +132,8 @@ public class SaveEqualityHelper {
             for (TreeGeneratorValues generator : originalSet.getTreeGenerators()) {
                 assertTrue(testSet.getTreeGenerators().stream().anyMatch(candidate -> candidate.equals(generator)));
             }
+
+            // TODO Check the new models introduced in V12
         }
     }
 }
