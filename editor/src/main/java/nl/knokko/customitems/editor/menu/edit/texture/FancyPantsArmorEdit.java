@@ -93,7 +93,7 @@ public class FancyPantsArmorEdit extends GuiMenu {
         ), 0.22f, 0.36f, 0.24f, 0.38f);
         addComponent(new DynamicTextComponent("Leather tint", LABEL), 0.25f, 0.34f, 0.4f, 0.44f);
 
-        addComponent(new WrapperComponent<>(new AnimationButtons()){
+        addComponent(new WrapperComponent<AnimationButtons>(new AnimationButtons()){
             @Override
             public boolean isActive() {
                 return currentValues.getFrames().size() > 1;
