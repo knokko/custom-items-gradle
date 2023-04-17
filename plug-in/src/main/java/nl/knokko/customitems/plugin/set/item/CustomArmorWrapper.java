@@ -10,6 +10,16 @@ import java.util.List;
 
 public class CustomArmorWrapper extends CustomToolWrapper {
 
+    public static void colorItemMeta(CustomArmorValues armor, ItemMeta meta) {
+        if (armor.getItemType().isLeatherArmor()) {
+            if (armor.getFancyPantsTexture() == null) {
+                ((LeatherArmorMeta) meta).setColor(Color.fromRGB(armor.getRed(), armor.getGreen(), armor.getBlue()));
+            } else {
+                ((LeatherArmorMeta) meta).setColor(Color.fromRGB(armor.getFancyPantsTexture().getRgb()));
+            }
+        }
+    }
+
     private final CustomArmorValues armor;
 
     CustomArmorWrapper(CustomArmorValues item) {
@@ -20,13 +30,7 @@ public class CustomArmorWrapper extends CustomToolWrapper {
     @Override
     public ItemMeta createItemMeta(ItemStack item, List<String> lore) {
         ItemMeta meta = super.createItemMeta(item, lore);
-        if (this.armor.getItemType().isLeatherArmor()) {
-            if (this.armor.getFancyPantsTexture() == null) {
-                ((LeatherArmorMeta) meta).setColor(Color.fromRGB(this.armor.getRed(), this.armor.getGreen(), this.armor.getBlue()));
-            } else {
-                ((LeatherArmorMeta) meta).setColor(Color.fromRGB(this.armor.getFancyPantsTexture().getRgb()));
-            }
-        }
+        colorItemMeta(this.armor, meta);
         return meta;
     }
 }

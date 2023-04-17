@@ -414,6 +414,9 @@ public class ItemUpdater {
 		upgradeDisplayName(meta, oldItem, newItem);
 		upgradeLore(meta, oldItem, newItem, pOldDurability[0], pNewDurability[0]);
 		upgradeItemFlags(meta, oldItem, newItem);
+		if (newItem instanceof CustomArmorValues) {
+			CustomArmorWrapper.colorItemMeta((CustomArmorValues) newItem, meta);
+		}
 
 		if (newItem.getItemType() != CustomItemType.OTHER) {
 			meta.setUnbreakable(true);
