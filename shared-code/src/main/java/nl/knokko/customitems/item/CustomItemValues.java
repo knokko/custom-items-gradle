@@ -1238,6 +1238,10 @@ public abstract class CustomItemValues extends ModelValues {
             Validation.scope("Equipped effect", () -> effect.validateExportVersion(version));
         }
 
+        if (specialMeleeDamage != null && version >= MCVersions.VERSION1_19) {
+            throw new ValidationException("Special melee damage is only supported in MC 1.18 and earlier");
+        }
+
         if (specialMeleeDamage != null && specialMeleeDamage.getDamageSource() != null) {
             if (specialMeleeDamage.getDamageSource().minVersion > version) {
                 throw new ValidationException("Special melee damage: " + specialMeleeDamage.getDamageSource() + " doesn't exist yet");

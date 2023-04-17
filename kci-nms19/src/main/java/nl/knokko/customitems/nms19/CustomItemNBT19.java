@@ -4,14 +4,14 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.item.ItemStack;
 import nl.knokko.customitems.nms.BooleanRepresentation;
 import nl.knokko.customitems.nms.CustomItemNBT;
-import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
 
 class CustomItemNBT19 implements CustomItemNBT {
 
     private final ItemStack nmsStack;
     private NBTTagCompound nbt;
 
-    private boolean allowWrite;
+    private final boolean allowWrite;
 
     CustomItemNBT19(org.bukkit.inventory.ItemStack bukkitStack, boolean allowWrite) {
         this.nmsStack = CraftItemStack.asNMSCopy(bukkitStack);

@@ -2,7 +2,7 @@ package nl.knokko.customitems.nms19;
 
 import net.minecraft.nbt.NBTTagCompound;
 import nl.knokko.customitems.nms.GeneralItemNBT;
-import org.bukkit.craftbukkit.v1_19_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
 class GeneralItemNBT19 implements GeneralItemNBT {
@@ -31,7 +31,7 @@ class GeneralItemNBT19 implements GeneralItemNBT {
         NBTTagCompound nestedTag = tag;
         for (int index = 0; index < key.length - 1; index++) {
             nestedTag = nestedTag.p(key[index]);
-            if (nestedTag == null || nestedTag.f()) return defaultValue;
+            if (nestedTag == null || nestedTag.g()) return defaultValue;
         }
 
         String lastKey = key[key.length - 1];
@@ -48,7 +48,7 @@ class GeneralItemNBT19 implements GeneralItemNBT {
         NBTTagCompound nestedTag = tag;
         for (int index = 0; index < key.length - 1; index++) {
             nestedTag = nestedTag.p(key[index]);
-            if (nestedTag == null || nestedTag.f()) return defaultValue;
+            if (nestedTag == null || nestedTag.g()) return defaultValue;
         }
 
         String lastKey = key[key.length - 1];

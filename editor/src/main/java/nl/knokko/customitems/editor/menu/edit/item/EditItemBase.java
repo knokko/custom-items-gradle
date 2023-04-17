@@ -148,8 +148,8 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 				LABEL_X + 0.02f, -0.22f, LABEL_X + 0.2f, -0.17f
 		);
 		addComponent(
-				new DynamicTextComponent("Special melee damage source:", LABEL),
-				LABEL_X, -0.28f, LABEL_X + 0.2f, -0.23f
+				new DynamicTextComponent("Special melee damage source [1.12 to 1.18]:", LABEL),
+				LABEL_X - 0.1f, -0.28f, LABEL_X + 0.2f, -0.23f
 		);
 		addComponent(
 				new DynamicTextComponent("Attack effects:", LABEL),
