@@ -27,12 +27,6 @@ The bit-helper module is a small library of mine that is used for compact binary
 was a good idea to use this, but I am starting to see its limitations. Nevertheless, it is very stable (has been used in production for more 
 than 4 years without any failures) and its results are still quite good (although they could be improved).
 
-### dummy-ce-api
-This is a module that mimics the part of the API of the Crazy Enchantments plug-in that is needed for this plug-in.
-This module is only supposed to be used for compilation, and should never be exported. All method signatures of this
-module match those of the real Crazy Enchantments API, but the implementation is useless. This module should be
-removed as soon as Crazy Enchantments has a proper maven repository.
-
 ### editor
 This module is the source code for *the Editor*. This is a GUI application that users must use to configure the plug-in. The users must download it
 and run it on their computer. Using this GUI, they can configure their custom items (choose their textures, attack damage, display name, and
