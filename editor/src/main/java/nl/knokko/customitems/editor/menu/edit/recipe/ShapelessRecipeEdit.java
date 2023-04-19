@@ -54,7 +54,7 @@ public class ShapelessRecipeEdit extends GuiMenu {
         }), 0.025f, 0.7f, 0.175f, 0.8f);
         addComponent(new ConditionalTextButton("Add ingredient", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new EditIngredient(this, newIngredient -> {
-                Collection<IngredientValues> ingredients = currentValues.getIngredients();
+                List<IngredientValues> ingredients = currentValues.getIngredients();
                 ingredients.add(newIngredient);
                 currentValues.setIngredients(ingredients);
                 ingredientList.refresh();

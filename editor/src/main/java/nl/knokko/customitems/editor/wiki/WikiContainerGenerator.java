@@ -156,7 +156,7 @@ class WikiContainerGenerator {
                     if(recipe.getRequiredPermission()!=null){
                         output.println("\t\t<b>" +recipe.getRequiredPermission() + "</b> or <b>customitems.container.recipe.any</b> permission is required by player to craft this item.");
                     }
-                    generateContainerRecipe(output, "\t\t", container, recipe, "../");
+                    generateContainerRecipe(output, "\t\t", container, recipe, "../", itemSet);
                     output.println("\t\t<br>");
                 }
             }

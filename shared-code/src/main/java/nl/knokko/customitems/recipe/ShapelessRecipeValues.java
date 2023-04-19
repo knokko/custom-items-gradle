@@ -36,14 +36,14 @@ public class ShapelessRecipeValues extends CraftingRecipeValues {
         return result;
     }
 
-    public static ShapelessRecipeValues createQuick(Collection<IngredientValues> ingredients, ResultValues recipeResult) {
+    public static ShapelessRecipeValues createQuick(List<IngredientValues> ingredients, ResultValues recipeResult) {
         ShapelessRecipeValues result = new ShapelessRecipeValues(false);
         result.ingredients = ingredients;
         result.result = recipeResult;
         return result;
     }
 
-    private Collection<IngredientValues> ingredients;
+    private List<IngredientValues> ingredients;
 
     public ShapelessRecipeValues(boolean mutable) {
         super(mutable);
@@ -111,11 +111,11 @@ public class ShapelessRecipeValues extends CraftingRecipeValues {
         return new ShapelessRecipeValues(this, mutable);
     }
 
-    public Collection<IngredientValues> getIngredients() {
+    public List<IngredientValues> getIngredients() {
         return new ArrayList<>(ingredients);
     }
 
-    public void setIngredients(Collection<IngredientValues> newIngredients) {
+    public void setIngredients(List<IngredientValues> newIngredients) {
         assertMutable();
         Checks.nonNull(newIngredients);
         this.ingredients = Mutability.createDeepCopy(newIngredients, false);

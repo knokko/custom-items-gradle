@@ -19,8 +19,11 @@
     background-color: rgb(100,100,130);
 }
 
+.ingredient-upgrade-slot {
+    background-color: yellow !important;
+}
+
 .ingredient-constraint-slot {
-    background-color: rgb(100,100,130);
     border-color: red;
 }
 
@@ -66,7 +69,7 @@
 .hover-recipe-list {
     position: absolute;
     left: 5vw;
-    top: 0.2vw;
+    bottom: 50%;
     width: max-content;
     font-size: 1vw;
     z-index: 1;

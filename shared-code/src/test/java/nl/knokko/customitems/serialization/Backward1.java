@@ -13,6 +13,7 @@ import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
 import org.junit.Test;
 
 import java.util.Collection;
+import java.util.List;
 
 import static nl.knokko.customitems.serialization.BackwardHelper.*;
 import static org.junit.Assert.*;
@@ -77,7 +78,7 @@ public class Backward1 {
 
     static ShapelessRecipeValues getShapelessRecipe1(ItemSet itemSet) {
         ItemReference simple1 = itemSet.getItemReference("simple1");
-        Collection<IngredientValues> ingredients = listOf(
+        List<IngredientValues> ingredients = listOf(
                 CustomItemIngredientValues.createQuick(simple1, 1),
                 SimpleVanillaIngredientValues.createQuick(CIMaterial.APPLE, 1),
                 DataVanillaIngredientValues.createQuick(CIMaterial.CARPET, 8, 1)

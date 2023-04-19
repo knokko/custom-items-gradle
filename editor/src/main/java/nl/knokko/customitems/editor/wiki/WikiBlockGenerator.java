@@ -14,7 +14,6 @@ import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.WikiVisibility;
 import nl.knokko.customitems.itemset.BlockReference;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.recipe.result.CustomItemResultValues;
 import nl.knokko.customitems.util.Chance;
 import nl.knokko.customitems.worldgen.BlockProducerValues;
 import nl.knokko.customitems.worldgen.CITreeType;
@@ -106,7 +105,7 @@ class WikiBlockGenerator {
                     output.println("\t\t\t\tThe following items will be dropped:");
                     output.println("\t\t\t\t<ul class=\"custom-block-drop-items\">");
                     generateOutputTable(output, "\t\t\t\t\t<li class=\"custom-block-drop-item\">", "</li>",
-                            drop.getItemsToDrop());
+                            drop.getItemsToDrop(), itemSet);
                     output.println("\t\t\t\t</ul>");
                     output.println("\t\t\t</li>");
                 }

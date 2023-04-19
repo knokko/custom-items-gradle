@@ -13,6 +13,7 @@ import nl.knokko.customitems.recipe.ingredient.CustomItemIngredientValues;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.result.CustomItemResultValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
+import nl.knokko.customitems.recipe.result.UpgradeResultValues;
 
 import java.io.PrintWriter;
 import java.util.Collection;
@@ -31,7 +32,13 @@ class ItemRecipeGenerator {
     }
 
     static boolean isItem(CustomItemValues item, ResultValues candidateResult) {
-        return candidateResult instanceof CustomItemResultValues && ((CustomItemResultValues) candidateResult).getItem().getName().equals(item.getName());
+        if (candidateResult instanceof CustomItemResultValues) {
+            return ((CustomItemResultValues) candidateResult).getItem().getName().equals(item.getName());
+        } else if (candidateResult instanceof UpgradeResultValues) {
+            UpgradeResultValues upgradeResult = (UpgradeResultValues) candidateResult;
+            if (upgradeResult.getNewType() != null) return isItem(item, upgradeResult.getNewType());
+        }
+        return false;
     }
 
     static boolean isItem(CustomItemValues item, IngredientValues candidateIngredient) {
@@ -39,8 +46,7 @@ class ItemRecipeGenerator {
     }
 
     static boolean remainsItem(CustomItemValues item, IngredientValues candidateIngredient) {
-        return candidateIngredient.getRemainingItem() instanceof  CustomItemResultValues &&
-                ((CustomItemResultValues) candidateIngredient.getRemainingItem()).getItem().getName().equals(item.getName());
+        return candidateIngredient.getRemainingItem() != null && isItem(item, candidateIngredient.getRemainingItem());
     }
 
     private final ItemSet itemSet;
@@ -136,10 +142,10 @@ class ItemRecipeGenerator {
                         output.println("\t\tPlayers need <b>" + recipe.getRequiredPermission() + "</b> or <b>customitems.craftall</b> permission to craft this item.");
                     }
                     if (recipe instanceof ShapedRecipeValues) {
-                        generateShapedRecipe(output, "\t\t", (ShapedRecipeValues) recipe, "../");
+                        generateShapedRecipe(output, "\t\t", (ShapedRecipeValues) recipe, "../", itemSet);
                     }
                     if (recipe instanceof ShapelessRecipeValues) {
-                        generateShapelessRecipe(output, "\t\t", (ShapelessRecipeValues) recipe, "../");
+                        generateShapelessRecipe(output, "\t\t", (ShapelessRecipeValues) recipe, "../", itemSet);
                     }
                     output.println("<br><br>");
                 }
@@ -169,7 +175,7 @@ class ItemRecipeGenerator {
 
                 Collection<ContainerRecipeValues> recipes = ingredientContainerRecipes.get(containerName);
                 for (ContainerRecipeValues recipe : recipes) {
-                    generateContainerRecipe(output, "\t\t", container, recipe, "../");
+                    generateContainerRecipe(output, "\t\t", container, recipe, "../", itemSet);
                 }
             }
         }
@@ -195,7 +201,7 @@ class ItemRecipeGenerator {
 
                 Collection<ContainerRecipeValues> recipes = resultContainerRecipes.get(containerName);
                 for (ContainerRecipeValues recipe : recipes) {
-                    generateContainerRecipe(output, "\t\t", container, recipe, "../");
+                    generateContainerRecipe(output, "\t\t", container, recipe, "../", itemSet);
                 }
             }
         }
