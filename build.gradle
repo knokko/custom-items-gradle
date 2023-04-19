@@ -89,7 +89,6 @@ project(':plug-in') {
         compileOnly 'com.github.jojodmo:ItemBridge:master-SNAPSHOT'
         compileOnly 'com.github.SkriptLang:Skript:2.6'
         compileOnly 'com.denizenscript:denizen:1.2.5-SNAPSHOT'
-        compileOnly 'com.badbones69.crazyenchantments:crazyenchantments-api:80647e9'
 
         testImplementation project(':bit-helper')
         testImplementation 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
@@ -133,6 +132,18 @@ project(':editor') {
         }
     }
 }
+
+// MARKER START CE EVENT HANDLER
+//project(':ce-event-handler') {
+//    dependencies {
+//        //compileOnly project(':plug-in') // Uncomment this line in development
+//        //compileOnly project(':shared-code') // Uncomment this line in development
+//        compileOnly files('../CustomItems.jar') // Comment this line out in development
+//        compileOnly 'com.badbones69.crazyenchantments:crazyenchantments-api:80647e9'
+//        compileOnly 'org.spigotmc:spigot:1.19.4-R0.1-SNAPSHOT'
+//    }
+//}
+// MARKER END CE EVENT HANDLER
 
 // MARKER START GENERAL
 project(':kci-nms') {

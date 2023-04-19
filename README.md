@@ -32,6 +32,11 @@ This module is the source code for *the Editor*. This is a GUI application that 
 and run it on their computer. Using this GUI, they can configure their custom items (choose their textures, attack damage, display name, and
 lots of other stuff...).
 
+### ce-event-handler
+This module is the (tiny) part of the plug-in that directly depends on CrazyEnchantments. Because CrazyEnchantments is compiled with Java 17 and
+the `plug-in` module needs to be compatible with Java 8, I can't just put this inside the `plug-in` module. Some special built steps are used
+to ensure that `ce-event-handler` will be compiled using Java 17.
+
 ### gui
 This module is a small gui library that I made a couple of years ago. When I started this custom items plug-in, I thought it was a good idea to use
 this library to write the Editor. After using it for a few years, I started seeing the limitations of this library: the scale of everything is based on the size of the

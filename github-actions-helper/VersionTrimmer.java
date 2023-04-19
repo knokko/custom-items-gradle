@@ -12,6 +12,7 @@ public class VersionTrimmer {
     private static final String MARKER_JAVA8 = "JAVA8";
     private static final String MARKER_JAVA16 = "JAVA16";
     private static final String MARKER_JAVA17 = "JAVA17";
+    private static final String MARKER_CE_EVENT_HANDLER = "CE EVENT HANDLER";
     private static final String MARKER_NMS_DEPENDENCIES = "NMS DEPENDENCIES";
     private static final String MARKER_NMS13PLUS = "NMS13PLUS";
     private static final String MARKER_NMS13 = "NMS13";
@@ -26,9 +27,9 @@ public class VersionTrimmer {
     private static final String MARKER_NMS19 = "NMS19";
 
     private static final String[] ALL_MARKERS = {
-            MARKER_GENERAL, MARKER_JAVA8, MARKER_JAVA16, MARKER_JAVA17, MARKER_NMS_DEPENDENCIES,
-            MARKER_NMS13PLUS, MARKER_NMS13, MARKER_NMS14, MARKER_NMS15, MARKER_NMS16PLUS, MARKER_NMS16,
-            MARKER_NMS17PLUS, MARKER_NMS17, MARKER_NMS18PLUS, MARKER_NMS18, MARKER_NMS19
+            MARKER_GENERAL, MARKER_JAVA8, MARKER_JAVA16, MARKER_JAVA17, MARKER_CE_EVENT_HANDLER,
+            MARKER_NMS_DEPENDENCIES, MARKER_NMS13PLUS, MARKER_NMS13, MARKER_NMS14, MARKER_NMS15, MARKER_NMS16PLUS,
+            MARKER_NMS16, MARKER_NMS17PLUS, MARKER_NMS17, MARKER_NMS18PLUS, MARKER_NMS18, MARKER_NMS19
     };
 
     public static void main(String[] args) throws IOException {
@@ -61,9 +62,10 @@ public class VersionTrimmer {
             else {
                 String lineToAdd;
                 if (
-                        MARKER_JAVA16.equals(currentMarker) || MARKER_NMS17.equals(currentMarker) || MARKER_NMS18.equals(currentMarker)
-                                || MARKER_JAVA17.equals(currentMarker) || MARKER_NMS17PLUS.equals(currentMarker)
-                                || MARKER_NMS18PLUS.equals(currentMarker) || MARKER_NMS19.equals(currentMarker)
+                        MARKER_JAVA16.equals(currentMarker) || MARKER_NMS17.equals(currentMarker)
+                                || MARKER_NMS18.equals(currentMarker) || MARKER_JAVA17.equals(currentMarker)
+                                || MARKER_NMS17PLUS.equals(currentMarker) || MARKER_NMS18PLUS.equals(currentMarker)
+                                || MARKER_NMS19.equals(currentMarker) || MARKER_CE_EVENT_HANDLER.equals(currentMarker)
                 ) {
                     // The projects for kci-nms 17 and later are commented out, so we should remove the 2 slashes
                     lineToAdd = originalLine.substring(2);
@@ -104,10 +106,11 @@ public class VersionTrimmer {
                 break;
             case "1.18-to-1.19":
                 allowedMarkers = new String[]{
-                        MARKER_GENERAL, MARKER_JAVA17, MARKER_NMS13PLUS, MARKER_NMS18PLUS, MARKER_NMS18, MARKER_NMS19
+                        MARKER_GENERAL, MARKER_JAVA17, MARKER_CE_EVENT_HANDLER, MARKER_NMS13PLUS,
+                        MARKER_NMS18PLUS, MARKER_NMS18, MARKER_NMS19
                 };
                 allowedProjects = new String[]{
-                        "kci-nms", "kci-nms13plus", "kci-nms16plus", "kci-nms18", "kci-nms19"
+                        "ce-event-handler", "kci-nms", "kci-nms13plus", "kci-nms16plus", "kci-nms18", "kci-nms19"
                 };
                 break;
             default:

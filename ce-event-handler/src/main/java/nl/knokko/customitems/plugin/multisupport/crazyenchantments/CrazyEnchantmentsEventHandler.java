@@ -1,8 +1,9 @@
 package nl.knokko.customitems.plugin.multisupport.crazyenchantments;
 
+import com.badbones69.crazyenchantments.CrazyEnchantments;
+import com.badbones69.crazyenchantments.api.CrazyManager;
 import com.badbones69.crazyenchantments.api.enums.CEnchantments;
 import com.badbones69.crazyenchantments.api.events.HellForgedUseEvent;
-import com.badbones69.crazyenchantments.api.objects.CEItem;
 import com.badbones69.crazyenchantments.api.objects.CEnchantment;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomToolValues;
@@ -16,15 +17,17 @@ import org.bukkit.inventory.ItemStack;
 
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 
-import static nl.knokko.customitems.plugin.set.item.CustomToolWrapper.wrap;
-
 public class CrazyEnchantmentsEventHandler implements Listener {
 
 	public CrazyEnchantmentsEventHandler() {
 		CrazyEnchantmentsSupport.crazyEnchantmentsFunctions = new CrazyEnchantmentsFunctions() {
 
+			private CrazyManager crazyManager() {
+				return CrazyEnchantments.getPlugin().getStarter().getCrazyManager();
+			}
+
 			private CEnchantment fromName(String enchantmentName) {
-				return CEnchantments.getFromName(enchantmentName).getEnchantment();
+				return crazyManager().getEnchantmentFromName(enchantmentName);
 			}
 
 			@Override
@@ -34,16 +37,14 @@ public class CrazyEnchantmentsEventHandler implements Listener {
 
 			@Override
 			public ItemStack add(ItemStack itemStack, String enchantmentName, int level) {
-				CEItem ceItem = new CEItem(itemStack);
-				ceItem.setCEnchantment(fromName(enchantmentName), level);
-				return ceItem.build();
+				return crazyManager().addEnchantment(itemStack, fromName(enchantmentName), level);
 			}
 
 			@Override
 			public ItemStack remove(ItemStack itemStack, String enchantmentName) {
-				CEItem ceItem = new CEItem(itemStack);
-				ceItem.removeCEnchantment(fromName(enchantmentName));
-				return ceItem.build();
+				return CrazyEnchantments.getPlugin().getStarter().getEnchantmentBookSettings().removeEnchantment(
+						itemStack, fromName(enchantmentName)
+				);
 			}
 		};
 	}
@@ -71,7 +72,7 @@ public class CrazyEnchantmentsEventHandler implements Listener {
 				int hellForgedLevel = CEnchantments.HELLFORGED.getLevel(itemStack);
 
 				if (hellForgedLevel > 0 && CEnchantments.HELLFORGED.chanceSuccessful()) {
-					CustomToolWrapper.IncreaseDurabilityResult result = wrap(customTool).increaseDurability(itemStack, hellForgedLevel);
+					CustomToolWrapper.IncreaseDurabilityResult result = CustomToolWrapper.wrap(customTool).increaseDurability(itemStack, hellForgedLevel);
 					if (result.increasedAmount > 0) {
 						contents[index] = result.stack;
 						didChange = true;
