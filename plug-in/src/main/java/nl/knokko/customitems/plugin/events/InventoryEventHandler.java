@@ -600,6 +600,22 @@ public class InventoryEventHandler implements Listener {
                         event.getView().getPlayer().setItemOnCursor(cursor)
                 );
             }
+
+            // For some reason, I need to manually enforce this as well...
+            if (action == InventoryAction.PLACE_ALL && ItemUtils.isEmpty(current) && customCursor != null && wrap(customCursor).needsStackingHelp()) {
+                Inventory clickedInventory = event.getView().getInventory(event.getRawSlot());
+                if (clickedInventory != null) {
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
+                        ItemStack newCursor = event.getWhoClicked().getItemOnCursor();
+                        ItemStack newItem = clickedInventory.getItem(event.getSlot());
+                        if (itemSet.getItem(newCursor) == customCursor && itemSet.getItem(newItem) == customCursor) {
+                            event.getWhoClicked().setItemOnCursor(null);
+                            newItem.setAmount(newItem.getAmount() + newCursor.getAmount());
+                            clickedInventory.setItem(event.getSlot(), newItem);
+                        }
+                    });
+                }
+            }
         } else if (action == InventoryAction.COLLECT_TO_CURSOR) {
             CustomItemValues customItem = itemSet.getItem(event.getCursor());
             if (customItem != null && wrap(customItem).needsStackingHelp()) {
