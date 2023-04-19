@@ -19,6 +19,11 @@
     background-color: rgb(100,100,130);
 }
 
+.ingredient-constraint-slot {
+    background-color: rgb(100,100,130);
+    border-color: red;
+}
+
 .result-slot {
     background-color: rgb(130,100,100);
 }

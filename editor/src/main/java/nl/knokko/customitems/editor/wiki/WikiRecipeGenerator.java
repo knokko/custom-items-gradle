@@ -8,6 +8,10 @@ import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.ShapedRecipeValues;
 import nl.knokko.customitems.recipe.ShapelessRecipeValues;
 import nl.knokko.customitems.recipe.ingredient.*;
+import nl.knokko.customitems.recipe.ingredient.constraint.DurabilityConstraintValues;
+import nl.knokko.customitems.recipe.ingredient.constraint.EnchantmentConstraintValues;
+import nl.knokko.customitems.recipe.ingredient.constraint.IngredientConstraintsValues;
+import nl.knokko.customitems.recipe.ingredient.constraint.VariableConstraintValues;
 import nl.knokko.customitems.recipe.result.*;
 import nl.knokko.customitems.util.Chance;
 
@@ -126,7 +130,33 @@ public class WikiRecipeGenerator {
     }
 
     private static void generateIngredient(PrintWriter output, String tabs, IngredientValues ingredient, String pathToRoot) {
-        output.println(tabs + "<td class=\"recipe-cell recipe-slot ingredient-slot\">");
+        String slotClassName = "ingredient-slot";
+        boolean hasConstraints = false;
+        if (ingredient != null && (!ingredient.getConstraints().getVariableConstraints().isEmpty()
+                || !ingredient.getConstraints().getEnchantmentConstraints().isEmpty()
+                || !ingredient.getConstraints().getDurabilityConstraints().isEmpty()
+        )) {
+            slotClassName = "ingredient-constraint-slot";
+            hasConstraints = true;
+        }
+        output.println(tabs + "<td class=\"recipe-cell recipe-slot " + slotClassName + "\">");
+
+        UUID ingredientId = null;
+        if (hasConstraints) {
+            ingredientId = UUID.randomUUID();
+
+            output.println(tabs + "\t<style>");
+            output.println(tabs + "\t\t.hover-recipe-list-" + ingredientId + " {");
+            output.println(tabs + "\t\t\tdisplay: none;");
+            output.println(tabs + "\t\t}");
+            output.println();
+            output.println(tabs + "\t\t.ingredient-" + ingredientId + ":hover + .hover-recipe-list-" + ingredientId + " {");
+            output.println(tabs + "\t\t\tdisplay: inline;");
+            output.println(tabs + "\t\t}");
+            output.println(tabs + "\t</style>");
+
+            output.println(tabs + "\t<div class=\"ingredient-" + ingredientId + "\">");
+        }
 
         if (ingredient instanceof CustomItemIngredientValues) {
             CustomItemIngredientValues customIngredient = (CustomItemIngredientValues) ingredient;
@@ -162,6 +192,14 @@ public class WikiRecipeGenerator {
         int amount = (ingredient == null || ingredient instanceof NoIngredientValues) ? 0 : ingredient.getAmount();
         if (amount > 1) {
             output.println(tabs + "<div class=\"recipe-amount\">" + amount + "</div>");
+        }
+
+        if (hasConstraints) {
+            output.println(tabs + "\t</div>");
+
+            output.println(tabs + "\t<div class=\"hover-recipe-list hover-recipe-list-" + ingredientId + " \">");
+            generateConstraints(output, tabs + "\t\t", ingredient.getConstraints());
+            output.println(tabs + "\t</div>");
         }
 
         output.println(tabs + "</td>");
@@ -212,6 +250,24 @@ public class WikiRecipeGenerator {
             output.println(tabs + "\t<div class=\"recipe-chance\">" + mostLikely.getChance() + "</div>");
         }
         output.println(tabs + "</td>");
+    }
+
+    private static void generateConstraints(PrintWriter output, String prefix, IngredientConstraintsValues constraints) {
+        output.println(prefix + "Constraints:");
+        output.println(prefix + "<ul>");
+        for (DurabilityConstraintValues durabilityConstraint : constraints.getDurabilityConstraints()) {
+            output.println(prefix + "\t<li>Durability " + durabilityConstraint.getOperator() +
+                    " " + durabilityConstraint.getPercentage() + "%</li>");
+        }
+        for (EnchantmentConstraintValues enchantmentConstraint : constraints.getEnchantmentConstraints()) {
+            output.println(prefix + "\t<li>" + enchantmentConstraint.getEnchantment().getKey() + " "
+                    + enchantmentConstraint.getOperator() + " " + enchantmentConstraint.getLevel() + "</li>");
+        }
+        for (VariableConstraintValues variableConstraint : constraints.getVariableConstraints()) {
+            output.println(prefix + "\t<li>Variable " + variableConstraint.getVariable() + " "
+                    + variableConstraint.getOperator() + " " + variableConstraint.getValue() + "</li>");
+        }
+        output.println(prefix + "</ul>");
     }
 
     public static void generateOutputTable(PrintWriter output, String prefix, String suffix, OutputTableValues outputTable) {
