@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static nl.knokko.customitems.editor.wiki.WikiHelper.generateAudio;
@@ -178,7 +179,7 @@ class WikiBlockGenerator {
                                     + " to " + generator.getMaxNumVeins() + " veins will be spawned per chunk.<br>");
                             output.println("\t\t\t\tThe expected size of these veins is " + generator.getMinVeinSize()
                                     + " to " + generator.getMaxVeinSize() + " blocks.<br>");
-                            generateAllowedBiomes(output, "\t\t\t\t", generator.getAllowedBiomes());
+                            generateAllowedBiomes(output, "\t\t\t\t", generator.getAllowedBiomes(), generator.getAllowedWorlds());
                             output.println("\t\t\t</li>");
                         }
                     }
@@ -206,11 +207,13 @@ class WikiBlockGenerator {
         output.println("\t\t\t<li>");
         output.println("\t\t\t\tThis block has " + getGenerationChance(producer)
                 + " chance to be generated as " + description + " of custom " + getNiceTreeName(tree.getTreeType()) + ".");
-        generateAllowedBiomes(output, "\t\t\t\t", tree.getAllowedBiomes());
+        generateAllowedBiomes(output, "\t\t\t\t", tree.getAllowedBiomes(), tree.getAllowedWorlds());
         output.println("\t\t\t</li>");
     }
 
-    private void generateAllowedBiomes(PrintWriter output, String tabs, AllowedBiomesValues biomes) {
+    private void generateAllowedBiomes(
+            PrintWriter output, String tabs, AllowedBiomesValues biomes, List<String> allowedWorlds
+    ) {
         if (biomes.getWhitelist().isEmpty()) {
             if (biomes.getBlacklist().isEmpty()) {
                 output.println(tabs + "These can be generated in all biomes.");
@@ -225,6 +228,19 @@ class WikiBlockGenerator {
                 output.println(tabs + "except");
                 generateBiomeList(output, tabs, biomes.getBlacklist());
             }
+        }
+
+        if (allowedWorlds.isEmpty()) {
+            output.println(tabs + "These can be generated in all worlds.");
+        } else if (allowedWorlds.size() == 1) {
+            output.println(tabs + "These can be generated in world \"" + allowedWorlds.get(0) + "\".");
+        } else {
+            output.println(tabs + "These can be generated in one of the following worlds:");
+            output.println(tabs + "<ul>");
+            for (String world : allowedWorlds) {
+                output.println(tabs + "\t<li>" + world + "</li>");
+            }
+            output.println(tabs + "</ul>");
         }
     }
 
