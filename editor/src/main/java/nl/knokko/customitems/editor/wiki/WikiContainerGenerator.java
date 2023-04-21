@@ -205,6 +205,10 @@ class WikiContainerGenerator {
             output.println(" layout-progress-indicator-slot\">" + generateDisplay(((ProgressIndicatorSlotValues) slot).getDisplay()) + "</td>");
         } else if (slot instanceof StorageSlotValues) {
             output.println(" layout-storage-slot\">" + generateDisplay(((StorageSlotValues) slot).getPlaceholder()) + "</td>");
+        } else if (slot instanceof ActionSlotValues) {
+            output.println(" layout-action-slot\">" + generateDisplay(((ActionSlotValues) slot).getDisplay()) + "</td>");
+        } else if (slot instanceof LinkSlotValues) {
+            output.println(" layout-link-slot\">" + generateDisplay(((LinkSlotValues) slot).getDisplay()) + "</td>");
         } else {
             output.println("\">Unknown slot type</td>");
         }
