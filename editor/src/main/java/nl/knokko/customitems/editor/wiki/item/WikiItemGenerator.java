@@ -106,7 +106,9 @@ public class WikiItemGenerator {
         boolean hasMultiBlockBreak = item.getMultiBlockBreak().getSize() > 1;
         boolean hasCustomDamage = item.getCustomMeleeDamageSourceReference() != null;
         if (hasPlayerEffects || hasTargetEffects || hasEquippedEffects || hasAttackRange || hasCustomDamage
-                || hasSpecialDamage || item.shouldKeepOnDeath() || hasAttackEffects || hasMultiBlockBreak) {
+                || hasSpecialDamage || item.shouldKeepOnDeath() || hasAttackEffects || hasMultiBlockBreak
+                || item.isTwoHanded() || item.isIndestructible()
+        ) {
             output.println("\t\t<h2>Special properties</h2>");
             if (hasPlayerEffects) {
                 output.println("\t\tOn-hit player potion effects:");
@@ -137,6 +139,14 @@ public class WikiItemGenerator {
                         + WikiDamageSourceGenerator.createLink(item.getCustomMeleeDamageSourceReference(), "../")
                         + " damage<br>"
                 );
+            }
+
+            if (item.isTwoHanded()) {
+                output.println("\t\tRequires both hands to hold<br>");
+            }
+
+            if (item.isIndestructible()) {
+                output.println("\t\tCan't be destroyed on the ground (for instance by lava or a cactus)<br>");
             }
 
             if (hasAttackEffects) {
