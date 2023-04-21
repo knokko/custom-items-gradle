@@ -10,6 +10,7 @@ import nl.knokko.customitems.recipe.ingredient.CustomItemIngredientValues;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.result.CustomItemResultValues;
 import nl.knokko.customitems.recipe.result.ResultValues;
+import nl.knokko.customitems.recipe.result.UpgradeResultValues;
 
 public class WikiProtector {
 
@@ -47,6 +48,7 @@ public class WikiProtector {
     }
 
     public static boolean isResultSecret(ResultValues result) {
+        if (result instanceof UpgradeResultValues) return isResultSecret(((UpgradeResultValues) result).getNewType());
         return result instanceof CustomItemResultValues
                 && ((CustomItemResultValues) result).getItem().getWikiVisibility() == WikiVisibility.SECRET;
     }
