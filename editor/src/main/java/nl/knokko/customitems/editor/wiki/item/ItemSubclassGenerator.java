@@ -3,11 +3,14 @@ package nl.knokko.customitems.editor.wiki.item;
 import nl.knokko.customitems.NameHelper;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.damage.DamageSource;
+import nl.knokko.customitems.editor.wiki.WikiDamageSourceGenerator;
 import nl.knokko.customitems.editor.wiki.WikiProtector;
 import nl.knokko.customitems.effect.PotionEffectValues;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.gun.DirectGunAmmoValues;
 import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
+import nl.knokko.customitems.itemset.CustomDamageSourceReference;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
@@ -25,13 +28,14 @@ class ItemSubclassGenerator {
         this.item = item;
     }
 
-    void generate(PrintWriter output) {
+    void generate(PrintWriter output, ItemSet itemSet) {
         generateFoodProperties(output);
         generateMusicDiscProperties(output);
         generateWandProperties(output);
         generateGunProperties(output);
         generatePocketContainerProperties(output);
         generateBlockItemProperties(output);
+        generateArrowProperties(output);
         generateBowProperties(output);
         generateCrossbowProperties(output);
         generateTridentProperties(output);
@@ -39,7 +43,7 @@ class ItemSubclassGenerator {
         generateHoeProperties(output);
         generateShearsProperties(output);
         generateElytraProperties(output);
-        generateArmorProperties(output);
+        generateArmorProperties(output, itemSet);
         generateToolProperties(output);
     }
 
@@ -157,7 +161,8 @@ class ItemSubclassGenerator {
     private void generateBowOrCrossbowProperties(
             PrintWriter output, double arrowDamageMultiplier, double fireworkDamageMultiplier,
             double arrowSpeedMultiplier, double fireworkSpeedMultiplier,
-            int arrowKnockbackStrength, int arrowDurabilityLoss, boolean hasArrowGravity
+            int arrowKnockbackStrength, int arrowDurabilityLoss,
+            boolean hasArrowGravity, CustomDamageSourceReference customShootDamageSource
     ) {
         if (arrowDamageMultiplier != 1.0) {
             output.print("\t\tArrows deal " + String.format("%.2f", arrowDamageMultiplier));
@@ -183,6 +188,42 @@ class ItemSubclassGenerator {
         if (((CustomToolValues) item).getMaxDurabilityNew() != null) {
             output.println("\t\tFiring an arrow decreases the durability by " + arrowDurabilityLoss + "<br>");
         }
+        if (customShootDamageSource != null) {
+            output.println("\t\tDeals " + WikiDamageSourceGenerator.createLink(customShootDamageSource, "../")
+                    + " damage<br>");
+        }
+    }
+
+    private void generateArrowProperties(PrintWriter output) {
+        if (item instanceof CustomArrowValues) {
+            CustomArrowValues arrow = (CustomArrowValues) item;
+
+            output.println("\t\t<h2>Arrow</h2>");
+            if (arrow.getDamageMultiplier() != 1f) {
+                output.println("\t\tThis arrow deals " + String.format("%.2f", arrow.getDamageMultiplier())
+                        + " times the damage of normal arrows<br>");
+            }
+            if (arrow.getSpeedMultiplier() != 1f) {
+                output.println("\t\tThis arrow flies " + String.format("%.2f", arrow.getSpeedMultiplier())
+                        + " times as fast as normal arrows<br>");
+            }
+            if (arrow.getKnockbackStrength() != 0) {
+                output.println("\t\tThis arrow has " + arrow.getKnockbackStrength() + " knockback strength<br>");
+            }
+            if (!arrow.shouldHaveGravity()) {
+                output.println("\t\tThis arrow ignores gravity<br>");
+            }
+            if (arrow.getCustomShootDamageSourceReference() != null) {
+                output.println("\t\tThis arrow deals "
+                        + WikiDamageSourceGenerator.createLink(arrow.getCustomShootDamageSourceReference(), "../")
+                        + " damage<br>"
+                );
+            }
+            if (!arrow.getShootEffects().isEmpty()) {
+                output.println("\t\tSpecial shoot effects:");
+                new AttackEffectsGenerator(arrow.getShootEffects()).generate(output, "\t\t");
+            }
+        }
     }
 
     private void generateBowProperties(PrintWriter output) {
@@ -191,8 +232,9 @@ class ItemSubclassGenerator {
 
             output.println("\t\t<h2>Bow</h2>");
             generateBowOrCrossbowProperties(
-                    output, bow.getDamageMultiplier(), 1.0, bow.getSpeedMultiplier(), 1.0,
-                    bow.getKnockbackStrength(), bow.getShootDurabilityLoss(), bow.hasGravity()
+                    output, bow.getDamageMultiplier(), 1.0, bow.getSpeedMultiplier(),
+                    1.0, bow.getKnockbackStrength(), bow.getShootDurabilityLoss(),
+                    bow.hasGravity(), bow.getCustomShootDamageSourceReference()
             );
         }
     }
@@ -205,7 +247,8 @@ class ItemSubclassGenerator {
             generateBowOrCrossbowProperties(
                     output, crossbow.getArrowDamageMultiplier(), crossbow.getFireworkDamageMultiplier(),
                     crossbow.getArrowSpeedMultiplier(), crossbow.getFireworkSpeedMultiplier(),
-                    crossbow.getArrowKnockbackStrength(), crossbow.getArrowDurabilityLoss(), crossbow.hasArrowGravity()
+                    crossbow.getArrowKnockbackStrength(), crossbow.getArrowDurabilityLoss(),
+                    crossbow.hasArrowGravity(), crossbow.getCustomShootDamageSourceReference()
             );
             if (crossbow.getMaxDurabilityNew() != null) {
                 output.println("\t\tFiring a firework rocket decreases the durability by " + crossbow.getFireworkDurabilityLoss() + "<br>");
@@ -229,6 +272,12 @@ class ItemSubclassGenerator {
             if (trident.getMaxDurabilityNew() != null) {
                 output.println("\t\tThrowing this trident will decrease its durability by " + trident.getThrowDurabilityLoss() + "<br>");
             }
+            if (trident.getCustomThrowDamageSourceReference() != null) {
+                output.println("\t\tDeals "
+                        + WikiDamageSourceGenerator.createLink(trident.getCustomThrowDamageSourceReference(), "../")
+                        + " damage (thrown)<br>"
+                );
+            }
         }
     }
 
@@ -237,9 +286,9 @@ class ItemSubclassGenerator {
             CustomShieldValues shield = (CustomShieldValues) item;
             output.println("\t\t<h2>Shield</h2>");
 
-            output.println("\t\tThreshold damage for durability loss: " + shield.getThresholdDamage());
+            output.println("\t\tThreshold damage for durability loss: " + shield.getThresholdDamage() + "<br>");
             if (!shield.getBlockingEffects().isEmpty()) {
-                output.println("Blocking effects:");
+                output.println("\t\tBlocking effects:");
                 new AttackEffectsGenerator(shield.getBlockingEffects()).generate(output, "\t\t");
             }
         }
@@ -271,7 +320,7 @@ class ItemSubclassGenerator {
         }
     }
 
-    private void generateArmorProperties(PrintWriter output) {
+    private void generateArmorProperties(PrintWriter output, ItemSet itemSet) {
         if (item instanceof CustomArmorValues) {
             CustomArmorValues armor = (CustomArmorValues) item;
             if (!armor.getDamageResistances().equals(new DamageResistanceValues(false))) {
@@ -282,6 +331,14 @@ class ItemSubclassGenerator {
                     if (resistance != 0) {
                         output.println("\t\t\t<li class=\"armor-damage-resistance\">" + resistance +
                                 "% resistance against " + damageSource + " damage</li>");
+                    }
+                }
+                for (CustomDamageSourceReference damageSource : itemSet.getDamageSources().references()) {
+                    short resistance = armor.getDamageResistances().getResistance(damageSource);
+                    if (resistance != 0) {
+                        output.println("\t\t\t<li class=\"armor-damage-resistance\">" + resistance + "% resistance against "
+                                + WikiDamageSourceGenerator.createLink(damageSource, "../") + " damage</li>"
+                        );
                     }
                 }
                 output.println("\t\t</ul>");

@@ -1,5 +1,6 @@
 package nl.knokko.customitems.editor.wiki.item;
 
+import nl.knokko.customitems.editor.wiki.WikiDamageSourceGenerator;
 import nl.knokko.customitems.effect.ChancePotionEffectValues;
 import nl.knokko.customitems.effect.EquippedPotionEffectValues;
 import nl.knokko.customitems.item.*;
@@ -35,7 +36,7 @@ public class WikiItemGenerator {
             output.println("\t\t<img src=\"../textures/" + item.getTexture().getName() + ".png\" class=\"item-icon\" /><br>");
 
             generateInformation(output);
-            new ItemSubclassGenerator(item).generate(output);
+            new ItemSubclassGenerator(item).generate(output, itemSet);
             generateBasicProperties(output);
             generateSpecialProperties(output);
             generateEquipmentSetInfo(output);
@@ -103,7 +104,8 @@ public class WikiItemGenerator {
         boolean hasSpecialDamage = item.getSpecialMeleeDamage() != null;
         boolean hasAttackEffects = !item.getAttackEffects().isEmpty();
         boolean hasMultiBlockBreak = item.getMultiBlockBreak().getSize() > 1;
-        if (hasPlayerEffects || hasTargetEffects || hasEquippedEffects || hasAttackRange
+        boolean hasCustomDamage = item.getCustomMeleeDamageSourceReference() != null;
+        if (hasPlayerEffects || hasTargetEffects || hasEquippedEffects || hasAttackRange || hasCustomDamage
                 || hasSpecialDamage || item.shouldKeepOnDeath() || hasAttackEffects || hasMultiBlockBreak) {
             output.println("\t\t<h2>Special properties</h2>");
             if (hasPlayerEffects) {
@@ -128,6 +130,13 @@ public class WikiItemGenerator {
 
             if (hasAttackRange) {
                 output.println("\t\tAttack range is " + String.format("%.2f", item.getAttackRange()) + " times the default attack range<br>");
+            }
+
+            if (hasCustomDamage) {
+                output.println("\t\tMelee attacks deal "
+                        + WikiDamageSourceGenerator.createLink(item.getCustomMeleeDamageSourceReference(), "../")
+                        + " damage<br>"
+                );
             }
 
             if (hasAttackEffects) {

@@ -3,10 +3,12 @@ package nl.knokko.customitems.editor.wiki;
 import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.energy.EnergyTypeValues;
+import nl.knokko.customitems.damage.CustomDamageSourceValues;
 import nl.knokko.customitems.editor.wiki.item.WikiItemGenerator;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.WikiVisibility;
 import nl.knokko.customitems.item.equipment.EquipmentSetValues;
+import nl.knokko.customitems.itemset.CustomDamageSourceReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 
@@ -39,6 +41,7 @@ public class WikiGenerator {
         copyResource("projectiles.css", new File(destinationFolder + "/projectiles.css"));
         copyResource("containers.css", new File(destinationFolder + "/containers.css"));
         copyResource("blocks.css", new File(destinationFolder + "/blocks.css"));
+        copyResource("damage-source.css", new File(destinationFolder + "/damage-source.css"));
 
         List<EquipmentSetValues> equipmentSets = itemSet.getEquipmentSets().stream().collect(Collectors.toList());
         File itemsFolder = new File(destinationFolder + "/items");
@@ -55,6 +58,12 @@ public class WikiGenerator {
         if (!equipmentSetsFolder.exists() && !equipmentSetsFolder.mkdirs()) throw new IOException("Failed to create equipment sets folder");
         for (int index = 0; index < equipmentSets.size(); index++) {
             new WikiEquipmentSetGenerator(equipmentSets.get(index)).generate(new File(equipmentSetsFolder + "/set" + index + ".html"));
+        }
+
+        File damageSourcesFolder = new File(destinationFolder + "/damage-sources");
+        if (!damageSourcesFolder.exists() && !damageSourcesFolder.mkdirs()) throw new IOException("Failed to create damage sources folder");
+        for (CustomDamageSourceReference damageSource : itemSet.getDamageSources().references()) {
+            new WikiDamageSourceGenerator(damageSource, itemSet).generate(new File(damageSourcesFolder + "/" + damageSource.get().getId() + ".html"));
         }
 
         File projectilesFolder = new File(destinationFolder + "/projectiles");

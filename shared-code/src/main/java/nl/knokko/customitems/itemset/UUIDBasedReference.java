@@ -32,7 +32,7 @@ public abstract class UUIDBasedReference<M extends Model<V>, V extends ModelValu
     @Override
     @SuppressWarnings("unchecked")
     public boolean equals(Object other) {
-        if (other.getClass() == this.getClass()) {
+        if (other != null && other.getClass() == this.getClass()) {
             UUID ownId = model != null ? extractIdentity(model.getValues()) : id;
             UUIDBasedReference<M, V> otherReference = (UUIDBasedReference<M, V>) other;
             UUID otherId = otherReference.model != null ? otherReference.extractIdentity(otherReference.model.getValues()) : otherReference.id;
