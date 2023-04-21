@@ -5,7 +5,10 @@ import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.effect.ChancePotionEffectValues;
 import nl.knokko.customitems.effect.PotionEffectValues;
 import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.CustomMusicDiscValues;
 import nl.knokko.customitems.recipe.ingredient.*;
+import nl.knokko.customitems.sound.CustomSoundTypeValues;
+import nl.knokko.customitems.sound.SoundValues;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -97,5 +100,17 @@ public class WikiHelper {
         String niceDisplayName = stripColorCodes(container.getSelectionIcon().getDisplayName());
         if (niceDisplayName.isEmpty()) return container.getName();
         else return niceDisplayName;
+    }
+
+    public static void generateAudio(PrintWriter output, String tabs, String pathToRoot, SoundValues sound) {
+        if (sound.getCustomSound() != null) {
+            output.println(tabs + "<audio controls>");
+            output.println(tabs + "\t<source src=\"" + pathToRoot + "sounds/" + sound.getCustomSound().getName()
+                    + ".ogg\" type=\"audio/ogg\">");
+            output.println(tabs + "\tYour browser does not support (ogg) audio.");
+            output.println(tabs + "</audio>");
+        } else {
+            output.println(tabs + "Plays the vanilla sound " + NameHelper.getNiceEnumName(sound.getVanillaSound().name()));
+        }
     }
 }

@@ -26,6 +26,7 @@ import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+import static nl.knokko.customitems.editor.wiki.WikiHelper.generateAudio;
 import static nl.knokko.customitems.editor.wiki.WikiHelper.generateHtml;
 import static nl.knokko.customitems.editor.wiki.WikiRecipeGenerator.generateOutputTable;
 import static nl.knokko.customitems.util.ColorCodes.stripColorCodes;
@@ -61,6 +62,24 @@ class WikiBlockGenerator {
                             stripColorCodes(placingItem.getDisplayName()) + "</a></li>");
                 }
                 output.println("\t\t</ul>");
+            }
+
+            output.println("\t\t<h2>Sounds</h2>");
+            if (block.getSounds().getLeftClickSound() != null) {
+                output.println("\t\t<h3>Left-click</h3>");
+                generateAudio(output, "\t\t", "../", block.getSounds().getLeftClickSound());
+            }
+            if (block.getSounds().getRightClickSound() != null) {
+                output.println("\t\t<h3>Right-click</h3>");
+                generateAudio(output, "\t\t", "../", block.getSounds().getRightClickSound());
+            }
+            if (block.getSounds().getBreakSound() != null) {
+                output.println("\t\t<h3>Break</h3>");
+                generateAudio(output, "\t\t", "../", block.getSounds().getBreakSound());
+            }
+            if (block.getSounds().getStepSound() != null) {
+                output.println("\t\t<h3>Step</h3>");
+                generateAudio(output, "\t\t", "../", block.getSounds().getStepSound());
             }
 
             output.println("\t\t<h2>Mining speed</h2>");

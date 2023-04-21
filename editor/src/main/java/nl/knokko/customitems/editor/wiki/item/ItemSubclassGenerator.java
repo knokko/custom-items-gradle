@@ -69,15 +69,8 @@ class ItemSubclassGenerator {
     private void generateMusicDiscProperties(PrintWriter output) {
         if (item instanceof CustomMusicDiscValues) {
             output.println("\t\t<h2>Music</h2>");
-            SoundValues music = ((CustomMusicDiscValues) item).getMusic();
-            if (music.getCustomSound() != null) {
-                output.println("\t\t<audio controls>");
-                output.println("\t\t\t<source src=\"../sounds/" + music.getCustomSound().getName() + ".ogg\" type=\"audio/ogg\">");
-                output.println("\t\t\tYour browser does not support (ogg) audio.");
-                output.println("\t\t</audio>");
-            } else {
-                output.println("\t\tThis music disc plays the vanilla music " + NameHelper.getNiceEnumName(music.getVanillaSound().name()));
-            }
+            CustomMusicDiscValues musicDisc = (CustomMusicDiscValues) item;
+            generateAudio(output, "\t\t", "../", musicDisc.getMusic());
         }
     }
 
