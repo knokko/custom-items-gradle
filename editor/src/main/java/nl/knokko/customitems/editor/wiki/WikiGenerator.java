@@ -3,7 +3,6 @@ package nl.knokko.customitems.editor.wiki;
 import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.energy.EnergyTypeValues;
-import nl.knokko.customitems.damage.CustomDamageSourceValues;
 import nl.knokko.customitems.editor.wiki.item.WikiItemGenerator;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.WikiVisibility;
@@ -57,7 +56,9 @@ public class WikiGenerator {
         File equipmentSetsFolder = new File(itemsFolder + "/equipment");
         if (!equipmentSetsFolder.exists() && !equipmentSetsFolder.mkdirs()) throw new IOException("Failed to create equipment sets folder");
         for (int index = 0; index < equipmentSets.size(); index++) {
-            new WikiEquipmentSetGenerator(equipmentSets.get(index)).generate(new File(equipmentSetsFolder + "/set" + index + ".html"));
+            new WikiEquipmentSetGenerator(equipmentSets.get(index)).generate(
+                    new File(equipmentSetsFolder + "/set" + index + ".html"), itemSet
+            );
         }
 
         File damageSourcesFolder = new File(destinationFolder + "/damage-sources");

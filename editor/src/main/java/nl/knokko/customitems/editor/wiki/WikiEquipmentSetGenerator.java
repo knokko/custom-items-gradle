@@ -7,6 +7,8 @@ import nl.knokko.customitems.item.WikiVisibility;
 import nl.knokko.customitems.item.equipment.EquipmentBonusValues;
 import nl.knokko.customitems.item.equipment.EquipmentEntry;
 import nl.knokko.customitems.item.equipment.EquipmentSetValues;
+import nl.knokko.customitems.itemset.CustomDamageSourceReference;
+import nl.knokko.customitems.itemset.ItemSet;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +25,7 @@ class WikiEquipmentSetGenerator {
         this.equipmentSet = equipmentSet;
     }
 
-    public void generate(File file) throws IOException {
+    public void generate(File file, ItemSet itemSet) throws IOException {
         generateHtml(file, "../set.css", "Equipment set", output -> {
             output.println("\t\t<h1 id=\"items-header\">Items</h1>");
             output.println("\t\t<ul>");
@@ -58,6 +60,9 @@ class WikiEquipmentSetGenerator {
                 for (DamageSource damageSource : DamageSource.values()) {
                     if (bonus.getDamageResistances().getResistance(damageSource) != 0) hasDamageResistances = true;
                 }
+                for (CustomDamageSourceReference damageSource : itemSet.getDamageSources().references()) {
+                    if (bonus.getDamageResistances().getResistance(damageSource) != 0) hasDamageResistances = true;
+                }
 
                 if (hasDamageResistances) {
                     output.println("\t\t\t\tDamage resistances:");
@@ -67,6 +72,13 @@ class WikiEquipmentSetGenerator {
                         if (resistance != 0) {
                             output.println("\t\t\t\t\t<li>" + resistance + "% resistance to "
                                     + NameHelper.getNiceEnumName(damageSource.name()) + "</li>");
+                        }
+                    }
+                    for (CustomDamageSourceReference damageSource : itemSet.getDamageSources().references()) {
+                        int resistance = bonus.getDamageResistances().getResistance(damageSource);
+                        if (resistance != 0) {
+                            output.println("\t\t\t\t\t<li>" + resistance + "% resistance to "
+                                    + WikiDamageSourceGenerator.createLink(damageSource, "../../") + "</li>");
                         }
                     }
                     output.println("\t\t\t\t</ul>");
