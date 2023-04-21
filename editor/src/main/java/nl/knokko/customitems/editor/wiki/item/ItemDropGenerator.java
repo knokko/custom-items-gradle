@@ -65,6 +65,7 @@ public class ItemDropGenerator {
 
                 generateAllowedBiomes(output, "\t\t", blockDrop.getDrop().getAllowedBiomes());
                 generateRequiredHeldItems(output, "\t\t", blockDrop.getDrop().getRequiredHeldItems());
+                generateRequiredFortuneLevel(output, "\t\t", blockDrop.getMinFortuneLevel(), blockDrop.getMaxFortuneLevel());
                 generateRelevantDrops(output, "\t\t", blockDrop.getDrop().getOutputTable());
             }
 
@@ -118,6 +119,7 @@ public class ItemDropGenerator {
                 }
                 output.println("</li>");
             }
+
             for (ItemReference itemRef : blockDrop.getRequiredItems().getCustomItems()) {
                 if (itemRef.get().getWikiVisibility() == WikiVisibility.VISIBLE) {
                     output.print("\t\t\t\t\t<li class=\"required-custom-item\"><a href=\"./" + itemRef.get().getName() + ".html\">");
@@ -126,6 +128,10 @@ public class ItemDropGenerator {
             }
             output.println("\t\t\t\t</ul>");
         }
+        generateRequiredFortuneLevel(
+                output, "\t\t\t\t", blockDrop.getMinFortuneLevel(),
+                blockDrop.getMaxFortuneLevel()
+        );
     }
 
     private void generateAllowedBiomes(PrintWriter output, String tabs, AllowedBiomesValues allowedBiomes) {
@@ -150,6 +156,17 @@ public class ItemDropGenerator {
         output.println(tabs + "</ul>");
     }
 
+    private static void generateRequiredFortuneLevel(
+            PrintWriter output, String tabs, int minLevel, Integer maxLevel
+    ) {
+        if (minLevel > 0) {
+            output.println(tabs + "Fortune enchantment level must be at least " + minLevel + "<br>");
+        }
+        if (maxLevel != null) {
+            output.println(tabs + "Fortune enchantment level must be at most " + maxLevel + "<br>");
+        }
+    }
+
     private void generateRequiredHeldItems(PrintWriter output, String tabs, Collection<ItemReference> requiredItems) {
         requiredItems = requiredItems.stream().filter(item -> item.get().getWikiVisibility() == WikiVisibility.VISIBLE).collect(Collectors.toList());
         if (!requiredItems.isEmpty()) {
@@ -157,8 +174,7 @@ public class ItemDropGenerator {
             output.println(tabs + "<ul class=\"required-held-items\">");
             for (ItemReference item : requiredItems) {
                 output.println(tabs + "\t<li class=\"required-custom-item\"><a href=\"./" + item.get().getName() + ".html\">"
-                        + stripColorCodes(item.get().getDisplayName())
-                        + "</a></li>");
+                        + stripColorCodes(item.get().getDisplayName()) + "</a></li>");
             }
             output.println(tabs + "</ul>");
         }
