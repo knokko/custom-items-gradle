@@ -112,17 +112,17 @@ public class IngredientConstraintsValues extends ModelValues {
 
     public void setDurabilityConstraints(Collection<DurabilityConstraintValues> durabilityConstraints) {
         assertMutable();
-        this.durabilityConstraints = Collections.unmodifiableCollection(durabilityConstraints);
+        this.durabilityConstraints = Collections.unmodifiableList(new ArrayList<>(durabilityConstraints));
     }
 
     public void setEnchantmentConstraints(Collection<EnchantmentConstraintValues> enchantmentConstraints) {
         assertMutable();
-        this.enchantmentConstraints = Collections.unmodifiableCollection(enchantmentConstraints);
+        this.enchantmentConstraints = Collections.unmodifiableList(new ArrayList<>(enchantmentConstraints));
     }
 
     public void setVariableConstraints(Collection<VariableConstraintValues> variableConstraints) {
         assertMutable();
-        this.variableConstraints = Collections.unmodifiableCollection(variableConstraints);
+        this.variableConstraints = Collections.unmodifiableList(new ArrayList<>(variableConstraints));
     }
 
     public void validate() throws ValidationException, ProgrammingValidationException {

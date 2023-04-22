@@ -10,6 +10,7 @@ import nl.knokko.customitems.util.ValidationException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.zip.ZipInputStream;
 
@@ -54,6 +55,15 @@ public class CombinedResourcepackValues extends ModelValues {
     @Override
     public CombinedResourcepackValues copy(boolean mutable) {
         return new CombinedResourcepackValues(this, mutable);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof CombinedResourcepackValues) {
+            CombinedResourcepackValues otherPack = (CombinedResourcepackValues) other;
+            return this.name.equals(otherPack.name) && this.priority == otherPack.priority
+                    && Arrays.equals(this.content, otherPack.content);
+        } else return false;
     }
 
     public String getName() {

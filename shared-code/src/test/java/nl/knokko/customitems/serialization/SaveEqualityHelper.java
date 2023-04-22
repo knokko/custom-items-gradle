@@ -4,17 +4,21 @@ import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.energy.EnergyTypeValues;
 import nl.knokko.customitems.container.fuel.FuelRegistryValues;
+import nl.knokko.customitems.damage.CustomDamageSourceValues;
 import nl.knokko.customitems.drops.BlockDropValues;
 import nl.knokko.customitems.drops.MobDropValues;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.equipment.EquipmentSetValues;
 import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.customitems.misc.CombinedResourcepackValues;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 import nl.knokko.customitems.projectile.cover.ProjectileCoverValues;
 import nl.knokko.customitems.recipe.CraftingRecipeValues;
+import nl.knokko.customitems.recipe.upgrade.UpgradeValues;
 import nl.knokko.customitems.sound.CustomSoundTypeValues;
 import nl.knokko.customitems.texture.ArmorTextureValues;
 import nl.knokko.customitems.texture.BaseTextureValues;
+import nl.knokko.customitems.texture.FancyPantsArmorTextureValues;
 import nl.knokko.customitems.trouble.IntegrityException;
 import nl.knokko.customitems.trouble.OutdatedItemSetException;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -37,6 +41,11 @@ public class SaveEqualityHelper {
 
             ItemSet testSet = new ItemSet(new ByteArrayBitInput(bitOutput.getBytes()), side, true);
             if (side == ItemSet.Side.EDITOR) {
+                assertEquals(originalSet.getCombinedResourcepacks().size(), testSet.getCombinedResourcepacks().size());
+                for (CombinedResourcepackValues originalPack : originalSet.getCombinedResourcepacks()) {
+                    assertEquals(originalPack, testSet.getCombinedResourcepack(originalPack.getName()).get());
+                }
+
                 assertEquals(originalSet.getTextures().size(), testSet.getTextures().size());
                 for (BaseTextureValues originalTexture : originalSet.getTextures()) {
                     assertEquals(originalTexture, testSet.getTexture(originalTexture.getName()).get());
@@ -46,6 +55,19 @@ public class SaveEqualityHelper {
                 for (ArmorTextureValues originalArmorTexture : originalSet.getArmorTextures()) {
                     assertEquals(originalArmorTexture, testSet.getArmorTexture(originalArmorTexture.getName()).get());
                 }
+            }
+
+            assertEquals(originalSet.getFancyPantsArmorTextures().size(), testSet.getFancyPantsArmorTextures().size());
+            for (FancyPantsArmorTextureValues originalTexture : originalSet.getFancyPantsArmorTextures()) {
+                FancyPantsArmorTextureValues testTexture = testSet.getFancyPantsArmorTexture(originalTexture.getId()).get();
+
+                // The frames are not present on the plug-in side
+                if (side == ItemSet.Side.PLUGIN) {
+                    testTexture = testTexture.copy(true);
+                    testTexture.setFrames(originalTexture.getFrames());
+                }
+
+                assertEquals(originalTexture, testTexture);
             }
 
             assertEquals(originalSet.getItems().size(), testSet.getItems().size());
@@ -65,9 +87,19 @@ public class SaveEqualityHelper {
                 assertTrue(testSet.getEquipmentSets().stream().anyMatch(candidate -> candidate.equals(originalEquipmentSet)));
             }
 
+            assertEquals(originalSet.getDamageSources().size(), testSet.getDamageSources().size());
+            for (CustomDamageSourceValues originalSource : testSet.getDamageSources()) {
+                assertEquals(originalSource, testSet.getDamageSource(originalSource.getId()).get());
+            }
+
             assertEquals(originalSet.getCraftingRecipes().size(), testSet.getCraftingRecipes().size());
             for (CraftingRecipeValues originalRecipe : originalSet.getCraftingRecipes()) {
                 assertTrue(testSet.getCraftingRecipes().stream().anyMatch(candidate -> candidate.equals(originalRecipe)));
+            }
+
+            assertEquals(originalSet.getUpgrades().size(), testSet.getUpgrades().size());
+            for (UpgradeValues originalUpgrade : originalSet.getUpgrades()) {
+                assertEquals(originalUpgrade, testSet.getUpgrade(originalUpgrade.getId()).get());
             }
 
             assertEquals(originalSet.getBlockDrops().size(), testSet.getBlockDrops().size());
@@ -132,8 +164,6 @@ public class SaveEqualityHelper {
             for (TreeGeneratorValues generator : originalSet.getTreeGenerators()) {
                 assertTrue(testSet.getTreeGenerators().stream().anyMatch(candidate -> candidate.equals(generator)));
             }
-
-            // TODO Check the new models introduced in V12
         }
     }
 }

@@ -43,7 +43,7 @@ public class Backward6 {
 
     @Test
     public void testBackwardCompatibility6() {
-        for (ItemSet oldSet : loadItemSet("backward6old")) {
+        for (ItemSet oldSet : loadItemSet("backward6old", false)) {
             testTextures3(oldSet, 3);
             testItemsOld6(oldSet, 21);
             testRecipesOld6(oldSet, 3);
@@ -53,7 +53,7 @@ public class Backward6 {
             testProjectilesOld6(oldSet, 1);
         }
 
-        for (ItemSet newSet : loadItemSet("backward6new")) {
+        for (ItemSet newSet : loadItemSet("backward6new", false)) {
             testTexturesNew6(newSet, 1);
             testItemsNew6(newSet, 1);
             testRecipesNew6(newSet, 1);

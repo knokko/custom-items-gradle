@@ -20,7 +20,7 @@ public class Backward5 {
 
     @Test
     public void testBackwardCompatibility5() {
-        for (ItemSet set5 : loadItemSet("backward5")) {
+        for (ItemSet set5 : loadItemSet("backward5", false)) {
             testTextures3(set5, 3);
             testItems5(set5, 19);
             testRecipes1(set5, 2);

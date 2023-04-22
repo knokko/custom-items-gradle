@@ -28,6 +28,13 @@ public class ActionSlotValues extends ContainerSlotValues {
         return slot;
     }
 
+    public static ActionSlotValues createQuick(String actionID, SlotDisplayValues display) {
+        ActionSlotValues slot = new ActionSlotValues(true);
+        slot.setActionID(actionID);
+        slot.setDisplay(display);
+        return slot.copy(false);
+    }
+
     private String actionID;
     private SlotDisplayValues display;
 
@@ -51,6 +58,14 @@ public class ActionSlotValues extends ContainerSlotValues {
         output.addString(actionID);
         output.addBoolean(display != null);
         if (display != null) display.save(output);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof ActionSlotValues) {
+            ActionSlotValues otherSlot = (ActionSlotValues) other;
+            return this.actionID.equals(otherSlot.actionID) && Objects.equals(this.display, otherSlot.display);
+        } else return false;
     }
 
     @Override

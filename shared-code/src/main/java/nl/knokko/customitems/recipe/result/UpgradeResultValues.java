@@ -25,9 +25,9 @@ public class UpgradeResultValues extends ResultValues {
         UpgradeResultValues result = new UpgradeResultValues(false);
         result.ingredientIndex = input.readInt();
         result.inputSlotName = input.readString();
-        result.upgrades = CollectionHelper.load(input, innerInput ->
+        result.upgrades = Collections.unmodifiableList(CollectionHelper.load(input, innerInput ->
                 itemSet.getUpgradeReference(new UUID(innerInput.readLong(), innerInput.readLong()))
-        );
+        ));
         result.repairPercentage = input.readFloat();
         if (input.readBoolean()) result.newType = ResultValues.load(input, itemSet);
         else result.newType = null;
@@ -176,7 +176,7 @@ public class UpgradeResultValues extends ResultValues {
 
     public void setUpgrades(Collection<UpgradeReference> upgrades) {
         assertMutable();
-        this.upgrades = Collections.unmodifiableCollection(upgrades);
+        this.upgrades = Collections.unmodifiableList(new ArrayList<>(upgrades));
     }
 
     public void setRepairPercentage(float repairPercentage) {

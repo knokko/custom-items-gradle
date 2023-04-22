@@ -3,13 +3,11 @@ package nl.knokko.customitems.serialization;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.texture.BaseTextureValues;
 import nl.knokko.customitems.bithelper.BitInputStream;
+import nl.knokko.customitems.util.StringEncoder;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,17 +20,41 @@ public class BackwardHelper {
 
     public static final float DELTA = 0.0001f;
 
-    public static ItemSet[] loadItemSet(String name) {
-        return new ItemSet[] { loadItemSet(name, ItemSet.Side.EDITOR), loadItemSet(name, ItemSet.Side.PLUGIN) };
+    public static ItemSet[] loadItemSet(String name, boolean useTexty) {
+        return new ItemSet[] {
+                loadItemSet(name, ItemSet.Side.EDITOR, useTexty),
+                loadItemSet(name, ItemSet.Side.PLUGIN, useTexty)
+        };
     }
 
-    public static ItemSet loadItemSet(String name, ItemSet.Side side) {
-        String extension = side == ItemSet.Side.EDITOR ? ".cisb" : ".cis";
+    public static ItemSet loadItemSet(String name, ItemSet.Side side, boolean useTexty) {
+        String extension = side == ItemSet.Side.EDITOR ? ".cisb" : (useTexty ? ".cis.txt" : ".cis");
         String resourceName = "nl/knokko/customitems/serialization/" + name + extension;
         InputStream rawInput = BackwardHelper.class.getClassLoader().getResourceAsStream(resourceName);
 
         if (rawInput == null) {
             throw new IllegalArgumentException("Can't find resource '" + resourceName + "'");
+        }
+
+        if (side == ItemSet.Side.PLUGIN && useTexty) {
+            try {
+                List<Byte> rawByteList = new ArrayList<>(rawInput.available());
+                int nextByte = rawInput.read();
+                while (nextByte != -1) {
+                    rawByteList.add((byte) nextByte);
+                    nextByte = rawInput.read();
+                }
+                rawInput.close();
+
+                byte[] rawByteArray = new byte[rawByteList.size()];
+                for (int index = 0; index < rawByteArray.length; index++) {
+                    rawByteArray[index] = rawByteList.get(index);
+                }
+                byte[] decodedBytes = StringEncoder.decodeTextyBytes(rawByteArray);
+                rawInput = new ByteArrayInputStream(decodedBytes);
+            } catch (IOException shouldNotHappen) {
+                throw new RuntimeException(shouldNotHappen);
+            }
         }
 
         BitInputStream bitInput = new BitInputStream(new BufferedInputStream(rawInput));

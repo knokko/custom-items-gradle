@@ -98,6 +98,18 @@ public class FancyPantsArmorTextureValues extends ModelValues {
         return new FancyPantsArmorTextureValues(this, mutable);
     }
 
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof FancyPantsArmorTextureValues) {
+            FancyPantsArmorTextureValues otherFp = (FancyPantsArmorTextureValues) other;
+            return this.id.equals(otherFp.id) && this.name.equals(otherFp.name) && this.rgb == otherFp.rgb
+                    && this.animationSpeed == otherFp.animationSpeed
+                    && this.interpolateAnimations == otherFp.interpolateAnimations
+                    && this.emissivity == otherFp.emissivity && this.leatherTint == otherFp.leatherTint
+                    && this.frames.equals(otherFp.frames);
+        } else return false;
+    }
+
     public UUID getId() {
         return id;
     }

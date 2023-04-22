@@ -24,6 +24,16 @@ public class EnchantmentConstraintValues extends ModelValues {
         return constraint;
     }
 
+    public static EnchantmentConstraintValues createQuick(
+            EnchantmentType enchantment, ConstraintOperator operator, int level
+    ) {
+        EnchantmentConstraintValues constraint = new EnchantmentConstraintValues(true);
+        constraint.setEnchantment(enchantment);
+        constraint.setOperator(operator);
+        constraint.setLevel(level);
+        return constraint;
+    }
+
     private EnchantmentType enchantment;
     private ConstraintOperator operator;
     private int level;

@@ -23,6 +23,13 @@ public class DurabilityConstraintValues extends ModelValues {
         return constraint;
     }
 
+    public static DurabilityConstraintValues createQuick(ConstraintOperator operator, float percentage) {
+        DurabilityConstraintValues constraints = new DurabilityConstraintValues(true);
+        constraints.setOperator(operator);
+        constraints.setPercentage(percentage);
+        return constraints.copy(false);
+    }
+
     private ConstraintOperator operator;
     private float percentage;
 

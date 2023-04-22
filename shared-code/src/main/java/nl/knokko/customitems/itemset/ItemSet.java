@@ -1157,6 +1157,10 @@ public class ItemSet {
         }
     }
 
+    public Optional<CombinedResourcepackValues> getCombinedResourcepack(String packName) {
+        return CollectionHelper.find(combinedResourcepacks, pack -> pack.getValues().getName(), packName).map(CombinedResourcepack::getValues);
+    }
+
     public Optional<BaseTextureValues> getTexture(String textureName) {
         return CollectionHelper.find(textures, texture -> texture.getValues().getName(), textureName).map(CustomTexture::getValues);
     }

@@ -52,6 +52,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 
 import static nl.knokko.customitems.serialization.Backward10.*;
+import static nl.knokko.customitems.serialization.Backward12.*;
 import static nl.knokko.customitems.serialization.Backward6.testProjectileCoversOld6;
 import static nl.knokko.customitems.serialization.Backward8.testArmorTexturesOld8;
 import static nl.knokko.customitems.serialization.Backward8.testFuelRegistriesOld8;
@@ -65,7 +66,7 @@ public class Backward11 {
 
     @Test
     public void testBackwardCompatibility11() {
-        ItemSet[] oldPair = loadItemSet("backward11old");
+        ItemSet[] oldPair = loadItemSet("backward11old", false);
         for (ItemSet old11 : oldPair) {
             testTexturesOld10(old11, 4);
             testArmorTexturesOld8(old11, 1);
@@ -82,7 +83,7 @@ public class Backward11 {
             testSoundsOld11(old11, 1);
         }
 
-        ItemSet[] newPair = loadItemSet("backward11new");
+        ItemSet[] newPair = loadItemSet("backward11new", false);
         for (ItemSet newSet : newPair) {
             testTexturesNew9(newSet, 2);
             testItemsNew11(newSet, 8);
@@ -438,83 +439,83 @@ public class Backward11 {
     }
 
     static void testBaseDefault11(CustomItemValues item) {
-        // TODO Call testBaseDefault12
+        testBaseDefault12(item);
     }
 
     static void testSimpleDefault11(SimpleCustomItemValues item) {
         testBaseDefault11(item);
-        // TODO Call testSimpleDefault12
+        testSimpleDefault12(item);
     }
 
     static void testToolDefault11(CustomToolValues item) {
         testBaseDefault11(item);
-        // TODO Call testToolDefault12
+        testToolDefault12(item);
     }
 
     static void testArmorDefault11(CustomArmorValues item) {
         testToolDefault11(item);
-        // TODO Call testArmorDefault12
+        testArmorDefault12(item);
     }
 
     static void testHoeDefault11(CustomHoeValues item) {
         testToolDefault11(item);
-        // TODO Call testHoeDefault12
+        testHoeDefault12(item);
     }
 
     static void testShearsDefault11(CustomShearsValues item) {
         testToolDefault11(item);
-        // TODO Call testShearsDefault12
+        testShearsDefault12(item);
     }
 
     static void testBowDefault11(CustomBowValues item) {
         testToolDefault11(item);
-        // TODO Call testBowDefault12
+        testBowDefault12(item);
     }
 
     static void testShieldDefault11(CustomShieldValues item) {
         testToolDefault11(item);
-        // TODO Call testShieldDefault12
+        testShieldDefault12(item);
     }
 
     static void testWandDefault11(CustomWandValues item) {
         testBaseDefault11(item);
         assertFalse(item.requiresPermission());
-        // TODO Call testWandDefault12
+        testWandDefault12(item);
     }
 
     static void testGunDefault11(CustomGunValues item) {
         testBaseDefault11(item);
         assertFalse(item.requiresPermission());
-        // TODO Call testGunDefault12
+        testGunDefault12(item);
     }
 
     static void testFoodDefault11(CustomFoodValues item) {
         testBaseDefault11(item);
-        // TODO Call testFoodDefault12
+        testFoodDefault12(item);
     }
 
     static void testPocketContainerDefault11(CustomPocketContainerValues item) {
         testBaseDefault11(item);
-        // TODO Call testPocketContainerDefault12
+        testPocketContainerDefault12(item);
     }
 
     static void test3dHelmetDefault11(CustomHelmet3dValues item) {
         testArmorDefault11(item);
-        // TODO Call test3dHelmetDefault12
+        test3dHelmetDefault12(item);
     }
 
     static void testTridentDefault11(CustomTridentValues item) {
         testToolDefault11(item);
-        // TODO Call testTridentDefault12
+        testTridentDefault12(item);
     }
 
     static void testCrossbowDefault11(CustomCrossbowValues item) {
         testToolDefault11(item);
-        // TODO Call testCrossbowDefault12
+        testCrossbowDefault12(item);
     }
 
     static void testBlockItemDefault11(CustomBlockItemValues item) {
         testBaseDefault11(item);
-        // TODO Call testBlockItemDefault12
+        testBlockItemDefault12(item);
     }
 }

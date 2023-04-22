@@ -10,8 +10,7 @@ import nl.knokko.customitems.util.ValidationException;
 import java.awt.image.BufferedImage;
 import java.util.Objects;
 
-import static nl.knokko.customitems.texture.BaseTextureValues.loadImage;
-import static nl.knokko.customitems.texture.BaseTextureValues.saveImage;
+import static nl.knokko.customitems.texture.BaseTextureValues.*;
 
 public class FancyPantsArmorFrameValues extends ModelValues {
 
@@ -56,6 +55,16 @@ public class FancyPantsArmorFrameValues extends ModelValues {
         if (emissivityLayer1 != null) saveImage(output, emissivityLayer1);
         output.addBoolean(emissivityLayer2 != null);
         if (emissivityLayer2 != null) saveImage(output, emissivityLayer2);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof FancyPantsArmorFrameValues) {
+            FancyPantsArmorFrameValues otherFrame = (FancyPantsArmorFrameValues) other;
+            return areImagesEqual(this.layer1, otherFrame.layer1) && areImagesEqual(this.layer2, otherFrame.layer2)
+                    && areImagesEqual(this.emissivityLayer1, otherFrame.emissivityLayer1)
+                    && areImagesEqual(this.emissivityLayer2, otherFrame.emissivityLayer2);
+        } else return false;
     }
 
     @Override

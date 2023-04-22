@@ -53,7 +53,10 @@ public class Backward9 {
     @Test
     public void testBackwardCompatibility9() {
         // Due to a stupid oversight, I introduced an extra encoding between Editor 9.0 and Editor 9.12
-        for (ItemSet[] oldPair : new ItemSet[][] { loadItemSet("backward9old"), loadItemSet("backward9_12old") }) {
+        for (ItemSet[] oldPair : new ItemSet[][] {
+                loadItemSet("backward9old", false),
+                loadItemSet("backward9_12old", false)
+        }) {
             for (ItemSet old9 : oldPair) {
                 testTextures3(old9, 3);
                 testArmorTexturesOld8(old9, 1);
@@ -68,7 +71,7 @@ public class Backward9 {
             }
         }
 
-        for (ItemSet new9 : loadItemSet("backward9new")) {
+        for (ItemSet new9 : loadItemSet("backward9new", false)) {
             testTexturesNew9(new9, 2);
             testItemsNew9(new9, 4);
             testRecipesNew6(new9, 1);

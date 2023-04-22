@@ -30,6 +30,13 @@ public class LinkSlotValues extends ContainerSlotValues {
         return slot;
     }
 
+    public static LinkSlotValues createQuick(ContainerReference linkedContainer, SlotDisplayValues display) {
+        LinkSlotValues slot = new LinkSlotValues(true);
+        slot.setLinkedContainer(linkedContainer);
+        slot.setDisplay(display);
+        return slot.copy(false);
+    }
+
     private ContainerReference linkedContainer;
     private SlotDisplayValues display;
 
@@ -53,6 +60,14 @@ public class LinkSlotValues extends ContainerSlotValues {
         output.addString(linkedContainer.get().getName());
         output.addBoolean(display != null);
         if (display != null) display.save(output);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof LinkSlotValues) {
+            LinkSlotValues otherSlot = (LinkSlotValues) other;
+            return this.linkedContainer.equals(otherSlot.linkedContainer) && Objects.equals(this.display, otherSlot.display);
+        } else return false;
     }
 
     @Override

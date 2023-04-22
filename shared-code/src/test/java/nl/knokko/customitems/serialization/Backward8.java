@@ -48,7 +48,7 @@ public class Backward8 {
 
     @Test
     public void testBackwardCompatibility8() {
-        for (ItemSet oldSet : loadItemSet("backward8old")) {
+        for (ItemSet oldSet : loadItemSet("backward8old", false)) {
             testTextures3(oldSet, 3);
             testArmorTexturesOld8(oldSet, 1);
             testItemsOld8(oldSet, 30);
@@ -61,7 +61,7 @@ public class Backward8 {
             testContainersOld8(oldSet, 2);
         }
 
-        for (ItemSet newSet : loadItemSet("backward8new")) {
+        for (ItemSet newSet : loadItemSet("backward8new", false)) {
             testTexturesNew6(newSet, 1);
             testItemsNew8(newSet, 2);
             testRecipesNew6(newSet, 1);

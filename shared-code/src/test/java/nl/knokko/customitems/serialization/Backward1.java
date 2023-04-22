@@ -12,7 +12,6 @@ import nl.knokko.customitems.recipe.result.CustomItemResultValues;
 import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
 import org.junit.Test;
 
-import java.util.Collection;
 import java.util.List;
 
 import static nl.knokko.customitems.serialization.BackwardHelper.*;
@@ -22,7 +21,7 @@ public class Backward1 {
 
     @Test
     public void testBackwardCompatibility1() {
-        for (ItemSet set1 : BackwardHelper.loadItemSet("backward1")) {
+        for (ItemSet set1 : BackwardHelper.loadItemSet("backward1", false)) {
             testTextures1(set1, 2);
             testItems1(set1, 1);
             testRecipes1(set1, 2);
