@@ -1,5 +1,5 @@
 name: test-and-shadow
-run-name: Running unit tests and shadowJar on all modules that support Java 8
+run-name: Running unit tests and generating release jars
 on: [push]
 jobs:
   test-and-shadow-general:

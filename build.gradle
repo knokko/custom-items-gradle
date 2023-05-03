@@ -73,8 +73,8 @@ project(':plug-in') {
     dependencies {
         implementation project(':shared-code')
         implementation project(':kci-nms')
-// MARKER START NMS DEPENDENCIES
         runtimeOnly project(':kci-nms12')
+// MARKER START NMS DEPENDENCIES
         runtimeOnly project(':kci-nms13plus')
         runtimeOnly project(':kci-nms13')
         runtimeOnly project(':kci-nms14')
