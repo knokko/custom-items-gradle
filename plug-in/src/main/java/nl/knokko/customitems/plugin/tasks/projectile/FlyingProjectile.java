@@ -81,10 +81,7 @@ class FlyingProjectile {
 		CustomItemsPlugin plugin = CustomItemsPlugin.getInstance();
 		
 		taskIDs[0] = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, this::destroy, supposedLifetime);
-		
-		updateTask = new UpdateProjectileTask(this);
-		taskIDs[1] = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, updateTask, 0, 1);
-		
+
 		int taskIndex = 2;
 		for (ProjectileEffectsValues effects : prototype.getInFlightEffects()) {
 			taskIDs[taskIndex++] = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, 
@@ -92,6 +89,9 @@ class FlyingProjectile {
 						applyEffects(effects.getEffects());
 					}, effects.getDelay(), effects.getPeriod());
 		}
+
+		updateTask = new UpdateProjectileTask(this);
+		taskIDs[1] = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, updateTask, 0, 1);
 	}
 	
 	void applyEffects(Collection<ProjectileEffectValues> effects) {
