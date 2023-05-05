@@ -136,8 +136,8 @@ public class CustomItemsPlugin extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		if (KciNms.instance != null) {
-			if (!itemSet.get().isEmpty() && getData() != null) {
-				getData().saveData();
+			if (!itemSet.get().isEmpty() && itemSetLoader.getPluginData() != null) {
+				itemSetLoader.getPluginData().saveData();
 			}
 			latePopulator.stop();
 			projectileManager.destroyCustomProjectiles();
@@ -226,7 +226,9 @@ public class CustomItemsPlugin extends JavaPlugin {
 	}
 	
 	public PluginData getData() {
-		return itemSetLoader.getPluginData();
+		PluginData data = itemSetLoader.getPluginData();
+		if (data != null) return data;
+		return PluginData.dummy();
 	}
 	
 	public ProjectileManager getProjectileManager() {

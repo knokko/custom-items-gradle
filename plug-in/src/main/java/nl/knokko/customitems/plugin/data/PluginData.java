@@ -20,6 +20,7 @@ import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.command.ItemCommandEvent;
 import nl.knokko.customitems.item.gun.DirectGunAmmoValues;
 import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.nms.GeneralItemNBT;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.util.SoundPlayer;
@@ -67,6 +68,12 @@ public class PluginData {
 	private static File getDataFile() {
 		return new File(CustomItemsPlugin.getInstance().getDataFolder() + "/gamedata.bin");
 	}
+
+	public static PluginData dummy() {
+		ItemSetWrapper dummyItemSet = new ItemSetWrapper();
+		dummyItemSet.setItemSet(new ItemSet(ItemSet.Side.PLUGIN));
+		return new PluginData(dummyItemSet);
+	}
 	
 	/**
 	 * Attempts to read the plugin data that was saved previously. If the data can be found, it will be
@@ -107,7 +114,7 @@ public class PluginData {
 				return new CarefulPluginData(itemSet);
 			}
 		} else {
-			Bukkit.getLogger().warning("Couldn't find the data file for CustomItems. Is this the first time you are using CustomItems with version at least 6.0?");
+			Bukkit.getLogger().warning("Couldn't find the data file for CustomItems. Is this the first time you are using CustomItems?");
 			return new PluginData(itemSet);
 		}
 	}
