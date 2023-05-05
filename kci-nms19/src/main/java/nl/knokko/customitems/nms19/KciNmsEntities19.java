@@ -1,7 +1,7 @@
 package nl.knokko.customitems.nms19;
 
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.projectile.EntitySmallFireball;
+import net.minecraft.world.entity.projectile.EntityTippedArrow;
 import net.minecraft.world.phys.Vec3D;
 import nl.knokko.customitems.nms16plus.KciNmsEntities16Plus;
 import org.bukkit.Location;
@@ -16,12 +16,11 @@ class KciNmsEntities19 extends KciNmsEntities16Plus {
 
     @Override
     public void causeFakeProjectileDamage(Entity toDamage, Entity responsibleShooter, float damage, double projectilePositionX, double projectilePositionY, double projectilePositionZ, double projectileMotionX, double projectileMotionY, double projectileMotionZ) {
-        EntitySmallFireball fakeFireball = new EntitySmallFireball(((CraftWorld) toDamage.getWorld()).getHandle(),
-                projectilePositionX, projectilePositionY, projectilePositionZ,
-                projectileMotionX, projectileMotionY, projectileMotionZ);
+        EntityTippedArrow fakeArrow = new EntityTippedArrow(((CraftWorld) toDamage.getWorld()).getHandle(),
+                projectilePositionX, projectileMotionY, projectileMotionZ);
 
         net.minecraft.world.entity.Entity nmsEntity = ((CraftEntity) toDamage).getHandle();
-        DamageSource indirectDamageSource = nmsEntity.dG().a(fakeFireball, ((CraftEntity) responsibleShooter).getHandle());
+        DamageSource indirectDamageSource = nmsEntity.dG().a(fakeArrow, ((CraftEntity) responsibleShooter).getHandle());
 
         nmsEntity.a(indirectDamageSource, damage);
     }
