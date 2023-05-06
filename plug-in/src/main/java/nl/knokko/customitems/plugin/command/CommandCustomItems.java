@@ -101,6 +101,10 @@ public class CommandCustomItems implements CommandExecutor {
 					new CommandCustomItemsContainer(itemSet).handle(args, sender, enableOutput);
 					break;
 				}
+				case "playsound": {
+					new CommandCustomItemsSound(itemSet).handle(args, sender, enableOutput);
+					break;
+				}
 				default:
 					return false;
 			}

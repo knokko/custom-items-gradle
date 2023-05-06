@@ -5,6 +5,7 @@ import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
+import nl.knokko.customitems.sound.CustomSoundTypeValues;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -27,7 +28,8 @@ public class CustomItemsTabCompletions implements TabCompleter {
 
     private List<String> getRootCompletions(CommandSender sender, boolean showDisableOutput) {
         List<String> result = Lists.newArrayList(
-                "give", "take", "list", "debug", "encode", "reload", "repair", "damage", "setblock", "container"
+                "give", "take", "list", "debug", "encode", "reload", "repair",
+                "damage", "setblock", "container", "playsound"
         ).stream().filter(
                 element -> element.equals("container") || sender.hasPermission("customitems." + element) ||
                         (element.equals("give") && itemSet.get().getItems().stream().anyMatch(
@@ -94,6 +96,14 @@ public class CustomItemsTabCompletions implements TabCompleter {
 
             if (first.equals("container")) {
                 return Lists.newArrayList("open", "destroy");
+            }
+
+            if (first.equals("playsound")) {
+                List<String> result = new ArrayList<>(itemSet.get().getSoundTypes().size());
+                for (CustomSoundTypeValues sound : itemSet.get().getSoundTypes()) {
+                    result.add(sound.getName());
+                }
+                return filter(result, prefix);
             }
         } else if (args.length == 3) {
             String first = args[0];
@@ -163,7 +173,10 @@ public class CustomItemsTabCompletions implements TabCompleter {
 
             String first = args[0];
             String prefix = args[5];
-            if (first.equals("setblock") && sender.hasPermission("customitems.setblock")) {
+
+            if ((first.equals("setblock") && sender.hasPermission("customitems.setblock")) || (
+                    first.equals("playsound") && sender.hasPermission("customitems.playsound")
+                    )) {
                 List<String> result = new ArrayList<>(Bukkit.getWorlds().size());
                 for (World world : Bukkit.getWorlds()) {
                     result.add(world.getName());
