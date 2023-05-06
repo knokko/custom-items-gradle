@@ -1,12 +1,16 @@
 package nl.knokko.customitems.plugin.multisupport.denizen;
 
+import com.denizenscript.denizen.objects.InventoryTag;
 import com.denizenscript.denizen.objects.ItemTag;
 import com.denizenscript.denizen.objects.LocationTag;
 import com.denizenscript.denizencore.DenizenCore;
 import com.denizenscript.denizencore.objects.core.ElementTag;
+import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.plugin.CustomItemsApi;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
+import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import org.bukkit.Bukkit;
+import org.bukkit.inventory.ItemStack;
 
 class CIDenizenAddon {
 
@@ -53,9 +57,29 @@ class CIDenizenAddon {
             return new ElementTag(CustomItemsApi.getBlockName(object.getBlock()));
         });
 
+        InventoryTag.tagProcessor.registerTag(ElementTag.class, "kci_count", (attribute, object) -> {
+            if (!attribute.hasParam()) {
+                attribute.echoError("The kci_count[...] tag must have an input");
+                return null;
+            }
+            String itemName = attribute.getParam();
+            ItemStack[] contents = object.getContents();
+
+            int count = 0;
+            ItemSetWrapper itemSet = CustomItemsPlugin.getInstance().getSet();
+            for (ItemStack content : contents) {
+                CustomItemValues customItem = itemSet.getItem(content);
+                if (customItem != null && customItem.getName().equals(itemName)) {
+                    count += content.getAmount();
+                }
+            }
+            return new ElementTag(count);
+        });
+
         DenizenCore.commandRegistry.registerCommand(PlaceKciBlockCommand.class);
         DenizenCore.commandRegistry.registerCommand(KciContainerCommand.class);
         DenizenCore.commandRegistry.registerCommand(GiveKciItemCommand.class);
+        DenizenCore.commandRegistry.registerCommand(KciRemoveItemCommand.class);
         new KciItemsTag();
 
         Bukkit.getPluginManager().registerEvents(new KciContainerActionEvent(), CustomItemsPlugin.getInstance());
