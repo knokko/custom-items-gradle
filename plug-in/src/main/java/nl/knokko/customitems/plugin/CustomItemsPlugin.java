@@ -90,7 +90,9 @@ public class CustomItemsPlugin extends JavaPlugin {
 			Bukkit.getPluginManager().registerEvents(projectileManager, this);
 			Bukkit.getPluginManager().registerEvents(new TwoHandedEnforcer(itemSet), this);
 
-			Bukkit.getPluginManager().registerEvents(new AttackRangeEventHandler(itemSet), this);
+			AttackRangeEventHandler attackRangeEventHandler = new AttackRangeEventHandler(itemSet);
+			Bukkit.getScheduler().scheduleSyncRepeatingTask(this, attackRangeEventHandler::update, 1, 1);
+			Bukkit.getPluginManager().registerEvents(attackRangeEventHandler, this);
 			Bukkit.getPluginManager().registerEvents(new BlockEventHandler(itemSet), this);
 			Bukkit.getPluginManager().registerEvents(new BowEventHandler(itemSet), this);
 			Bukkit.getPluginManager().registerEvents(new CommandEventHandler(itemSet), this);
