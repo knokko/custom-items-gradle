@@ -75,6 +75,7 @@ the following commands using Java **8**:
 
 Due to some juridical conflict, it is illegal to publish the entire craftbukkit jar,
 but it is legal to build it on your own computer using BuildTools...
+https://www.spigotmc.org/threads/why-exactly-does-the-buildtool-exist.341013/
 
 #### IDE
 You will probably want to use an IDE to work on this project. Regardless of your IDE, you should first clone, fork, or download this project as a
