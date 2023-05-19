@@ -268,7 +268,7 @@ public class OreVeinGeneratorValues extends ModelValues {
         if (oreMaterial == null) throw new ProgrammingValidationException("No ore material");
         Validation.scope("Ore material", oreMaterial::validate, itemSet);
 
-        if (minY < 0) throw new ValidationException("Minimum Y-coordinate can't be negative");
+        if (minY < -64) throw new ValidationException("Minimum Y-coordinate must be at least -64");
         if (minY > maxY) throw new ValidationException("Minimum Y-coordinate can't be larger than maximum Y-coordinate");
 
         if (chance == null) throw new ProgrammingValidationException("No chance");

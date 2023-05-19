@@ -78,7 +78,7 @@ public class EditOreVeinGenerator extends GuiMenu {
                 0.2f, 0.41f, 0.44f, 0.5f
         );
         addComponent(new EagerIntEditField(
-                currentValues.getMinY(), 0, 9999, EDIT_BASE, EDIT_ACTIVE, currentValues::setMinY
+                currentValues.getMinY(), -64, 9999, EDIT_BASE, EDIT_ACTIVE, currentValues::setMinY
         ), 0.45f, 0.41f, 0.55f, 0.5f);
 
         addComponent(
@@ -86,7 +86,7 @@ public class EditOreVeinGenerator extends GuiMenu {
                 0.2f, 0.31f, 0.44f, 0.4f
         );
         addComponent(new EagerIntEditField(
-                currentValues.getMaxY(), 0, 9999, EDIT_BASE, EDIT_ACTIVE, currentValues::setMaxY
+                currentValues.getMaxY(), -64, 9999, EDIT_BASE, EDIT_ACTIVE, currentValues::setMaxY
         ), 0.45f, 0.31f, 0.55f, 0.4f);
 
         addComponent(new DynamicTextComponent("Chance:", LABEL), 0.75f, 0.81f, 0.85f, 0.9f);
