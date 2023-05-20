@@ -30,9 +30,8 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static nl.knokko.customitems.plugin.recipe.RecipeHelper.convertResultToItemStack;
 import static org.bukkit.enchantments.Enchantment.LOOT_BONUS_BLOCKS;
@@ -50,6 +49,53 @@ public class BlockEventHandler implements Listener {
     public void maintainCustomBlocks(BlockPhysicsEvent event) {
         if (KciNms.instance.blocks.areEnabled() && MushroomBlockHelper.isMushroomBlock(event.getBlock())) {
             event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void maintainCustomBlocks(BlockPistonExtendEvent event) {
+        preventPistonsFromTurningCustomBlocks(event, event.getBlocks());
+    }
+
+    @EventHandler
+    public void maintainCustomBlocks(BlockPistonRetractEvent event) {
+        preventPistonsFromTurningCustomBlocks(event, event.getBlocks());
+    }
+
+    private void restoreCustomBlockDirections(
+            List<Block> mushroomBlocks, List<boolean[]> oldDirections, BlockFace direction
+    ) {
+        for (int index = 0; index < mushroomBlocks.size(); index++) {
+            Block newBlock = mushroomBlocks.get(index).getRelative(direction);
+
+            // If the piston is still busy, wait another tick
+            if (newBlock.getType() == Material.MOVING_PISTON) {
+                Bukkit.getScheduler().scheduleSyncDelayedTask(
+                        CustomItemsPlugin.getInstance(),
+                        () -> restoreCustomBlockDirections(mushroomBlocks, oldDirections, direction), 1
+                );
+                return;
+            }
+
+            if (MushroomBlockHelper.isMushroomBlock(newBlock)) {
+                boolean[] newDirections = KciNms.instance.blocks.getDirections(newBlock);
+                if (!Arrays.equals(oldDirections.get(index), newDirections)) {
+                    KciNms.instance.blocks.place(newBlock, oldDirections.get(index), newBlock.getType().name());
+                }
+            }
+        }
+    }
+
+    private void preventPistonsFromTurningCustomBlocks(BlockPistonEvent event, List<Block> blocks) {
+        if (!KciNms.instance.blocks.areEnabled()) return;
+
+        List<Block> mushroomBlocks = blocks.stream().filter(MushroomBlockHelper::isMushroomBlock).collect(Collectors.toList());
+        if (!mushroomBlocks.isEmpty()) {
+            List<boolean[]> oldDirections = mushroomBlocks.stream().map(KciNms.instance.blocks::getDirections).collect(Collectors.toList());
+
+            Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
+                restoreCustomBlockDirections(mushroomBlocks, oldDirections, event.getDirection());
+            });
         }
     }
 
