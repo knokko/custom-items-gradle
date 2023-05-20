@@ -30,14 +30,14 @@ public class AttributeMerger {
     }
 
     public static RawAttribute[] merge(CustomItemValues item, Collection<UpgradeValues> upgrades) {
-        Collection<AttributeModifierValues> kciAttributes = merge(collectAttributeModifiers(item, upgrades));
+        List<AttributeModifierValues> kciAttributes = merge(collectAttributeModifiers(item, upgrades));
         return kciAttributes.stream().map(raw -> convertAttributeModifier(raw, UUID.randomUUID())).toArray(RawAttribute[]::new);
     }
 
-    static Collection<AttributeModifierValues> collectAttributeModifiers(
+    static List<AttributeModifierValues> collectAttributeModifiers(
             CustomItemValues item, Collection<UpgradeValues> upgrades
     ) {
-        Collection<AttributeModifierValues> allAttributes = new ArrayList<>();
+        List<AttributeModifierValues> allAttributes = new ArrayList<>();
         if (item != null) allAttributes.addAll(item.getAttributeModifiers());
         for (UpgradeValues upgrade : upgrades) allAttributes.addAll(upgrade.getAttributeModifiers());
         return allAttributes;
@@ -53,7 +53,7 @@ public class AttributeMerger {
         );
     }
 
-    static Collection<AttributeModifierValues> merge(Collection<AttributeModifierValues> original) {
+    static List<AttributeModifierValues> merge(List<AttributeModifierValues> original) {
         Map<AttributeCore, Double> map = new HashMap<>();
 
         for (AttributeModifierValues modifier : original) {
@@ -70,13 +70,36 @@ public class AttributeMerger {
             }
         }
 
-        Collection<AttributeModifierValues> mergedAttributes = new ArrayList<>(map.size());
+        List<AttributeModifierValues> mergedAttributes = new ArrayList<>(map.size());
         for (Map.Entry<AttributeCore, Double> entry : map.entrySet()) {
             AttributeCore core = entry.getKey();
             double value = entry.getValue();
             if (core.operation == AttributeModifierValues.Operation.MULTIPLY) value -= 1.0;
             if (!isClose(value, 0.0)) mergedAttributes.add(backToModifier(core, value));
         }
+
+        // Attribute modifiers should be sorted by their attribute, slot, and operation in the order of first occurrence
+        // in the original list, see https://github.com/knokko/custom-items-gradle/issues/241
+        mergedAttributes.sort((a, b) -> {
+            for (AttributeModifierValues originalModifier : original) {
+                if (a.getAttribute() == originalModifier.getAttribute()
+                                && a.getSlot() == originalModifier.getSlot()
+                                && a.getOperation() == originalModifier.getOperation()
+                ) {
+                    return -1;
+                }
+
+                if (b.getAttribute() == originalModifier.getAttribute()
+                        && b.getSlot() == originalModifier.getSlot()
+                        && b.getOperation() == originalModifier.getOperation()
+                ) {
+                    return 1;
+                }
+            }
+
+            return 0;
+        });
+
         return mergedAttributes;
     }
 

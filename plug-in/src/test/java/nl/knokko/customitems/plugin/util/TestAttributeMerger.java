@@ -4,8 +4,7 @@ import nl.knokko.customitems.item.AttributeModifierValues;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -14,7 +13,7 @@ public class TestAttributeMerger {
 
     @Test
     public void testMergeAllDistinct() {
-        Collection<AttributeModifierValues> distinctAttributes = new HashSet<>();
+        List<AttributeModifierValues> distinctAttributes = new ArrayList<>(5);
         distinctAttributes.add(AttributeModifierValues.createQuick(
                 AttributeModifierValues.Attribute.ATTACK_DAMAGE, AttributeModifierValues.Slot.OFFHAND,
                 AttributeModifierValues.Operation.ADD, 1.0
@@ -36,7 +35,7 @@ public class TestAttributeMerger {
                 AttributeModifierValues.Operation.MULTIPLY, 4.0
         ));
 
-        assertEquals(distinctAttributes, new HashSet<>(AttributeMerger.merge(distinctAttributes)));
+        assertEquals(distinctAttributes, AttributeMerger.merge(distinctAttributes));
     }
 
     @Test
@@ -46,7 +45,7 @@ public class TestAttributeMerger {
 
     @Test
     public void testMergeSome() {
-        Collection<AttributeModifierValues> originalAttributes = new ArrayList<>();
+        List<AttributeModifierValues> originalAttributes = new ArrayList<>(5);
         originalAttributes.add(AttributeModifierValues.createQuick(
                 AttributeModifierValues.Attribute.ARMOR, AttributeModifierValues.Slot.CHEST,
                 AttributeModifierValues.Operation.ADD, 3.0
@@ -68,7 +67,7 @@ public class TestAttributeMerger {
                 AttributeModifierValues.Operation.ADD_FACTOR, 1.4
         ));
 
-        Collection<AttributeModifierValues> mergedAttributes = new HashSet<>();
+        List<AttributeModifierValues> mergedAttributes = new ArrayList<>(3);
         mergedAttributes.add(AttributeModifierValues.createQuick(
                 AttributeModifierValues.Attribute.ARMOR, AttributeModifierValues.Slot.CHEST,
                 AttributeModifierValues.Operation.ADD, 5.0
@@ -82,6 +81,6 @@ public class TestAttributeMerger {
                 AttributeModifierValues.Operation.MULTIPLY, 2.0
         ));
 
-        assertEquals(mergedAttributes, new HashSet<>(AttributeMerger.merge(originalAttributes)));
+        assertEquals(mergedAttributes, AttributeMerger.merge(originalAttributes));
     }
 }
