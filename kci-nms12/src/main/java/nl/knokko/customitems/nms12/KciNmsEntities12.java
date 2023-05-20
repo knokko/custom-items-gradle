@@ -5,7 +5,9 @@ import net.minecraft.server.v1_12_R1.Vec3D;
 import nl.knokko.customitems.nms.KciNmsEntities;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftHumanEntity;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -62,5 +64,10 @@ class KciNmsEntities12 implements KciNmsEntities {
     @Override
     public void setTridentItem(Entity tridentEntity, ItemStack newTridentItem) {
         throw new UnsupportedOperationException("Tridents are not supported in minecraft 1.12");
+    }
+
+    @Override
+    public void forceAttack(HumanEntity attacker, Entity target) {
+        ((CraftHumanEntity) attacker).getHandle().attack(((CraftEntity) target).getHandle());
     }
 }

@@ -2,6 +2,7 @@ package nl.knokko.customitems.nms;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -26,4 +27,6 @@ public interface KciNmsEntities {
     ItemStack getTridentItem(Entity tridentEntity);
 
     void setTridentItem(Entity tridentEntity, ItemStack newTridentItem);
+
+    void forceAttack(HumanEntity attacker, Entity target);
 }

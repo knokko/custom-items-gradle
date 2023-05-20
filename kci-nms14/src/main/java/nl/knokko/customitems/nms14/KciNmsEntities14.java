@@ -8,9 +8,11 @@ import nl.knokko.customitems.nms.KciNmsEntities;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_14_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_14_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_14_R1.entity.CraftHumanEntity;
 import org.bukkit.craftbukkit.v1_14_R1.entity.CraftTrident;
 import org.bukkit.craftbukkit.v1_14_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -61,5 +63,10 @@ class KciNmsEntities14 implements KciNmsEntities {
     @Override
     public void setTridentItem(Entity tridentEntity, ItemStack newTridentItem) {
         ((CraftTrident) tridentEntity).getHandle().trident = CraftItemStack.asNMSCopy(newTridentItem);
+    }
+
+    @Override
+    public void forceAttack(HumanEntity attacker, Entity target) {
+        ((CraftHumanEntity) attacker).getHandle().attack(((CraftEntity) target).getHandle());
     }
 }

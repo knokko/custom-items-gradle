@@ -11,6 +11,7 @@ import org.bukkit.craftbukkit.v1_15_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_15_R1.entity.CraftTrident;
 import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -65,5 +66,10 @@ class KciNmsEntities15 implements KciNmsEntities {
     @Override
     public void setTridentItem(Entity tridentEntity, ItemStack newTridentItem) {
         ((CraftTrident) tridentEntity).getHandle().trident = CraftItemStack.asNMSCopy(newTridentItem);
+    }
+
+    @Override
+    public void forceAttack(HumanEntity attacker, Entity target) {
+        attacker.attack(target);
     }
 }

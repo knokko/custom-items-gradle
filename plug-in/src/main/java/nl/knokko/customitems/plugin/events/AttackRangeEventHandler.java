@@ -6,8 +6,6 @@ import nl.knokko.customitems.nms.RaytraceResult;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -52,18 +50,15 @@ public class AttackRangeEventHandler implements Listener {
         float customAttackRange = getAttackRange(player.getInventory().getItemInMainHand());
         if (customAttackRange > 1f) {
             double baseAttackRange = getBaseAttackRange(player.getGameMode());
-
             double attackRange = baseAttackRange * customAttackRange;
-            double damageAmount = player.getAttribute(Attribute.GENERIC_ATTACK_DAMAGE).getValue();
 
             RaytraceResult raytrace = KciNms.instance.raytrace(
                     player.getEyeLocation(),
                     player.getEyeLocation().getDirection().multiply(attackRange),
                     player
             );
-            if (raytrace != null && raytrace.getHitEntity() instanceof LivingEntity) {
-                LivingEntity hit = (LivingEntity) raytrace.getHitEntity();
-                hit.damage(damageAmount, player);
+            if (raytrace != null && raytrace.getHitEntity() != null) {
+                KciNms.instance.entities.forceAttack(player, raytrace.getHitEntity());
             }
         }
     }
