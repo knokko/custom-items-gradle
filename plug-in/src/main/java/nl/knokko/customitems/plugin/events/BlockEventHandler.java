@@ -119,6 +119,17 @@ public class BlockEventHandler implements Listener {
         }
     }
 
+    private boolean isPlacingCustomBlock;
+
+    @EventHandler
+    public void preventVanillaCustomBlockPlacements(BlockPlaceEvent event) {
+        if (!isPlacingCustomBlock) {
+            if (itemSet.getItem(event.getItemInHand()) instanceof CustomBlockItemValues) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
     @EventHandler(priority = EventPriority.MONITOR)
     public void handleCustomBlockPlacements(PlayerInteractEvent event) {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
@@ -145,7 +156,9 @@ public class BlockEventHandler implements Listener {
                                         destination, destination.getState(), event.getClickedBlock(),
                                         newItemStack, event.getPlayer(), true, event.getHand()
                                 );
+                                this.isPlacingCustomBlock = true;
                                 Bukkit.getPluginManager().callEvent(placeEvent);
+                                this.isPlacingCustomBlock = false;
 
                                 if (placeEvent.canBuild() && !placeEvent.isCancelled()) {
                                     MushroomBlockHelper.place(destination, block);

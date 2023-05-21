@@ -40,8 +40,9 @@ public class CustomBlockItemValues extends CustomItemValues {
     private byte maxStacksize;
 
     public CustomBlockItemValues(boolean mutable) {
-        super(mutable, CustomItemType.DIAMOND_HOE);
+        super(mutable, CustomItemType.OTHER);
 
+        this.otherMaterial = CIMaterial.STONE;
         this.maxStacksize = 64;
         this.block = null;
     }
