@@ -55,7 +55,6 @@ public class CustomGunWrapper extends CustomItemWrapper {
 
     private List<String> createLore(IndirectGunAmmoValues indirectAmmo, int remainingAmmo) {
         List<String> lore = super.createLore();
-        lore.add("");
         lore.add(ammoPrefix() + " " + remainingAmmo + " / " + indirectAmmo.getStoredAmmo());
         return lore;
     }

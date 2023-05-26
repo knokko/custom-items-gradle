@@ -72,7 +72,6 @@ public class CustomToolWrapper extends CustomItemWrapper {
                 currentDurability = this.tool.getMaxDurabilityNew();
             }
             itemLore.add(createDurabilityLine(currentDurability, this.tool.getMaxDurabilityNew()));
-            itemLore.add("");
         }
         itemLore.addAll(rawLore);
 

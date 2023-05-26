@@ -110,7 +110,6 @@ public class LoreUpdater {
                 // Simply prepend a new durability line to the lore
                 newLore = new ArrayList<>(oldLore.size() + 2);
                 newLore.add(createDurabilityLine(durabilityPrefix, newDurability, newMaxDurability));
-                newLore.add("");
                 newLore.addAll(oldLore);
             }
             meta.setLore(newLore);
