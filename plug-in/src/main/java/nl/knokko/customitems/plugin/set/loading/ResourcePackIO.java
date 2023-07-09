@@ -97,7 +97,7 @@ class ResourcePackIO {
                 propagate(contentStream, false, itemsOutput, true, null, 0);
                 foundItems = true;
             } else {
-                resourcePackStream.putNextEntry(zipEntry);
+                resourcePackStream.putNextEntry(new ZipEntry(zipEntry.getName()));
                 propagate(contentStream, false, resourcePackStream, false, null, 0);
                 resourcePackStream.closeEntry();
             }

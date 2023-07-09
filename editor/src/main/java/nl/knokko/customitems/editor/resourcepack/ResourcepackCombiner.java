@@ -30,7 +30,7 @@ public class ResourcepackCombiner {
                     ZipInputStream zipInput = new ZipInputStream(new ByteArrayInputStream(pack.getContent()));
                     ZipEntry inputEntry = zipInput.getNextEntry();
                     while (inputEntry != null) {
-                        zipOutput.putNextEntry(inputEntry);
+                        zipOutput.putNextEntry(new ZipEntry(inputEntry.getName()));
 
                         int numReadBytes = zipInput.read(buffer);
                         while (numReadBytes != -1) {
