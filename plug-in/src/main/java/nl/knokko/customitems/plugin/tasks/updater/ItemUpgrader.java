@@ -12,12 +12,12 @@ import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.nms.RawAttribute;
 import nl.knokko.customitems.plugin.recipe.RecipeHelper;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
-import nl.knokko.customitems.plugin.set.item.BukkitEnchantments;
 import nl.knokko.customitems.plugin.set.item.CustomToolWrapper;
 import nl.knokko.customitems.plugin.util.AttributeMerger;
 import nl.knokko.customitems.recipe.result.UpgradeResultValues;
 import nl.knokko.customitems.recipe.upgrade.UpgradeValues;
 import nl.knokko.customitems.util.StringEncoder;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -134,6 +134,7 @@ public class ItemUpgrader {
         CustomItemValues customItem = itemSet.getItem(original);
 
         ItemStack currentStack = original.clone();
+        System.out.println("original is " + original);
         float originalDurabilityPercentage = RecipeHelper.getDurabilityPercentage(currentStack);
 
         RawAttribute[] originalAttributes = KciNms.instance.items.getAttributes(currentStack);
@@ -154,20 +155,36 @@ public class ItemUpgrader {
                 oldKciEnchantments, newKciEnchantments
         );
 
-        Map<EnchantmentType, Integer> nonKciEnchantments = null;
+        Map<Enchantment, Integer> nonKciEnchantments = null;
         if (
                 (result.shouldKeepOldEnchantments() && result.getNewType() != null)
                 || (!result.shouldKeepOldEnchantments() && result.getNewType() == null)
         ) {
             nonKciEnchantments = new HashMap<>();
-            for (EnchantmentType enchantment : EnchantmentType.values()) {
-                int totalLevel = BukkitEnchantments.getLevel(currentStack, enchantment);
-                int nonKciLevel = totalLevel - oldKciEnchantments.getOrDefault(enchantment, 0);
+            System.out.println("currentStack is " + currentStack);
+            for (Enchantment enchantment : Enchantment.values()) {
+                int totalLevel = currentStack.getEnchantmentLevel(enchantment);
+                if (enchantment.getName().equals("ASCEND")) {
+                    System.out.println("ASCEND level is " + totalLevel + " on item stack " + currentStack);
+                }
+                int kciLevel;
+
+                try {
+                    // Warning: enchantment.getKey() is not supported in MC 1.12
+                    @SuppressWarnings("deprecation")
+                    EnchantmentType kciEnchantment = EnchantmentType.valueOf(enchantment.getName());
+                    kciLevel = oldKciEnchantments.getOrDefault(kciEnchantment, 0);
+                } catch (IllegalArgumentException cantBeKci) {
+                    kciLevel = 0;
+                }
+
+                int nonKciLevel = totalLevel - kciLevel;
                 if (nonKciLevel > 0) {
                     nonKciEnchantments.put(enchantment, nonKciLevel);
                 }
             }
         }
+        System.out.println("nonKciEnchantments are " + nonKciEnchantments);
 
         setEnchantmentUpgrades(nbt, newKciEnchantments);
 
@@ -176,7 +193,8 @@ public class ItemUpgrader {
 
             if (result.shouldKeepOldEnchantments()) {
                 assert nonKciEnchantments != null;
-                nonKciEnchantments.forEach((enchantment, level) -> BukkitEnchantments.add(newStack, enchantment, level));
+                //nonKciEnchantments.forEach((enchantment, level) -> BukkitEnchantments.add(newStack, enchantment, level));
+                nonKciEnchantments.forEach(newStack::addUnsafeEnchantment);
             }
 
             UpgradeResultValues newResult = result.copy(true);
@@ -215,10 +233,10 @@ public class ItemUpgrader {
 
         if (!result.shouldKeepOldEnchantments()) {
             assert nonKciEnchantments != null;
-            for (Map.Entry<EnchantmentType, Integer> entry : nonKciEnchantments.entrySet()) {
-                int newLevel = BukkitEnchantments.getLevel(currentStack, entry.getKey()) - entry.getValue();
-                if (newLevel > 0) BukkitEnchantments.add(currentStack, entry.getKey(), newLevel);
-                else BukkitEnchantments.remove(currentStack, entry.getKey());
+            for (Map.Entry<Enchantment, Integer> entry : nonKciEnchantments.entrySet()) {
+                int newLevel = currentStack.getEnchantmentLevel(entry.getKey()) - entry.getValue();
+                if (newLevel > 0) currentStack.addUnsafeEnchantment(entry.getKey(), newLevel);
+                else currentStack.removeEnchantment(entry.getKey());
             }
         }
 
