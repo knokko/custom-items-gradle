@@ -37,4 +37,15 @@ public class KciNmsItems16 extends KciNmsItems16Plus {
         net.minecraft.server.v1_16_R3.ItemStack nms = CraftItemStack.asNMSCopy(stack);
         return nms.getName().getString();
     }
+
+    @Override
+    public String getTagAsString(ItemStack stack) {
+        net.minecraft.server.v1_16_R3.ItemStack nms = CraftItemStack.asNMSCopy(stack);
+        if (nms.hasTag()) {
+            assert nms.getTag() != null;
+            return nms.getTag().toString();
+        } else {
+            return null;
+        }
+    }
 }

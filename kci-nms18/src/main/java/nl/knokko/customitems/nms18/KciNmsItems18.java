@@ -1,5 +1,6 @@
 package nl.knokko.customitems.nms18;
 
+import net.minecraft.nbt.NBTTagCompound;
 import nl.knokko.customitems.nms.CustomItemNBT;
 import nl.knokko.customitems.nms.GeneralItemNBT;
 import nl.knokko.customitems.nms16plus.KciNmsItems16Plus;
@@ -36,5 +37,12 @@ class KciNmsItems18 extends KciNmsItems16Plus {
     public String getStackName(ItemStack stack) {
         net.minecraft.world.item.ItemStack nms = CraftItemStack.asNMSCopy(stack);
         return nms.w().getString();
+    }
+
+    @Override
+    public String getTagAsString(ItemStack stack) {
+        net.minecraft.world.item.ItemStack nms = CraftItemStack.asNMSCopy(stack);
+        NBTTagCompound tag = nms.t();
+        return tag != null ? tag.toString() : null;
     }
 }

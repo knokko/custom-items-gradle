@@ -41,6 +41,17 @@ public class KciNmsItems15 extends KciNmsItems13Plus {
     }
 
     @Override
+    public String getTagAsString(ItemStack stack) {
+        net.minecraft.server.v1_15_R1.ItemStack nms = CraftItemStack.asNMSCopy(stack);
+        if (nms.hasTag()) {
+            assert nms.getTag() != null;
+            return nms.getTag().toString();
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public void blockSmithingTableUpgrades(Predicate<ItemStack> shouldBeBlocked, Plugin plugin) {
         // This minecraft version has smithing tables, but they don't have any recipes
     }

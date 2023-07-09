@@ -106,6 +106,10 @@ public class CommandCustomItems implements CommandExecutor {
 					new CommandCustomItemsSound(itemSet).handle(args, sender, enableOutput);
 					break;
 				}
+				case "tag": {
+					if (enableOutput) new CommandCustomItemsTag().handle(sender);
+					break;
+				}
 				default:
 					return !enableOutput;
 			}
