@@ -1,6 +1,7 @@
 package nl.knokko.customitems.plugin.command;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
@@ -26,9 +27,9 @@ public class CommandCustomItems implements CommandExecutor {
 	}
 
 	private final ItemSetWrapper itemSet;
-	private final LanguageFile lang;
+	private final Supplier<LanguageFile> lang;
 
-	public CommandCustomItems(ItemSetWrapper itemSet, LanguageFile lang) {
+	public CommandCustomItems(ItemSetWrapper itemSet, Supplier<LanguageFile> lang) {
 		this.itemSet = itemSet;
 		this.lang = lang;
 	}
@@ -64,7 +65,7 @@ public class CommandCustomItems implements CommandExecutor {
 
 			switch (args[0]) {
 				case "give":
-				    new CommandCustomItemsGive(itemSet, lang).handle(args, sender, enableOutput);
+				    new CommandCustomItemsGive(itemSet, lang.get()).handle(args, sender, enableOutput);
 					break;
 				case "take": {
 					new CommandCustomItemsTake(itemSet).handle(args, sender, enableOutput);
@@ -83,7 +84,7 @@ public class CommandCustomItems implements CommandExecutor {
 					break;
 				}
 				case "debug": {
-					if (enableOutput) new CommandCustomItemsDebug(itemSet).handle(sender);
+					if (enableOutput) new CommandCustomItemsDebug(itemSet, lang.get()).handle(sender);
 					break;
 				}
 				case "setblock": {

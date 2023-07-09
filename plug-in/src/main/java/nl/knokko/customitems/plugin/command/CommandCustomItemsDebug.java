@@ -1,6 +1,7 @@
 package nl.knokko.customitems.plugin.command;
 
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
+import nl.knokko.customitems.plugin.config.LanguageFile;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.loading.ItemSetLoader;
 import nl.knokko.customitems.settings.ExportSettingsValues;
@@ -18,9 +19,11 @@ import java.util.Scanner;
 class CommandCustomItemsDebug {
 
     final ItemSetWrapper itemSet;
+    private final LanguageFile languageFile;
 
-    CommandCustomItemsDebug(ItemSetWrapper itemSet) {
+    CommandCustomItemsDebug(ItemSetWrapper itemSet, LanguageFile languageFile) {
         this.itemSet = itemSet;
+        this.languageFile = languageFile;
     }
 
     void handle(CommandSender sender) {
@@ -36,6 +39,11 @@ class CommandCustomItemsDebug {
 
         if (Bukkit.getPluginManager().isPluginEnabled("KnokkoCore")) {
             sender.sendMessage(ChatColor.RED + "You should no longer use KnokkoCore");
+            return;
+        }
+
+        if (!languageFile.isValid()) {
+            sender.sendMessage(ChatColor.RED + "lang.yml is invalid");
             return;
         }
 

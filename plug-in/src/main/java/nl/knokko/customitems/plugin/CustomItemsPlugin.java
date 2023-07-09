@@ -80,7 +80,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 		} else {
 			Bukkit.getLogger().severe("Knokko's Custom Items won't start because this minecraft version is not supported");
 		}
-		getCommand("customitems").setExecutor(new CommandCustomItems(this.itemSet, languageFile));
+		getCommand("customitems").setExecutor(new CommandCustomItems(this.itemSet, () -> languageFile));
 		if (KciNms.instance != null) {
 			getCommand("customitems").setTabCompleter(new CustomItemsTabCompletions(itemSet));
 			Bukkit.getPluginManager().registerEvents(itemSetLoader, this);

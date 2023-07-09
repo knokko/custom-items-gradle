@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 
+import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 public class LanguageFile {
@@ -70,20 +72,39 @@ public class LanguageFile {
 	private String commandDamageNotInHand;
 	private String commandDamageNoPlayer;
 
+	private boolean isValid;
+
 	public LanguageFile(File file) {
 		setDefaults();
-		if (file.exists()) {
-			YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-			load(config);
-		}
 
-		YamlConfiguration config = new YamlConfiguration();
-		save(config);
-		try {
-			file.getParentFile().mkdirs();
-			config.save(file);
-		} catch (IOException e) {
-			Bukkit.getLogger().log(Level.WARNING, "Failed to save custom item config", e);
+		boolean shouldSave;
+		this.isValid = true;
+		if (file.exists()) {
+			YamlConfiguration config = new YamlConfiguration();
+			try {
+				config.load(file);
+				load(config);
+				shouldSave = true;
+			} catch (IOException ioFailed) {
+				Bukkit.getLogger().log(Level.SEVERE, "Failed to load language file", ioFailed);
+				shouldSave = false;
+			} catch (InvalidConfigurationException invalidLanguageConfig) {
+				Bukkit.getLogger().log(Level.WARNING, "lang.yml is invalid", invalidLanguageConfig);
+				shouldSave = false;
+				this.isValid = false;
+			}
+		} else shouldSave = true;
+
+		if (shouldSave) {
+			YamlConfiguration config = new YamlConfiguration();
+			save(config);
+			try {
+				//noinspection ResultOfMethodCallIgnored
+				file.getParentFile().mkdirs();
+				config.save(file);
+			} catch (IOException e) {
+				Bukkit.getLogger().log(Level.WARNING, "Failed to save custom item config", e);
+			}
 		}
 	}
 	
@@ -154,7 +175,11 @@ public class LanguageFile {
 	public String getCommandDamageNoPlayer() {
 		return commandDamageNoPlayer;
 	}
-	
+
+	public boolean isValid() {
+		return isValid;
+	}
+
 	public void load(YamlConfiguration config) {
 		durabilityPrefix = config.getString(KEY_DURABILITY_PREFIX, DEFAULT_DURABILITY_PREFIX);
 		wandCooldownIndicator = config.getString(KEY_WAND_COOLDOWN_INDICATOR, DEFAULT_WAND_COOLDOWN_INDICATOR);
