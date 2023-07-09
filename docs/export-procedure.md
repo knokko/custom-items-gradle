@@ -53,7 +53,8 @@ the following files in plugins/CustomItems:
 set from this file. If not, it shall initialize an empty item set,
 which will cause the plug-in to be mostly idle. Furthermore, the
 plug-in shall **not** save or load the `gamedata.bin` file.
-- `resource-pack.zip`: If this file exists, it shall ensure that this
+- `resource-pack.zip`: If this file exists and the export mode is not
+`Manual`, it shall ensure that this
 resource pack is present on my resource pack host server (sending it
 if needed), and ensure that players download it. Furthermore, the
 plug-in shall prevent my resource pack host from deleting it by

@@ -257,10 +257,6 @@ public class ItemSetLoader implements Listener {
 
     private boolean doReload(Consumer<String> sendMessage, String newSha256Hex) {
         if (!ensureDataFolderExists(sendMessage)) return true;
-        if (itemSet.get().getExportSettings().getMode() != ExportSettingsValues.Mode.AUTOMATIC) {
-            sendMessage.accept(ChatColor.RED + "You should only use this command when the export mode is Automatic");
-            return true;
-        }
 
         sendMessage.accept(ChatColor.BLUE + "Downloading content...");
 
