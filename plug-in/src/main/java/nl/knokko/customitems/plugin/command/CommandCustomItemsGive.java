@@ -34,7 +34,7 @@ public class CommandCustomItemsGive {
                         item -> sender.hasPermission("customitems.give." + item.getName())
                 )
         ) {
-            sender.sendMessage(ChatColor.DARK_RED + "You don't have access to this command.");
+            if (enableOutput) sender.sendMessage(ChatColor.DARK_RED + "You don't have access to this command.");
             return;
         }
 
@@ -55,7 +55,7 @@ public class CommandCustomItemsGive {
 
             if (item != null) {
                 if (!sender.hasPermission("customitems.give") && !sender.hasPermission("customitems.give." + item.getName())) {
-                    sender.sendMessage(ChatColor.DARK_RED + "You don't have permission to give this item to yourself.");
+                    if (enableOutput) sender.sendMessage(ChatColor.DARK_RED + "You don't have permission to give this item to yourself.");
                     return;
                 }
 
@@ -65,47 +65,47 @@ public class CommandCustomItemsGive {
                     if (sender instanceof Player) {
                         receiver = (Player) sender;
                     } else {
-                        sender.sendMessage(lang.getCommandNoPlayerSpecified());
+                        if (enableOutput) sender.sendMessage(lang.getCommandNoPlayerSpecified());
                     }
                 }
                 if (args.length >= 3) {
                     receiver = getOnlinePlayer(args[2]);
                     if (receiver == null) {
-                        sender.sendMessage(lang.getCommandPlayerNotFound(args[2]));
+                        if (enableOutput) sender.sendMessage(lang.getCommandPlayerNotFound(args[2]));
                     }
                 }
                 if (args.length == 4) {
                     try {
                         amount = Integer.parseInt(args[3]);
                     } catch (NumberFormatException ex) {
-                        sender.sendMessage(ChatColor.RED + "The amount (" + args[3] + ") should be an integer.");
+                        if (enableOutput) sender.sendMessage(ChatColor.RED + "The amount (" + args[3] + ") should be an integer.");
                         return;
                     }
                 }
                 if (amount > item.getMaxStacksize()) {
-                    sender.sendMessage(ChatColor.RED + "The amount can be at most " + item.getMaxStacksize());
+                    if (enableOutput) sender.sendMessage(ChatColor.RED + "The amount can be at most " + item.getMaxStacksize());
                     return;
                 }
                 if (amount < 1) {
-                    sender.sendMessage(ChatColor.RED + "The amount must be positive");
+                    if (enableOutput) sender.sendMessage(ChatColor.RED + "The amount must be positive");
                     return;
                 }
                 if (receiver != null && !CustomItemsPlugin.getInstance().getEnabledAreas().isEnabled(receiver.getLocation())) {
                     receiver = null;
-                    sender.sendMessage(lang.getCommandWorldDisabled());
+                    if (enableOutput) sender.sendMessage(lang.getCommandWorldDisabled());
                 }
                 if (receiver != null) {
                     if (receiver == sender || sender.hasPermission("customitems.give") || sender.hasPermission("customitems.giveother")) {
                         giveTheItem(sender, receiver, item, amount, enableOutput);
                     } else {
-                        sender.sendMessage(ChatColor.DARK_RED + "You don't have permission to give custom items to other players");
+                        if (enableOutput) sender.sendMessage(ChatColor.DARK_RED + "You don't have permission to give custom items to other players");
                     }
                 }
             } else {
-                sender.sendMessage(lang.getCommandNoSuchItem(args[1]));
+                if (enableOutput) sender.sendMessage(lang.getCommandNoSuchItem(args[1]));
             }
         } else {
-            sendGiveUseage(sender);
+            if (enableOutput) sendGiveUseage(sender);
         }
     }
 

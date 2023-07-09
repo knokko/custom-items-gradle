@@ -47,6 +47,7 @@ public class CommandCustomItems implements CommandExecutor {
 			if (args[0].equals("disableoutput")) {
 				enableOutput = false;
 				args = Arrays.copyOfRange(args, 1, args.length);
+				if (args.length == 0) return true;
 			}
 
 			if (enableOutput && sender.hasPermission("customitems.debug") && !args[0].equals("reload")) {
@@ -70,7 +71,7 @@ public class CommandCustomItems implements CommandExecutor {
 					break;
 				}
 				case "list": {
-					new CommandCustomItemsList(itemSet).handle(sender);
+					if (enableOutput) new CommandCustomItemsList(itemSet).handle(sender);
 					break;
 				}
 				case "damage": {
@@ -82,7 +83,7 @@ public class CommandCustomItems implements CommandExecutor {
 					break;
 				}
 				case "debug": {
-					new CommandCustomItemsDebug(itemSet).handle(sender);
+					if (enableOutput) new CommandCustomItemsDebug(itemSet).handle(sender);
 					break;
 				}
 				case "setblock": {
@@ -90,7 +91,7 @@ public class CommandCustomItems implements CommandExecutor {
 					break;
 				}
 				case "encode": {
-					new CommandCustomItemsEncode().handle(sender);
+					if (enableOutput) new CommandCustomItemsEncode().handle(sender);
 					break;
 				}
 				case "reload": {
@@ -106,7 +107,7 @@ public class CommandCustomItems implements CommandExecutor {
 					break;
 				}
 				default:
-					return false;
+					return !enableOutput;
 			}
 		}
 		return true;
