@@ -310,7 +310,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.loadIdentityProperties10(input);
         if (this.itemType == CustomItemType.OTHER) {
             this.otherMaterial = CIMaterial.valueOf(input.readString());
-        }
+        } else this.otherMaterial = null;
         this.loadTextDisplayProperties1(input);
 
         int numItemFlags = input.readInt();
