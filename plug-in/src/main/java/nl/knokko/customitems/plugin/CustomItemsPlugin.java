@@ -212,7 +212,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 			saveConfig = true;
 		}
 
-		this.enabledAreas.update(config);
+		if (this.enabledAreas.update(config)) saveConfig = true;
 
 		if (saveConfig) {
 			saveConfig();

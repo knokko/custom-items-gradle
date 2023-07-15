@@ -11,9 +11,22 @@ public class EnabledAreas {
     private List<String> worldWhitelist;
     private List<String> worldBlacklist;
 
-    public void update(FileConfiguration config) {
-        this.worldWhitelist = config.getStringList("World whitelist");
-        this.worldBlacklist = config.getStringList("World blacklist");
+    public boolean update(FileConfiguration config) {
+        String whitelistKey = "World whitelist";
+        String blacklistKey = "World blacklist";
+        this.worldWhitelist = config.getStringList(whitelistKey);
+        this.worldBlacklist = config.getStringList(blacklistKey);
+
+        boolean updated = false;
+        if (!config.contains(whitelistKey)) {
+            config.set(whitelistKey, worldWhitelist);
+            updated = true;
+        }
+        if (!config.contains(blacklistKey)) {
+            config.set(blacklistKey, worldBlacklist);
+            updated = true;
+        }
+        return updated;
     }
 
     public boolean isEnabled(Location location) {
