@@ -662,6 +662,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.updateAutomatically = true;
         this.keepOnDeath = false;
         this.multiBlockBreak = new MultiBlockBreakValues(false);
+        this.otherMaterial = null;
     }
 
     protected void initBaseDefaults9() {
