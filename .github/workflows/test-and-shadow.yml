@@ -106,7 +106,7 @@ jobs:
         with:
           name: kci-nms17
           path: kci-nms17/build/classes/java/main
-  nms18-to-19:
+  nms18-to-20:
     runs-on: ubuntu-latest
     needs: [test-and-shadow-general]
     steps:
@@ -126,7 +126,8 @@ jobs:
       - run: curl -o BuildTools.jar https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
       - run: java -jar BuildTools.jar --rev 1.18.2
       - run: java -jar BuildTools.jar --rev 1.19.4
-      - run: java VersionTrimmer 1.18-to-1.19
+      - run: java -jar BuildTools.jar --rev 1.20.1
+      - run: java VersionTrimmer 1.18-to-1.20
       - run: ./gradlew build --no-daemon
       - uses: actions/upload-artifact@v3
         with:
@@ -138,11 +139,15 @@ jobs:
           path: kci-nms19/build/classes/java/main
       - uses: actions/upload-artifact@v3
         with:
+          name: kci-nms20
+          path: kci-nms20/build/classes/java/main
+      - uses: actions/upload-artifact@v3
+        with:
           name: ce-event-handler
           path: ce-event-handler/build/classes/java/main
   combine-plugin-with-nms:
     runs-on: ubuntu-latest
-    needs: [test-and-shadow-general, nms13-to-16, nms17, nms18-to-19]
+    needs: [test-and-shadow-general, nms13-to-16, nms17, nms18-to-20]
     steps:
       - uses: actions/download-artifact@v3
         with:
@@ -189,6 +194,10 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: kci-nms19
+          path: combined
+      - uses: actions/download-artifact@v3
+        with:
+          name: kci-nms20
           path: combined
       - run: cd combined && zip -r CustomItems.jar * && cd ..
       - run: mkdir releases

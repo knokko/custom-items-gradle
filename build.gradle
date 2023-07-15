@@ -272,3 +272,14 @@ project(':kci-nms16') {
 //    }
 //}
 // MARKER END NMS19
+
+// MARKER START NMS20
+//project(':kci-nms20') {
+//    dependencies {
+//        compileOnly project(':kci-nms')
+//        compileOnly project(':kci-nms13plus')
+//        compileOnly project(':kci-nms16plus')
+//        compileOnly 'org.spigotmc:spigot:1.20.1-R0.1-SNAPSHOT'
+//    }
+//}
+// MARKER END NMS20

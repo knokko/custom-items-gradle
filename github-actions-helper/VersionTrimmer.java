@@ -25,11 +25,12 @@ public class VersionTrimmer {
     private static final String MARKER_NMS18PLUS = "NMS18PLUS";
     private static final String MARKER_NMS18 = "NMS18";
     private static final String MARKER_NMS19 = "NMS19";
+    private static final String MARKER_NMS20 = "NMS20";
 
     private static final String[] ALL_MARKERS = {
             MARKER_GENERAL, MARKER_JAVA8, MARKER_JAVA16, MARKER_JAVA17, MARKER_CE_EVENT_HANDLER,
             MARKER_NMS_DEPENDENCIES, MARKER_NMS13PLUS, MARKER_NMS13, MARKER_NMS14, MARKER_NMS15, MARKER_NMS16PLUS,
-            MARKER_NMS16, MARKER_NMS17PLUS, MARKER_NMS17, MARKER_NMS18PLUS, MARKER_NMS18, MARKER_NMS19
+            MARKER_NMS16, MARKER_NMS17PLUS, MARKER_NMS17, MARKER_NMS18PLUS, MARKER_NMS18, MARKER_NMS19, MARKER_NMS20
     };
 
     public static void main(String[] args) throws IOException {
@@ -65,7 +66,8 @@ public class VersionTrimmer {
                         MARKER_JAVA16.equals(currentMarker) || MARKER_NMS17.equals(currentMarker)
                                 || MARKER_NMS18.equals(currentMarker) || MARKER_JAVA17.equals(currentMarker)
                                 || MARKER_NMS17PLUS.equals(currentMarker) || MARKER_NMS18PLUS.equals(currentMarker)
-                                || MARKER_NMS19.equals(currentMarker) || MARKER_CE_EVENT_HANDLER.equals(currentMarker)
+                                || MARKER_NMS19.equals(currentMarker) || MARKER_NMS20.equals(currentMarker)
+                                || MARKER_CE_EVENT_HANDLER.equals(currentMarker)
                 ) {
                     // The projects for kci-nms 17 and later are commented out, so we should remove the 2 slashes
                     lineToAdd = originalLine.substring(2);
@@ -104,13 +106,14 @@ public class VersionTrimmer {
                         "kci-nms", "kci-nms13plus", "kci-nms16plus", "kci-nms17"
                 };
                 break;
-            case "1.18-to-1.19":
+            case "1.18-to-1.20":
                 allowedMarkers = new String[]{
                         MARKER_GENERAL, MARKER_JAVA17, MARKER_CE_EVENT_HANDLER, MARKER_NMS13PLUS,
-                        MARKER_NMS18PLUS, MARKER_NMS18, MARKER_NMS19
+                        MARKER_NMS18PLUS, MARKER_NMS18, MARKER_NMS19, MARKER_NMS20
                 };
                 allowedProjects = new String[]{
-                        "ce-event-handler", "kci-nms", "kci-nms13plus", "kci-nms16plus", "kci-nms18", "kci-nms19"
+                        "ce-event-handler", "kci-nms", "kci-nms13plus", "kci-nms16plus",
+                        "kci-nms18", "kci-nms19", "kci-nms20"
                 };
                 break;
             default:

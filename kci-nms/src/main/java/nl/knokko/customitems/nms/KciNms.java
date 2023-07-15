@@ -4,12 +4,14 @@ import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 
+import java.lang.reflect.InvocationTargetException;
+
 public abstract class KciNms {
 
     static {
         KciNms supportedInstance = null;
         int chosenMcVersion = -1;
-        int[] supportedMcVersions = { 12, 13, 14, 15, 16, 17, 18, 19 };
+        int[] supportedMcVersions = { 12, 13, 14, 15, 16, 17, 18, 19, 20 };
 
         for (int candidateVersion : supportedMcVersions) {
             try {
@@ -18,13 +20,16 @@ public abstract class KciNms {
 
                 // If the candidate version matches the actual NMS version of the server implementation, we are good to go
                 Class.forName("org.bukkit.craftbukkit.v" + nmsVersion + ".inventory.CraftItemStack");
-                supportedInstance = (KciNms) nmsClass.newInstance();
+                supportedInstance = (KciNms) nmsClass.getConstructor().newInstance();
                 chosenMcVersion = candidateVersion;
                 break;
             } catch (ClassNotFoundException unavailable) {
                 // This block will be reached if this candidate version doesn't match the NMS version of the server
                 // To handle this, we just continue with the next candidate version
-            } catch (NoSuchFieldException | IllegalAccessException | InstantiationException unexpectedError) {
+            } catch (
+                    NoSuchFieldException | IllegalAccessException | InstantiationException
+                            | NoSuchMethodException | InvocationTargetException unexpectedError
+            ) {
                 throw new RuntimeException(unexpectedError);
             }
         }

@@ -12,6 +12,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static nl.knokko.customitems.MCVersions.VERSION1_19;
+import static nl.knokko.customitems.MCVersions.VERSION1_20;
 
 public class ResourcepackGenerator {
 
@@ -96,6 +97,8 @@ public class ResourcepackGenerator {
             packFormat = 8;
         } else if (mcVersion == VERSION1_19) {
             packFormat = 12;
+        } else if (mcVersion == VERSION1_20) {
+            packFormat = 15;
         } else {
             throw new ProgrammingValidationException("Unknown pack format for mc version " + mcVersion);
         }

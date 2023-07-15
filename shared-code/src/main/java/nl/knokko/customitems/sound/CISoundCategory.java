@@ -2,21 +2,20 @@ package nl.knokko.customitems.sound;
 
 import nl.knokko.customitems.NameHelper;
 
-import static nl.knokko.customitems.MCVersions.VERSION1_12;
-import static nl.knokko.customitems.MCVersions.VERSION1_19;
+import static nl.knokko.customitems.MCVersions.*;
 
 public enum CISoundCategory {
 
-    MASTER(VERSION1_12, VERSION1_19),
-    MUSIC(VERSION1_12, VERSION1_19),
-    RECORDS(VERSION1_12, VERSION1_19),
-    WEATHER(VERSION1_12, VERSION1_19),
-    BLOCKS(VERSION1_12, VERSION1_19),
-    HOSTILE(VERSION1_12, VERSION1_19),
-    NEUTRAL(VERSION1_12, VERSION1_19),
-    PLAYERS(VERSION1_12, VERSION1_19),
-    AMBIENT(VERSION1_12, VERSION1_19),
-    VOICE(VERSION1_12, VERSION1_19);
+    MASTER(VERSION1_12, VERSION1_20),
+    MUSIC(VERSION1_12, VERSION1_20),
+    RECORDS(VERSION1_12, VERSION1_20),
+    WEATHER(VERSION1_12, VERSION1_20),
+    BLOCKS(VERSION1_12, VERSION1_20),
+    HOSTILE(VERSION1_12, VERSION1_20),
+    NEUTRAL(VERSION1_12, VERSION1_20),
+    PLAYERS(VERSION1_12, VERSION1_20),
+    AMBIENT(VERSION1_12, VERSION1_20),
+    VOICE(VERSION1_12, VERSION1_20);
 
     public final int minVersion;
     public final int maxVersion;
