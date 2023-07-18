@@ -150,6 +150,7 @@ public class RecipeHelper {
     @SuppressWarnings("deprecation")
     public static boolean shouldIngredientAcceptAmountless(IngredientValues ingredient, ItemStack item) {
         if (ingredient instanceof NoIngredientValues) return ItemUtils.isEmpty(item);
+        else if (ItemUtils.isEmpty(item)) return false;
 
         if (!doesItemStackSatisfyConstraints(ingredient.getConstraints(), item)) return false;
 
