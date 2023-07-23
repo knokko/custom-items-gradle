@@ -23,6 +23,7 @@ import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.nms.GeneralItemNBT;
 import nl.knokko.customitems.nms.KciNms;
+import nl.knokko.customitems.plugin.util.ContainerHelper;
 import nl.knokko.customitems.plugin.util.SoundPlayer;
 import nl.knokko.customitems.plugin.multisupport.worldguard.WorldGuardSupport;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
@@ -1333,24 +1334,9 @@ public class PluginData {
 			Location containerLocation = pd.containerSelectionLocation.toBukkitLocation();
 			pd.containerSelectionLocation = null;
 
-			boolean hostBlockStillValid;
-			if (selected.getHost().getVanillaType() != null) {
-				CIMaterial blockMaterial = CIMaterial.valueOf(
-						KciNms.instance.items.getMaterialName(containerLocation.getBlock())
-				);
-				VanillaContainerType vanillaType = VanillaContainerType.fromMaterial(blockMaterial);
-				hostBlockStillValid = selected.getHost().getVanillaType() == vanillaType;
-			} else if (selected.getHost().getVanillaMaterial() != null) {
-				CIMaterial blockMaterial = CIMaterial.valueOf(
-						KciNms.instance.items.getMaterialName(containerLocation.getBlock())
-				);
-				hostBlockStillValid = selected.getHost().getVanillaMaterial() == blockMaterial;
-			} else if (selected.getHost().getCustomBlockReference() != null) {
-				CustomBlockValues customBlock = MushroomBlockHelper.getMushroomBlock(containerLocation.getBlock());
-				hostBlockStillValid = customBlock != null && customBlock.getInternalID() == selected.getHost().getCustomBlockReference().get().getInternalID();
-			} else {
-				throw new IllegalStateException("Custom container " + selected.getName() + " has an invalid host");
-			}
+			boolean hostBlockStillValid = ContainerHelper.shouldHostAcceptBlock(
+					selected.getName(), selected.getHost(), containerLocation.getBlock()
+			);
 
 			/*
 			 * It may happen that a player opens the container selection, but that the
