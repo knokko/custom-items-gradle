@@ -5,6 +5,7 @@ import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
+import nl.knokko.customitems.plugin.util.CommandHelper;
 import nl.knokko.customitems.sound.CustomSoundTypeValues;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -54,6 +55,7 @@ public class CustomItemsTabCompletions implements TabCompleter {
             args = Arrays.copyOfRange(args, 1, args.length);
             showDisableOutput = false;
         }
+        if (args.length > 0 && args[0].equals("container")) args = CommandHelper.escapeArgs(args);
         if (args.length == 0) {
             return getRootCompletions(sender, showDisableOutput);
         } else if (args.length == 1) {
@@ -139,7 +141,10 @@ public class CustomItemsTabCompletions implements TabCompleter {
             if (first.equals("container")) {
                 String second = args[1];
                 if (second.equals("open") || second.equals("destroy")) {
-                    return filter(itemSet.get().getContainers().stream().map(CustomContainerValues::getName).collect(Collectors.toList()), prefix);
+                    return filter(itemSet.get().getContainers().stream().map(container -> {
+                        if (container.getName().contains(" ")) return "'" + container.getName() + "'";
+                        else return container.getName();
+                    }).collect(Collectors.toList()), prefix);
                 }
             }
         } else if (args.length == 4) {
@@ -160,6 +165,8 @@ public class CustomItemsTabCompletions implements TabCompleter {
                 return Lists.newArrayList("~");
             }
 
+            if (first.equals("container")) return Lists.newArrayList("1", "2", "3", "whatever");
+
             // There are no tab completions for containers here because the host string can be any string
         } else if (args.length == 5) {
 
@@ -170,7 +177,12 @@ public class CustomItemsTabCompletions implements TabCompleter {
 
             if (first.equals("container")) {
                 if (args[1].equals("open")) {
-                    return filter(Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()), args[4]);
+                    try {
+                        Integer.parseInt(args[3]);
+                        return Lists.newArrayList("1", "2", "3");
+                    } catch (NumberFormatException noIntegerCoordinate) {
+                        return filter(Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()), args[4]);
+                    }
                 } else if (args[1].equals("destroy")) {
                     return filter(Bukkit.getWorlds().stream().map(World::getName).collect(Collectors.toList()), args[4]);
                 }
@@ -188,6 +200,38 @@ public class CustomItemsTabCompletions implements TabCompleter {
                     result.add(world.getName());
                 }
                 return filter(result, prefix);
+            }
+
+            if (first.equals("container") && args[1].equals("open")) {
+                return Lists.newArrayList("1", "2", "3", "4");
+            }
+        } else if (args.length == 7) {
+            if (args[0].equals("container") && args[1].equals("open")) {
+                List<String> playerNames = Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList());
+                List<String> options = new ArrayList<>(playerNames.size() + 1);
+                options.add("force");
+                options.addAll(playerNames);
+                return filter(options, args[6]);
+            }
+        } else if (args.length == 8) {
+            if (args[0].equals("container") && args[1].equals("open")) {
+                if (args[6].equals("force")) {
+                    return filter(Bukkit.getOnlinePlayers().stream().map(Player::getName).collect(Collectors.toList()), args[7]);
+                } else {
+                    List<String> result = new ArrayList<>(Bukkit.getWorlds().size());
+                    for (World world : Bukkit.getWorlds()) {
+                        result.add(world.getName());
+                    }
+                    return filter(result, args[7]);
+                }
+            }
+        } else if (args.length == 9) {
+            if (args[0].equals("container") && args[1].equals("open") && args[6].equals("force")) {
+                List<String> result = new ArrayList<>(Bukkit.getWorlds().size());
+                for (World world : Bukkit.getWorlds()) {
+                    result.add(world.getName());
+                }
+                return filter(result, args[8]);
             }
         }
 
