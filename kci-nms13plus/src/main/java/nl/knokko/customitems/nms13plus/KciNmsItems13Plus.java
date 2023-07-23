@@ -65,14 +65,14 @@ public abstract class KciNmsItems13Plus implements KciNmsItems {
         return original;
     }
 
+    protected abstract RawAttribute[] getDefaultAttributes(ItemStack stack);
+
     @Override
     public RawAttribute[] getAttributes(ItemStack stack) {
         ItemMeta meta = stack.getItemMeta();
         if (meta != null) {
             Multimap<Attribute, AttributeModifier> attributeModifiers = meta.getAttributeModifiers();
-            if (attributeModifiers == null) {
-                return new RawAttribute[0];
-            }
+            if (attributeModifiers == null) return getDefaultAttributes(stack);
 
             RawAttribute[] attributes = new RawAttribute[attributeModifiers.size()];
             int index = 0;
@@ -88,7 +88,7 @@ public abstract class KciNmsItems13Plus implements KciNmsItems {
 
             return attributes;
         } else {
-            return new RawAttribute[0];
+            return getDefaultAttributes(stack);
         }
     }
 
@@ -113,7 +113,7 @@ public abstract class KciNmsItems13Plus implements KciNmsItems {
         }
     }
 
-    private static String fromBukkitSlot(EquipmentSlot slot) {
+    protected static String fromBukkitSlot(EquipmentSlot slot) {
         if (slot == null) {
             return null;
         }

@@ -18,6 +18,7 @@ import nl.knokko.customitems.plugin.util.AttributeMerger;
 import nl.knokko.customitems.recipe.result.UpgradeResultValues;
 import nl.knokko.customitems.recipe.upgrade.UpgradeValues;
 import nl.knokko.customitems.util.StringEncoder;
+import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -189,26 +190,33 @@ public class ItemUpgrader {
             return addUpgrade(newStack, itemSet, newResult);
         }
 
+        Collection<UUID> existingKciAttributeIDs = new HashSet<>(getExistingAttributeIDs(nbt));
 
-        Collection<UUID> existingAttributeIDs = new HashSet<>(getExistingAttributeIDs(nbt));
-
-        List<RawAttribute> newAttributes = new ArrayList<>(originalAttributes.length);
+        List<RawAttribute> nonKciAttributes = new ArrayList<>(originalAttributes.length);
         for (RawAttribute originalAttribute : originalAttributes) {
-            if (!existingAttributeIDs.contains(originalAttribute.id)) newAttributes.add(originalAttribute);
+            if (!existingKciAttributeIDs.contains(originalAttribute.id)) nonKciAttributes.add(originalAttribute);
         }
-        Collections.addAll(newAttributes, AttributeMerger.merge(itemSet, null, newUpgradeIDs));
-        Collection<UUID> newAttributeIDs = newAttributes.stream().map(attribute -> attribute.id).collect(Collectors.toList());
+        RawAttribute[] newKciAttributes = AttributeMerger.merge(itemSet, customItem, newUpgradeIDs);
+        Collection<UUID> newKciAttributeIDs = Arrays.stream(newKciAttributes).map(
+                attribute -> attribute.id
+        ).collect(Collectors.toList());
+        Bukkit.broadcastMessage("original attributes are " + Arrays.toString(originalAttributes)
+                + " and non-kci attributes are " + nonKciAttributes + " and new kci attributes are " + Arrays.toString(newKciAttributes));
 
         setUpgradeIDs(nbt, newUpgradeIDs);
-        setAttributeIDs(nbt, newAttributeIDs);
+        setAttributeIDs(nbt, newKciAttributeIDs);
 
         if (customItem == null) {
             nbt.set(LAST_VANILLA_UPGRADE_KEY, Long.toString(itemSet.get().getExportTime()));
         }
 
+        List<RawAttribute> allNewAttributes = new ArrayList<>(nonKciAttributes.size() + newKciAttributes.length);
+        allNewAttributes.addAll(nonKciAttributes);
+        Collections.addAll(allNewAttributes, newKciAttributes);
+
         currentStack = KciNms.instance.items.replaceAttributes(
                 nbt.backToBukkit(),
-                newAttributes.toArray(new RawAttribute[0])
+                allNewAttributes.toArray(new RawAttribute[0])
         );
 
         ItemUpdater.applyEnchantmentAdjustments(currentStack, enchantmentAdjustments);

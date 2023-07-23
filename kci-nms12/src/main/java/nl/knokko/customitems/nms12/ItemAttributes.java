@@ -1,11 +1,17 @@
 package nl.knokko.customitems.nms12;
 
+import com.google.common.collect.Multimap;
 import net.minecraft.server.v1_12_R1.*;
 import nl.knokko.customitems.nms.RawAttribute;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_12_R1.CraftEquipmentSlot;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 class ItemAttributes {
@@ -59,11 +65,42 @@ class ItemAttributes {
                     attributes[index] = new RawAttribute(id, attribute, slot, operation, amount);
                 }
                 return attributes;
-            } else {
-                return new RawAttribute[0];
             }
+        }
+
+        return getDefaultAttributes(stack);
+    }
+
+    private static RawAttribute[] getDefaultAttributes(ItemStack stack) {
+        List<RawAttribute> attributeList = new ArrayList<>(2);
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            Multimap<String, AttributeModifier> map = CraftItemStack.asNMSCopy(stack).a(
+                    CraftEquipmentSlot.getNMS(slot)
+            );
+
+            map.entries().forEach(attributePair -> {
+                UUID id = attributePair.getValue().a();
+                String attribute = attributePair.getKey();
+                String slotName = fromBukkitSlot(slot);
+                int operation = attributePair.getValue().c();
+                double value = attributePair.getValue().d();
+                attributeList.add(new RawAttribute(id, attribute, slotName, operation, value));
+            });
+        }
+
+        return attributeList.toArray(new RawAttribute[0]);
+    }
+
+    private static String fromBukkitSlot(EquipmentSlot slot) {
+        if (slot == null) {
+            return null;
+        }
+        if (slot == EquipmentSlot.HAND) {
+            return "mainhand";
+        } else if (slot == EquipmentSlot.OFF_HAND) {
+            return "offhand";
         } else {
-            return new RawAttribute[0];
+            return slot.name().toLowerCase(Locale.ROOT);
         }
     }
 
