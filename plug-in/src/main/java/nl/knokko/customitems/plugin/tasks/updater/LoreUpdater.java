@@ -85,7 +85,7 @@ public class LoreUpdater {
             if (durabilityLineIndex != null) {
 
                 // Copy the original lore, but exclude the durability line and the empty line that follows it
-                List<String> newLore = new ArrayList<>(oldLore.size() - 2);
+                List<String> newLore = new ArrayList<>(oldLore.size() - 1);
                 for (int index = 0; index < durabilityLineIndex; index++) {
                     newLore.add(oldLore.get(index));
                 }
