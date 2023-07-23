@@ -11,7 +11,6 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
-import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.container.ContainerStorageMode;
 import nl.knokko.customitems.container.CustomContainerHost;
 import nl.knokko.customitems.container.CustomContainerValues;
@@ -25,10 +24,10 @@ import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.nms.GeneralItemNBT;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.events.CustomFoodEatEvent;
+import nl.knokko.customitems.plugin.util.ContainerHelper;
 import nl.knokko.customitems.plugin.util.SoundPlayer;
 import nl.knokko.customitems.plugin.multisupport.worldguard.WorldGuardSupport;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
-import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
 import nl.knokko.customitems.plugin.set.item.CustomGunWrapper;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
@@ -44,7 +43,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import nl.knokko.customitems.container.VanillaContainerType;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.container.ContainerInfo;
 import nl.knokko.customitems.plugin.container.ContainerInstance;
@@ -1342,24 +1340,9 @@ public class PluginData {
 			Location containerLocation = pd.containerSelectionLocation.toBukkitLocation();
 			pd.containerSelectionLocation = null;
 
-			boolean hostBlockStillValid;
-			if (selected.getHost().getVanillaType() != null) {
-				CIMaterial blockMaterial = CIMaterial.valueOf(
-						KciNms.instance.items.getMaterialName(containerLocation.getBlock())
-				);
-				VanillaContainerType vanillaType = VanillaContainerType.fromMaterial(blockMaterial);
-				hostBlockStillValid = selected.getHost().getVanillaType() == vanillaType;
-			} else if (selected.getHost().getVanillaMaterial() != null) {
-				CIMaterial blockMaterial = CIMaterial.valueOf(
-						KciNms.instance.items.getMaterialName(containerLocation.getBlock())
-				);
-				hostBlockStillValid = selected.getHost().getVanillaMaterial() == blockMaterial;
-			} else if (selected.getHost().getCustomBlockReference() != null) {
-				CustomBlockValues customBlock = MushroomBlockHelper.getMushroomBlock(containerLocation.getBlock());
-				hostBlockStillValid = customBlock != null && customBlock.getInternalID() == selected.getHost().getCustomBlockReference().get().getInternalID();
-			} else {
-				throw new IllegalStateException("Custom container " + selected.getName() + " has an invalid host");
-			}
+			boolean hostBlockStillValid = ContainerHelper.shouldHostAcceptBlock(
+					selected.getName(), selected.getHost(), containerLocation.getBlock()
+			);
 
 			/*
 			 * It may happen that a player opens the container selection, but that the
