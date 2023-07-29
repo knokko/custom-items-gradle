@@ -37,7 +37,11 @@ public class ContainerRecipeWrapper {
             if (!ingredients.containsKey(upgrade.getInputSlotName())) {
                 throw new IllegalArgumentException("Missing container slot " + upgrade.getInputSlotName() + " for upgrade");
             }
-            ItemStack ingredientToUpgrade = ingredients.get(upgrade.getInputSlotName()).clone();
+            ItemStack rawIngredientToUpgrade = ingredients.get(upgrade.getInputSlotName());
+            if (rawIngredientToUpgrade == null) {
+                throw new IllegalArgumentException("Ingredient in slot " + upgrade.getInputSlotName() + " is null");
+            }
+            ItemStack ingredientToUpgrade = rawIngredientToUpgrade.clone();
             ingredientToUpgrade.setAmount(recipe.getInput(upgrade.getInputSlotName()).getAmount());
             return ItemUpgrader.addUpgrade(ingredientToUpgrade, CustomItemsPlugin.getInstance().getSet(), upgrade);
         }

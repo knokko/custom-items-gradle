@@ -23,7 +23,9 @@ class MimicItemRegistry implements BukkitItemsRegistry {
 
     static ItemStack fetchMimicItem(String id, int amount) {
         try {
-            return fetchModernMimicItem(id, amount);
+            ItemStack result = fetchModernMimicItem(id, amount);
+            if (result == null) Bukkit.broadcastMessage("Can't find Mimic item " + id);
+            return result;
         } catch (NoSuchMethodError tryLegacy) {
             return fetchLegacyMimicItem(id, amount);
         }

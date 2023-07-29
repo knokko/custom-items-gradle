@@ -19,7 +19,7 @@ public class KciItemBridgeListener implements ItemBridgeListener {
     static ItemStack fetchItem(String id, int amount) {
         ItemStack item = ItemBridge.getItemStack(id);
         if (item == null) {
-            Bukkit.getLogger().severe("Can't find ItemBridge item " + id);
+            Bukkit.broadcastMessage("Can't find ItemBridge item " + id);
             return new ItemStack(Material.AIR);
         }
         item.setAmount(amount);
