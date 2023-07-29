@@ -80,10 +80,15 @@ public class RecipeHelper {
             maxDurability = item.getType().getMaxDurability();
             if (maxDurability > 0) {
                 ItemMeta meta = item.getItemMeta();
-                if (meta instanceof Damageable && !meta.isUnbreakable()) {
-                    currentDurability = maxDurability - ((Damageable) meta).getDamage();
+                if (KciNms.mcVersion >= 13) {
+                    if (meta instanceof Damageable && !meta.isUnbreakable()) {
+                        currentDurability = maxDurability - ((Damageable) meta).getDamage();
+                    } else {
+                        currentDurability = maxDurability;
+                    }
                 } else {
-                    currentDurability = maxDurability;
+                    if (meta != null && meta.isUnbreakable()) currentDurability = maxDurability;
+                    else currentDurability = maxDurability - item.getDurability();
                 }
             }
         }

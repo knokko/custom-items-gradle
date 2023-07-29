@@ -200,8 +200,6 @@ public class ItemUpgrader {
         Collection<UUID> newKciAttributeIDs = Arrays.stream(newKciAttributes).map(
                 attribute -> attribute.id
         ).collect(Collectors.toList());
-        Bukkit.broadcastMessage("original attributes are " + Arrays.toString(originalAttributes)
-                + " and non-kci attributes are " + nonKciAttributes + " and new kci attributes are " + Arrays.toString(newKciAttributes));
 
         setUpgradeIDs(nbt, newUpgradeIDs);
         setAttributeIDs(nbt, newKciAttributeIDs);
@@ -239,14 +237,24 @@ public class ItemUpgrader {
 
                 if (customItem == null) {
                     ItemMeta rawMeta = currentStack.getItemMeta();
-                    if (rawMeta instanceof Damageable && !rawMeta.isUnbreakable()) {
-                        Damageable meta = (Damageable) rawMeta;
-                        int newDamage = meta.getDamage() - Math.round(
-                                currentStack.getType().getMaxDurability() * durabilityFractionToIncrease
-                        );
-                        if (newDamage >= currentStack.getType().getMaxDurability()) return null;
-                        meta.setDamage(Math.max(newDamage, 0));
-                        currentStack.setItemMeta(rawMeta);
+                    if (rawMeta == null || !rawMeta.isUnbreakable()) {
+                        if (KciNms.mcVersion >= 13) {
+                            if (rawMeta instanceof Damageable) {
+                                Damageable meta = (Damageable) rawMeta;
+                                int newDamage = meta.getDamage() - Math.round(
+                                        currentStack.getType().getMaxDurability() * durabilityFractionToIncrease
+                                );
+                                if (newDamage >= currentStack.getType().getMaxDurability()) return null;
+                                meta.setDamage(Math.max(newDamage, 0));
+                                currentStack.setItemMeta(rawMeta);
+                            }
+                        } else {
+                            int newDamage = currentStack.getDurability() - Math.round(
+                                    currentStack.getType().getMaxDurability() * durabilityFractionToIncrease
+                            );
+                            if (newDamage >= currentStack.getType().getMaxDurability()) return null;
+                            currentStack.setDurability((short) newDamage);
+                        }
                     }
                 } else if (customItem instanceof CustomToolValues) {
                     CustomToolValues customTool = (CustomToolValues) customItem;
