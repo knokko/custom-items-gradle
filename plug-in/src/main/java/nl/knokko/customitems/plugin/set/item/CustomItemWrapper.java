@@ -56,7 +56,7 @@ public abstract class CustomItemWrapper {
         throw new IllegalArgumentException("Unknown item class " + item.getClass());
     }
 
-    private final CustomItemValues item;
+    protected final CustomItemValues item;
 
     CustomItemWrapper(CustomItemValues item) {
         this.item = item;

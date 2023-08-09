@@ -1,5 +1,6 @@
 package nl.knokko.customitems.plugin.set.item;
 
+import nl.knokko.customitems.item.CustomItemType;
 import nl.knokko.customitems.item.CustomItemValues;
 import org.bukkit.inventory.ItemStack;
 
@@ -10,6 +11,6 @@ public class SimpleCustomItemWrapper extends CustomItemWrapper {
 
     @Override
     public boolean forbidDefaultUse(ItemStack item) {
-        return true;
+        return this.item.getItemType() != CustomItemType.OTHER;
     }
 }
