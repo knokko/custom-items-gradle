@@ -10,6 +10,7 @@ import nl.knokko.gui.component.image.SimpleImageComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
+import org.lwjgl.system.Platform;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -57,6 +58,10 @@ public class EditContainerOverlayTexture extends GuiMenu {
                     try {
                         ImageIO.write(container.getOverlayTexture(), "PNG", destinationFile);
                         try {
+                            if (Platform.get() == Platform.LINUX) {
+                                // For some reason, Desktop.getDesktop().open(file) can cause the entire process to hang on Linux
+                                throw new Exception();
+                            }
                             Desktop.getDesktop().open(destinationFile);
                         } catch (Exception failedToOpenFile) {
                             try {
