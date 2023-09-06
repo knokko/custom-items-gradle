@@ -90,16 +90,19 @@ public class ContainerInstance {
 		}
 		
 		ItemMeta meta = stack.getItemMeta();
-		
-		// If a custom item is used, only overwrite display name and lore if its
-		// specifically specified
-		if (!isCustom || !display.getDisplayName().isEmpty())
-			meta.setDisplayName(display.getDisplayName());
-		if (!isCustom || display.getLore().size() > 0)
-			meta.setLore(Lists.newArrayList(display.getLore()));
-		
-		// Store changes in item meta
-		stack.setItemMeta(meta);
+
+		if (meta != null) {
+
+			// If a custom item is used, only overwrite display name and lore if its
+			// specifically specified
+			if (!isCustom || !display.getDisplayName().isEmpty())
+				meta.setDisplayName(display.getDisplayName());
+			if (!isCustom || !display.getLore().isEmpty())
+				meta.setLore(Lists.newArrayList(display.getLore()));
+
+			// Store changes in item meta
+			stack.setItemMeta(meta);
+		}
 		
 		GeneralItemNBT nbt = KciNms.instance.items.generalReadWriteNbt(stack);
 		nbt.set(PLACEHOLDER_KEY, 1);

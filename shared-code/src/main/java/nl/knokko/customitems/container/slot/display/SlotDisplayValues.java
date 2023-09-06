@@ -1,5 +1,6 @@
 package nl.knokko.customitems.container.slot.display;
 
+import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -160,6 +161,19 @@ public class SlotDisplayValues extends ModelValues {
         }
         if (amount < 1) throw new ValidationException("Amount must be positive");
         if (amount > 64) throw new ValidationException("Amount can be at most 64");
+
+        boolean isAir = false;
+        if (displayItem instanceof SimpleVanillaDisplayItemValues && ((SimpleVanillaDisplayItemValues) displayItem).getMaterial() == CIMaterial.AIR) {
+            isAir = true;
+        }
+        if (displayItem instanceof DataVanillaDisplayItemValues && ((DataVanillaDisplayItemValues) displayItem).getMaterial() == CIMaterial.AIR) {
+            isAir = true;
+        }
+
+        if (isAir) {
+            if (!displayName.isEmpty()) throw new ValidationException("Display name must be empty when you choose Air");
+            if (!lore.isEmpty()) throw new ValidationException("Lore must be empty when you choose Air");
+        }
     }
 
     public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
