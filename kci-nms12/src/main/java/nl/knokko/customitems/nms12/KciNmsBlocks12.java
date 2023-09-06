@@ -1,6 +1,7 @@
 package nl.knokko.customitems.nms12;
 
 import nl.knokko.customitems.nms.KciNmsBlocks;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 
 class KciNmsBlocks12 implements KciNmsBlocks {
@@ -18,5 +19,10 @@ class KciNmsBlocks12 implements KciNmsBlocks {
     @Override
     public boolean[] getDirections(Block toCheck) {
         throw new UnsupportedOperationException("Custom mushroom blocks are not supported in minecraft 1.12");
+    }
+
+    @Override
+    public int getMinHeight(World world) {
+        return 0;
     }
 }

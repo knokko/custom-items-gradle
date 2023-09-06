@@ -3,6 +3,7 @@ package nl.knokko.customitems.nms13plus;
 import nl.knokko.customitems.nms.KciNmsBlocks;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.MultipleFacing;
@@ -38,5 +39,10 @@ public class KciNmsBlocks13Plus implements KciNmsBlocks {
                 mushroomData.hasFace(BlockFace.WEST),
         };
         return result;
+    }
+
+    @Override
+    public int getMinHeight(World world) {
+        return 0;
     }
 }

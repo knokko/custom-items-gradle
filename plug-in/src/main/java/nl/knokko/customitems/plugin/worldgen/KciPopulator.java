@@ -127,6 +127,7 @@ public class KciPopulator extends BlockPopulator {
 
                 int relativeX = random.nextInt(16);
                 int y = generator.getMinY() + random.nextInt(1 + generator.getMaxY() - generator.getMinY());
+                if (y < KciNms.instance.blocks.getMinHeight(world) || y >= world.getMaxHeight()) continue;
                 int relativeZ = random.nextInt(16);
 
                 Block initialBlock = source.getBlock(relativeX, y, relativeZ);
@@ -201,6 +202,7 @@ public class KciPopulator extends BlockPopulator {
 
                         // Don't go below minY and maxY
                         if (nextY < generator.getMinY() || nextY > generator.getMaxY()) continue;
+                        if (nextY < KciNms.instance.blocks.getMinHeight(world) || nextY >= world.getMaxHeight()) continue;
 
                         Block nextBlock = world.getBlockAt(nextX, nextY, nextZ);
 

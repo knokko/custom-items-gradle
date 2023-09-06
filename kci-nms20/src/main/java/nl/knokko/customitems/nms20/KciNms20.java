@@ -1,8 +1,8 @@
 package nl.knokko.customitems.nms20;
 
 import nl.knokko.customitems.nms.*;
-import nl.knokko.customitems.nms13plus.KciNmsBlocks13Plus;
 import nl.knokko.customitems.nms13plus.Raytracer;
+import nl.knokko.customitems.nms16plus.KciNmsBlocks16Plus;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
@@ -13,7 +13,7 @@ public class KciNms20 extends KciNms {
     public static final String NMS_VERSION_STRING = "1_20_R1";
 
     public KciNms20() {
-        super(new KciNmsBlocks13Plus(), new KciNmsEntities20(), new KciNmsItems20());
+        super(new KciNmsBlocks16Plus(), new KciNmsEntities20(), new KciNmsItems20());
     }
 
     @Override
