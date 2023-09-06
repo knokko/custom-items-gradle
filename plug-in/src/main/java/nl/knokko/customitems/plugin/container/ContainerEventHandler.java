@@ -397,7 +397,13 @@ public class ContainerEventHandler implements Listener {
 						});
 					}
 				} else {
-					
+
+					if (event.getSlot() == player.getInventory().getHeldItemSlot()) {
+						if (itemSet.getItem(event.getCurrentItem()) instanceof CustomPocketContainerValues) {
+							event.setCancelled(true);
+						}
+					}
+
 					// If the player clicked outside the custom container, we need
 					// to make sure he can't transfer the item to container inventory.
 					if (event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
