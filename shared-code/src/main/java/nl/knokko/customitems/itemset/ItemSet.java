@@ -1,5 +1,6 @@
 package nl.knokko.customitems.itemset;
 
+import nl.knokko.customitems.bithelper.*;
 import nl.knokko.customitems.block.*;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.CustomContainer;
@@ -37,16 +38,14 @@ import nl.knokko.customitems.trouble.IntegrityException;
 import nl.knokko.customitems.trouble.OutdatedItemSetException;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.*;
-import nl.knokko.customitems.bithelper.BitInput;
-import nl.knokko.customitems.bithelper.BitOutput;
-import nl.knokko.customitems.bithelper.ByteArrayBitInput;
-import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
 import nl.knokko.customitems.worldgen.OreVeinGenerator;
 import nl.knokko.customitems.worldgen.OreVeinGeneratorValues;
 import nl.knokko.customitems.worldgen.TreeGenerator;
 import nl.knokko.customitems.worldgen.TreeGeneratorValues;
 
 import java.util.*;
+import java.util.concurrent.*;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 public class ItemSet {
@@ -362,114 +361,74 @@ public class ItemSet {
     }
 
     private void saveContent(BitOutput output, Side targetSide) {
+        ExecutorService threadPool = Executors.newFixedThreadPool(20);
+
         exportSettings.save(output);
 
         if (targetSide == Side.EDITOR) {
-            output.addInt(combinedResourcepacks.size());
-            for (CombinedResourcepackValues pack : getCombinedResourcepacks()) {
-                pack.save(output);
-            }
-
-            output.addInt(textures.size());
-            for (CustomTexture texture : textures) {
-                texture.getValues().save(output);
-            }
-
-            output.addInt(armorTextures.size());
-            for (ArmorTexture armorTexture : armorTextures) {
-                armorTexture.getValues().save(output);
-            }
+            saveParallelCollection(output, threadPool, combinedResourcepacks, (pack, packData) -> pack.getValues().save(packData));
+            saveParallelCollection(output, threadPool, textures, (texture, textureData) -> texture.getValues().save(textureData));
+            saveParallelCollection(output, threadPool, armorTextures, (texture, textureData) -> texture.getValues().save(textureData));
         } else {
             output.addLong(System.currentTimeMillis());
         }
 
-        output.addInt(fancyPantsArmorTextures.size());
-        for (FancyPantsArmorTextureValues fpTexture : getFancyPantsArmorTextures()) {
-            fpTexture.save(output, targetSide);
-        }
+        saveParallelCollection(
+                output, threadPool, fancyPantsArmorTextures,
+                (texture, textureData) -> texture.getValues().save(textureData, targetSide)
+        );
+        saveParallelCollection(output, threadPool, projectileCovers, (cover, coverData) -> cover.getValues().save(coverData, targetSide));
+        saveParallelCollection(output, threadPool, projectiles, (projectile, projectileData) -> projectile.getValues().save(projectileData));
+        saveParallelCollection(output, threadPool, items, (item, itemData) -> item.getValues().save(itemData, targetSide));
+        saveParallelCollection(output, threadPool, equipmentSets, (set, setData) -> set.getValues().save(setData));
+        saveParallelCollection(output, threadPool, damageSources, (source, sourceData) -> source.getValues().save(sourceData));
+        saveParallelCollection(
+                output, threadPool, blocks, (block, blockData) -> {
+                    blockData.addInt(block.getValues().getInternalID());
+                    block.getValues().save(blockData, targetSide);
+                }
+        );
+        saveParallelCollection(output, threadPool, oreVeinGenerators, (ores, oreData) -> ores.getValues().save(oreData));
+        saveParallelCollection(output, threadPool, treeGenerators, (trees, treeData) -> trees.getValues().save(treeData));
+        saveParallelCollection(output, threadPool, craftingRecipes, (recipe, recipeData) -> recipe.getValues().save(recipeData));
+        saveParallelCollection(output, threadPool, upgrades, (upgrade, upgradeData) -> upgrade.getValues().save(upgradeData));
+        saveParallelCollection(output, threadPool, blockDrops, (drop, dropData) -> drop.getValues().save(dropData));
+        saveParallelCollection(output, threadPool, mobDrops, (drop, dropData) -> drop.getValues().save(dropData));
+        saveParallelCollection(output, threadPool, fuelRegistries, (registry, registryData) -> registry.getValues().save(registryData));
+        saveParallelCollection(output, threadPool, energyTypes, (energy, energyData) -> energy.getValues().save(energyData));
+        saveParallelCollection(output, threadPool, soundTypes, (sound, soundData) -> sound.getValues().save(soundData, targetSide));
+        saveParallelCollection(output, threadPool, containers, (container, containerData) -> container.getValues().save(containerData));
+        saveParallelCollection(output, threadPool, removedItemNames, (itemName, itemData) -> itemData.addString(itemName));
 
-        output.addInt(projectileCovers.size());
-        for (ProjectileCover projectileCover : projectileCovers) {
-            projectileCover.getValues().save(output, targetSide);
-        }
+        threadPool.shutdown();
+    }
 
-        output.addInt(projectiles.size());
-        for (CustomProjectile projectile : projectiles) {
-            projectile.getValues().save(output);
+    private <T> void saveParallelCollection(
+            BitOutput output, ExecutorService threadPool,
+            Collection<T> elements, BiConsumer<T, ByteArrayBitOutput> saveElement
+    ) {
+        output.addInt(elements.size());
+        List<Future<ByteArrayBitOutput>> allElementsData = new ArrayList<>();
+        for (T element : elements) {
+            allElementsData.add(threadPool.submit(() -> {
+                ByteArrayBitOutput elementData = new ByteArrayBitOutput(10000);
+                saveElement.accept(element, elementData);
+                return elementData;
+            }));
         }
-
-        output.addInt(items.size());
-        for (CustomItem item : items) {
-            item.getValues().save(output, targetSide);
-        }
-
-        output.addInt(equipmentSets.size());
-        for (EquipmentSet equipmentSet : equipmentSets) {
-            equipmentSet.getValues().save(output);
-        }
-
-        output.addInt(damageSources.size());
-        for (CustomDamageSource damageSource : damageSources) {
-            damageSource.getValues().save(output);
-        }
-
-        output.addInt(blocks.size());
-        for (CustomBlock block : blocks) {
-            output.addInt(block.getValues().getInternalID());
-            block.getValues().save(output, targetSide);
-        }
-
-        output.addInt(oreVeinGenerators.size());
-        for (OreVeinGenerator oreVein : oreVeinGenerators) {
-            oreVein.getValues().save(output);
-        }
-
-        output.addInt(treeGenerators.size());
-        for (TreeGenerator tree : treeGenerators) {
-            tree.getValues().save(output);
-        }
-
-        output.addInt(craftingRecipes.size());
-        for (CustomCraftingRecipe recipe : craftingRecipes) {
-            recipe.getValues().save(output);
-        }
-
-        CollectionHelper.save(upgrades, upgrade -> upgrade.getValues().save(output), output);
-
-        output.addInt(blockDrops.size());
-        for (BlockDrop drop : blockDrops) {
-            drop.getValues().save(output);
-        }
-
-        output.addInt(mobDrops.size());
-        for (MobDrop drop : mobDrops) {
-            drop.getValues().save(output);
-        }
-
-        output.addInt(fuelRegistries.size());
-        for (CustomFuelRegistry fuelRegistry : fuelRegistries) {
-            fuelRegistry.getValues().save(output);
-        }
-
-        output.addInt(energyTypes.size());
-        for (EnergyType energyType : energyTypes) {
-            energyType.getValues().save(output);
-        }
-
-        output.addInt(soundTypes.size());
-        for (CustomSoundType soundType : soundTypes) {
-            soundType.getValues().save(output, targetSide);
-        }
-
-        output.addInt(containers.size());
-        for (CustomContainer container : containers) {
-            container.getValues().save(output);
-        }
-
-        output.addInt(removedItemNames.size());
-        for (String removedItemName : removedItemNames) {
-            output.addString(removedItemName);
-        }
+        allElementsData.forEach(futureData -> {
+            try {
+                ByteArrayBitOutput elementData = futureData.get();
+                output.addBytes(Arrays.copyOf(elementData.getBackingArray(), elementData.getByteIndex()));
+                if (elementData.getBoolIndex() > 0) {
+                    boolean[] last = BitHelper.byteToBinary(elementData.getBackingArray()[elementData.getByteIndex()]);
+                    for (int index = 0; index < elementData.getBoolIndex(); index++)
+                        output.addBoolean(last[index]);
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     private void load(

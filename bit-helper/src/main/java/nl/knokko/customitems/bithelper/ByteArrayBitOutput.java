@@ -69,6 +69,14 @@ public class ByteArrayBitOutput extends BitOutput {
 		return bytes;
 	}
 
+	public int getByteIndex() {
+		return byteIndex;
+	}
+
+	public int getBoolIndex() {
+		return boolIndex;
+	}
+
 	public byte[] getBytes() {
 		int length = byteIndex;
 		if (boolIndex != 0)
