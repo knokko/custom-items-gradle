@@ -1,6 +1,8 @@
 package nl.knokko.customitems.plugin.worldgen;
 
+import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.worldgen.BlockProducerValues;
+import nl.knokko.customitems.worldgen.CITreeType;
 import nl.knokko.customitems.worldgen.ProducedBlock;
 import nl.knokko.customitems.worldgen.TreeGeneratorValues;
 import org.bukkit.BlockChangeDelegate;
@@ -32,6 +34,12 @@ public class TreeChangeDelegate implements BlockChangeDelegate {
         boolean isLeaves = blockData.getMaterial().name().contains("LEAVES");
         BlockProducerValues blockProducer = isLeaves ? generator.getLeavesMaterial() : generator.getLogMaterial();
         ProducedBlock producedBlock = blockProducer.produce(random);
+
+        // Jungle trees have vines that I should ignore
+        if (generator.getTreeType() == CITreeType.JUNGLE || generator.getTreeType() == CITreeType.SMALL_JUNGLE) {
+            boolean isLog = blockData.getMaterial().name().contains("LOG");
+            if (!isLeaves && !isLog) producedBlock = new ProducedBlock(CIMaterial.AIR);
+        }
 
         placeBlock(block, producedBlock);
 
