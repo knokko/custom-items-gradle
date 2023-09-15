@@ -79,7 +79,6 @@ public class DefaultItemModel implements ItemModel {
         output.addString(this.parent);
     }
 
-    // TODO Add a unit test for this: probably some JSON-based zip comparison
     private DisplayProperties[] determineDefaultDisplayProperties(DefaultModelType defaultModelType) {
         switch (defaultModelType) {
             case BASIC: return new DisplayProperties[0];
