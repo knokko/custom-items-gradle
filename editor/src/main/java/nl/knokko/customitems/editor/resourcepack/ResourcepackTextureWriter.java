@@ -13,11 +13,17 @@ import nl.knokko.customitems.texture.animated.AnimationImageValues;
 import javax.imageio.ImageIO;
 import javax.imageio.stream.MemoryCacheImageOutputStream;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -33,7 +39,33 @@ class ResourcepackTextureWriter {
         this.zipOutput = zipOutput;
     }
 
+    private static class ScheduledResource {
+
+        private final ZipEntry entry;
+        private final Future<byte[]> data;
+
+        ScheduledResource(ZipEntry entry, Future<byte[]> data) {
+            this.entry = entry;
+            this.data = data;
+        }
+    }
+
+    private Future<byte[]> futureImage(ExecutorService threadPool, BufferedImage image) {
+        return threadPool.submit(() -> {
+            ByteArrayOutputStream memoryOutput = new ByteArrayOutputStream();
+            try {
+                ImageIO.write(image, "PNG", memoryOutput);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            return memoryOutput.toByteArray();
+        });
+    }
+
     void writeBaseTextures() throws IOException {
+        ExecutorService threadPool = Executors.newFixedThreadPool(20);
+        List<ScheduledResource> resources = new ArrayList<>(itemSet.getTextures().size());
+
         for (BaseTextureValues texture : itemSet.getTextures()) {
 
             String baseTextureName = texture.getName();
@@ -50,9 +82,8 @@ class ResourcepackTextureWriter {
                 for (int pullIndex = 0; pullIndex < pullTextures.size(); pullIndex++) {
                     ZipEntry entry = new ZipEntry("assets/minecraft/textures/customitems/" + texture.getName()
                             + "_pulling_" + pullIndex + ".png");
-                    zipOutput.putNextEntry(entry);
-                    ImageIO.write(pullTextures.get(pullIndex).getImage(), "PNG", new MemoryCacheImageOutputStream(zipOutput));
-                    zipOutput.closeEntry();
+                    BufferedImage image = pullTextures.get(pullIndex).getImage();
+                    resources.add(new ScheduledResource(entry, futureImage(threadPool, image)));
                 }
 
                 if (texture instanceof CrossbowTextureValues) {
@@ -60,15 +91,11 @@ class ResourcepackTextureWriter {
 
                     ZipEntry arrowEntry = new ZipEntry("assets/minecraft/textures/customitems/" + cbt.getName()
                             + "_arrow.png");
-                    zipOutput.putNextEntry(arrowEntry);
-                    ImageIO.write(cbt.getArrowImage(), "PNG", new MemoryCacheImageOutputStream(zipOutput));
-                    zipOutput.closeEntry();
+                    resources.add(new ScheduledResource(arrowEntry, futureImage(threadPool, cbt.getArrowImage())));
 
                     ZipEntry fireworkEntry = new ZipEntry("assets/minecraft/textures/customitems/" + cbt.getName()
                             + "_firework.png");
-                    zipOutput.putNextEntry(fireworkEntry);
-                    ImageIO.write(cbt.getFireworkImage(), "PNG", new MemoryCacheImageOutputStream(zipOutput));
-                    zipOutput.closeEntry();
+                    resources.add(new ScheduledResource(fireworkEntry, futureImage(threadPool, cbt.getFireworkImage())));
                 }
             }
 
@@ -97,36 +124,46 @@ class ResourcepackTextureWriter {
                 }
 
                 ZipEntry entry = new ZipEntry("assets/minecraft/textures/customitems/" + baseTextureName + ".png.mcmeta");
-                zipOutput.putNextEntry(entry);
-
-                PrintWriter metaWriter = new PrintWriter(zipOutput);
-                metaWriter.println("{");
-                metaWriter.println("    \"animation\": {");
-                metaWriter.println("        \"frames\": [");
-                List<AnimationFrameValues> frames = ((AnimatedTextureValues) texture).getFrames();
-                for (int index = 0; index < frames.size(); index++) {
-                    AnimationFrameValues frame = frames.get(index);
-                    metaWriter.print("            { \"index\": " + imageIndices.get(frame.getImageLabel()) + ", \"time\": " + frame.getDuration() + "}");
-                    if (index != frames.size() - 1) {
-                        metaWriter.print(",");
+                resources.add(new ScheduledResource(entry, threadPool.submit(() -> {
+                    ByteArrayOutputStream memoryOutput = new ByteArrayOutputStream();
+                    PrintWriter metaWriter = new PrintWriter(memoryOutput);
+                    metaWriter.println("{");
+                    metaWriter.println("    \"animation\": {");
+                    metaWriter.println("        \"frames\": [");
+                    List<AnimationFrameValues> frames = ((AnimatedTextureValues) texture).getFrames();
+                    for (int index = 0; index < frames.size(); index++) {
+                        AnimationFrameValues frame = frames.get(index);
+                        metaWriter.print("            { \"index\": " + imageIndices.get(frame.getImageLabel()) + ", \"time\": " + frame.getDuration() + "}");
+                        if (index != frames.size() - 1) {
+                            metaWriter.print(",");
+                        }
+                        metaWriter.println();
                     }
-                    metaWriter.println();
-                }
-                metaWriter.println("        ]");
-                metaWriter.println("    }");
-                metaWriter.println("}");
-                metaWriter.flush();
-
-                zipOutput.closeEntry();
+                    metaWriter.println("        ]");
+                    metaWriter.println("    }");
+                    metaWriter.println("}");
+                    metaWriter.flush();
+                    return memoryOutput.toByteArray();
+                })));
             } else {
                 imageToExport = texture.getImage();
             }
 
             ZipEntry entry = new ZipEntry("assets/minecraft/textures/customitems/" + baseTextureName + ".png");
-            zipOutput.putNextEntry(entry);
-            ImageIO.write(imageToExport, "PNG", new MemoryCacheImageOutputStream(zipOutput));
+            resources.add(new ScheduledResource(entry, futureImage(threadPool, imageToExport)));
+        }
+
+        for (ScheduledResource resource : resources) {
+            zipOutput.putNextEntry(resource.entry);
+            try {
+                zipOutput.write(resource.data.get());
+            } catch (InterruptedException | ExecutionException e) {
+                throw new IOException(e);
+            }
             zipOutput.closeEntry();
         }
+
+        threadPool.shutdown();
     }
 
     void writeOptifineArmorTextures() throws IOException {
