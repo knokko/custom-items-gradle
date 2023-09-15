@@ -8,9 +8,10 @@ import nl.knokko.customitems.recipe.result.ResultValues;
 import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static nl.knokko.customitems.serialization.BackwardHelper.listOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestShapelessRecipe {
 
@@ -32,17 +33,19 @@ public class TestShapelessRecipe {
         itemSet.addRecipe(ShapelessRecipeValues.createQuick(listOf(log1, stone1, log1), testResult));
     }
 
-    @Test(expected = ValidationException.class)
+    @Test
     public void testShapelessRecipeConflictsCheckSimpleConflict() throws ValidationException, ProgrammingValidationException {
         IngredientValues stone1 = SimpleVanillaIngredientValues.createQuick(CIMaterial.STONE, 1);
         ResultValues testResult = SimpleVanillaResultValues.createQuick(CIMaterial.DIAMOND, 3);
 
         ItemSet itemSet = new ItemSet(ItemSet.Side.EDITOR);
         itemSet.addRecipe(ShapelessRecipeValues.createQuick(listOf(stone1), testResult));
-        itemSet.addRecipe(ShapelessRecipeValues.createQuick(listOf(stone1), testResult));
+        assertThrows(ValidationException.class, () -> {
+            itemSet.addRecipe(ShapelessRecipeValues.createQuick(listOf(stone1), testResult));
+        });
     }
 
-    @Test(expected = ValidationException.class)
+    @Test
     public void testShapelessRecipeConflictsCheckSizeConflict() throws ValidationException, ProgrammingValidationException {
         IngredientValues stone1 = SimpleVanillaIngredientValues.createQuick(CIMaterial.STONE, 1);
         IngredientValues stone2 = SimpleVanillaIngredientValues.createQuick(CIMaterial.STONE, 2);
@@ -50,10 +53,12 @@ public class TestShapelessRecipe {
 
         ItemSet itemSet = new ItemSet(ItemSet.Side.EDITOR);
         itemSet.addRecipe(ShapelessRecipeValues.createQuick(listOf(stone1), testResult));
-        itemSet.addRecipe(ShapelessRecipeValues.createQuick(listOf(stone2), testResult));
+        assertThrows(ValidationException.class, () -> {
+            itemSet.addRecipe(ShapelessRecipeValues.createQuick(listOf(stone2), testResult));
+        });
     }
 
-    @Test(expected = ValidationException.class)
+    @Test
     public void testShapelessRecipeConflictsCheckOrderConflict() throws ValidationException, ProgrammingValidationException {
         IngredientValues stone1 = SimpleVanillaIngredientValues.createQuick(CIMaterial.STONE, 1);
         IngredientValues log1 = SimpleVanillaIngredientValues.createQuick(CIMaterial.LOG, 1);
@@ -61,10 +66,12 @@ public class TestShapelessRecipe {
 
         ItemSet itemSet = new ItemSet(ItemSet.Side.EDITOR);
         itemSet.addRecipe(ShapelessRecipeValues.createQuick(listOf(stone1, log1), testResult));
-        itemSet.addRecipe(ShapelessRecipeValues.createQuick(listOf(log1, stone1), testResult));
+        assertThrows(ValidationException.class, () -> {
+            itemSet.addRecipe(ShapelessRecipeValues.createQuick(listOf(log1, stone1), testResult));
+        });
     }
 
-    @Test(expected = ValidationException.class)
+    @Test
     public void testShapelessRecipeConflictsCheckNumOccurrencesConflict() throws ValidationException, ProgrammingValidationException {
         IngredientValues stone1 = SimpleVanillaIngredientValues.createQuick(CIMaterial.STONE, 1);
         IngredientValues log1 = SimpleVanillaIngredientValues.createQuick(CIMaterial.LOG, 1);
@@ -72,6 +79,8 @@ public class TestShapelessRecipe {
 
         ItemSet itemSet = new ItemSet(ItemSet.Side.EDITOR);
         itemSet.addRecipe(ShapelessRecipeValues.createQuick(listOf(stone1, stone1, stone1, log1), testResult));
-        itemSet.addRecipe(ShapelessRecipeValues.createQuick(listOf(stone1, stone1, log1, stone1), testResult));
+        assertThrows(ValidationException.class, () -> {
+            itemSet.addRecipe(ShapelessRecipeValues.createQuick(listOf(stone1, stone1, log1, stone1), testResult));
+        });
     }
 }

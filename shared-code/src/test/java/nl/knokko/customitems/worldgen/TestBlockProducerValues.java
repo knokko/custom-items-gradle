@@ -5,10 +5,9 @@ import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.util.Chance;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TestBlockProducerValues {
 
@@ -36,12 +35,14 @@ public class TestBlockProducerValues {
         assertNull(overTable.getNothingChance());
     }
 
-    @Test(expected = ValidationException.class)
-    public void testValidateTooBigTotalChance() throws ValidationException, ProgrammingValidationException {
-        BlockProducerValues.createQuick(
-                BlockProducerValues.Entry.createQuick(SIMPLE_BLOCK, Chance.percentage(80)),
-                BlockProducerValues.Entry.createQuick(SIMPLE_BLOCK, Chance.percentage(40))
-        ).validate(new ItemSet(ItemSet.Side.EDITOR));
+    @Test
+    public void testValidateTooBigTotalChance() {
+        assertThrows(ValidationException.class, () -> {
+            BlockProducerValues.createQuick(
+                    BlockProducerValues.Entry.createQuick(SIMPLE_BLOCK, Chance.percentage(80)),
+                    BlockProducerValues.Entry.createQuick(SIMPLE_BLOCK, Chance.percentage(40))
+            ).validate(new ItemSet(ItemSet.Side.EDITOR));
+        });
     }
 
     @Test

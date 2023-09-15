@@ -29,17 +29,17 @@ import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
 import nl.knokko.customitems.recipe.result.CustomItemResultValues;
 import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
 import nl.knokko.customitems.util.Chance;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
-import static nl.knokko.customitems.serialization.Backward1.testRecipes1;
-import static nl.knokko.customitems.serialization.Backward3.testTextures3;
-import static nl.knokko.customitems.serialization.Backward5.testItems5;
+import static nl.knokko.customitems.serialization.TestBackward1.testRecipes1;
+import static nl.knokko.customitems.serialization.TestBackward3.testTextures3;
+import static nl.knokko.customitems.serialization.TestBackward5.testItems5;
 import static nl.knokko.customitems.serialization.BackwardHelper.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class Backward6 {
+public class TestBackward6 {
 
     @Test
     public void testBackwardCompatibility6() {
@@ -380,36 +380,36 @@ public class Backward6 {
         assertEquals(0, item.getOnHitTargetEffects().size());
         assertEquals(new ItemCommandSystem(false), item.getCommandSystem());
 
-        Backward7.testBaseDefault7(item);
+        TestBackward7.testBaseDefault7(item);
     }
 
     static void testSimpleDefault6(SimpleCustomItemValues item) {
         testBaseDefault6(item);
-        Backward7.testSimpleDefault7(item);
+        TestBackward7.testSimpleDefault7(item);
     }
 
     static void testToolDefault6(CustomToolValues item) {
         testBaseDefault6(item);
-        Backward7.testToolDefault7(item);
+        TestBackward7.testToolDefault7(item);
     }
 
     static void testArmorDefault6(CustomArmorValues item) {
         testToolDefault6(item);
-        Backward7.testArmorDefault7(item);
+        TestBackward7.testArmorDefault7(item);
     }
 
     static void testHoeDefault6(CustomHoeValues item) {
         testToolDefault6(item);
-        Backward7.testHoeDefault7(item);
+        TestBackward7.testHoeDefault7(item);
     }
 
     static void testShearsDefault6(CustomShearsValues item) {
         testToolDefault6(item);
-        Backward7.testShearsDefault7(item);
+        TestBackward7.testShearsDefault7(item);
     }
 
     static void testBowDefault6(CustomBowValues item) {
         testToolDefault6(item);
-        Backward7.testBowDefault7(item);
+        TestBackward7.testBowDefault7(item);
     }
 }

@@ -1,13 +1,13 @@
 package nl.knokko.customitems.test;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.function.Consumer;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 import nl.knokko.customitems.bithelper.ByteArrayBitInput;
 import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TestHelper {
 

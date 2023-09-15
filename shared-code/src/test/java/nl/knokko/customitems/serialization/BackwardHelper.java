@@ -13,8 +13,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class BackwardHelper {
 
@@ -101,6 +101,7 @@ public class BackwardHelper {
                 }
                 next = input.read();
             }
+            input.close();
 
             List<Byte> expectedByteList = new ArrayList<>(stringBytes.length);
             for (byte stringByte : stringBytes) {

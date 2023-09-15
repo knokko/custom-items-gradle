@@ -34,21 +34,21 @@ import nl.knokko.customitems.sound.VanillaSoundType;
 import nl.knokko.customitems.texture.BowTextureEntry;
 import nl.knokko.customitems.texture.CrossbowTextureValues;
 import nl.knokko.customitems.util.Chance;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
-import static nl.knokko.customitems.serialization.Backward10.*;
-import static nl.knokko.customitems.serialization.Backward3.testTextures3;
-import static nl.knokko.customitems.serialization.Backward6.*;
-import static nl.knokko.customitems.serialization.Backward8.*;
+import static nl.knokko.customitems.serialization.TestBackward10.*;
+import static nl.knokko.customitems.serialization.TestBackward3.testTextures3;
+import static nl.knokko.customitems.serialization.TestBackward6.*;
+import static nl.knokko.customitems.serialization.TestBackward8.*;
 import static nl.knokko.customitems.serialization.BackwardHelper.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class Backward9 {
+public class TestBackward9 {
 
     @Test
     public void testBackwardCompatibility9() {

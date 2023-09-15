@@ -10,14 +10,14 @@ import nl.knokko.customitems.recipe.ShapelessRecipeValues;
 import nl.knokko.customitems.recipe.ingredient.*;
 import nl.knokko.customitems.recipe.result.CustomItemResultValues;
 import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static nl.knokko.customitems.serialization.BackwardHelper.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class Backward1 {
+public class TestBackward1 {
 
     @Test
     public void testBackwardCompatibility1() {

@@ -37,23 +37,23 @@ import nl.knokko.customitems.texture.animated.AnimatedTextureValues;
 import nl.knokko.customitems.texture.animated.AnimationFrameValues;
 import nl.knokko.customitems.texture.animated.AnimationImageValues;
 import nl.knokko.customitems.util.Chance;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import static nl.knokko.customitems.serialization.Backward11.*;
-import static nl.knokko.customitems.serialization.Backward12.testDefaultBlockDrop12;
-import static nl.knokko.customitems.serialization.Backward3.testTextures3;
-import static nl.knokko.customitems.serialization.Backward6.testProjectileCoversOld6;
-import static nl.knokko.customitems.serialization.Backward6.testRecipesNew6;
-import static nl.knokko.customitems.serialization.Backward8.*;
-import static nl.knokko.customitems.serialization.Backward9.*;
+import static nl.knokko.customitems.serialization.TestBackward11.*;
+import static nl.knokko.customitems.serialization.TestBackward12.testDefaultBlockDrop12;
+import static nl.knokko.customitems.serialization.TestBackward3.testTextures3;
+import static nl.knokko.customitems.serialization.TestBackward6.testProjectileCoversOld6;
+import static nl.knokko.customitems.serialization.TestBackward6.testRecipesNew6;
+import static nl.knokko.customitems.serialization.TestBackward8.*;
+import static nl.knokko.customitems.serialization.TestBackward9.*;
 import static nl.knokko.customitems.serialization.BackwardHelper.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class Backward10 {
+public class TestBackward10 {
 
     @Test
     public void testBackwardCompatibility10() {

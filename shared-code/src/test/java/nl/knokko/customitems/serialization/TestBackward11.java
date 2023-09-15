@@ -45,24 +45,23 @@ import nl.knokko.customitems.sound.CustomSoundTypeValues;
 import nl.knokko.customitems.sound.SoundValues;
 import nl.knokko.customitems.util.Chance;
 import nl.knokko.customitems.worldgen.*;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
 
-import static nl.knokko.customitems.serialization.Backward10.*;
-import static nl.knokko.customitems.serialization.Backward12.*;
-import static nl.knokko.customitems.serialization.Backward6.testProjectileCoversOld6;
-import static nl.knokko.customitems.serialization.Backward8.testArmorTexturesOld8;
-import static nl.knokko.customitems.serialization.Backward8.testFuelRegistriesOld8;
-import static nl.knokko.customitems.serialization.Backward9.*;
+import static nl.knokko.customitems.serialization.TestBackward10.*;
+import static nl.knokko.customitems.serialization.TestBackward12.*;
+import static nl.knokko.customitems.serialization.TestBackward6.testProjectileCoversOld6;
+import static nl.knokko.customitems.serialization.TestBackward8.testArmorTexturesOld8;
+import static nl.knokko.customitems.serialization.TestBackward8.testFuelRegistriesOld8;
+import static nl.knokko.customitems.serialization.TestBackward9.*;
 import static nl.knokko.customitems.serialization.BackwardHelper.*;
 import static nl.knokko.customitems.sound.CISoundCategory.AMBIENT;
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class Backward11 {
+public class TestBackward11 {
 
     @Test
     public void testBackwardCompatibility11() {

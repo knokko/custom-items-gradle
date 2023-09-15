@@ -39,7 +39,7 @@ import nl.knokko.customitems.sound.VanillaSoundType;
 import nl.knokko.customitems.texture.FancyPantsArmorFrameValues;
 import nl.knokko.customitems.texture.FancyPantsArmorTextureValues;
 import nl.knokko.customitems.util.Chance;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -51,16 +51,16 @@ import java.util.Scanner;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import static nl.knokko.customitems.serialization.Backward10.*;
-import static nl.knokko.customitems.serialization.Backward11.*;
-import static nl.knokko.customitems.serialization.Backward6.testProjectileCoversOld6;
-import static nl.knokko.customitems.serialization.Backward8.testArmorTexturesOld8;
-import static nl.knokko.customitems.serialization.Backward8.testFuelRegistriesOld8;
-import static nl.knokko.customitems.serialization.Backward9.testTexturesNew9;
+import static nl.knokko.customitems.serialization.TestBackward10.*;
+import static nl.knokko.customitems.serialization.TestBackward11.*;
+import static nl.knokko.customitems.serialization.TestBackward6.testProjectileCoversOld6;
+import static nl.knokko.customitems.serialization.TestBackward8.testArmorTexturesOld8;
+import static nl.knokko.customitems.serialization.TestBackward8.testFuelRegistriesOld8;
+import static nl.knokko.customitems.serialization.TestBackward9.testTexturesNew9;
 import static nl.knokko.customitems.serialization.BackwardHelper.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class Backward12 {
+public class TestBackward12 {
 
     @Test
     public void testBackwardCompatibility12() {
@@ -138,10 +138,10 @@ public class Backward12 {
             FancyPantsArmorFrameValues frame1 = shiny.getFrames().get(0);
             FancyPantsArmorFrameValues frame2 = shiny.getFrames().get(1);
             try {
-                assertImageEqual(ImageIO.read(Objects.requireNonNull(Backward12.class.getClassLoader().getResourceAsStream(
+                assertImageEqual(ImageIO.read(Objects.requireNonNull(TestBackward12.class.getClassLoader().getResourceAsStream(
                         "nl/knokko/customitems/serialization/texture/blue_gold_layer_1.png"
                 ))), frame1.getLayer1());
-                assertImageEqual(ImageIO.read(Objects.requireNonNull(Backward12.class.getClassLoader().getResourceAsStream(
+                assertImageEqual(ImageIO.read(Objects.requireNonNull(TestBackward12.class.getClassLoader().getResourceAsStream(
                         "nl/knokko/customitems/serialization/texture/green_gold_layer_2.png"
                 ))), frame2.getLayer2());
 
@@ -172,10 +172,10 @@ public class Backward12 {
             assertEquals(1, simple.getFrames().size());
             FancyPantsArmorFrameValues frame = simple.getFrames().get(0);
             try {
-                assertImageEqual(ImageIO.read(Objects.requireNonNull(Backward12.class.getClassLoader().getResourceAsStream(
+                assertImageEqual(ImageIO.read(Objects.requireNonNull(TestBackward12.class.getClassLoader().getResourceAsStream(
                         "nl/knokko/customitems/serialization/texture/armor1layer1.png"
                 ))), frame.getLayer1());
-                assertImageEqual(ImageIO.read(Objects.requireNonNull(Backward12.class.getClassLoader().getResourceAsStream(
+                assertImageEqual(ImageIO.read(Objects.requireNonNull(TestBackward12.class.getClassLoader().getResourceAsStream(
                         "nl/knokko/customitems/serialization/texture/armor1layer2.png"
                 ))), frame.getLayer2());
             } catch (IOException shouldNotHappen) {
@@ -458,7 +458,7 @@ public class Backward12 {
                 while (zipEntry != null) {
                     if (zipEntry.getName().equals("staff1.json")) {
                         Scanner expectedScanner = new Scanner(Objects.requireNonNull(
-                                Backward12.class.getClassLoader().getResourceAsStream(
+                                TestBackward12.class.getClassLoader().getResourceAsStream(
                                         "nl/knokko/customitems/serialization/model/staff1.json"
                                 )
                         ));

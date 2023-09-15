@@ -2,13 +2,13 @@ package nl.knokko.customitems.serialization;
 
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.itemset.ItemSet;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static nl.knokko.customitems.serialization.Backward1.*;
+import static nl.knokko.customitems.serialization.TestBackward1.*;
 import static nl.knokko.customitems.serialization.BackwardHelper.listOf;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class Backward2 {
+public class TestBackward2 {
 
     @Test
     public void testBackwardCompatibility2() {
@@ -137,11 +137,11 @@ public class Backward2 {
 
     static void testBaseDefault2(CustomItemValues item) {
         assertEquals(0, item.getAttributeModifiers().size());
-        Backward3.testBaseDefault3(item);
+        TestBackward3.testBaseDefault3(item);
     }
 
     static void testSimpleDefault2(SimpleCustomItemValues item) {
         testBaseDefault2(item);
-        Backward3.testSimpleDefault3(item);
+        TestBackward3.testSimpleDefault3(item);
     }
 }
