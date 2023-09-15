@@ -1,6 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.recipe.result;
 
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
+import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
 import nl.knokko.gui.color.GuiColor;
@@ -29,6 +30,9 @@ public class ChooseSimpleVanillaResult extends GuiMenu {
 
     @Override
     protected void addComponents() {
+        DynamicTextComponent errorComponent = new DynamicTextComponent("", ERROR);
+        addComponent(errorComponent, 0.05f, 0.9f, 1f, 1f);
+
         addComponent(new DynamicTextButton("Cancel", CANCEL_BASE, CANCEL_HOVER, () -> {
             state.getWindow().setMainComponent(returnMenu);
         }), 0.05f, 0.7f, 0.15f, 0.8f);
@@ -45,8 +49,11 @@ public class ChooseSimpleVanillaResult extends GuiMenu {
         );
 
         addComponent(new DynamicTextButton("Done", SAVE_BASE, SAVE_HOVER, () -> {
-            onSelect.accept(result);
-            state.getWindow().setMainComponent(returnMenu);
+            String error = Validation.toErrorString(result::validateIndependent);
+            if (error == null) {
+                onSelect.accept(result);
+                state.getWindow().setMainComponent(returnMenu);
+            } else errorComponent.setText(error);
         }), 0.05f, 0.2f, 0.15f, 0.3f);
     }
 
