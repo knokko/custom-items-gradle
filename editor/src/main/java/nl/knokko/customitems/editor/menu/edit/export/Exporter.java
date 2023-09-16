@@ -14,10 +14,13 @@ import nl.knokko.gui.component.GuiComponent;
 
 import java.io.IOException;
 
+import static nl.knokko.customitems.editor.menu.edit.export.ExportProgress.*;
+
 public class Exporter {
 
-    public static String attemptToExport(
-            ItemSet itemSet, String fileName, ExportSettingsValues exportSettings, GuiComponent returnMenu
+    public static void attemptToExport(
+            ItemSet itemSet, String fileName, ExportSettingsValues exportSettings,
+            GuiComponent returnMenu, ExportProgress progress
     ) {
         String[] pResourcePackHash = { null };
 
@@ -26,8 +29,9 @@ public class Exporter {
                 itemSet.setExportSettings(exportSettings);
                 itemSet.validateExportVersion(exportSettings.getMcVersion());
 
+                progress.status = STATUS_GENERATING_RESOURCEPACK;
                 if (exportSettings.getMode() == ExportSettingsValues.Mode.AUTOMATIC) {
-                    pResourcePackHash[0] = uploadResourcePackToMyHost(itemSet);
+                    pResourcePackHash[0] = uploadResourcePackToMyHost(itemSet, progress);
                 } else if (exportSettings.getMode() == ExportSettingsValues.Mode.MIXED) {
                     EditorFileManager.exportFiles(itemSet);
                 } else if (exportSettings.getMode() == ExportSettingsValues.Mode.MANUAL) {
@@ -40,29 +44,33 @@ public class Exporter {
             }
         });
 
-        if (error != null) return error;
+        if (error != null) {
+            progress.error = error;
+            return;
+        }
+
+        progress.status = STATUS_SAVING_ITEM_SET;
 
         try {
             EditorFileManager.saveAndBackUp(itemSet, fileName);
         } catch (IOException saveFailed) {
-            return "Saving failed: " + saveFailed.getLocalizedMessage();
+            progress.error = "Saving failed: " + saveFailed.getLocalizedMessage();
+            return;
         }
 
         if (exportSettings.getMode() == ExportSettingsValues.Mode.AUTOMATIC) {
-            returnMenu.getState().getWindow().setMainComponent(new AfterExportMenuAutomatic(returnMenu, pResourcePackHash[0]));
+            progress.nextMenu = new AfterExportMenuAutomatic(returnMenu, pResourcePackHash[0]);
         } else if (exportSettings.getMode() == ExportSettingsValues.Mode.MIXED) {
-            returnMenu.getState().getWindow().setMainComponent(new AfterExportMenuMixed(returnMenu));
+            progress.nextMenu = new AfterExportMenuMixed(returnMenu);
         } else if (exportSettings.getMode() == ExportSettingsValues.Mode.MANUAL) {
-            returnMenu.getState().getWindow().setMainComponent(new AfterExportMenuManual(returnMenu));
+            progress.nextMenu = new AfterExportMenuManual(returnMenu);
         } else {
-            return "Unknown export mode";
+            progress.error = "Unknown export mode";
         }
-
-        return null;
     }
 
     private static String uploadResourcePackToMyHost(
-            ItemSet itemSet
+            ItemSet itemSet, ExportProgress progress
     ) throws IOException, ValidationException, ProgrammingValidationException {
 
         // Ensure that the right item damages are used when writing the .cis file
@@ -76,8 +84,10 @@ public class Exporter {
         byte[] textyBytes = StringEncoder.encodeTextyBytes(cisBytes, true);
 
         return ResourcePackHost.upload(
-                uploadOutput -> new ResourcepackGenerator(itemSet).write(uploadOutput, textyBytes, false),
-                (responseCode, responseMessage, errorResponse) -> {
+                uploadOutput -> {
+                    new ResourcepackGenerator(itemSet).write(uploadOutput, textyBytes, false);
+                    progress.status = STATUS_UPLOADING_RESOURCEPACK;
+                }, (responseCode, responseMessage, errorResponse) -> {
                     System.err.println("Uploading resource pack failed:");
                     for (String line : errorResponse) {
                         System.err.println(line);

@@ -65,8 +65,13 @@ public class ExportMenu extends GuiMenu {
         ), 0.675f, 0.8f, 0.775f, 0.9f);
 
         addComponent(new DynamicTextButton("Continue", SAVE_BASE, SAVE_HOVER, () -> {
-            String error = Exporter.attemptToExport(itemSet, fileName, exportSettings, returnMenu);
-            if (error != null) errorComponent.setText(error);
+            errorComponent.setText("");
+
+            ExportProgress progress = new ExportProgress();
+            new Thread(() -> {
+                Exporter.attemptToExport(itemSet, fileName, exportSettings, returnMenu, progress);
+            }).start();
+            state.getWindow().setMainComponent(new ExportLoadingScreen(this, errorComponent, progress));
         }), 0.825f, 0.8f, 0.975f, 0.9f);
 
         addComponent(new WrapperComponent<GuiMenu>(new AutomaticSettings()) {

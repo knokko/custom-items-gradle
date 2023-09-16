@@ -53,8 +53,6 @@ public class EditorFileManager {
         itemSet.save(output, ItemSet.Side.PLUGIN);
         output.terminate();
 
-        byte[] bytes = output.getBytes();
-
         /*
          * The file is eventually stored as text file because some hosts like Aternos don't allow users to upload
          * binary files. Besides, the storage required for storing .cis files was never big anyway, so I no longer
@@ -63,7 +61,7 @@ public class EditorFileManager {
          * This file is basically hexadecimal, except that it uses only characters from the alphabet rather than both
          * alphabet characters and digits. (When I wrote this, I didn't think about hexadecimal...)
          */
-        byte[] textBytes = StringEncoder.encodeTextyBytes(bytes, true);
+        byte[] textBytes = StringEncoder.encodeTextyBytes(output.getBytes(), true);
         File textFile = new File(FOLDER + "/items.cis.txt");
         OutputStream fileOutput = Files.newOutputStream(textFile.toPath());
         fileOutput.write(textBytes);
