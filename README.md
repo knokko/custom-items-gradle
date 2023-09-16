@@ -3,7 +3,7 @@
 This is the source code for the Knokko's Custom Items minecraft plug-in: 
  - https://dev.bukkit.org/projects/custom-items-and-textures (BukkitDev)
  - https://www.spigotmc.org/resources/knokkos-custom-items.88182/ (Spigot)
- - https://www.mcbbs.net/forum.php?mod=viewthread&tid=1177493&extra=page%3D1%26filter%3Dsortid%26sortid%3D7%26searchoption%5B61%5D%5Bvalue%5D%3Dknokko%26searchoption%5B61%5D%5Btype%5D%3D (MCBBS) [Chinese] [This page is not made by me]
+ - https://www.mcbbs.net/forum.php?mod=viewthread&tid=1177493&extra=page%3D1%26filter%3Dsortid%26sortid%3D7%26searchoption%5B61%5D%5Bvalue%5D%3Dknokko%26searchoption%5B61%5D%5Btype%5D%3D (MCBBS) [Chinese] (This page is not made by me)
  - https://polymart.org/resource/knokko-x27-s-custom-items.1190 (Polymart)
 
 This plug-in makes it possible to add custom items with their own textures, without sacrificing existing minecraft items. 
@@ -115,3 +115,56 @@ extract the contents, and double-click `editor.exe` to run the Editor
 
 The primary advantage of the 'raw' `Editor.jar` over the native editors is that it is significantly smaller since
 it doesn't need to bundle a complete JRE.
+
+## Adding CustomItems as dependency to your own project
+### Without build system
+If you don't like build systems, you can simply download CustomItems.jar from Spigot or BukkitDev
+and add it to your classpath.
+
+### Gradle
+Add the Jitpack maven repository:
+```
+repositories {
+    // Your current repositories...
+    maven { url 'https://jitpack.io' }
+}
+```
+And add the modules you want to your dependencies:
+```
+dependencies {
+    // Your current dependencies...
+    
+    // You probably want shared-code and plug-in
+    compileOnly 'com.github.knokko.custom-items-gradle:shared-code:master-SNAPSHOT'
+    compileOnly 'com.github.knokko.custom-items-gradle:plug-in:master-SNAPSHOT'
+    
+    // You may also want to have e.g. the Editor
+    compileOnly 'com.github.knokko.custom-items-gradle:editor:master-SNAPSHOT'
+}
+```
+
+### Maven
+Add the Jitpack maven repository:
+```
+<repositories>
+    # Your current repositories...
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+```
+And add the modules you want to your dependencies:
+```
+# Your current dependencies...
+<dependency>
+    <groupId>com.github.knokko.custom-items-gradle</groupId>
+    <artifactId>shared-code</artifactId>
+    <version>master-SNAPSHOT</version>
+</dependency>
+<dependency>
+    <groupId>com.github.knokko.custom-items-gradle</groupId>
+    <artifactId>plug-in</artifactId>
+    <version>master-SNAPSHOT</version>
+</dependency>
+```

@@ -1,0 +1,4 @@
+before_install:
+  - cp github-actions-helper/VersionTrimmer.java VersionTrimmer.java
+  - javac VersionTrimmer.java
+  - java VersionTrimmer jitpack

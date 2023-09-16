@@ -78,7 +78,9 @@ project(':plug-in') {
     dependencies {
         implementation project(':shared-code')
         implementation project(':kci-nms')
+// MARKER START NMS 12 DEPENDENCY
         runtimeOnly project(':kci-nms12')
+// MARKER END NMS 12 DEPENDENCY
 // MARKER START NMS DEPENDENCIES
         runtimeOnly project(':kci-nms13plus')
         runtimeOnly project(':kci-nms13')
@@ -158,12 +160,14 @@ project(':kci-nms') {
 }
 // MARKER END GENERAL
 
+// MARKER START NMS 12 DEPENDENCY
 project(':kci-nms12') {
     dependencies {
         compileOnly project(':kci-nms')
         compileOnly 'org.bukkit:craftbukkit:1.12.2-R0.1-SNAPSHOT'
     }
 }
+// MARKER END NMS 12 DEPENDENCY
 
 // MARKER START NMS13PLUS
 project(':kci-nms13plus') {

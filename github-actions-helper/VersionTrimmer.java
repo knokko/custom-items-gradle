@@ -13,6 +13,7 @@ public class VersionTrimmer {
     private static final String MARKER_JAVA16 = "JAVA16";
     private static final String MARKER_JAVA17 = "JAVA17";
     private static final String MARKER_CE_EVENT_HANDLER = "CE EVENT HANDLER";
+    private static final String MARKER_NMS12_DEPENDENCY = "NMS 12 DEPENDENCY";
     private static final String MARKER_NMS_DEPENDENCIES = "NMS DEPENDENCIES";
     private static final String MARKER_NMS13PLUS = "NMS13PLUS";
     private static final String MARKER_NMS13 = "NMS13";
@@ -29,8 +30,9 @@ public class VersionTrimmer {
 
     private static final String[] ALL_MARKERS = {
             MARKER_GENERAL, MARKER_JAVA8, MARKER_JAVA16, MARKER_JAVA17, MARKER_CE_EVENT_HANDLER,
-            MARKER_NMS_DEPENDENCIES, MARKER_NMS13PLUS, MARKER_NMS13, MARKER_NMS14, MARKER_NMS15, MARKER_NMS16PLUS,
-            MARKER_NMS16, MARKER_NMS17PLUS, MARKER_NMS17, MARKER_NMS18PLUS, MARKER_NMS18, MARKER_NMS19, MARKER_NMS20
+            MARKER_NMS12_DEPENDENCY, MARKER_NMS_DEPENDENCIES, MARKER_NMS13PLUS, MARKER_NMS13, MARKER_NMS14,
+            MARKER_NMS15, MARKER_NMS16PLUS, MARKER_NMS16, MARKER_NMS17PLUS, MARKER_NMS17,
+            MARKER_NMS18PLUS, MARKER_NMS18, MARKER_NMS19, MARKER_NMS20
     };
 
     public static void main(String[] args) throws IOException {
@@ -83,8 +85,14 @@ public class VersionTrimmer {
         String[] allowedProjects;
         String targetVersion = args[0];
         switch (targetVersion) {
-            case "1.12":
+            case "jitpack":
                 allowedMarkers = new String[]{MARKER_GENERAL, MARKER_JAVA8, null};
+                allowedProjects = new String[]{
+                        "bit-helper", "gui", "shared-code", "plug-in", "editor", "kci-nms"
+                };
+                break;
+            case "1.12":
+                allowedMarkers = new String[]{MARKER_GENERAL, MARKER_JAVA8, MARKER_NMS12_DEPENDENCY, null};
                 allowedProjects = new String[]{
                         "bit-helper", "gui", "shared-code", "plug-in", "editor", "kci-nms", "kci-nms12"
                 };
