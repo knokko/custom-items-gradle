@@ -13,7 +13,6 @@ import nl.knokko.customitems.editor.util.StringLength;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.result.CustomItemResultValues;
-import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
@@ -41,27 +40,33 @@ public class ContainerRecipeCollectionEdit extends SelfDedicatedCollectionEdit<C
 		}), 0.025f, 0.2f, 0.2f, 0.3f);
 		HelpButtons.addHelpLink(this, "edit menu/containers/recipes/overview.html");
 	}
-	
-	@Override
-	public GuiColor getBackgroundColor() {
-		return EditProps.BACKGROUND;
-	}
 
-	@Override
+    @Override
 	protected String getModelLabel(ContainerRecipeValues model) {
+		int modelIndex = -1;
+		for (int index = 0; index < liveCollection.size(); index++) {
+			if (model == liveCollection.get(index)) {
+				modelIndex = index;
+				break;
+			}
+		}
+
 		StringBuilder result = new StringBuilder();
-		result.append('(');
+		result.append(modelIndex + 1);
+		result.append(": ");
+
+		int entryCounter = 0;
 		for (Map.Entry<String, OutputTableValues> output : model.getOutputs().entrySet()) {
 			result.append(output.getValue());
-			result.append(',');
+			if (entryCounter != model.getOutputs().size() - 1) result.append(',');
+			entryCounter += 1;
 		}
 		if (model.getManualOutput() != null) {
 			result.append(model.getManualOutput());
 		}
-		result.append(')');
 
 		// Don't make it too long; that will get unreadable
-		int maxLength = 30;
+		int maxLength = 40;
 		return StringLength.fixLength(result.toString(), maxLength);
 	}
 
