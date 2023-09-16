@@ -63,6 +63,7 @@ class ResourcePackIO {
         URL url = new URL(GET_RESOURCE_PACK_PREFIX + sha256Hex);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("HEAD");
+        connection.setConnectTimeout(ResourcePackHost.TIMEOUT);
         connection.connect();
 
         int responseCode = connection.getResponseCode();
@@ -75,6 +76,7 @@ class ResourcePackIO {
         URL url = new URL(GET_RESOURCE_PACK_PREFIX + sha256Hex);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
+        connection.setConnectTimeout(ResourcePackHost.TIMEOUT);
         connection.connect();
 
         int responseCode = connection.getResponseCode();

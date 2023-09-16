@@ -60,7 +60,7 @@ public class ItemSetLoader implements Listener {
             }
         });
         int refreshPeriod = 20 * 60 * 25; // 25 minutes
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, this::refreshResourcePack, refreshPeriod, refreshPeriod);
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this::refreshResourcePack, refreshPeriod, refreshPeriod);
     }
 
     @EventHandler
@@ -204,17 +204,22 @@ public class ItemSetLoader implements Listener {
 
         currentHashes = newHashes;
 
-        try {
-            if (ResourcePackIO.checkStatus(newHashes.getSha256Hex())) return true;
-        } catch (IOException statusCheckFailed) {
-            sendSyncMessage.accept(ChatColor.RED + "Failed to reach resource pack server");
-            return true;
-        }
-
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             Consumer<String> sendAsyncMessage = message -> {
                 Bukkit.getScheduler().callSyncMethod(plugin, Executors.callable(() -> sendSyncMessage.accept(message)));
             };
+
+            try {
+                if (ResourcePackIO.checkStatus(newHashes.getSha256Hex())) {
+                    busy.release();
+                    return;
+                }
+            } catch (IOException statusCheckFailed) {
+                sendAsyncMessage.accept(ChatColor.RED + "Failed to reach resource pack server");
+                busy.release();
+                return;
+            }
+
             try {
                 ResourcePackIO.upload(resourcePackFile, sendAsyncMessage);
                 Bukkit.getScheduler().callSyncMethod(plugin, Executors.callable((Runnable) () -> Bukkit.broadcastMessage(
@@ -296,22 +301,31 @@ public class ItemSetLoader implements Listener {
         return shouldReleaseSemaphore;
     }
 
+    private void logAsync(Level level, String message, Exception exception) {
+        Bukkit.getScheduler().callSyncMethod(CustomItemsPlugin.getInstance(), () -> {
+            if (exception == null) Bukkit.getLogger().log(level, message);
+            else Bukkit.getLogger().log(level, message, exception);
+            return true;
+        });
+    }
+
     private void refreshResourcePack() {
+        ResourcePackHashes currentHashes = this.currentHashes;
         if (currentHashes != null) {
             if (busy.tryAcquire()) {
                 try {
                     if (!ResourcePackIO.checkStatus(currentHashes.getSha256Hex())) {
-                        Bukkit.getLogger().log(Level.WARNING, "The resource pack server lost the resource pack");
+                        logAsync(Level.WARNING, "The resource pack server lost the resource pack", null);
                         lostResourcePack = true;
                     }
                 } catch (IOException failedRefresh) {
-                    Bukkit.getLogger().log(Level.WARNING, "Failed to refresh the resource pack", failedRefresh);
+                    logAsync(Level.WARNING, "Failed to refresh the resource pack", failedRefresh);
                     lostResourcePack = true;
                 } finally {
                     busy.release();
                 }
             } else {
-                Bukkit.getLogger().info("Skipping resource pack refresh because a reload is in progress");
+                logAsync(Level.INFO, "Skipping resource pack refresh because a reload is in progress", null);
             }
         }
     }

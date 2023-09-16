@@ -11,7 +11,8 @@ import java.util.Scanner;
 
 public class ResourcePackHost {
 
-    public static final String PREFIX = "http://49.12.188.159/";
+    public static final int TIMEOUT = 5000;
+    public static final String PREFIX = "http://[2a01:4f8:1c17:dd98::1]/";
 
     public static String upload(
             UploadFunction uploadFunction,
@@ -20,6 +21,7 @@ public class ResourcePackHost {
         URL url = new URL(PREFIX + "upload-resource-pack/");
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
+        connection.setConnectTimeout(TIMEOUT);
         connection.setDoOutput(true);
         connection.setDoInput(true);
         connection.connect();
