@@ -117,8 +117,7 @@ class FlyingProjectile {
 					int currentBlue = cr.getMinBlue() + random.nextInt(cr.getMaxBlue() - cr.getMinBlue() + 1);
 					
 					// Spawn the actual particle
-					ParticleHelper.spawnColoredParticle(next,
-							currentRed / 255.0, currentGreen / 255.0, currentBlue / 255.0);
+					ParticleHelper.spawnColoredParticle(next, currentRed, currentGreen, currentBlue);
 					
 					// Reset next
 					next.setX(center.getX());
