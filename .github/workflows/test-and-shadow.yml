@@ -126,7 +126,7 @@ jobs:
       - run: curl -o BuildTools.jar https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
       - run: java -jar BuildTools.jar --rev 1.18.2
       - run: java -jar BuildTools.jar --rev 1.19.4
-      - run: java -jar BuildTools.jar --rev 1.20.1
+      - run: java -jar BuildTools.jar --rev 1.20.2
       - run: java VersionTrimmer 1.18-to-1.20
       - run: ./gradlew build --no-daemon
       - uses: actions/upload-artifact@v3
