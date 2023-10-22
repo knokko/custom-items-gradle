@@ -190,7 +190,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.name = "";
         this.alias = "";
 
-        this.displayName = "";
+        this.displayName = "&f";
         this.lore = new ArrayList<>(0);
 
         this.itemFlags = ItemFlag.getDefaultValuesList();
