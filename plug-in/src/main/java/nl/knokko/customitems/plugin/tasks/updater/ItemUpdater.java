@@ -478,8 +478,8 @@ public class ItemUpdater {
 		 */
 		List<Boolean> oldFlags = oldItem.getItemFlags();
 		List<Boolean> newFlags = newItem.getItemFlags();
-		boolean hadAttributes = oldItem.getAttributeModifiers().size() > 0;
-		boolean hasAttributes = newItem.getAttributeModifiers().size() > 0;
+		boolean hadAttributes = !oldItem.getAttributeModifiers().isEmpty();
+		boolean hasAttributes = !newItem.getAttributeModifiers().isEmpty();
 		ItemFlag[] allFlags = ItemFlag.values();
 		for (int flagIndex = 0; flagIndex < allFlags.length; flagIndex++) {
 			boolean oldHasFlag = flagIndex < oldFlags.size() && oldFlags.get(flagIndex);
@@ -498,7 +498,8 @@ public class ItemUpdater {
 							org.bukkit.inventory.ItemFlag.valueOf(currentFlag.name())
 					);
 				}
-			} else if (oldHasFlag != newHasFlag) {
+			}
+			if ((currentFlag != ItemFlag.HIDE_ATTRIBUTES || hadAttributes == hasAttributes) && oldHasFlag != newHasFlag) {
 				if (newHasFlag) {
 					toUpgrade.addItemFlags(
 							org.bukkit.inventory.ItemFlag.valueOf(currentFlag.name())
