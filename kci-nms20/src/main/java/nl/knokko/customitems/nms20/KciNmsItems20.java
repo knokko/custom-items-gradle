@@ -9,8 +9,8 @@ import nl.knokko.customitems.nms.CustomItemNBT;
 import nl.knokko.customitems.nms.GeneralItemNBT;
 import nl.knokko.customitems.nms.RawAttribute;
 import nl.knokko.customitems.nms16plus.KciNmsItems16Plus;
-import org.bukkit.craftbukkit.v1_20_R1.CraftEquipmentSlot;
-import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R2.CraftEquipmentSlot;
+import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 

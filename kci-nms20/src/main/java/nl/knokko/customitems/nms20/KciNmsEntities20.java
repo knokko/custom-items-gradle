@@ -5,8 +5,8 @@ import net.minecraft.world.entity.projectile.EntityTippedArrow;
 import net.minecraft.world.phys.Vec3D;
 import nl.knokko.customitems.nms16plus.KciNmsEntities16Plus;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_20_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_20_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_20_R2.CraftWorld;
+import org.bukkit.craftbukkit.v1_20_R2.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 
@@ -20,7 +20,7 @@ class KciNmsEntities20 extends KciNmsEntities16Plus {
                 projectilePositionX, projectileMotionY, projectileMotionZ);
 
         net.minecraft.world.entity.Entity nmsEntity = ((CraftEntity) toDamage).getHandle();
-        DamageSource indirectDamageSource = nmsEntity.dJ().a(fakeArrow, ((CraftEntity) responsibleShooter).getHandle());
+        DamageSource indirectDamageSource = nmsEntity.dM().a(fakeArrow, ((CraftEntity) responsibleShooter).getHandle());
 
         nmsEntity.a(indirectDamageSource, damage);
     }
@@ -44,7 +44,7 @@ class KciNmsEntities20 extends KciNmsEntities16Plus {
                 lineStartLocation.getZ() + safeUpperBound * direction.getZ()
         );
 
-        Optional<Vec3D> intersection = nmsEntity.cE().b(lineStart, lineEnd);
+        Optional<Vec3D> intersection = nmsEntity.cG().b(lineStart, lineEnd);
         return intersection.map(vec3D -> Math.sqrt(vec3D.g(lineStart))).orElse(Double.POSITIVE_INFINITY);
     }
 }

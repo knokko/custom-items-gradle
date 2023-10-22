@@ -10,7 +10,7 @@ import org.bukkit.util.Vector;
 @SuppressWarnings("unused")
 public class KciNms20 extends KciNms {
 
-    public static final String NMS_VERSION_STRING = "1_20_R1";
+    public static final String NMS_VERSION_STRING = "1_20_R2";
 
     public KciNms20() {
         super(new KciNmsBlocks16Plus(), new KciNmsEntities20(), new KciNmsItems20());

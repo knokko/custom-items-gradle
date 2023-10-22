@@ -4,7 +4,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.item.ItemStack;
 import nl.knokko.customitems.nms.BooleanRepresentation;
 import nl.knokko.customitems.nms.CustomItemNBT;
-import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
 
 class CustomItemNBT20 implements CustomItemNBT {
 

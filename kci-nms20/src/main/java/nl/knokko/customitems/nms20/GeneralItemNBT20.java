@@ -2,7 +2,7 @@ package nl.knokko.customitems.nms20;
 
 import net.minecraft.nbt.NBTTagCompound;
 import nl.knokko.customitems.nms.GeneralItemNBT;
-import org.bukkit.craftbukkit.v1_20_R1.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 
 class GeneralItemNBT20 implements GeneralItemNBT {
