@@ -113,6 +113,7 @@ class ResourcepackBlockOverrider {
                         vanillaModelWriter.println(defaultScanner.nextLine());
                     }
                     vanillaModelWriter.flush();
+                    zipOutput.closeEntry();
                     defaultScanner.close();
                 }
             }

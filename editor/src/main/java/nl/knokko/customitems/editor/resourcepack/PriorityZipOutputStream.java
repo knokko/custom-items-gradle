@@ -34,6 +34,11 @@ public class PriorityZipOutputStream extends ZipOutputStream {
     }
 
     @Override
+    public void flush() throws IOException {
+        if (!isSkipping) super.flush();
+    }
+
+    @Override
     public void closeEntry() throws IOException {
         if (!isSkipping) super.closeEntry();
     }
