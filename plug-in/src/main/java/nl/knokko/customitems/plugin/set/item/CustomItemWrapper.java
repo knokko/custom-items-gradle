@@ -105,7 +105,7 @@ public abstract class CustomItemWrapper {
         }
         Map<EnchantmentType, Integer> defaultEnchantmentMap = new HashMap<>();
         for (EnchantmentValues enchantment : this.item.getDefaultEnchantments()) {
-            BukkitEnchantments.add(item, enchantment.getType(), enchantment.getLevel());
+            item = BukkitEnchantments.add(item, enchantment.getType(), enchantment.getLevel());
             defaultEnchantmentMap.put(enchantment.getType(), enchantment.getLevel());
         }
 

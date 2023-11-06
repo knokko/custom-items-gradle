@@ -12,17 +12,21 @@ public class CrazyEnchantmentsSupport {
 	static CrazyEnchantmentsFunctions crazyEnchantmentsFunctions;
 
 	public static void onEnable() {
+		String testClass = "com.badbones69.crazyenchantments.paper.api.enums.CEnchantments";
 		try {
-			Class.forName(
-					"com.badbones69.crazyenchantments.api.enums.CEnchantments"
-			);
+			Class.forName(testClass);
+		} catch (ClassNotFoundException ex) {
+			Bukkit.getLogger().info("Can't load class " + testClass + ", so I assume Crazy Enchantments is not installed.");
+			return;
+		}
 
-			// Load support for this plugin
+		// Load support for this plugin
+		try {
 			Bukkit.getPluginManager().registerEvents((Listener) Class.forName(
 					"nl.knokko.customitems.plugin.multisupport.crazyenchantments.CrazyEnchantmentsEventHandler"
 			).getDeclaredConstructor().newInstance(), CustomItemsPlugin.getInstance());
 		} catch (ClassNotFoundException ex) {
-			Bukkit.getLogger().info("Can't load class com.badbones69.crazyenchantments.api.enums.CEnchantments, so I assume Crazy Enchantments is not installed.");
+			throw new Error("KCI should be able to instantiate its own CrazyEnchantments support", ex);
 		} catch (InstantiationException e) {
 			throw new Error("It should be possible to instantiate CrazyEnchantmentsEventHandler", e);
 		} catch (IllegalAccessException e) {

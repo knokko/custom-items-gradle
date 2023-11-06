@@ -18,7 +18,6 @@ import nl.knokko.customitems.plugin.util.AttributeMerger;
 import nl.knokko.customitems.recipe.result.UpgradeResultValues;
 import nl.knokko.customitems.recipe.upgrade.UpgradeValues;
 import nl.knokko.customitems.util.StringEncoder;
-import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -177,7 +176,9 @@ public class ItemUpgrader {
 
             if (result.shouldKeepOldEnchantments()) {
                 assert nonKciEnchantments != null;
-                nonKciEnchantments.forEach((enchantment, level) -> BukkitEnchantments.add(newStack, enchantment, level));
+                for (Map.Entry<EnchantmentType, Integer> entry : nonKciEnchantments.entrySet()) {
+                    newStack = BukkitEnchantments.add(newStack, entry.getKey(), entry.getValue());
+                }
             }
 
             UpgradeResultValues newResult = result.copy(true);
@@ -217,14 +218,14 @@ public class ItemUpgrader {
                 allNewAttributes.toArray(new RawAttribute[0])
         );
 
-        ItemUpdater.applyEnchantmentAdjustments(currentStack, enchantmentAdjustments);
+        currentStack = ItemUpdater.applyEnchantmentAdjustments(currentStack, enchantmentAdjustments);
 
         if (!result.shouldKeepOldEnchantments()) {
             assert nonKciEnchantments != null;
             for (Map.Entry<EnchantmentType, Integer> entry : nonKciEnchantments.entrySet()) {
                 int newLevel = BukkitEnchantments.getLevel(currentStack, entry.getKey()) - entry.getValue();
-                if (newLevel > 0) BukkitEnchantments.add(currentStack, entry.getKey(), newLevel);
-                else BukkitEnchantments.remove(currentStack, entry.getKey());
+                if (newLevel > 0) currentStack = BukkitEnchantments.add(currentStack, entry.getKey(), newLevel);
+                else currentStack = BukkitEnchantments.remove(currentStack, entry.getKey());
             }
         }
 

@@ -146,8 +146,8 @@ project(':editor') {
 //        //compileOnly project(':plug-in') // Uncomment this line in development
 //        //compileOnly project(':shared-code') // Uncomment this line in development
 //        compileOnly files('../CustomItems.jar') // Comment this line out in development
-//        compileOnly 'com.badbones69.crazyenchantments:crazyenchantments-api:1.9.9.4-rc'
-//        compileOnly 'org.spigotmc:spigot:1.19.4-R0.1-SNAPSHOT'
+//        compileOnly 'com.badbones69.crazyenchantments:crazyenchantments-paper-api:2.1.2'
+//        compileOnly 'org.spigotmc:spigot:1.20.2-R0.1-SNAPSHOT'
 //    }
 //}
 // MARKER END CE EVENT HANDLER

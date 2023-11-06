@@ -1,10 +1,10 @@
 package nl.knokko.customitems.plugin.multisupport.crazyenchantments;
 
-import com.badbones69.crazyenchantments.CrazyEnchantments;
-import com.badbones69.crazyenchantments.api.CrazyManager;
-import com.badbones69.crazyenchantments.api.enums.CEnchantments;
-import com.badbones69.crazyenchantments.api.events.HellForgedUseEvent;
-import com.badbones69.crazyenchantments.api.objects.CEnchantment;
+import com.badbones69.crazyenchantments.paper.CrazyEnchantments;
+import com.badbones69.crazyenchantments.paper.api.CrazyManager;
+import com.badbones69.crazyenchantments.paper.api.enums.CEnchantments;
+import com.badbones69.crazyenchantments.paper.api.events.HellForgedUseEvent;
+import com.badbones69.crazyenchantments.paper.api.objects.CEnchantment;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomToolValues;
 import nl.knokko.customitems.plugin.set.item.CustomToolWrapper;
@@ -32,12 +32,12 @@ public class CrazyEnchantmentsEventHandler implements Listener {
 
 			@Override
 			public int getLevel(ItemStack itemStack, String enchantmentName) {
-				return fromName(enchantmentName).getLevel(itemStack);
+				return CEnchantments.getFromName(enchantmentName).getLevel(itemStack);
 			}
 
 			@Override
 			public ItemStack add(ItemStack itemStack, String enchantmentName, int level) {
-				return crazyManager().addEnchantment(itemStack, fromName(enchantmentName), level);
+				return crazyManager().addEnchantment(itemStack, crazyManager().getEnchantmentFromName(enchantmentName), level);
 			}
 
 			@Override

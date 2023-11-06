@@ -40,7 +40,7 @@ public class BukkitEnchantments {
         }
     }
 
-    public static void add(ItemStack itemStack, EnchantmentType enchantment, int level) {
+    public static ItemStack add(ItemStack itemStack, EnchantmentType enchantment, int level) {
         if (!isForThisMcVersion(enchantment)) {
             throw new IllegalArgumentException("Enchantment " + enchantment + " is not supported by this MC version: " + KciNms.mcVersion);
         }
@@ -48,14 +48,15 @@ public class BukkitEnchantments {
             itemStack.addUnsafeEnchantment(vanillaEnchantment(enchantment), level);
         } else if (enchantment.provider == CustomEnchantmentProvider.CRAZY_ENCHANTMENTS) {
             if (CrazyEnchantmentsSupport.getCrazyEnchantmentsFunctions(true) != null) {
-                CrazyEnchantmentsSupport.getCrazyEnchantmentsFunctions(true).add(itemStack, enchantment.getKey(), level);
+                return CrazyEnchantmentsSupport.getCrazyEnchantmentsFunctions(true).add(itemStack, enchantment.getKey(), level);
             }
         } else {
             throw new Error("Unknown enchantment provider: " + enchantment.provider);
         }
+        return itemStack;
     }
 
-    public static void remove(ItemStack itemStack, EnchantmentType enchantment) {
+    public static ItemStack remove(ItemStack itemStack, EnchantmentType enchantment) {
         if (!isForThisMcVersion(enchantment)) {
             throw new IllegalArgumentException("Enchantment " + enchantment + " is not supported by this MC version: " + KciNms.mcVersion);
         }
@@ -63,10 +64,11 @@ public class BukkitEnchantments {
             itemStack.removeEnchantment(vanillaEnchantment(enchantment));
         } else if (enchantment.provider == CustomEnchantmentProvider.CRAZY_ENCHANTMENTS) {
             if (CrazyEnchantmentsSupport.getCrazyEnchantmentsFunctions(true) != null) {
-                CrazyEnchantmentsSupport.getCrazyEnchantmentsFunctions(true).remove(itemStack, enchantment.getKey());
+                return CrazyEnchantmentsSupport.getCrazyEnchantmentsFunctions(true).remove(itemStack, enchantment.getKey());
             }
         } else {
             throw new Error("Unknown enchantment provider: " + enchantment.provider);
         }
+        return itemStack;
     }
 }

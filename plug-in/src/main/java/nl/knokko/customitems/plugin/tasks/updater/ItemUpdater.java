@@ -596,17 +596,19 @@ public class ItemUpdater {
 		return adjustments;
 	}
 
-	static void applyEnchantmentAdjustments(ItemStack itemStack, Map<EnchantmentType, Integer> adjustments) {
+	static ItemStack applyEnchantmentAdjustments(ItemStack itemStack, Map<EnchantmentType, Integer> adjustments) {
 		for (Map.Entry<EnchantmentType, Integer> enchantmentEntry : adjustments.entrySet()) {
 			EnchantmentType enchantment = enchantmentEntry.getKey();
 			int level = enchantmentEntry.getValue();
 
 			if (level != 0) {
 				int newLevel = BukkitEnchantments.getLevel(itemStack, enchantment) + level;
-				if (newLevel > 0) BukkitEnchantments.add(itemStack, enchantment, newLevel);
-				else BukkitEnchantments.remove(itemStack, enchantment);
+				if (newLevel > 0) itemStack = BukkitEnchantments.add(itemStack, enchantment, newLevel);
+				else itemStack = BukkitEnchantments.remove(itemStack, enchantment);
 			}
 		}
+
+		return itemStack;
 	}
 	
 	private ItemStack upgradeEnchantments(ItemStack toUpgrade, CustomItemValues oldItem, CustomItemValues newItem) {
@@ -641,7 +643,7 @@ public class ItemUpdater {
 		toUpgrade = nbt.backToBukkit();
 
 		Map<EnchantmentType, Integer> adjustments = determineEnchantmentAdjustments(oldKciEnchantments, newKciEnchantments);
-		applyEnchantmentAdjustments(toUpgrade, adjustments);
+		toUpgrade = applyEnchantmentAdjustments(toUpgrade, adjustments);
 
 		return toUpgrade;
 	}
