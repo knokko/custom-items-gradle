@@ -19,6 +19,7 @@ import nl.knokko.gui.component.text.ConditionalTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
+import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -163,15 +164,21 @@ public class ChooseCustomModel extends GuiMenu {
                     float maxY = minY + 0.1f;
                     WrapperComponent<SimpleImageComponent> chosenImageComponent = new WrapperComponent<>(null);
                     addComponent(new DynamicTextComponent(originalImageName, LABEL), 0f, minY, 0.5f, maxY);
-                    addComponent(
-                            TextureEdit.createImageSelect(chosenTexture -> {
-                                imageMap.put(originalImageName, chosenTexture.getImage());
-                                chosenImageComponent.setComponent(new SimpleImageComponent(
-                                        state.getWindow().getTextureLoader().loadTexture(chosenTexture.getImage())
-                                ));
-                            }, errorComponent),
-                            0.55f, minY, 0.75f, maxY
-                    );
+                    addComponent(new DynamicTextButton("Edit...", CHOOSE_BASE, CHOOSE_HOVER, () -> {
+                        FileDialog.open("png", errorComponent::setText,
+                                errorComponent.getState().getWindow().getMainComponent(), chosenFile -> {
+                                    try {
+                                        BufferedImage image = ImageIO.read(chosenFile);
+                                        imageMap.put(originalImageName, image);
+                                        chosenImageComponent.setComponent(new SimpleImageComponent(
+                                                state.getWindow().getTextureLoader().loadTexture(image)
+                                        ));
+                                    } catch (IOException error) {
+                                        errorComponent.setText(error.getMessage());
+                                    }
+                                }
+                        );
+                    }), 0.55f, minY, 0.75f, maxY);
                     addComponent(chosenImageComponent, 0.8f, minY, 1f, maxY);
 
                     index += 1;
