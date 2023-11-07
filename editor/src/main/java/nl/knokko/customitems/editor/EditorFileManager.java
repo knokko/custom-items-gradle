@@ -89,7 +89,7 @@ public class EditorFileManager {
         OutputStream backupOutput = Files.newOutputStream(
                 new File(BACKUPS_FOLDER + "/" + fileName + " " + System.currentTimeMillis() + ".cisb").toPath());
         backupOutput.write(bytes);
-        mainOutput.flush();
+        backupOutput.flush();
         backupOutput.close();
 
         Collection<ItemSetBackups> newBackups = getAllBackups();
