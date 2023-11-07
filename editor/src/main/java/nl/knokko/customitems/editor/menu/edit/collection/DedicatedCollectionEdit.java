@@ -1,5 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.collection;
 
+import nl.knokko.customitems.editor.menu.edit.misc.DeleteConfirmMenu;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.gui.color.GuiColor;
@@ -141,12 +142,15 @@ public abstract class DedicatedCollectionEdit<V extends ModelValues, R extends S
                     }
                     if (canDeleteModels()) {
                         addComponent(new DynamicTextButton("Delete", QUIT_BASE, QUIT_HOVER, () -> {
-                            String error = deleteModel(modelReference);
-                            if (error == null) {
-                                refresh();
-                            } else {
-                                errorComponent.setText(error);
-                            }
+                            state.getWindow().setMainComponent(new DeleteConfirmMenu(
+                                    DedicatedCollectionEdit.this, getModelLabel(modelReference.get()), () -> {
+                                String error = deleteModel(modelReference);
+                                if (error == null) {
+                                    refresh();
+                                } else {
+                                    errorComponent.setText(error);
+                                }
+                            }));
                         }), 0.84f, minY, 0.99f, maxY);
                     }
                     minY -= 0.1f;
