@@ -69,22 +69,38 @@ public class EditorFileManager {
         fileOutput.close();
     }
 
-    public static void saveAndBackUp(ItemSet itemSet, String fileName) throws IOException {
-        FOLDER.mkdirs();
-        BACKUPS_FOLDER.mkdirs();
+    public static void backUp(ItemSet itemSet, String fileName) {
+        try {
+            backUpAndMaybeSave(itemSet, fileName, false);
+        } catch (IOException uhOoh) {
+            // Since back-ups are done silently, there is no good place to log their failures
+            //noinspection CallToPrintStackTrace
+            uhOoh.printStackTrace();
+        }
+    }
 
-        // cisb stands for Custom Item Set Builder
-        File file = new File(FOLDER + "/" + fileName + ".cisb");
+    public static void saveAndBackUp(ItemSet itemSet, String fileName) throws IOException {
+        backUpAndMaybeSave(itemSet, fileName, true);
+    }
+
+    private static void backUpAndMaybeSave(ItemSet itemSet, String fileName, boolean save) throws IOException {
+        if (save) FOLDER.mkdirs();
+        BACKUPS_FOLDER.mkdirs();
 
         ByteArrayBitOutput output = new ByteArrayBitOutput();
         itemSet.save(output, ItemSet.Side.EDITOR);
         output.terminate();
         byte[] bytes = output.getBytes();
 
-        OutputStream mainOutput = Files.newOutputStream(file.toPath());
-        mainOutput.write(bytes);
-        mainOutput.flush();
-        mainOutput.close();
+        if (save) {
+            // cisb stands for Custom Item Set Builder
+            File file = new File(FOLDER + "/" + fileName + ".cisb");
+
+            OutputStream mainOutput = Files.newOutputStream(file.toPath());
+            mainOutput.write(bytes);
+            mainOutput.flush();
+            mainOutput.close();
+        }
 
         OutputStream backupOutput = Files.newOutputStream(
                 new File(BACKUPS_FOLDER + "/" + fileName + " " + System.currentTimeMillis() + ".cisb").toPath());
@@ -92,6 +108,10 @@ public class EditorFileManager {
         backupOutput.flush();
         backupOutput.close();
 
+        cleanOldBackUps();
+    }
+
+    private static void cleanOldBackUps() {
         Collection<ItemSetBackups> newBackups = getAllBackups();
         for (ItemSetBackups backup : newBackups) {
             Collection<Long> backupsToRemove = backup.cleanOldBackups(System.currentTimeMillis());

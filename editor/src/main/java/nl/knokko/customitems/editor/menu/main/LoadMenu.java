@@ -28,8 +28,11 @@ public class LoadMenu extends GuiMenu {
 			String fileName;
 			if (isBackup) fileName = file.getName().substring(0, file.getName().lastIndexOf(' '));
 			else fileName = file.getName().substring(0, file.getName().length() - 5);
+
 			ItemSet set = new ItemSet(input, ItemSet.Side.EDITOR, true);
+			set.createBackup = currentSet -> EditorFileManager.backUp(currentSet, fileName);
 			input.terminate();
+
 			errorComponent.getState().getWindow().setMainComponent(new EditMenu(set, fileName));
 		} catch(IOException failedToLoad) {
 			errorComponent.setText("Failed to load file: " + failedToLoad.getLocalizedMessage());

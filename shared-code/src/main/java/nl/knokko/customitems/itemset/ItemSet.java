@@ -46,6 +46,7 @@ import nl.knokko.customitems.worldgen.TreeGeneratorValues;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class ItemSet {
@@ -179,6 +180,9 @@ public class ItemSet {
 
     Collection<String> removedItemNames;
 
+    // When non-null, this function should be called occasionally
+    public Consumer<ItemSet> createBackup;
+
     final Side side;
 
     public ItemSet(Side side) {
@@ -235,6 +239,13 @@ public class ItemSet {
         }
 
         return true;
+    }
+
+    private void maybeCreateBackup() {
+        Consumer<ItemSet> createBackup = this.createBackup;
+        if (createBackup != null && Math.random() < 0.2) {
+            createBackup.accept(this);
+        }
     }
 
     public Map<CustomItemType, ItemDurabilityAssignments> assignInternalItemDamages() throws ValidationException {
@@ -1546,11 +1557,13 @@ public class ItemSet {
     public void setExportSettings(ExportSettingsValues newExportSettings) throws ValidationException, ProgrammingValidationException {
         newExportSettings.validate();
         this.exportSettings = newExportSettings;
+        maybeCreateBackup();
     }
 
     public void addCombinedResourcepack(CombinedResourcepackValues newPack) throws ValidationException, ProgrammingValidationException {
         newPack.validate(this, null, null);
         this.combinedResourcepacks.add(new CombinedResourcepack(newPack));
+        maybeCreateBackup();
     }
 
     public void changeCombinedResourcepack(
@@ -1559,22 +1572,26 @@ public class ItemSet {
         if (!isReferenceValid(packToChange)) throw new ProgrammingValidationException("Pack to change is invalid");
         newPackValues.validate(this, packToChange.get().getName(), packToChange.get().getPriority());
         packToChange.getModel().setValues(newPackValues);
+        maybeCreateBackup();
     }
 
     public void addTexture(BaseTextureValues newTexture) throws ValidationException, ProgrammingValidationException {
         newTexture.validateComplete(this, null);
         this.textures.add(new CustomTexture(newTexture));
+        maybeCreateBackup();
     }
 
     public void changeTexture(TextureReference textureToChange, BaseTextureValues newTextureValues) throws ValidationException, ProgrammingValidationException {
         if (!isReferenceValid(textureToChange)) throw new ProgrammingValidationException("Texture to change is invalid");
         newTextureValues.validateComplete(this, textureToChange.get().getName());
         textureToChange.getModel().setValues(newTextureValues);
+        maybeCreateBackup();
     }
 
     public void addArmorTexture(ArmorTextureValues newTexture) throws ValidationException, ProgrammingValidationException {
         newTexture.validate(this, null);
         this.armorTextures.add(new ArmorTexture(newTexture));
+        maybeCreateBackup();
     }
 
     public void changeArmorTexture(
@@ -1583,6 +1600,7 @@ public class ItemSet {
         if (!isReferenceValid(textureToChange)) throw new ProgrammingValidationException("Armor texture to change is invalid");
         newTextureValues.validate(this, textureToChange.get().getName());
         textureToChange.getModel().setValues(newTextureValues);
+        maybeCreateBackup();
     }
 
     public int findFreeFancyPantsArmorRgb() {
@@ -1602,6 +1620,7 @@ public class ItemSet {
     public void addFancyPantsArmorTexture(FancyPantsArmorTextureValues newTexture) throws ValidationException, ProgrammingValidationException {
         newTexture.validate(this, null);
         this.fancyPantsArmorTextures.add(new FancyPantsArmorTexture(newTexture));
+        maybeCreateBackup();
     }
 
     public void changeFancyPantsArmorTexture(
@@ -1610,22 +1629,26 @@ public class ItemSet {
         if (!isReferenceValid(textureToChange)) throw new ProgrammingValidationException("FP texture to change is invalid");
         newTextureValues.validate(this, textureToChange.get().getId());
         textureToChange.getModel().setValues(newTextureValues);
+        maybeCreateBackup();
     }
 
     public void addItem(CustomItemValues newItem) throws ValidationException, ProgrammingValidationException {
         newItem.validateComplete(this, null);
         this.items.add(new CustomItem(newItem));
+        maybeCreateBackup();
     }
 
     public void changeItem(ItemReference itemToChange, CustomItemValues newItemValues) throws ValidationException, ProgrammingValidationException {
         if (!isReferenceValid(itemToChange)) throw new ProgrammingValidationException("Item to change is invalid");
         newItemValues.validateComplete(this, itemToChange.get().getName());
         itemToChange.getModel().setValues(newItemValues);
+        maybeCreateBackup();
     }
 
     public void addEquipmentSet(EquipmentSetValues newEquipmentSet) throws ValidationException, ProgrammingValidationException {
         newEquipmentSet.validate(this);
         this.equipmentSets.add(new EquipmentSet(newEquipmentSet));
+        maybeCreateBackup();
     }
 
     public void changeEquipmentSet(
@@ -1634,11 +1657,13 @@ public class ItemSet {
         if (!isReferenceValid(setToChange)) throw new ProgrammingValidationException("Equipment set is invalid");
         newSetValues.validate(this);
         setToChange.getModel().setValues(newSetValues);
+        maybeCreateBackup();
     }
 
     public void addDamageSource(CustomDamageSourceValues newDamageSource) throws ValidationException, ProgrammingValidationException {
         newDamageSource.validateComplete(this, null);
         this.damageSources.add(new CustomDamageSource(newDamageSource));
+        maybeCreateBackup();
     }
 
     public void changeDamageSource(
@@ -1646,11 +1671,13 @@ public class ItemSet {
     ) throws ValidationException, ProgrammingValidationException {
         newSourceValues.validateComplete(this, sourceToChange.get().getId());
         sourceToChange.getModel().setValues(newSourceValues);
+        maybeCreateBackup();
     }
 
     public void addRecipe(CraftingRecipeValues newRecipe) throws ValidationException, ProgrammingValidationException {
         newRecipe.validate(this, null);
         this.craftingRecipes.add(new CustomCraftingRecipe(newRecipe));
+        maybeCreateBackup();
     }
 
     public void changeRecipe(
@@ -1659,11 +1686,13 @@ public class ItemSet {
         if (!isReferenceValid(recipeToChange)) throw new ProgrammingValidationException("Recipe to change is invalid");
         newRecipeValues.validate(this, recipeToChange);
         recipeToChange.getModel().setValues(newRecipeValues);
+        maybeCreateBackup();
     }
 
     public void addUpgrade(UpgradeValues newUpgrade) throws ValidationException, ProgrammingValidationException {
         newUpgrade.validateComplete(this, null);
         this.upgrades.add(new Upgrade(newUpgrade));
+        maybeCreateBackup();
     }
 
     public void changeUpgrade(
@@ -1672,11 +1701,13 @@ public class ItemSet {
         if (!isReferenceValid(upgradeToChange)) throw new ProgrammingValidationException("Upgrade to change is invalid");
         newUpgradeValues.validateComplete(this, upgradeToChange.get().getId());
         upgradeToChange.getModel().setValues(newUpgradeValues);
+        maybeCreateBackup();
     }
 
     public void addBlockDrop(BlockDropValues newBlockDrop) throws ValidationException, ProgrammingValidationException {
         newBlockDrop.validate(this);
         blockDrops.add(new BlockDrop(newBlockDrop));
+        maybeCreateBackup();
     }
 
     public void changeBlockDrop(
@@ -1685,33 +1716,39 @@ public class ItemSet {
         if (!isReferenceValid(toChange)) throw new ProgrammingValidationException("Block drop to change is invalid");
         newValues.validate(this);
         toChange.getModel().setValues(newValues);
+        maybeCreateBackup();
     }
 
     public void addMobDrop(MobDropValues dropToAdd) throws ValidationException, ProgrammingValidationException {
         dropToAdd.validate(this);
         this.mobDrops.add(new MobDrop(dropToAdd));
+        maybeCreateBackup();
     }
 
     public void changeMobDrop(MobDropReference dropToChange, MobDropValues newValues) throws ValidationException, ProgrammingValidationException {
         if (!isReferenceValid(dropToChange)) throw new ProgrammingValidationException("Mob drop to be changed is invalid");
         newValues.validate(this);
         dropToChange.getModel().setValues(newValues);
+        maybeCreateBackup();
     }
 
     public void addProjectile(CustomProjectileValues projectileToAdd) throws ValidationException, ProgrammingValidationException {
         projectileToAdd.validate(this, null);
         this.projectiles.add(new CustomProjectile(projectileToAdd));
+        maybeCreateBackup();
     }
 
     public void changeProjectile(ProjectileReference projectileToChange, CustomProjectileValues newValues) throws ValidationException, ProgrammingValidationException {
         if (!isReferenceValid(projectileToChange)) throw new ProgrammingValidationException("Projectile to be changed is invalid");
         newValues.validate(this, projectileToChange.get().getName());
         projectileToChange.getModel().setValues(newValues);
+        maybeCreateBackup();
     }
 
     public void addProjectileCover(ProjectileCoverValues coverToAdd) throws ValidationException, ProgrammingValidationException {
         coverToAdd.validate(this, null);
         this.projectileCovers.add(new ProjectileCover(coverToAdd));
+        maybeCreateBackup();
     }
 
     public void changeProjectileCover(
@@ -1720,11 +1757,13 @@ public class ItemSet {
         if (!isReferenceValid(coverToChange)) throw new ProgrammingValidationException("Projectile cover to change is invalid");
         newValues.validate(this, coverToChange.get().getName());
         coverToChange.getModel().setValues(newValues);
+        maybeCreateBackup();
     }
 
     public void addContainer(CustomContainerValues containerToAdd) throws ValidationException, ProgrammingValidationException {
         containerToAdd.validate(this, null);
         this.containers.add(new CustomContainer(containerToAdd));
+        maybeCreateBackup();
     }
 
     public void changeContainer(
@@ -1733,11 +1772,13 @@ public class ItemSet {
         if (!isReferenceValid(containerToChange)) throw new ProgrammingValidationException("Container to change is invalid");
         newValues.validate(this, containerToChange.get().getName());
         containerToChange.getModel().setValues(newValues);
+        maybeCreateBackup();
     }
 
     public void addFuelRegistry(FuelRegistryValues registryToAdd) throws ValidationException, ProgrammingValidationException {
         registryToAdd.validate(this, null);
         this.fuelRegistries.add(new CustomFuelRegistry(registryToAdd));
+        maybeCreateBackup();
     }
 
     public void changeFuelRegistry(
@@ -1746,11 +1787,13 @@ public class ItemSet {
         if (!isReferenceValid(registryToChange)) throw new ProgrammingValidationException("Fuel registry to change is invalid");
         newValues.validate(this, registryToChange.get().getName());
         registryToChange.getModel().setValues(newValues);
+        maybeCreateBackup();
     }
 
     public void addEnergyType(EnergyTypeValues energyToAdd) throws ValidationException, ProgrammingValidationException {
         energyToAdd.validateComplete(this, null);
         this.energyTypes.add(new EnergyType(energyToAdd));
+        maybeCreateBackup();
     }
 
     public void changeEnergyType(
@@ -1759,11 +1802,13 @@ public class ItemSet {
         if (!isReferenceValid(energyToChange)) throw new ProgrammingValidationException("Energy type to change is invalid");
         newValues.validateComplete(this, energyToChange.get().getId());
         energyToChange.getModel().setValues(newValues);
+        maybeCreateBackup();
     }
 
     public void addSoundType(CustomSoundTypeValues soundToAdd) throws ValidationException, ProgrammingValidationException {
         soundToAdd.validate(this, null);
         this.soundTypes.add(new CustomSoundType(soundToAdd));
+        maybeCreateBackup();
     }
 
     public void changeSoundType(
@@ -1772,6 +1817,7 @@ public class ItemSet {
         if (!isReferenceValid(soundToChange)) throw new ProgrammingValidationException("Sound type to change is invalid");
         newValues.validate(this, soundToChange.get().getId());
         soundToChange.getModel().setValues(newValues);
+        maybeCreateBackup();
     }
 
     private int findFreeBlockId() throws ValidationException {
@@ -1785,17 +1831,20 @@ public class ItemSet {
         newBlock.setInternalId(this.findFreeBlockId());
         newBlock.validateComplete(this, null);
         this.blocks.add(new CustomBlock(newBlock));
+        maybeCreateBackup();
     }
 
     public void changeBlock(BlockReference blockToChange, CustomBlockValues newBlockValues) throws ValidationException, ProgrammingValidationException {
         if (!isReferenceValid(blockToChange)) throw new ProgrammingValidationException("Block to change is invalid");
         newBlockValues.validateComplete(this, blockToChange.get().getInternalID());
         blockToChange.getModel().setValues(newBlockValues);
+        maybeCreateBackup();
     }
 
     public void addOreVeinGenerator(OreVeinGeneratorValues toAdd) throws ValidationException, ProgrammingValidationException {
         toAdd.validate(this);
         this.oreVeinGenerators.add(new OreVeinGenerator(toAdd));
+        maybeCreateBackup();
     }
 
     public void changeOreVeinGenerator(
@@ -1804,11 +1853,13 @@ public class ItemSet {
         if (!isReferenceValid(generatorToChange)) throw new ProgrammingValidationException("Generator to change is invalid");
         newValues.validate(this);
         generatorToChange.getModel().setValues(newValues);
+        maybeCreateBackup();
     }
 
     public void addTreeGenerator(TreeGeneratorValues toAdd) throws ValidationException, ProgrammingValidationException {
         toAdd.validate(this);
         this.treeGenerators.add(new TreeGenerator(toAdd));
+        maybeCreateBackup();
     }
 
     public void changeTreeGenerator(
@@ -1817,6 +1868,7 @@ public class ItemSet {
         if (!isReferenceValid(generatorToChange)) throw new ProgrammingValidationException("Generator to change is invalid");
         newValues.validate(this);
         generatorToChange.getModel().setValues(newValues);
+        maybeCreateBackup();
     }
 
     private <T> void removeModel(Collection<T> collection, T model) throws ValidationException, ProgrammingValidationException {
@@ -1834,6 +1886,8 @@ public class ItemSet {
             collection.add(model);
             throw new ValidationException(errorMessage);
         }
+
+        maybeCreateBackup();
     }
 
     public void removeCombinedResourcepack(CombinedResourcepackReference packToRemove) throws ValidationException, ProgrammingValidationException {

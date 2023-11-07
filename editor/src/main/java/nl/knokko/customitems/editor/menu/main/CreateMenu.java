@@ -45,7 +45,14 @@ public class CreateMenu extends GuiMenu {
 		addComponent(new DynamicTextButton("Create", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
 			String error = testFileName(fileName.getText() + ".cisb");
 			if (error != null) errorComponent.setText(error);
-			else state.getWindow().setMainComponent(new EditMenu(new ItemSet(ItemSet.Side.EDITOR), fileName.getText()));
+			else {
+				ItemSet itemSet = new ItemSet(ItemSet.Side.EDITOR);
+				String itemSetName = fileName.getText();
+
+				itemSet.createBackup = currentSet -> EditorFileManager.backUp(currentSet, itemSetName);
+
+				state.getWindow().setMainComponent(new EditMenu(itemSet, itemSetName));
+			}
 		}), 0.35f, 0.25f, 0.65f, 0.35f);
 		
 		HelpButtons.addHelpLink(this, "main%20menu/create.html");
