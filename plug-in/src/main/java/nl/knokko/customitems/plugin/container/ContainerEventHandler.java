@@ -24,10 +24,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.inventory.InventoryAction;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -375,7 +372,7 @@ public class ContainerEventHandler implements Listener {
 					} else {
 						
 						// Some other inventory action occurred
-						// I don't know whether or not this should be allowed
+						// I don't know whether this should be allowed
 						// But better safe than sorry
 						event.setCancelled(true);
 					}
@@ -398,9 +395,11 @@ public class ContainerEventHandler implements Listener {
 					}
 				} else {
 
+					// Prevent players from moving their opened pocket container
 					if (event.getSlot() == player.getInventory().getHeldItemSlot()) {
 						if (itemSet.getItem(event.getCurrentItem()) instanceof CustomPocketContainerValues) {
 							event.setCancelled(true);
+							return;
 						}
 					}
 
@@ -411,7 +410,7 @@ public class ContainerEventHandler implements Listener {
 						// I'm afraid I can't see to which slot the item will be
 						// transferred, so better safe than sorry.
 						event.setCancelled(true);
-						
+
 						ItemStack toTransfer = event.getCurrentItem();
 						CustomItemValues customTransfer = itemSet.getItem(toTransfer);
 
