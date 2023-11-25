@@ -54,10 +54,10 @@ class MimicItemRegistry implements BukkitItemsRegistry {
     static void load(CustomItemsPlugin plugin) {
         try {
             loadModern(plugin);
-            Bukkit.getLogger().info("Enabling modern Mimic integration");
+            Bukkit.getLogger().info("Enabled modern Mimic integration");
         } catch (NoSuchMethodError useLegacy) {
             loadLegacy(plugin);
-            Bukkit.getLogger().info("Enabling legacy Mimic integration");
+            Bukkit.getLogger().info("Enabled legacy Mimic integration");
         }
     }
 

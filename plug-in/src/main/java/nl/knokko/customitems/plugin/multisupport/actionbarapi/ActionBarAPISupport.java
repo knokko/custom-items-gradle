@@ -12,11 +12,25 @@ public class ActionBarAPISupport {
     private static Method sendActionBarMethod;
 
     static {
-        try {
-            Class<?> actionBarClass = Class.forName("com.connorlinfoot.actionbarapi.ActionBarAPI");
-            sendActionBarMethod = actionBarClass.getMethod("sendActionBar", Player.class, String.class);
-        } catch (ClassNotFoundException | NoSuchMethodException e) {
-            Bukkit.getLogger().info("Couldn't load support for ActionBarAPI. (This is fine if it is not installed.)");
+        String[] classNames = {
+                "com.connorlinfoot.actionbarapi.ActionBarAPI",
+                "de.ancash.actionbar.ActionBarAPI"
+        };
+        for (String className : classNames) {
+            try {
+                Class<?> actionBarClass = Class.forName(className);
+                sendActionBarMethod = actionBarClass.getMethod("sendActionBar", Player.class, String.class);
+                break;
+            } catch (ClassNotFoundException | NoSuchMethodException ignored) {}
+        }
+
+        if (sendActionBarMethod != null) {
+            Bukkit.getLogger().info("Enabled ActionBarAPI integration");
+        } else {
+            Bukkit.getLogger().info(
+                    "Disabled OPTIONAL ActionBarAPI integration: can't find "
+                            + classNames[0] + " or " + classNames[1]
+            );
         }
     }
 
