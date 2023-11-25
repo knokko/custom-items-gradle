@@ -16,7 +16,7 @@ public class CrazyEnchantmentsSupport {
 		try {
 			Class.forName(testClass);
 		} catch (ClassNotFoundException ex) {
-			Bukkit.getLogger().info("Can't load class " + testClass + ", so I assume Crazy Enchantments is not installed.");
+			Bukkit.getLogger().info("Disabled OPTIONAL CrazyEnchantments integration: can't find " + testClass);
 			return;
 		}
 
@@ -25,6 +25,7 @@ public class CrazyEnchantmentsSupport {
 			Bukkit.getPluginManager().registerEvents((Listener) Class.forName(
 					"nl.knokko.customitems.plugin.multisupport.crazyenchantments.CrazyEnchantmentsEventHandler"
 			).getDeclaredConstructor().newInstance(), CustomItemsPlugin.getInstance());
+			Bukkit.getLogger().info("Enabled CrazyEnchantments integration");
 		} catch (ClassNotFoundException ex) {
 			throw new Error("KCI should be able to instantiate its own CrazyEnchantments support", ex);
 		} catch (InstantiationException e) {

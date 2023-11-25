@@ -7,19 +7,21 @@ import org.bukkit.inventory.ItemStack;
 
 public class ItemBridgeSupport {
 
+    private static final String TEST_CLASS = "com.jojodmo.itembridge.ItemBridgeListener";
+
     public static void onEnable(CustomItemsPlugin plugin) {
         try {
-            Class.forName("com.jojodmo.itembridge.ItemBridgeListener");
+            Class.forName(TEST_CLASS);
             KciItemBridgeListener.setup(plugin);
-            Bukkit.getLogger().info("Enabling ItemBridge plug-in support");
+            Bukkit.getLogger().info("Enabled ItemBridge integration");
         } catch (ClassNotFoundException noItemBridge) {
-            Bukkit.getLogger().info("The ItemBridge plug-in doesn't seem to be installed, so support for it won't be enabled.");
+            Bukkit.getLogger().info("Disabled OPTIONAL ItemBridge integration: can't find " + TEST_CLASS);
         }
     }
 
     public static ItemStack fetchItem(String id, int amount) {
         try {
-            Class.forName("com.jojodmo.itembridge.ItemBridgeListener");
+            Class.forName(TEST_CLASS);
             return KciItemBridgeListener.fetchItem(id, amount);
         } catch (ClassNotFoundException noItemBridge) {
             Bukkit.getLogger().severe("Can't fetch ItemBridge item " + id + " because ItemBridge is not installed");
@@ -29,7 +31,7 @@ public class ItemBridgeSupport {
 
     public static boolean isItem(ItemStack candidate, String fullId) {
         try {
-            Class.forName("com.jojodmo.itembridge.ItemBridgeListener");
+            Class.forName(TEST_CLASS);
             return KciItemBridgeListener.isBridgeItem(candidate, fullId);
         } catch (ClassNotFoundException noItemBridge) {
             Bukkit.getLogger().severe("Can't check ItemBridge item " + fullId + " because ItemBridge is not installed");
