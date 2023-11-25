@@ -81,7 +81,8 @@ class WikiProjectileGenerator {
 
             Collection<CustomItemValues> gunsAndWands = itemSet.getItems().stream().filter(candidateItem -> {
                 if (candidateItem instanceof CustomWandValues) {
-                    return ((CustomWandValues) candidateItem).getProjectile().getName().equals(projectile.getName());
+                    CustomProjectileValues wandProjectile = ((CustomWandValues) candidateItem).getProjectile();
+                    return wandProjectile != null && wandProjectile.getName().equals(projectile.getName());
                 } else if (candidateItem instanceof CustomGunValues) {
                     return ((CustomGunValues) candidateItem).getProjectile().getName().equals(projectile.getName());
                 } else {

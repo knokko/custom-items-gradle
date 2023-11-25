@@ -50,6 +50,7 @@ allprojects {
         maven { url = 'https://repo.crazycrew.us/releases' }
         maven { url = 'https://repo.citizensnpcs.co' }
         maven { url = 'https://jitpack.io' }
+        maven { url = 'https://maven.elmakers.com/repository/' }
 
         mavenLocal()
         maven { url = 'https://repo.skriptlang.org/releases' }
@@ -96,6 +97,7 @@ project(':plug-in') {
         compileOnly 'com.github.jojodmo:ItemBridge:master-SNAPSHOT'
         compileOnly 'com.github.SkriptLang:Skript:2.6'
         compileOnly 'com.denizenscript:denizen:1.2.5-SNAPSHOT'
+        compileOnly 'com.elmakers.mine.bukkit:MagicAPI:7.5'
 
         testImplementation project(':bit-helper')
         testImplementation 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'

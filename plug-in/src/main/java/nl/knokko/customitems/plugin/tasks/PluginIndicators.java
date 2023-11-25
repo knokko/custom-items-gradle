@@ -1,9 +1,6 @@
 package nl.knokko.customitems.plugin.tasks;
 
-import nl.knokko.customitems.item.CustomGunValues;
-import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.item.CustomToolValues;
-import nl.knokko.customitems.item.CustomWandValues;
+import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.config.LanguageFile;
@@ -71,7 +68,14 @@ public class PluginIndicators {
                             .replace("%REMAINING_TIME%", formatTime(wandInfo.remainingCooldown)) + " ";
                 }
 
-                String actionBarMessage = chargesString + rechargeString + cooldownString;
+                String manaString = "";
+                if (wandInfo.currentMana < wandInfo.maxMana && wand.getManaCost() > 0f) {
+                    manaString = lang.getWandManaIndicator()
+                            .replace("%CURRENT_MANA%", wandInfo.currentMana + "")
+                            .replace("%MAX_MANA%", wandInfo.maxMana + "") + " ";
+                }
+
+                String actionBarMessage = chargesString + rechargeString + cooldownString + manaString;
                 if (!actionBarMessage.isEmpty()) {
                     ActionBarAPISupport.sendActionBar(player, actionBarMessage);
                     seesIndicator.add(player.getUniqueId());

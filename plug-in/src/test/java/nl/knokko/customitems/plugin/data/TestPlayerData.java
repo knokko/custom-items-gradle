@@ -68,12 +68,12 @@ public class TestPlayerData {
 		PlayerData data = new PlayerData();
 		
 		// Add data for the WITHOUT wand, to test if the discarding works well
-		assertTrue(data.shootIfAllowed(WITHOUT, 12, true));
+		assertTrue(data.shootIfAllowed(WITHOUT, 12, true, new float[1]));
 		
 		// Convert it to bits
 		ByteArrayBitOutput output = new ByteArrayBitOutput();
 		data.save1(output, 10);
-		assertTrue(data.shootIfAllowed(dummyWand, 15, true));
+		assertTrue(data.shootIfAllowed(dummyWand, 15, true, new float[1]));
 		data.save1(output, 17);
 		data.save1(output, 20);
 		output.terminate();
@@ -85,9 +85,9 @@ public class TestPlayerData {
 		PlayerData afterShoot = PlayerData.load1(input, wrappedSet, dummyLogger);
 		input.terminate();
 		
-		assertTrue(beforeShoot.shootIfAllowed(dummyWand, 10, true));
-		assertFalse(rightAfterShoot.shootIfAllowed(dummyWand, 17, true));
-		assertTrue(afterShoot.shootIfAllowed(dummyWand, 20, true));
+		assertTrue(beforeShoot.shootIfAllowed(dummyWand, 10, true, new float[1]));
+		assertFalse(rightAfterShoot.shootIfAllowed(dummyWand, 17, true, new float[1]));
+		assertTrue(afterShoot.shootIfAllowed(dummyWand, 20, true, new  float[1]));
 	}
 
 	private ItemSetWrapper createTestItemSet2() throws ValidationException, ProgrammingValidationException {
@@ -130,8 +130,8 @@ public class TestPlayerData {
 		playerDataToSave.commandCooldowns.setOnCooldown(dummyWand, ItemCommandEvent.MELEE_ATTACK_ENTITY, 0, 10);
 
 		// Add data for the WITHOUT wand, to test if the discarding works well
-		assertTrue(playerDataToSave.shootIfAllowed(WITHOUT, 12, true));
-		assertTrue(playerDataToSave.shootIfAllowed(dummyWand, 15, true));
+		assertTrue(playerDataToSave.shootIfAllowed(WITHOUT, 12, true, new float[1]));
+		assertTrue(playerDataToSave.shootIfAllowed(dummyWand, 15, true, new float[1]));
 
 		// Convert it to bits
 		ByteArrayBitOutput output = new ByteArrayBitOutput();
@@ -146,7 +146,7 @@ public class TestPlayerData {
 		assertEquals(-1234, input.readInt());
 		input.terminate();
 
-		assertFalse(loadedPlayerData.shootIfAllowed(dummyWand, 17, true));
+		assertFalse(loadedPlayerData.shootIfAllowed(dummyWand, 17, true, new float[1]));
 		assertTrue(loadedPlayerData.commandCooldowns.isOnCooldown(dummyWand, ItemCommandEvent.MELEE_ATTACK_ENTITY, 0, 17));
 	}
 
@@ -160,7 +160,7 @@ public class TestPlayerData {
 		assertEquals(-1234, input.readInt());
 		input.terminate();
 
-		assertFalse(loadedPlayerData.shootIfAllowed(dummyWand, 17, true));
+		assertFalse(loadedPlayerData.shootIfAllowed(dummyWand, 17, true, new float[1]));
 		assertTrue(loadedPlayerData.commandCooldowns.isOnCooldown(dummyWand, ItemCommandEvent.MELEE_ATTACK_ENTITY, 0, 17));
 	}
 
@@ -178,9 +178,9 @@ public class TestPlayerData {
 		PlayerData rightAfterShoot = PlayerData.load1(input, wrappedSet, dummyLogger);
 		PlayerData afterShoot = PlayerData.load1(input, wrappedSet, dummyLogger);
 
-		assertTrue(beforeShoot.shootIfAllowed(dummyWand, 10, true));
-		assertFalse(rightAfterShoot.shootIfAllowed(dummyWand, 17, true));
-		assertTrue(afterShoot.shootIfAllowed(dummyWand, 20, true));
+		assertTrue(beforeShoot.shootIfAllowed(dummyWand, 10, true, new float[1]));
+		assertFalse(rightAfterShoot.shootIfAllowed(dummyWand, 17, true, new float[1]));
+		assertTrue(afterShoot.shootIfAllowed(dummyWand, 20, true, new float[1]));
 	}
 	
 	@Test
@@ -211,14 +211,14 @@ public class TestPlayerData {
 		assertTrue(data.clean(16 + PlayerData.SHOOT_TIME));
 		
 		// Now check if clean returns false when something is on cooldown
-		assertTrue(data.shootIfAllowed(WITHOUT, 100, true));
+		assertTrue(data.shootIfAllowed(WITHOUT, 100, true, new float[1]));
 		assertFalse(data.clean(100));
 		
 		// And returns true when the cooldown expired
 		assertTrue(data.clean(125));
 		
 		// Now try the charges
-		assertTrue(data.shootIfAllowed(WITH, 200, true));
+		assertTrue(data.shootIfAllowed(WITH, 200, true, new float[1]));
 		assertFalse(data.clean(201));
 		assertFalse(data.clean(205));
 		assertTrue(data.clean(220));
@@ -242,5 +242,34 @@ public class TestPlayerData {
 		assertFalse(data.clean(250));
 		assertFalse(data.clean(260));
 		assertTrue(data.clean(270));
+	}
+
+	@Test
+	public void testManaHandling() {
+		// Create a dummy set
+		ItemSetWrapper wrappedSet = createDummyItemSet1();
+		CustomWandValues dummyWand = (CustomWandValues) wrappedSet.getItem("with_charges_one").copy(true);
+		dummyWand.setManaCost(5);
+
+		PlayerData data = new PlayerData();
+
+		// Not enough mana to shoot, don't set cooldown
+		float[] mana = { 4f };
+		assertFalse(data.shootIfAllowed(dummyWand, 100, true, mana));
+		assertEquals(4f, mana[0], 0f);
+
+		// Just enough mana to shoot, set on cooldown
+		mana[0] = 5f;
+		assertTrue(data.shootIfAllowed(dummyWand, 101, true, mana));
+		assertEquals(0f, mana[0], 0f);
+
+		// Still on cooldown, no mana is consumed
+		mana[0] = 500f;
+		assertFalse(data.shootIfAllowed(dummyWand, 102, true, mana));
+		assertEquals(500f, mana[0], 0f);
+
+		// Cooldown expired, can shoot again
+		assertTrue(data.shootIfAllowed(dummyWand, 10_000, true, mana));
+		assertEquals(495f, mana[0], 0f);
 	}
 }

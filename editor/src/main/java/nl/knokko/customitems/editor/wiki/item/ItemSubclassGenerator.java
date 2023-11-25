@@ -1,6 +1,5 @@
 package nl.knokko.customitems.editor.wiki.item;
 
-import nl.knokko.customitems.NameHelper;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.damage.DamageSource;
 import nl.knokko.customitems.editor.wiki.WikiDamageSourceGenerator;
@@ -14,7 +13,6 @@ import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
-import nl.knokko.customitems.sound.SoundValues;
 
 import java.io.PrintWriter;
 
@@ -76,9 +74,11 @@ class ItemSubclassGenerator {
 
     private void generateWandOrGunProperties(
             PrintWriter output, CustomProjectileValues projectile, int amountPerShot, int cooldown, String action) {
-        output.println("\t\tProjectile: <a href=\"../projectiles/" + projectile.getName() + ".html\">" + projectile.getName() + "</a><br>");
-        if (amountPerShot != 1) {
-            output.println("\t\tFires " + amountPerShot + " projectiles per " + action + "<br>");
+        if (projectile != null) {
+            output.println("\t\tProjectile: <a href=\"../projectiles/" + projectile.getName() + ".html\">" + projectile.getName() + "</a><br>");
+            if (amountPerShot != 1) {
+                output.println("\t\tFires " + amountPerShot + " projectiles per " + action + "<br>");
+            }
         }
         if (cooldown > 1) {
             output.println("\t\tCooldown: " + cooldown + " ticks<br>");
@@ -94,7 +94,16 @@ class ItemSubclassGenerator {
             if (wand.getCharges() != null) {
                 output.println("\t\t" + wand.getCharges().getMaxCharges() + " with " + wand.getCharges().getRechargeTime() + " ticks recharge time<br>");
             }
-            if(wand.requiresPermission()){
+            if (wand.getManaCost() > 0f) {
+                output.println(String.format("\t\tUses %.2f mana per swing<br>", wand.getManaCost()));
+            }
+            if (!wand.getMagicSpells().isEmpty()) {
+                output.println("\t\tThis wand has the following spells:");
+                output.println("\t\t<ul>");
+                for (String spell : wand.getMagicSpells()) output.println("\t\t\t<li>" + spell + "</li>");
+                output.println("\t\t</ul>");
+            }
+            if (wand.requiresPermission()){
                 output.println("\t\t<h3>Permissions: </h3>");
                 output.println("\t\tPlayers need <b>customitems.shootall</b> or <b>customitems.shoot." +item.getName() + "</b> to use this wand.");
             }
