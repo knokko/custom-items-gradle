@@ -11,6 +11,9 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+import com.elmakers.mine.bukkit.api.magic.Mage;
+import com.elmakers.mine.bukkit.api.spell.MageSpell;
+import com.elmakers.mine.bukkit.api.spell.SpellTemplate;
 import nl.knokko.customitems.container.ContainerStorageMode;
 import nl.knokko.customitems.container.CustomContainerHost;
 import nl.knokko.customitems.container.CustomContainerValues;
@@ -24,6 +27,7 @@ import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.nms.GeneralItemNBT;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.events.CustomFoodEatEvent;
+import nl.knokko.customitems.plugin.multisupport.magic.MagicSupport;
 import nl.knokko.customitems.plugin.util.ContainerHelper;
 import nl.knokko.customitems.plugin.util.SoundPlayer;
 import nl.knokko.customitems.plugin.multisupport.worldguard.WorldGuardSupport;
@@ -411,13 +415,17 @@ public class PluginData {
 			if (data.isShooting(currentTick)) {
 				CustomItemValues mainItem = itemSet.getItem(current.getInventory().getItemInMainHand());
 				CustomItemValues offItem = itemSet.getItem(current.getInventory().getItemInOffHand());
-				
-				if (hasPermissionToShoot(current, mainItem) && data.shootIfAllowed(mainItem, currentTick, true)) {
+
+				float[] pMana = { 0f };
+				Mage mage = MagicSupport.MAGIC != null ? MagicSupport.MAGIC.getController().getMage(current) : null;
+				if (mage != null) pMana[0] = mage.getMana();
+				if (hasPermissionToShoot(current, mainItem) && data.shootIfAllowed(mainItem, currentTick, true, pMana)) {
 					fire(current, data, mainItem, current.getInventory().getItemInMainHand(), true);
 				}
-				if (hasPermissionToShoot(current, offItem) && data.shootIfAllowed(offItem, currentTick, false)) {
+				if (hasPermissionToShoot(current, offItem) && data.shootIfAllowed(offItem, currentTick, false, pMana)) {
 					fire(current, data, offItem, current.getInventory().getItemInOffHand(), false);
 				}
+				if (mage != null) mage.setMana(pMana[0]);
 			} else {
 				iterator.remove();
 			}
@@ -616,6 +624,14 @@ public class PluginData {
 	}
 
 	public PlayerWandInfo getWandInfo(Player player, CustomWandValues wand) {
+		int currentMana = 0;
+		int maxMana = 0;
+		if (MagicSupport.MAGIC != null) {
+			Mage mage = MagicSupport.MAGIC.getController().getMage(player);
+			currentMana = (int) mage.getMana();
+			maxMana = mage.getManaMax();
+		}
+
 		PlayerData targetPlayerData = playerData.get(player.getUniqueId());
 		if (targetPlayerData != null) {
 		    PlayerWandData wandData = targetPlayerData.wandsData.get(wand);
@@ -623,9 +639,16 @@ public class PluginData {
 		    	return new PlayerWandInfo(
 		    			wandData.getRemainingCooldown(currentTick),
 						wandData.getCurrentCharges(wand, currentTick),
-						wandData.getTimeUntilNextRecharge(wand, currentTick)
+						wandData.getTimeUntilNextRecharge(wand, currentTick),
+						currentMana, maxMana
 				);
 			}
+		}
+
+		if (currentMana < maxMana) {
+			WandChargeValues charges = wand.getCharges();
+			int maxCharges = charges != null ? charges.getMaxCharges() : 1;
+			return new PlayerWandInfo(0, maxCharges, 0, currentMana, maxMana);
 		}
 
 		return null;
@@ -848,9 +871,40 @@ public class PluginData {
 	private void fire(Player player, PlayerData data, CustomItemValues weapon, ItemStack weaponStack, boolean isMainhand) {
 		if (weapon instanceof CustomWandValues) {
 			CustomWandValues wand = (CustomWandValues) weapon;
-			
-			for (int counter = 0; counter < wand.getAmountPerShot(); counter++)
-				CustomItemsPlugin.getInstance().getProjectileManager().fireProjectile(player, wand.getProjectile());
+
+			if (wand.getProjectile() != null) {
+				for (int counter = 0; counter < wand.getAmountPerShot(); counter++)
+					CustomItemsPlugin.getInstance().getProjectileManager().fireProjectile(player, wand.getProjectile());
+			}
+
+			if (MagicSupport.MAGIC == null && !wand.getMagicSpells().isEmpty()) {
+				Bukkit.getLogger().warning("Wand " + wand.getName() + " has Magic spells, but Magic isn't installed");
+			}
+
+			if (MagicSupport.MAGIC != null) {
+				Mage mage = MagicSupport.MAGIC.getController().getMage(player);
+				boolean wasCostFree = mage.isCostFree();
+				mage.setCostFree(true);
+
+				for (String spellName : wand.getMagicSpells()) {
+					SpellTemplate template = MagicSupport.MAGIC.getController().getSpellTemplate(spellName);
+					if (template == null) {
+						Bukkit.getLogger().warning("Can't find Magic spell " + spellName);
+						continue;
+					}
+					MageSpell spell = (MageSpell) template.createSpell();
+					if (spell == null) {
+						Bukkit.getLogger().warning("Failed to create Magic spell " + spellName + " from template");
+						continue;
+					}
+					spell.setMage(mage);
+					if (!spell.cast()) {
+						Bukkit.getLogger().warning("Failed to cast Magic spell " + spellName);
+					}
+				}
+
+				mage.setCostFree(wasCostFree);
+			}
 		} else if (weapon instanceof CustomGunValues) {
 
 			CustomGunValues gun = (CustomGunValues) weapon;

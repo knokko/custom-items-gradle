@@ -117,6 +117,10 @@ public class CommandCustomItems implements CommandExecutor {
 					).handle(args, sender, enableOutput);
 					break;
 				}
+				case "magic": {
+					if (enableOutput) new CommandCustomItemsMagic().handle(sender);
+					break;
+				}
 				default:
 					return !enableOutput;
 			}

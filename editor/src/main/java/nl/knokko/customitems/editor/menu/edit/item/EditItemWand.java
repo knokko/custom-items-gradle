@@ -14,7 +14,10 @@ import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
 import nl.knokko.gui.component.image.CheckboxComponent;
+import nl.knokko.gui.component.menu.TextListEditMenu;
+import nl.knokko.gui.component.text.EagerFloatEditField;
 import nl.knokko.gui.component.text.EagerIntEditField;
+import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 public class EditItemWand extends EditItemBase<CustomWandValues> {
@@ -42,7 +45,7 @@ public class EditItemWand extends EditItemBase<CustomWandValues> {
 				menu.getSet().getProjectiles().references(),
 				currentValues::setProjectile,
 				projectile -> projectile.get().getName(),
-				currentValues.getProjectileReference(), false
+				currentValues.getProjectileReference(), true
 		), BUTTON_X2, 0.8f, BUTTON_X2 + 0.15f, 0.85f);
 		
 		addComponent(
@@ -113,13 +116,24 @@ public class EditItemWand extends EditItemBase<CustomWandValues> {
 				new EagerIntEditField(currentValues.getCooldown(), 1, EDIT_BASE, EDIT_ACTIVE, currentValues::setCooldown),
 				BUTTON_X2, 0.56f, BUTTON_X2 + 0.05f, 0.61f
 		);
-		addComponent(new DynamicTextComponent("Requires permission", LABEL), LABEL_X2 - 0.2f, 0.5f, LABEL_X2, 0.55f);
+		addComponent(new DynamicTextComponent("Mana cost [MAGIC]:", LABEL), LABEL_X2 - 0.18f, 0.5f, LABEL_X2, 0.55f);
+		addComponent(new EagerFloatEditField(
+				currentValues.getManaCost(), 0f, Float.MAX_VALUE, EDIT_BASE, EDIT_ACTIVE, currentValues::setManaCost
+		), BUTTON_X2, 0.5f, BUTTON_X2 + 0.07f, 0.55f);
+		addComponent(new DynamicTextComponent("Requires permission", LABEL), LABEL_X2 - 0.2f, 0.44f, LABEL_X2, 0.49f);
 		addComponent(
 				new CheckboxComponent(currentValues.requiresPermission(), currentValues::setRequiresPermission),
-				LABEL_X2 - 0.23f, 0.51f, LABEL_X2 - 0.21f, 0.53f
+				LABEL_X2 - 0.23f, 0.44f, LABEL_X2 - 0.21f, 0.47f
 		);
-		
-		HelpButtons.addHelpLink(this, "edit%20menu/items/edit/wand.html");
+		addComponent(new DynamicTextButton("Spells... [MAGIC]", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new TextListEditMenu(
+					this, currentValues::setMagicSpells, BACKGROUND,
+					CANCEL_BASE, CANCEL_HOVER, SAVE_BASE, SAVE_HOVER,
+					EDIT_BASE, EDIT_ACTIVE, currentValues.getMagicSpells()
+			));
+		}), BUTTON_X2, 0.38f, BUTTON_X2 + 0.15f, 0.43f);
+
+		HelpButtons.addHelpLink(this, "edit menu/items/edit/wand.html");
 	}
 
 	@Override

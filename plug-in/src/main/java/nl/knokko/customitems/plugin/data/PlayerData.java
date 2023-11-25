@@ -153,14 +153,17 @@ class PlayerData {
 	 * @return true if the player was allowed to fire projectiles and the cooldown has been set, false
 	 * if the player wasn't allowed to fire projectiles
 	 */
-	public boolean shootIfAllowed(CustomItemValues weapon, long currentTick, boolean isMainhand) {
+	public boolean shootIfAllowed(CustomItemValues weapon, long currentTick, boolean isMainhand, float[] pMana) {
 		if (weapon instanceof CustomWandValues) {
 			CustomWandValues wand = (CustomWandValues) weapon;
 			PlayerWandData data = wandsData.get(wand);
-			
+
+			if (pMana[0] < wand.getManaCost()) return false;
+
 			if (data != null) {
 				if (data.canShootNow(wand, currentTick)) {
 					data.onShoot(wand, currentTick);
+					pMana[0] -= wand.getManaCost();
 					return true;
 				} else {
 					return false;
@@ -169,6 +172,7 @@ class PlayerData {
 				data = new PlayerWandData(wand);
 				wandsData.put(wand, data);
 				data.onShoot(wand, currentTick);
+				pMana[0] -= wand.getManaCost();
 				return true;
 			}
 		} else if (weapon instanceof CustomGunValues) {

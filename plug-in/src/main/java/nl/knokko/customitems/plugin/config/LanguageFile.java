@@ -14,6 +14,7 @@ public class LanguageFile {
 	
 	private static final String DEFAULT_DURABILITY_PREFIX = "Durability";
 	private static final String DEFAULT_WAND_COOLDOWN_INDICATOR = ChatColor.AQUA + "Cooldown in %REMAINING_TIME%";
+	private static final String DEFAULT_WAND_MANA_INDICATOR = ChatColor.AQUA + "Mana: %CURRENT_MANA% / %MAX_MANA%";
 	private static final String DEFAULT_WAND_CHARGES_INDICATOR = ChatColor.YELLOW + "%CURRENT_CHARGES% / %MAX_CHARGES% charges";
 	private static final String DEFAULT_WAND_RECHARGE_INDICATOR = ChatColor.GREEN + "Recharge in %REMAINING_TIME%";
 	private static final String DEFAULT_INDIRECT_STORED_AMMO = "Stored ammo:";
@@ -34,6 +35,7 @@ public class LanguageFile {
 	
 	private static final String KEY_DURABILITY_PREFIX = "durability-prefix";
 	private static final String KEY_WAND_COOLDOWN_INDICATOR = "wand-cooldown-indicator";
+	private static final String KEY_WAND_MANA_INDICATOR = "wand-mana-indicator";
 	private static final String KEY_WAND_CHARGES_INDICATOR = "wand-charges-indicator";
 	private static final String KEY_WAND_RECHARGE_INDICATOR = "wand-recharge-indicator";
 	private static final String KEY_INDIRECT_STORED_AMMO = "indirect-gun-stored-ammo";
@@ -54,6 +56,7 @@ public class LanguageFile {
 	
 	private String durabilityPrefix;
 	private String wandCooldownIndicator;
+	private String wandManaIndicator;
 	private String wandChargesIndicator;
 	private String wandRechargeIndicator;
 	private String indirectStoredAmmo;
@@ -114,6 +117,10 @@ public class LanguageFile {
 
 	public String getWandCooldownIndicator() {
 		return wandCooldownIndicator;
+	}
+
+	public String getWandManaIndicator() {
+		return wandManaIndicator;
 	}
 
 	public String getWandChargesIndicator() {
@@ -183,6 +190,7 @@ public class LanguageFile {
 	public void load(YamlConfiguration config) {
 		durabilityPrefix = config.getString(KEY_DURABILITY_PREFIX, DEFAULT_DURABILITY_PREFIX);
 		wandCooldownIndicator = config.getString(KEY_WAND_COOLDOWN_INDICATOR, DEFAULT_WAND_COOLDOWN_INDICATOR);
+		wandManaIndicator = config.getString(KEY_WAND_MANA_INDICATOR, DEFAULT_WAND_MANA_INDICATOR);
 		wandChargesIndicator = config.getString(KEY_WAND_CHARGES_INDICATOR, DEFAULT_WAND_CHARGES_INDICATOR);
 		wandRechargeIndicator = config.getString(KEY_WAND_RECHARGE_INDICATOR, DEFAULT_WAND_RECHARGE_INDICATOR);
 		indirectStoredAmmo = config.getString(KEY_INDIRECT_STORED_AMMO, DEFAULT_INDIRECT_STORED_AMMO);
@@ -203,6 +211,7 @@ public class LanguageFile {
 	public void setDefaults() {
 		durabilityPrefix = DEFAULT_DURABILITY_PREFIX;
 		wandCooldownIndicator = DEFAULT_WAND_COOLDOWN_INDICATOR;
+		wandManaIndicator = DEFAULT_WAND_MANA_INDICATOR;
 		wandChargesIndicator = DEFAULT_WAND_CHARGES_INDICATOR;
 		wandRechargeIndicator = DEFAULT_WAND_RECHARGE_INDICATOR;
 		indirectStoredAmmo = DEFAULT_INDIRECT_STORED_AMMO;
@@ -223,6 +232,7 @@ public class LanguageFile {
 	public void save(YamlConfiguration config) {
 		config.set(KEY_DURABILITY_PREFIX, durabilityPrefix);
 		config.set(KEY_WAND_COOLDOWN_INDICATOR, wandCooldownIndicator);
+		config.set(KEY_WAND_MANA_INDICATOR, wandManaIndicator);
 		config.set(KEY_WAND_CHARGES_INDICATOR, wandChargesIndicator);
 		config.set(KEY_WAND_RECHARGE_INDICATOR, wandRechargeIndicator);
 		config.set(KEY_INDIRECT_STORED_AMMO, indirectStoredAmmo);
