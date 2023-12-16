@@ -2,7 +2,6 @@ package nl.knokko.customitems.editor.menu.edit.item.damage;
 
 import nl.knokko.customitems.damage.DamageSource;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.editor.menu.edit.item.damage.EditCustomDamageResistances;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.DamageResistanceValues;
 import nl.knokko.customitems.itemset.ItemSet;
@@ -55,8 +54,8 @@ public class EditDamageResistances extends GuiMenu {
 			onApply.accept(resistances);
 		}), 0.025f, 0.1f, 0.15f, 0.2f);
 		for (int index = 0; index < damageSources.length; index++) {
-			int indexX = index / 7;
-			int indexY = index % 7;
+			int indexX = index % 4;
+			int indexY = index / 4;
 			float x = 0.2f + 0.2f * indexX;
 			float y = 0.7f - 0.1f * indexY;
 			DamageSource source = damageSources[index];
@@ -69,7 +68,7 @@ public class EditDamageResistances extends GuiMenu {
 		}
 		addComponent(errorComponent, 0.05f, 0.9f, 0.95f, 1f);
 
-		HelpButtons.addHelpLink(this, "edit%20menu/items/edit/damage%20resistances.html");
+		HelpButtons.addHelpLink(this, "edit menu/items/edit/damage resistances.html");
 	}
 	
 	@Override
