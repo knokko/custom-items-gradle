@@ -111,6 +111,11 @@ public class CommandCustomItems implements CommandExecutor {
 					if (enableOutput) new CommandCustomItemsTag().handle(sender);
 					break;
 				}
+				case "resourcepack": {
+					new CommandCustomItemsResourcePack(
+							CustomItemsPlugin.getInstance().getItemSetLoader()
+					).handle(args, sender, enableOutput);
+				}
 				default:
 					return !enableOutput;
 			}

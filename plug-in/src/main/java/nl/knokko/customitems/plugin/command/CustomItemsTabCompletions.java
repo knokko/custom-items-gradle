@@ -29,9 +29,10 @@ public class CustomItemsTabCompletions implements TabCompleter {
     private List<String> getRootCompletions(CommandSender sender, boolean showDisableOutput) {
         List<String> result = Lists.newArrayList(
                 "give", "take", "list", "debug", "encode", "reload", "repair",
-                "damage", "setblock", "container", "playsound", "tag"
+                "damage", "setblock", "container", "playsound", "tag", "resourcepack"
         ).stream().filter(
-                element -> element.equals("container") || sender.hasPermission("customitems." + element) ||
+                element -> element.equals("container") || element.equals("resourcepack")
+                        || sender.hasPermission("customitems." + element) ||
                         (element.equals("give") && itemSet.get().getItems().stream().anyMatch(
                                 item -> sender.hasPermission("customitems.give." + item.getName())
                         ))
@@ -104,6 +105,11 @@ public class CustomItemsTabCompletions implements TabCompleter {
                     result.add(sound.getName());
                 }
                 return filter(result, prefix);
+            }
+
+            if (first.equals("resourcepack") && sender.hasPermission("customitems.resourcepack.otherplayers")) {
+                List<String> names = Bukkit.getOnlinePlayers().stream().map(HumanEntity::getName).collect(Collectors.toList());
+                return filter(names, prefix);
             }
         } else if (args.length == 3) {
             String first = args[0];

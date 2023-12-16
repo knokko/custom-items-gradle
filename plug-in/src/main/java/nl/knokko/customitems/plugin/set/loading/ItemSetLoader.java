@@ -15,6 +15,7 @@ import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.StringEncoder;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -63,17 +64,21 @@ public class ItemSetLoader implements Listener {
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this::refreshResourcePack, refreshPeriod, refreshPeriod);
     }
 
-    @EventHandler
-    public void sendResourcePack(PlayerJoinEvent event) {
+    public void sendResourcePack(Player player) {
         if (busy.tryAcquire()) {
             try {
                 if (currentHashes != null) {
-                    event.getPlayer().setResourcePack(GET_RESOURCE_PACK_PREFIX + currentHashes.getSha256Hex(), currentHashes.sha1);
+                    player.setResourcePack(GET_RESOURCE_PACK_PREFIX + currentHashes.getSha256Hex(), currentHashes.sha1);
                 }
             } finally {
                 busy.release();
             }
         }
+    }
+
+    @EventHandler
+    public void sendResourcePack(PlayerJoinEvent event) {
+        sendResourcePack(event.getPlayer());
     }
 
     @EventHandler

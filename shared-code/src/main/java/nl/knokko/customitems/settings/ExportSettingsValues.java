@@ -49,8 +49,9 @@ public class ExportSettingsValues extends ModelValues {
         super(mutable);
         this.mcVersion = VERSION1_12;
         this.mode = Mode.AUTOMATIC;
-        this.reloadMessage = "The server resource pack has changed. You can get the new resource pack by logging out and back in." +
-                " Note that you will probably freeze for several seconds while downloading it, so please do this at a safe location.";
+        this.reloadMessage = "The server resource pack has changed. You can get the new resource pack by " +
+                "logging out and back in, or by executing /kci resourcepack. Note that either way, you will " +
+                "probably freeze for several seconds while downloading it, so please do this at a safe location.";
         this.kickUponReject = false;
         this.forceRejectMessage = "You must accept the server resource pack. If you didn't get the chance to accept it, " +
                 "check out https://knokko.github.io/resource-pack-host/accept.html";
