@@ -12,13 +12,14 @@ import java.util.Scanner;
 public class ResourcePackHost {
 
     public static final int TIMEOUT = 5000;
-    public static final String PREFIX = "http://49.12.188.159/";
+    public static final String DEFAULT_ADDRESS = "http://49.12.188.159/";
 
     public static String upload(
+            String hostAddress,
             UploadFunction uploadFunction,
             UploadFailFunction uploadFailFunction
     ) throws IOException, ValidationException, ProgrammingValidationException {
-        URL url = new URL(PREFIX + "upload-resource-pack/");
+        URL url = new URL(hostAddress + "upload-resource-pack/");
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("POST");
         connection.setConnectTimeout(TIMEOUT);

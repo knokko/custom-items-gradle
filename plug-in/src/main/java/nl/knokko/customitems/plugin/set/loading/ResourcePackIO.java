@@ -19,7 +19,9 @@ import java.util.zip.ZipOutputStream;
 
 class ResourcePackIO {
 
-    static final String GET_RESOURCE_PACK_PREFIX = ResourcePackHost.PREFIX + "get-resource-pack/";
+    static String getResourcePackPrefix(String hostAddress) {
+        return hostAddress + "get-resource-pack/";
+    }
 
     static ResourcePackHashes computeHashes(File file) throws IOException, NoSuchAlgorithmException {
         DigestInputStream sha1Stream = new DigestInputStream(
@@ -59,8 +61,8 @@ class ResourcePackIO {
         if (closeDestination) destination.close();
     }
 
-    static boolean checkStatus(String sha256Hex) throws IOException {
-        URL url = new URL(GET_RESOURCE_PACK_PREFIX + sha256Hex);
+    static boolean checkStatus(String hostAddress, String sha256Hex) throws IOException {
+        URL url = new URL(getResourcePackPrefix(hostAddress) + sha256Hex);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("HEAD");
         connection.setConnectTimeout(ResourcePackHost.TIMEOUT);
@@ -72,8 +74,8 @@ class ResourcePackIO {
         else throw new IOException("Resource pack server returned " + responseCode + " (" + connection.getResponseMessage() + ")");
     }
 
-    static void downloadResourcePackPlusItems(File dataFolder, String sha256Hex) throws IOException {
-        URL url = new URL(GET_RESOURCE_PACK_PREFIX + sha256Hex);
+    static void downloadResourcePackPlusItems(String hostAddress, File dataFolder, String sha256Hex) throws IOException {
+        URL url = new URL(getResourcePackPrefix(hostAddress) + sha256Hex);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
         connection.setConnectTimeout(ResourcePackHost.TIMEOUT);
@@ -114,10 +116,10 @@ class ResourcePackIO {
         if (!foundItems) throw new IOException("Couldn't find items.cis.txt");
     }
 
-    static void upload(File file, Consumer<String> sendMessage) throws IOException {
+    static void upload(String hostAddress, File file, Consumer<String> sendMessage) throws IOException {
         try {
             ResourcePackHost.upload(
-                    uploadOutput -> {
+                    hostAddress, uploadOutput -> {
                         sendMessage.accept(ChatColor.BLUE + "Uploading resource pack to the resource pack server...");
                         propagate(
                                 Files.newInputStream(file.toPath()), true, uploadOutput,

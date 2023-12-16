@@ -31,7 +31,7 @@ import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
-import static nl.knokko.customitems.plugin.set.loading.ResourcePackIO.GET_RESOURCE_PACK_PREFIX;
+import static nl.knokko.customitems.plugin.set.loading.ResourcePackIO.getResourcePackPrefix;
 
 public class ItemSetLoader implements Listener {
 
@@ -68,7 +68,10 @@ public class ItemSetLoader implements Listener {
         if (busy.tryAcquire()) {
             try {
                 if (currentHashes != null) {
-                    player.setResourcePack(GET_RESOURCE_PACK_PREFIX + currentHashes.getSha256Hex(), currentHashes.sha1);
+                    player.setResourcePack(
+                            getResourcePackPrefix(itemSet.get().getExportSettings().getHostAddress())
+                                    + currentHashes.getSha256Hex(), currentHashes.sha1
+                    );
                 }
             } finally {
                 busy.release();
@@ -179,7 +182,7 @@ public class ItemSetLoader implements Listener {
         return true;
     }
 
-    private boolean reloadResourcePack(Consumer<String> sendSyncMessage) {
+    private boolean reloadResourcePack(String hostAddress, Consumer<String> sendSyncMessage) {
         lostResourcePack = false;
         File resourcePackFile = getResourcePackFile();
 
@@ -215,7 +218,7 @@ public class ItemSetLoader implements Listener {
             };
 
             try {
-                if (ResourcePackIO.checkStatus(newHashes.getSha256Hex())) {
+                if (ResourcePackIO.checkStatus(hostAddress, newHashes.getSha256Hex())) {
                     busy.release();
                     return;
                 }
@@ -226,7 +229,7 @@ public class ItemSetLoader implements Listener {
             }
 
             try {
-                ResourcePackIO.upload(resourcePackFile, sendAsyncMessage);
+                ResourcePackIO.upload(hostAddress, resourcePackFile, sendAsyncMessage);
                 Bukkit.getScheduler().callSyncMethod(plugin, Executors.callable((Runnable) () -> Bukkit.broadcastMessage(
                         itemSet.get().getExportSettings().getReloadMessage()
                 )));
@@ -247,10 +250,10 @@ public class ItemSetLoader implements Listener {
         return lastLoadError;
     }
 
-    public void reload(Consumer<String> sendMessage, String newSha256Hex) {
+    public void reload(Consumer<String> sendMessage, String newHostAddress, String newSha256Hex) {
         if (busy.tryAcquire()) {
             lastLoadError = null;
-            if (doReload(sendMessage, newSha256Hex)) busy.release();
+            if (doReload(sendMessage, newHostAddress, newSha256Hex)) busy.release();
         } else {
             sendMessage.accept(ChatColor.RED + "Another reload is still in progress. Please wait until it is finished");
         }
@@ -259,13 +262,13 @@ public class ItemSetLoader implements Listener {
     public void reload(Consumer<String> sendMessage) {
         if (busy.tryAcquire()) {
             lastLoadError = null;
-            if (doReload(sendMessage)) busy.release();
+            if (doReload(itemSet.get().getExportSettings().getHostAddress(), sendMessage)) busy.release();
         } else {
             sendMessage.accept(ChatColor.RED + "Another reload is still in progress. Please wait until it is finished");
         }
     }
 
-    private boolean doReload(Consumer<String> sendMessage, String newSha256Hex) {
+    private boolean doReload(Consumer<String> sendMessage, String newHostAddress, String newSha256Hex) {
         if (!ensureDataFolderExists(sendMessage)) return true;
 
         sendMessage.accept(ChatColor.BLUE + "Downloading content...");
@@ -273,9 +276,9 @@ public class ItemSetLoader implements Listener {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             Runnable nextSyncAction;
             try {
-                ResourcePackIO.downloadResourcePackPlusItems(dataFolder, newSha256Hex);
+                ResourcePackIO.downloadResourcePackPlusItems(newHostAddress, dataFolder, newSha256Hex);
                 nextSyncAction = () -> {
-                    if (doReload(sendMessage)) busy.release();
+                    if (doReload(newHostAddress, sendMessage)) busy.release();
                 };
             } catch (IOException downloadFailed) {
                 downloadFailed.printStackTrace();
@@ -290,7 +293,7 @@ public class ItemSetLoader implements Listener {
         return false;
     }
 
-    private boolean doReload(Consumer<String> sendMessage) {
+    private boolean doReload(String hostAddress, Consumer<String> sendMessage) {
         if (!ensureDataFolderExists(sendMessage)) return true;
 
         if (!itemSet.get().isEmpty() && pluginData != null && !pluginData.saveData()) {
@@ -299,7 +302,7 @@ public class ItemSetLoader implements Listener {
         }
 
         if (!reloadItems(sendMessage)) return true;
-        boolean shouldReleaseSemaphore = reloadResourcePack(sendMessage);
+        boolean shouldReleaseSemaphore = reloadResourcePack(hostAddress, sendMessage);
 
         pluginData = PluginData.loadData(itemSet);
 
@@ -319,7 +322,9 @@ public class ItemSetLoader implements Listener {
         if (currentHashes != null) {
             if (busy.tryAcquire()) {
                 try {
-                    if (!ResourcePackIO.checkStatus(currentHashes.getSha256Hex())) {
+                    if (!ResourcePackIO.checkStatus(
+                            itemSet.get().getExportSettings().getHostAddress(), currentHashes.getSha256Hex()
+                    )) {
                         logAsync(Level.WARNING, "The resource pack server lost the resource pack", null);
                         lostResourcePack = true;
                     }

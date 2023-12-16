@@ -7,7 +7,10 @@ import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
+import nl.knokko.customitems.util.ResourcePackHost;
 import nl.knokko.customitems.util.ValidationException;
+
+import java.util.Objects;
 
 import static nl.knokko.customitems.MCVersions.VERSION1_12;
 
@@ -15,12 +18,14 @@ public class ExportSettingsValues extends ModelValues {
 
     public static ExportSettingsValues load(BitInput input) throws UnknownEncodingException {
         byte encoding = input.readByte();
-        if (encoding != 1) throw new UnknownEncodingException("ExportSettings", encoding);
+        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("ExportSettings", encoding);
 
         ExportSettingsValues settings = new ExportSettingsValues(false);
         settings.mcVersion = input.readInt();
         settings.mode = Mode.valueOf(input.readString());
         settings.reloadMessage = input.readString();
+        if (encoding == 1) settings.hostAddress = ResourcePackHost.DEFAULT_ADDRESS;
+        else settings.hostAddress = input.readString();
 
         settings.kickUponReject = input.readBoolean();
         settings.forceRejectMessage = input.readString();
@@ -36,6 +41,7 @@ public class ExportSettingsValues extends ModelValues {
     private int mcVersion;
     private Mode mode;
     private String reloadMessage;
+    private String hostAddress;
 
     private boolean kickUponReject;
     private String forceRejectMessage;
@@ -52,6 +58,7 @@ public class ExportSettingsValues extends ModelValues {
         this.reloadMessage = "The server resource pack has changed. You can get the new resource pack by " +
                 "logging out and back in, or by executing /kci resourcepack. Note that either way, you will " +
                 "probably freeze for several seconds while downloading it, so please do this at a safe location.";
+        this.hostAddress = ResourcePackHost.DEFAULT_ADDRESS;
         this.kickUponReject = false;
         this.forceRejectMessage = "You must accept the server resource pack. If you didn't get the chance to accept it, " +
                 "check out https://knokko.github.io/resource-pack-host/accept.html";
@@ -68,6 +75,7 @@ public class ExportSettingsValues extends ModelValues {
         this.mcVersion = toCopy.getMcVersion();
         this.mode = toCopy.getMode();
         this.reloadMessage = toCopy.getReloadMessage();
+        this.hostAddress = toCopy.getHostAddress();
         this.kickUponReject = toCopy.shouldKickUponReject();
         this.forceRejectMessage = toCopy.getForceRejectMessage();
         this.optionalRejectMessage = toCopy.getOptionalRejectMessage();
@@ -77,11 +85,12 @@ public class ExportSettingsValues extends ModelValues {
     }
 
     public void save(BitOutput output) {
-        output.addByte((byte) 1);
+        output.addByte((byte) 2);
 
         output.addInt(mcVersion);
         output.addString(mode.name());
         output.addString(reloadMessage);
+        output.addString(hostAddress);
 
         output.addBoolean(kickUponReject);
         output.addString(forceRejectMessage);
@@ -102,6 +111,10 @@ public class ExportSettingsValues extends ModelValues {
 
     public String getReloadMessage() {
         return reloadMessage;
+    }
+
+    public String getHostAddress() {
+        return hostAddress;
     }
 
     public boolean shouldKickUponReject() {
@@ -145,6 +158,11 @@ public class ExportSettingsValues extends ModelValues {
         this.reloadMessage = reloadMessage;
     }
 
+    public void setHostAddress(String hostAddress) {
+        assertMutable();
+        this.hostAddress = Objects.requireNonNull(hostAddress);
+    }
+
     public void setKickUponReject(boolean kickUponReject) {
         assertMutable();
         this.kickUponReject = kickUponReject;
@@ -184,12 +202,30 @@ public class ExportSettingsValues extends ModelValues {
         return new ExportSettingsValues(this, mutable);
     }
 
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof ExportSettingsValues) {
+            ExportSettingsValues otherSettings = (ExportSettingsValues) other;
+            return mcVersion == otherSettings.mcVersion && mode == otherSettings.mode &&
+                    reloadMessage.equals(otherSettings.reloadMessage) &&
+                    hostAddress.equals(otherSettings.hostAddress)
+                    && forceRejectMessage.equals(otherSettings.forceRejectMessage)
+                    && optionalRejectMessage.equals(otherSettings.optionalRejectMessage)
+                    && kickUponReject == otherSettings.kickUponReject
+                    && forceFailedMessage.equals(otherSettings.forceFailedMessage)
+                    && optionalFailedMessage.equals(otherSettings.optionalFailedMessage)
+                    && kickUponFailedDownload == otherSettings.kickUponFailedDownload;
+        } else return false;
+    }
+
     public void validate() throws ValidationException, ProgrammingValidationException {
         if (mcVersion < MCVersions.FIRST_VERSION || mcVersion > MCVersions.LAST_VERSION) {
             throw new ValidationException("Unsupported MC version: " + mcVersion);
         }
         if (mode == null) throw new ProgrammingValidationException("No mode");
         if (reloadMessage == null) throw new ProgrammingValidationException("No reload message");
+        if (hostAddress == null) throw new ProgrammingValidationException("No host address");
+        if (hostAddress.isEmpty() && mode != Mode.MANUAL) throw new ValidationException("Host address can't be empty");
 
         if (forceRejectMessage == null) throw new ProgrammingValidationException("No force reject message");
         if ((mode == Mode.AUTOMATIC || mode == Mode.MIXED) && forceRejectMessage.isEmpty()) {

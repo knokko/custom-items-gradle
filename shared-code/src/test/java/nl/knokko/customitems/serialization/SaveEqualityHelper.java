@@ -40,6 +40,7 @@ public class SaveEqualityHelper {
             originalSet.save(bitOutput, side);
 
             ItemSet testSet = new ItemSet(new ByteArrayBitInput(bitOutput.getBytes()), side, true);
+            assertEquals(originalSet.getExportSettings(), testSet.getExportSettings());
             if (side == ItemSet.Side.EDITOR) {
                 assertEquals(originalSet.getCombinedResourcepacks().size(), testSet.getCombinedResourcepacks().size());
                 for (CombinedResourcepackValues originalPack : originalSet.getCombinedResourcepacks()) {

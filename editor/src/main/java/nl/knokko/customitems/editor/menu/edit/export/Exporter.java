@@ -59,7 +59,9 @@ public class Exporter {
         }
 
         if (exportSettings.getMode() == ExportSettingsValues.Mode.AUTOMATIC) {
-            progress.nextMenu = new AfterExportMenuAutomatic(returnMenu, pResourcePackHash[0]);
+            progress.nextMenu = new AfterExportMenuAutomatic(
+                    returnMenu, pResourcePackHash[0], exportSettings.getHostAddress()
+            );
         } else if (exportSettings.getMode() == ExportSettingsValues.Mode.MIXED) {
             progress.nextMenu = new AfterExportMenuMixed(returnMenu);
         } else if (exportSettings.getMode() == ExportSettingsValues.Mode.MANUAL) {
@@ -84,6 +86,7 @@ public class Exporter {
         byte[] textyBytes = StringEncoder.encodeTextyBytes(cisBytes, true);
 
         return ResourcePackHost.upload(
+                itemSet.getExportSettings().getHostAddress(),
                 uploadOutput -> {
                     new ResourcepackGenerator(itemSet).write(uploadOutput, textyBytes, false);
                     progress.status = STATUS_UPLOADING_RESOURCEPACK;
