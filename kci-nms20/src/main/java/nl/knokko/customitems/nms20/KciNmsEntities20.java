@@ -1,12 +1,18 @@
 package nl.knokko.customitems.nms20;
 
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.MinecraftKey;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.projectile.EntityTippedArrow;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.IMaterial;
 import net.minecraft.world.phys.Vec3D;
 import nl.knokko.customitems.nms16plus.KciNmsEntities16Plus;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_20_R2.CraftWorld;
-import org.bukkit.craftbukkit.v1_20_R2.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.util.Vector;
 
@@ -15,12 +21,17 @@ import java.util.Optional;
 class KciNmsEntities20 extends KciNmsEntities16Plus {
 
     @Override
-    public void causeFakeProjectileDamage(Entity toDamage, Entity responsibleShooter, float damage, double projectilePositionX, double projectilePositionY, double projectilePositionZ, double projectileMotionX, double projectileMotionY, double projectileMotionZ) {
+    public void causeFakeProjectileDamage(
+            Entity toDamage, Entity responsibleShooter, float damage,
+            double projectilePositionX, double projectilePositionY, double projectilePositionZ,
+            double projectileMotionX, double projectileMotionY, double projectileMotionZ
+    ) {
+        Item arrowItem = BuiltInRegistries.h.a(new MinecraftKey("arrow"));
         EntityTippedArrow fakeArrow = new EntityTippedArrow(((CraftWorld) toDamage.getWorld()).getHandle(),
-                projectilePositionX, projectileMotionY, projectileMotionZ);
+                projectilePositionX, projectileMotionY, projectileMotionZ, new ItemStack(arrowItem));
 
         net.minecraft.world.entity.Entity nmsEntity = ((CraftEntity) toDamage).getHandle();
-        DamageSource indirectDamageSource = nmsEntity.dM().a(fakeArrow, ((CraftEntity) responsibleShooter).getHandle());
+        DamageSource indirectDamageSource = nmsEntity.dN().a(fakeArrow, ((CraftEntity) responsibleShooter).getHandle());
 
         nmsEntity.a(indirectDamageSource, damage);
     }
@@ -44,7 +55,7 @@ class KciNmsEntities20 extends KciNmsEntities16Plus {
                 lineStartLocation.getZ() + safeUpperBound * direction.getZ()
         );
 
-        Optional<Vec3D> intersection = nmsEntity.cG().b(lineStart, lineEnd);
+        Optional<Vec3D> intersection = nmsEntity.cH().b(lineStart, lineEnd);
         return intersection.map(vec3D -> Math.sqrt(vec3D.g(lineStart))).orElse(Double.POSITIVE_INFINITY);
     }
 }

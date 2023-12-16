@@ -9,8 +9,8 @@ import nl.knokko.customitems.nms.CustomItemNBT;
 import nl.knokko.customitems.nms.GeneralItemNBT;
 import nl.knokko.customitems.nms.RawAttribute;
 import nl.knokko.customitems.nms16plus.KciNmsItems16Plus;
-import org.bukkit.craftbukkit.v1_20_R2.CraftEquipmentSlot;
-import org.bukkit.craftbukkit.v1_20_R2.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_20_R3.CraftEquipmentSlot;
+import org.bukkit.craftbukkit.v1_20_R3.inventory.CraftItemStack;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
@@ -34,8 +34,8 @@ public class KciNmsItems20 extends KciNmsItems16Plus {
                 String attribute = attributePair.getKey().c();
                 attribute = CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.LOWER_CAMEL, attribute.replace("attribute.name.", ""));
                 String slotName = fromBukkitSlot(slot);
-                int operation = attributePair.getValue().c().ordinal();
-                double value = attributePair.getValue().d();
+                int operation = attributePair.getValue().b().ordinal();
+                double value = attributePair.getValue().c();
                 attributeList.add(new RawAttribute(id, attribute, slotName, operation, value));
             });
         }
