@@ -80,7 +80,7 @@ public class ExportMenu extends GuiMenu {
                 return exportSettings.getMode() == ExportSettingsValues.Mode.AUTOMATIC
                         || exportSettings.getMode() == ExportSettingsValues.Mode.MIXED;
             }
-        }, 0f, 0f, 1f, 0.7f);
+        }, 0f, 0f, 1f, 0.8f);
 
         HelpButtons.addHelpLink(this, "edit menu/export.html");
     }
@@ -98,20 +98,24 @@ public class ExportMenu extends GuiMenu {
             addComponent(new EagerTextEditField(
                     exportSettings.getReloadMessage(), LONG_EDIT_BASE, LONG_EDIT_ACTIVE, exportSettings::setReloadMessage
             ), 0.025f, 0.8f, 0.975f, 0.9f);
+            addComponent(new DynamicTextComponent("Resource pack host IP:", LABEL), 0.025f, 0.68f, 0.3f, 0.78f);
+            addComponent(new EagerTextEditField(
+                    exportSettings.getHostAddress(), LONG_EDIT_BASE, LONG_EDIT_ACTIVE, exportSettings::setHostAddress
+            ), 0.325f, 0.68f, 0.975f, 0.78f);
 
             addComponent(new CheckboxComponent(
                     exportSettings.shouldKickUponReject(), exportSettings::setKickUponReject
-            ), 0.01f, 0.675f, 0.025f, 0.7f);
+            ), 0.01f, 0.575f, 0.025f, 0.6f);
             addComponent(new DynamicTextComponent(
                     "Kick players who reject the resource pack", LABEL
-            ), 0.05f, 0.65f, 0.6f, 0.75f);
+            ), 0.05f, 0.55f, 0.6f, 0.65f);
 
             addCheckboxBasedInput(new MessageSettings(
                     "Kick message:", exportSettings.getForceRejectMessage(), exportSettings::setForceRejectMessage
-            ), exportSettings::shouldKickUponReject, false, 0.45f);
+            ), exportSettings::shouldKickUponReject, false, 0.35f);
             addCheckboxBasedInput(new MessageSettings(
                     "Warning message:", exportSettings.getOptionalRejectMessage(), exportSettings::setOptionalRejectMessage
-            ), exportSettings::shouldKickUponReject, true, 0.45f);
+            ), exportSettings::shouldKickUponReject, true, 0.35f);
 
             addComponent(new CheckboxComponent(
                     exportSettings.shouldKickUponFailedDownload(), exportSettings::setKickUponFailedDownload
