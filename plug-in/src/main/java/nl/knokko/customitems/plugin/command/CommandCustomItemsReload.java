@@ -18,10 +18,17 @@ class CommandCustomItemsReload {
             if (enableOutput) sender.sendMessage(message);
         };
 
+        CustomItemsPlugin instance = CustomItemsPlugin.getInstance();
         if (args.length == 1) {
-            CustomItemsPlugin.getInstance().getItemSetLoader().reload(sendMessage);
+            instance.getItemSetLoader().reload(sendMessage);
+        } else if (args.length == 2) {
+            instance.getItemSetLoader().reload(
+                    sendMessage, instance.getSet().get().getExportSettings().getHostAddress(), args[1]
+            );
+        } else if (args.length == 3) {
+            instance.getItemSetLoader().reload(sendMessage, args[2], args[1]);
         } else {
-            CustomItemsPlugin.getInstance().getItemSetLoader().reload(sendMessage, args[1]);
+            sendMessage.accept(ChatColor.RED + "You should use /kci reload [hash] [host]");
         }
     }
 }
