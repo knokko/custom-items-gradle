@@ -1,13 +1,11 @@
 package nl.knokko.customitems.nms20;
 
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.MinecraftKey;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.projectile.EntityTippedArrow;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.IMaterial;
 import net.minecraft.world.phys.Vec3D;
 import nl.knokko.customitems.nms16plus.KciNmsEntities16Plus;
 import org.bukkit.Location;
