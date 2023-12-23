@@ -2,6 +2,8 @@ package nl.knokko.customitems.plugin.data;
 
 import nl.knokko.customitems.bithelper.ByteArrayBitInput;
 import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
+import nl.knokko.customitems.plugin.data.container.ContainerStorageKey;
+import nl.knokko.customitems.plugin.data.container.EnergyStorageKey;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import org.junit.Test;
 

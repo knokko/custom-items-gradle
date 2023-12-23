@@ -29,7 +29,9 @@ public class EffSwitchContainer extends Effect {
                 newContainerName.getSingle(event)
         );
         if (newContainer.isPresent()) {
-            CustomItemsPlugin.getInstance().getData().attemptToSwitchToLinkedContainer(player.getSingle(event), newContainer.get());
+            CustomItemsPlugin.getInstance().getData().containerManager.attemptToSwitchToLinkedContainer(
+                    player.getSingle(event), newContainer.get()
+            );
         } else {
             Skript.error("There is no custom container with name '" + newContainerName.getSingle(event) + "'");
         }

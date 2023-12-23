@@ -1,4 +1,4 @@
-package nl.knokko.customitems.plugin.data;
+package nl.knokko.customitems.plugin.data.container;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;

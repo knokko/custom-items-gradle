@@ -15,6 +15,7 @@ import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
 import nl.knokko.customitems.recipe.result.CustomItemResultValues;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -23,10 +24,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.*;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -61,10 +65,22 @@ public class ContainerEventHandler implements Listener {
 		// Delay it to prevent the items to be dropped while the block is still there
 		Bukkit.getScheduler().scheduleSyncDelayedTask(
 				CustomItemsPlugin.getInstance(), 
-				() -> pluginData().destroyCustomContainersAt(
+				() -> pluginData().containerManager.destroyCustomContainersAt(
 						event.getBlock().getLocation()
 				)
 		);
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void onEntityDeath(EntityDeathEvent event) {
+		pluginData().containerManager.handleEntityDeath(event.getEntity());
+	}
+
+	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+	public void onChunkUnload(ChunkUnloadEvent event) {
+		for (Entity entity : event.getChunk().getEntities()) {
+			pluginData().containerManager.handleEntityUnload(entity);
+		}
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -74,7 +90,7 @@ public class ContainerEventHandler implements Listener {
 		Bukkit.getScheduler().scheduleSyncDelayedTask(
 				CustomItemsPlugin.getInstance(), () -> {
 					for (Block block : event.blockList()) {
-						pluginData().destroyCustomContainersAt(block.getLocation());
+						pluginData().containerManager.destroyCustomContainersAt(block.getLocation());
 					}
 				}
 		);
@@ -87,7 +103,7 @@ public class ContainerEventHandler implements Listener {
 		Bukkit.getScheduler().scheduleSyncDelayedTask(
 				CustomItemsPlugin.getInstance(), () -> {
 					for (Block block : event.blockList()) {
-						pluginData().destroyCustomContainersAt(block.getLocation());
+						pluginData().containerManager.destroyCustomContainersAt(block.getLocation());
 					}
 				}
 		);
@@ -96,7 +112,7 @@ public class ContainerEventHandler implements Listener {
 	@EventHandler
 	public void onInventoryClose(InventoryCloseEvent event) {
 		if (event.getPlayer() instanceof Player) {
-			pluginData().onInventoryClose((Player) event.getPlayer());
+			pluginData().containerSelections.close((Player) event.getPlayer());
 		}
 	}
 	
@@ -119,7 +135,7 @@ public class ContainerEventHandler implements Listener {
 		if (event.getWhoClicked() instanceof Player) {
 			Player player = (Player) event.getWhoClicked();
 			
-			ContainerInstance customContainer = pluginData().getCustomContainer(player);
+			ContainerInstance customContainer = pluginData().containerManager.getOpened(player);
 			if (customContainer != null) {
 				for (int slotIndex : event.getRawSlots()) {
 					if (slotIndex >= 0 && slotIndex < 9 * customContainer.getType().getHeight()) {
@@ -140,7 +156,7 @@ public class ContainerEventHandler implements Listener {
 			
 			Player player = (Player) event.getWhoClicked();
 			
-			ContainerInstance customContainer = pluginData().getCustomContainer(player);
+			ContainerInstance customContainer = pluginData().containerManager.getOpened(player);
 			if (customContainer != null) {
 				
 				int slotIndex = event.getRawSlot();
@@ -196,7 +212,9 @@ public class ContainerEventHandler implements Listener {
 						}
 					} else if (slot instanceof LinkSlotValues) {
 						Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
-							pluginData().attemptToSwitchToLinkedContainer(player, ((LinkSlotValues) slot).getLinkedContainer());
+							pluginData().containerManager.attemptToSwitchToLinkedContainer(
+									player, ((LinkSlotValues) slot).getLinkedContainer()
+							);
 						});
 					} else if (slot instanceof ActionSlotValues) {
 						Bukkit.getPluginManager().callEvent(new CustomContainerActionEvent(
@@ -476,7 +494,7 @@ public class ContainerEventHandler implements Listener {
 				}
 			}
 			
-			List<CustomContainerValues> containerSelection = pluginData().getCustomContainerSelection(event.getWhoClicked());
+			List<CustomContainerValues> containerSelection = pluginData().containerSelections.getShown(event.getWhoClicked());
 			if (containerSelection != null) {
 				// Block any inventory action during container selection
 				event.setCancelled(true);
@@ -492,7 +510,7 @@ public class ContainerEventHandler implements Listener {
 					CustomContainerValues toOpen = containerSelection.get(slotIndex - 1);
 					Bukkit.getScheduler().scheduleSyncDelayedTask(
 							CustomItemsPlugin.getInstance(), 
-							() -> pluginData().selectCustomContainer(
+							() -> pluginData().containerManager.selectCustomContainer(
 									(Player) event.getWhoClicked(), 
 									toOpen
 							)
@@ -531,7 +549,7 @@ public class ContainerEventHandler implements Listener {
 
 			VanillaContainerType vanillaType = VanillaContainerType.fromMaterial(blockType);
 			if (vanillaType != null) {
-				Inventory menu = pluginData().getCustomContainerMenu(
+				Inventory menu = pluginData().containerSelections.getBlockContainerMenu(
 						event.getClickedBlock().getLocation(),
 						event.getPlayer(), new CustomContainerHost(vanillaType)
 				);
@@ -544,7 +562,7 @@ public class ContainerEventHandler implements Listener {
 			try {
 				String blockName = KciNms.instance.items.getMaterialName(event.getClickedBlock());
 				CIMaterial blockType = CIMaterial.valueOf(blockName);
-				Inventory maybeMenu = pluginData().getCustomContainerMenu(
+				Inventory maybeMenu = pluginData().containerSelections.getBlockContainerMenu(
 						event.getClickedBlock().getLocation(), event.getPlayer(), new CustomContainerHost(blockType)
 				);
 
@@ -558,12 +576,21 @@ public class ContainerEventHandler implements Listener {
 			CustomBlockValues maybeCustomBlock = MushroomBlockHelper.getMushroomBlock(event.getClickedBlock());
 			if (maybeCustomBlock != null) {
 				BlockReference customBlockReference = itemSet.get().getBlockReference(maybeCustomBlock.getInternalID());
-				Inventory maybeMenu = pluginData().getCustomContainerMenu(
+				Inventory maybeMenu = pluginData().containerSelections.getBlockContainerMenu(
 						event.getClickedBlock().getLocation(), event.getPlayer(), new CustomContainerHost(customBlockReference)
 				);
 				if (maybeMenu != null) {
 					event.getPlayer().openInventory(maybeMenu);
 				}
+			}
+		}
+	}
+
+	@EventHandler
+	public void openEntityContainer(PlayerInteractAtEntityEvent event) {
+		if (event.getHand() == EquipmentSlot.HAND) {
+			if (CustomItemsPlugin.getInstance().getEnabledAreas().isEnabled(event.getRightClicked().getLocation())) {
+				pluginData().containerSelections.openEntityContainerMenu(event.getPlayer(), event.getRightClicked());
 			}
 		}
 	}
@@ -589,7 +616,7 @@ public class ContainerEventHandler implements Listener {
 			if (customItem instanceof CustomPocketContainerValues) {
 				CustomPocketContainerValues pocketContainer = (CustomPocketContainerValues) customItem;
 				Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(),
-						() ->pluginData().openPocketContainerMenu(event.getPlayer(), pocketContainer)
+						() ->pluginData().containerSelections.openPocketContainerMenu(event.getPlayer(), pocketContainer)
 				);
 			}
 		}
