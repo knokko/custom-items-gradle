@@ -1,17 +1,17 @@
-package nl.knokko.customitems.plugin.data;
+package nl.knokko.customitems.plugin.data.container;
 
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.energy.EnergyTypeValues;
 
-public class PocketStoredEnergy extends StoredEnergy {
+public class LocalStoredEnergy extends StoredEnergy {
 
     private final StoredEnergy globalEnergy;
 
-    public PocketStoredEnergy(StoredEnergy globalEnergy) {
+    public LocalStoredEnergy(StoredEnergy globalEnergy) {
         this.globalEnergy = globalEnergy;
     }
 
-    public PocketStoredEnergy(StoredEnergy loadedLocalEnergy, StoredEnergy globalEnergy) {
+    public LocalStoredEnergy(StoredEnergy loadedLocalEnergy, StoredEnergy globalEnergy) {
         this.energyMap.putAll(loadedLocalEnergy.energyMap);
         this.globalEnergy = globalEnergy;
     }

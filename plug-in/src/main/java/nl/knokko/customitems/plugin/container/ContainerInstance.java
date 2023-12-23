@@ -21,9 +21,9 @@ import nl.knokko.customitems.container.slot.display.*;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.nms.GeneralItemNBT;
 import nl.knokko.customitems.nms.KciNms;
-import nl.knokko.customitems.plugin.data.ContainerStorageKey;
-import nl.knokko.customitems.plugin.data.StoredEnergy;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
+import nl.knokko.customitems.plugin.data.container.ContainerStorageKey;
+import nl.knokko.customitems.plugin.data.container.StoredEnergy;
 import nl.knokko.customitems.plugin.tasks.updater.ItemUpgrader;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
@@ -57,7 +57,7 @@ import static nl.knokko.customitems.plugin.recipe.RecipeHelper.shouldIngredientA
 import static nl.knokko.customitems.plugin.set.item.CustomItemWrapper.wrap;
 
 /**
- * An in-game instance of a custom container. While the CustomContainer class defines
+ * An in-game instance of a custom container. While the CustomContainerValues class defines
  * which types of slots and recipes a custom container will have, a ContainerInstance
  * defines which items are currently present in those slots and optionally which
  * (smelting) recipes are currently in progress.
@@ -161,7 +161,7 @@ public class ContainerInstance {
 		output.addString(dummyConfiguration.saveToString());
 	}
 	
-	public static void discard1(BitInput input) {
+	public static void discard1(BitInput input, Location dropLocation) {
 		
 		// Discard the item stacks for all 3 slot types: input, output and fuel
 		for (int slotTypeCounter = 0; slotTypeCounter < 3; slotTypeCounter++) {
@@ -172,7 +172,8 @@ public class ContainerInstance {
 				// Discard 2 strings: the name of the slot and the string 
 				// representation of the ItemStack it contained
 				input.readString();
-				input.readString();
+				ItemStack item = loadStack(input);
+				if (dropLocation != null) Objects.requireNonNull(dropLocation.getWorld()).dropItem(dropLocation, item);
 			}
 		}
 		
@@ -192,22 +193,23 @@ public class ContainerInstance {
 		input.readInt();
 	}
 
-	public static void discard2(BitInput input) {
-		discard1(input);
+	public static void discard2(BitInput input, Location dropLocation) {
+		discard1(input, dropLocation);
 
 		int numStoredItems = input.readInt();
 		for (int counter = 0; counter < numStoredItems; counter++) {
 			input.readByte();
 			input.readByte();
-			input.readString();
+			ItemStack item = loadStack(input);
+			if (dropLocation != null) Objects.requireNonNull(dropLocation.getWorld()).dropItem(dropLocation, item);
 		}
 	}
 
-	public static void discard3(BitInput input) throws UnknownEncodingException {
+	public static void discard3(BitInput input, Location dropLocation) throws UnknownEncodingException {
 		byte encoding = input.readByte();
 		if (encoding != 1) throw new UnknownEncodingException("ContainerInstance", encoding);
 
-		discard2(input);
+		discard2(input, dropLocation);
 		int numPermissions = input.readInt();
 		for (int counter = 0; counter < numPermissions; counter++) input.readString();
 	}
@@ -604,7 +606,7 @@ public class ContainerInstance {
 		remainingHotTime = 20;
 	}
 
-	private boolean isHot() {
+	public boolean isHot() {
 		return remainingHotTime > 0;
 	}
 

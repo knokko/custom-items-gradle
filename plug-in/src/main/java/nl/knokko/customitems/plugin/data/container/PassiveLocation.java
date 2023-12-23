@@ -1,11 +1,11 @@
-package nl.knokko.customitems.plugin.data;
+package nl.knokko.customitems.plugin.data.container;
 
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
-class PassiveLocation {
+public class PassiveLocation {
 
 	private final UUID worldId;
 	private final int x, y, z;

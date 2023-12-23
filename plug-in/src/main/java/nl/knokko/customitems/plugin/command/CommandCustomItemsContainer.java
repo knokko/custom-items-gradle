@@ -84,7 +84,7 @@ public class CommandCustomItemsContainer {
 
                     if (Arrays.stream(requiredPermissions).anyMatch(sender::hasPermission)) {
                         player.openInventory(
-                                CustomItemsPlugin.getInstance().getData().getCustomContainer(
+                                CustomItemsPlugin.getInstance().getData().containerManager.getCustomContainer(
                                         null, hostString, player, container.getContainer()
                                 ).getInventory()
                         );
@@ -181,7 +181,7 @@ public class CommandCustomItemsContainer {
                                 return;
                             }
                         }
-                        ContainerInstance containerInstance = data.getCustomContainer(
+                        ContainerInstance containerInstance = data.containerManager.getCustomContainer(
                                 location, null, player, container.getContainer()
                         );
                         player.openInventory(containerInstance.getInventory());
@@ -247,7 +247,7 @@ public class CommandCustomItemsContainer {
                 };
 
                 if (Arrays.stream(requiredPermissions).anyMatch(sender::hasPermission)) {
-                    int numDestroyedInstances = CustomItemsPlugin.getInstance().getData().destroyCustomContainer(
+                    int numDestroyedInstances = CustomItemsPlugin.getInstance().getData().containerManager.destroyCustomContainer(
                             container.getContainer(), hostString, dropLocation
                     );
                     if (enableOutput) {

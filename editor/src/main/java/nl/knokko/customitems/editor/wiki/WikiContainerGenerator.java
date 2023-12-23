@@ -108,6 +108,9 @@ class WikiContainerGenerator {
                 String blockName = container.getHost().getCustomBlockReference().get().getName();
                 output.println("\t\tRight-click a <a href=\"../blocks/" + blockName + ".html\">" + blockName + "</a><br>");
             }
+            if (container.getHost().getVanillaEntity() != null) {
+                output.println("\t\tRight-click a " + NameHelper.getNiceEnumName(container.getHost().getVanillaEntity().name()) + "<br>");
+            }
 
             Collection<CustomItemValues> pocketContainers = itemSet.getItems().stream().filter(
                     item -> item instanceof CustomPocketContainerValues && ((CustomPocketContainerValues) item).getContainers().stream().anyMatch(

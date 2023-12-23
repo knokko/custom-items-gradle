@@ -4,6 +4,7 @@ import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.NameHelper;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
+import nl.knokko.customitems.drops.CIEntityType;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.itemset.BlockReference;
 import nl.knokko.customitems.itemset.ItemSet;
@@ -27,6 +28,8 @@ public class CustomContainerHost {
             return new CustomContainerHost(CIMaterial.valueOf(input.readString()));
         } else if (hostType == 3) {
             return new CustomContainerHost(itemSet.getBlockReference(input.readInt()));
+        } else if (hostType == 4) {
+            return new CustomContainerHost(CIEntityType.valueOf(input.readString()));
         } else {
             throw new UnknownEncodingException("ContainerHostType", hostType);
         }
@@ -34,12 +37,14 @@ public class CustomContainerHost {
 
     private final VanillaContainerType vanillaType;
     private final CIMaterial vanillaMaterial;
+    private final CIEntityType vanillaEntity;
     private final BlockReference customBlock;
 
     public CustomContainerHost(VanillaContainerType vanillaType) {
         Checks.notNull(vanillaType);
         this.vanillaType = vanillaType;
         this.vanillaMaterial = null;
+        this.vanillaEntity = null;
         this.customBlock = null;
     }
 
@@ -47,6 +52,14 @@ public class CustomContainerHost {
         Checks.notNull(vanillaMaterial);
         this.vanillaType = null;
         this.vanillaMaterial = vanillaMaterial;
+        this.vanillaEntity = null;
+        this.customBlock = null;
+    }
+
+    public CustomContainerHost(CIEntityType vanillaEntity) {
+        this.vanillaType = null;
+        this.vanillaMaterial = null;
+        this.vanillaEntity = Objects.requireNonNull(vanillaEntity);
         this.customBlock = null;
     }
 
@@ -54,6 +67,7 @@ public class CustomContainerHost {
         Checks.notNull(customBlock);
         this.vanillaType = null;
         this.vanillaMaterial = null;
+        this.vanillaEntity = null;
         this.customBlock = customBlock;
     }
 
@@ -63,6 +77,10 @@ public class CustomContainerHost {
 
     public CIMaterial getVanillaMaterial() {
         return this.vanillaMaterial;
+    }
+
+    public CIEntityType getVanillaEntity() {
+        return this.vanillaEntity;
     }
 
     public BlockReference getCustomBlockReference() {
@@ -75,6 +93,7 @@ public class CustomContainerHost {
             CustomContainerHost otherHost = (CustomContainerHost) other;
             return Objects.equals(this.vanillaType, otherHost.vanillaType)
                     && Objects.equals(this.vanillaMaterial, otherHost.vanillaMaterial)
+                    && Objects.equals(this.vanillaEntity, otherHost.vanillaEntity)
                     && Objects.equals(this.customBlock, otherHost.customBlock);
         } else {
             return false;
@@ -85,13 +104,14 @@ public class CustomContainerHost {
     public String toString() {
         if (this.vanillaType != null) return NameHelper.getNiceEnumName(this.vanillaType.name());
         if (this.vanillaMaterial != null) return this.vanillaMaterial.toString();
+        if (this.vanillaEntity != null) return this.vanillaEntity.toString();
         return this.customBlock.get().getName();
     }
 
     @Override
     public int hashCode() {
         return Objects.hashCode(this.vanillaType) + 3 * Objects.hashCode(this.vanillaMaterial)
-                + 5 * Objects.hashCode(this.customBlock);
+                + 5 * Objects.hashCode(vanillaEntity) - 13 * Objects.hashCode(this.customBlock);
     }
 
     public void save(BitOutput output) {
@@ -103,9 +123,14 @@ public class CustomContainerHost {
         } else if (this.vanillaMaterial != null) {
             output.addByte((byte) 2);
             output.addString(this.vanillaMaterial.name());
-        } else {
+        } else if (this.customBlock != null) {
             output.addByte((byte) 3);
             output.addInt(this.customBlock.get().getInternalID());
+        } else if (this.vanillaEntity != null) {
+            output.addByte((byte) 4);
+            output.addString(this.vanillaEntity.name());
+        } else {
+            throw new IllegalStateException("Can't determine host type of " + this);
         }
     }
 
@@ -130,10 +155,20 @@ public class CustomContainerHost {
             if (this.vanillaMaterial.lastVersion < version) {
                 throw new ValidationException(this.vanillaMaterial + " doesn't exist anymore in minecraft " + MCVersions.createString(version));
             }
-        } else {
+        } else if (this.vanillaEntity != null) {
+            if (version < MCVersions.VERSION1_14) throw new ValidationException("Entity container hosts require MC 1.14 or later");
+            if (this.vanillaEntity.firstVersion > version) {
+                throw new ValidationException(this.vanillaEntity + " didn't exist yet in minecraft " + MCVersions.createString(version));
+            }
+            if (this.vanillaEntity.lastVersion < version) {
+                throw new ValidationException(this.vanillaEntity + " doesn't exist anymore in minecraft " + MCVersions.createString(version));
+            }
+        } else if (this.customBlock != null) {
             if (version < MCVersions.VERSION1_13) {
                 throw new ValidationException("Custom blocks aren't supported before minecraft 1.13");
             }
+        } else {
+            throw new ValidationException("Unknown container host type: " + this);
         }
     }
 }
