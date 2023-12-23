@@ -91,7 +91,7 @@ public class CustomItemsApi {
     public static boolean openContainerAtStringHost(Player player, String containerName, String stringHost) {
         ContainerInfo containerInfo = CustomItemsPlugin.getInstance().getSet().getContainerInfo(containerName);
         if (containerInfo != null) {
-            ContainerInstance containerInstance = CustomItemsPlugin.getInstance().getData().getCustomContainer(
+            ContainerInstance containerInstance = CustomItemsPlugin.getInstance().getData().containerManager.getCustomContainer(
                     null, stringHost, player, containerInfo.getContainer()
             );
             player.openInventory(containerInstance.getInventory());
@@ -113,7 +113,7 @@ public class CustomItemsApi {
     public static int destroyCustomContainersAtStringHost(String containerName, String stringHost, Location dropLocation) {
         ContainerInfo containerInfo = CustomItemsPlugin.getInstance().getSet().getContainerInfo(containerName);
         if (containerInfo != null) {
-            return CustomItemsPlugin.getInstance().getData().destroyCustomContainer(
+            return CustomItemsPlugin.getInstance().getData().containerManager.destroyCustomContainer(
                     containerInfo.getContainer(), stringHost, dropLocation
             );
         } else {

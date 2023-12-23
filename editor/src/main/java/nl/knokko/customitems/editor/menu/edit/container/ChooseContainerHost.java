@@ -2,6 +2,7 @@ package nl.knokko.customitems.editor.menu.edit.container;
 
 import nl.knokko.customitems.container.CustomContainerHost;
 import nl.knokko.customitems.container.VanillaContainerType;
+import nl.knokko.customitems.drops.CIEntityType;
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.util.HelpButtons;
@@ -45,10 +46,10 @@ public class ChooseContainerHost extends GuiMenu {
                     candidateType -> candidateType != VanillaContainerType.NONE,
                     returnMenu
             ));
-        }), 0.3f, 0.8f, 0.5f, 0.9f);
+        }), 0.3f, 0.85f, 0.5f, 0.95f);
         addComponent(
                 new DynamicTextComponent("Players can interact by left-clicking while sneaking", LABEL),
-                0.35f, 0.75f, 0.8f, 0.8f
+                0.35f, 0.8f, 0.8f, 0.85f
         );
 
         addComponent(new DynamicTextButton("Choose vanilla block", BUTTON, HOVER, () -> {
@@ -58,11 +59,23 @@ public class ChooseContainerHost extends GuiMenu {
                     candidateMaterial -> true,
                     returnMenu
             ));
-        }), 0.3f, 0.6f, 0.5f, 0.7f);
+        }), 0.3f, 0.65f, 0.5f, 0.75f);
         addComponent(
                 new DynamicTextComponent("Players can interact by right-clicking", LABEL),
-                0.35f, 0.55f, 0.7f, 0.6f
+                0.35f, 0.6f, 0.7f, 0.65f
         );
+
+        addComponent(new DynamicTextButton("Choose vanilla entity [1.14+]", BUTTON, HOVER, () -> {
+            state.getWindow().setMainComponent(new EnumSelect<>(
+                    CIEntityType.class,
+                    chosenEntity -> onSelect.accept(new CustomContainerHost(chosenEntity)),
+                    candidateEntity -> true,
+                    returnMenu
+            ));
+        }), 0.3f, 0.45f, 0.6f, 0.55f);
+        addComponent(new DynamicTextComponent(
+                "Players can interact by right-clicking", LABEL
+        ), 0.35f, 0.4f, 0.7f, 0.45f);
 
         addComponent(new DynamicTextButton("Choose custom block", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new CollectionSelect<>(
@@ -72,19 +85,19 @@ public class ChooseContainerHost extends GuiMenu {
                     candidateBlock -> candidateBlock.get().getName(),
                     returnMenu, false
             ));
-        }), 0.3f, 0.4f, 0.5f, 0.5f);
+        }), 0.3f, 0.25f, 0.5f, 0.35f);
         addComponent(
                 new DynamicTextComponent("Players can interact by right-clicking", LABEL),
-                0.35f, 0.35f, 0.7f, 0.4f
+                0.35f, 0.2f, 0.7f, 0.25f
         );
 
         addComponent(new DynamicTextButton("Choose no host", BUTTON, HOVER, () -> {
             onSelect.accept(new CustomContainerHost(VanillaContainerType.NONE));
             state.getWindow().setMainComponent(returnMenu);
-        }), 0.3f, 0.2f, 0.5f, 0.3f);
+        }), 0.3f, 0.05f, 0.5f, 0.15f);
         addComponent(
                 new DynamicTextComponent("This container can only be used as pocket container", LABEL),
-                0.35f, 0.15f, 0.8f, 0.2f
+                0.35f, 0f, 0.8f, 0.05f
         );
     }
 

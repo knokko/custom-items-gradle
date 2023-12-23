@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 import nl.knokko.customitems.item.CustomFoodValues;
@@ -11,15 +12,18 @@ import nl.knokko.customitems.item.CustomGunValues;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomWandValues;
 import nl.knokko.customitems.plugin.container.ContainerInstance;
+import nl.knokko.customitems.plugin.data.container.PassiveLocation;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 
-class PlayerData {
+public class PlayerData {
 
 	/**
-	 * The number of ticks players remain in the shooting state after right clicking with a wand or gun.
+	 * The number of ticks players remain in the shooting state after right-clicking with a wand or gun.
 	 * Right-clicking again will 'reset' the timer to this number of ticks again.
 	 */
 	static final int SHOOT_TIME = 10;
@@ -52,12 +56,21 @@ class PlayerData {
 		result.commandCooldowns.load(input, set);
 		return result;
 	}
+
+	public static PlayerData get(Player player, Map<UUID, PlayerData> playerData) {
+		PlayerData data = playerData.get(player.getUniqueId());
+		if (data == null) {
+			data = new PlayerData();
+			playerData.put(player.getUniqueId(), data);
+		}
+		return data;
+	}
 	
 	// Persisting data
 	
 	/**
 	 * For each CustomWand, this map contains data about the current cooldown and charges.
-	 * 
+	 * <br>
 	 * If an entry for a given wand is missing, it indicates that the wand is currently not on
 	 * cooldown and has all charges available (if the wand uses charges).
 	 */
@@ -66,13 +79,14 @@ class PlayerData {
 	
 	// Non-persisting data
 
-	ContainerInstance openPocketContainer;
-	boolean pocketContainerInMainHand;
+	public ContainerInstance openPocketContainer;
+	public boolean pocketContainerInMainHand;
 	private long lastShootTick;
 	private long lastEatTick;
 	
-	PassiveLocation containerSelectionLocation;
-	boolean pocketContainerSelection;
+	public PassiveLocation containerSelectionLocation;
+	public Entity containerSelectionEntity;
+	public boolean pocketContainerSelection;
 
 	long nextMainhandGunShootTick;
 	long nextOffhandGunShootTick;
@@ -254,7 +268,8 @@ class PlayerData {
 		}
 
 		 // Don't remove the player data if it still has container data
-		if (openPocketContainer != null || containerSelectionLocation != null || pocketContainerSelection) {
+		if (openPocketContainer != null || containerSelectionLocation != null
+				|| containerSelectionEntity != null || pocketContainerSelection) {
 			return false;
 		}
 

@@ -51,6 +51,7 @@ allprojects {
         maven { url = 'https://repo.citizensnpcs.co' }
         maven { url = 'https://jitpack.io' }
         maven { url = 'https://maven.elmakers.com/repository/' }
+        maven { url = 'https://repo.codemc.io/repository/maven-public/' }
 
         mavenLocal()
         maven { url = 'https://repo.skriptlang.org/releases' }
@@ -98,9 +99,13 @@ project(':plug-in') {
         compileOnly 'com.github.SkriptLang:Skript:2.6'
         compileOnly 'com.denizenscript:denizen:1.2.5-SNAPSHOT'
         compileOnly 'com.elmakers.mine.bukkit:MagicAPI:7.5'
+        implementation 'de.tr7zw:item-nbt-api:2.12.2'
 
         testImplementation project(':bit-helper')
         testImplementation 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
+    }
+    shadowJar {
+        relocate('de.tr7zw.changeme.nbtapi', 'nl.knokko.customitems.plugin.shadow.nbtapi')
     }
 }
 
