@@ -10,6 +10,9 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.NBTType;
+import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadableNBT;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.enchantment.EnchantmentType;
 import nl.knokko.customitems.item.enchantment.EnchantmentValues;
@@ -25,6 +28,7 @@ import nl.knokko.customitems.plugin.util.NbtHelper;
 import nl.knokko.customitems.recipe.upgrade.UpgradeValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.LivingEntity;
@@ -104,7 +108,7 @@ public class ItemUpdater {
 	}
 	
 	public ItemStack maybeUpdate(ItemStack originalStack) {
-		if (originalStack == null) {
+		if (originalStack == null || originalStack.getAmount() == 0 || originalStack.getType() == Material.AIR) {
 			return null;
 		}
 
@@ -124,19 +128,24 @@ public class ItemUpdater {
 		CustomItemValues[] pOldItem = {null};
 		CustomItemValues[] pNewItem = {null};
 		UpdateAction[] pAction = {null};
-		
-		KciNms.instance.items.customReadOnlyNbt(originalStack, nbt -> {
-			if (nbt.hasOurNBT()) {
-				String itemName = nbt.getName();
-				
-				Long lastExportTime = nbt.getLastExportTime();
+
+		NBT.get(originalStack, nbt -> {
+			ReadableNBT customNbt = nbt.getCompound(NBT_KEY);
+			if (customNbt != null) {
+				String itemName = customNbt.getString("Name");
+
+				Long lastExportTime = null;
+				if (customNbt.hasTag("LastExportTime", NBTType.NBTTagLong)) {
+					lastExportTime = customNbt.getLong("LastExportTime");
+				}
+
 				if (lastExportTime == null) {
-					
+
 					/*
 					 * If this line is reached, the LastExportTime of the item stack is
 					 * missing. That means the item stack wasn't created by this
 					 * plug-in.
-					 * 
+					 *
 					 * We use this case to make it easier for other plug-ins to
 					 * create custom items of this plug-in: Some other plug-in creates
 					 * an item stack with our nbt tag, and sets only the Name to the
@@ -153,11 +162,11 @@ public class ItemUpdater {
 						pAction[0] = UpdateAction.DO_NOTHING;
 					}
 				} else if (lastExportTime == this.itemSet.get().getExportTime()) {
-					
+
 					/*
-					 * If the exportTime of the item stack is the same as the 
-					 * exportTime of the item set, there is no need to take any 
-					 * action because the item stack properties should already be 
+					 * If the exportTime of the item stack is the same as the
+					 * exportTime of the item set, there is no need to take any
+					 * action because the item stack properties should already be
 					 * up-to-date.
 					 */
 					pAction[0] = UpdateAction.DO_NOTHING;
@@ -166,8 +175,12 @@ public class ItemUpdater {
 					if (currentItem != null) {
 
 						if (currentItem.shouldUpdateAutomatically()) {
-							BooleanRepresentation oldBoolRepresentation = nbt.getBooleanRepresentation();
-							BooleanRepresentation newBoolRepresentation = new BooleanRepresentation(currentItem.getBooleanRepresentation());
+							BooleanRepresentation oldBoolRepresentation = new BooleanRepresentation(
+									customNbt.getByteArray("BooleanRepresentation")
+							);
+							BooleanRepresentation newBoolRepresentation = new BooleanRepresentation(
+									currentItem.getBooleanRepresentation()
+							);
 							if (oldBoolRepresentation.equals(newBoolRepresentation) && upgradeIDs.isEmpty()) {
 								/*
 								 * This case will happen when the item set is updated,
@@ -238,19 +251,19 @@ public class ItemUpdater {
 						 * deleted.
 						 * 3) The item stack was artificially created with commands
 						 * or by some other plug-in.
-						 * 
+						 *
 						 * We can check case (2) by comparing the custom item name
 						 * of the item stack with all deleted custom items. If
 						 * the corresponding custom item was indeed deleted, we
 						 * destroy the item set.
-						 * 
+						 *
 						 * I think case (1) and (3) are best handled by ignoring it.
 						 * That way, the damage will be very limited if the wrong
 						 * item set is used. (And there isn't really a good
 						 * solution for case 3).
 						 */
 						pAction[0] = UpdateAction.DO_NOTHING;
-						
+
 						if (this.itemSet.get().hasItemBeenDeleted(itemName)) {
 							pAction[0] = UpdateAction.DESTROY;
 						}
@@ -272,7 +285,7 @@ public class ItemUpdater {
 				}
 			}
 		});
-		
+
 		UpdateAction action = pAction[0];
 		
 		if (action == UpdateAction.DO_NOTHING) {
@@ -280,11 +293,12 @@ public class ItemUpdater {
 		} else if (action == UpdateAction.DESTROY) {
 			return null;
 		} else if (action == UpdateAction.UPDATE_LAST_EXPORT_TIME) {
-			ItemStack[] pResult = {null};
-			KciNms.instance.items.customReadWriteNbt(originalStack, nbt -> {
-				nbt.setLastExportTime(this.itemSet.get().getExportTime());
-			}, result -> pResult[0] = result);
-			return pResult[0];
+			ItemStack newStack = originalStack.clone();
+			NBT.modify(newStack, nbt -> {
+				ReadWriteNBT customNbt = nbt.getOrCreateCompound(NBT_KEY);
+				customNbt.setLong("LastExportTime", this.itemSet.get().getExportTime());
+			});
+			return newStack;
 		} else if (action == UpdateAction.REFRESH_VANILLA_UPGRADES) {
 			return upgradeVanillaItem(originalStack);
 		} else {
@@ -317,13 +331,18 @@ public class ItemUpdater {
 		
 		ItemStack newStack = upgradeAttributeModifiers(oldStack, oldItem, newItem);
 
-		ItemStack[] pNewStack = {null};
 		Long[] pOldDurability = {null};
 		Long[] pNewDurability = {null};
-		KciNms.instance.items.customReadWriteNbt(newStack, nbt -> {
-			nbt.setLastExportTime(this.itemSet.get().getExportTime());
-			nbt.setBooleanRepresentation(new BooleanRepresentation(newItem.getBooleanRepresentation()));
-			Long currentDurability = nbt.getDurability();
+
+		NBT.modify(newStack, generalNbt -> {
+			ReadWriteNBT customNbt = generalNbt.getOrCreateCompound(NBT_KEY);
+			customNbt.setLong("LastExportTime", this.itemSet.get().getExportTime());
+			customNbt.setByteArray("BooleanRepresentation", newItem.getBooleanRepresentation());
+			Long currentDurability = null;
+			if (customNbt.hasTag("Durability", NBTType.NBTTagLong)) {
+				currentDurability = customNbt.getLong("Durability");
+			}
+
 			pOldDurability[0] = currentDurability;
 			if (currentDurability != null) {
 				if (newItem instanceof CustomToolValues && ((CustomToolValues) newItem).getMaxDurabilityNew() != null) {
@@ -334,23 +353,23 @@ public class ItemUpdater {
 					 * following: if the new maximum durability became bigger,
 					 * we increase the current durability by the difference between
 					 * the old and new max durability.
-					 * 
+					 *
 					 * If the new maximum durability is smaller than the old
 					 * maximum durability, the current durability will be set to
 					 * the new maximum durability if (and only if) the current
 					 * durability is bigger.
-					 * 
+					 *
 					 * These decisions are not necessarily perfect, but decisions
 					 * have to be made.
 					 */
 					if (oldTool.getMaxDurabilityNew() != null) {
 						if (newTool.getMaxDurabilityNew() >= oldTool.getMaxDurabilityNew()) {
-							pNewDurability[0] = currentDurability 
+							pNewDurability[0] = currentDurability
 									+ newTool.getMaxDurabilityNew()
 									- oldTool.getMaxDurabilityNew();
 						} else {
 							pNewDurability[0] = Math.min(
-									currentDurability, 
+									currentDurability,
 									newTool.getMaxDurabilityNew()
 							);
 						}
@@ -358,7 +377,7 @@ public class ItemUpdater {
 						// How is this even possible?
 						// Anyway, this seems like the most logical response
 						pNewDurability[0] = Math.min(
-								currentDurability, 
+								currentDurability,
 								newTool.getMaxDurabilityNew()
 						);
 					}
@@ -376,16 +395,13 @@ public class ItemUpdater {
 					pNewDurability[0] = null;
 				}
 			}
-			
-			if (pNewDurability[0] != null) {
-				nbt.setDurability(pNewDurability[0]);
-			} else {
-				nbt.removeDurability();
-			}
-		}, afterNbt -> pNewStack[0] = afterNbt);
-		newStack = pNewStack[0];
 
-		NBT.modify(newStack, generalNbt -> {
+			if (pNewDurability[0] != null) {
+				customNbt.setLong("Durability", pNewDurability[0]);
+			} else {
+				customNbt.removeKey("Durability");
+			}
+
 			for (ExtraItemNbtValues.Entry oldPair : oldItem.getExtraNbt().getEntries()) {
 				NbtHelper.removeNested(generalNbt, oldPair.getKey().toArray(new String[0]));
 			}

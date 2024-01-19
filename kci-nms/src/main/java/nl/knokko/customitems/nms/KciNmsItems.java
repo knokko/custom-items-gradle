@@ -16,36 +16,6 @@ public interface KciNmsItems {
 
     RawAttribute[] getAttributes(ItemStack stack);
 
-    /**
-     * This method grants the opportunity to read the custom item nbt of the given
-     * Bukkit ItemStack.
-     *
-     * @param bukkitStack The item stack whose custom item nbt is to be read
-     * @param useNBT A lambda expression taking the custom item nbt of the given item
-     * stack as parameter. It will be called before this method returns.
-     */
-    void customReadOnlyNbt(ItemStack bukkitStack, Consumer<CustomItemNBT> useNBT);
-
-    /**
-     * This method grants the opportunity to both read from and write to the custom
-     * item nbt of the given Bukkit ItemStack.
-     *
-     * This method requires that the original item stack is replaced with a new item
-     * stack because the original item stack will NOT be modified. The third
-     * parameter is to remind users of that.
-     *
-     * Both lambda expression parameters will be called before this method returns.
-     *
-     * @param original The original Bukkit ItemStack 'to modify'
-     * @param useNBT A lambda expression taking the CustomItemNBT as parameter.
-     * Reading from and writing to the custom item nbt should be done in this
-     * lambda expression.
-     * @param getNewStack A lambda expression taking the new item stack as parameter.
-     * This lambda should be used to replace the old item stack with the new item
-     * modified item stack.
-     */
-    void customReadWriteNbt(ItemStack original, Consumer<CustomItemNBT> useNBT, Consumer<ItemStack> getNewStack);
-
     String getStackName(ItemStack stack);
 
     String getTagAsString(ItemStack stack);
