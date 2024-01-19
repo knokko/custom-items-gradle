@@ -26,16 +26,6 @@ class KciNmsItems12 implements KciNmsItems {
     }
 
     @Override
-    public GeneralItemNBT generalReadOnlyNbt(ItemStack bukkitStack) {
-        return new GeneralItemNBT12(CraftItemStack.asNMSCopy(bukkitStack), false);
-    }
-
-    @Override
-    public GeneralItemNBT generalReadWriteNbt(ItemStack bukkitStack) {
-        return new GeneralItemNBT12(CraftItemStack.asNMSCopy(bukkitStack), true);
-    }
-
-    @Override
     public void customReadOnlyNbt(ItemStack bukkitStack, Consumer<CustomItemNBT> useNBT) {
         useNBT.accept(new CustomItemNBT12(bukkitStack, false));
     }

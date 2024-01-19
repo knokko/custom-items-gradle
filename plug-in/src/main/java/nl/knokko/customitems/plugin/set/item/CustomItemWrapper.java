@@ -1,6 +1,7 @@
 package nl.knokko.customitems.plugin.set.item;
 
 import com.google.common.collect.Lists;
+import de.tr7zw.changeme.nbtapi.NBT;
 import nl.knokko.customitems.effect.ChancePotionEffectValues;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.enchantment.EnchantmentType;
@@ -11,6 +12,7 @@ import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.tasks.updater.ItemUpgrader;
 import nl.knokko.customitems.plugin.util.AttributeMerger;
 import nl.knokko.customitems.plugin.util.ItemUtils;
+import nl.knokko.customitems.plugin.util.NbtHelper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -119,29 +121,28 @@ public abstract class CustomItemWrapper {
         // Give it the extra nbt, if needed
         Collection<ExtraItemNbtValues.Entry> extraNbtPairs = this.item.getExtraNbt().getEntries();
 
-        GeneralItemNBT nbt = KciNms.instance.items.generalReadWriteNbt(pResult[0]);
-        for (ExtraItemNbtValues.Entry extraPair : extraNbtPairs) {
-            ExtraItemNbtValues.Value value = extraPair.getValue();
-            if (value.type == NbtValueType.INTEGER) {
-                nbt.set(extraPair.getKey().toArray(new String[0]), value.getIntValue());
-            } else if (value.type == NbtValueType.STRING) {
-                nbt.set(extraPair.getKey().toArray(new String[0]), value.getStringValue());
-            } else {
-                throw new Error("Unknown nbt value type: " + value.type);
+        NBT.modify(pResult[0], nbt -> {
+            for (ExtraItemNbtValues.Entry extraPair : extraNbtPairs) {
+                ExtraItemNbtValues.Value value = extraPair.getValue();
+                if (value.type == NbtValueType.INTEGER) {
+                    NbtHelper.setNested(nbt, extraPair.getKey().toArray(new String[0]), value.getIntValue());
+                } else if (value.type == NbtValueType.STRING) {
+                    NbtHelper.setNested(nbt, extraPair.getKey().toArray(new String[0]), value.getStringValue());
+                } else {
+                    throw new Error("Unknown nbt value type: " + value.type);
+                }
             }
-        }
 
-        if (this.item.getItemType() == CustomItemType.OTHER) {
-            String[] customModelDataKey = { "CustomModelData" };
-            nbt.set(customModelDataKey, this.item.getItemDamage());
-        }
+            if (this.item.getItemType() == CustomItemType.OTHER) {
+                String customModelDataKey = "CustomModelData";
+                nbt.setInteger(customModelDataKey, (int) this.item.getItemDamage());
+            }
 
-        ItemUpgrader.setAttributeIDs(
-                nbt, Arrays.stream(attributeModifiers).map(attribute -> attribute.id).collect(Collectors.toList())
-        );
-        ItemUpgrader.setEnchantmentUpgrades(nbt, defaultEnchantmentMap);
-
-        pResult[0] = nbt.backToBukkit();
+            ItemUpgrader.setAttributeIDs(
+                    nbt, Arrays.stream(attributeModifiers).map(attribute -> attribute.id).collect(Collectors.toList())
+            );
+            ItemUpgrader.setEnchantmentUpgrades(nbt, defaultEnchantmentMap);
+        });
 
         return pResult[0];
     }

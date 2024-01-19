@@ -16,10 +16,6 @@ public interface KciNmsItems {
 
     RawAttribute[] getAttributes(ItemStack stack);
 
-    GeneralItemNBT generalReadOnlyNbt(ItemStack bukkitStack);
-
-    GeneralItemNBT generalReadWriteNbt(ItemStack bukkitStack);
-
     /**
      * This method grants the opportunity to read the custom item nbt of the given
      * Bukkit ItemStack.
