@@ -1,9 +1,11 @@
 package nl.knokko.customitems.plugin.set.item;
 
 import com.google.common.collect.Lists;
+import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.NBTType;
+import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadableNBT;
 import nl.knokko.customitems.item.*;
-import nl.knokko.customitems.nms.CustomItemNBT;
-import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
 import nl.knokko.customitems.plugin.tasks.updater.LoreUpdater;
@@ -80,16 +82,15 @@ public class CustomToolWrapper extends CustomItemWrapper {
 
     public ItemStack create(int amount, long durability) {
         if (amount != 1) throw new IllegalArgumentException("Amount must be 1, but is " + amount);
-        ItemStack partialResult = super.create(amount, createLore(durability));
-        ItemStack[] pResult = {partialResult};
+        ItemStack result = super.create(amount, createLore(durability));
 
         if (this.tool.getMaxDurabilityNew() != null) {
-            KciNms.instance.items.customReadWriteNbt(partialResult, nbt -> {
-                nbt.setDurability(durability);
-            }, result -> pResult[0] = result);
+            NBT.modify(result, nbt -> {
+                nbt.getOrCreateCompound(NBT_KEY).setLong("Durability", durability);
+            });
         }
 
-        return pResult[0];
+        return result;
     }
 
     @Override
@@ -148,18 +149,16 @@ public class CustomToolWrapper extends CustomItemWrapper {
 
         if (Math.random() <= 1.0 / (1 + stack.getEnchantmentLevel(Enchantment.DURABILITY))) {
 
-            ItemStack[] pResult = {stack};
             Long[] pOldDurability = {null};
             Long[] pNewDurability = {null};
 
-            KciNms.instance.items.customReadWriteNbt(stack, nbt -> {
-                Long durability = nbt.getDurability();
-                pOldDurability[0] = durability;
-                if (durability != null) {
-                    if (durability > damage) {
-                        durability -= damage;
-                        nbt.setDurability(durability);
-                        pNewDurability[0] = durability;
+            NBT.modify(stack, nbt -> {
+                ReadWriteNBT customNbt = nbt.getOrCreateCompound(NBT_KEY);
+                if (customNbt.hasTag("Durability", NBTType.NBTTagLong)) pOldDurability[0] = customNbt.getLong("Durability");
+                if (pOldDurability[0] != null) {
+                    if (pOldDurability[0] > damage) {
+                        pNewDurability[0] = pOldDurability[0] - damage;
+                        customNbt.setLong("Durability", pNewDurability[0]);
                     } else {
 
                         // If this block is reached, the item will break
@@ -177,8 +176,7 @@ public class CustomToolWrapper extends CustomItemWrapper {
                      * repeating task to fix this.
                      */
                 }
-            }, newStack -> pResult[0] = newStack);
-            stack = pResult[0];
+            });
 
             if (pNewDurability[0] != null) {
                 long newDurability = pNewDurability[0];
@@ -214,24 +212,25 @@ public class CustomToolWrapper extends CustomItemWrapper {
             return new IncreaseDurabilityResult(stack, 0);
         }
 
-        ItemStack[] pStack = {stack};
         long[] pIncreasedAmount = {0L};
         Long[] pOldDurability = {null};
         long[] pNewDurability = {-1L};
 
-        KciNms.instance.items.customReadWriteNbt(stack, nbt -> {
-            Long oldDurability = nbt.getDurability();
-            pOldDurability[0] = oldDurability;
-            if (oldDurability != null) {
+        NBT.modify(stack, nbt -> {
+            ReadWriteNBT customNbt = nbt.getOrCreateCompound(NBT_KEY);
+            if (customNbt.hasTag("Durability", NBTType.NBTTagLong)) {
+                pOldDurability[0] = customNbt.getLong("Durability");
+            }
+            if (pOldDurability[0] != null) {
                 long newDurability;
-                if (oldDurability + amount <= this.tool.getMaxDurabilityNew()) {
-                    newDurability = oldDurability + amount;
+                if (pOldDurability[0] + amount <= this.tool.getMaxDurabilityNew()) {
+                    newDurability = pOldDurability[0] + amount;
                 } else {
                     newDurability = this.tool.getMaxDurabilityNew();
                 }
-                pIncreasedAmount[0] = newDurability - oldDurability;
+                pIncreasedAmount[0] = newDurability - pOldDurability[0];
                 pNewDurability[0] = newDurability;
-                nbt.setDurability(newDurability);
+                customNbt.setLong("Durability", newDurability);
             } else {
                 /*
                  * If this happens, the item stack doesn't have durability
@@ -244,8 +243,7 @@ public class CustomToolWrapper extends CustomItemWrapper {
                  * repeating task to fix this.
                  */
             }
-        }, newStack -> pStack[0] = newStack);
-        stack = pStack[0];
+        });
         long increasedAmount = pIncreasedAmount[0];
 
         if (increasedAmount > 0) {
@@ -264,22 +262,17 @@ public class CustomToolWrapper extends CustomItemWrapper {
     }
 
     public long getDurability(ItemStack stack) {
-        long[] pResult = {0};
-        KciNms.instance.items.customReadOnlyNbt(stack, nbt -> {
-            Long durability = nbt.getDurability();
-            if (durability != null) {
-                pResult[0] = durability;
-            } else {
-                pResult[0] = UNBREAKABLE_TOOL_DURABILITY;
-            }
+        return NBT.get(stack, nbt -> {
+            ReadableNBT customNbt = nbt.getCompound(NBT_KEY);
+            if (customNbt == null || !customNbt.hasTag("Durability", NBTType.NBTTagLong)) return UNBREAKABLE_TOOL_DURABILITY;
+            return customNbt.getLong("Durability");
         });
-        return pResult[0];
     }
 
     @Override
-    protected void initNBT(CustomItemNBT nbt) {
+    protected void initNBT(ReadWriteNBT nbt) {
         if (this.tool.getMaxDurabilityNew() != null) {
-            nbt.setDurability(this.tool.getMaxDurabilityNew());
+            nbt.setLong("Durability", this.tool.getMaxDurabilityNew());
         }
     }
 }

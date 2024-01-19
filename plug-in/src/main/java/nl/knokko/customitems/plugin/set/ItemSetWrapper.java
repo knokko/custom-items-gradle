@@ -1,5 +1,7 @@
 package nl.knokko.customitems.plugin.set;
 
+import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadableNBT;
 import nl.knokko.customitems.container.CustomContainerHost;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.drops.*;
@@ -10,8 +12,8 @@ import nl.knokko.customitems.itemset.BlockDropsView;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.MobDropsView;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.container.ContainerInfo;
+import nl.knokko.customitems.plugin.set.item.CustomItemWrapper;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
@@ -108,14 +110,11 @@ public class ItemSetWrapper {
     public CustomItemValues getItem(ItemStack itemStack) {
         if (ItemUtils.isEmpty(itemStack)) return null;
 
-        String[] pItemName = {null};
-        KciNms.instance.items.customReadOnlyNbt(itemStack, nbt -> {
-            if (nbt.hasOurNBT()) {
-                pItemName[0] = nbt.getName();
-            }
+        String itemName = NBT.get(itemStack, nbt -> {
+            ReadableNBT customNbt = nbt.getCompound(CustomItemWrapper.NBT_KEY);
+            if (customNbt == null) return null;
+            return customNbt.getString("Name");
         });
-
-        String itemName = pItemName[0];
         if (itemName == null) return null;
 
         return this.itemMap.get(itemName);
@@ -193,9 +192,5 @@ public class ItemSetWrapper {
     public List<CustomContainerValues> getContainers(CustomContainerHost host) {
         List<CustomContainerValues> maybeContainerList = this.containerHostMap.get(host);
         return maybeContainerList != null ? Collections.unmodifiableList(maybeContainerList) : Collections.emptyList();
-    }
-
-    public Map<CustomContainerHost, List<CustomContainerValues>> getContainerHostMap() {
-        return Collections.unmodifiableMap(this.containerHostMap);
     }
 }

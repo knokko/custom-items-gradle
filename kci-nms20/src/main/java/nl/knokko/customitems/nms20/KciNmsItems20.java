@@ -5,7 +5,6 @@ import com.google.common.collect.Multimap;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.entity.ai.attributes.AttributeBase;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import nl.knokko.customitems.nms.CustomItemNBT;
 import nl.knokko.customitems.nms.RawAttribute;
 import nl.knokko.customitems.nms16plus.KciNmsItems16Plus;
 import org.bukkit.craftbukkit.v1_20_R3.CraftEquipmentSlot;
@@ -16,7 +15,6 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Consumer;
 
 public class KciNmsItems20 extends KciNmsItems16Plus {
 
@@ -40,18 +38,6 @@ public class KciNmsItems20 extends KciNmsItems16Plus {
         }
 
         return attributeList.toArray(new RawAttribute[0]);
-    }
-
-    @Override
-    public void customReadOnlyNbt(ItemStack bukkitStack, Consumer<CustomItemNBT> useNBT) {
-        useNBT.accept(new CustomItemNBT20(bukkitStack, false));
-    }
-
-    @Override
-    public void customReadWriteNbt(ItemStack original, Consumer<CustomItemNBT> useNBT, Consumer<ItemStack> getNewStack) {
-        CustomItemNBT20 nbt = new CustomItemNBT20(original, true);
-        useNBT.accept(nbt);
-        getNewStack.accept(nbt.getBukkitStack());
     }
 
     @Override

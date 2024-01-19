@@ -5,7 +5,6 @@ import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
-import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 class KciNmsItems12 implements KciNmsItems {
@@ -23,18 +22,6 @@ class KciNmsItems12 implements KciNmsItems {
     @Override
     public RawAttribute[] getAttributes(ItemStack stack) {
         return ItemAttributes.getAttributes(stack);
-    }
-
-    @Override
-    public void customReadOnlyNbt(ItemStack bukkitStack, Consumer<CustomItemNBT> useNBT) {
-        useNBT.accept(new CustomItemNBT12(bukkitStack, false));
-    }
-
-    @Override
-    public void customReadWriteNbt(ItemStack original, Consumer<CustomItemNBT> useNBT, Consumer<ItemStack> getNewStack) {
-        CustomItemNBT12 nbt = new CustomItemNBT12(original, true);
-        useNBT.accept(nbt);
-        getNewStack.accept(nbt.getBukkitStack());
     }
 
     @Override

@@ -2,6 +2,8 @@ package nl.knokko.customitems.plugin.set.item;
 
 import com.google.common.collect.Lists;
 import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadableNBT;
 import nl.knokko.customitems.effect.ChancePotionEffectValues;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.enchantment.EnchantmentType;
@@ -26,6 +28,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public abstract class CustomItemWrapper {
+
+    public static final String NBT_KEY = "KnokkosCustomItems";
 
     public static CIMaterial getMaterial(CustomItemType itemType, CIMaterial otherMaterial) {
         if (itemType == CustomItemType.OTHER) return otherMaterial;
@@ -111,17 +115,18 @@ public abstract class CustomItemWrapper {
             defaultEnchantmentMap.put(enchantment.getType(), enchantment.getLevel());
         }
 
-        ItemStack[] pResult = {null};
-        KciNms.instance.items.customReadWriteNbt(item, nbt -> {
+        NBT.modify(item, nbt -> {
+
             long lastModified = CustomItemsPlugin.getInstance().getSet().get().getExportTime();
-            nbt.set(this.item.getName(), lastModified, null, new BooleanRepresentation(this.item.getBooleanRepresentation()));
-            initNBT(nbt);
-        }, result -> pResult[0] = result);
 
-        // Give it the extra nbt, if needed
-        Collection<ExtraItemNbtValues.Entry> extraNbtPairs = this.item.getExtraNbt().getEntries();
+            ReadWriteNBT customNbt = nbt.getOrCreateCompound(NBT_KEY);
+            customNbt.setString("Name", this.item.getName());
+            customNbt.setLong("LastExportTime", lastModified);
+            customNbt.setByteArray("BooleanRepresentation", this.item.getBooleanRepresentation());
+            initNBT(customNbt);
 
-        NBT.modify(pResult[0], nbt -> {
+            // Give it the extra nbt, if needed
+            Collection<ExtraItemNbtValues.Entry> extraNbtPairs = this.item.getExtraNbt().getEntries();
             for (ExtraItemNbtValues.Entry extraPair : extraNbtPairs) {
                 ExtraItemNbtValues.Value value = extraPair.getValue();
                 if (value.type == NbtValueType.INTEGER) {
@@ -144,10 +149,10 @@ public abstract class CustomItemWrapper {
             ItemUpgrader.setEnchantmentUpgrades(nbt, defaultEnchantmentMap);
         });
 
-        return pResult[0];
+        return item;
     }
 
-    protected void initNBT(CustomItemNBT nbt) {}
+    protected void initNBT(ReadWriteNBT nbt) {}
 
     public ItemStack create(int amount) {
         return create(amount, createLore());
@@ -165,16 +170,11 @@ public abstract class CustomItemWrapper {
 
     public boolean is(ItemStack item){
         if (!ItemUtils.isEmpty(item)) {
-            boolean[] pResult = {false};
-            KciNms.instance.items.customReadOnlyNbt(item, nbt -> {
-                if (nbt.hasOurNBT()) {
-                    if (nbt.getName().equals(this.item.getName())) {
-                        pResult[0] = true;
-                    }
-                }
+            return NBT.get(item, nbt -> {
+                ReadableNBT customNbt = nbt.getCompound(NBT_KEY);
+                if (customNbt == null) return false;
+                return this.item.getName().equals(customNbt.getString("Name"));
             });
-
-            return pResult[0];
         } else {
             return false;
         }
