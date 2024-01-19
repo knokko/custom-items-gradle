@@ -1,5 +1,8 @@
 package nl.knokko.customitems.plugin.tasks.updater;
 
+import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadableNBT;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.ByteArrayBitInput;
 import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
@@ -7,7 +10,6 @@ import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomToolValues;
 import nl.knokko.customitems.item.enchantment.EnchantmentType;
 import nl.knokko.customitems.itemset.UpgradeReference;
-import nl.knokko.customitems.nms.GeneralItemNBT;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.nms.RawAttribute;
 import nl.knokko.customitems.plugin.recipe.RecipeHelper;
@@ -15,6 +17,7 @@ import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.item.BukkitEnchantments;
 import nl.knokko.customitems.plugin.set.item.CustomToolWrapper;
 import nl.knokko.customitems.plugin.util.AttributeMerger;
+import nl.knokko.customitems.plugin.util.NbtHelper;
 import nl.knokko.customitems.recipe.result.UpgradeResultValues;
 import nl.knokko.customitems.recipe.upgrade.UpgradeValues;
 import nl.knokko.customitems.util.StringEncoder;
@@ -47,13 +50,13 @@ public class ItemUpgrader {
             "KnokkosCustomUpgrades", "Enchantments"
     };
 
-    private static List<UUID> parseUUIDs(GeneralItemNBT nbt, String[] key) {
-        String[] raw = nbt.getOrDefault(key, "").split(",");
+    private static List<UUID> parseUUIDs(ReadableNBT nbt, String[] key) {
+        String[] raw = NbtHelper.getNested(nbt, key, "").split(",");
         if (raw.length <= 1 && raw[0].isEmpty()) return new ArrayList<>(0);
         return Arrays.stream(raw).map(UUID::fromString).collect(Collectors.toList());
     }
 
-    private static void saveUUIDs(GeneralItemNBT nbt, String[] key, Collection<UUID> ids) {
+    private static void saveUUIDs(ReadWriteNBT nbt, String[] key, Collection<UUID> ids) {
         List<UUID> idList = new ArrayList<>(ids);
         StringBuilder builder = new StringBuilder();
         for (int index = 0; index < idList.size(); index++) {
@@ -62,31 +65,31 @@ public class ItemUpgrader {
                 builder.append(",");
             }
         }
-        nbt.set(key, builder.toString());
+        NbtHelper.setNested(nbt, key, builder.toString());
     }
 
-    static List<UUID> getExistingUpgradeIDs(GeneralItemNBT nbt) {
+    static List<UUID> getExistingUpgradeIDs(ReadableNBT nbt) {
         return parseUUIDs(nbt, UPGRADE_IDS_KEY);
     }
 
-    static Collection<UUID> getExistingAttributeIDs(GeneralItemNBT nbt) {
+    static Collection<UUID> getExistingAttributeIDs(ReadableNBT nbt) {
         return parseUUIDs(nbt, ATTRIBUTE_IDS_KEY);
     }
 
-    public static boolean hasStoredExistingAttributeIDs(GeneralItemNBT nbt) {
-        return nbt.getOrDefault(ATTRIBUTE_IDS_KEY, null) != null;
+    public static boolean hasStoredExistingAttributeIDs(ReadableNBT nbt) {
+        return NbtHelper.getNested(nbt, ATTRIBUTE_IDS_KEY, null) != null;
     }
 
-    static void setUpgradeIDs(GeneralItemNBT nbt, List<UUID> newIDs) {
+    static void setUpgradeIDs(ReadWriteNBT nbt, List<UUID> newIDs) {
         saveUUIDs(nbt, UPGRADE_IDS_KEY, newIDs);
     }
 
-    public static void setAttributeIDs(GeneralItemNBT nbt, Collection<UUID> newIDs) {
+    public static void setAttributeIDs(ReadWriteNBT nbt, Collection<UUID> newIDs) {
         saveUUIDs(nbt, ATTRIBUTE_IDS_KEY, newIDs);
     }
 
-    static Map<EnchantmentType, Integer> getEnchantmentUpgrades(GeneralItemNBT nbt) {
-        String binaryString = nbt.getOrDefault(ENCHANTMENTS_KEY, null);
+    static Map<EnchantmentType, Integer> getEnchantmentUpgrades(ReadableNBT nbt) {
+        String binaryString = NbtHelper.getNested(nbt, ENCHANTMENTS_KEY, null);
         if (binaryString == null) return new HashMap<>();
 
         BitInput input = new ByteArrayBitInput(StringEncoder.decodeTextyBytes(
@@ -102,7 +105,7 @@ public class ItemUpgrader {
         return enchantmentMap;
     }
 
-    public static void setEnchantmentUpgrades(GeneralItemNBT nbt, Map<EnchantmentType, Integer> newEnchantmentUpgrades) {
+    public static void setEnchantmentUpgrades(ReadWriteNBT nbt, Map<EnchantmentType, Integer> newEnchantmentUpgrades) {
         ByteArrayBitOutput output = new ByteArrayBitOutput();
         output.addByte((byte) 1);
         output.addInt(newEnchantmentUpgrades.size());
@@ -110,23 +113,24 @@ public class ItemUpgrader {
             output.addString(enchantment.name());
             output.addInt(level);
         });
-        nbt.set(ENCHANTMENTS_KEY, new String(
+        NbtHelper.setNested(nbt, ENCHANTMENTS_KEY, new String(
                 StringEncoder.encodeTextyBytes(output.getBytes(), false),
                 StandardCharsets.UTF_8
         ));
     }
 
-    public static boolean hasStoredEnchantmentUpgrades(GeneralItemNBT nbt) {
-        return nbt.getOrDefault(ENCHANTMENTS_KEY, null) != null;
+    public static boolean hasStoredEnchantmentUpgrades(ReadableNBT nbt) {
+        return NbtHelper.getNested(nbt, ENCHANTMENTS_KEY, null) != null;
     }
 
     public static List<UpgradeValues> getUpgrades(ItemStack stack, ItemSetWrapper itemSet) {
-        GeneralItemNBT nbt = KciNms.instance.items.generalReadOnlyNbt(stack);
         List<UpgradeValues> upgrades = new ArrayList<>();
-        for (UUID id : getExistingUpgradeIDs(nbt)) {
-            Optional<UpgradeValues> upgrade = itemSet.get().getUpgrade(id);
-            upgrade.ifPresent(upgrades::add);
-        }
+        NBT.get(stack, nbt -> {
+            for (UUID id : getExistingUpgradeIDs(nbt)) {
+                Optional<UpgradeValues> upgrade = itemSet.get().getUpgrade(id);
+                upgrade.ifPresent(upgrades::add);
+            }
+        });
         return upgrades;
     }
 
@@ -137,92 +141,107 @@ public class ItemUpgrader {
         float originalDurabilityPercentage = RecipeHelper.getDurabilityPercentage(currentStack);
 
         RawAttribute[] originalAttributes = KciNms.instance.items.getAttributes(currentStack);
-        GeneralItemNBT nbt = KciNms.instance.items.generalReadWriteNbt(currentStack);
 
-        Collection<UUID> existingUpgradeIDs = getExistingUpgradeIDs(nbt);
-        List<UUID> newUpgradeIDs = new ArrayList<>();
-        if (result.shouldKeepOldUpgrades()) newUpgradeIDs.addAll(existingUpgradeIDs);
-        for (UpgradeReference upgrade : result.getUpgrades()) newUpgradeIDs.add(upgrade.get().getId());
+        class Result {
+            ItemStack newStack;
 
-        Map<EnchantmentType, Integer> oldKciEnchantments = getEnchantmentUpgrades(nbt);
-        Map<EnchantmentType, Integer> newKciEnchantments = new HashMap<>();
-        if (customItem != null) ItemUpdater.addEnchantmentsToMap(newKciEnchantments, customItem.getDefaultEnchantments());
-        for (UUID id : newUpgradeIDs) {
-            ItemUpdater.addEnchantmentsToMap(newKciEnchantments, itemSet.get().getUpgrade(id).get().getEnchantments());
+            Map<EnchantmentType, Integer> enchantmentAdjustments;
+            List<RawAttribute> allNewAttributes;
+            List<RawAttribute> nonKciAttributes;
+            Map<EnchantmentType, Integer> nonKciEnchantments;
         }
-        Map<EnchantmentType, Integer> enchantmentAdjustments = ItemUpdater.determineEnchantmentAdjustments(
-                oldKciEnchantments, newKciEnchantments
-        );
 
-        Map<EnchantmentType, Integer> nonKciEnchantments = null;
-        if (
-                (result.shouldKeepOldEnchantments() && result.getNewType() != null)
-                || (!result.shouldKeepOldEnchantments() && result.getNewType() == null)
-        ) {
-            nonKciEnchantments = new HashMap<>();
-            for (EnchantmentType enchantment : EnchantmentType.values()) {
-                int totalLevel = BukkitEnchantments.getLevel(currentStack, enchantment);
-                int nonKciLevel = totalLevel - oldKciEnchantments.getOrDefault(enchantment, 0);
-                if (nonKciLevel > 0) {
-                    nonKciEnchantments.put(enchantment, nonKciLevel);
+        Result nbtModifyResult = NBT.modify(currentStack, nbt -> {
+            Result nbtResult = new Result();
+
+            Collection<UUID> existingUpgradeIDs = getExistingUpgradeIDs(nbt);
+            List<UUID> newUpgradeIDs = new ArrayList<>();
+            if (result.shouldKeepOldUpgrades()) newUpgradeIDs.addAll(existingUpgradeIDs);
+            for (UpgradeReference upgrade : result.getUpgrades()) newUpgradeIDs.add(upgrade.get().getId());
+
+            Map<EnchantmentType, Integer> oldKciEnchantments = getEnchantmentUpgrades(nbt);
+            Map<EnchantmentType, Integer> newKciEnchantments = new HashMap<>();
+            if (customItem != null) ItemUpdater.addEnchantmentsToMap(newKciEnchantments, customItem.getDefaultEnchantments());
+            for (UUID id : newUpgradeIDs) {
+                ItemUpdater.addEnchantmentsToMap(newKciEnchantments, itemSet.get().getUpgrade(id).get().getEnchantments());
+            }
+            nbtResult.enchantmentAdjustments = ItemUpdater.determineEnchantmentAdjustments(
+                    oldKciEnchantments, newKciEnchantments
+            );
+
+            nbtResult.nonKciEnchantments = null;
+            if (
+                    (result.shouldKeepOldEnchantments() && result.getNewType() != null)
+                            || (!result.shouldKeepOldEnchantments() && result.getNewType() == null)
+            ) {
+                nbtResult.nonKciEnchantments = new HashMap<>();
+                for (EnchantmentType enchantment : EnchantmentType.values()) {
+                    int totalLevel = BukkitEnchantments.getLevel(original, enchantment);
+                    int nonKciLevel = totalLevel - oldKciEnchantments.getOrDefault(enchantment, 0);
+                    if (nonKciLevel > 0) {
+                        nbtResult.nonKciEnchantments.put(enchantment, nonKciLevel);
+                    }
                 }
             }
-        }
 
-        setEnchantmentUpgrades(nbt, newKciEnchantments);
+            setEnchantmentUpgrades(nbt, newKciEnchantments);
 
-        if (result.getNewType() != null) {
-            ItemStack newStack = RecipeHelper.convertResultToItemStack(result.getNewType());
+            if (result.getNewType() != null) {
+                ItemStack newStack = RecipeHelper.convertResultToItemStack(result.getNewType());
 
-            if (result.shouldKeepOldEnchantments()) {
-                assert nonKciEnchantments != null;
-                for (Map.Entry<EnchantmentType, Integer> entry : nonKciEnchantments.entrySet()) {
-                    newStack = BukkitEnchantments.add(newStack, entry.getKey(), entry.getValue());
+                if (result.shouldKeepOldEnchantments()) {
+                    assert nbtResult.nonKciEnchantments != null;
+                    for (Map.Entry<EnchantmentType, Integer> entry : nbtResult.nonKciEnchantments.entrySet()) {
+                        newStack = BukkitEnchantments.add(newStack, entry.getKey(), entry.getValue());
+                    }
                 }
+
+                UpgradeResultValues newResult = result.copy(true);
+                newResult.setNewType(null);
+                newResult.setRepairPercentage(result.getRepairPercentage() + originalDurabilityPercentage - 100f);
+                newResult.setUpgrades(newUpgradeIDs.stream().map(
+                        id -> itemSet.get().getUpgradeReference(id)).collect(Collectors.toList()
+                ));
+
+                nbtResult.newStack = addUpgrade(newStack, itemSet, newResult);
+                return nbtResult;
             }
 
-            UpgradeResultValues newResult = result.copy(true);
-            newResult.setNewType(null);
-            newResult.setRepairPercentage(result.getRepairPercentage() + originalDurabilityPercentage - 100f);
-            newResult.setUpgrades(newUpgradeIDs.stream().map(
-                    id -> itemSet.get().getUpgradeReference(id)).collect(Collectors.toList()
-            ));
+            Collection<UUID> existingKciAttributeIDs = new HashSet<>(getExistingAttributeIDs(nbt));
 
-            return addUpgrade(newStack, itemSet, newResult);
-        }
+            nbtResult.nonKciAttributes = new ArrayList<>(originalAttributes.length);
+            for (RawAttribute originalAttribute : originalAttributes) {
+                if (!existingKciAttributeIDs.contains(originalAttribute.id)) nbtResult.nonKciAttributes.add(originalAttribute);
+            }
+            RawAttribute[] newKciAttributes = AttributeMerger.merge(itemSet, customItem, newUpgradeIDs);
+            Collection<UUID> newKciAttributeIDs = Arrays.stream(newKciAttributes).map(
+                    attribute -> attribute.id
+            ).collect(Collectors.toList());
 
-        Collection<UUID> existingKciAttributeIDs = new HashSet<>(getExistingAttributeIDs(nbt));
+            setUpgradeIDs(nbt, newUpgradeIDs);
+            setAttributeIDs(nbt, newKciAttributeIDs);
 
-        List<RawAttribute> nonKciAttributes = new ArrayList<>(originalAttributes.length);
-        for (RawAttribute originalAttribute : originalAttributes) {
-            if (!existingKciAttributeIDs.contains(originalAttribute.id)) nonKciAttributes.add(originalAttribute);
-        }
-        RawAttribute[] newKciAttributes = AttributeMerger.merge(itemSet, customItem, newUpgradeIDs);
-        Collection<UUID> newKciAttributeIDs = Arrays.stream(newKciAttributes).map(
-                attribute -> attribute.id
-        ).collect(Collectors.toList());
+            if (customItem == null) {
+                NbtHelper.setNested(nbt, LAST_VANILLA_UPGRADE_KEY, Long.toString(itemSet.get().getExportTime()));
+            }
 
-        setUpgradeIDs(nbt, newUpgradeIDs);
-        setAttributeIDs(nbt, newKciAttributeIDs);
+            nbtResult.allNewAttributes = new ArrayList<>(nbtResult.nonKciAttributes.size() + newKciAttributes.length);
+            nbtResult.allNewAttributes.addAll(nbtResult.nonKciAttributes);
+            Collections.addAll(nbtResult.allNewAttributes, newKciAttributes);
+            return nbtResult;
+        });
 
-        if (customItem == null) {
-            nbt.set(LAST_VANILLA_UPGRADE_KEY, Long.toString(itemSet.get().getExportTime()));
-        }
-
-        List<RawAttribute> allNewAttributes = new ArrayList<>(nonKciAttributes.size() + newKciAttributes.length);
-        allNewAttributes.addAll(nonKciAttributes);
-        Collections.addAll(allNewAttributes, newKciAttributes);
+        if (nbtModifyResult.newStack != null) return nbtModifyResult.newStack;
 
         currentStack = KciNms.instance.items.replaceAttributes(
-                nbt.backToBukkit(),
-                allNewAttributes.toArray(new RawAttribute[0])
+                currentStack, nbtModifyResult.allNewAttributes.toArray(new RawAttribute[0])
         );
 
-        currentStack = ItemUpdater.applyEnchantmentAdjustments(currentStack, enchantmentAdjustments);
+        currentStack = ItemUpdater.applyEnchantmentAdjustments(currentStack, nbtModifyResult.enchantmentAdjustments);
 
         if (!result.shouldKeepOldEnchantments()) {
-            assert nonKciEnchantments != null;
-            for (Map.Entry<EnchantmentType, Integer> entry : nonKciEnchantments.entrySet()) {
+            assert nbtModifyResult.nonKciEnchantments != null;
+            for (Map.Entry<EnchantmentType, Integer> entry : nbtModifyResult.nonKciEnchantments.entrySet()) {
                 int newLevel = BukkitEnchantments.getLevel(currentStack, entry.getKey()) - entry.getValue();
                 if (newLevel > 0) currentStack = BukkitEnchantments.add(currentStack, entry.getKey(), newLevel);
                 else currentStack = BukkitEnchantments.remove(currentStack, entry.getKey());

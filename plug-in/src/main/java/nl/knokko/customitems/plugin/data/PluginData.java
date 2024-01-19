@@ -379,7 +379,8 @@ public class PluginData {
 
 							IndirectGunAmmoValues indirectAmmo = (IndirectGunAmmoValues) gun.getAmmo();
 							if (checkAmmo(player.getInventory(), indirectAmmo.getReloadItem(), true)) {
-								player.getInventory().setItemInMainHand(new CustomGunWrapper(gun).reload(currentItem));
+								new CustomGunWrapper(gun).reload(currentItem);
+								player.getInventory().setItemInMainHand(currentItem);
 								if (indirectAmmo.getEndReloadSound() != null) {
 									SoundPlayer.playSound(player, indirectAmmo.getEndReloadSound());
 								}
@@ -408,7 +409,8 @@ public class PluginData {
 
 							IndirectGunAmmoValues indirectAmmo = (IndirectGunAmmoValues) gun.getAmmo();
 							if (checkAmmo(player.getInventory(), indirectAmmo.getReloadItem(), true)) {
-                                player.getInventory().setItemInOffHand(new CustomGunWrapper(gun).reload(currentItem));
+								new CustomGunWrapper(gun).reload(currentItem);
+                                player.getInventory().setItemInOffHand(currentItem);
                                 if (indirectAmmo.getEndReloadSound() != null) {
                                 	SoundPlayer.playSound(player, indirectAmmo.getEndReloadSound());
 								}

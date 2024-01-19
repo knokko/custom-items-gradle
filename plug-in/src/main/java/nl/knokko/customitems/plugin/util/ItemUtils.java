@@ -1,5 +1,6 @@
 package nl.knokko.customitems.plugin.util;
 
+import de.tr7zw.changeme.nbtapi.NBT;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.command.CommandCustomItemsGive;
@@ -25,8 +26,8 @@ public class ItemUtils {
 				stack.getAmount() == 0) {
 			return true;
 		}
-		return KciNms.instance.items.generalReadOnlyNbt(stack).getOrDefault(
-				ContainerInstance.PLACEHOLDER_KEY, 0) == 1;
+
+		return NBT.get(stack, nbt -> NbtHelper.getNested(nbt, ContainerInstance.PLACEHOLDER_KEY, 0) == 1);
 	}
 	
 	public static boolean isCustom(ItemStack stack) {

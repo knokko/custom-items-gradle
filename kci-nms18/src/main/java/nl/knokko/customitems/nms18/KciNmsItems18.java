@@ -6,7 +6,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.entity.ai.attributes.AttributeBase;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import nl.knokko.customitems.nms.CustomItemNBT;
-import nl.knokko.customitems.nms.GeneralItemNBT;
 import nl.knokko.customitems.nms.RawAttribute;
 import nl.knokko.customitems.nms16plus.KciNmsItems16Plus;
 import org.bukkit.craftbukkit.v1_18_R2.CraftEquipmentSlot;
@@ -41,16 +40,6 @@ class KciNmsItems18 extends KciNmsItems16Plus {
         }
 
         return attributeList.toArray(new RawAttribute[0]);
-    }
-
-    @Override
-    public GeneralItemNBT generalReadOnlyNbt(ItemStack bukkitStack) {
-        return new GeneralItemNBT18(CraftItemStack.asNMSCopy(bukkitStack), false);
-    }
-
-    @Override
-    public GeneralItemNBT generalReadWriteNbt(ItemStack bukkitStack) {
-        return new GeneralItemNBT18(CraftItemStack.asNMSCopy(bukkitStack), true);
     }
 
     @Override

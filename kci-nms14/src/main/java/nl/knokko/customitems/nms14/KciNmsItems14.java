@@ -1,10 +1,8 @@
 package nl.knokko.customitems.nms14;
 
-import com.google.common.base.CaseFormat;
 import com.google.common.collect.Multimap;
 import net.minecraft.server.v1_14_R1.AttributeModifier;
 import nl.knokko.customitems.nms.CustomItemNBT;
-import nl.knokko.customitems.nms.GeneralItemNBT;
 import nl.knokko.customitems.nms.RawAttribute;
 import nl.knokko.customitems.nms13plus.KciNmsItems13Plus;
 import org.bukkit.craftbukkit.v1_14_R1.CraftEquipmentSlot;
@@ -40,16 +38,6 @@ public class KciNmsItems14 extends KciNmsItems13Plus {
         }
 
         return attributeList.toArray(new RawAttribute[0]);
-    }
-
-    @Override
-    public GeneralItemNBT generalReadOnlyNbt(ItemStack bukkitStack) {
-        return new GeneralItemNBT14(CraftItemStack.asNMSCopy(bukkitStack), false);
-    }
-
-    @Override
-    public GeneralItemNBT generalReadWriteNbt(ItemStack bukkitStack) {
-        return new GeneralItemNBT14(CraftItemStack.asNMSCopy(bukkitStack), true);
     }
 
     @Override

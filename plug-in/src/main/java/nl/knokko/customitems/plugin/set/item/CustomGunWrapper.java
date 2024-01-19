@@ -1,10 +1,11 @@
 package nl.knokko.customitems.plugin.set.item;
 
+import de.tr7zw.changeme.nbtapi.NBT;
 import nl.knokko.customitems.item.CustomGunValues;
 import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
-import nl.knokko.customitems.nms.GeneralItemNBT;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
+import nl.knokko.customitems.plugin.util.NbtHelper;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -46,11 +47,12 @@ public class CustomGunWrapper extends CustomItemWrapper {
 
         IndirectGunAmmoValues indirectAmmo = (IndirectGunAmmoValues) gun.getAmmo();
 
-        ItemStack beforeNbt = super.create(1, createLore(indirectAmmo, remainingAmmo));
-        GeneralItemNBT nbt = KciNms.instance.items.generalReadWriteNbt(beforeNbt);
-        nbt.set(KEY_INDIRECT_AMMO, remainingAmmo);
+        ItemStack result = super.create(1, createLore(indirectAmmo, remainingAmmo));
+        NBT.modify(result, nbt -> {
+            NbtHelper.setNested(nbt, KEY_INDIRECT_AMMO, remainingAmmo);
+        });
 
-        return nbt.backToBukkit();
+        return result;
     }
 
     private List<String> createLore(IndirectGunAmmoValues indirectAmmo, int remainingAmmo) {
@@ -61,32 +63,32 @@ public class CustomGunWrapper extends CustomItemWrapper {
 
     /**
      * Attempts to decrement the internal ammo of the given gun item stack. If it has at least 1 stored
-     * ammo left, a new item stack will be returned with 1 less stored ammo than the original item stack.
+     * ammo left, it will be decremented, and the same item stack will be returned
      * If the given gun item stack is out of ammo, this method returns null.
-     * @param original The original gun item stack
-     * @return A gun item stack with 1 less ammo, or null if original is out of ammo
+     * @return The item stack with 1 less ammo, or null if original is out of ammo
      */
-    public ItemStack decrementAmmo(ItemStack original) {
+    public ItemStack decrementAmmo(ItemStack gunStack) {
         if (gun.getAmmo() instanceof IndirectGunAmmoValues) {
 
             IndirectGunAmmoValues indirectAmmo = (IndirectGunAmmoValues) gun.getAmmo();
-            GeneralItemNBT nbt = KciNms.instance.items.generalReadWriteNbt(original);
+            int newAmmo = NBT.modify(gunStack, nbt -> {
+                int currentAmmo = NbtHelper.getNested(nbt, KEY_INDIRECT_AMMO, 0);
+                if (currentAmmo <= 0) {
 
-            int currentAmmo = nbt.getOrDefault(KEY_INDIRECT_AMMO, 0);
-            if (currentAmmo <= 0) {
+                    // If this happens, the gun is either out of ammo or corrupted
+                    return -1;
+                }
 
-                // If this happens, the gun is either out of ammo or corrupted
-                return null;
-            }
+                NbtHelper.setNested(nbt, KEY_INDIRECT_AMMO, currentAmmo - 1);
+                return currentAmmo - 1;
+            });
+            if (newAmmo == -1) return null;
 
-            nbt.set(KEY_INDIRECT_AMMO, currentAmmo - 1);
-            ItemStack decremented = nbt.backToBukkit();
+            ItemMeta meta = gunStack.getItemMeta();
+            meta.setLore(createLore(indirectAmmo, newAmmo));
+            gunStack.setItemMeta(meta);
 
-            ItemMeta meta = decremented.getItemMeta();
-            meta.setLore(createLore(indirectAmmo, currentAmmo - 1));
-            decremented.setItemMeta(meta);
-
-            return decremented;
+            return gunStack;
         } else {
             throw new UnsupportedOperationException("Only guns with indirect ammo can decrement internal ammo");
         }
@@ -94,28 +96,24 @@ public class CustomGunWrapper extends CustomItemWrapper {
 
     public int getCurrentAmmo(ItemStack gunStack) {
         if (gun.getAmmo() instanceof IndirectGunAmmoValues) {
-
-            GeneralItemNBT nbt = KciNms.instance.items.generalReadOnlyNbt(gunStack);
-            return nbt.getOrDefault(KEY_INDIRECT_AMMO, 0);
+            return NBT.get(gunStack, nbt -> { return NbtHelper.getNested(nbt, KEY_INDIRECT_AMMO, 0); } );
         } else {
             throw new UnsupportedOperationException("Only guns with indirect ammo can have internal ammo");
         }
     }
 
-    public ItemStack reload(ItemStack gunStack) {
+    public void reload(ItemStack gunStack) {
         if (gun.getAmmo() instanceof IndirectGunAmmoValues) {
 
             IndirectGunAmmoValues indirectAmmo = (IndirectGunAmmoValues) gun.getAmmo();
 
-            GeneralItemNBT nbt = KciNms.instance.items.generalReadWriteNbt(gunStack);
-            nbt.set(KEY_INDIRECT_AMMO, indirectAmmo.getStoredAmmo());
-            ItemStack reloaded = nbt.backToBukkit();
+            NBT.modify(gunStack, nbt -> {
+               NbtHelper.setNested(nbt, KEY_INDIRECT_AMMO, indirectAmmo.getStoredAmmo());
+            });
 
-            ItemMeta meta = reloaded.getItemMeta();
+            ItemMeta meta = gunStack.getItemMeta();
             meta.setLore(createLore(indirectAmmo, indirectAmmo.getStoredAmmo()));
-            reloaded.setItemMeta(meta);
-
-            return reloaded;
+            gunStack.setItemMeta(meta);
         } else {
             throw new UnsupportedOperationException("Only guns with indirect ammo can decrement internal ammo");
         }

@@ -1,5 +1,6 @@
 package nl.knokko.customitems.plugin.container;
 
+import de.tr7zw.changeme.nbtapi.NBT;
 import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.container.ContainerRecipeValues;
 import nl.knokko.customitems.container.CustomContainerHost;
@@ -12,6 +13,7 @@ import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.events.CustomContainerActionEvent;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
+import nl.knokko.customitems.plugin.util.NbtHelper;
 import nl.knokko.customitems.recipe.result.CustomItemResultValues;
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
@@ -122,8 +124,7 @@ public class ContainerEventHandler implements Listener {
 		Bukkit.getScheduler().scheduleSyncDelayedTask(
 				CustomItemsPlugin.getInstance(), () -> {
 					ItemStack cursor = clicker.getItemOnCursor();
-					if (KciNms.instance.items.generalReadOnlyNbt(cursor).getOrDefault(
-							ContainerInstance.PLACEHOLDER_KEY, 0) == 1) {
+					if (NBT.get(cursor, nbt -> NbtHelper.getNested(nbt, ContainerInstance.PLACEHOLDER_KEY, 0) == 1)) {
 						clicker.setItemOnCursor(null);
 					}
 				}

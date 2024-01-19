@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import de.tr7zw.changeme.nbtapi.NBT;
 import nl.knokko.customitems.container.ContainerRecipeValues;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.container.energy.EnergyTypeValues;
@@ -19,12 +20,12 @@ import nl.knokko.customitems.container.slot.ContainerSlotValues;
 import nl.knokko.customitems.container.slot.StorageSlotValues;
 import nl.knokko.customitems.container.slot.display.*;
 import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.nms.GeneralItemNBT;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.data.container.ContainerStorageKey;
 import nl.knokko.customitems.plugin.data.container.StoredEnergy;
 import nl.knokko.customitems.plugin.tasks.updater.ItemUpgrader;
+import nl.knokko.customitems.plugin.util.NbtHelper;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -109,9 +110,10 @@ public class ContainerInstance {
 		// Since all AIR items share the same NBT, writing to the NBT of an AIR item has weird consequences...
 		if (stack.getType() == Material.AIR) return stack;
 
-		GeneralItemNBT nbt = KciNms.instance.items.generalReadWriteNbt(stack);
-		nbt.set(PLACEHOLDER_KEY, 1);
-		return nbt.backToBukkit();
+		NBT.modify(stack, nbt -> {
+			NbtHelper.setNested(nbt, PLACEHOLDER_KEY, 1);
+		});
+		return stack;
 	}
 	
 	private static Inventory createInventory(ContainerInfo typeInfo) {
@@ -1029,10 +1031,9 @@ public class ContainerInstance {
 		Map<String, ItemStack> ingredients = getCurrentIngredients();
 		for (ItemStack ingredient : ingredients.values()) {
 			if (ItemUtils.isCustom(ingredient)) {
-				GeneralItemNBT nbt = KciNms.instance.items.generalReadOnlyNbt(ingredient);
-				if (!ItemUpgrader.hasStoredEnchantmentUpgrades(nbt) || !ItemUpgrader.hasStoredExistingAttributeIDs(nbt)) {
-					return false;
-				}
+				if (NBT.get(ingredient, nbt -> {
+					return !ItemUpgrader.hasStoredEnchantmentUpgrades(nbt) || !ItemUpgrader.hasStoredExistingAttributeIDs(nbt);
+				})) return false;
 			}
 		}
 

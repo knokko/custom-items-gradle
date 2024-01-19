@@ -9,11 +9,11 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+import de.tr7zw.changeme.nbtapi.NBT;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.enchantment.EnchantmentType;
 import nl.knokko.customitems.item.enchantment.EnchantmentValues;
 import nl.knokko.customitems.nms.BooleanRepresentation;
-import nl.knokko.customitems.nms.GeneralItemNBT;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.nms.RawAttribute;
 import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
@@ -21,6 +21,7 @@ import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.item.*;
 import nl.knokko.customitems.plugin.util.AttributeMerger;
 import nl.knokko.customitems.plugin.util.ItemUtils;
+import nl.knokko.customitems.plugin.util.NbtHelper;
 import nl.knokko.customitems.recipe.upgrade.UpgradeValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import org.bukkit.Bukkit;
@@ -106,20 +107,20 @@ public class ItemUpdater {
 		if (originalStack == null) {
 			return null;
 		}
-		
-		GeneralItemNBT preNbt = KciNms.instance.items.generalReadOnlyNbt(originalStack);
-		if (
-				// If players somehow obtain placeholder items, get rid of those!
-				preNbt.getOrDefault(ContainerInstance.PLACEHOLDER_KEY, 0) == 1
-						// And also destroy duplicated Dual Wield items
-				|| DualWieldSupport.isCorrupted(preNbt)
-		) {
-			return null;
-		}
 
-		List<UUID> upgradeIDs = ItemUpgrader.getExistingUpgradeIDs(preNbt);
-		long lastVanillaExportTime = Long.parseLong(preNbt.getOrDefault(LAST_VANILLA_UPGRADE_KEY, "0"));
-		
+		// If players somehow obtain placeholder items, get rid of those!
+		// And also destroy duplicated Dual Wield items
+		boolean isFake = NBT.get(originalStack, nbt ->
+				NbtHelper.getNested(nbt, ContainerInstance.PLACEHOLDER_KEY, 0) == 1 ||
+				DualWieldSupport.isCorrupted(nbt)
+		);
+		if (isFake) return null;
+
+		List<UUID> upgradeIDs = NBT.get(originalStack, ItemUpgrader::getExistingUpgradeIDs);
+		long lastVanillaExportTime = NBT.get(originalStack, nbt -> {
+			return Long.parseLong(NbtHelper.getNested(nbt, LAST_VANILLA_UPGRADE_KEY, "0"));
+		});
+
 		CustomItemValues[] pOldItem = {null};
 		CustomItemValues[] pNewItem = {null};
 		UpdateAction[] pAction = {null};
@@ -306,10 +307,10 @@ public class ItemUpdater {
 		ItemStack newStack = upgradeAttributeModifiers(oldStack, null, null);
 
 		newStack = upgradeEnchantments(newStack, null, null);
-
-		GeneralItemNBT nbt = KciNms.instance.items.generalReadWriteNbt(newStack);
-		nbt.set(LAST_VANILLA_UPGRADE_KEY, Long.toString(itemSet.get().getExportTime()));
-		return nbt.backToBukkit();
+		NBT.modify(newStack, nbt -> {
+			NbtHelper.setNested(nbt, LAST_VANILLA_UPGRADE_KEY, Long.toString(itemSet.get().getExportTime()));
+		});
+		return newStack;
 	}
 	
 	private ItemStack upgradeCustomItem(ItemStack oldStack, CustomItemValues oldItem, CustomItemValues newItem) {
@@ -383,28 +384,28 @@ public class ItemUpdater {
 			}
 		}, afterNbt -> pNewStack[0] = afterNbt);
 		newStack = pNewStack[0];
-		
-		GeneralItemNBT generalNbt = KciNms.instance.items.generalReadWriteNbt(newStack);
-		for (ExtraItemNbtValues.Entry oldPair : oldItem.getExtraNbt().getEntries()) {
-			generalNbt.remove(oldPair.getKey().toArray(new String[0]));
-		}
-		for (ExtraItemNbtValues.Entry newPair : newItem.getExtraNbt().getEntries()) {
-			ExtraItemNbtValues.Value newValue = newPair.getValue();
-			if (newValue.type == NbtValueType.INTEGER) {
-				generalNbt.set(newPair.getKey().toArray(new String[0]), newValue.getIntValue());
-			} else if (newValue.type == NbtValueType.STRING) {
-				generalNbt.set(newPair.getKey().toArray(new String[0]), newValue.getStringValue());
-			} else {
-				throw new Error("Unknown nbt value type: " + newValue.type);
+
+		NBT.modify(newStack, generalNbt -> {
+			for (ExtraItemNbtValues.Entry oldPair : oldItem.getExtraNbt().getEntries()) {
+				NbtHelper.removeNested(generalNbt, oldPair.getKey().toArray(new String[0]));
 			}
-		}
-		if (newItem.getItemType() == CustomItemType.OTHER) {
-			String[] customModelDataKey = { "CustomModelData" };
-			generalNbt.set(customModelDataKey, newItem.getItemDamage());
-		}
-		
-		newStack = generalNbt.backToBukkit();
-		
+			for (ExtraItemNbtValues.Entry newPair : newItem.getExtraNbt().getEntries()) {
+				ExtraItemNbtValues.Value newValue = newPair.getValue();
+				String[] key = newPair.getKey().toArray(new String[0]);
+				if (newValue.type == NbtValueType.INTEGER) {
+					NbtHelper.setNested(generalNbt, key, newValue.getIntValue());
+				} else if (newValue.type == NbtValueType.STRING) {
+					NbtHelper.setNested(generalNbt, key, newValue.getStringValue());
+				} else {
+					throw new Error("Unknown nbt value type: " + newValue.type);
+				}
+			}
+			if (newItem.getItemType() == CustomItemType.OTHER) {
+				String customModelDataKey = "CustomModelData";
+				generalNbt.setInteger(customModelDataKey, (int) newItem.getItemDamage());
+			}
+		});
+
 		newStack = upgradeEnchantments(newStack, oldItem, newItem);
 
 		KciNms.instance.items.setMaterial(newStack, CustomItemWrapper.getMaterial(newItem.getItemType(), newItem.getOtherMaterial()).name());
@@ -519,55 +520,57 @@ public class ItemUpdater {
 		RawAttribute[] oldStackAttributes = KciNms.instance.items.getAttributes(oldStack);
 		Collection<RawAttribute> newStackAttributes = new ArrayList<>(oldStackAttributes.length);
 
-		GeneralItemNBT nbt = KciNms.instance.items.generalReadWriteNbt(oldStack);
-		boolean hasStoredExistingAttributes = ItemUpgrader.hasStoredExistingAttributeIDs(nbt);
-		Collection<UUID> attributesToRemove = ItemUpgrader.getExistingAttributeIDs(nbt);
-		
-		oldStackLoop:
-		for (RawAttribute oldStackAttribute : oldStackAttributes) {
+		ItemStack newStack = oldStack.clone();
+		NBT.modify(newStack, nbt -> {
+			boolean hasStoredExistingAttributes = ItemUpgrader.hasStoredExistingAttributeIDs(nbt);
+			Collection<UUID> attributesToRemove = ItemUpgrader.getExistingAttributeIDs(nbt);
 
-			/*
-			 * To update an item, we need to replace all old attribute modifiers from this plug-in with new attribute
-			 * modifiers (because the attribute modifiers of the item or one of its upgrades could have been changed in
-			 * the Editor). But, to improve compatibility with other plug-ins, we should NOT remove the attribute
-			 * modifiers that were added by other plug-ins.
-			 *
-			 * Items created with KCI 12.0 or later will store all UUIDs of the attribute modifiers that were added by
-			 * KCI (and `hasStoredExistingAttributes` will be true). This case is easy since we know exactly which
-			 * attribute modifiers should be removed.
-			 *
-			 * Items created before KCI 12.0 (`hasStoredExistingAttributes` will be false) did not store the UUIDs,
-			 * so we should instead try to remove all attribute modifiers that are equal to the attribute modifiers
-			 * of the old custom item. This is not perfect, but usually works.
-			 */
-			if (hasStoredExistingAttributes) {
-				if (attributesToRemove.contains(oldStackAttribute.id)) continue;
-			} else {
-				for (AttributeModifierValues rawOldAttribute : oldItem.getAttributeModifiers()) {
-					RawAttribute oldItemAttribute = convertAttributeModifier(rawOldAttribute, null);
-					if (oldStackAttribute.equalsIgnoreId(oldItemAttribute)) {
-						continue oldStackLoop;
+			oldStackLoop:
+			for (RawAttribute oldStackAttribute : oldStackAttributes) {
+
+				/*
+				 * To update an item, we need to replace all old attribute modifiers from this plug-in with new attribute
+				 * modifiers (because the attribute modifiers of the item or one of its upgrades could have been changed in
+				 * the Editor). But, to improve compatibility with other plug-ins, we should NOT remove the attribute
+				 * modifiers that were added by other plug-ins.
+				 *
+				 * Items created with KCI 12.0 or later will store all UUIDs of the attribute modifiers that were added by
+				 * KCI (and `hasStoredExistingAttributes` will be true). This case is easy since we know exactly which
+				 * attribute modifiers should be removed.
+				 *
+				 * Items created before KCI 12.0 (`hasStoredExistingAttributes` will be false) did not store the UUIDs,
+				 * so we should instead try to remove all attribute modifiers that are equal to the attribute modifiers
+				 * of the old custom item. This is not perfect, but usually works.
+				 */
+				if (hasStoredExistingAttributes) {
+					if (attributesToRemove.contains(oldStackAttribute.id)) continue;
+				} else {
+					for (AttributeModifierValues rawOldAttribute : oldItem.getAttributeModifiers()) {
+						RawAttribute oldItemAttribute = convertAttributeModifier(rawOldAttribute, null);
+						if (oldStackAttribute.equalsIgnoreId(oldItemAttribute)) {
+							continue oldStackLoop;
+						}
 					}
 				}
+
+				// Don't stack dummy attributes
+				if (oldStackAttribute.isDummy()) {
+					continue;
+				}
+
+				newStackAttributes.add(oldStackAttribute);
 			}
 
-			// Don't stack dummy attributes
-			if (oldStackAttribute.isDummy()) {
-				continue;
-			}
-			
-			newStackAttributes.add(oldStackAttribute);
-		}
+			// Add new attribute modifiers
+			RawAttribute[] newKciAttributes = AttributeMerger.merge(newItem, ItemUpgrader.getUpgrades(oldStack, itemSet));
+			ItemUpgrader.setAttributeIDs(
+					nbt,
+					Arrays.stream(newKciAttributes).map(attribute -> attribute.id).collect(Collectors.toList())
+			);
+			Collections.addAll(newStackAttributes, newKciAttributes);
+		});
 
-		// Add new attribute modifiers
-		RawAttribute[] newKciAttributes = AttributeMerger.merge(newItem, ItemUpgrader.getUpgrades(oldStack, itemSet));
-		ItemUpgrader.setAttributeIDs(
-				nbt,
-				Arrays.stream(newKciAttributes).map(attribute -> attribute.id).collect(Collectors.toList())
-		);
-		Collections.addAll(newStackAttributes, newKciAttributes);
-
-		return KciNms.instance.items.replaceAttributes(nbt.backToBukkit(), newStackAttributes.toArray(new RawAttribute[0]));
+		return KciNms.instance.items.replaceAttributes(newStack, newStackAttributes.toArray(new RawAttribute[0]));
 	}
 
 	static void addEnchantmentsToMap(
@@ -625,24 +628,33 @@ public class ItemUpdater {
 		 * include this information. But, since there were no upgrades before KCI 12.0, all enchantments from KCI are
 		 * the default enchantments of the old custom item, which we DO know.
 		 */
-		GeneralItemNBT nbt = KciNms.instance.items.generalReadWriteNbt(toUpgrade);
-		Map<EnchantmentType, Integer> oldKciEnchantments;
-		if (ItemUpgrader.hasStoredEnchantmentUpgrades(nbt)) {
-			oldKciEnchantments = ItemUpgrader.getEnchantmentUpgrades(nbt);
-		} else {
-			oldKciEnchantments = new HashMap<>();
-			addEnchantmentsToMap(oldKciEnchantments, oldItem.getDefaultEnchantments());
+		ItemStack rememberToUpgrade = toUpgrade;
+		class Result {
+			Map<EnchantmentType, Integer> oldKciEnchantments;
+			Map<EnchantmentType, Integer> newKciEnchantments;
 		}
 
-		Map<EnchantmentType, Integer> newKciEnchantments = new HashMap<>();
-		if (newItem != null) addEnchantmentsToMap(newKciEnchantments, newItem.getDefaultEnchantments());
-		for (UpgradeValues upgrade : ItemUpgrader.getUpgrades(toUpgrade, itemSet)) {
-			addEnchantmentsToMap(newKciEnchantments, upgrade.getEnchantments());
-		}
-		ItemUpgrader.setEnchantmentUpgrades(nbt, newKciEnchantments);
-		toUpgrade = nbt.backToBukkit();
+		Result modifyResult = NBT.modify(toUpgrade, nbt -> {
+			Result result = new Result();
+			if (ItemUpgrader.hasStoredEnchantmentUpgrades(nbt)) {
+				result.oldKciEnchantments = ItemUpgrader.getEnchantmentUpgrades(nbt);
+			} else {
+				result.oldKciEnchantments = new HashMap<>();
+				addEnchantmentsToMap(result.oldKciEnchantments, oldItem.getDefaultEnchantments());
+			}
 
-		Map<EnchantmentType, Integer> adjustments = determineEnchantmentAdjustments(oldKciEnchantments, newKciEnchantments);
+			result.newKciEnchantments = new HashMap<>();
+			if (newItem != null) addEnchantmentsToMap(result.newKciEnchantments, newItem.getDefaultEnchantments());
+			for (UpgradeValues upgrade : ItemUpgrader.getUpgrades(rememberToUpgrade, itemSet)) {
+				addEnchantmentsToMap(result.newKciEnchantments, upgrade.getEnchantments());
+			}
+			ItemUpgrader.setEnchantmentUpgrades(nbt, result.newKciEnchantments);
+			return result;
+		});
+
+		Map<EnchantmentType, Integer> adjustments = determineEnchantmentAdjustments(
+				modifyResult.oldKciEnchantments, modifyResult.newKciEnchantments
+		);
 		toUpgrade = applyEnchantmentAdjustments(toUpgrade, adjustments);
 
 		return toUpgrade;

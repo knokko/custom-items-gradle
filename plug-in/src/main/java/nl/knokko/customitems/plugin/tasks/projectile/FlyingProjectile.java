@@ -24,7 +24,7 @@ import nl.knokko.customitems.plugin.CustomItemsPlugin;
  */
 class FlyingProjectile {
 	
-	static final String[] KEY_COVER_ITEM = { "KnokkosCustomItemsProjectileCover" };
+	static final String KEY_COVER_ITEM = "KnokkosCustomItemsProjectileCover";
 	
 	final CustomProjectileValues prototype;
 	

@@ -1,7 +1,6 @@
 package nl.knokko.customitems.plugin.tasks.projectile;
 
-import nl.knokko.customitems.itemset.CustomDamageSourceReference;
-import nl.knokko.customitems.nms.GeneralItemNBT;
+import de.tr7zw.changeme.nbtapi.NBT;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.nms.RaytraceResult;
 import nl.knokko.customitems.plugin.set.item.CustomItemWrapper;
@@ -123,10 +122,10 @@ public class UpdateProjectileTask implements Runnable {
 		coverMeta.setUnbreakable(true);
 		coverStack.setItemMeta(coverMeta);
 		coverStack.setDurability(projectile.prototype.getCover().getItemDamage());
-		GeneralItemNBT nbt = KciNms.instance.items.generalReadWriteNbt(coverStack);
-		nbt.set(FlyingProjectile.KEY_COVER_ITEM, 1);
-		coverStack = nbt.backToBukkit();
-		
+		NBT.modify(coverStack, nbt -> {
+			nbt.setBoolean(FlyingProjectile.KEY_COVER_ITEM, true);
+		});
+
 		coverItem = projectile.world.dropItem(position.toLocation(projectile.world), coverStack);
 		coverItem.setGravity(false);
 		coverItem.setInvulnerable(true);

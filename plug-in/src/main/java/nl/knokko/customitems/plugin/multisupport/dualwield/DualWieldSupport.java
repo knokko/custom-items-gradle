@@ -1,7 +1,7 @@
 package nl.knokko.customitems.plugin.multisupport.dualwield;
 
-import nl.knokko.customitems.nms.GeneralItemNBT;
-import nl.knokko.customitems.nms.KciNms;
+import de.tr7zw.changeme.nbtapi.NBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadableNBT;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -27,19 +27,19 @@ public class DualWieldSupport {
         }
     }
 
-    private static final String[] DUAL_WIELD_KEY = {"dualWieldItem"};
+    private static final String DUAL_WIELD_KEY = "dualWieldItem";
 
     public static ItemStack purge(ItemStack original) {
-        GeneralItemNBT nbt = KciNms.instance.items.generalReadWriteNbt(original);
-        int dualWieldValue = nbt.getOrDefault(DUAL_WIELD_KEY, 0);
-        if (dualWieldValue == 1) {
-            nbt.remove(DUAL_WIELD_KEY);
-            return nbt.backToBukkit();
-        }
+        NBT.modify(original, nbt -> {
+            int dualWieldValue = nbt.getOrDefault(DUAL_WIELD_KEY, 0);
+            if (dualWieldValue == 1) {
+                nbt.removeKey(DUAL_WIELD_KEY);
+            }
+        });
         return original;
     }
 
-    public static boolean isCorrupted(GeneralItemNBT nbt) {
+    public static boolean isCorrupted(ReadableNBT nbt) {
         return nbt.getOrDefault(DUAL_WIELD_KEY, 0) != 0;
     }
 }
