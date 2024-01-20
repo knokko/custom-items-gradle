@@ -28,6 +28,7 @@ import nl.knokko.customitems.plugin.util.NbtHelper;
 import nl.knokko.customitems.recipe.upgrade.UpgradeValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.ItemFrame;
 import org.bukkit.entity.LivingEntity;
@@ -107,7 +108,7 @@ public class ItemUpdater {
 	}
 	
 	public ItemStack maybeUpdate(ItemStack originalStack) {
-		if (originalStack == null) {
+		if (originalStack == null || originalStack.getAmount() == 0 || originalStack.getType() == Material.AIR) {
 			return null;
 		}
 
