@@ -182,7 +182,7 @@ public class CustomArmorValues extends CustomToolValues {
     private void loadPost10(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         loadPotionProperties10(input);
         loadRightClickProperties10(input, itemSet);
-        this.extraItemNbt = ExtraItemNbtValues.load(input, false);
+        this.extraItemNbt = LegacyItemNbt.load(input);
         if (input.readBoolean()) {
             String armorTextureName = input.readString();
             if (itemSet.getSide() == ItemSet.Side.EDITOR) {

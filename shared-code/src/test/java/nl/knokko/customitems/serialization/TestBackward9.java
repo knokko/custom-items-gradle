@@ -189,9 +189,7 @@ public class TestBackward9 {
         assertEquals(listOf(
                 EquippedPotionEffectValues.createQuick(EffectType.FAST_DIGGING, 3, AttributeModifierValues.Slot.MAINHAND)
         ), item.getEquippedEffects());
-        assertEquals(ExtraItemNbtValues.createQuick(listOf(
-                ExtraItemNbtValues.Entry.createQuick(listOf("block"), new ExtraItemNbtValues.Value(1))
-        )), item.getExtraNbt());
+        assertEquals(listOf("{\"block\":1}"), item.getExtraNbt());
         assertEquals(0.25, item.getAttackRange(), 0.0);
         assertEquals("block1", item.getBlock().getName());
         assertEquals(15, item.getMaxStacksize());
@@ -248,9 +246,7 @@ public class TestBackward9 {
         assertEquals(listOf(
                 EquippedPotionEffectValues.createQuick(EffectType.INVISIBILITY, 1, AttributeModifierValues.Slot.MAINHAND)
         ), item.getEquippedEffects());
-        assertEquals(ExtraItemNbtValues.createQuick(listOf(
-                ExtraItemNbtValues.Entry.createQuick(listOf("cross"), new ExtraItemNbtValues.Value("bow"))
-        )), item.getExtraNbt());
+        assertEquals(listOf("{\"cross\":\"bow\"}"), item.getExtraNbt());
         assertEquals(0.5, item.getAttackRange(), 0.0);
         assertFalse(item.allowEnchanting());
         assertTrue(item.allowAnvilActions());
@@ -402,9 +398,7 @@ public class TestBackward9 {
         assertEquals(listOf(
                 EquippedPotionEffectValues.createQuick(EffectType.NIGHT_VISION, 1, AttributeModifierValues.Slot.MAINHAND)
         ), item.getEquippedEffects());
-        assertEquals(ExtraItemNbtValues.createQuick(listOf(
-                ExtraItemNbtValues.Entry.createQuick(listOf("the"), new ExtraItemNbtValues.Value("gun"))
-        )), item.getExtraNbt());
+        assertEquals(listOf("{\"the\":\"gun\"}"), item.getExtraNbt());
         assertEquals(1.25, item.getAttackRange(), 0.0);
         assertEquals("crazy1", item.getProjectile().getName());
         IndirectGunAmmoValues ammo = (IndirectGunAmmoValues) item.getAmmo();
@@ -467,9 +461,7 @@ public class TestBackward9 {
         assertEquals(listOf(
                 EquippedPotionEffectValues.createQuick(EffectType.SLOW_DIGGING, 2, AttributeModifierValues.Slot.MAINHAND)
         ), item.getEquippedEffects());
-        assertEquals(ExtraItemNbtValues.createQuick(listOf(
-                ExtraItemNbtValues.Entry.createQuick(listOf("rank"), new ExtraItemNbtValues.Value(1))
-        )), item.getExtraNbt());
+        assertEquals(listOf("{\"rank\":1}"), item.getExtraNbt());
         assertEquals(0.75, item.getAttackRange(), 0.0);
         assertEquals(new HashSet<>(listOf(
                 set.getContainerReference("container2")
@@ -528,9 +520,7 @@ public class TestBackward9 {
         assertEquals(listOf(
                 EquippedPotionEffectValues.createQuick(EffectType.JUMP, 1, AttributeModifierValues.Slot.MAINHAND)
         ), item.getEquippedEffects());
-        assertEquals(ExtraItemNbtValues.createQuick(listOf(
-                ExtraItemNbtValues.Entry.createQuick(listOf("food", "is"), new ExtraItemNbtValues.Value("jum jum"))
-        )), item.getExtraNbt());
+        assertEquals(listOf("{\"food\":{\"is\":\"jum jum\"}}"), item.getExtraNbt());
         assertEquals(1.5, item.getAttackRange(), 0.0);
         assertEquals(6, item.getFoodValue());
         assertEquals(listOf(

@@ -1,5 +1,7 @@
 package nl.knokko.customitems.item;
 
+import com.github.cliftonlabs.json_simple.JsonException;
+import com.github.cliftonlabs.json_simple.Jsoner;
 import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.attack.effect.AttackEffectGroupValues;
 import nl.knokko.customitems.damage.CustomDamageSourceValues;
@@ -158,7 +160,7 @@ public abstract class CustomItemValues extends ModelValues {
 
     // Other properties
     protected ItemCommandSystem commandSystem;
-    protected ExtraItemNbtValues extraItemNbt;
+    protected List<String> extraItemNbt;
     protected float attackRange;
     protected SpecialMeleeDamageValues specialMeleeDamage;
     protected CustomDamageSourceReference customMeleeDamageSource;
@@ -206,7 +208,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.replaceConditions = new ArrayList<>(0);
 
         this.commandSystem = new ItemCommandSystem(false);
-        this.extraItemNbt = new ExtraItemNbtValues(false);
+        this.extraItemNbt = Collections.emptyList();
         this.attackRange = 1f;
         this.specialMeleeDamage = null;
         this.customMeleeDamageSource = null;
@@ -305,7 +307,7 @@ public abstract class CustomItemValues extends ModelValues {
 
     protected void loadSharedPropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
-        if (encoding < 1 || encoding > 4) throw new UnknownEncodingException("CustomItemBaseNew", encoding);
+        if (encoding < 1 || encoding > 5) throw new UnknownEncodingException("CustomItemBaseNew", encoding);
 
         this.loadIdentityProperties10(input);
         if (this.itemType == CustomItemType.OTHER) {
@@ -325,7 +327,8 @@ public abstract class CustomItemValues extends ModelValues {
         this.loadEquippedPotionEffects10(input);
         this.loadReplacementConditions10(input, itemSet);
         this.commandSystem = ItemCommandSystem.load(input);
-        this.loadExtraProperties10(input);
+        if (encoding >= 5) this.loadExtraProperties11(input);
+        else this.loadExtraProperties10(input);
         if (encoding >= 2) {
             if (input.readBoolean()) {
                 this.specialMeleeDamage = SpecialMeleeDamageValues.load(input);
@@ -377,7 +380,7 @@ public abstract class CustomItemValues extends ModelValues {
     }
 
     protected void saveSharedPropertiesNew(BitOutput output, ItemSet.Side targetSide) {
-        output.addByte((byte) 4);
+        output.addByte((byte) 5);
 
         this.saveIdentityProperties10(output);
         if (this.itemType == CustomItemType.OTHER) {
@@ -396,7 +399,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.saveEquippedPotionEffects10(output);
         this.saveReplacementConditions10(output);
         this.commandSystem.save(output);
-        this.saveExtraProperties10(output);
+        this.saveExtraProperties11(output);
         output.addBoolean(this.specialMeleeDamage != null);
         if (this.specialMeleeDamage != null) {
             this.specialMeleeDamage.save(output);
@@ -612,12 +615,17 @@ public abstract class CustomItemValues extends ModelValues {
     }
 
     protected void loadExtraProperties10(BitInput input) throws UnknownEncodingException {
-        this.extraItemNbt = ExtraItemNbtValues.load(input, false);
+        this.extraItemNbt = LegacyItemNbt.load(input);
         this.attackRange = input.readFloat();
     }
 
-    protected void saveExtraProperties10(BitOutput output) {
-        extraItemNbt.save(output);
+    protected void loadExtraProperties11(BitInput input) throws UnknownEncodingException {
+        this.extraItemNbt = CollectionHelper.load(input, input2 -> input2.readString());
+        this.attackRange = input.readFloat();
+    }
+
+    protected void saveExtraProperties11(BitOutput output) {
+        CollectionHelper.save(extraItemNbt, output::addString, output);
         output.addFloat(attackRange);
     }
 
@@ -675,7 +683,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.conditionOp = ReplacementConditionValues.ConditionOperation.NONE;
         this.replaceConditions = new ArrayList<>(0);
 
-        this.extraItemNbt = new ExtraItemNbtValues(false);
+        this.extraItemNbt = Collections.emptyList();
         this.attackRange = 1f;
     }
 
@@ -800,7 +808,7 @@ public abstract class CustomItemValues extends ModelValues {
         return conditionOp;
     }
 
-    public ExtraItemNbtValues getExtraNbt() {
+    public List<String> getExtraNbt() {
         return extraItemNbt;
     }
 
@@ -1000,10 +1008,10 @@ public abstract class CustomItemValues extends ModelValues {
         this.replaceConditions = Mutability.createDeepCopy(newReplaceConditions, false);
     }
 
-    public void setExtraItemNbt(ExtraItemNbtValues newExtraNbt) {
+    public void setExtraItemNbt(List<String> newExtraNbt) {
         assertMutable();
-        Checks.notNull(newExtraNbt);
-        this.extraItemNbt = newExtraNbt.copy(false);
+        Checks.nonNull(newExtraNbt);
+        this.extraItemNbt = Collections.unmodifiableList(newExtraNbt);
     }
 
     public void setAttackRange(float newAttackRange) {
@@ -1154,7 +1162,15 @@ public abstract class CustomItemValues extends ModelValues {
         }
 
         if (extraItemNbt == null) throw new ProgrammingValidationException("No extra item NBT");
-        Validation.scope("NBT", extraItemNbt::validate);
+        for (String nbt : extraItemNbt) {
+            if (nbt == null) throw new ProgrammingValidationException("Missing extra item NBT entry");
+            if (nbt.isEmpty()) throw new ValidationException("Extra NBT can't have empty entries");
+            try {
+                Jsoner.deserialize(nbt);
+            } catch (JsonException e) {
+                throw new ValidationException("NBT entry is invalid JSON: " + nbt);
+            }
+        }
 
         if (attackRange < 0f) throw new ValidationException("Attack range can't be negative");
         if (attackRange != attackRange) throw new ValidationException("Attack range can't be NaN");

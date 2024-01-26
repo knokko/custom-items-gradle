@@ -301,7 +301,8 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 				hasDurability = false;
 			}
 			state.getWindow().setMainComponent(new ItemNbtMenu(
-					currentValues.getExtraNbt(), currentValues::setExtraItemNbt, this, currentValues.getName(), hasDurability)
+					currentValues::getExtraNbt, currentValues::setExtraItemNbt, this,
+					currentValues.getName(), hasDurability)
 			);
 		}), BUTTON_X, -0.1f, BUTTON_X + 0.1f, -0.05f);
 		addComponent(

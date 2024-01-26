@@ -38,7 +38,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import nl.knokko.customitems.item.nbt.NbtValueType;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.container.ContainerInstance;
 
@@ -402,19 +401,12 @@ public class ItemUpdater {
 				customNbt.removeKey("Durability");
 			}
 
-			for (ExtraItemNbtValues.Entry oldPair : oldItem.getExtraNbt().getEntries()) {
-				NbtHelper.removeNested(generalNbt, oldPair.getKey().toArray(new String[0]));
+			for (String rawOldNbt : oldItem.getExtraNbt()) {
+				ReadableNBT oldNbt = NBT.parseNBT(rawOldNbt);
+				removeOldNbt(generalNbt, oldNbt);
 			}
-			for (ExtraItemNbtValues.Entry newPair : newItem.getExtraNbt().getEntries()) {
-				ExtraItemNbtValues.Value newValue = newPair.getValue();
-				String[] key = newPair.getKey().toArray(new String[0]);
-				if (newValue.type == NbtValueType.INTEGER) {
-					NbtHelper.setNested(generalNbt, key, newValue.getIntValue());
-				} else if (newValue.type == NbtValueType.STRING) {
-					NbtHelper.setNested(generalNbt, key, newValue.getStringValue());
-				} else {
-					throw new Error("Unknown nbt value type: " + newValue.type);
-				}
+			for (String newNbt : newItem.getExtraNbt()) {
+				generalNbt.mergeCompound(NBT.parseNBT(newNbt));
 			}
 			if (newItem.getItemType() == CustomItemType.OTHER) {
 				String customModelDataKey = "CustomModelData";
@@ -445,6 +437,19 @@ public class ItemUpdater {
 		}
 		
 		return newStack;
+	}
+
+	private void removeOldNbt(ReadWriteNBT nbt, ReadableNBT old) {
+		for (String key : old.getKeys()) {
+			if (old.getType(key) == NBTType.NBTTagCompound && nbt.getType(key) == NBTType.NBTTagCompound) {
+				ReadWriteNBT child = nbt.getCompound(key);
+				ReadableNBT oldChild = old.getCompound(key);
+                assert oldChild != null;
+                removeOldNbt(child, oldChild);
+                assert child != null;
+                if (child.getKeys().isEmpty()) nbt.removeKey(key);
+			} else nbt.removeKey(key);
+		}
 	}
 	
 	private void upgradeDisplayName(ItemMeta toUpgrade, CustomItemValues oldItem, CustomItemValues newItem) {
