@@ -77,6 +77,7 @@ public class MiscellaneousEventHandler implements Listener {
 			int oldAmount = stack.getAmount();
 			if (fixCustomItemPickup(stack, contents)) {
 				event.setCancelled(true);
+				player.playSound(player.getLocation(), Sound.ENTITY_ITEM_PICKUP, 0.3f, 2.0f);
 			}
 			if (stack.getAmount() != oldAmount) {
 				if (stack.getAmount() > 0) {
