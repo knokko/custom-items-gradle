@@ -27,6 +27,7 @@ import org.bukkit.inventory.meta.Repairable;
 
 import java.util.*;
 
+import static nl.knokko.customitems.MCVersions.VERSION1_13;
 import static nl.knokko.customitems.plugin.recipe.RecipeHelper.convertResultToItemStack;
 import static nl.knokko.customitems.plugin.recipe.RecipeHelper.shouldIngredientAcceptAmountless;
 import static nl.knokko.customitems.plugin.set.item.CustomToolWrapper.wrap;
@@ -603,17 +604,20 @@ public class InventoryEventHandler implements Listener {
 
             // For some reason, I need to manually enforce this as well...
             if (action == InventoryAction.PLACE_ALL && ItemUtils.isEmpty(current) && customCursor != null && wrap(customCursor).needsStackingHelp()) {
-                Inventory clickedInventory = event.getView().getInventory(event.getRawSlot());
-                if (clickedInventory != null) {
-                    Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
-                        ItemStack newCursor = event.getWhoClicked().getItemOnCursor();
-                        ItemStack newItem = clickedInventory.getItem(event.getSlot());
-                        if (itemSet.getItem(newCursor) == customCursor && itemSet.getItem(newItem) == customCursor) {
-                            event.getWhoClicked().setItemOnCursor(null);
-                            newItem.setAmount(newItem.getAmount() + newCursor.getAmount());
-                            clickedInventory.setItem(event.getSlot(), newItem);
-                        }
-                    });
+                // event.getView().getInventory() isn't available in MC 1.12
+                if (KciNms.mcVersion >= VERSION1_13) {
+                    Inventory clickedInventory = event.getView().getInventory(event.getRawSlot());
+                    if (clickedInventory != null) {
+                        Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
+                            ItemStack newCursor = event.getWhoClicked().getItemOnCursor();
+                            ItemStack newItem = clickedInventory.getItem(event.getSlot());
+                            if (itemSet.getItem(newCursor) == customCursor && itemSet.getItem(newItem) == customCursor) {
+                                event.getWhoClicked().setItemOnCursor(null);
+                                newItem.setAmount(newItem.getAmount() + newCursor.getAmount());
+                                clickedInventory.setItem(event.getSlot(), newItem);
+                            }
+                        });
+                    }
                 }
             }
         } else if (action == InventoryAction.COLLECT_TO_CURSOR) {
