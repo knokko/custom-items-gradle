@@ -115,6 +115,7 @@ public class CommandCustomItems implements CommandExecutor {
 					new CommandCustomItemsResourcePack(
 							CustomItemsPlugin.getInstance().getItemSetLoader()
 					).handle(args, sender, enableOutput);
+					break;
 				}
 				default:
 					return !enableOutput;
