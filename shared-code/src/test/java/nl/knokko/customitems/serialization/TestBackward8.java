@@ -117,9 +117,7 @@ public class TestBackward8 {
         assertEquals(listOf(
                 EquippedPotionEffectValues.createQuick(EffectType.REGENERATION, 2, AttributeModifierValues.Slot.MAINHAND)
         ), item.getEquippedEffects());
-        assertEquals(ExtraItemNbtValues.createQuick(listOf(
-                ExtraItemNbtValues.Entry.createQuick(listOf("trident"), new ExtraItemNbtValues.Value("t2"))
-        )), item.getExtraNbt());
+        assertEquals(listOf("{\"trident\":\"t2\"}"), item.getExtraNbt());
         assertEquals(1.75f, item.getAttackRange(), 0f);
         assertTrue(item.allowAnvilActions());
         assertTrue(item.allowEnchanting());
@@ -314,10 +312,7 @@ public class TestBackward8 {
                         EffectType.JUMP, 2, AttributeModifierValues.Slot.OFFHAND
                 )
         ), item.getEquippedEffects());
-        assertEquals(ExtraItemNbtValues.createQuick(listOf(
-                ExtraItemNbtValues.Entry.createQuick(listOf("test_int"), new ExtraItemNbtValues.Value(1)),
-                ExtraItemNbtValues.Entry.createQuick(listOf("parent", "child", "test_string"), new ExtraItemNbtValues.Value("2"))
-        )), item.getExtraNbt());
+        assertEquals(listOf("{\"test_int\":1}", "{\"parent\":{\"child\":{\"test_string\":\"2\"}}}"), item.getExtraNbt());
         assertEquals(1.5f, item.getAttackRange(), 0f);
         assertEquals("crazy1", item.getProjectile().getName());
         assertNull(item.getCharges());
@@ -358,9 +353,7 @@ public class TestBackward8 {
         assertEquals(listOf(
                 EquippedPotionEffectValues.createQuick(EffectType.SLOW, 1, AttributeModifierValues.Slot.MAINHAND)
         ), item.getEquippedEffects());
-        assertEquals(ExtraItemNbtValues.createQuick(listOf(
-                ExtraItemNbtValues.Entry.createQuick(listOf("type"), new ExtraItemNbtValues.Value("simple"))
-        )), item.getExtraNbt());
+        assertEquals(listOf("{\"type\":\"simple\"}"), item.getExtraNbt());
         assertEquals(0.5f, item.getAttackRange(), 0f);
         assertEquals(64, item.getMaxStacksize());
     }
@@ -398,9 +391,7 @@ public class TestBackward8 {
         assertEquals(listOf(
                 EquippedPotionEffectValues.createQuick(EffectType.FAST_DIGGING, 1, AttributeModifierValues.Slot.MAINHAND)
         ), item.getEquippedEffects());
-        assertEquals(ExtraItemNbtValues.createQuick(listOf(
-                ExtraItemNbtValues.Entry.createQuick(listOf("type"), new ExtraItemNbtValues.Value("shovel"))
-        )), item.getExtraNbt());
+        assertEquals(listOf("{\"type\":\"shovel\"}"), item.getExtraNbt());
         assertEquals(3.5f, item.getAttackRange(), 0f);
         assertTrue(item.allowAnvilActions());
         assertTrue(item.allowEnchanting());
@@ -443,9 +434,7 @@ public class TestBackward8 {
         assertEquals(listOf(
                 EquippedPotionEffectValues.createQuick(EffectType.REGENERATION, 3, AttributeModifierValues.Slot.OFFHAND)
         ), item.getEquippedEffects());
-        assertEquals(ExtraItemNbtValues.createQuick(listOf(
-                ExtraItemNbtValues.Entry.createQuick(listOf("int_type"), new ExtraItemNbtValues.Value(5))
-        )), item.getExtraNbt());
+        assertEquals(listOf("{\"int_type\":5}"), item.getExtraNbt());
         assertEquals(0.75f, item.getAttackRange(), 0f);
         assertTrue(item.allowAnvilActions());
         assertTrue(item.allowEnchanting());
@@ -489,9 +478,7 @@ public class TestBackward8 {
         assertEquals(listOf(
                 EquippedPotionEffectValues.createQuick(EffectType.INVISIBILITY, 1, AttributeModifierValues.Slot.MAINHAND)
         ), item.getEquippedEffects());
-        assertEquals(ExtraItemNbtValues.createQuick(listOf(
-                ExtraItemNbtValues.Entry.createQuick(listOf("int_type"), new ExtraItemNbtValues.Value(9))
-        )), item.getExtraNbt());
+        assertEquals(listOf("{\"int_type\":9}"), item.getExtraNbt());
         assertEquals(1.25f, item.getAttackRange(), 0f);
         assertTrue(item.allowAnvilActions());
         assertTrue(item.allowEnchanting());
@@ -554,9 +541,7 @@ public class TestBackward8 {
         assertEquals(listOf(
                 EquippedPotionEffectValues.createQuick(EffectType.SLOW, 1, AttributeModifierValues.Slot.HEAD)
         ), item.getEquippedEffects());
-        assertEquals(ExtraItemNbtValues.createQuick(listOf(
-                ExtraItemNbtValues.Entry.createQuick(listOf("type"), new ExtraItemNbtValues.Value("3dhelmet"))
-        )), item.getExtraNbt());
+        assertEquals(listOf("{\"type\":\"3dhelmet\"}"), item.getExtraNbt());
         assertEquals(0.25f, item.getAttackRange(), 0f);
         assertTrue(item.allowAnvilActions());
         assertFalse(item.allowEnchanting());
@@ -610,9 +595,7 @@ public class TestBackward8 {
         assertEquals(listOf(
                 EquippedPotionEffectValues.createQuick(EffectType.SPEED, 2, AttributeModifierValues.Slot.OFFHAND)
         ), item.getEquippedEffects());
-        assertEquals(ExtraItemNbtValues.createQuick(listOf(
-                ExtraItemNbtValues.Entry.createQuick(listOf("type"), new ExtraItemNbtValues.Value("bow"))
-        )), item.getExtraNbt());
+        assertEquals(listOf("{\"type\":\"bow\"}"), item.getExtraNbt());
         assertEquals(1.75f, item.getAttackRange(), 0f);
         assertTrue(item.allowAnvilActions());
         assertTrue(item.allowEnchanting());
@@ -660,9 +643,7 @@ public class TestBackward8 {
         assertEquals(listOf(
                 EquippedPotionEffectValues.createQuick(EffectType.DAMAGE_RESISTANCE, 1, AttributeModifierValues.Slot.CHEST)
         ), item.getEquippedEffects());
-        assertEquals(ExtraItemNbtValues.createQuick(listOf(
-                ExtraItemNbtValues.Entry.createQuick(listOf("type"), new ExtraItemNbtValues.Value("chest"))
-        )), item.getExtraNbt());
+        assertEquals(listOf("{\"type\":\"chest\"}"), item.getExtraNbt());
         assertEquals(4.25f, item.getAttackRange(), 0f);
         assertTrue(item.allowAnvilActions());
         assertTrue(item.allowEnchanting());
@@ -711,9 +692,7 @@ public class TestBackward8 {
                 )
         ), item.getReplacementConditions());
         assertEquals(0, item.getEquippedEffects().size());
-        assertEquals(ExtraItemNbtValues.createQuick(listOf(
-                ExtraItemNbtValues.Entry.createQuick(listOf("test"), new ExtraItemNbtValues.Value(-5))
-        )), item.getExtraNbt());
+        assertEquals(listOf("{\"test\":-5}"), item.getExtraNbt());
         assertEquals(1.5f, item.getAttackRange(), 0f);
         assertTrue(item.allowAnvilActions());
         assertTrue(item.allowEnchanting());
@@ -732,7 +711,7 @@ public class TestBackward8 {
         }
         assertEquals(0, item.getReplacementConditions().size());
         assertEquals(0, item.getEquippedEffects().size());
-        assertEquals(0, item.getExtraNbt().getEntries().size());
+        assertEquals(0, item.getExtraNbt().size());
         assertEquals(1f, item.getAttackRange(), 0f);
         TestBackward9.testBaseDefault9(item);
     }

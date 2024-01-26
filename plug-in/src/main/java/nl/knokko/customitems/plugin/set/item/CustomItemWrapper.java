@@ -8,13 +8,11 @@ import nl.knokko.customitems.effect.ChancePotionEffectValues;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.enchantment.EnchantmentType;
 import nl.knokko.customitems.item.enchantment.EnchantmentValues;
-import nl.knokko.customitems.item.nbt.NbtValueType;
 import nl.knokko.customitems.nms.*;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.tasks.updater.ItemUpgrader;
 import nl.knokko.customitems.plugin.util.AttributeMerger;
 import nl.knokko.customitems.plugin.util.ItemUtils;
-import nl.knokko.customitems.plugin.util.NbtHelper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -126,16 +124,8 @@ public abstract class CustomItemWrapper {
             initNBT(customNbt);
 
             // Give it the extra nbt, if needed
-            Collection<ExtraItemNbtValues.Entry> extraNbtPairs = this.item.getExtraNbt().getEntries();
-            for (ExtraItemNbtValues.Entry extraPair : extraNbtPairs) {
-                ExtraItemNbtValues.Value value = extraPair.getValue();
-                if (value.type == NbtValueType.INTEGER) {
-                    NbtHelper.setNested(nbt, extraPair.getKey().toArray(new String[0]), value.getIntValue());
-                } else if (value.type == NbtValueType.STRING) {
-                    NbtHelper.setNested(nbt, extraPair.getKey().toArray(new String[0]), value.getStringValue());
-                } else {
-                    throw new Error("Unknown nbt value type: " + value.type);
-                }
+            for (String extraNbt : this.item.getExtraNbt()) {
+                nbt.mergeCompound(NBT.parseNBT(extraNbt));
             }
 
             if (this.item.getItemType() == CustomItemType.OTHER) {
