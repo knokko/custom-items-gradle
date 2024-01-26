@@ -341,6 +341,7 @@ public class BlockEventHandler implements Listener {
 
     @EventHandler
     public void handleCustomBlockMiningSpeed(PlayerInteractEvent event) {
+        if (event.getPlayer().getGameMode() == GameMode.CREATIVE) return;
         if (event.getAction() == Action.LEFT_CLICK_BLOCK && KciNms.instance.blocks.areEnabled()) {
 
             CustomBlockValues customBlock = MushroomBlockHelper.getMushroomBlock(event.getClickedBlock());
@@ -375,6 +376,7 @@ public class BlockEventHandler implements Listener {
 
     @EventHandler
     public void handleCustomBlockMiningSpeed(BlockBreakEvent event) {
+        if (event.getPlayer().getGameMode() == GameMode.CREATIVE) return;
         MiningSpeedManager miningSpeed = CustomItemsPlugin.getInstance().getMiningSpeedManager();
         miningSpeed.stopBreakingCustomBlockEffect(event.getPlayer());
         miningSpeed.maybeCancelCustomBlockBreak(event, itemSet);
