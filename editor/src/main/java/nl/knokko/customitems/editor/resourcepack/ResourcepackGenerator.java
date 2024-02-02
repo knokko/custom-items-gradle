@@ -59,6 +59,9 @@ public class ResourcepackGenerator {
         ResourcepackItemOverrider itemOverrider = new ResourcepackItemOverrider(itemSet, zipOutput);
         itemOverrider.overrideItems();
 
+        ResourcepackLanguageWriter languageWriter = new ResourcepackLanguageWriter(itemSet, zipOutput);
+        languageWriter.writeLanguageFiles();
+
         writePackMcMeta(zipOutput);
         writeAtlases(zipOutput);
 

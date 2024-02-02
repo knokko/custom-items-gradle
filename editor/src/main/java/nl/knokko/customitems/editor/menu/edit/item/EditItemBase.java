@@ -10,6 +10,7 @@ import nl.knokko.customitems.editor.menu.edit.attack.effect.AttackEffectGroupCol
 import nl.knokko.customitems.editor.menu.edit.item.command.EditCommandSystem;
 import nl.knokko.customitems.editor.menu.edit.item.damage.EditSpecialMeleeDamage;
 import nl.knokko.customitems.editor.menu.edit.item.model.EditItemModel;
+import nl.knokko.customitems.editor.menu.edit.item.translation.TranslationCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.texture.TextureEdit;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.editor.util.VanillaModelProperties;
@@ -346,6 +347,11 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 				menu.getSet().getDamageSources().references(), currentValues::setCustomMeleeDamageSource,
 				damageSource -> damageSource.get().getName(), currentValues.getCustomMeleeDamageSourceReference(), true
 		), BUTTON_X, -0.69f, BUTTON_X + 0.1f, -0.64f);
+		addComponent(new DynamicTextButton("Translations [1.14+]...", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new TranslationCollectionEdit(
+					currentValues.getTranslations(), currentValues::setTranslations, this
+			));
+		}), BUTTON_X - 0.05f, -0.75f, BUTTON_X + 0.1f, -0.7f);
 	}
 
 	protected GuiComponent createLoadTextureMenu() {
