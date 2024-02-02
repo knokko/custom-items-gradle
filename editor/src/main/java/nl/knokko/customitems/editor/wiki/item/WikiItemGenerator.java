@@ -62,7 +62,7 @@ public class WikiItemGenerator {
             output.println("\t\tAlias: " + item.getAlias() + "<br>");
         }
         output.println("\t\tMaximum stacksize: " + item.getMaxStacksize() + "<br>");
-        if (!item.getLore().isEmpty()) {
+        if (!item.getLore().isEmpty() && item.getTranslations().isEmpty()) {
             output.println("\t\tLore:");
             output.println("\t\t<ol class=\"lore-list\">");
             for (String line : item.getLore()) {
@@ -70,10 +70,21 @@ public class WikiItemGenerator {
             }
             output.println("\t\t</ol>");
         }
+
+        for (TranslationEntry translation : item.getTranslations()) {
+            if (!translation.getLore().isEmpty()) {
+                output.println("\t\tLore (" + translation.getLanguage() + "):");
+                output.println("\t\t<ol class=\"lore-list\">");
+                for (String line : translation.getLore()) {
+                    output.println("\t\t\t<li class=\"lore-line\">" + stripColorCodes(line) + "</li>");
+                }
+                output.println("\t\t</ol>");
+            }
+        }
     }
 
     private void generateBasicProperties(PrintWriter output) {
-        if (!item.getAttributeModifiers().isEmpty() || !item.getDefaultEnchantments().isEmpty()) {
+        if (!item.getAttributeModifiers().isEmpty() || !item.getDefaultEnchantments().isEmpty() || !item.getTranslations().isEmpty()) {
             output.println("\t\t<h2>Basic properties</h2>");
             if (!item.getAttributeModifiers().isEmpty()) {
                 output.println("\t\tAttribute modifiers:");
@@ -90,6 +101,14 @@ public class WikiItemGenerator {
                 output.println("\t\t<ul class=\"enchantments\">");
                 for (EnchantmentValues enchantment : item.getDefaultEnchantments()) {
                     output.println("\t\t\t<li class=\"enchantment\">" + enchantment.getType().getKey() + " " + enchantment.getLevel() + "</li>");
+                }
+                output.println("\t\t</ul>");
+            }
+            if (!item.getTranslations().isEmpty()) {
+                output.println("\t\tTranslations:");
+                output.println("\t\t<ul class=\"translations\">");
+                for (TranslationEntry translation : item.getTranslations()) {
+                    output.println("\t\t\t<li class=\"translation\">" + translation.getLanguage() + ": " + translation.getDisplayName() + "</li>");
                 }
                 output.println("\t\t</ul>");
             }

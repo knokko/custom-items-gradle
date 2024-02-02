@@ -420,8 +420,8 @@ public class ItemUpdater {
 		
 		ItemMeta meta = newStack.getItemMeta();
 		
-		upgradeDisplayName(meta, oldItem, newItem);
-		upgradeLore(meta, oldItem, newItem, pOldDurability[0], pNewDurability[0]);
+		upgradeDisplayName(newStack, meta, oldItem, newItem);
+		upgradeLore1(meta, oldItem, newItem, pOldDurability[0], pNewDurability[0]);
 		upgradeItemFlags(meta, oldItem, newItem);
 		if (newItem instanceof CustomArmorValues) {
 			CustomArmorWrapper.colorItemMeta((CustomArmorValues) newItem, meta);
@@ -431,6 +431,7 @@ public class ItemUpdater {
 			meta.setUnbreakable(true);
 		}
 		newStack.setItemMeta(meta);
+		upgradeLore2(newStack, oldItem, newItem);
 
 		if (newItem.getItemType() != CustomItemType.OTHER) {
 			newStack.setDurability(newItem.getItemDamage());
@@ -452,44 +453,91 @@ public class ItemUpdater {
 		}
 	}
 	
-	private void upgradeDisplayName(ItemMeta toUpgrade, CustomItemValues oldItem, CustomItemValues newItem) {
-		/*
-		 * If the item allows anvil actions, it is possible that the player renamed
-		 * the item in an anvil. It would be bad to 'reset' the name each time the
-		 * item set is updated, so I will instead replace all occurrences of the
-		 * display name of the old custom item with the display name of the new
-		 * custom item. (Even this might not always be ideal, but I don't think
-		 * there is some 'perfect' behavior for this.)
-		 */
-		if (newItem.allowAnvilActions()) {
-			if (toUpgrade.hasDisplayName()) {
-				String currentDisplayName = toUpgrade.getDisplayName();
-				String newDisplayName = currentDisplayName.replace(oldItem.getDisplayName(), newItem.getDisplayName());
-				toUpgrade.setDisplayName(newDisplayName);
+	private void upgradeDisplayName(
+			ItemStack stackToUpgrade, ItemMeta toUpgrade,
+			CustomItemValues oldItem, CustomItemValues newItem
+	) {
+		if (newItem.getTranslations().isEmpty()) {
+			/*
+			 * If the item allows anvil actions, it is possible that the player renamed
+			 * the item in an anvil. It would be bad to 'reset' the name each time the
+			 * item set is updated, so I will instead replace all occurrences of the
+			 * display name of the old custom item with the display name of the new
+			 * custom item. (Even this might not always be ideal, but I don't think
+			 * there is some 'perfect' behavior for this.)
+			 */
+			if (newItem.allowAnvilActions() && oldItem.getTranslations().isEmpty()) {
+				if (toUpgrade.hasDisplayName()) {
+					String currentDisplayName = toUpgrade.getDisplayName();
+					String newDisplayName = currentDisplayName.replace(oldItem.getDisplayName(), newItem.getDisplayName());
+					toUpgrade.setDisplayName(newDisplayName);
+				}
+				// else... well... the player decided to remove the custom name entirely
+				// so lets keep it that way
+			} else {
+				toUpgrade.setDisplayName(newItem.getDisplayName());
 			}
-			// else... well... the player decided to remove the custom name entirely
-			// so lets keep it that way
-		} else {
-			toUpgrade.setDisplayName(newItem.getDisplayName());
+		} else if (newItem.getTranslations().size() != oldItem.getTranslations().size()) {
+			NBT.modify(stackToUpgrade, nbt -> {
+				wrap(newItem).translateName(nbt);
+			});
 		}
 	}
 	
-	private void upgradeLore(ItemMeta toUpgrade, CustomItemValues oldItem, CustomItemValues newItem, Long oldDurability, Long newDurability) {
-		if (!Objects.equals(oldDurability, newDurability)) {
-			Long oldMaxDurability = oldItem instanceof CustomToolValues ? ((CustomToolValues) oldItem).getMaxDurabilityNew() : null;
-			Long newMaxDurability = newItem instanceof CustomToolValues ? ((CustomToolValues) newItem).getMaxDurabilityNew() : null;
-			if (LoreUpdater.updateDurability(
-					toUpgrade, oldDurability, newDurability, oldMaxDurability, newMaxDurability, CustomToolWrapper.prefix()
-			)) {
-				toUpgrade.setLore(wrap(newItem).createLore(newDurability));
-				return;
+	private void upgradeLore1(
+			ItemMeta toUpgrade,
+			CustomItemValues oldItem, CustomItemValues newItem,
+			Long oldDurability, Long newDurability
+	) {
+		int oldTranslateLoreSize = 0;
+		int newTranslateLoreSize = 0;
+		if (!oldItem.getTranslations().isEmpty()) {
+			oldTranslateLoreSize = oldItem.getTranslations().iterator().next().getLore().size();
+		}
+		if (!newItem.getTranslations().isEmpty()) {
+			newTranslateLoreSize = newItem.getTranslations().iterator().next().getLore().size();
+		}
+
+		if (oldTranslateLoreSize == 0 && newTranslateLoreSize == 0) {
+			if (!Objects.equals(oldDurability, newDurability)) {
+				Long oldMaxDurability = oldItem instanceof CustomToolValues ? ((CustomToolValues) oldItem).getMaxDurabilityNew() : null;
+				Long newMaxDurability = newItem instanceof CustomToolValues ? ((CustomToolValues) newItem).getMaxDurabilityNew() : null;
+				if (LoreUpdater.updateDurability(
+						toUpgrade, oldDurability, newDurability, oldMaxDurability, newMaxDurability, CustomToolWrapper.prefix()
+				)) {
+					toUpgrade.setLore(wrap(newItem).createLore(newDurability));
+					return;
+				}
+			}
+
+			if (!Objects.deepEquals(oldItem.getLore(), newItem.getLore())) {
+				if (LoreUpdater.updateBaseLore(toUpgrade, oldItem.getLore(), newItem.getLore())) {
+					toUpgrade.setLore(wrap(newItem).createLore(newDurability));
+				}
 			}
 		}
 
-		if (!Objects.deepEquals(oldItem.getLore(), newItem.getLore())) {
-			if (LoreUpdater.updateBaseLore(toUpgrade, oldItem.getLore(), newItem.getLore())) {
-				toUpgrade.setLore(wrap(newItem).createLore(newDurability));
-			}
+		if (oldTranslateLoreSize != 0 && newTranslateLoreSize == 0) {
+			toUpgrade.setLore(wrap(newItem).createLore(newDurability));
+		}
+	}
+
+	private void upgradeLore2(
+			ItemStack stackToUpgrade, CustomItemValues oldItem, CustomItemValues newItem
+	) {
+		int oldTranslateLoreSize = 0;
+		int newTranslateLoreSize = 0;
+		if (!oldItem.getTranslations().isEmpty()) {
+			oldTranslateLoreSize = oldItem.getTranslations().iterator().next().getLore().size();
+		}
+		if (!newItem.getTranslations().isEmpty()) {
+			newTranslateLoreSize = newItem.getTranslations().iterator().next().getLore().size();
+		}
+
+		if (oldTranslateLoreSize != newTranslateLoreSize && newTranslateLoreSize != 0) {
+			NBT.modify(stackToUpgrade, nbt -> {
+				wrap(newItem).translateLore(nbt);
+			});
 		}
 	}
 	

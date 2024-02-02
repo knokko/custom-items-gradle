@@ -3,7 +3,6 @@ package nl.knokko.customitems.plugin.set.item;
 import de.tr7zw.changeme.nbtapi.NBT;
 import nl.knokko.customitems.item.CustomGunValues;
 import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
-import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.util.NbtHelper;
 import org.bukkit.inventory.ItemStack;
@@ -84,9 +83,11 @@ public class CustomGunWrapper extends CustomItemWrapper {
             });
             if (newAmmo == -1) return null;
 
-            ItemMeta meta = gunStack.getItemMeta();
-            meta.setLore(createLore(indirectAmmo, newAmmo));
-            gunStack.setItemMeta(meta);
+            if (!translateLore()) {
+                ItemMeta meta = gunStack.getItemMeta();
+                meta.setLore(createLore(indirectAmmo, newAmmo));
+                gunStack.setItemMeta(meta);
+            }
 
             return gunStack;
         } else {
@@ -111,9 +112,11 @@ public class CustomGunWrapper extends CustomItemWrapper {
                NbtHelper.setNested(nbt, KEY_INDIRECT_AMMO, indirectAmmo.getStoredAmmo());
             });
 
-            ItemMeta meta = gunStack.getItemMeta();
-            meta.setLore(createLore(indirectAmmo, indirectAmmo.getStoredAmmo()));
-            gunStack.setItemMeta(meta);
+            if (!translateLore()) {
+                ItemMeta meta = gunStack.getItemMeta();
+                meta.setLore(createLore(indirectAmmo, indirectAmmo.getStoredAmmo()));
+                gunStack.setItemMeta(meta);
+            }
         } else {
             throw new UnsupportedOperationException("Only guns with indirect ammo can decrement internal ammo");
         }

@@ -3,6 +3,7 @@ package nl.knokko.customitems.plugin.set.item;
 import com.google.common.collect.Lists;
 import de.tr7zw.changeme.nbtapi.NBT;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
+import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBTList;
 import de.tr7zw.changeme.nbtapi.iface.ReadableNBT;
 import nl.knokko.customitems.effect.ChancePotionEffectValues;
 import nl.knokko.customitems.item.*;
@@ -70,6 +71,10 @@ public abstract class CustomItemWrapper {
             Player player, ItemStack item, boolean wasSolid, boolean wasFakeMainHand, int numBrokenBlocks
     ) {}
 
+    protected boolean translateLore() {
+        return !item.getTranslations().isEmpty() && !item.getTranslations().iterator().next().getLore().isEmpty();
+    }
+
     protected List<String> createLore(){
         return item.getLore();
     }
@@ -95,6 +100,23 @@ public abstract class CustomItemWrapper {
             }
         }
         return meta;
+    }
+
+    public void translateLore(ReadWriteNBT nbt) {
+        ReadWriteNBT display = nbt.getOrCreateCompound("display");
+        int loreSize = this.item.getTranslations().iterator().next().getLore().size();
+        if (loreSize > 0) {
+            ReadWriteNBTList<String> nbtLore = display.getStringList("Lore");
+            nbtLore.clear();
+            for (int index = 0; index < loreSize; index++) {
+                nbtLore.add("[{\"translate\": \"kci." + this.item.getName() + ".lore." + index + "\"}]");
+            }
+        }
+    }
+
+    public void translateName(ReadWriteNBT nbt) {
+        ReadWriteNBT display = nbt.getOrCreateCompound("display");
+        display.setString("Name", "{\"translate\": \"kci." + this.item.getName() + ".name\"}");
     }
 
     public ItemStack create(int amount, List<String> lore){
@@ -126,6 +148,11 @@ public abstract class CustomItemWrapper {
             // Give it the extra nbt, if needed
             for (String extraNbt : this.item.getExtraNbt()) {
                 nbt.mergeCompound(NBT.parseNBT(extraNbt));
+            }
+
+            if (!this.item.getTranslations().isEmpty()) {
+                translateName(nbt);
+                translateLore(nbt);
             }
 
             if (this.item.getItemType() == CustomItemType.OTHER) {
