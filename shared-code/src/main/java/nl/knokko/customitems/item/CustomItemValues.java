@@ -141,6 +141,7 @@ public abstract class CustomItemValues extends ModelValues {
     // Text display properties
     protected String displayName;
     protected List<String> lore;
+    protected Collection<TranslationEntry> translations;
 
     // Item flags (they are not in a group)
     protected List<Boolean> itemFlags;
@@ -194,6 +195,7 @@ public abstract class CustomItemValues extends ModelValues {
 
         this.displayName = "&f";
         this.lore = new ArrayList<>(0);
+        this.translations = Collections.emptyList();
 
         this.itemFlags = ItemFlag.getDefaultValuesList();
 
@@ -234,6 +236,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.alias = source.getAlias();
         this.displayName = source.getDisplayName();
         this.lore = source.getLore();
+        this.translations = source.getTranslations();
         this.itemFlags = source.getItemFlags();
         this.attributeModifiers = source.getAttributeModifiers();
         this.defaultEnchantments = source.getDefaultEnchantments();
@@ -268,6 +271,7 @@ public abstract class CustomItemValues extends ModelValues {
         return this.itemType == other.itemType && this.otherMaterial == other.otherMaterial
                 && this.name.equals(other.name) && this.alias.equals(other.alias)
                 && this.displayName.equals(other.displayName) && this.lore.equals(other.lore)
+                && this.translations.equals(other.translations)
                 && this.itemFlags.equals(other.itemFlags) && this.attributeModifiers.equals(other.attributeModifiers)
                 && this.defaultEnchantments.equals(other.defaultEnchantments) && this.playerEffects.equals(other.playerEffects)
                 && this.targetEffects.equals(other.targetEffects) && this.equippedEffects.equals(other.equippedEffects)
@@ -314,7 +318,6 @@ public abstract class CustomItemValues extends ModelValues {
             this.otherMaterial = CIMaterial.valueOf(input.readString());
         } else this.otherMaterial = null;
         this.loadTextDisplayProperties1(input);
-
         int numItemFlags = input.readInt();
         this.itemFlags = new ArrayList<>(numItemFlags);
         for (int counter = 0; counter < numItemFlags; counter++) {
@@ -327,7 +330,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.loadEquippedPotionEffects10(input);
         this.loadReplacementConditions10(input, itemSet);
         this.commandSystem = ItemCommandSystem.load(input);
-        if (encoding >= 5) this.loadExtraProperties11(input);
+        if (encoding >= 5) this.attackRange = input.readFloat();
         else this.loadExtraProperties10(input);
         if (encoding >= 2) {
             if (input.readBoolean()) {
@@ -361,6 +364,13 @@ public abstract class CustomItemValues extends ModelValues {
             this.isTwoHanded = false;
             this.indestructible = false;
             this.customMeleeDamageSource = null;
+        }
+
+        if (encoding >= 5) {
+            this.extraItemNbt = CollectionHelper.load(input, input2 -> input2.readString());
+            this.translations = CollectionHelper.load(input, input2 -> TranslationEntry.load(input2, false));
+        } else {
+            this.translations = Collections.emptyList();
         }
 
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
@@ -399,7 +409,7 @@ public abstract class CustomItemValues extends ModelValues {
         this.saveEquippedPotionEffects10(output);
         this.saveReplacementConditions10(output);
         this.commandSystem.save(output);
-        this.saveExtraProperties11(output);
+        output.addFloat(attackRange);
         output.addBoolean(this.specialMeleeDamage != null);
         if (this.specialMeleeDamage != null) {
             this.specialMeleeDamage.save(output);
@@ -418,6 +428,9 @@ public abstract class CustomItemValues extends ModelValues {
             output.addLong(this.customMeleeDamageSource.get().getId().getMostSignificantBits());
             output.addLong(this.customMeleeDamageSource.get().getId().getLeastSignificantBits());
         }
+
+        CollectionHelper.save(extraItemNbt, output::addString, output);
+        CollectionHelper.save(translations, translationEntry -> translationEntry.save(output), output);
 
         if (targetSide == ItemSet.Side.EDITOR) {
             output.addString(texture.get().getName());
@@ -619,16 +632,6 @@ public abstract class CustomItemValues extends ModelValues {
         this.attackRange = input.readFloat();
     }
 
-    protected void loadExtraProperties11(BitInput input) throws UnknownEncodingException {
-        this.extraItemNbt = CollectionHelper.load(input, input2 -> input2.readString());
-        this.attackRange = input.readFloat();
-    }
-
-    protected void saveExtraProperties11(BitOutput output) {
-        CollectionHelper.save(extraItemNbt, output::addString, output);
-        output.addFloat(attackRange);
-    }
-
     protected void loadTextDisplayProperties1(BitInput input) {
         this.displayName = input.readJavaString();
         int numLoreLines = input.readByte() & 0xFF;
@@ -656,7 +659,13 @@ public abstract class CustomItemValues extends ModelValues {
         loadExtraProperties10(input);
     }
 
+    private void initBaseDefaults12() {
+        this.translations = Collections.emptyList();
+    }
+
     protected void initBaseDefaults11() {
+        initBaseDefaults12();
+
         this.isTwoHanded = false;
         this.indestructible = false;
         this.customMeleeDamageSource = null;
@@ -770,6 +779,10 @@ public abstract class CustomItemValues extends ModelValues {
 
     public List<String> getLore() {
         return new ArrayList<>(lore);
+    }
+
+    public Collection<TranslationEntry> getTranslations() {
+        return translations;
     }
 
     public List<Boolean> getItemFlags() {
@@ -954,6 +967,11 @@ public abstract class CustomItemValues extends ModelValues {
         this.lore = newLore.stream().map(this::transformToColorCodes).collect(Collectors.toList());
     }
 
+    public void setTranslations(Collection<TranslationEntry> newTranslations) {
+        assertMutable();
+        this.translations = Collections.unmodifiableCollection(newTranslations);
+    }
+
     public void setItemFlags(List<Boolean> newItemFlags) {
         assertMutable();
         Checks.nonNull(newItemFlags);
@@ -1100,6 +1118,20 @@ public abstract class CustomItemValues extends ModelValues {
         for (String loreLine : lore) {
             if (loreLine == null) throw new ProgrammingValidationException("Missing a lore line");
         }
+        if (translations == null) throw new ProgrammingValidationException("No translations");
+        int translationLoreSize = -1;
+        Set<String> allTranslations = new HashSet<>();
+        for (TranslationEntry translation : translations) {
+            Validation.scope("Translation " + translation.getLanguage(), translation::validate);
+            if (allTranslations.contains(translation.getLanguage())) {
+                throw new ValidationException("Multiple translations for " + translation.getLanguage());
+            }
+            allTranslations.add(translation.getLanguage());
+            if (translationLoreSize == -1) translationLoreSize = translation.getLore().size();
+            else if (translationLoreSize != translation.getLore().size()) {
+                throw new ValidationException("All translation lore must have the same number of lines");
+            }
+        }
 
         if (itemFlags == null) throw new ProgrammingValidationException("No item flags");
         if (itemFlags.size() != 6) throw new ProgrammingValidationException("Number of item flags is not 6");
@@ -1237,6 +1269,10 @@ public abstract class CustomItemValues extends ModelValues {
             if (otherMaterial.lastVersion < version) {
                 throw new ValidationException(otherMaterial + " doesn't exist anymore in mc " + MCVersions.createString(version));
             }
+        }
+
+        if (version < MCVersions.VERSION1_14 && !translations.isEmpty()) {
+            throw new ValidationException("Translations require MC 1.14+");
         }
 
         for (EnchantmentValues enchantment : defaultEnchantments) {

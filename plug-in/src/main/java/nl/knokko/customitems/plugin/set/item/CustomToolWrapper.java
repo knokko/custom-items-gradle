@@ -178,7 +178,7 @@ public class CustomToolWrapper extends CustomItemWrapper {
                 }
             });
 
-            if (pNewDurability[0] != null) {
+            if (pNewDurability[0] != null && !translateLore()) {
                 long newDurability = pNewDurability[0];
                 if (newDurability == 0) {
                     return null;
@@ -246,7 +246,7 @@ public class CustomToolWrapper extends CustomItemWrapper {
         });
         long increasedAmount = pIncreasedAmount[0];
 
-        if (increasedAmount > 0) {
+        if (increasedAmount > 0 && !translateLore()) {
             long newDurability = pNewDurability[0];
             ItemMeta meta = stack.getItemMeta();
             assert meta != null;
