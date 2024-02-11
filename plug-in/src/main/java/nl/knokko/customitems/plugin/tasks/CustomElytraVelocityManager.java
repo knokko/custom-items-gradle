@@ -71,11 +71,10 @@ public class CustomElytraVelocityManager {
                         }
 
                         // Decrement durability each second
-                        if (plugin.getData().getCurrentTick() % 20 == 0 && elytra.getMaxDurabilityNew() != null) {
-                            ItemStack newElytraStack = wrap(elytra).decreaseDurability(chestStack, 1);
-                            if (newElytraStack != chestStack) {
-                                player.getInventory().setChestplate(newElytraStack);
-                            }
+                        if (plugin.getData().getCurrentTick() % 20 == 0) {
+                            boolean broke = wrap(elytra).decreaseDurability(chestStack, 1);
+                            if (broke) chestStack = null;
+                            player.getInventory().setChestplate(chestStack);
                         }
                     }
                 }

@@ -17,6 +17,8 @@ import org.bukkit.util.Vector;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 
+import static nl.knokko.customitems.MCVersions.VERSION1_14;
+
 public class UpdateProjectileTask implements Runnable {
 
 	private final FlyingProjectile projectile;
@@ -119,11 +121,13 @@ public class UpdateProjectileTask implements Runnable {
 		CIMaterial coverMaterial = CustomItemWrapper.getMaterial(projectile.prototype.getCover().getItemType(), null);
 		ItemStack coverStack = KciNms.instance.items.createStack(coverMaterial.name(), 1);
 		ItemMeta coverMeta = coverStack.getItemMeta();
-		coverMeta.setUnbreakable(true);
+		if (KciNms.mcVersion < VERSION1_14) coverMeta.setUnbreakable(true);
 		coverStack.setItemMeta(coverMeta);
-		coverStack.setDurability(projectile.prototype.getCover().getItemDamage());
+		short itemDamage = projectile.prototype.getCover().getItemDamage();
+		if (KciNms.mcVersion < VERSION1_14) coverStack.setDurability(itemDamage);
 		NBT.modify(coverStack, nbt -> {
 			nbt.setBoolean(FlyingProjectile.KEY_COVER_ITEM, true);
+			if (KciNms.mcVersion >= VERSION1_14) nbt.setInteger("CustomModelData", (int) itemDamage);
 		});
 
 		coverItem = projectile.world.dropItem(position.toLocation(projectile.world), coverStack);

@@ -16,6 +16,7 @@ import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
 import nl.knokko.customitems.plugin.util.NbtHelper;
 import nl.knokko.customitems.recipe.result.CustomItemResultValues;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
@@ -124,7 +125,8 @@ public class ContainerEventHandler implements Listener {
 		Bukkit.getScheduler().scheduleSyncDelayedTask(
 				CustomItemsPlugin.getInstance(), () -> {
 					ItemStack cursor = clicker.getItemOnCursor();
-					if (NBT.get(cursor, nbt -> NbtHelper.getNested(nbt, ContainerInstance.PLACEHOLDER_KEY, 0) == 1)) {
+					if (cursor.getAmount() > 0 && cursor.getType() != Material.AIR &&
+							NBT.get(cursor, nbt -> NbtHelper.getNested(nbt, ContainerInstance.PLACEHOLDER_KEY, 0) == 1)) {
 						clicker.setItemOnCursor(null);
 					}
 				}

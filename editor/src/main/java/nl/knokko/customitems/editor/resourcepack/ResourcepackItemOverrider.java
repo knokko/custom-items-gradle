@@ -19,8 +19,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static nl.knokko.customitems.MCVersions.VERSION1_13;
+import static nl.knokko.customitems.MCVersions.VERSION1_14;
 import static nl.knokko.customitems.editor.resourcepack.DefaultItemModels.getMinecraftModelTridentInHandBegin;
-import static nl.knokko.customitems.editor.resourcepack.DefaultItemModels.getMinecraftModelTridentInHandEnd;
 
 class ResourcepackItemOverrider {
 
@@ -207,24 +207,44 @@ class ResourcepackItemOverrider {
         jsonWriter.println("        { \"predicate\": { \"pulling\": 1, \"pull\": 0.65 }, \"model\": \"item/bow_pulling_1\"},");
         jsonWriter.println("        { \"predicate\": { \"pulling\": 1, \"pull\": 0.9 }, \"model\": \"item/bow_pulling_2\"},");
 
-        for (ItemDurabilityClaim claim : damageAssignments.claimList) {
-            double damage = (double) claim.itemDamage / CustomItemType.BOW.getMaxDurability(itemSet.getExportSettings().getMcVersion());
-            jsonWriter.println("        { \"predicate\": {\"damaged\": 0, \"damage\": " + damage + "}, \"model\": \"" + claim.resourcePath + "\"},");
-            List<BowTextureEntry> pullTextures = claim.pullTextures;
+        if (itemSet.getExportSettings().getMcVersion() >= VERSION1_14) {
+            int index = 0;
+            for (ItemDurabilityClaim claim : damageAssignments.claimList) {
+                index += 1;
+                jsonWriter.println("        { \"predicate\": {\"custom_model_data\": " + claim.itemDamage + "}, \"model\": \"" + claim.resourcePath + "\"},");
+                List<BowTextureEntry> pullTextures = claim.pullTextures;
 
-            int counter = 0;
-            for (BowTextureEntry pullTexture : pullTextures) {
-                jsonWriter.println(
-                        "        { \"predicate\": {\"damaged\": 0, \"damage\": " + damage + ", \"pulling\": 1, \"pull\": "
-                                + pullTexture.getPull() + "}, \"model\": \"" + claim.resourcePath + "_pulling_" + counter++ + "\"},"
-                );
+                int counter = 0;
+                for (BowTextureEntry pullTexture : pullTextures) {
+                    jsonWriter.print(
+                            "        { \"predicate\": {\"custom_model_data\": " + claim.itemDamage + ", \"pulling\": 1, \"pull\": "
+                                    + pullTexture.getPull() + "}, \"model\": \"" + claim.resourcePath + "_pulling_" + counter++ + "\"}"
+                    );
+                    if (counter != pullTextures.size() || index != damageAssignments.claimList.size()) jsonWriter.print(",");
+                    jsonWriter.println();
+                }
             }
+        } else {
+            for (ItemDurabilityClaim claim : damageAssignments.claimList) {
+                double damage = (double) claim.itemDamage / CustomItemType.BOW.getMaxDurability(itemSet.getExportSettings().getMcVersion());
+                jsonWriter.println("        { \"predicate\": {\"damaged\": 0, \"damage\": " + damage + "}, \"model\": \"" + claim.resourcePath + "\"},");
+                List<BowTextureEntry> pullTextures = claim.pullTextures;
+
+                int counter = 0;
+                for (BowTextureEntry pullTexture : pullTextures) {
+                    jsonWriter.println(
+                            "        { \"predicate\": {\"damaged\": 0, \"damage\": " + damage + ", \"pulling\": 1, \"pull\": "
+                                    + pullTexture.getPull() + "}, \"model\": \"" + claim.resourcePath + "_pulling_" + counter++ + "\"},"
+                    );
+                }
+            }
+
+            jsonWriter.println("        { \"predicate\": {\"damaged\": 1, \"damage\": 0}, \"model\": \"item/bow\"},");
+            jsonWriter.println("        { \"predicate\": {\"damaged\": 1, \"damage\": 0, \"pulling\": 1 }, \"model\": \"item/bow_pulling_0\"},");
+            jsonWriter.println("        { \"predicate\": {\"damaged\": 1, \"damage\": 0, \"pulling\": 1, \"pull\": 0.65 }, \"model\": \"item/bow_pulling_1\"},");
+            jsonWriter.println("        { \"predicate\": {\"damaged\": 1, \"damage\": 0, \"pulling\": 1, \"pull\": 0.9 }, \"model\": \"item/bow_pulling_2\"}");
         }
-        // End of the json file
-        jsonWriter.println("        { \"predicate\": {\"damaged\": 1, \"damage\": 0}, \"model\": \"item/bow\"},");
-        jsonWriter.println("        { \"predicate\": {\"damaged\": 1, \"damage\": 0, \"pulling\": 1 }, \"model\": \"item/bow_pulling_0\"},");
-        jsonWriter.println("        { \"predicate\": {\"damaged\": 1, \"damage\": 0, \"pulling\": 1, \"pull\": 0.65 }, \"model\": \"item/bow_pulling_1\"},");
-        jsonWriter.println("        { \"predicate\": {\"damaged\": 1, \"damage\": 0, \"pulling\": 1, \"pull\": 0.9 }, \"model\": \"item/bow_pulling_2\"}");
+
         jsonWriter.println("    ]");
         jsonWriter.println("}");
     }
@@ -267,35 +287,30 @@ class ResourcepackItemOverrider {
         jsonWriter.println("        { \"predicate\": { \"charged\": 1, \"firework\": 1 }, \"model\": \"item/crossbow_firework\" },");
 
         // This is where things get interesting...
+        int index = 0;
         for (ItemDurabilityClaim claim : assignments.claimList) {
-
-            double damageFraction = (double) claim.itemDamage / CustomItemType.CROSSBOW.getMaxDurability(itemSet.getExportSettings().getMcVersion());
-            jsonWriter.println("        { \"predicate\": { \"damaged\": 0, \"damage\": "
-                    + damageFraction + " }, \"model\": \"" + claim.resourcePath + "\" },");
+            index += 1;
+            jsonWriter.println("        { \"predicate\": { \"custom_model_data\": "
+                    + claim.itemDamage + " }, \"model\": \"" + claim.resourcePath + "\" },");
 
             List<BowTextureEntry> pullTextures = claim.pullTextures;
             int counter = 0;
             for (BowTextureEntry pullTexture : pullTextures) {
-                jsonWriter.println("        { \"predicate\": { \"damaged\": 0, \"damage\": "
-                        + damageFraction + ", \"pulling\": 1, \"pull\": " + pullTexture.getPull()
+                jsonWriter.println("        { \"predicate\": { \"custom_model_data\": "
+                        + claim.itemDamage + ", \"pulling\": 1, \"pull\": " + pullTexture.getPull()
                         + " }, \"model\": \"" + claim.resourcePath + "_pulling_" + counter++ + "\" },");
             }
 
-            jsonWriter.println("        { \"predicate\": { \"damaged\": 0, \"damage\": "
-                    + damageFraction + ", \"charged\": 1 }, \"model\": \"" + claim.resourcePath
+            jsonWriter.println("        { \"predicate\": { \"custom_model_data\": "
+                    + claim.itemDamage + ", \"charged\": 1 }, \"model\": \"" + claim.resourcePath
                     + "_arrow\" },");
-            jsonWriter.println("        { \"predicate\": { \"damaged\": 0, \"damage\": "
-                    + damageFraction + ", \"charged\": 1, \"firework\": 1 }, \"model\": \""
-                    + claim.resourcePath + "_firework\" },");
+            jsonWriter.print("        { \"predicate\": { \"custom_model_data\": "
+                    + claim.itemDamage + ", \"charged\": 1, \"firework\": 1 }, \"model\": \""
+                    + claim.resourcePath + "_firework\" }");
+            if (index != assignments.claimList.size()) jsonWriter.print(",");
+            jsonWriter.println();
         }
 
-        // The crossbow model should always end with these lines:
-        jsonWriter.println("        { \"predicate\": { \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/crossbow\" },");
-        jsonWriter.println("        { \"predicate\": { \"pulling\": 1, \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/crossbow_pulling_0\" },");
-        jsonWriter.println("        { \"predicate\": { \"pulling\": 1, \"pull\": 0.58, \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/crossbow_pulling_1\" },");
-        jsonWriter.println("        { \"predicate\": { \"pulling\": 1, \"pull\": 1.0, \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/crossbow_pulling_2\" },");
-        jsonWriter.println("        { \"predicate\": { \"charged\": 1, \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/crossbow_arrow\" },");
-        jsonWriter.println("        { \"predicate\": { \"charged\": 1, \"firework\": 1, \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/crossbow_firework\" }");
         jsonWriter.println("    ]");
         jsonWriter.println("}");
     }
@@ -353,17 +368,30 @@ class ResourcepackItemOverrider {
         jsonWriter.println("        { \"predicate\": { \"blocking\": 1 }, \"model\": \"item/shield_blocking\" },");
 
         // Now the part for the custom shield predicates...
-        for (ItemDurabilityClaim claim : damageAssignments.claimList) {
-            double damage = (double) claim.itemDamage / CustomItemType.SHIELD.getMaxDurability(itemSet.getExportSettings().getMcVersion());
-            jsonWriter.println("        { \"predicate\": { \"blocking\": 0, \"damaged\": 0, \"damage\": "
-                    + damage + " }, \"model\": \"" + claim.resourcePath + "\" },");
-            jsonWriter.println("        { \"predicate\": { \"blocking\": 1, \"damaged\": 0, \"damage\": "
-                    + damage + " }, \"model\": \"" + claim.resourcePath + "_blocking\" },");
-        }
+        if (itemSet.getExportSettings().getMcVersion() >= VERSION1_14) {
+            int index = 0;
+            for (ItemDurabilityClaim claim : damageAssignments.claimList) {
+                index += 1;
+                jsonWriter.println("        { \"predicate\": { \"blocking\": 0, \"custom_model_data\": "
+                        + claim.itemDamage + " }, \"model\": \"" + claim.resourcePath + "\" },");
+                jsonWriter.print("        { \"predicate\": { \"blocking\": 1, \"custom_model_data\": "
+                        + claim.itemDamage + " }, \"model\": \"" + claim.resourcePath + "_blocking\" }");
+                if (index != damageAssignments.claimList.size()) jsonWriter.print(",");
+                jsonWriter.println();
+            }
+        } else {
+            for (ItemDurabilityClaim claim : damageAssignments.claimList) {
+                double damage = (double) claim.itemDamage / CustomItemType.SHIELD.getMaxDurability(itemSet.getExportSettings().getMcVersion());
+                jsonWriter.println("        { \"predicate\": { \"blocking\": 0, \"damaged\": 0, \"damage\": "
+                        + damage + " }, \"model\": \"" + claim.resourcePath + "\" },");
+                jsonWriter.println("        { \"predicate\": { \"blocking\": 1, \"damaged\": 0, \"damage\": "
+                        + damage + " }, \"model\": \"" + claim.resourcePath + "_blocking\" },");
+            }
 
-        // The next ones are required to preserve the vanilla shield models
-        jsonWriter.println("        { \"predicate\": { \"blocking\": 0, \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/shield\" },");
-        jsonWriter.println("        { \"predicate\": { \"blocking\": 1, \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/shield_blocking\" }");
+            // The next ones are required to preserve the vanilla shield models
+            jsonWriter.println("        { \"predicate\": { \"blocking\": 0, \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/shield\" },");
+            jsonWriter.println("        { \"predicate\": { \"blocking\": 1, \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/shield_blocking\" }");
+        }
 
         // Now finish the json
         jsonWriter.println("    ]");
@@ -375,23 +403,38 @@ class ResourcepackItemOverrider {
         jsonWriter.println("{");
         jsonWriter.println("    \"parent\": \"item/generated\",");
         jsonWriter.println("    \"textures\": {");
-        jsonWriter.println("        \"layer0\": \"item/elytra\"");
+        if (itemSet.getExportSettings().getMcVersion() >= VERSION1_13) {
+            jsonWriter.println("        \"layer0\": \"item/elytra\"");
+        } else {
+            jsonWriter.println("        \"layer0\": \"items/elytra\"");
+        }
         jsonWriter.println("    }, \"overrides\": [");
 
         // The next entry is part of preserving vanilla broken elytra model
         jsonWriter.println("        { \"predicate\": { \"broken\": 1 }, \"model\": \"item/broken_elytra\" },");
 
         // Now the part for the custom elytra predicates...
-        for (ItemDurabilityClaim claim : damageAssignments.claimList) {
-            double damage = (double) claim.itemDamage / CustomItemType.ELYTRA.getMaxDurability(itemSet.getExportSettings().getMcVersion());
-            jsonWriter.println("        { \"predicate\": { \"broken\": 0, \"damaged\": 0, \"damage\": "
-                    + damage + " }, \"model\": \"" + claim.resourcePath + "\" },");
-        }
-        // TODO Handle broken textures someday
+        if (itemSet.getExportSettings().getMcVersion() >= VERSION1_14) {
+            int index = 0;
+            for (ItemDurabilityClaim claim : damageAssignments.claimList) {
+                index += 1;
+                jsonWriter.print("        { \"predicate\": { \"broken\": 0, \"custom_model_data\": "
+                        + claim.itemDamage + " }, \"model\": \"" + claim.resourcePath + "\" }");
+                if (index != damageAssignments.claimList.size()) jsonWriter.print(",");
+                jsonWriter.println();
+            }
+        } else {
+            for (ItemDurabilityClaim claim : damageAssignments.claimList) {
+                double damage = (double) claim.itemDamage / CustomItemType.ELYTRA.getMaxDurability(itemSet.getExportSettings().getMcVersion());
+                jsonWriter.println("        { \"predicate\": { \"broken\": 0, \"damaged\": 0, \"damage\": "
+                        + damage + " }, \"model\": \"" + claim.resourcePath + "\" },");
+            }
+            // TODO Handle broken textures someday
 
-        // The next ones are required to preserve the vanilla elytra models
-        jsonWriter.println("        { \"predicate\": { \"broken\": 0, \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/elytra\" },");
-        jsonWriter.println("        { \"predicate\": { \"broken\": 1, \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/broken_elytra\" }");
+            // The next ones are required to preserve the vanilla elytra models
+            jsonWriter.println("        { \"predicate\": { \"broken\": 0, \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/elytra\" },");
+            jsonWriter.println("        { \"predicate\": { \"broken\": 1, \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/broken_elytra\" }");
+        }
 
         // Now finish the json
         jsonWriter.println("    ]");
@@ -431,13 +474,25 @@ class ResourcepackItemOverrider {
         jsonWriter.println("    \"overrides\": [");
 
         // Now the interesting part
-        for (ItemDurabilityClaim claim : damageAssignments.claimList) {
-            double damage = (double) claim.itemDamage / itemType.getMaxDurability(itemSet.getExportSettings().getMcVersion());
-            jsonWriter.println("        { \"predicate\": {\"damaged\": 0, \"damage\": " + damage + "}, \"model\": \"" + claim.resourcePath + "\"},");
+        if (itemSet.getExportSettings().getMcVersion() >= VERSION1_14) {
+            int index = 0;
+            for (ItemDurabilityClaim claim : damageAssignments.claimList) {
+                jsonWriter.print("        { \"predicate\": { \"custom_model_data\": " + claim.itemDamage + " }, \"model\": \"" + claim.resourcePath + "\" }");
+                if (index != damageAssignments.claimList.size() - 1) {
+                    jsonWriter.print(",");
+                }
+                jsonWriter.println();
+                index += 1;
+            }
+        } else {
+            for (ItemDurabilityClaim claim : damageAssignments.claimList) {
+                double damage = (double) claim.itemDamage / itemType.getMaxDurability(itemSet.getExportSettings().getMcVersion());
+                jsonWriter.println("        { \"predicate\": {\"damaged\": 0, \"damage\": " + damage + "}, \"model\": \"" + claim.resourcePath + "\"},");
+            }
+            jsonWriter.println("        { \"predicate\": {\"damaged\": 1, \"damage\": 0}, \"model\": \"item/" + modelName + "\"}");
         }
 
         // End of the json file
-        jsonWriter.println("        { \"predicate\": {\"damaged\": 1, \"damage\": 0}, \"model\": \"item/" + modelName + "\"}");
         jsonWriter.println("    ]");
         jsonWriter.println("}");
     }
@@ -449,23 +504,35 @@ class ResourcepackItemOverrider {
         zipOutput.putNextEntry(zipEntry);
         String[] begin = getMinecraftModelTridentInHandBegin();
 
-        String[] end = getMinecraftModelTridentInHandEnd();
-
         for (String line : begin) {
             jsonWriter.println(line);
         }
 
-        for (ItemDurabilityClaim claim : damageAssignments.claimList) {
-            double damage = (double) claim.itemDamage / CustomItemType.TRIDENT.getMaxDurability(itemSet.getExportSettings().getMcVersion());
-            jsonWriter.println("        { \"predicate\": { \"throwing\": 0, \"damaged\": 0, \"damage\": "
-                    + damage + " }, \"model\": \"" + claim.resourcePath + "_in_hand\" },");
-            jsonWriter.println("        { \"predicate\": { \"throwing\": 1, \"damaged\": 0, \"damage\": "
-                    + damage + " }, \"model\": \"" + claim.resourcePath + "_throwing\" },");
+        if (itemSet.getExportSettings().getMcVersion() >= VERSION1_14) {
+            int index = 0;
+            for (ItemDurabilityClaim claim : damageAssignments.claimList) {
+                index += 1;
+                jsonWriter.println("        { \"predicate\": { \"throwing\": 0, \"custom_model_data\": "
+                        + claim.itemDamage + " }, \"model\": \"" + claim.resourcePath + "_in_hand\" },");
+                jsonWriter.print("        { \"predicate\": { \"throwing\": 1, \"custom_model_data\": "
+                        + claim.itemDamage + " }, \"model\": \"" + claim.resourcePath + "_throwing\" }");
+                if (index != damageAssignments.claimList.size()) jsonWriter.print(",");
+                jsonWriter.println();
+            }
+        } else {
+            for (ItemDurabilityClaim claim : damageAssignments.claimList) {
+                double damage = (double) claim.itemDamage / CustomItemType.TRIDENT.getMaxDurability(itemSet.getExportSettings().getMcVersion());
+                jsonWriter.println("        { \"predicate\": { \"throwing\": 0, \"damaged\": 0, \"damage\": "
+                        + damage + " }, \"model\": \"" + claim.resourcePath + "_in_hand\" },");
+                jsonWriter.println("        { \"predicate\": { \"throwing\": 1, \"damaged\": 0, \"damage\": "
+                        + damage + " }, \"model\": \"" + claim.resourcePath + "_throwing\" },");
+            }
+            jsonWriter.println("        {\"predicate\": {\"damaged\": 1, \"damage\": 0}, \"model\": \"item/trident_in_hand\"},");
+            jsonWriter.println("        {\"predicate\": {\"damaged\": 1, \"damage\": 0, \"throwing\": 1}, \"model\": \"item/trident_throwing\"}");
         }
 
-        for (String line : end) {
-            jsonWriter.println(line);
-        }
+        jsonWriter.println("    ]");
+        jsonWriter.println("}");
 
         jsonWriter.flush();
     }

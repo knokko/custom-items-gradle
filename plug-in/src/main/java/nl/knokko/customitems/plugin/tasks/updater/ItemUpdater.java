@@ -1,5 +1,6 @@
 package nl.knokko.customitems.plugin.tasks.updater;
 
+import static nl.knokko.customitems.MCVersions.VERSION1_14;
 import static nl.knokko.customitems.plugin.set.item.CustomItemWrapper.*;
 import static nl.knokko.customitems.plugin.tasks.updater.ItemUpgrader.LAST_VANILLA_UPGRADE_KEY;
 import static nl.knokko.customitems.plugin.util.AttributeMerger.convertAttributeModifier;
@@ -408,7 +409,7 @@ public class ItemUpdater {
 			for (String newNbt : newItem.getExtraNbt()) {
 				generalNbt.mergeCompound(NBT.parseNBT(newNbt));
 			}
-			if (newItem.getItemType() == CustomItemType.OTHER) {
+			if (KciNms.mcVersion >= VERSION1_14) {
 				String customModelDataKey = "CustomModelData";
 				generalNbt.setInteger(customModelDataKey, (int) newItem.getItemDamage());
 			}
@@ -427,16 +428,19 @@ public class ItemUpdater {
 			CustomArmorWrapper.colorItemMeta((CustomArmorValues) newItem, meta);
 		}
 
-		if (newItem.getItemType() != CustomItemType.OTHER) {
-			meta.setUnbreakable(true);
-		}
+		meta.setUnbreakable(KciNms.mcVersion < VERSION1_14 || !wrap(newItem).showDurabilityBar());
 		newStack.setItemMeta(meta);
 		upgradeLore2(newStack, oldItem, newItem);
 
-		if (newItem.getItemType() != CustomItemType.OTHER) {
-			newStack.setDurability(newItem.getItemDamage());
+		if (KciNms.mcVersion < VERSION1_14) newStack.setDurability(newItem.getItemDamage());
+		else {
+			CustomItemWrapper newWrapper = wrap(newItem);
+			if (newWrapper instanceof CustomToolWrapper) {
+				CustomToolWrapper toolWrapper = (CustomToolWrapper) newWrapper;
+				toolWrapper.updateDurabilityBar(newStack);
+			}
 		}
-		
+
 		return newStack;
 	}
 

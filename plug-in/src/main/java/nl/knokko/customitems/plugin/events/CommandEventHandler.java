@@ -224,9 +224,8 @@ public class CommandEventHandler implements Listener {
                         CustomToolValues toRepair = (CustomToolValues) customMainItem;
                         Long maxDurability = toRepair.getMaxDurabilityNew();
                         if (maxDurability != null) {
-                            event.getPlayer().getInventory().setItemInMainHand(
-                                    wrap(toRepair).increaseDurability(mainItem, maxDurability).stack
-                            );
+                            wrap(toRepair).increaseDurability(mainItem, maxDurability);
+                            event.getPlayer().getInventory().setItemInMainHand(mainItem);
                         }
                     }
                 }

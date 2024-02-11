@@ -5,7 +5,9 @@ import de.tr7zw.changeme.nbtapi.NBT;
 import de.tr7zw.changeme.nbtapi.NBTType;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 import de.tr7zw.changeme.nbtapi.iface.ReadableNBT;
+import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.item.*;
+import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
 import nl.knokko.customitems.plugin.tasks.updater.LoreUpdater;
@@ -56,6 +58,11 @@ public class CustomToolWrapper extends CustomItemWrapper {
     }
 
     @Override
+    public boolean showDurabilityBar() {
+        return KciNms.mcVersion >= MCVersions.VERSION1_14 && tool.getMaxDurabilityNew() != null;
+    }
+
+    @Override
     public boolean forbidDefaultUse(ItemStack item) {
         return false;
     }
@@ -69,7 +76,7 @@ public class CustomToolWrapper extends CustomItemWrapper {
     public List<String> createLore(Long currentDurability){
         List<String> rawLore = this.tool.getLore();
         List<String> itemLore = new ArrayList<>(rawLore.size() + 2);
-        if (this.tool.getMaxDurabilityNew() != null) {
+        if (this.tool.getMaxDurabilityNew() != null && !showDurabilityBar()) {
             if (currentDurability == null) {
                 currentDurability = this.tool.getMaxDurabilityNew();
             }
@@ -90,18 +97,51 @@ public class CustomToolWrapper extends CustomItemWrapper {
             });
         }
 
+        if (showDurabilityBar()) updateDurabilityBar(result);
+
         return result;
+    }
+
+    public void updateDurabilityBar(ItemStack tool) {
+        if (tool != null) {
+            Long maxDurability = this.tool.getMaxDurabilityNew();
+            Long durability = NBT.get(tool, nbt -> {
+                ReadableNBT customItemNbt = nbt.getCompound(NBT_KEY);
+                if (customItemNbt == null || !customItemNbt.hasTag("Durability", NBTType.NBTTagLong)) return null;
+
+                return customItemNbt.getLong("Durability");
+            });
+
+            if (durability == null || maxDurability == null || durability.equals(maxDurability)) {
+                //noinspection deprecation
+                tool.setDurability((short) 0);
+            } else {
+                // Armor can lose more durability per hit than weapons and tools
+                int minBarValue;
+                if (this.tool instanceof CustomArmorValues) {
+                    minBarValue = 10;
+                } else minBarValue = 3;
+
+                double remainingFraction = (double) durability / (double) maxDurability;
+                int maxBarValue = tool.getType().getMaxDurability();
+                int barValue = (int) ((1.0 - remainingFraction) * maxBarValue);
+                if (barValue >= maxBarValue - minBarValue) barValue = maxBarValue - minBarValue - 1;
+                if (barValue < 1) barValue = 1;
+
+                //noinspection deprecation
+                tool.setDurability((short) barValue);
+            }
+        }
     }
 
     @Override
     public void onBlockBreak(
             Player player, ItemStack tool, boolean wasSolid, boolean wasFakeMainHand, int numBrokenBlocks
     ) {
-        if (wasSolid && this.tool.getBlockBreakDurabilityLoss() != 0) {
-
+        if (wasSolid) {
             int durabilityFactor = this.tool.getMultiBlockBreak().shouldStackDurabilityCost() ? numBrokenBlocks : 1;
-            ItemStack decreased = decreaseDurability(tool, this.tool.getBlockBreakDurabilityLoss() * durabilityFactor);
-            if (decreased == null) {
+            boolean broke = decreaseDurability(tool, this.tool.getBlockBreakDurabilityLoss() * durabilityFactor);
+            if (broke) {
                 for (ReplacementConditionValues cond : this.tool.getReplacementConditions()) {
                     if (cond.getCondition() == ReplacementConditionValues.ReplacementCondition.ISBROKEN) {
                         ItemStack replace = wrap(cond.getReplaceItem()).create(1);
@@ -109,13 +149,12 @@ public class CustomToolWrapper extends CustomItemWrapper {
                     }
                 }
                 SoundPlayer.playBreakSound(player);
+                tool = null;
             }
-            if (decreased != tool) {
-                if (wasFakeMainHand) {
-                    player.getInventory().setItemInOffHand(DualWieldSupport.purge(decreased));
-                } else {
-                    player.getInventory().setItemInMainHand(decreased);
-                }
+            if (wasFakeMainHand) {
+                player.getInventory().setItemInOffHand(DualWieldSupport.purge(tool));
+            } else {
+                player.getInventory().setItemInMainHand(tool);
             }
         }
     }
@@ -123,28 +162,26 @@ public class CustomToolWrapper extends CustomItemWrapper {
     @Override
     public void onEntityHit(LivingEntity attacker, ItemStack tool, Entity target) {
         super.onEntityHit(attacker, tool, target);
-        if (this.tool.getEntityHitDurabilityLoss() != 0) {
-            ItemStack decreased = decreaseDurability(tool, this.tool.getEntityHitDurabilityLoss());
-            if (decreased == null && attacker instanceof Player) {
-                SoundPlayer.playBreakSound((Player) attacker);
-            }
-            if (decreased != tool) {
-                // This method can only be called when the attacker has equipment
-                Objects.requireNonNull(attacker.getEquipment()).setItemInMainHand(decreased);
-            }
+        boolean broke = decreaseDurability(tool, this.tool.getEntityHitDurabilityLoss());
+        if (broke && attacker instanceof Player) {
+            SoundPlayer.playBreakSound((Player) attacker);
+            tool = null;
         }
+
+        if (showDurabilityBar()) updateDurabilityBar(tool);
+
+        // This method can only be called when the attacker has equipment
+        Objects.requireNonNull(attacker.getEquipment()).setItemInMainHand(tool);
     }
 
     /**
      * @param stack The (custom) item stack to decrease the durability of
-     * @return The same item stack if nothing changed, or a new ItemStack that should
-     * replace the old one (null if the stack should break).
-     *
-     * It is the task of the caller to ensure that the old one really gets replaced!
+     * @return true if the stack was broken, false otherwise
      */
-    public ItemStack decreaseDurability(ItemStack stack, int damage) {
-        if (this.tool.getMaxDurabilityNew() == null || !stack.hasItemMeta()) {
-            return stack;
+    public boolean decreaseDurability(ItemStack stack, int damage) {
+        if (damage == 0 || this.tool.getMaxDurabilityNew() == null || !stack.hasItemMeta()) {
+            if (showDurabilityBar()) updateDurabilityBar(stack);
+            return false;
         }
 
         if (Math.random() <= 1.0 / (1 + stack.getEnchantmentLevel(Enchantment.DURABILITY))) {
@@ -181,7 +218,7 @@ public class CustomToolWrapper extends CustomItemWrapper {
             if (pNewDurability[0] != null && !translateLore()) {
                 long newDurability = pNewDurability[0];
                 if (newDurability == 0) {
-                    return null;
+                    return true;
                 }
                 ItemMeta meta = stack.getItemMeta();
                 assert meta != null;
@@ -193,23 +230,14 @@ public class CustomToolWrapper extends CustomItemWrapper {
                 stack.setItemMeta(meta);
             }
         }
-        return stack;
+
+        if (showDurabilityBar()) updateDurabilityBar(stack);
+        return false;
     }
 
-    public static class IncreaseDurabilityResult {
-
-        public final ItemStack stack;
-        public final long increasedAmount;
-
-        IncreaseDurabilityResult(ItemStack stack, long increasedAmount) {
-            this.stack = stack;
-            this.increasedAmount = increasedAmount;
-        }
-    }
-
-    public IncreaseDurabilityResult increaseDurability(ItemStack stack, long amount) {
-        if (this.tool.getMaxDurabilityNew() == null || !stack.hasItemMeta()) {
-            return new IncreaseDurabilityResult(stack, 0);
+    public long increaseDurability(ItemStack stack, long amount) {
+        if (amount == 0 || this.tool.getMaxDurabilityNew() == null || !stack.hasItemMeta()) {
+            return 0;
         }
 
         long[] pIncreasedAmount = {0L};
@@ -246,7 +274,7 @@ public class CustomToolWrapper extends CustomItemWrapper {
         });
         long increasedAmount = pIncreasedAmount[0];
 
-        if (increasedAmount > 0 && !translateLore()) {
+        if (increasedAmount > 0 && !translateLore() && !showDurabilityBar()) {
             long newDurability = pNewDurability[0];
             ItemMeta meta = stack.getItemMeta();
             assert meta != null;
@@ -258,7 +286,9 @@ public class CustomToolWrapper extends CustomItemWrapper {
             stack.setItemMeta(meta);
         }
 
-        return new IncreaseDurabilityResult(stack, increasedAmount);
+        if (showDurabilityBar()) updateDurabilityBar(stack);
+
+        return increasedAmount;
     }
 
     public long getDurability(ItemStack stack) {

@@ -26,6 +26,8 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static nl.knokko.customitems.MCVersions.VERSION1_14;
+
 public abstract class CustomItemWrapper {
 
     public static final String NBT_KEY = "KnokkosCustomItems";
@@ -84,13 +86,15 @@ public abstract class CustomItemWrapper {
         return createLore();
     }
 
+    public boolean showDurabilityBar() {
+        return false;
+    }
+
     protected ItemMeta createItemMeta(ItemStack item, List<String> lore) {
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(this.item.getDisplayName());
         meta.setLore(lore);
-        if (this.item.getItemType() != CustomItemType.OTHER) {
-            meta.setUnbreakable(true);
-        }
+        if (this.item.getItemType() != CustomItemType.OTHER && !showDurabilityBar()) meta.setUnbreakable(true);
 
         ItemFlag[] allFlags = ItemFlag.values();
         List<Boolean> ownItemFlags = this.item.getItemFlags();
@@ -126,7 +130,7 @@ public abstract class CustomItemWrapper {
                 amount, attributeModifiers
         );
         item.setItemMeta(createItemMeta(item, lore));
-        if (this.item.getItemType() != CustomItemType.OTHER) {
+        if (KciNms.mcVersion < VERSION1_14) {
             item.setDurability(this.item.getItemDamage());
         }
         Map<EnchantmentType, Integer> defaultEnchantmentMap = new HashMap<>();
@@ -155,7 +159,7 @@ public abstract class CustomItemWrapper {
                 translateLore(nbt);
             }
 
-            if (this.item.getItemType() == CustomItemType.OTHER) {
+            if (KciNms.mcVersion >= VERSION1_14) {
                 String customModelDataKey = "CustomModelData";
                 nbt.setInteger(customModelDataKey, (int) this.item.getItemDamage());
             }

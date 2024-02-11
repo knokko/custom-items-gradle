@@ -1,9 +1,12 @@
 package nl.knokko.customitems.plugin.tasks.updater;
 
+import nl.knokko.customitems.nms.KciNms;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static nl.knokko.customitems.MCVersions.VERSION1_14;
 
 public class LoreUpdater {
 
@@ -81,7 +84,7 @@ public class LoreUpdater {
             durabilityLineIndex = findDurabilityLineIndex(oldLore, durabilityPrefix, oldDurability, oldMaxDurability);
         }
 
-        if (newDurability == null) {
+        if (newDurability == null || KciNms.mcVersion >= VERSION1_14) {
             if (durabilityLineIndex != null) {
 
                 // Copy the original lore, but exclude the durability line and the empty line that follows it
