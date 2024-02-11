@@ -281,19 +281,18 @@ public class ItemUpgrader {
                     }
                 } else if (customItem instanceof CustomToolValues) {
                     CustomToolValues customTool = (CustomToolValues) customItem;
-                    if (customTool.getMaxDurabilityNew() != null) {
-                        CustomToolWrapper wrapper = wrap(customTool);
-                        if (durabilityFractionToIncrease >= 0f) {
-                            currentStack = wrapper.increaseDurability(
-                                    currentStack,
-                                    Math.round(durabilityFractionToIncrease * customTool.getMaxDurabilityNew())
-                            ).stack;
-                        } else {
-                            currentStack = wrapper.decreaseDurability(
-                                    currentStack,
-                                    Math.round(-durabilityFractionToIncrease * customTool.getMaxDurabilityNew())
-                            );
-                        }
+                    CustomToolWrapper wrapper = wrap(customTool);
+                    if (durabilityFractionToIncrease >= 0f) {
+                        wrapper.increaseDurability(
+                                currentStack,
+                                Math.round(durabilityFractionToIncrease * customTool.getMaxDurabilityNew())
+                        );
+                    } else {
+                        boolean broke = wrapper.decreaseDurability(
+                                currentStack,
+                                Math.round(-durabilityFractionToIncrease * customTool.getMaxDurabilityNew())
+                        );
+                        if (broke) currentStack = null;
                     }
                 }
             }

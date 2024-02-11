@@ -4,7 +4,6 @@ import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.item.CustomItemWrapper;
-import nl.knokko.customitems.plugin.set.item.CustomToolWrapper;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -15,8 +14,6 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
-
-import java.util.Arrays;
 
 import static nl.knokko.customitems.plugin.events.ReplacementEventHandler.checkBrokenCondition;
 import static nl.knokko.customitems.plugin.set.item.CustomToolWrapper.wrap;
@@ -49,69 +46,10 @@ public class DurabilityEventHandler implements Listener {
                     helmetDamage *= 25;
                 }
 
-                ItemStack oldHelmet = e.getHelmet();
-                ItemStack newHelmet = decreaseCustomArmorDurability(oldHelmet, helmetDamage);
-                if (oldHelmet != newHelmet) {
-                    if (newHelmet == null) {
-                        CustomItemValues helmet = itemSet.getItem(oldHelmet);
-                        if (helmet instanceof CustomArmorValues) {
-                            String newItemName = checkBrokenCondition(helmet.getReplacementConditions());
-                            if (newItemName != null) {
-                                ItemUtils.giveCustomItem(itemSet, player, itemSet.getItem(newItemName));
-                            }
-                        }
-                        playBreakSound(player);
-                    }
-                    e.setHelmet(newHelmet);
-                }
-
-                ItemStack oldChestplate = e.getChestplate();
-                ItemStack newChestplate = decreaseCustomArmorDurability(oldChestplate, armorDamage);
-                if (oldChestplate != newChestplate) {
-                    if (newChestplate == null) {
-                        CustomItemValues plate = itemSet.getItem(oldChestplate);
-                        if (plate instanceof CustomArmorValues) {
-                            String newItemName = checkBrokenCondition(plate.getReplacementConditions());
-                            if (newItemName != null) {
-                                ItemUtils.giveCustomItem(itemSet, player, itemSet.getItem(newItemName));
-                            }
-                        }
-                        playBreakSound(player);
-                    }
-                    e.setChestplate(newChestplate);
-                }
-
-                ItemStack oldLeggings = e.getLeggings();
-                ItemStack newLeggings = decreaseCustomArmorDurability(oldLeggings, armorDamage);
-                if (oldLeggings != newLeggings) {
-                    if (newLeggings == null) {
-                        CustomItemValues leggings = itemSet.getItem(oldLeggings);
-                        if (leggings instanceof CustomArmorValues) {
-                            String newItemName = checkBrokenCondition(leggings.getReplacementConditions());
-                            if (newItemName != null) {
-                                ItemUtils.giveCustomItem(itemSet, player, itemSet.getItem(newItemName));
-                            }
-                        }
-                        playBreakSound(player);
-                    }
-                    e.setLeggings(newLeggings);
-                }
-
-                ItemStack oldBoots = e.getBoots();
-                ItemStack newBoots = decreaseCustomArmorDurability(oldBoots, armorDamage);
-                if (oldBoots != newBoots) {
-                    if (newBoots == null) {
-                        CustomItemValues boots = itemSet.getItem(oldBoots);
-                        if (boots instanceof CustomArmorValues) {
-                            String newItemName = checkBrokenCondition(boots.getReplacementConditions());
-                            if (newItemName != null) {
-                                ItemUtils.giveCustomItem(itemSet, player, itemSet.getItem(newItemName));
-                            }
-                        }
-                        playBreakSound(player);
-                    }
-                    e.setBoots(newBoots);
-                }
+                e.setHelmet(decreateCustomArmorDurability(e.getHelmet(), helmetDamage, player));
+                e.setChestplate(decreateCustomArmorDurability(e.getChestplate(), armorDamage, player));
+                e.setLeggings(decreateCustomArmorDurability(e.getLeggings(), armorDamage, player));
+                e.setBoots(decreateCustomArmorDurability(e.getBoots(), armorDamage, player));
             }
 
             // There is no nice shield blocking event, so this dirty check will have to do
@@ -122,31 +60,25 @@ public class DurabilityEventHandler implements Listener {
                 if (usedShield.customShield != null && event.getDamage() >= usedShield.customShield.getThresholdDamage()) {
                     int lostDurability = (int) (event.getDamage()) + 1;
                     if (usedShield.inOffhand) {
-                        ItemStack oldOffHand = player.getInventory().getItemInOffHand();
-                        ItemStack newOffHand = wrap(usedShield.customShield).decreaseDurability(oldOffHand, lostDurability);
-                        if (oldOffHand != newOffHand) {
-                            player.getInventory().setItemInOffHand(newOffHand);
-                            if (newOffHand == null) {
-                                String newItemName = checkBrokenCondition(usedShield.customShield.getReplacementConditions());
-                                if (newItemName != null) {
-                                    player.getInventory().setItemInOffHand(CustomItemWrapper.wrap(itemSet.getItem(newItemName)).create(1));
-                                }
-                                playBreakSound(player);
-                            }
-                        }
+                        ItemStack offHand = player.getInventory().getItemInOffHand();
+                        boolean broke = wrap(usedShield.customShield).decreaseDurability(offHand, lostDurability);
+                        if (broke) {
+                            String newItemName = checkBrokenCondition(usedShield.customShield.getReplacementConditions());
+                            if (newItemName != null) {
+                                player.getInventory().setItemInOffHand(CustomItemWrapper.wrap(itemSet.getItem(newItemName)).create(1));
+                            } else player.getInventory().setItemInOffHand(null);
+                            playBreakSound(player);
+                        } else player.getInventory().setItemInOffHand(offHand);
                     } else {
-                        ItemStack oldMainHand = player.getInventory().getItemInMainHand();
-                        ItemStack newMainHand = wrap(usedShield.customShield).decreaseDurability(oldMainHand, lostDurability);
-                        if (oldMainHand != newMainHand) {
-                            player.getInventory().setItemInMainHand(newMainHand);
-                            if (newMainHand == null) {
-                                String newItemName = checkBrokenCondition(usedShield.customShield.getReplacementConditions());
-                                if (newItemName != null) {
-                                    player.getInventory().setItemInMainHand(CustomItemWrapper.wrap(itemSet.getItem(newItemName)).create(1));
-                                }
-                                playBreakSound(player);
-                            }
-                        }
+                        ItemStack mainHand = player.getInventory().getItemInMainHand();
+                        boolean broke = wrap(usedShield.customShield).decreaseDurability(mainHand, lostDurability);
+                        if (broke) {
+                            String newItemName = checkBrokenCondition(usedShield.customShield.getReplacementConditions());
+                            if (newItemName != null) {
+                                player.getInventory().setItemInMainHand(CustomItemWrapper.wrap(itemSet.getItem(newItemName)).create(1));
+                            } else player.getInventory().setItemInMainHand(null);
+                            playBreakSound(player);
+                        } else player.getInventory().setItemInMainHand(mainHand);
                     }
                 }
             }
@@ -190,12 +122,24 @@ public class DurabilityEventHandler implements Listener {
         }
     }
 
-    private ItemStack decreaseCustomArmorDurability(ItemStack piece, int damage) {
+    private ItemStack decreateCustomArmorDurability(ItemStack piece, int damage, Player player) {
+        boolean broke = decreaseCustomArmorDurability(piece, damage);
+        if (broke) {
+            String newItemName = checkBrokenCondition(itemSet.getItem(piece).getReplacementConditions());
+            if (newItemName != null) {
+                ItemUtils.giveCustomItem(itemSet, player, itemSet.getItem(newItemName));
+            }
+            playBreakSound(player);
+            return null;
+        } else return piece;
+    }
+
+    private boolean decreaseCustomArmorDurability(ItemStack piece, int damage) {
         CustomItemValues custom = itemSet.getItem(piece);
         if (custom instanceof CustomArmorValues) {
             return wrap((CustomArmorValues) custom).decreaseDurability(piece, damage);
         }
-        return piece;
+        return false;
     }
 
     private boolean isReducedByArmor(EntityDamageEvent.DamageCause c) {
@@ -220,47 +164,30 @@ public class DurabilityEventHandler implements Listener {
         ItemStack boots = eq.getBoots();
 
         ItemStack[] allEquipment = {mainHand, offHand, helmet, chest, leggs, boots};
-        ItemStack[] oldEquipment = Arrays.copyOf(allEquipment, allEquipment.length);
-        int durAmount = event.getAmount() * 2;
+        long durAmount = event.getAmount() * 2L;
 
-        for (int index = 0; index < allEquipment.length; index++) {
-            ItemStack item = allEquipment[index];
+        for (ItemStack item : allEquipment) {
             CustomItemValues custom = itemSet.getItem(item);
-            if (custom != null) {
-                if (item.containsEnchantment(Enchantment.MENDING) && custom instanceof CustomToolValues) {
-                    CustomToolValues tool = (CustomToolValues) custom;
+            if (custom instanceof CustomToolValues && item.containsEnchantment(Enchantment.MENDING)) {
+                CustomToolValues tool = (CustomToolValues) custom;
 
-                    CustomToolWrapper.IncreaseDurabilityResult increaseResult = wrap(tool).increaseDurability(item, durAmount);
-                    durAmount -= increaseResult.increasedAmount;
-                    allEquipment[index] = increaseResult.stack;
+                durAmount -= wrap(tool).increaseDurability(item, durAmount);
 
-                    if (durAmount == 0) {
-                        break;
-                    }
+                if (durAmount == 0) {
+                    break;
                 }
             }
         }
 
-        if (oldEquipment[0] != allEquipment[0]) {
-            eq.setItemInMainHand(allEquipment[0]);
-        }
-        if (oldEquipment[1] != allEquipment[1]) {
-            eq.setItemInOffHand(allEquipment[1]);
-        }
-        if (oldEquipment[2] != allEquipment[2]) {
-            eq.setHelmet(allEquipment[2]);
-        }
-        if (oldEquipment[3] != allEquipment[3]) {
-            eq.setChestplate(allEquipment[3]);
-        }
-        if (oldEquipment[4] != allEquipment[4]) {
-            eq.setLeggings(allEquipment[4]);
-        }
-        if (oldEquipment[5] != allEquipment[5]) {
-            eq.setBoots(allEquipment[5]);
-        }
+        eq.setItemInMainHand(allEquipment[0]);
+        eq.setItemInOffHand(allEquipment[1]);
+        eq.setHelmet(allEquipment[2]);
+        eq.setChestplate(allEquipment[3]);
+        eq.setLeggings(allEquipment[4]);
+        eq.setBoots(allEquipment[5]);
 
-        int newXP = durAmount / 2;
-        event.setAmount(newXP);
+        long newXP = durAmount / 2L;
+        if (newXP > 0) event.setAmount((int) newXP);
+        else event.setAmount(0);
     }
 }

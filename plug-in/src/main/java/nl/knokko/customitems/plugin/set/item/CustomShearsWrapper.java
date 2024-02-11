@@ -17,18 +17,17 @@ public class CustomShearsWrapper extends CustomToolWrapper {
     ) {
 
         // Only lose durability when breaking non-solid blocks because we shear it
-        if (!wasSolid && this.tool.getBlockBreakDurabilityLoss() != 0) {
+        if (!wasSolid) {
             int durabilityFactor = this.tool.getMultiBlockBreak().shouldStackDurabilityCost() ? numBrokenBlocks : 1;
-            ItemStack newTool = decreaseDurability(tool, this.tool.getBlockBreakDurabilityLoss() * durabilityFactor);
-            if (tool != newTool) {
-                if (newTool == null) {
-                    SoundPlayer.playBreakSound(player);
-                }
-                if (wasFakeMainHand) {
-                    player.getInventory().setItemInOffHand(newTool);
-                } else {
-                    player.getInventory().setItemInMainHand(newTool);
-                }
+            boolean broke = decreaseDurability(tool, this.tool.getBlockBreakDurabilityLoss() * durabilityFactor);
+            if (broke) {
+                SoundPlayer.playBreakSound(player);
+                tool = null;
+            }
+            if (wasFakeMainHand) {
+                player.getInventory().setItemInOffHand(tool);
+            } else {
+                player.getInventory().setItemInMainHand(tool);
             }
         }
     }
