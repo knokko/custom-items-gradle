@@ -3,7 +3,6 @@ package nl.knokko.customitems.plugin.command;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomToolValues;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
-import nl.knokko.customitems.plugin.set.item.CustomToolWrapper;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -108,20 +107,21 @@ class CommandCustomItemsRepair {
         }
 
         if (args[0].equals("repair")) {
-            CustomToolWrapper.IncreaseDurabilityResult result = wrap(customTool).increaseDurability(item, amount);
-            if (result.increasedAmount == 0) {
+            long increasedAmount = wrap(customTool).increaseDurability(item, amount);
+            if (increasedAmount == 0) {
                 if (enableOutput) {
                     sender.sendMessage(ChatColor.RED + "The tool in the main hand of " + target.getName() + " wasn't damaged");
                 }
                 return;
             }
 
-            target.getInventory().setItemInMainHand(result.stack);
+            target.getInventory().setItemInMainHand(item);
         }
 
         if (args[0].equals("damage")) {
-            ItemStack result = wrap(customTool).decreaseDurability(item, amount);
-            target.getInventory().setItemInMainHand(result);
+            boolean broke = wrap(customTool).decreaseDurability(item, amount);
+            if (broke) item = null;
+            target.getInventory().setItemInMainHand(item);
         }
     }
 }

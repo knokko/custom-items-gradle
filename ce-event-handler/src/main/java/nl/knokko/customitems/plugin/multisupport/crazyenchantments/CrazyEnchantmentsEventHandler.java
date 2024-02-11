@@ -72,11 +72,8 @@ public class CrazyEnchantmentsEventHandler implements Listener {
 				int hellForgedLevel = CEnchantments.HELLFORGED.getLevel(itemStack);
 
 				if (hellForgedLevel > 0 && CEnchantments.HELLFORGED.chanceSuccessful()) {
-					CustomToolWrapper.IncreaseDurabilityResult result = CustomToolWrapper.wrap(customTool).increaseDurability(itemStack, hellForgedLevel);
-					if (result.increasedAmount > 0) {
-						contents[index] = result.stack;
-						didChange = true;
-					}
+					long increasedAmount = CustomToolWrapper.wrap(customTool).increaseDurability(itemStack, hellForgedLevel);
+					if (increasedAmount > 0) didChange = true;
 				}
 			}
 		}

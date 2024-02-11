@@ -54,8 +54,6 @@ public class ItemInteractEventHandler implements Listener {
                 boolean canBeSheared = type == CIMaterial.PUMPKIN || type == CIMaterial.BEE_NEST
                         || type == CIMaterial.BEEHIVE;
 
-                ItemStack newStack = item;
-
                 if (wrap(custom).forbidDefaultUse(item)) {
 
                     // But don't cancel unnecessary events (so don't prevent opening containers)
@@ -71,40 +69,36 @@ public class ItemInteractEventHandler implements Listener {
                         // Shouldn't happen, but better safe than sorry
                         event.setCancelled(true);
                     }
-
-
                 } else if (custom instanceof CustomToolValues) {
                     CustomToolValues tool = (CustomToolValues) custom;
+                    boolean broke = false;
+
                     if (tool instanceof CustomHoeValues) {
                         CustomHoeValues customHoe = (CustomHoeValues) tool;
                         if (canBeTilled) {
-                            newStack = CustomToolWrapper.wrap(tool).decreaseDurability(item, customHoe.getTillDurabilityLoss());
+                            broke = CustomToolWrapper.wrap(tool).decreaseDurability(item, customHoe.getTillDurabilityLoss());
                         }
                     }
 
                     if (tool instanceof CustomShearsValues) {
                         CustomShearsValues customShears = (CustomShearsValues) tool;
                         if (canBeSheared) {
-                            newStack = CustomToolWrapper.wrap(tool).decreaseDurability(item, customShears.getShearDurabilityLoss());
+                            broke = CustomToolWrapper.wrap(tool).decreaseDurability(item, customShears.getShearDurabilityLoss());
                         }
                     }
 
-                    if (newStack != item) {
-                        if (newStack == null) {
-                            String newItemName = checkBrokenCondition(tool.getReplacementConditions());
-                            if (newItemName != null) {
-                                newStack = wrap(itemSet.getItem(newItemName)).create(1);
-                            }
-                            playBreakSound(event.getPlayer());
-                        }
-
-                        if (newStack != null) {
-                            if (event.getHand() == EquipmentSlot.HAND)
-                                event.getPlayer().getInventory().setItemInMainHand(newStack);
-                            else
-                                event.getPlayer().getInventory().setItemInOffHand(newStack);
-                        }
+                    if (broke) {
+                        String newItemName = checkBrokenCondition(tool.getReplacementConditions());
+                        if (newItemName != null) {
+                            item = wrap(itemSet.getItem(newItemName)).create(1);
+                        } else item = null;
+                        playBreakSound(event.getPlayer());
                     }
+
+                    if (event.getHand() == EquipmentSlot.HAND)
+                        event.getPlayer().getInventory().setItemInMainHand(item);
+                    else
+                        event.getPlayer().getInventory().setItemInOffHand(item);
                 }
             }
         }
@@ -122,38 +116,32 @@ public class ItemInteractEventHandler implements Listener {
                 ? itemSet.getItem(off) : null;
 
         if (customMain != null) {
-            if (wrap(customMain).forbidDefaultUse(main))
-                event.setCancelled(true);
+            if (wrap(customMain).forbidDefaultUse(main)) event.setCancelled(true);
             else if (customMain instanceof CustomShearsValues) {
                 CustomShearsValues tool = (CustomShearsValues) customMain;
-                ItemStack newMain = CustomToolWrapper.wrap(tool).decreaseDurability(main, tool.getShearDurabilityLoss());
-                if (newMain != main) {
-                    if (newMain == null) {
-                        String newItemName = checkBrokenCondition(tool.getReplacementConditions());
-                        if (newItemName != null) {
-                            newMain = wrap(itemSet.getItem(newItemName)).create(1);
-                        }
-                        playBreakSound(event.getPlayer());
-                    }
-                    event.getPlayer().getInventory().setItemInMainHand(newMain);
+                boolean broke = CustomToolWrapper.wrap(tool).decreaseDurability(main, tool.getShearDurabilityLoss());
+                if (broke) {
+                    String newItemName = checkBrokenCondition(tool.getReplacementConditions());
+                    if (newItemName != null) {
+                        main = wrap(itemSet.getItem(newItemName)).create(1);
+                    } else main = null;
+                    playBreakSound(event.getPlayer());
                 }
+                event.getPlayer().getInventory().setItemInMainHand(main);
             }
         } else if (customOff != null) {
-            if (wrap(customOff).forbidDefaultUse(off))
-                event.setCancelled(true);
+            if (wrap(customOff).forbidDefaultUse(off)) event.setCancelled(true);
             else if (customOff instanceof CustomShearsValues) {
                 CustomShearsValues tool = (CustomShearsValues) customOff;
-                ItemStack newOff = CustomToolWrapper.wrap(tool).decreaseDurability(off, tool.getShearDurabilityLoss());
-                if (newOff != off) {
-                    if (newOff == null) {
-                        String newItemName = checkBrokenCondition(tool.getReplacementConditions());
-                        if (newItemName != null) {
-                            newOff = wrap(itemSet.getItem(newItemName)).create(1);
-                        }
-                        playBreakSound(event.getPlayer());
-                    }
-                    event.getPlayer().getInventory().setItemInOffHand(newOff);
+                boolean broke = CustomToolWrapper.wrap(tool).decreaseDurability(off, tool.getShearDurabilityLoss());
+                if (broke) {
+                    String newItemName = checkBrokenCondition(tool.getReplacementConditions());
+                    if (newItemName != null) {
+                        off = wrap(itemSet.getItem(newItemName)).create(1);
+                    } else off = null;
+                    playBreakSound(event.getPlayer());
                 }
+                event.getPlayer().getInventory().setItemInOffHand(off);
             }
         }
     }
