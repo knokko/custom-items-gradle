@@ -82,13 +82,4 @@ public class DefaultItemModels {
                 "        {\"predicate\": {\"throwing\": 1}, \"model\": \"item/trident_throwing\"},",
         };
     }
-
-    static String[] getMinecraftModelTridentInHandEnd() {
-        return new String[] {
-                "        {\"predicate\": {\"damaged\": 1, \"damage\": 0}, \"model\": \"item/trident_in_hand\"},",
-                "        {\"predicate\": {\"damaged\": 1, \"damage\": 0, \"throwing\": 1}, \"model\": \"item/trident_throwing\"}",
-                "    ]",
-                "}"
-        };
-    }
 }

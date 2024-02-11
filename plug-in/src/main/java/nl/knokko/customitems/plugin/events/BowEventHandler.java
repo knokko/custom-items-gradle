@@ -53,7 +53,9 @@ public class BowEventHandler implements Listener {
         // depending on the minecraft version, which causes incompatible byte code problems
         Arrow arrow;
         try {
-            arrow = (Arrow) event.getClass().getMethod("getArrow").invoke(event);
+            Object arrowObject = event.getClass().getMethod("getArrow").invoke(event);
+            if (!(arrowObject instanceof Arrow)) return;
+            arrow = (Arrow) arrowObject;
         } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             // Let's try this as back-up
             arrow = event.getArrow();
@@ -112,37 +114,35 @@ public class BowEventHandler implements Listener {
                     // Delay updating durability to prevent messing around with the (cross)bow state
                     Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
 
-                        ItemStack oldBowOrCrossbow = isMainHand ?
+                        ItemStack bowOrCrossbow = isMainHand ?
                                 player.getInventory().getItemInMainHand() :
                                 player.getInventory().getItemInOffHand();
 
-                        ItemStack newBowOrCrossbow;
+                        boolean broke;
                         if (customItem instanceof CustomBowValues) {
                             CustomBowValues bow = (CustomBowValues) customItem;
-                            newBowOrCrossbow = wrap(bow).decreaseDurability(oldBowOrCrossbow, bow.getShootDurabilityLoss());
+                            broke = wrap(bow).decreaseDurability(bowOrCrossbow, bow.getShootDurabilityLoss());
                         } else {
                             CustomCrossbowValues crossbow = (CustomCrossbowValues) customItem;
                             if (projectile instanceof Arrow) {
-                                newBowOrCrossbow = wrap(crossbow).decreaseDurability(oldBowOrCrossbow, crossbow.getArrowDurabilityLoss());
+                                broke = wrap(crossbow).decreaseDurability(bowOrCrossbow, crossbow.getArrowDurabilityLoss());
                             } else {
-                                newBowOrCrossbow = wrap(crossbow).decreaseDurability(oldBowOrCrossbow, crossbow.getFireworkDurabilityLoss());
+                                broke = wrap(crossbow).decreaseDurability(bowOrCrossbow, crossbow.getFireworkDurabilityLoss());
                             }
                         }
 
-                        if (newBowOrCrossbow == null) {
+                        if (broke) {
                             String newItemName = checkBrokenCondition(customItem.getReplacementConditions());
                             if (newItemName != null) {
-                                newBowOrCrossbow = CustomItemWrapper.wrap(itemSet.getItem(newItemName)).create(1);
-                            }
+                                bowOrCrossbow = CustomItemWrapper.wrap(itemSet.getItem(newItemName)).create(1);
+                            } else bowOrCrossbow = null;
                             playBreakSound(player);
                         }
 
-                        if (newBowOrCrossbow != oldBowOrCrossbow) {
-                            if (isMainHand) {
-                                player.getInventory().setItemInMainHand(newBowOrCrossbow);
-                            } else {
-                                player.getInventory().setItemInOffHand(newBowOrCrossbow);
-                            }
+                        if (isMainHand) {
+                            player.getInventory().setItemInMainHand(bowOrCrossbow);
+                        } else {
+                            player.getInventory().setItemInOffHand(bowOrCrossbow);
                         }
                     });
                 }
@@ -348,15 +348,15 @@ public class BowEventHandler implements Listener {
                 if (customTridentItem instanceof CustomTridentValues) {
                     customTrident = (CustomTridentValues) customTridentItem;
 
-                    ItemStack newTridentItem = wrap(customTrident).decreaseDurability(tridentItem, customTrident.getThrowDurabilityLoss());
-                    if (newTridentItem == null) {
+                    boolean broke = wrap(customTrident).decreaseDurability(tridentItem, customTrident.getThrowDurabilityLoss());
+                    if (broke) {
                         trident.setMetadata(
                                 "CustomTridentBreak",
                                 new FixedMetadataValue(CustomItemsPlugin.getInstance(), "CustomTridentBreak")
                         );
-                    } else if (newTridentItem != tridentItem) {
+                    } else {
                         Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
-                            KciNms.instance.entities.setTridentItem(trident, newTridentItem);
+                            KciNms.instance.entities.setTridentItem(trident, tridentItem);
                         });
                     }
                 }
