@@ -1,7 +1,7 @@
 // MARKER START GENERAL
 plugins {
     id 'java'
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'io.github.goooler.shadow' version '8.1.5'
 }
 // MARKER END GENERAL
 
@@ -76,7 +76,7 @@ project(':shared-code') {
 }
 
 project(':plug-in') {
-    apply plugin: 'com.github.johnrengelman.shadow'
+    apply plugin: 'io.github.goooler.shadow'
     dependencies {
         implementation project(':shared-code')
         implementation project(':kci-nms')
@@ -110,7 +110,7 @@ project(':plug-in') {
 }
 
 project(':editor') {
-    apply plugin: 'com.github.johnrengelman.shadow'
+    apply plugin: 'io.github.goooler.shadow'
     dependencies {
         implementation project(':shared-code')
         implementation project(':bit-helper')
