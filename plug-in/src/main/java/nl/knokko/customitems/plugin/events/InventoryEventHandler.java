@@ -6,6 +6,7 @@ import nl.knokko.customitems.item.CustomToolValues;
 import nl.knokko.customitems.itemset.CustomRecipesView;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
+import nl.knokko.customitems.plugin.multisupport.geyser.GeyserSupport;
 import nl.knokko.customitems.plugin.recipe.IngredientEntry;
 import nl.knokko.customitems.plugin.recipe.RecipeHelper;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
@@ -579,7 +580,9 @@ public class InventoryEventHandler implements Listener {
             CustomItemValues customCurrent = itemSet.getItem(current);
 
             // This block makes custom items stackable
-            if (customCursor != null && customCursor == customCurrent && wrap(customCursor).needsStackingHelp()) {
+            if (customCursor != null && customCursor == customCurrent && wrap(customCursor).needsStackingHelp() &&
+                    !GeyserSupport.isBedrock(event.getWhoClicked())
+            ) {
                 event.setResult(Event.Result.DENY);
                 if (event.isLeftClick()) {
                     int amount = current.getAmount() + cursor.getAmount();
