@@ -17,6 +17,7 @@ import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.item.BukkitEnchantments;
 import nl.knokko.customitems.plugin.set.item.CustomToolWrapper;
 import nl.knokko.customitems.plugin.util.AttributeMerger;
+import nl.knokko.customitems.plugin.util.ItemUtils;
 import nl.knokko.customitems.plugin.util.NbtHelper;
 import nl.knokko.customitems.recipe.result.UpgradeResultValues;
 import nl.knokko.customitems.recipe.upgrade.UpgradeValues;
@@ -125,12 +126,14 @@ public class ItemUpgrader {
 
     public static List<UpgradeValues> getUpgrades(ItemStack stack, ItemSetWrapper itemSet) {
         List<UpgradeValues> upgrades = new ArrayList<>();
-        NBT.get(stack, nbt -> {
-            for (UUID id : getExistingUpgradeIDs(nbt)) {
-                Optional<UpgradeValues> upgrade = itemSet.get().getUpgrade(id);
-                upgrade.ifPresent(upgrades::add);
-            }
-        });
+        if (!ItemUtils.isEmpty(stack)) {
+            NBT.get(stack, nbt -> {
+                for (UUID id : getExistingUpgradeIDs(nbt)) {
+                    Optional<UpgradeValues> upgrade = itemSet.get().getUpgrade(id);
+                    upgrade.ifPresent(upgrades::add);
+                }
+            });
+        }
         return upgrades;
     }
 
