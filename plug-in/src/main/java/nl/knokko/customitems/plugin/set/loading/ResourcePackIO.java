@@ -100,6 +100,24 @@ class ResourcePackIO {
                 OutputStream itemsOutput = Files.newOutputStream(new File(dataFolder + "/items.cis.txt").toPath());
                 propagate(contentStream, false, itemsOutput, true, null, 0);
                 foundItems = true;
+            } else if (zipEntry.getName().equals("geyser.mcpack") || zipEntry.getName().equals("geyser_mappings.json")) {
+                File geyserDirectory = new File(dataFolder.getParentFile() + "/Geyser-Spigot");
+                if (geyserDirectory.isDirectory()) {
+                    File destination, directory;
+                    if (zipEntry.getName().equals("geyser.mcpack")) {
+                        directory = new File(geyserDirectory + "/packs");
+                        destination = new File(directory + "/kci.mcpack");
+                    } else {
+                        directory = new File(geyserDirectory + "/custom_mappings");
+                        destination = new File(directory + "/kci_mappings.json");
+                    }
+                    if (!directory.isDirectory() && !directory.mkdir()) {
+                        System.err.println("CustomItems couldn't find or create " + directory);
+                    } else {
+                        OutputStream geyserPackOutput = Files.newOutputStream(destination.toPath());
+                        propagate(contentStream, false, geyserPackOutput, true, null, 0);
+                    }
+                } else System.err.println("CustomItems couldn't find Geyser directory: " + geyserDirectory);
             } else {
                 resourcePackStream.putNextEntry(new ZipEntry(zipEntry.getName()));
                 propagate(contentStream, false, resourcePackStream, false, null, 0);

@@ -52,6 +52,7 @@ allprojects {
         maven { url = 'https://jitpack.io' }
         maven { url = 'https://maven.elmakers.com/repository/' }
         maven { url = 'https://repo.codemc.io/repository/maven-public/' }
+        maven { url = 'https://repo.opencollab.dev/main/' }
 
         mavenLocal()
         maven { url = 'https://repo.skriptlang.org/releases' }
@@ -99,6 +100,7 @@ project(':plug-in') {
         compileOnly 'com.github.SkriptLang:Skript:2.6'
         compileOnly 'com.denizenscript:denizen:1.2.5-SNAPSHOT'
         compileOnly 'com.elmakers.mine.bukkit:MagicAPI:7.5'
+        compileOnly('org.geysermc.geyser:api:2.2.0-SNAPSHOT')
         implementation 'de.tr7zw:item-nbt-api:2.12.2'
 
         testImplementation project(':bit-helper')

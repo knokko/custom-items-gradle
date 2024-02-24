@@ -24,8 +24,13 @@ public class ExportSettingsValues extends ModelValues {
         settings.mcVersion = input.readInt();
         settings.mode = Mode.valueOf(input.readString());
         settings.reloadMessage = input.readString();
-        if (encoding == 1) settings.hostAddress = ResourcePackHost.DEFAULT_ADDRESS;
-        else settings.hostAddress = input.readString();
+        if (encoding == 1) {
+            settings.hostAddress = ResourcePackHost.DEFAULT_ADDRESS;
+            settings.generateGeyserPack = false;
+        } else {
+            settings.hostAddress = input.readString();
+            settings.generateGeyserPack = input.readBoolean();
+        }
 
         settings.kickUponReject = input.readBoolean();
         settings.forceRejectMessage = input.readString();
@@ -42,6 +47,7 @@ public class ExportSettingsValues extends ModelValues {
     private Mode mode;
     private String reloadMessage;
     private String hostAddress;
+    private boolean generateGeyserPack;
 
     private boolean kickUponReject;
     private String forceRejectMessage;
@@ -59,6 +65,7 @@ public class ExportSettingsValues extends ModelValues {
                 "logging out and back in, or by executing /kci resourcepack. Note that either way, you will " +
                 "probably freeze for several seconds while downloading it, so please do this at a safe location.";
         this.hostAddress = ResourcePackHost.DEFAULT_ADDRESS;
+        this.generateGeyserPack = false;
         this.kickUponReject = false;
         this.forceRejectMessage = "You must accept the server resource pack. If you didn't get the chance to accept it, " +
                 "check out https://knokko.github.io/resource-pack-host/accept.html";
@@ -76,6 +83,7 @@ public class ExportSettingsValues extends ModelValues {
         this.mode = toCopy.getMode();
         this.reloadMessage = toCopy.getReloadMessage();
         this.hostAddress = toCopy.getHostAddress();
+        this.generateGeyserPack = toCopy.shouldGenerateGeyserPack();
         this.kickUponReject = toCopy.shouldKickUponReject();
         this.forceRejectMessage = toCopy.getForceRejectMessage();
         this.optionalRejectMessage = toCopy.getOptionalRejectMessage();
@@ -91,6 +99,7 @@ public class ExportSettingsValues extends ModelValues {
         output.addString(mode.name());
         output.addString(reloadMessage);
         output.addString(hostAddress);
+        output.addBoolean(generateGeyserPack);
 
         output.addBoolean(kickUponReject);
         output.addString(forceRejectMessage);
@@ -115,6 +124,10 @@ public class ExportSettingsValues extends ModelValues {
 
     public String getHostAddress() {
         return hostAddress;
+    }
+
+    public boolean shouldGenerateGeyserPack() {
+        return generateGeyserPack;
     }
 
     public boolean shouldKickUponReject() {
@@ -163,6 +176,11 @@ public class ExportSettingsValues extends ModelValues {
         this.hostAddress = Objects.requireNonNull(hostAddress);
     }
 
+    public void setGenerateGeyserPack(boolean generateGeyserPack) {
+        assertMutable();
+        this.generateGeyserPack = generateGeyserPack;
+    }
+
     public void setKickUponReject(boolean kickUponReject) {
         assertMutable();
         this.kickUponReject = kickUponReject;
@@ -207,8 +225,9 @@ public class ExportSettingsValues extends ModelValues {
         if (other instanceof ExportSettingsValues) {
             ExportSettingsValues otherSettings = (ExportSettingsValues) other;
             return mcVersion == otherSettings.mcVersion && mode == otherSettings.mode &&
-                    reloadMessage.equals(otherSettings.reloadMessage) &&
-                    hostAddress.equals(otherSettings.hostAddress)
+                    reloadMessage.equals(otherSettings.reloadMessage)
+                    && hostAddress.equals(otherSettings.hostAddress)
+                    && generateGeyserPack == otherSettings.generateGeyserPack
                     && forceRejectMessage.equals(otherSettings.forceRejectMessage)
                     && optionalRejectMessage.equals(otherSettings.optionalRejectMessage)
                     && kickUponReject == otherSettings.kickUponReject

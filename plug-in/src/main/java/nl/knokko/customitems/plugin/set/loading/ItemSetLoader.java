@@ -7,6 +7,7 @@ import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.data.PluginData;
+import nl.knokko.customitems.plugin.multisupport.geyser.GeyserSupport;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.settings.ExportSettingsValues;
 import nl.knokko.customitems.trouble.IntegrityException;
@@ -86,6 +87,9 @@ public class ItemSetLoader implements Listener {
 
     @EventHandler
     public void forceResourcePack(PlayerResourcePackStatusEvent event) {
+        // Geyser automatically rejects Java resourcepacks and has its own resourcepack system
+        if (GeyserSupport.isBedrock(event.getPlayer())) return;
+
         ExportSettingsValues settings = itemSet.get().getExportSettings();
 
         if (event.getStatus() == PlayerResourcePackStatusEvent.Status.DECLINED) {

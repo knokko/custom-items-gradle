@@ -7,6 +7,7 @@ import nl.knokko.customitems.plugin.command.CustomItemsTabCompletions;
 import nl.knokko.customitems.plugin.config.EnabledAreas;
 import nl.knokko.customitems.plugin.config.LanguageFile;
 import nl.knokko.customitems.plugin.events.*;
+import nl.knokko.customitems.plugin.multisupport.geyser.GeyserSupport;
 import nl.knokko.customitems.plugin.tasks.*;
 import nl.knokko.customitems.plugin.tasks.miningspeed.MiningSpeedManager;
 import nl.knokko.customitems.plugin.multisupport.denizen.DenizenSupport;
@@ -117,6 +118,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 			ItemBridgeSupport.onEnable(this);
 			SkriptSupport.onEnable(this);
 			DenizenSupport.onEnable();
+			GeyserSupport.register();
 			PluginIndicators.init();
 			CustomElytraVelocityManager.start(itemSet, this);
 			TwoHandedEnforcer.start(this, itemSet);
@@ -209,7 +211,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 			this.cancelWhenDamageResistanceIsAtLeast100Percent = config.getBoolean(KEY_CANCEL_WHEN_DAMAGE_RESISTANCE_IS_AT_LEAST_100_PERCENT);
 		} else {
 			this.cancelWhenDamageResistanceIsAtLeast100Percent = true;
-			config.set(KEY_CANCEL_WHEN_DAMAGE_RESISTANCE_IS_AT_LEAST_100_PERCENT, cancelWhenDamageResistanceIsAtLeast100Percent);
+			config.set(KEY_CANCEL_WHEN_DAMAGE_RESISTANCE_IS_AT_LEAST_100_PERCENT, true);
 			saveConfig = true;
 		}
 

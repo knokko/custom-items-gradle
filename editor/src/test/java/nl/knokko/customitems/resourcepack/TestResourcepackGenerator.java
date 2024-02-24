@@ -38,7 +38,7 @@ public class TestResourcepackGenerator {
             itemSet.setExportSettings(exportSettings);
 
             ByteArrayOutputStream rememberOutput = new ByteArrayOutputStream();
-            new ResourcepackGenerator(itemSet).write(rememberOutput, new byte[0], true);
+            new ResourcepackGenerator(itemSet).write(rememberOutput, new byte[0], null, true);
 
             int jsonCounter = 0;
             int pngCounter = 0;
