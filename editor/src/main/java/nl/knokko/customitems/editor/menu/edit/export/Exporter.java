@@ -3,6 +3,7 @@ package nl.knokko.customitems.editor.menu.edit.export;
 import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
 import nl.knokko.customitems.editor.EditorFileManager;
 import nl.knokko.customitems.editor.resourcepack.ResourcepackGenerator;
+import nl.knokko.customitems.editor.resourcepack.geyser.GeyserPackGenerator;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.settings.ExportSettingsValues;
@@ -12,6 +13,7 @@ import nl.knokko.customitems.util.StringEncoder;
 import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.gui.component.GuiComponent;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import static nl.knokko.customitems.editor.menu.edit.export.ExportProgress.*;
@@ -29,15 +31,10 @@ public class Exporter {
                 itemSet.setExportSettings(exportSettings);
                 itemSet.validateExportVersion(exportSettings.getMcVersion());
 
-                progress.status = STATUS_GENERATING_RESOURCEPACK;
                 if (exportSettings.getMode() == ExportSettingsValues.Mode.AUTOMATIC) {
                     pResourcePackHash[0] = uploadResourcePackToMyHost(itemSet, progress);
-                } else if (exportSettings.getMode() == ExportSettingsValues.Mode.MIXED) {
-                    EditorFileManager.exportFiles(itemSet);
-                } else if (exportSettings.getMode() == ExportSettingsValues.Mode.MANUAL) {
-                    EditorFileManager.exportFiles(itemSet);
                 } else {
-                    throw new ValidationException("Unknown export mode: " + exportSettings.getMode());
+                    EditorFileManager.exportFiles(itemSet, progress);
                 }
             } catch (IOException ioFailure) {
                 throw new ValidationException("Exporting failed: " + ioFailure.getLocalizedMessage());
@@ -85,10 +82,20 @@ public class Exporter {
         byte[] cisBytes = cisOutput.getBytes();
         byte[] textyBytes = StringEncoder.encodeTextyBytes(cisBytes, true);
 
+        byte[] geyserBytes;
+        if (itemSet.getExportSettings().shouldGenerateGeyserPack()) {
+            progress.status = STATUS_GENERATING_GEYSERPACK;
+            ByteArrayOutputStream geyserStream = new ByteArrayOutputStream();
+            new GeyserPackGenerator(itemSet, geyserStream).write();
+            geyserBytes = geyserStream.toByteArray();
+        } else geyserBytes = null;
+
+        progress.status = STATUS_GENERATING_RESOURCEPACK;
+
         return ResourcePackHost.upload(
                 itemSet.getExportSettings().getHostAddress(),
                 uploadOutput -> {
-                    new ResourcepackGenerator(itemSet).write(uploadOutput, textyBytes, false);
+                    new ResourcepackGenerator(itemSet).write(uploadOutput, textyBytes, geyserBytes, false);
                     progress.status = STATUS_UPLOADING_RESOURCEPACK;
                 }, (responseCode, responseMessage, errorResponse) -> {
                     System.err.println("Uploading resource pack failed:");
