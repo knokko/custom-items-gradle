@@ -883,7 +883,23 @@ public class ContainerInstance {
 	public int getCurrentCraftingProgress() {
 		return currentCraftingProgress;
 	}
-	
+
+	private void updateManualOutputSlots() {
+		Map<String, ItemStack> ingredients = getCurrentIngredients();
+		for (Entry<String, ContainerInfo.PlaceholderProps> manualSlot : typeInfo.getManualOutputSlots()) {
+			int slotIndex = manualSlot.getValue().getSlotIndex();
+			if (currentRecipe == null || !manualSlot.getKey().equals(currentRecipe.getManualOutputSlotName())) {
+				if (manualSlot.getValue().getPlaceholder() == null) {
+					inventory.setItem(slotIndex, null);
+				} else {
+					inventory.setItem(slotIndex, fromDisplay(manualSlot.getValue().getPlaceholder()));
+				}
+			} else {
+				inventory.setItem(slotIndex, wrap(currentRecipe, ingredients).getManualOutput());
+			}
+		}
+	}
+
 	private void updatePlaceholders() {
 		typeInfo.getFuelSlots().forEach(entry -> {
 			FuelProps props = entry.getValue();
@@ -905,21 +921,6 @@ public class ContainerInstance {
 				}
 			}
 		});
-
-		Map<String, ItemStack> ingredients = getCurrentIngredients();
-
-		for (Entry<String, ContainerInfo.PlaceholderProps> manualSlot : typeInfo.getManualOutputSlots()) {
-			int slotIndex = manualSlot.getValue().getSlotIndex();
-			if (currentRecipe == null || !manualSlot.getKey().equals(currentRecipe.getManualOutputSlotName())) {
-				if (manualSlot.getValue().getPlaceholder() == null) {
-					inventory.setItem(slotIndex, null);
-				} else {
-					inventory.setItem(slotIndex, fromDisplay(manualSlot.getValue().getPlaceholder()));
-				}
-			} else {
-				inventory.setItem(slotIndex, wrap(currentRecipe, ingredients).getManualOutput());
-			}
-		}
 
 		Stream.concat(Stream.concat(
 				StreamSupport.stream(typeInfo.getInputSlots().spliterator(), false),
@@ -1084,6 +1085,7 @@ public class ContainerInstance {
 			// duplicate glitches).
 			if (currentCraftingProgress % 10 == 0) {
 				currentRecipe = determineCurrentRecipe(oldRecipe);
+				if (hasViewers) updateManualOutputSlots();
 			} else {
 				currentRecipe = oldRecipe;
 			}
