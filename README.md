@@ -67,9 +67,9 @@ This module contains the code that is used by both the Editor and the plug-in.
 #### BuildTools
 Before you can compile this project, you will need to get BuildTools from https://www.spigotmc.org/wiki/buildtools/ and then run
 the following commands using Java **8**:
-- `java -jar BuildTools.jar --rev 1.12.2` 
-- `java -jar BuildTools.jar --rev 1.13.2`
-- `java -jar BuildTools.jar --rev 1.14.4`
+- `java -jar BuildTools.jar --rev 1.12.2 --compile CRAFTBUKKIT` 
+- `java -jar BuildTools.jar --rev 1.13.2 --compile CRAFTBUKKIT`
+- `java -jar BuildTools.jar --rev 1.14.4 --compile CRAFTBUKKIT`
 - `java -jar BuildTools.jar --rev 1.15.2`
 - `java -jar BuildTools.jar --rev 1.16.5`
 
