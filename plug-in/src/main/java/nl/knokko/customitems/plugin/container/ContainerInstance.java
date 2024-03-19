@@ -23,6 +23,7 @@ import nl.knokko.customitems.nms.GeneralItemNBT;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.data.ContainerStorageKey;
 import nl.knokko.customitems.plugin.data.StoredEnergy;
+import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.tasks.updater.ItemUpgrader;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
@@ -158,7 +159,6 @@ public class ContainerInstance {
 	
 	public static void discard1(BitInput input) {
 		
-		// TODO Perhaps drop the items rather than discarding them
 		// Discard the item stacks for all 3 slot types: input, output and fuel
 		for (int slotTypeCounter = 0; slotTypeCounter < 3; slotTypeCounter++) {
 			
@@ -745,27 +745,47 @@ public class ContainerInstance {
 		return inventory;
 	}
 	
-	public void dropAllItems(Location location) {
-		dropAllItems(location, typeInfo.getInputSlots(), ContainerInfo.PlaceholderProps::getSlotIndex);
-		dropAllItems(location, typeInfo.getOutputSlots(), ContainerInfo.PlaceholderProps::getSlotIndex);
-		dropAllItems(location, typeInfo.getFuelSlots(), FuelProps::getSlotIndex);
+	public void dropOrGiveAllItems(ItemSetWrapper itemSet, Location location, Inventory owner) {
+		dropAllItems(itemSet, location, owner, typeInfo.getInputSlots(), ContainerInfo.PlaceholderProps::getSlotIndex);
+		dropAllItems(itemSet, location, owner, typeInfo.getOutputSlots(), ContainerInfo.PlaceholderProps::getSlotIndex);
+		dropAllItems(itemSet, location, owner, typeInfo.getFuelSlots(), FuelProps::getSlotIndex);
+
+		Collection<ItemStack> itemsToGive = new ArrayList<>();
 		typeInfo.getStorageSlots().forEach(props -> {
-			if (!ItemUtils.isEmpty(inventory.getItem(props.getSlotIndex()))) {
-				location.getWorld().dropItem(location, inventory.getItem(props.getSlotIndex()));
+			ItemStack item = inventory.getItem(props.getSlotIndex());
+			if (!ItemUtils.isEmpty(item)) {
+				itemsToGive.add(item);
+
 				inventory.setItem(props.getSlotIndex(), null);
 			}
 		});
+
+		Collection<ItemStack> itemsToDrop;
+		if (owner != null) itemsToDrop = ItemUtils.giveItems(itemSet, owner, itemsToGive);
+		else itemsToDrop = itemsToGive;
+
+		for (ItemStack item : itemsToDrop) location.getWorld().dropItem(location, item);
 	}
 	
-	private <T> void dropAllItems(Location location, Iterable<Entry<String, T>> slots, Function<T, Integer> getIndex) {
+	private <T> void dropAllItems(
+			ItemSetWrapper itemSet, Location location, Inventory owner,
+			Iterable<Entry<String, T>> slots, Function<T, Integer> getIndex
+	) {
+		Collection<ItemStack> itemsToGive = new ArrayList<>();
 		slots.forEach(entry -> {
 			int index = getIndex.apply(entry.getValue());
 			ItemStack stack = inventory.getItem(index);
 			if (!ItemUtils.isEmpty(stack)) {
-				location.getWorld().dropItem(location, stack);
+				itemsToGive.add(stack);
 				inventory.setItem(index, null);
 			}
 		});
+
+		Collection<ItemStack> itemsToDrop;
+		if (owner == null) itemsToDrop = itemsToGive;
+		else itemsToDrop = ItemUtils.giveItems(itemSet, owner, itemsToGive);
+
+		for (ItemStack stack : itemsToDrop) location.getWorld().dropItem(location, stack);
 	}
 	
 	/**

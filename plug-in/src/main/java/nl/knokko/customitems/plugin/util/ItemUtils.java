@@ -5,11 +5,15 @@ import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.command.CommandCustomItemsGive;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.container.ContainerInstance;
+
+import java.util.ArrayList;
+import java.util.Collection;
 
 import static nl.knokko.customitems.plugin.set.item.CustomItemWrapper.wrap;
 
@@ -36,6 +40,25 @@ public class ItemUtils {
 		}
 		
 		return stack.getMaxStackSize();
+	}
+
+	/**
+	 * @return A list of ItemStacks that didn't fit in the inventory
+	 */
+	public static Collection<ItemStack> giveItems(ItemSetWrapper itemSet, Inventory destination, Collection<ItemStack> items) {
+		Collection<ItemStack> didNotFit = new ArrayList<>();
+		for (ItemStack item : items) {
+			CustomItemValues customItem = itemSet.getItem(item);
+			if (customItem != null && wrap(customItem).needsStackingHelp()) {
+				if (!CommandCustomItemsGive.giveCustomItemToInventory(itemSet, destination, customItem, item.getAmount())) {
+					didNotFit.add(item);
+				}
+			} else {
+				didNotFit.addAll(destination.addItem(item).values());
+			}
+		}
+
+		return didNotFit;
 	}
 
 	public static void giveCustomItem(ItemSetWrapper itemSet, Player player, CustomItemValues item) {

@@ -605,7 +605,9 @@ public class PluginData {
 			TempContainerInstance tempInstance = tempIterator.next();
 			if (!tempInstance.viewer.getOpenInventory().getTopInventory().equals(tempInstance.instance.getInventory())) {
 				tempIterator.remove();
-				tempInstance.instance.dropAllItems(tempInstance.viewer.getLocation());
+				tempInstance.instance.dropOrGiveAllItems(
+						itemSet, tempInstance.viewer.getLocation(), tempInstance.viewer.getInventory()
+				);
 			}
 		}
 	}
@@ -707,7 +709,9 @@ public class PluginData {
 			TempContainerInstance tempInstance = tempIterator.next();
 			if (tempInstance.viewer.getUniqueId().equals(player.getUniqueId())) {
 				tempIterator.remove();
-				tempInstance.instance.dropAllItems(tempInstance.viewer.getLocation());
+				tempInstance.instance.dropOrGiveAllItems(
+						itemSet, tempInstance.viewer.getLocation(), tempInstance.viewer.getInventory()
+				);
 			}
 		}
 	}
@@ -810,7 +814,7 @@ public class PluginData {
 			}
 
 			if (storageMode == ContainerStorageMode.NOT_PERSISTENT) {
-				pd.openPocketContainer.dropAllItems(player.getLocation());
+				pd.openPocketContainer.dropOrGiveAllItems(itemSet, player.getLocation(), player.getInventory());
 			}
 
 			pd.openPocketContainer = null;
@@ -1037,7 +1041,7 @@ public class PluginData {
 		});
 
 		tempContainers.forEach(entry -> {
-			entry.instance.dropAllItems(entry.viewer.getLocation());
+			entry.instance.dropOrGiveAllItems(itemSet, entry.viewer.getLocation(), entry.viewer.getInventory());
 			new ArrayList<>(entry.instance.getInventory().getViewers()).forEach(HumanEntity::closeInventory);
 		});
 		tempContainers.clear();
@@ -1136,7 +1140,7 @@ public class PluginData {
 			if (storageKey.containerName.equals(prototype.getName()) && stringHost.equals(storageKey.stringHost)) {
 				ContainerInstance containerInstance = entry.getValue();
 				if (dropLocation != null) {
-					containerInstance.dropAllItems(dropLocation);
+					containerInstance.dropOrGiveAllItems(itemSet, dropLocation, null);
 				}
 				containerInstance.getInventory().getViewers().forEach(HumanEntity::closeInventory);
 				containerIterator.remove();
@@ -1516,7 +1520,7 @@ public class PluginData {
 			if (passiveLocation.equals(entry.getKey().location)) {
 				
 				// Scan over all slots that the players can access in any way
-				entry.getValue().dropAllItems(location);
+				entry.getValue().dropOrGiveAllItems(itemSet, location, null);
 				new ArrayList<>(entry.getValue().getInventory().getViewers()).forEach(HumanEntity::closeInventory);
 				persistentIterator.remove();
 			}
