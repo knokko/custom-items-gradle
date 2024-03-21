@@ -73,6 +73,8 @@ public class ItemCollectionEdit extends DedicatedCollectionEdit<CustomItemValues
 			return new EditItemWand(menu, (CustomWandValues) itemValues, toModify);
 		else if (itemValues instanceof CustomGunValues)
 			return new EditItemGun(menu, (CustomGunValues) itemValues, toModify);
+		else if (itemValues instanceof CustomThrowableValues)
+			return new EditItemThrowable(menu, (CustomThrowableValues) itemValues, toModify);
 		else if (itemValues instanceof CustomPocketContainerValues)
 			return new EditItemPocketContainer(menu, (CustomPocketContainerValues) itemValues, toModify);
 		else if (itemValues instanceof SimpleCustomItemValues)

@@ -52,7 +52,7 @@ public abstract class CustomItemWrapper {
 
     private static final Collection<Class<? extends CustomItemValues>> SIMPLE_WRAPPER_CLASSES = Lists.newArrayList(
             CustomBlockItemValues.class, CustomFoodValues.class, CustomGunValues.class, CustomArrowValues.class,
-            CustomPocketContainerValues.class, CustomWandValues.class, SimpleCustomItemValues.class
+            CustomPocketContainerValues.class, CustomWandValues.class, CustomThrowableValues.class, SimpleCustomItemValues.class
     );
 
     public static CustomItemWrapper wrap(CustomItemValues item) {

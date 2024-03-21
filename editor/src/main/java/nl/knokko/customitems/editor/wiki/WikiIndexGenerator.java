@@ -46,6 +46,7 @@ public class WikiIndexGenerator {
             generateItems(output, item -> item instanceof CustomTridentValues, "Tridents", "h4");
             generateItems(output, item -> item instanceof CustomWandValues, "Wands", "h4");
             generateItems(output, item -> item instanceof CustomGunValues, "Guns", "h4");
+            generateItems(output, item -> item instanceof CustomThrowableValues, "Throwables", "h4");
             output.println("\t\t<h3 class=\"item-abstract-category-header\">Armor</h3>");
             generateItems(output, item ->
                             (item instanceof CustomArmorValues && item.getItemType().canServe(CustomItemType.Category.HELMET))
