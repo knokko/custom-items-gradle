@@ -7,10 +7,7 @@ import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import nl.knokko.customitems.item.CustomFoodValues;
-import nl.knokko.customitems.item.CustomGunValues;
-import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.item.CustomWandValues;
+import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.plugin.container.ContainerInstance;
 import nl.knokko.customitems.plugin.data.container.PassiveLocation;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
@@ -45,14 +42,15 @@ public class PlayerData {
 			}
 		}
 		
-		return new PlayerData(wandsData, new PlayerCommandCooldowns());
+		return new PlayerData(wandsData, new PlayerThrowableCooldowns(), new PlayerCommandCooldowns());
 	}
 
 	public static PlayerData load2(BitInput input, ItemSetWrapper set, Logger logger) throws UnknownEncodingException {
 		byte encoding = input.readByte();
-		if (encoding != 2) throw new UnknownEncodingException("PlayerData2", encoding);
+		if (encoding < 2 || encoding > 3) throw new UnknownEncodingException("PlayerData2", encoding);
 
 		PlayerData result = load1(input, set, logger);
+		if (encoding > 2) result.throwableCooldowns.load(input);
 		result.commandCooldowns.load(input, set);
 		return result;
 	}
@@ -76,6 +74,7 @@ public class PlayerData {
 	 */
 	final Map<CustomWandValues, PlayerWandData> wandsData;
 	final PlayerCommandCooldowns commandCooldowns;
+	final PlayerThrowableCooldowns throwableCooldowns;
 	
 	// Non-persisting data
 
@@ -104,13 +103,19 @@ public class PlayerData {
 	
 	public PlayerData() {
 		wandsData = new HashMap<>();
+		throwableCooldowns = new PlayerThrowableCooldowns();
 		commandCooldowns = new PlayerCommandCooldowns();
 		
 		init();
 	}
 	
-	private PlayerData(Map<CustomWandValues, PlayerWandData> wandsData, PlayerCommandCooldowns commandCooldowns){
+	private PlayerData(
+			Map<CustomWandValues, PlayerWandData> wandsData,
+			PlayerThrowableCooldowns throwableCooldowns,
+			PlayerCommandCooldowns commandCooldowns
+	){
 		this.wandsData = wandsData;
+		this.throwableCooldowns = throwableCooldowns;
 		this.commandCooldowns = commandCooldowns;
 		
 		init();
@@ -138,8 +143,9 @@ public class PlayerData {
 	}
 
 	public void save2(BitOutput output, ItemSetWrapper itemSet, long currentTick) {
-		output.addByte((byte) 2);
+		output.addByte((byte) 3);
 		save1(output, currentTick);
+		throwableCooldowns.save(output);
 		commandCooldowns.save(output, itemSet);
 	}
 	
@@ -207,6 +213,12 @@ public class PlayerData {
 					return false;
 				}
 			}
+		} else if (weapon instanceof CustomThrowableValues) {
+			CustomThrowableValues throwable = (CustomThrowableValues) weapon;
+			if (!throwableCooldowns.isOnCooldown(throwable, currentTick)) {
+				throwableCooldowns.setOnCooldown(throwable, currentTick);
+				return true;
+			} else return false;
 		} else {
 			return false;
 		}
@@ -284,6 +296,8 @@ public class PlayerData {
 		if (lastEatTick != -1 || mainhandFood != null || offhandFood != null) return false;
 
 		if (!commandCooldowns.clean(currentTick)) return false;
+
+		if (!throwableCooldowns.clean(currentTick)) return false;
 
 		/*
 		 * If the player is not shooting and doesn't have any remaining cooldowns or missing wand

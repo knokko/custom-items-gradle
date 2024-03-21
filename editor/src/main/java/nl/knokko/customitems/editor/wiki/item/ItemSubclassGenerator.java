@@ -31,6 +31,7 @@ class ItemSubclassGenerator {
         generateMusicDiscProperties(output);
         generateWandProperties(output);
         generateGunProperties(output);
+        generateThrowableProperties(output);
         generatePocketContainerProperties(output);
         generateBlockItemProperties(output);
         generateArrowProperties(output);
@@ -72,7 +73,7 @@ class ItemSubclassGenerator {
         }
     }
 
-    private void generateWandOrGunProperties(
+    private void generateProjectileSourceProperties(
             PrintWriter output, CustomProjectileValues projectile, int amountPerShot, int cooldown, String action) {
         if (projectile != null) {
             output.println("\t\tProjectile: <a href=\"../projectiles/" + projectile.getName() + ".html\">" + projectile.getName() + "</a><br>");
@@ -90,7 +91,7 @@ class ItemSubclassGenerator {
             CustomWandValues wand = (CustomWandValues) item;
 
             output.println("\t\t<h2>Wand</h2>");
-            generateWandOrGunProperties(output, wand.getProjectile(), wand.getAmountPerShot(), wand.getCooldown(), "swing");
+            generateProjectileSourceProperties(output, wand.getProjectile(), wand.getAmountPerShot(), wand.getCooldown(), "swing");
             if (wand.getCharges() != null) {
                 output.println("\t\t" + wand.getCharges().getMaxCharges() + " with " + wand.getCharges().getRechargeTime() + " ticks recharge time<br>");
             }
@@ -115,7 +116,7 @@ class ItemSubclassGenerator {
             CustomGunValues gun = (CustomGunValues) item;
 
             output.println("\t\t<h2>Gun</h2>");
-            generateWandOrGunProperties(output, gun.getProjectile(), gun.getAmountPerShot(), gun.getAmmo().getCooldown(), "shot");
+            generateProjectileSourceProperties(output, gun.getProjectile(), gun.getAmountPerShot(), gun.getAmmo().getCooldown(), "shot");
 
             if (gun.getAmmo() instanceof DirectGunAmmoValues) {
                 IngredientValues ammoItem = ((DirectGunAmmoValues) gun.getAmmo()).getAmmoItem();
@@ -135,6 +136,19 @@ class ItemSubclassGenerator {
             if(gun.requiresPermission()){
                 output.println("\t\t<h3>Permissions: </h3>");
                 output.println("\t\tPlayers need <b>customitems.shootall</b> or <b>customitems.shoot."+item.getName()+"</b> to shoot with this gun.");
+            }
+        }
+    }
+
+    private void generateThrowableProperties(PrintWriter output) {
+        if (item instanceof CustomThrowableValues) {
+            CustomThrowableValues throwable = (CustomThrowableValues) item;
+
+            output.println("\t\t<h2>Throwable</h2>");
+            generateProjectileSourceProperties(output, throwable.getProjectile(), throwable.getAmountPerShot(), throwable.getCooldown(), "throw");
+            if (throwable.shouldRequirePermission()){
+                output.println("\t\t<h3>Permissions: </h3>");
+                output.println("\t\tPlayers need <b>customitems.shootall</b> or <b>customitems.shoot." +item.getName() + "</b> to throw this item.");
             }
         }
     }

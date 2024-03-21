@@ -628,6 +628,13 @@ public class PluginData {
 					data.nextOffhandGunShootTick = -1;
 				}
 			}
+		} else if (weapon instanceof CustomThrowableValues) {
+			CustomThrowableValues throwable = (CustomThrowableValues) weapon;
+			for (int counter = 0; counter < throwable.getAmountPerShot(); counter++) {
+				CustomItemsPlugin.getInstance().getProjectileManager().fireProjectile(player, throwable.getProjectile());
+			}
+
+			weaponStack.setAmount(weaponStack.getAmount() - 1);
 		}
 	}
 
@@ -704,6 +711,8 @@ public class PluginData {
 			needsPermission = ((CustomWandValues) item).requiresPermission();
 		} else if (item instanceof CustomGunValues) {
 			needsPermission = ((CustomGunValues) item).requiresPermission();
+		} else if (item instanceof CustomThrowableValues) {
+			needsPermission = ((CustomThrowableValues) item).shouldRequirePermission();
 		} else {
 			return false;
 		}

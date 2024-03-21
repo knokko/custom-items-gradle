@@ -2,10 +2,7 @@ package nl.knokko.customitems.editor.wiki;
 
 import nl.knokko.customitems.NameHelper;
 import nl.knokko.customitems.effect.PotionEffectValues;
-import nl.knokko.customitems.item.CustomGunValues;
-import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.item.CustomWandValues;
-import nl.knokko.customitems.item.WikiVisibility;
+import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 import nl.knokko.customitems.projectile.effect.*;
@@ -79,21 +76,23 @@ class WikiProjectileGenerator {
                 output.println("\t\t</ul>");
             }
 
-            Collection<CustomItemValues> gunsAndWands = itemSet.getItems().stream().filter(candidateItem -> {
+            Collection<CustomItemValues> sources = itemSet.getItems().stream().filter(candidateItem -> {
                 if (candidateItem instanceof CustomWandValues) {
                     CustomProjectileValues wandProjectile = ((CustomWandValues) candidateItem).getProjectile();
                     return wandProjectile != null && wandProjectile.getName().equals(projectile.getName());
                 } else if (candidateItem instanceof CustomGunValues) {
                     return ((CustomGunValues) candidateItem).getProjectile().getName().equals(projectile.getName());
+                } else if (candidateItem instanceof CustomThrowableValues) {
+                    return ((CustomThrowableValues) candidateItem).getProjectile().getName().equals(projectile.getName());
                 } else {
                     return false;
                 }
             }).filter(candidateItem -> candidateItem.getWikiVisibility() == WikiVisibility.VISIBLE).collect(Collectors.toList());
 
-            if (!gunsAndWands.isEmpty()) {
+            if (!sources.isEmpty()) {
                 output.println("\t\t<h2 id=\"launch-items-header\">Items that can launch this projectile</h2>");
                 output.println("\t\t<ul class=\"launch-items\">");
-                for (CustomItemValues item : gunsAndWands) {
+                for (CustomItemValues item : sources) {
                     output.println("\t\t\t<li class=\"launch-item\"><a href=\"../items/" + item.getName() + ".html\">");
                     output.println("\t\t\t\t<img src=\"../textures/" + item.getTexture().getName() + ".png\" class=\"item-icon\" />");
                     output.println("\t\t\t\t" + stripColorCodes(item.getDisplayName()));
