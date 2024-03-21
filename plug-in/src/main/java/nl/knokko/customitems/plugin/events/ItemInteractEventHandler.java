@@ -153,7 +153,9 @@ public class ItemInteractEventHandler implements Listener {
             CustomItemValues usedItem = itemSet.getItem(event.getItem());
             PluginData data = CustomItemsPlugin.getInstance().getData();
 
-            if ((usedItem instanceof CustomWandValues || usedItem instanceof CustomGunValues)) {
+            if ((usedItem instanceof CustomWandValues || usedItem instanceof CustomGunValues ||
+                    usedItem instanceof CustomThrowableValues)
+            ) {
                 if (data.hasPermissionToShoot(event.getPlayer(), usedItem)) {
                     data.setShooting(event.getPlayer());
                 } else {

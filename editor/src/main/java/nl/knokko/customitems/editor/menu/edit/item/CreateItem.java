@@ -63,9 +63,13 @@ public class CreateItem extends GuiMenu {
 			state.getWindow().setMainComponent(new EditItemGun(menu, new CustomGunValues(true), null));
 		}), 0.25f, 0.525f, 0.45f, 0.625f);
 
+		addComponent(new DynamicTextButton("Throwable", CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
+			state.getWindow().setMainComponent(new EditItemThrowable(menu, new CustomThrowableValues(true), null));
+		}), 0.25f, 0.4f, 0.45f, 0.5f);
+
 		addComponent(new DynamicTextButton("Pocket Container", CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
 			state.getWindow().setMainComponent(new EditItemPocketContainer(menu, new CustomPocketContainerValues(true), null));
-		}), 0.25f, 0.4f, 0.45f, 0.5f);
+		}), 0.25f, 0.275f, 0.45f, 0.375f);
 		
 		// The row for the basic tools
 		addComponent(new DynamicTextButton("Sword", CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
