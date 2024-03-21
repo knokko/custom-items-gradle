@@ -4,11 +4,15 @@ import static nl.knokko.customitems.plugin.data.IOHelper.getResourceBitInput;
 import static org.junit.Assert.*;
 
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
 import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.CustomThrowableValues;
 import nl.knokko.customitems.item.CustomWandValues;
 import nl.knokko.customitems.item.SimpleCustomItemValues;
 import nl.knokko.customitems.item.command.ItemCommand;
@@ -30,6 +34,8 @@ import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
 import static nl.knokko.customitems.plugin.data.TestPlayerWandData.*;
 
 public class TestPlayerData {
+
+	// TODO Test throwable
 
 	private ItemSetWrapper createDummyItemSet1() {
 		ItemSet rawSet = new ItemSet(ItemSet.Side.EDITOR);
@@ -111,7 +117,14 @@ public class TestPlayerData {
 		dummyWand.setCommandSystem(dummyCommandSystem);
 		dummyWand.setTexture(dummyItemSet.getTextureReference("dummy_texture"));
 
+		CustomThrowableValues dummyThrowable = new CustomThrowableValues(true);
+		dummyThrowable.setName("dummy_throwable");
+		dummyThrowable.setProjectile(dummyItemSet.getProjectileReference(dummyProjectile.getName()));
+		dummyThrowable.setTexture(dummyItemSet.getTextureReference("dummy_texture"));
+		dummyThrowable.setCooldown(10);
+
 		dummyItemSet.addItem(dummyWand);
+		dummyItemSet.addItem(dummyThrowable);
 
 		ItemSetWrapper wrappedSet = new ItemSetWrapper();
 		wrappedSet.setItemSet(dummyItemSet);
@@ -119,9 +132,10 @@ public class TestPlayerData {
 	}
 
 	@Test
-	public void testSaveLoad2() throws UnknownEncodingException, ValidationException, ProgrammingValidationException {
+	public void testSaveLoad2() throws UnknownEncodingException, ValidationException, ProgrammingValidationException, IOException {
 		ItemSetWrapper wrappedSet = createTestItemSet2();
 		CustomItemValues dummyWand = wrappedSet.getItem("dummy_wand");
+		CustomItemValues dummyThrowable = wrappedSet.getItem("dummy_throwable");
 
 		// This currently prints stupid messages in the console, but doesn't cause problems
 		Logger dummyLogger = Logger.getGlobal();
@@ -132,6 +146,7 @@ public class TestPlayerData {
 		// Add data for the WITHOUT wand, to test if the discarding works well
 		assertTrue(playerDataToSave.shootIfAllowed(WITHOUT, 12, true, new float[1]));
 		assertTrue(playerDataToSave.shootIfAllowed(dummyWand, 15, true, new float[1]));
+		assertTrue(playerDataToSave.shootIfAllowed(dummyThrowable, 15, true, new float[1]));
 
 		// Convert it to bits
 		ByteArrayBitOutput output = new ByteArrayBitOutput();
@@ -139,6 +154,8 @@ public class TestPlayerData {
 		playerDataToSave.save2(output, wrappedSet, 10);
 		output.addInt(-1234);
 		output.terminate();
+
+		Files.write(new File("backward3.bin").toPath(), output.getBytes());
 
 		// Convert it back to player data
 		BitInput input = new ByteArrayBitInput(output.getBytes());
@@ -148,6 +165,24 @@ public class TestPlayerData {
 
 		assertFalse(loadedPlayerData.shootIfAllowed(dummyWand, 17, true, new float[1]));
 		assertTrue(loadedPlayerData.commandCooldowns.isOnCooldown(dummyWand, ItemCommandEvent.MELEE_ATTACK_ENTITY, 0, 17));
+		assertFalse(loadedPlayerData.shootIfAllowed(dummyThrowable, 20, true, new float[1]));
+		assertTrue(loadedPlayerData.shootIfAllowed(dummyThrowable, 28, true, new float[1]));
+	}
+
+	@Test
+	public void testBackwardCompatibility3() throws UnknownEncodingException, ValidationException, ProgrammingValidationException {
+		ItemSetWrapper wrappedSet = createTestItemSet2();
+		CustomItemValues dummyWand = wrappedSet.getItem("dummy_wand");
+		CustomItemValues dummyThrowable = wrappedSet.getItem("dummy_throwable");
+
+		BitInput input = IOHelper.getResourceBitInput("data/player/backward3.bin", 120);
+		PlayerData loadedPlayerData = PlayerData.load2(input, wrappedSet, Logger.getGlobal());
+		assertEquals(-1234, input.readInt());
+		input.terminate();
+
+		assertFalse(loadedPlayerData.shootIfAllowed(dummyWand, 17, true, new float[1]));
+		assertTrue(loadedPlayerData.commandCooldowns.isOnCooldown(dummyWand, ItemCommandEvent.MELEE_ATTACK_ENTITY, 0, 17));
+		assertFalse(loadedPlayerData.shootIfAllowed(dummyThrowable, 20, true, new float[1]));
 	}
 
 	@Test

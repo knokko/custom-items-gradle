@@ -165,4 +165,5 @@ public class ItemEncoding {
 	public static final byte ENCODING_ELYTRA_12 = 61;
 	public static final byte ENCODING_MUSIC_DISC = 62;
 	public static final byte ENCODING_ARROW = 63;
+	public static final byte ENCODING_THROWABLE = 64;
 }

@@ -126,6 +126,8 @@ public abstract class CustomItemValues extends ModelValues {
             return CustomMusicDiscValues.load(input, itemSet);
         } else if (encoding == ENCODING_ARROW) {
             return CustomArrowValues.load(input, itemSet);
+        } else if (encoding == ENCODING_THROWABLE) {
+            return CustomThrowableValues.load(input, itemSet);
         } else {
             throw new UnknownEncodingException("CustomItem", encoding);
         }
