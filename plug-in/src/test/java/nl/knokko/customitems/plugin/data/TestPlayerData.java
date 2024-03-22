@@ -4,9 +4,7 @@ import static nl.knokko.customitems.plugin.data.IOHelper.getResourceBitInput;
 import static org.junit.Assert.*;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -34,8 +32,6 @@ import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
 import static nl.knokko.customitems.plugin.data.TestPlayerWandData.*;
 
 public class TestPlayerData {
-
-	// TODO Test throwable
 
 	private ItemSetWrapper createDummyItemSet1() {
 		ItemSet rawSet = new ItemSet(ItemSet.Side.EDITOR);
@@ -145,6 +141,7 @@ public class TestPlayerData {
 
 		// Add data for the WITHOUT wand, to test if the discarding works well
 		assertTrue(playerDataToSave.shootIfAllowed(WITHOUT, 12, true, new float[1]));
+		// And of course, we also test the wand and throwable that we still have
 		assertTrue(playerDataToSave.shootIfAllowed(dummyWand, 15, true, new float[1]));
 		assertTrue(playerDataToSave.shootIfAllowed(dummyThrowable, 15, true, new float[1]));
 
@@ -154,8 +151,6 @@ public class TestPlayerData {
 		playerDataToSave.save2(output, wrappedSet, 10);
 		output.addInt(-1234);
 		output.terminate();
-
-		Files.write(new File("backward3.bin").toPath(), output.getBytes());
 
 		// Convert it back to player data
 		BitInput input = new ByteArrayBitInput(output.getBytes());
@@ -175,7 +170,7 @@ public class TestPlayerData {
 		CustomItemValues dummyWand = wrappedSet.getItem("dummy_wand");
 		CustomItemValues dummyThrowable = wrappedSet.getItem("dummy_throwable");
 
-		BitInput input = IOHelper.getResourceBitInput("data/player/backward3.bin", 120);
+		BitInput input = IOHelper.getResourceBitInput("data/player/backward3.bin", 146);
 		PlayerData loadedPlayerData = PlayerData.load2(input, wrappedSet, Logger.getGlobal());
 		assertEquals(-1234, input.readInt());
 		input.terminate();
@@ -251,6 +246,14 @@ public class TestPlayerData {
 		
 		// And returns true when the cooldown expired
 		assertTrue(data.clean(125));
+
+		// Check throwable cooldown
+		CustomThrowableValues throwable = new CustomThrowableValues(true);
+		throwable.setName("test");
+		throwable.setCooldown(10);
+		assertTrue(data.shootIfAllowed(throwable, 130, false, new float[1]));
+		assertFalse(data.clean(139));
+		assertTrue(data.clean(141));
 		
 		// Now try the charges
 		assertTrue(data.shootIfAllowed(WITH, 200, true, new float[1]));

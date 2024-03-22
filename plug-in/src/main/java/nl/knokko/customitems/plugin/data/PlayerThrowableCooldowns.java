@@ -34,14 +34,7 @@ public class PlayerThrowableCooldowns {
 
     public boolean isOnCooldown(CustomThrowableValues throwable, long currentTick) {
         Long cooldownExpiresAt = cooldownExpireTimes.get(throwable.getName());
-        if (cooldownExpiresAt == null) return false;
-
-        if (cooldownExpiresAt <= currentTick) {
-            cooldownExpireTimes.remove(throwable.getName());
-            return false;
-        }
-
-        return true;
+        return cooldownExpiresAt != null && cooldownExpiresAt > currentTick;
     }
 
     public void setOnCooldown(CustomThrowableValues throwable, long currentTick) {
