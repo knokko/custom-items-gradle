@@ -5,53 +5,40 @@ import nl.knokko.customitems.NameHelper;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A ItemFlag can hide some Attributes from ItemStacks.
- * Copied straight from Bukkit, but separated from the Bukkit API to ensure that the order
- * in which the constants occur won't change and so that the Editor doesn't need to import the
- * entire Bukkit API.
- */
+import static nl.knokko.customitems.MCVersions.*;
+
 public enum ItemFlag {
 
-    /**
-     * Setting to show/hide enchants
-     */
-    HIDE_ENCHANTS,
-    /**
-     * Setting to show/hide Attributes like Damage
-     */
-    HIDE_ATTRIBUTES,
-    /**
-     * Setting to show/hide the unbreakable State
-     */
-    HIDE_UNBREAKABLE,
-    /**
-     * Setting to show/hide what the ItemStack can break/destroy
-     */
-    HIDE_DESTROYS,
-    /**
-     * Setting to show/hide where this ItemStack can be build/placed on
-     */
-    HIDE_PLACED_ON,
-    /**
-     * Setting to show/hide potion effects on this ItemStack
-     */
-    HIDE_POTION_EFFECTS;
-	
-	public static boolean[] getDefaultValues() {
-		return new boolean[]{false, false, true, false, false, false};
+    HIDE_ENCHANTS(VERSION1_12, VERSION1_20),
+    HIDE_ATTRIBUTES(VERSION1_12, VERSION1_20),
+    HIDE_UNBREAKABLE(VERSION1_12, VERSION1_20),
+    HIDE_DESTROYS(VERSION1_12, VERSION1_20),
+    HIDE_PLACED_ON(VERSION1_12, VERSION1_20),
+    HIDE_POTION_EFFECTS(VERSION1_12, VERSION1_20),
+    HIDE_DYE(VERSION1_16, VERSION1_20),
+    HIDE_ARMOR_TRIM(VERSION1_19, VERSION1_20);
+
+    public static boolean[] getDefaultValues() {
+		return new boolean[]{ false, false, true, false, false, false, false, false };
 	}
 
 	public static List<Boolean> getDefaultValuesList() {
-	    List<Boolean> result = new ArrayList<>(6);
+	    List<Boolean> result = new ArrayList<>(8);
 	    for (boolean defaultValue : getDefaultValues()) {
 	        result.add(defaultValue);
         }
 	    return result;
     }
-	
+
+    public final int firstVersion, lastVersion;
+
+    ItemFlag(int firstVersion, int lastVersion) {
+        this.firstVersion = firstVersion;
+        this.lastVersion = lastVersion;
+    }
+
 	@Override
 	public String toString() {
-		return NameHelper.getNiceEnumName(name());
+		return NameHelper.getNiceEnumName(name(), firstVersion, lastVersion);
 	}
 }

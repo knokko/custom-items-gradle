@@ -34,11 +34,11 @@ public class ItemFlagMenu extends GuiMenu {
 			int rememberIndex = index;
 			addComponent(
 					new CheckboxComponent(currentFlags.get(index), newValue -> currentFlags.set(rememberIndex, newValue)),
-					0.4f, 0.725f - 0.1f * index, 0.425f, 0.75f - 0.1f * index
+					0.4f, 0.825f - 0.1f * index, 0.425f, 0.85f - 0.1f * index
 			);
 			addComponent(
 					new DynamicTextComponent(allFlags[index].toString(), EditProps.LABEL),
-					0.45f, 0.725f - 0.1f * index, 0.65f, 0.8f - 0.1f * index
+					0.45f, 0.825f - 0.1f * index, 0.65f, 0.9f - 0.1f * index
 			);
 		}
 		addComponent(new DynamicTextButton("Cancel", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {

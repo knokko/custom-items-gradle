@@ -94,7 +94,7 @@ public class TestBackward8 {
         assertEquals(0, item.getAttributeModifiers().size());
         assertEquals(0, item.getDefaultEnchantments().size());
         assertEquals(listOf(
-                false, false, true, false, false, false
+                false, false, true, false, false, false, false, false
         ), item.getItemFlags());
         if (set.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("quick_wand", item.getTexture().getName());
@@ -287,7 +287,7 @@ public class TestBackward8 {
         assertEquals(0, item.getAttributeModifiers().size());
         assertEquals(0, item.getDefaultEnchantments().size());
         assertEquals(listOf(
-                false, false, true, false, false, false
+                false, false, true, false, false, false, false, false
         ), item.getItemFlags());
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
@@ -330,7 +330,7 @@ public class TestBackward8 {
         assertEquals(0, item.getAttributeModifiers().size());
         assertEquals(0, item.getDefaultEnchantments().size());
         assertEquals(listOf(
-                false, false, true, false, false, false
+                false, false, true, false, false, false, false, false
         ), item.getItemFlags());
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
@@ -368,7 +368,7 @@ public class TestBackward8 {
         assertEquals(0, item.getAttributeModifiers().size());
         assertEquals(0, item.getDefaultEnchantments().size());
         assertEquals(listOf(
-                false, false, true, false, false, false
+                false, false, true, false, false, false, false, false
         ), item.getItemFlags());
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
@@ -411,7 +411,7 @@ public class TestBackward8 {
         assertEquals(0, item.getAttributeModifiers().size());
         assertEquals(0, item.getDefaultEnchantments().size());
         assertEquals(listOf(
-                false, false, true, false, false, false
+                false, false, true, false, false, false, false, false
         ), item.getItemFlags());
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
@@ -455,7 +455,7 @@ public class TestBackward8 {
         assertEquals(0, item.getAttributeModifiers().size());
         assertEquals(0, item.getDefaultEnchantments().size());
         assertEquals(listOf(
-                false, false, true, false, false, false
+                false, false, true, false, false, false, false, false
         ), item.getItemFlags());
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
@@ -511,7 +511,7 @@ public class TestBackward8 {
                 EnchantmentValues.createQuick(EnchantmentType.THORNS, 2)
         ), item.getDefaultEnchantments());
         assertEquals(listOf(
-                true, false, true, false, false, false
+                true, false, true, false, false, false, false, false
         ), item.getItemFlags());
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
@@ -568,7 +568,7 @@ public class TestBackward8 {
         assertEquals(0, item.getAttributeModifiers().size());
         assertEquals(0, item.getDefaultEnchantments().size());
         assertEquals(listOf(
-                false, false, true, false, false, false
+                false, false, true, false, false, false, false, false
         ), item.getItemFlags());
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("bow_one", item.getTexture().getName());
@@ -620,7 +620,7 @@ public class TestBackward8 {
         assertEquals(0, item.getAttributeModifiers().size());
         assertEquals(0, item.getDefaultEnchantments().size());
         assertEquals(listOf(
-                false, false, true, false, false, false
+                false, false, true, false, false, false, false, false
         ), item.getItemFlags());
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
@@ -671,7 +671,7 @@ public class TestBackward8 {
         assertEquals(0, item.getAttributeModifiers().size());
         assertEquals(0, item.getDefaultEnchantments().size());
         assertEquals(listOf(
-                false, false, true, false, false, false
+                false, false, true, false, false, false, false, false
         ), item.getItemFlags());
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
