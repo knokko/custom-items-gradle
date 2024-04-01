@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 
 import nl.knokko.customitems.drops.DropValues;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
+import nl.knokko.customitems.editor.menu.edit.block.EditRequiredItems;
 import nl.knokko.customitems.editor.menu.edit.container.recipe.EditOutputTable;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
@@ -23,14 +24,19 @@ public class SelectDrop extends GuiMenu {
 	private final GuiComponent returnMenu;
 	private final Consumer<DropValues> receiver;
 	private final DropValues currentValues;
+	private final boolean showPreventNormalDrops;
 	
 	private final DynamicTextComponent errorComponent;
 	
-	public SelectDrop(ItemSet set, GuiComponent returnMenu, DropValues previous, Consumer<DropValues> receiver) {
+	public SelectDrop(
+			ItemSet set, GuiComponent returnMenu,
+			DropValues previous, Consumer<DropValues> receiver, boolean showPreventNormalDrops
+	) {
 		this.set = set;
 		this.returnMenu = returnMenu;
 		this.receiver = receiver;
 		this.currentValues = previous.copy(true);
+		this.showPreventNormalDrops = showPreventNormalDrops;
 		this.errorComponent = new DynamicTextComponent("", EditProps.ERROR);
 	}
 	
@@ -59,10 +65,9 @@ public class SelectDrop extends GuiMenu {
 						LABEL), 0.3f, 0.55f, 0.65f, 0.65f
 		);
 		addComponent(new DynamicTextButton("Choose...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(
-					new ChooseRequiredHeldItems(set, currentValues.getRequiredHeldItems(), currentValues::setRequiredHeldItems,
-							this, "Players can use any item")
-			);
+			state.getWindow().setMainComponent(new EditRequiredItems(
+					currentValues.getRequiredHeldItems(), currentValues::setRequiredHeldItems, set, this
+			));
 		}), 0.7f, 0.55f, 0.85f, 0.65f);
 
 		addComponent(
@@ -75,15 +80,17 @@ public class SelectDrop extends GuiMenu {
 			));
 		}), 0.55f, 0.4f, 0.65f, 0.5f);
 
-		addComponent(
-				new DynamicTextComponent("Prevent normal drops", LABEL),
-				0.3f, 0.225f, 0.55f, 0.325f
-		);
-		addComponent(
-				new CheckboxComponent(currentValues.shouldCancelNormalDrops(), currentValues::setCancelNormalDrops),
-				0.25f, 0.225f, 0.275f, 0.25f
-		);
-		
+		if (showPreventNormalDrops) {
+			addComponent(
+					new DynamicTextComponent("Prevent normal drops", LABEL),
+					0.3f, 0.225f, 0.55f, 0.325f
+			);
+			addComponent(
+					new CheckboxComponent(currentValues.shouldCancelNormalDrops(), currentValues::setCancelNormalDrops),
+					0.25f, 0.225f, 0.275f, 0.25f
+			);
+		}
+
 		addComponent(new DynamicTextButton("Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
 			String error = Validation.toErrorString(() -> currentValues.validate(set));
 			if (error == null) {

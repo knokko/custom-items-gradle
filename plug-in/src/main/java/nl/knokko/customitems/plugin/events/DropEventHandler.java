@@ -3,11 +3,7 @@ package nl.knokko.customitems.plugin.events;
 import nl.knokko.customitems.drops.CIBiome;
 import nl.knokko.customitems.drops.DropValues;
 import nl.knokko.customitems.drops.MobDropValues;
-import nl.knokko.customitems.item.CIMaterial;
-import nl.knokko.customitems.item.CustomBowValues;
-import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.itemset.ItemReference;
-import nl.knokko.customitems.nms.KciNms;
+import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.tasks.updater.ItemUpdater;
@@ -40,20 +36,11 @@ public class DropEventHandler implements Listener {
 
     static boolean collectDrops(
             Collection<ItemStack> stacksToDrop, DropValues drop, Location location, Random random,
-            ItemSetWrapper itemSet, CustomItemValues mainItem
+            ItemSetWrapper itemSet, ItemStack mainItem
     ) {
 
         // Make sure the required held items of drops are really required
-        boolean shouldDrop = true;
-        if (!drop.getRequiredHeldItems().isEmpty()) {
-            shouldDrop = false;
-            for (ItemReference candidateItem : drop.getRequiredHeldItems()) {
-                if (candidateItem.get() == mainItem) {
-                    shouldDrop = true;
-                    break;
-                }
-            }
-        }
+        boolean shouldDrop = BlockEventHandler.shouldRequiredItemsAccept(drop.getRequiredHeldItems(), mainItem, itemSet);
 
         if (!drop.getAllowedBiomes().isAllowed(CIBiome.valueOf(location.getBlock().getBiome().name()))) {
             shouldDrop = false;
@@ -139,6 +126,16 @@ public class DropEventHandler implements Listener {
         });
     }
 
+    private boolean isProjectileSource(ItemStack stack) {
+        if (stack == null) return false;
+        CIMaterial material = CIMaterial.valueOf(stack.getType().name());
+
+        CustomItemValues customItem = itemSet.getItem(stack);
+        return material == CIMaterial.BOW || material == CIMaterial.CROSSBOW || material == CIMaterial.TRIDENT ||
+                customItem instanceof CustomWandValues || customItem instanceof CustomGunValues ||
+                customItem instanceof CustomThrowableValues;
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onEntityDeath(EntityDeathEvent event) {
 
@@ -149,25 +146,24 @@ public class DropEventHandler implements Listener {
         Collection<MobDropValues> drops = itemSet.getMobDrops(event.getEntity());
         Random random = new Random();
 
-        CustomItemValues usedItem = null;
+        ItemStack usedItem = null;
         EntityDamageEvent lastDamageEvent = event.getEntity().getLastDamageCause();
         Player killer = event.getEntity().getKiller();
+
         if (lastDamageEvent != null && killer != null) {
-            CustomItemValues customMain = itemSet.getItem(killer.getInventory().getItemInMainHand());
+            ItemStack mainItem = killer.getInventory().getItemInMainHand();
             EntityDamageEvent.DamageCause cause = lastDamageEvent.getCause();
+
             if (cause == EntityDamageEvent.DamageCause.ENTITY_ATTACK || cause == EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK) {
-                usedItem = customMain;
+                usedItem = mainItem;
             } else if (cause == EntityDamageEvent.DamageCause.PROJECTILE) {
-                if (customMain instanceof CustomBowValues) {
-                    usedItem = customMain;
-                } else if (!KciNms.instance.items.getMaterialName(killer.getInventory().getItemInMainHand()).equals(CIMaterial.BOW.name())){
-                    CustomItemValues customOff = itemSet.getItem(killer.getInventory().getItemInOffHand());
-                    if (customOff instanceof CustomBowValues) {
-                        usedItem = customOff;
-                    }
+                ItemStack offItem = killer.getInventory().getItemInOffHand();
+                if (isProjectileSource(mainItem)) {
+                    usedItem = killer.getInventory().getItemInMainHand();
+                } else if (isProjectileSource(offItem)) {
+                    usedItem = offItem;
                 }
             }
-            // TODO Add more causes like tridents and wands someday
         }
 
         boolean cancelDefaultDrops = false;

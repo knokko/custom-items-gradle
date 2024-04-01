@@ -62,7 +62,7 @@ public class EditMobDrop extends GuiMenu {
 		SelectDrop selectDrop = new SelectDrop(set, this, currentValues.getDrop(), (DropValues newDrop) -> {
 			currentValues.setDrop(newDrop);
 			pChangeButton[0].setText(newDrop.toString());
-		});
+		}, true);
 		pChangeButton[0] = new DynamicTextButton(StringLength.fixLength(currentValues.getDrop().toString(), 60), CHOOSE_BASE, CHOOSE_HOVER, () -> {
 			state.getWindow().setMainComponent(selectDrop);
 		});

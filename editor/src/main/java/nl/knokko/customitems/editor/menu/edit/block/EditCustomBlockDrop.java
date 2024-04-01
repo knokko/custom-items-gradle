@@ -4,7 +4,7 @@ import nl.knokko.customitems.block.drop.CustomBlockDropValues;
 import nl.knokko.customitems.block.drop.SilkTouchRequirement;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
-import nl.knokko.customitems.editor.menu.edit.container.recipe.EditOutputTable;
+import nl.knokko.customitems.editor.menu.edit.drops.SelectDrop;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.editor.util.HelpButtons;
@@ -60,11 +60,11 @@ public class EditCustomBlockDrop extends GuiMenu  {
             }
         }), 0.025f, 0.1f, 0.175f, 0.2f);
 
-        addComponent(new DynamicTextComponent("Items to drop:", EditProps.LABEL),
+        addComponent(new DynamicTextComponent("Drop:", EditProps.LABEL),
                 0.3f, 0.7f, 0.49f, 0.8f);
         addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () ->
-                state.getWindow().setMainComponent(new EditOutputTable(
-                        this, currentDrop.getItemsToDrop(), currentDrop::setItemsToDrop, set, null
+                state.getWindow().setMainComponent(new SelectDrop(
+                        set, this, currentDrop.getDrop(), currentDrop::setDrop, false
                 ))
         ), 0.5f, 0.7f, 0.62f, 0.8f);
 
@@ -73,15 +73,6 @@ public class EditCustomBlockDrop extends GuiMenu  {
         addComponent(EnumSelect.createSelectButton(
                 SilkTouchRequirement.class, currentDrop::setSilkTouchRequirement, currentDrop.getSilkTouchRequirement()
         ), 0.5f, 0.55f, 0.62f, 0.65f);
-
-        addComponent(new DynamicTextComponent("Required held items:", EditProps.LABEL),
-                0.25f, 0.4f, 0.49f, 0.5f);
-        addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () ->
-                state.getWindow().setMainComponent(new EditRequiredItems(
-                        currentDrop.getRequiredItems(), currentDrop::setRequiredItems,
-                        set, this
-                ))
-        ), 0.5f, 0.4f, 0.625f, 0.5f);
 
         addComponent(new DynamicTextComponent(
                 "Minimum fortune level:", LABEL

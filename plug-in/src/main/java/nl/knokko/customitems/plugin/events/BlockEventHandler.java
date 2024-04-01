@@ -5,6 +5,7 @@ import nl.knokko.customitems.block.MushroomBlockMapping;
 import nl.knokko.customitems.block.drop.CustomBlockDropValues;
 import nl.knokko.customitems.block.drop.RequiredItemValues;
 import nl.knokko.customitems.block.drop.SilkTouchRequirement;
+import nl.knokko.customitems.drops.CIBiome;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.item.CustomBlockItemValues;
 import nl.knokko.customitems.item.CustomItemValues;
@@ -272,6 +273,39 @@ public class BlockEventHandler implements Listener {
         }
     }
 
+    public static boolean shouldRequiredItemsAccept(RequiredItemValues ri, ItemStack item, ItemSetWrapper itemSet) {
+        if (item == null) return shouldRequiredItemsAccept(ri, CIMaterial.AIR, null);
+        return shouldRequiredItemsAccept(ri, CIMaterial.valueOf(item.getType().name()), itemSet.getItem(item));
+    }
+
+    public static boolean shouldRequiredItemsAccept(
+            RequiredItemValues ri, CIMaterial usedMaterial, CustomItemValues usedCustomItem
+    ) {
+        if (ri.isEnabled()) {
+
+            boolean matchesVanillaItem = false;
+            for (RequiredItemValues.VanillaEntry vanillaEntry : ri.getVanillaItems()) {
+                if (vanillaEntry.getMaterial() == usedMaterial) {
+                    if (vanillaEntry.shouldAllowCustomItems() || usedCustomItem == null) {
+                        matchesVanillaItem = true;
+                        break;
+                    }
+                }
+            }
+
+            boolean matchesCustomItem = false;
+            for (ItemReference candidateItem : ri.getCustomItems()) {
+                if (candidateItem.get() == usedCustomItem) {
+                    matchesCustomItem = true;
+                    break;
+                }
+            }
+
+            boolean matchesAny = matchesVanillaItem || matchesCustomItem;
+            return matchesAny != ri.isInverted();
+        } else return true;
+    }
+
     private void dropCustomBlockDrops(CustomBlockValues block, Location location, ItemStack usedTool) {
         Random rng = new Random();
 
@@ -279,14 +313,10 @@ public class BlockEventHandler implements Listener {
 
             boolean usedSilkTouch = false;
             int fortuneLevel = 0;
-            CIMaterial usedMaterial = CIMaterial.AIR;
-            CustomItemValues usedCustomItem = null;
 
             if (!ItemUtils.isEmpty(usedTool)) {
                 usedSilkTouch = usedTool.containsEnchantment(SILK_TOUCH);
                 fortuneLevel = usedTool.getEnchantmentLevel(LOOT_BONUS_BLOCKS);
-                usedMaterial = CIMaterial.valueOf(KciNms.instance.items.getMaterialName(usedTool));
-                usedCustomItem = itemSet.getItem(usedTool);
             }
 
             if (usedSilkTouch && blockDrop.getSilkTouchRequirement() == SilkTouchRequirement.FORBIDDEN) {
@@ -299,40 +329,11 @@ public class BlockEventHandler implements Listener {
             if (fortuneLevel < blockDrop.getMinFortuneLevel()) continue;
             if (blockDrop.getMaxFortuneLevel() != null && fortuneLevel > blockDrop.getMaxFortuneLevel()) continue;
 
-            RequiredItemValues ri = blockDrop.getRequiredItems();
-            if (ri.isEnabled()) {
+            if (!shouldRequiredItemsAccept(blockDrop.getDrop().getRequiredHeldItems(), usedTool, itemSet)) continue;
 
-                boolean matchesVanillaItem = false;
-                for (RequiredItemValues.VanillaEntry vanillaEntry : ri.getVanillaItems()) {
-                    if (vanillaEntry.getMaterial() == usedMaterial) {
-                        if (vanillaEntry.shouldAllowCustomItems() || usedCustomItem == null) {
-                            matchesVanillaItem = true;
-                            break;
-                        }
-                    }
-                }
+            if (!blockDrop.getDrop().getAllowedBiomes().isAllowed(CIBiome.valueOf(location.getBlock().getBiome().name()))) continue;
 
-                boolean matchesCustomItem = false;
-                for (ItemReference candidateItem : ri.getCustomItems()) {
-                    if (candidateItem.get() == usedCustomItem) {
-                        matchesCustomItem = true;
-                        break;
-                    }
-                }
-
-                boolean matchesAny = matchesVanillaItem || matchesCustomItem;
-                if (matchesAny == ri.isInverted()) {
-
-                    /*
-                     * If ri.isInverted(), we should drop items IFF there is NO match. If not ri.isInverted(),
-                     * we should drop items IFF there is a match. If we shouldn't drop an item, we should
-                     * continue with the next drop.
-                     */
-                    continue;
-                }
-            }
-
-            ItemStack itemToDrop = convertResultToItemStack(blockDrop.getItemsToDrop().pickResult(rng));
+            ItemStack itemToDrop = convertResultToItemStack(blockDrop.getDrop().getOutputTable().pickResult(rng));
             if (itemToDrop != null) {
                 Objects.requireNonNull(location.getWorld()).dropItemNaturally(location, itemToDrop);
             }
