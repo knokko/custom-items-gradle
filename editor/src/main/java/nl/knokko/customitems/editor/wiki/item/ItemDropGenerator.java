@@ -46,7 +46,7 @@ public class ItemDropGenerator {
 
         this.blocks = itemSet.getBlocks().stream().filter(
                 block -> block.getDrops().stream().anyMatch(
-                        blockDrop -> hasItem(item, blockDrop.getItemsToDrop())
+                        blockDrop -> hasItem(item, blockDrop.getDrop().getOutputTable())
                 )
         ).collect(Collectors.toList());
     }
@@ -64,7 +64,7 @@ public class ItemDropGenerator {
                 output.println("\t\t<h4>" + NameHelper.getNiceEnumName(blockDrop.getBlockType().name()) + "</h4>");
 
                 generateAllowedBiomes(output, "\t\t", blockDrop.getDrop().getAllowedBiomes());
-                generateRequiredHeldItems(output, "\t\t", blockDrop.getDrop().getRequiredHeldItems());
+                generateRequiredItemsInfo(output, "\t\t", blockDrop.getDrop().getRequiredHeldItems());
                 generateRequiredFortuneLevel(output, "\t\t", blockDrop.getMinFortuneLevel(), blockDrop.getMaxFortuneLevel());
                 generateRelevantDrops(output, "\t\t", blockDrop.getDrop().getOutputTable());
             }
@@ -74,10 +74,10 @@ public class ItemDropGenerator {
                 output.println("\t\t<ul class=\"block-drop-list\">");
 
                 for (CustomBlockDropValues blockDrop : block.getDrops()) {
-                    if (hasItem(item, blockDrop.getItemsToDrop())) {
+                    if (hasItem(item, blockDrop.getDrop().getOutputTable())) {
                         output.println("\t\t\t<li class=\"block-drop-entry\">");
                         generateCustomBlockDropInfo(output, blockDrop);
-                        generateRelevantDrops(output, "\t\t\t\t", blockDrop.getItemsToDrop());
+                        generateRelevantDrops(output, "\t\t\t\t", blockDrop.getDrop().getOutputTable());
                         output.println("\t\t\t</li>");
                     }
                 }
@@ -97,37 +97,41 @@ public class ItemDropGenerator {
                 }
 
                 generateAllowedBiomes(output, "\t\t", mobDrop.getDrop().getAllowedBiomes());
-                generateRequiredHeldItems(output, "\t\t", mobDrop.getDrop().getRequiredHeldItems());
+                generateRequiredItemsInfo(output, "\t\t", mobDrop.getDrop().getRequiredHeldItems());
                 generateRelevantDrops(output, "\t\t", mobDrop.getDrop().getOutputTable());
             }
         }
     }
 
-    public static void generateCustomBlockDropInfo(PrintWriter output, CustomBlockDropValues blockDrop) {
-        output.println("\t\t\t\tSilk touch is " + blockDrop.getSilkTouchRequirement().name().toLowerCase(Locale.ROOT) + "<br>");
-        if (blockDrop.getRequiredItems().isEnabled()) {
-            if (blockDrop.getRequiredItems().isInverted()) {
-                output.println("\t\t\t\tYou can use any item, <b>except</b> the following items:");
+    public static void generateRequiredItemsInfo(PrintWriter output, String tabs, RequiredItemValues requiredItems) {
+        if (requiredItems.isEnabled()) {
+            if (requiredItems.isInverted()) {
+                output.println(tabs + "You can use any item, <b>except</b> the following items:");
             } else {
-                output.println("\t\t\t\tYou must use one of the following items:");
+                output.println(tabs + "You must use one of the following items:");
             }
-            output.println("\t\t\t\t<ul class=\"required-drop-items\">");
-            for (RequiredItemValues.VanillaEntry vanilla : blockDrop.getRequiredItems().getVanillaItems()) {
-                output.print("\t\t\t\t\t<li class=\"required-vanilla-item\">" + NameHelper.getNiceEnumName(vanilla.getMaterial().name()));
+            output.println(tabs + "<ul class=\"required-drop-items\">");
+            for (RequiredItemValues.VanillaEntry vanilla : requiredItems.getVanillaItems()) {
+                output.print(tabs + "\t<li class=\"required-vanilla-item\">" + NameHelper.getNiceEnumName(vanilla.getMaterial().name()));
                 if (vanilla.shouldAllowCustomItems()) {
                     output.print(" or a custom item of this type");
                 }
                 output.println("</li>");
             }
 
-            for (ItemReference itemRef : blockDrop.getRequiredItems().getCustomItems()) {
+            for (ItemReference itemRef : requiredItems.getCustomItems()) {
                 if (itemRef.get().getWikiVisibility() == WikiVisibility.VISIBLE) {
-                    output.print("\t\t\t\t\t<li class=\"required-custom-item\"><a href=\"./" + itemRef.get().getName() + ".html\">");
+                    output.print(tabs + "\t<li class=\"required-custom-item\"><a href=\"./" + itemRef.get().getName() + ".html\">");
                     output.println(stripColorCodes(itemRef.get().getDisplayName()) + "</a></li>");
                 }
             }
-            output.println("\t\t\t\t</ul>");
+            output.println(tabs + "</ul>");
         }
+    }
+
+    public static void generateCustomBlockDropInfo(PrintWriter output, CustomBlockDropValues blockDrop) {
+        output.println("\t\t\t\tSilk touch is " + blockDrop.getSilkTouchRequirement().name().toLowerCase(Locale.ROOT) + "<br>");
+        generateRequiredItemsInfo(output, "\t\t\t\t", blockDrop.getDrop().getRequiredHeldItems());
         generateRequiredFortuneLevel(
                 output, "\t\t\t\t", blockDrop.getMinFortuneLevel(),
                 blockDrop.getMaxFortuneLevel()
@@ -164,19 +168,6 @@ public class ItemDropGenerator {
         }
         if (maxLevel != null) {
             output.println(tabs + "Fortune enchantment level must be at most " + maxLevel + "<br>");
-        }
-    }
-
-    private void generateRequiredHeldItems(PrintWriter output, String tabs, Collection<ItemReference> requiredItems) {
-        requiredItems = requiredItems.stream().filter(item -> item.get().getWikiVisibility() == WikiVisibility.VISIBLE).collect(Collectors.toList());
-        if (!requiredItems.isEmpty()) {
-            output.println(tabs + "When the player uses one of the following custom items:");
-            output.println(tabs + "<ul class=\"required-held-items\">");
-            for (ItemReference item : requiredItems) {
-                output.println(tabs + "\t<li class=\"required-custom-item\"><a href=\"./" + item.get().getName() + ".html\">"
-                        + stripColorCodes(item.get().getDisplayName()) + "</a></li>");
-            }
-            output.println(tabs + "</ul>");
         }
     }
 

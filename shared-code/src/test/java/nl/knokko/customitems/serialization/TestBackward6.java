@@ -1,5 +1,6 @@
 package nl.knokko.customitems.serialization;
 
+import nl.knokko.customitems.block.drop.RequiredItemValues;
 import nl.knokko.customitems.block.drop.SilkTouchRequirement;
 import nl.knokko.customitems.drops.*;
 import nl.knokko.customitems.effect.ChancePotionEffectValues;
@@ -184,7 +185,7 @@ public class TestBackward6 {
                                         useFlatChance ? Chance.percentage(4) : Chance.nonIntegerPercentage(2.5)
                                 )
                         ),
-                        true, new ArrayList<>(), new AllowedBiomesValues(false)
+                        true, new RequiredItemValues(false), new AllowedBiomesValues(false)
                 ), 0, null
         );
     }
@@ -202,7 +203,7 @@ public class TestBackward6 {
                 DropValues.createQuick(
                         OutputTableValues.createQuick(
                             OutputTableValues.Entry.createQuick(CustomItemResultValues.createQuick(sword1, 1), 10)
-                        ), false, new ArrayList<>(), new AllowedBiomesValues(false)
+                        ), false, new RequiredItemValues(false), new AllowedBiomesValues(false)
                 )
         );
     }
@@ -214,7 +215,7 @@ public class TestBackward6 {
                 DropValues.createQuick(
                         OutputTableValues.createQuick(
                             OutputTableValues.Entry.createQuick(CustomItemResultValues.createQuick(axe1, 1), 100)
-                        ), true, new ArrayList<>(), new AllowedBiomesValues(false)
+                        ), true, new RequiredItemValues(false), new AllowedBiomesValues(false)
                 )
         );
     }

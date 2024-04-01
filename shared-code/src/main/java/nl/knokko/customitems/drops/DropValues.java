@@ -1,5 +1,6 @@
 package nl.knokko.customitems.drops;
 
+import nl.knokko.customitems.block.drop.RequiredItemValues;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
@@ -35,7 +36,7 @@ public class DropValues extends ModelValues {
 
     public static DropValues createQuick(
             OutputTableValues outputTable, boolean cancelNormalDrops,
-            Collection<ItemReference> requiredHeldItems, AllowedBiomesValues allowedBiomes
+            RequiredItemValues requiredHeldItems, AllowedBiomesValues allowedBiomes
     ) {
         DropValues result = new DropValues(true);
         result.setOutputTable(outputTable);
@@ -47,14 +48,14 @@ public class DropValues extends ModelValues {
 
     private OutputTableValues outputTable;
     private boolean cancelNormalDrops;
-    private Collection<ItemReference> requiredHeldItems;
+    private RequiredItemValues requiredHeldItems;
     private AllowedBiomesValues allowedBiomes;
 
     public DropValues(boolean mutable) {
         super(mutable);
         this.outputTable = new OutputTableValues(false);
         this.cancelNormalDrops = false;
-        this.requiredHeldItems = new ArrayList<>();
+        this.requiredHeldItems = new RequiredItemValues(false);
         this.allowedBiomes = new AllowedBiomesValues(false);
     }
 
@@ -72,7 +73,7 @@ public class DropValues extends ModelValues {
         int maxDropAmount = input.readInt();
         int rawDropChance = input.readInt() * Chance.ONE_PERCENT;
         this.cancelNormalDrops = input.readBoolean();
-        this.requiredHeldItems = new ArrayList<>(0);
+        this.requiredHeldItems = new RequiredItemValues(false);
         this.allowedBiomes = new AllowedBiomesValues(false);
 
         int numAmounts = 1 + maxDropAmount - minDropAmount;
@@ -116,25 +117,33 @@ public class DropValues extends ModelValues {
         this.cancelNormalDrops = input.readBoolean();
 
         int numRequiredItems = input.readInt();
-        this.requiredHeldItems = new ArrayList<>(numRequiredItems);
+        this.requiredHeldItems = new RequiredItemValues(true);
+        Collection<ItemReference> customItems = new ArrayList<>(numRequiredItems);
         for (int counter = 0; counter < numRequiredItems; counter++) {
-            this.requiredHeldItems.add(itemSet.getItemReference(input.readString()));
+            customItems.add(itemSet.getItemReference(input.readString()));
         }
+        this.requiredHeldItems.setCustomItems(customItems);
+        this.requiredHeldItems = this.requiredHeldItems.copy(false);
         this.allowedBiomes = new AllowedBiomesValues(false);
     }
 
     private void load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
-        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("Drop", encoding);
+        if (encoding < 1 || encoding > 3) throw new UnknownEncodingException("Drop", encoding);
 
         this.outputTable = OutputTableValues.load(input, itemSet);
         this.cancelNormalDrops = input.readBoolean();
 
-        int numRequiredItems = input.readInt();
-        this.requiredHeldItems = new ArrayList<>(numRequiredItems);
-        for (int counter = 0; counter < numRequiredItems; counter++) {
-            this.requiredHeldItems.add(itemSet.getItemReference(input.readString()));
-        }
+        if (encoding < 3) {
+            int numRequiredItems = input.readInt();
+            Collection<ItemReference> customItems = new ArrayList<>(numRequiredItems);
+            for (int counter = 0; counter < numRequiredItems; counter++) {
+                customItems.add(itemSet.getItemReference(input.readString()));
+            }
+            this.requiredHeldItems = new RequiredItemValues(true);
+            this.requiredHeldItems.setCustomItems(customItems);
+            this.requiredHeldItems = requiredHeldItems.copy(false);
+        } else this.requiredHeldItems = RequiredItemValues.load(input, itemSet, false);
         if (encoding >= 2) {
             this.allowedBiomes = AllowedBiomesValues.load(input);
         } else {
@@ -143,14 +152,11 @@ public class DropValues extends ModelValues {
     }
 
     public void save(BitOutput output) {
-        output.addByte((byte) 2);
+        output.addByte((byte) 3);
 
         outputTable.save(output);
         output.addBoolean(cancelNormalDrops);
-        output.addInt(requiredHeldItems.size());
-        for (ItemReference reference : requiredHeldItems) {
-            output.addString(reference.get().getName());
-        }
+        requiredHeldItems.save(output);
         allowedBiomes.save(output);
     }
 
@@ -183,8 +189,8 @@ public class DropValues extends ModelValues {
         return cancelNormalDrops;
     }
 
-    public Collection<ItemReference> getRequiredHeldItems() {
-        return new ArrayList<>(requiredHeldItems);
+    public RequiredItemValues getRequiredHeldItems() {
+        return requiredHeldItems;
     }
 
     public AllowedBiomesValues getAllowedBiomes() {
@@ -202,10 +208,9 @@ public class DropValues extends ModelValues {
         this.cancelNormalDrops = cancelNormalDrops;
     }
 
-    public void setRequiredHeldItems(Collection<ItemReference> newRequiredHeldItems) {
+    public void setRequiredHeldItems(RequiredItemValues newRequiredHeldItems) {
         assertMutable();
-        Checks.notNull(newRequiredHeldItems);
-        this.requiredHeldItems = new ArrayList<>(newRequiredHeldItems);
+        this.requiredHeldItems = newRequiredHeldItems.copy(false);
     }
 
     public void setAllowedBiomes(AllowedBiomesValues allowedBiomes) {
@@ -218,12 +223,7 @@ public class DropValues extends ModelValues {
         if (outputTable == null) throw new ProgrammingValidationException("No output table");
         Validation.scope("Output table", () -> outputTable.validate(itemSet));
         if (requiredHeldItems == null) throw new ProgrammingValidationException("No required held items");
-        for (ItemReference requiredItem : requiredHeldItems) {
-            if (requiredItem == null) throw new ProgrammingValidationException("Missing a required held item");
-            if (!itemSet.isReferenceValid(requiredItem)) {
-                throw new ProgrammingValidationException("Required item " + requiredItem.get().getName() + " is no longer valid");
-            }
-        }
+        Validation.scope("Required held items", requiredHeldItems::validateComplete, itemSet);
         if (allowedBiomes == null) throw new ProgrammingValidationException("No allowed biomes");
         Validation.scope("Allowed biomes", allowedBiomes::validate);
     }
@@ -231,5 +231,6 @@ public class DropValues extends ModelValues {
     public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
         outputTable.validateExportVersion(version);
         allowedBiomes.validateExportVersion(version);
+        requiredHeldItems.validateExportVersion(version);
     }
 }

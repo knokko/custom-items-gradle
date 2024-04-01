@@ -1,10 +1,13 @@
 package nl.knokko.customitems.block.drop;
 
+import nl.knokko.customitems.drops.AllowedBiomesValues;
+import nl.knokko.customitems.drops.DropValues;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.recipe.OutputTableValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
+import nl.knokko.customitems.util.Validation;
 import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
@@ -35,30 +38,27 @@ public class CustomBlockDropValues extends ModelValues {
         return result;
     }
 
-    private RequiredItemValues requiredItems;
     private SilkTouchRequirement silkTouch;
     private int minFortuneLevel;
     private Integer maxFortuneLevel;
-    private OutputTableValues itemsToDrop;
+    private DropValues drop;
 
     public CustomBlockDropValues(boolean mutable) {
         super(mutable);
 
-        this.requiredItems = new RequiredItemValues(false);
         this.silkTouch = SilkTouchRequirement.OPTIONAL;
         this.minFortuneLevel = 0;
         this.maxFortuneLevel = null;
-        this.itemsToDrop = new OutputTableValues(false);
+        this.drop = new DropValues(false);
     }
 
     public CustomBlockDropValues(CustomBlockDropValues toCopy, boolean mutable) {
         super(mutable);
 
-        this.requiredItems = toCopy.getRequiredItems();
         this.silkTouch = toCopy.getSilkTouchRequirement();
         this.minFortuneLevel = toCopy.getMinFortuneLevel();
         this.maxFortuneLevel = toCopy.getMaxFortuneLevel();
-        this.itemsToDrop = toCopy.getItemsToDrop();
+        this.drop = toCopy.getDrop();
     }
     
     public CustomBlockDropValues copy(boolean mutable) {
@@ -70,11 +70,10 @@ public class CustomBlockDropValues extends ModelValues {
         if (other instanceof CustomBlockDropValues) {
 
             CustomBlockDropValues otherDrop = (CustomBlockDropValues) other;
-            return otherDrop.requiredItems.equals(this.requiredItems) &&
-                    otherDrop.silkTouch == this.silkTouch &&
+            return otherDrop.silkTouch == this.silkTouch &&
                     otherDrop.minFortuneLevel == this.minFortuneLevel &&
                     Objects.equals(otherDrop.maxFortuneLevel, this.maxFortuneLevel) &&
-                    otherDrop.itemsToDrop.equals(this.itemsToDrop);
+                    otherDrop.drop.equals(this.drop);
         } else {
             return false;
         }
@@ -83,35 +82,44 @@ public class CustomBlockDropValues extends ModelValues {
     private void load1(
             BitInput input, ItemSet itemSet
     ) throws UnknownEncodingException {
-        this.requiredItems = RequiredItemValues.load(input, itemSet, false);
+        RequiredItemValues requiredItems = RequiredItemValues.load(input, itemSet, false);
         this.silkTouch = SilkTouchRequirement.valueOf(input.readString());
         this.minFortuneLevel = 0;
         this.maxFortuneLevel = null;
-        this.itemsToDrop = OutputTableValues.load1(input, itemSet);
+        OutputTableValues itemsToDrop = OutputTableValues.load1(input, itemSet);
+        this.drop = DropValues.createQuick(itemsToDrop, false, requiredItems, new AllowedBiomesValues(false));
     }
 
     private void load2(
             BitInput input, ItemSet itemSet
     ) throws UnknownEncodingException {
-        this.requiredItems = RequiredItemValues.load(input, itemSet, false);
+        RequiredItemValues requiredItems = RequiredItemValues.load(input, itemSet, false);
         this.silkTouch = SilkTouchRequirement.valueOf(input.readString());
         this.minFortuneLevel = 0;
         this.maxFortuneLevel = null;
-        this.itemsToDrop = OutputTableValues.load(input, itemSet);
+        OutputTableValues itemsToDrop = OutputTableValues.load(input, itemSet);
+        this.drop = DropValues.createQuick(itemsToDrop, false, requiredItems, new AllowedBiomesValues(false));
     }
 
     private void loadNew(
             BitInput input, ItemSet itemSet
     ) throws UnknownEncodingException {
         byte encoding = input.readByte();
-        if (encoding != 1) throw new UnknownEncodingException("CustomBlockDrop", encoding);
+        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("CustomBlockDrop", encoding);
 
-        this.requiredItems = RequiredItemValues.load(input, itemSet, false);
+        RequiredItemValues requiredItems = null;
+        if (encoding == 1) requiredItems = RequiredItemValues.load(input, itemSet, false);
         this.silkTouch = SilkTouchRequirement.valueOf(input.readString());
         this.minFortuneLevel = input.readInt();
         if (input.readBoolean()) this.maxFortuneLevel = input.readInt();
         else this.maxFortuneLevel = null;
-        this.itemsToDrop = OutputTableValues.load(input, itemSet);
+
+        if (encoding == 1) {
+            OutputTableValues itemsToDrop = OutputTableValues.load(input, itemSet);
+            this.drop = DropValues.createQuick(itemsToDrop, false, requiredItems, new AllowedBiomesValues(false));
+        } else {
+            this.drop = DropValues.load(input, itemSet, false);
+        }
     }
 
     public void save(BitOutput output) {
@@ -120,18 +128,13 @@ public class CustomBlockDropValues extends ModelValues {
     }
 
     private void saveNew(BitOutput output) {
-        output.addByte((byte) 1);
+        output.addByte((byte) 2);
 
-        requiredItems.save(output);
         output.addString(silkTouch.name());
         output.addInt(minFortuneLevel);
         output.addBoolean(maxFortuneLevel != null);
         if (maxFortuneLevel != null) output.addInt(maxFortuneLevel);
-        itemsToDrop.save(output);
-    }
-
-    public RequiredItemValues getRequiredItems() {
-        return requiredItems;
+        drop.save(output);
     }
 
     public SilkTouchRequirement getSilkTouchRequirement() {
@@ -146,13 +149,8 @@ public class CustomBlockDropValues extends ModelValues {
         return maxFortuneLevel;
     }
 
-    public OutputTableValues getItemsToDrop() {
-        return itemsToDrop.copy(false);
-    }
-
-    public void setRequiredItems(RequiredItemValues newRequiredItems) {
-        assertMutable();
-        this.requiredItems = new RequiredItemValues(newRequiredItems, false);
+    public DropValues getDrop() {
+        return drop;
     }
 
     public void setSilkTouchRequirement(SilkTouchRequirement newRequirement) {
@@ -170,16 +168,12 @@ public class CustomBlockDropValues extends ModelValues {
         this.maxFortuneLevel = maxFortuneLevel;
     }
 
-    public void setItemsToDrop(OutputTableValues newItemsToDrop) {
+    public void setDrop(DropValues drop) {
         assertMutable();
-        this.itemsToDrop = newItemsToDrop.copy(false);
+        this.drop = drop.copy(false);
     }
 
     public void validateIndependent() throws ValidationException, ProgrammingValidationException {
-        if (requiredItems == null)
-            throw new ProgrammingValidationException("requiredItems is null");
-        requiredItems.validateIndependent();
-
         if (silkTouch == null)
             throw new ProgrammingValidationException("silkTouch is null");
 
@@ -188,8 +182,7 @@ public class CustomBlockDropValues extends ModelValues {
             throw new ValidationException("Maximum fortune level can't be smaller than minimum fortune level");
         }
 
-        if (itemsToDrop == null)
-            throw new ProgrammingValidationException("itemsToDrop is null");
+        if (drop == null) throw new ProgrammingValidationException("itemsToDrop is null");
     }
 
     public void validateComplete(
@@ -197,11 +190,10 @@ public class CustomBlockDropValues extends ModelValues {
     ) throws ValidationException, ProgrammingValidationException {
         validateIndependent();
 
-        requiredItems.validateComplete(itemSet);
-        itemsToDrop.validate(itemSet);
+        Validation.scope("Drop", drop::validate, itemSet);
     }
 
     public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
-        itemsToDrop.validateExportVersion(version);
+        drop.validateExportVersion(version);
     }
 }

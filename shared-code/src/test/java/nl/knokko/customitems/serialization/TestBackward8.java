@@ -1,5 +1,6 @@
 package nl.knokko.customitems.serialization;
 
+import nl.knokko.customitems.block.drop.RequiredItemValues;
 import nl.knokko.customitems.block.drop.SilkTouchRequirement;
 import nl.knokko.customitems.container.ContainerRecipeValues;
 import nl.knokko.customitems.container.CustomContainerValues;
@@ -200,9 +201,9 @@ public class TestBackward8 {
         DropValues drop = blockDrop.getDrop();
 
         assertFalse(drop.shouldCancelNormalDrops());
-        assertEquals(listOf(
-                set.getItemReference("pickaxe1"), set.getItemReference("pickaxe_two")
-        ), drop.getRequiredHeldItems());
+        RequiredItemValues expectedRequiredItems = new RequiredItemValues(true);
+        expectedRequiredItems.setCustomItems(listOf(set.getItemReference("pickaxe1"), set.getItemReference("pickaxe_two")));
+        assertEquals(expectedRequiredItems, drop.getRequiredHeldItems());
 
         OutputTableValues dropTable = drop.getOutputTable();
         assertEquals(Chance.percentage(35), dropTable.getNothingChance());
@@ -226,7 +227,7 @@ public class TestBackward8 {
     }
 
     static void testDefaultDrop8(DropValues drop) {
-        assertEquals(0, drop.getRequiredHeldItems().size());
+        assertEquals(new RequiredItemValues(false), drop.getRequiredHeldItems());
         testDefaultDrop10(drop);
     }
 

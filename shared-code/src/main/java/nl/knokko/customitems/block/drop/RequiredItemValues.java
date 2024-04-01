@@ -1,5 +1,6 @@
 package nl.knokko.customitems.block.drop;
 
+import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.ItemSet;
@@ -10,6 +11,7 @@ import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
+import nl.knokko.customitems.util.ValidationException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -54,6 +56,30 @@ public class RequiredItemValues extends ModelValues {
         this.vanillaItems = toCopy.getVanillaItems();
         this.customItems = toCopy.getCustomItems();
         this.invert = toCopy.isInverted();
+    }
+
+    @Override
+    public String toString() {
+        if (!enabled) return "any";
+
+        StringBuilder result = new StringBuilder();
+        if (invert) result.append("not");
+
+        result.append('(');
+        int counter = 0;
+        for (VanillaEntry entry : vanillaItems) {
+            result.append(entry.material);
+            if (++counter != vanillaItems.size()) result.append(',');
+        }
+        result.append('|');
+        counter = 0;
+        for (ItemReference item : customItems) {
+            result.append(item.get().getName());
+            if (++counter != customItems.size()) result.append(',');
+        }
+
+        result.append(')');
+        return result.toString();
     }
 
     @Override
@@ -181,6 +207,17 @@ public class RequiredItemValues extends ModelValues {
         for (ItemReference ownItem : this.customItems) {
             if (!itemSet.isReferenceValid(ownItem)) {
                 throw new ProgrammingValidationException("A custom item is not (or no longer) valid");
+            }
+        }
+    }
+
+    public void validateExportVersion(int mcVersion) throws ValidationException {
+        for (VanillaEntry entry : vanillaItems) {
+            if (entry.material.firstVersion > mcVersion) {
+                throw new ValidationException(entry.material + " doesn't exist yet in mc " + MCVersions.createString(mcVersion));
+            }
+            if (entry.material.lastVersion < mcVersion) {
+                throw new ValidationException(entry.material + " no longer exists in mc " + MCVersions.createString(mcVersion));
             }
         }
     }

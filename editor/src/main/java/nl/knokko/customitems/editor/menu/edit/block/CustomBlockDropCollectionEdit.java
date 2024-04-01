@@ -66,7 +66,7 @@ public class CustomBlockDropCollectionEdit extends SelfDedicatedCollectionEdit<C
          */
         int rawBestDropChance = 0;
         CustomItemValues bestDropItem = null;
-        for (OutputTableValues.Entry dropEntry : drop.getItemsToDrop().getEntries()) {
+        for (OutputTableValues.Entry dropEntry : drop.getDrop().getOutputTable().getEntries()) {
             ResultValues droppedItem = dropEntry.getResult();
             if (dropEntry.getChance().getRawValue() > rawBestDropChance && droppedItem instanceof CustomItemResultValues) {
                 CustomItemResultValues droppedCustomItem = (CustomItemResultValues) droppedItem;
@@ -78,7 +78,7 @@ public class CustomBlockDropCollectionEdit extends SelfDedicatedCollectionEdit<C
             return bestDropItem.getTexture().getImage();
         }
 
-        for (ItemReference requiredItem : drop.getRequiredItems().getCustomItems()) {
+        for (ItemReference requiredItem : drop.getDrop().getRequiredHeldItems().getCustomItems()) {
             return requiredItem.get().getTexture().getImage();
         }
 
@@ -96,7 +96,7 @@ public class CustomBlockDropCollectionEdit extends SelfDedicatedCollectionEdit<C
 
         Object likelyResult = null;
         int rawBestChance = 0;
-        for (OutputTableValues.Entry entry : drop.getItemsToDrop().getEntries()) {
+        for (OutputTableValues.Entry entry : drop.getDrop().getOutputTable().getEntries()) {
             if (entry.getChance().getRawValue() > rawBestChance) {
                 likelyResult = entry.getResult();
                 rawBestChance = entry.getChance().getRawValue();
@@ -105,7 +105,7 @@ public class CustomBlockDropCollectionEdit extends SelfDedicatedCollectionEdit<C
         if (likelyResult != null) {
             result.append(new Chance(rawBestChance)).append(" ").append(likelyResult);
         }
-        if (drop.getItemsToDrop().getEntries().size() > 1) {
+        if (drop.getDrop().getOutputTable().getEntries().size() > 1) {
             result.append(", ...");
         }
 

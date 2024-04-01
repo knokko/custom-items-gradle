@@ -89,10 +89,10 @@ public class TestBackward9 {
         CustomBlockDropValues drop = block1.getDrops().iterator().next();
         assertEquals(OutputTableValues.createQuick(listOf(
                 OutputTableValues.Entry.createQuick(SimpleVanillaResultValues.createQuick(CIMaterial.COBBLESTONE, 2), 50)
-        )), drop.getItemsToDrop());
+        )), drop.getDrop().getOutputTable());
         assertEquals(SilkTouchRequirement.FORBIDDEN, drop.getSilkTouchRequirement());
 
-        RequiredItemValues requiredItems = drop.getRequiredItems();
+        RequiredItemValues requiredItems = drop.getDrop().getRequiredHeldItems();
         assertTrue(requiredItems.isEnabled());
         assertFalse(requiredItems.isInverted());
         assertEquals(listOf(
