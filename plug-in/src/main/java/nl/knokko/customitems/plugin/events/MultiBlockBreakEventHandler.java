@@ -71,7 +71,7 @@ public class MultiBlockBreakEventHandler implements Listener {
             if (blockDrop.getMaxFortuneLevel() != null && fortuneLevel > blockDrop.getMaxFortuneLevel()) continue;
 
             DropValues drop = blockDrop.getDrop();
-            if (collectDrops(stacksToDrop, drop, event.getBlock().getLocation(), random, itemSet, custom)) {
+            if (collectDrops(stacksToDrop, drop, event.getBlock().getLocation(), random, itemSet, mainItem)) {
                 cancelDefaultDrops = true;
             }
         }

@@ -111,7 +111,7 @@ class WikiBlockGenerator {
             }
 
             Collection<CustomBlockDropValues> drops = block.getDrops().stream().filter(
-                    drop -> drop.getItemsToDrop().getEntries().stream().anyMatch(
+                    drop -> drop.getDrop().getOutputTable().getEntries().stream().anyMatch(
                             entry -> !WikiProtector.isResultSecret(entry.getResult())
                     )
             ).collect(Collectors.toList());
@@ -125,7 +125,7 @@ class WikiBlockGenerator {
                     output.println("\t\t\t\tThe following items will be dropped:");
                     output.println("\t\t\t\t<ul class=\"custom-block-drop-items\">");
                     generateOutputTable(output, "\t\t\t\t\t<li class=\"custom-block-drop-item\">", "</li>",
-                            drop.getItemsToDrop(), itemSet);
+                            drop.getDrop().getOutputTable(), itemSet);
                     output.println("\t\t\t\t</ul>");
                     output.println("\t\t\t</li>");
                 }
