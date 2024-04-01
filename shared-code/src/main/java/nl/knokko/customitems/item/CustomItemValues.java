@@ -325,6 +325,7 @@ public abstract class CustomItemValues extends ModelValues {
         for (int counter = 0; counter < numItemFlags; counter++) {
             this.itemFlags.add(input.readBoolean());
         }
+        while (itemFlags.size() < ItemFlag.values().length) itemFlags.add(false);
 
         this.loadVanillaBasedPowers4(input);
         this.playerEffects = this.loadChanceEffects(input);
@@ -470,6 +471,7 @@ public abstract class CustomItemValues extends ModelValues {
         for (int counter = 0; counter < numItemFlags; counter++) {
             this.itemFlags.add(input.readBoolean());
         }
+        while (itemFlags.size() < ItemFlag.values().length) itemFlags.add(false);
     }
 
     protected void loadVanillaBasedPowers2(BitInput input) {
@@ -1136,7 +1138,7 @@ public abstract class CustomItemValues extends ModelValues {
         }
 
         if (itemFlags == null) throw new ProgrammingValidationException("No item flags");
-        if (itemFlags.size() != 6) throw new ProgrammingValidationException("Number of item flags is not 6");
+        if (itemFlags.size() != 8) throw new ProgrammingValidationException("Number of item flags is not 6");
 
         if (attributeModifiers == null) throw new ProgrammingValidationException("No attribute modifiers");
         if (attributeModifiers.size() > Byte.MAX_VALUE) throw new ValidationException("Too many attribute modifiers");
@@ -1308,6 +1310,15 @@ public abstract class CustomItemValues extends ModelValues {
 
         for (AttackEffectGroupValues attackEffectGroup : attackEffects) {
             Validation.scope("Attack effects", () -> attackEffectGroup.validateExportVersion(version));
+        }
+
+        for (int index = 0; index < itemFlags.size(); index++) {
+            if (itemFlags.get(index)) {
+                ItemFlag flag = ItemFlag.values()[index];
+                if (version < flag.firstVersion || version > flag.lastVersion) {
+                    throw new ValidationException("Flag " + flag + " doesn't exist in MC " + MCVersions.createString(version));
+                }
+            }
         }
     }
 }

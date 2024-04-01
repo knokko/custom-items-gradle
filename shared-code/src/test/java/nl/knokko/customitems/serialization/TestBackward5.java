@@ -57,7 +57,7 @@ public class TestBackward5 {
         ), item.getAttributeModifiers());
         assertEquals(0, item.getDefaultEnchantments().size());
         assertEquals(listOf(
-                false, false, true, false, true, true
+                false, false, true, false, true, true, false, false
         ), item.getItemFlags());
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
@@ -83,7 +83,7 @@ public class TestBackward5 {
                 EnchantmentValues.createQuick(EnchantmentType.SILK_TOUCH, 1)
         ), item.getDefaultEnchantments());
         assertEquals(listOf(
-                false, false, true, false, false, false
+                false, false, true, false, false, false, false, false
         ), item.getItemFlags());
         assertFalse(item.allowEnchanting());
         assertFalse(item.allowAnvilActions());
@@ -107,7 +107,7 @@ public class TestBackward5 {
         assertEquals(0, item.getAttributeModifiers().size());
         assertEquals(0, item.getDefaultEnchantments().size());
         assertEquals(listOf(
-                false, false, true, false, false, false
+                false, false, true, false, false, false, false, false
         ), item.getItemFlags());
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("bow_one", item.getTexture().getName());
@@ -144,7 +144,7 @@ public class TestBackward5 {
         ), item.getAttributeModifiers());
         assertEquals(0, item.getDefaultEnchantments().size());
         assertEquals(listOf(
-                false, false, true, false, false, false
+                false, false, true, false, false, false, false, false
         ), item.getItemFlags());
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
@@ -169,7 +169,7 @@ public class TestBackward5 {
 
     static void testBaseDefault5(CustomItemValues item) {
         assertEquals(listOf(
-               false, false, true, false, false, false
+               false, false, true, false, false, false, false, false
         ), item.getItemFlags());
         TestBackward6.testBaseDefault6(item);
     }
