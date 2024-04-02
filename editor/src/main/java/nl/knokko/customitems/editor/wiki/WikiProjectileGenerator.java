@@ -39,6 +39,10 @@ class WikiProjectileGenerator {
             output.println("\t\tGravity: " + projectile.getGravity() + " meters per tick per tick<br>");
             output.println("\t\tLaunch knockback: " + projectile.getLaunchKnockback() + " meters per tick<br>");
             output.println("\t\tImpact knockback: " + projectile.getImpactKnockback() + " meters per tick<br>");
+            if (projectile.getMaxPiercedEntities() == 1) output.println("\t\tCan pierce through 1 entity<br>");
+            if (projectile.getMaxPiercedEntities() > 1) {
+                output.println("\t\tCan pierce through " + projectile.getMaxPiercedEntities() + " entities<br>");
+            }
             if (projectile.getCustomDamageSourceReference() != null) {
                 output.println("\t\tDeals "
                         + WikiDamageSourceGenerator.createLink(projectile.getCustomDamageSourceReference(), "../")
@@ -57,6 +61,12 @@ class WikiProjectileGenerator {
                     generateProjectileEffect(output, "\t\t\t", effect);
                 }
                 output.println("\t\t</ul>");
+                if (projectile.shouldApplyImpactEffectsAtExpiration()) {
+                    output.println("\t\tThese impact effects are also activated when the projectile expires<br>");
+                }
+                if (projectile.getMaxPiercedEntities() > 0 && projectile.shouldApplyImpactEffectsAtPierce()) {
+                    output.println("\t\tThese impact effects are also activated when the projectile pierces an entity<br>");
+                }
             }
 
             if (!projectile.getInFlightEffects().isEmpty()) {

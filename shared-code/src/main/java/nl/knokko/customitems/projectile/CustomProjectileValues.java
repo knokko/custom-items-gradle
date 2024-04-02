@@ -59,8 +59,10 @@ public class CustomProjectileValues extends ModelValues {
 
     private Collection<PotionEffectValues> impactPotionEffects;
     private int maxLifetime;
+    private int maxPiercedEntities;
     private Collection<ProjectileEffectsValues> inFlightEffects;
     private Collection<ProjectileEffectValues> impactEffects;
+    private boolean applyImpactEffectsAtExpiration, applyImpactEffectsAtPierce;
     private CustomDamageSourceReference customDamageSource;
 
     private ProjectileCoverReference cover;
@@ -78,8 +80,11 @@ public class CustomProjectileValues extends ModelValues {
         this.impactKnockback = 0f;
         this.impactPotionEffects = new ArrayList<>(0);
         this.maxLifetime = 200;
+        this.maxPiercedEntities = 0;
         this.inFlightEffects = new ArrayList<>();
         this.impactEffects = new ArrayList<>();
+        this.applyImpactEffectsAtExpiration = false;
+        this.applyImpactEffectsAtPierce = true;
         this.customDamageSource = null;
     }
 
@@ -96,8 +101,11 @@ public class CustomProjectileValues extends ModelValues {
         this.impactKnockback = toCopy.getImpactKnockback();
         this.impactPotionEffects = toCopy.getImpactPotionEffects();
         this.maxLifetime = toCopy.getMaxLifetime();
+        this.maxPiercedEntities = toCopy.getMaxPiercedEntities();
         this.inFlightEffects = toCopy.getInFlightEffects();
         this.impactEffects = toCopy.getImpactEffects();
+        this.applyImpactEffectsAtExpiration = toCopy.shouldApplyImpactEffectsAtExpiration();
+        this.applyImpactEffectsAtPierce = toCopy.shouldApplyImpactEffectsAtPierce();
         this.cover = toCopy.getCoverReference();
         this.customDamageSource = toCopy.getCustomDamageSourceReference();
     }
@@ -164,7 +172,7 @@ public class CustomProjectileValues extends ModelValues {
 
     private void loadNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
-        if (encoding != 1) throw new UnknownEncodingException("CustomProjectileNew", encoding);
+        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("CustomProjectileNew", encoding);
 
         this.name = input.readString();
         this.damage = input.readFloat();
@@ -194,6 +202,16 @@ public class CustomProjectileValues extends ModelValues {
         if (input.readBoolean()) {
             this.customDamageSource = itemSet.getDamageSourceReference(new UUID(input.readLong(), input.readLong()));
         } else this.customDamageSource = null;
+
+        if (encoding > 1) {
+            this.maxPiercedEntities = input.readInt();
+            this.applyImpactEffectsAtExpiration = input.readBoolean();
+            this.applyImpactEffectsAtPierce = input.readBoolean();
+        } else {
+            this.maxPiercedEntities = 0;
+            this.applyImpactEffectsAtExpiration = false;
+            this.applyImpactEffectsAtPierce = true;
+        }
     }
 
     private void initDefaults1() {
@@ -209,7 +227,7 @@ public class CustomProjectileValues extends ModelValues {
 
     public void save(BitOutput output) {
         output.addByte(ENCODING_NEW);
-        output.addByte((byte) 1);
+        output.addByte((byte) 2);
         output.addString(name);
         output.addFloats(damage, minLaunchAngle, maxLaunchAngle, minLaunchSpeed, maxLaunchSpeed, gravity, launchKnockback, impactKnockback);
 
@@ -234,6 +252,9 @@ public class CustomProjectileValues extends ModelValues {
             output.addLong(customDamageSource.get().getId().getMostSignificantBits());
             output.addLong(customDamageSource.get().getId().getLeastSignificantBits());
         }
+        output.addInt(maxPiercedEntities);
+        output.addBoolean(applyImpactEffectsAtExpiration);
+        output.addBoolean(applyImpactEffectsAtPierce);
     }
 
     @Override
@@ -252,6 +273,9 @@ public class CustomProjectileValues extends ModelValues {
                     && this.maxLifetime == otherProjectile.maxLifetime
                     && this.inFlightEffects.equals(otherProjectile.inFlightEffects)
                     && this.impactEffects.equals(otherProjectile.impactEffects)
+                    && this.applyImpactEffectsAtExpiration == otherProjectile.applyImpactEffectsAtExpiration
+                    && this.applyImpactEffectsAtPierce == otherProjectile.applyImpactEffectsAtPierce
+                    && this.maxPiercedEntities == otherProjectile.maxPiercedEntities
                     && Objects.equals(this.customDamageSource, otherProjectile.customDamageSource);
         } else {
             return false;
@@ -307,12 +331,24 @@ public class CustomProjectileValues extends ModelValues {
         return maxLifetime;
     }
 
+    public int getMaxPiercedEntities() {
+        return maxPiercedEntities;
+    }
+
     public Collection<ProjectileEffectsValues> getInFlightEffects() {
         return new ArrayList<>(inFlightEffects);
     }
 
     public Collection<ProjectileEffectValues> getImpactEffects() {
         return new ArrayList<>(impactEffects);
+    }
+
+    public boolean shouldApplyImpactEffectsAtExpiration() {
+        return applyImpactEffectsAtExpiration;
+    }
+
+    public boolean shouldApplyImpactEffectsAtPierce() {
+        return applyImpactEffectsAtPierce;
     }
 
     public ProjectileCoverReference getCoverReference() {
@@ -384,6 +420,11 @@ public class CustomProjectileValues extends ModelValues {
         this.maxLifetime = newLifetime;
     }
 
+    public void setMaxPiercedEntities(int maxPiercedEntities) {
+        assertMutable();
+        this.maxPiercedEntities = maxPiercedEntities;
+    }
+
     public void setInFlightEffects(Collection<ProjectileEffectsValues> newFlightEffects) {
         assertMutable();
         Checks.nonNull(newFlightEffects);
@@ -394,6 +435,16 @@ public class CustomProjectileValues extends ModelValues {
         assertMutable();
         Checks.nonNull(newImpactEffects);
         this.impactEffects = Mutability.createDeepCopy(newImpactEffects, false);
+    }
+
+    public void setApplyImpactEffectsAtExpiration(boolean apply) {
+        assertMutable();
+        this.applyImpactEffectsAtExpiration = apply;
+    }
+
+    public void setApplyImpactEffectsAtPierce(boolean applyImpactEffectsAtPierce) {
+        assertMutable();
+        this.applyImpactEffectsAtPierce = applyImpactEffectsAtPierce;
     }
 
     public void setCover(ProjectileCoverReference newCover) {
@@ -437,6 +488,7 @@ public class CustomProjectileValues extends ModelValues {
         }
 
         if (maxLifetime <= 0) throw new ValidationException("Maximum lifetime must be positive");
+        if (maxPiercedEntities < 0) throw new ValidationException("Maximum pierced entities can't be negative");
 
         if (inFlightEffects == null) throw new ProgrammingValidationException("No in-flight effects");
         if (inFlightEffects.size() > Byte.MAX_VALUE) throw new ValidationException("Too many in-flight effects");
