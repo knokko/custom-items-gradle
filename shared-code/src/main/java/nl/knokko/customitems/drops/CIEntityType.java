@@ -91,11 +91,11 @@ public enum CIEntityType {
 	TADPOLE(VERSION1_19, VERSION1_20),
 	WARDEN(VERSION1_19, VERSION1_20),
 	CAMEL(VERSION1_20, VERSION1_20),
-	SNIFFER(VERSION1_20, VERSION1_20);
+	SNIFFER(VERSION1_20, VERSION1_20),
+	BREEZE(VERSION1_20, VERSION1_20),
+	WIND_CHARGE(VERSION1_20, VERSION1_20);
 
 	private static final CIEntityType[] ALL_TYPES = values();
-	
-	public static final int AMOUNT = ALL_TYPES.length;
 	
 	public static CIEntityType getByOrdinal(int ordinal) {
 		return ALL_TYPES[ordinal];
