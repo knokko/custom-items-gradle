@@ -4,6 +4,7 @@ import de.tr7zw.changeme.nbtapi.NBT;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.nms.RaytraceResult;
 import nl.knokko.customitems.plugin.set.item.CustomItemWrapper;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
@@ -25,7 +26,7 @@ public class UpdateProjectileTask implements Runnable {
 	
 	private Item coverItem;
 
-	public UpdateProjectileTask(FlyingProjectile projectile) {
+	UpdateProjectileTask(FlyingProjectile projectile) {
 		this.projectile = projectile;
 	}
 
@@ -43,8 +44,60 @@ public class UpdateProjectileTask implements Runnable {
 					projectile.currentVelocity, projectile.directShooter == null
 							|| currentTick - projectile.launchTick > 20 ? null : projectile.directShooter);
 
-			if (ray == null) {
+			if (ray != null && ray.getHitEntity() != null) {
+				if (projectile.piercedEntities.contains(ray.getHitEntity().getUniqueId())) ray = null;
+			}
 
+			boolean pierce = false;
+			if (ray != null) {
+				if (projectile.remainingEntitiesToPierce > 0 && ray.getHitEntity() != null) {
+					pierce = true;
+					projectile.remainingEntitiesToPierce -= 1;
+					projectile.piercedEntities.add(ray.getHitEntity().getUniqueId());
+				}
+
+				if (!pierce) {
+					// Move the projectile to the precise impact location before applying its effects
+					projectile.currentPosition.multiply(0).add(ray.getImpactLocation().toVector());
+				}
+
+				if (!pierce || projectile.prototype.shouldApplyImpactEffectsAtPierce()) {
+					projectile.applyEffects(projectile.prototype.getImpactEffects());
+					if (ray.getHitEntity() instanceof LivingEntity) {
+						LivingEntity living = (LivingEntity) ray.getHitEntity();
+						projectile.prototype.getImpactPotionEffects().forEach(
+								effect -> living.addPotionEffect(new PotionEffect(
+										PotionEffectType.getByName(effect.getType().name()),
+										effect.getDuration(),
+										effect.getLevel() - 1
+								))
+						);
+					}
+				}
+
+				// If we hit an entity, damage it
+				if (ray.getHitEntity() != null && projectile.prototype.getDamage() > 0) {
+					ray.getHitEntity().setMetadata("HitByCustomProjectile", new FixedMetadataValue(
+							CustomItemsPlugin.getInstance(), projectile.prototype.getName()
+					));
+					KciNms.instance.entities.causeFakeProjectileDamage(ray.getHitEntity(),
+							projectile.responsibleShooter, projectile.prototype.getDamage(),
+							projectile.currentPosition.getX(), projectile.currentPosition.getY(),
+							projectile.currentPosition.getZ(),
+							projectile.currentVelocity.getX(), projectile.currentVelocity.getY(),
+							projectile.currentVelocity.getZ());
+					ray.getHitEntity().removeMetadata("HitByCustomProjectile", CustomItemsPlugin.getInstance());
+				}
+
+				if (ray.getHitEntity() != null && projectile.currentVelocity.lengthSquared() > 0.0001) {
+					Vector direction = projectile.currentVelocity.clone().normalize();
+					ray.getHitEntity().setVelocity(ray.getHitEntity().getVelocity().add(direction.multiply(projectile.prototype.getImpactKnockback())));
+				}
+
+				if (!pierce) projectile.destroy();
+			}
+
+			if (ray == null || pierce) {
 				projectile.currentVelocity.setY(projectile.currentVelocity.getY() - projectile.prototype.getGravity());
 
 				if (coverItem != null) {
@@ -60,47 +113,8 @@ public class UpdateProjectileTask implements Runnable {
 				}
 
 				projectile.currentPosition.add(projectile.currentVelocity);
-			} else {
-
-				// Move the projectile to the precise impact location before applying its effects
-				projectile.currentPosition.multiply(0).add(ray.getImpactLocation().toVector());
-				projectile.applyEffects(projectile.prototype.getImpactEffects());
-
-				// If we hit an entity, damage it
-
-				if (ray.getHitEntity() != null && projectile.prototype.getDamage() > 0) {
-					ray.getHitEntity().setMetadata("HitByCustomProjectile", new FixedMetadataValue(
-							CustomItemsPlugin.getInstance(), projectile.prototype.getName()
-					));
-					KciNms.instance.entities.causeFakeProjectileDamage(ray.getHitEntity(),
-							projectile.responsibleShooter, projectile.prototype.getDamage(),
-							projectile.currentPosition.getX(), projectile.currentPosition.getY(),
-							projectile.currentPosition.getZ(),
-							projectile.currentVelocity.getX(), projectile.currentVelocity.getY(),
-							projectile.currentVelocity.getZ());
-					ray.getHitEntity().removeMetadata("HitByCustomProjectile", CustomItemsPlugin.getInstance());
-				}
-
-				if (ray.getHitEntity() != null && projectile.currentVelocity.lengthSquared() > 0.0001) {
-					Vector direction = projectile.currentVelocity.normalize();
-					ray.getHitEntity().setVelocity(ray.getHitEntity().getVelocity().add(direction.multiply(projectile.prototype.getImpactKnockback())));
-				}
-
-				if (ray.getHitEntity() instanceof LivingEntity) {
-					LivingEntity living = (LivingEntity) ray.getHitEntity();
-					projectile.prototype.getImpactPotionEffects().forEach(
-							effect -> living.addPotionEffect(new PotionEffect(
-									PotionEffectType.getByName(effect.getType().name()),
-									effect.getDuration(),
-									effect.getLevel() - 1
-							))
-					);
-				}
-
-				projectile.destroy();
 			}
 		}
-
 	}
 	
 	void fixItemMotion() {
@@ -112,6 +126,9 @@ public class UpdateProjectileTask implements Runnable {
 	void onDestroy() {
 		if (coverItem != null) {
 			coverItem.remove();
+		}
+		if (projectile.prototype.shouldApplyImpactEffectsAtExpiration()) {
+			projectile.applyEffects(projectile.prototype.getImpactEffects());
 		}
 	}
 

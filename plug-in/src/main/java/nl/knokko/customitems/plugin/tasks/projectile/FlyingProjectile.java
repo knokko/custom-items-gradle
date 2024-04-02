@@ -2,8 +2,7 @@ package nl.knokko.customitems.plugin.tasks.projectile;
 
 import static java.lang.Math.*;
 
-import java.util.Collection;
-import java.util.Random;
+import java.util.*;
 
 import nl.knokko.customitems.plugin.util.SoundPlayer;
 import nl.knokko.customitems.plugin.util.ParticleHelper;
@@ -54,7 +53,10 @@ class FlyingProjectile {
 	final int supposedLifetime;
 	
 	int[] taskIDs;
-	
+	int remainingEntitiesToPierce;
+
+	final Set<UUID> piercedEntities = new HashSet<>();
+
 	boolean destroyed;
 	
 	private UpdateProjectileTask updateTask;
@@ -70,6 +72,7 @@ class FlyingProjectile {
 		this.launchTick = CustomItemsPlugin.getInstance().getData().getCurrentTick();
 		this.supposedLifetime = remainingLifetime;
 		this.destroyed = false;
+		this.remainingEntitiesToPierce = prototype.getMaxPiercedEntities();
 		startTasks();
 	}
 

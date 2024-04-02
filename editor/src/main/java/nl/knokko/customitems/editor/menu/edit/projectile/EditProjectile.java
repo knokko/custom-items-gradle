@@ -12,6 +12,7 @@ import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ProjectileReference;
 import nl.knokko.customitems.projectile.CustomProjectileValues;
 import nl.knokko.gui.color.GuiColor;
+import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.*;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
@@ -119,7 +120,13 @@ public class EditProjectile extends GuiMenu {
 				new EagerFloatEditField(currentValues.getGravity(), -Float.MAX_VALUE, EDIT_BASE, EDIT_ACTIVE, currentValues::setGravity),
 				BUTTON_X, 0.24f, BUTTON_X + 0.1f, 0.31f
 		);
-		
+		addComponent(new DynamicTextComponent(
+				"Maximum number of entities to pierce:", LABEL
+		), LABEL_X - 0.4f, 0.17f, LABEL_X, 0.23f);
+		addComponent(new EagerIntEditField(
+				currentValues.getMaxPiercedEntities(), 0, EDIT_BASE, EDIT_ACTIVE, currentValues::setMaxPiercedEntities
+		), BUTTON_X, 0.17f, BUTTON_X + 0.05f, 0.23f);
+
 		// Second column of the form
 		addComponent(
 				new DynamicTextComponent("In flight effects:", LABEL),
@@ -181,6 +188,18 @@ public class EditProjectile extends GuiMenu {
 				menu.getSet().getDamageSources().references(), currentValues::setCustomDamageSource,
 				damageSource -> damageSource.get().getName(), currentValues.getCustomDamageSourceReference(), true
 		), BUTTON_X2, 0.24f, BUTTON_X2 + 0.1f, 0.32f);
+		addComponent(new DynamicTextComponent(
+				"Activate impact effects when lifetime runs out", LABEL
+		), LABEL_X2 - 0.4f, 0.17f, BUTTON_X2, 0.23f);
+		addComponent(new CheckboxComponent(
+				currentValues.shouldApplyImpactEffectsAtExpiration(), currentValues::setApplyImpactEffectsAtExpiration
+		), BUTTON_X2 + 0.005f, 0.18f, BUTTON_X2 + 0.02f, 0.2f);
+		addComponent(new DynamicTextComponent(
+				"Activate impact effects while piercing", LABEL
+		), LABEL_X2 - 0.35f, 0.1f, BUTTON_X2, 0.16f);
+		addComponent(new CheckboxComponent(
+				currentValues.shouldApplyImpactEffectsAtPierce(), currentValues::setApplyImpactEffectsAtPierce
+		), BUTTON_X2 + 0.005f, 0.11f, BUTTON_X2 + 0.02f, 0.13f);
 
 		// The Create/Apply button
 		addComponent(new DynamicTextButton(toModify == null ? "Create" : "Apply", SAVE_BASE, SAVE_HOVER, () -> {
@@ -193,9 +212,9 @@ public class EditProjectile extends GuiMenu {
 			} else {
 				errorComponent.setText(error);
 			}
-		}), 0.025f, 0.1f, 0.2f, 0.2f);
+		}), 0.025f, 0.01f, 0.2f, 0.11f);
 
-		HelpButtons.addHelpLink(this, "edit%20menu/projectiles/edit.html");
+		HelpButtons.addHelpLink(this, "edit menu/projectiles/edit.html");
 	}
 	
 	@Override
