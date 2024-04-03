@@ -5,9 +5,12 @@ import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.sound.EditSound;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.AttributeModifierValues;
+import nl.knokko.customitems.item.CIFoodType;
 import nl.knokko.customitems.item.CustomFoodValues;
 import nl.knokko.customitems.item.CustomItemType;
 import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.gui.component.GuiComponent;
+import nl.knokko.gui.component.WrapperComponent;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
@@ -29,6 +32,21 @@ public class EditItemFood extends EditItemBase<CustomFoodValues> {
         super(menu, oldValues, toModify);
     }
 
+    private void addConditional(GuiComponent component, float minX, float minY, float maxX, float maxY) {
+        addComponent(new WrapperComponent<GuiComponent>(component) {
+            @Override
+            public boolean isActive() {
+                if (currentValues.getItemType() != CustomItemType.OTHER) return true;
+
+                for (CIFoodType food : CIFoodType.values()) {
+                    if (food.name().equals(currentValues.getOtherMaterial().name())) return false;
+                }
+
+                return true;
+            }
+        }, minX, minY, maxX, maxY);
+    }
+
     @Override
     protected void addComponents() {
         super.addComponents();
@@ -45,24 +63,26 @@ public class EditItemFood extends EditItemBase<CustomFoodValues> {
                     currentValues.getEatEffects(), currentValues::setEatEffects, EditItemFood.this
             ));
         }), 0.9f, 0.66f, 0.99f, 0.74f);
-        addComponent(new DynamicTextComponent("Eat time:", LABEL),
+
+        addConditional(new DynamicTextComponent("Eat time:", LABEL),
                 0.77f, 0.56f, 0.895f, 0.64f);
-        addComponent(
+        addConditional(
                 new EagerIntEditField(currentValues.getEatTime(), 1, EDIT_BASE, EDIT_ACTIVE, currentValues::setEatTime),
                 0.9f, 0.56f, 0.975f, 0.64f
         );
-        addComponent(new DynamicTextButton("Eat sound...", BUTTON, HOVER, () -> {
+        addConditional(new DynamicTextButton("Eat sound...", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new EditSound(
                     currentValues.getEatSound(), currentValues::setEatSound, this, menu.getSet()
             ));
         }), 0.825f, 0.46f, 0.975f, 0.54f);
 
-        addComponent(new DynamicTextComponent("Sound period:", LABEL),
+        addConditional(new DynamicTextComponent("Sound period:", LABEL),
                 0.71f, 0.36f, 0.895f, 0.44f);
-        addComponent(
+        addConditional(
                 new EagerIntEditField(currentValues.getSoundPeriod(), 1, EDIT_BASE, EDIT_ACTIVE, currentValues::setSoundPeriod),
                 0.9f, 0.36f, 0.975f, 0.44f
         );
+
         addComponent(new DynamicTextComponent("Max stacksize:", LABEL),
                 0.71f, 0.26f, 0.895f, 0.34f);
         addComponent(

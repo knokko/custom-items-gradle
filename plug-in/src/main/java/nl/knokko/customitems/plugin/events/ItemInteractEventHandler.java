@@ -6,15 +6,22 @@ import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.data.PluginData;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.item.CustomToolWrapper;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+
+import java.util.Objects;
 
 import static nl.knokko.customitems.plugin.events.ReplacementEventHandler.checkBrokenCondition;
 import static nl.knokko.customitems.plugin.set.item.CustomItemWrapper.wrap;
@@ -168,11 +175,30 @@ public class ItemInteractEventHandler implements Listener {
         }
     }
 
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void finishEating(PlayerItemConsumeEvent event) {
+        ItemStack eatenStack = event.getItem();
+        CustomItemValues eatenItem = itemSet.getItem(eatenStack);
+        if (eatenItem instanceof CustomFoodValues) {
+            event.setCancelled(true);
+
+            PlayerInventory inv = event.getPlayer().getInventory();
+            boolean isMainHand = eatenStack.equals(inv.getItemInMainHand());
+            if (isMainHand || eatenStack.equals(inv.getItemInOffHand())) {
+                PluginData.consumeCustomFood(
+                        event.getPlayer(), eatenStack, (CustomFoodValues) eatenItem,
+                        isMainHand ? inv::setItemInMainHand : inv::setItemInOffHand
+                );
+            }
+        }
+    }
+
     @EventHandler
     public void startEating(PlayerInteractEvent event) {
         if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            CustomItemValues usedItem = itemSet.getItem(event.getItem());
-            if (usedItem instanceof CustomFoodValues) {
+            ItemStack usedStack = event.getItem();
+            CustomItemValues usedItem = itemSet.getItem(usedStack);
+            if (usedItem instanceof CustomFoodValues && !Objects.requireNonNull(usedStack).getType().isEdible()) {
                 CustomItemsPlugin.getInstance().getData().setEating(event.getPlayer());
             }
         }

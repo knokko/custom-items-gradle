@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -424,6 +425,22 @@ public class PluginData {
 		}
 	}
 
+	public static void consumeCustomFood(
+			Player player, ItemStack oldStack,
+			CustomFoodValues food, Consumer<ItemStack> updateStack
+	) {
+		player.setFoodLevel(player.getFoodLevel() + food.getFoodValue());
+		food.getEatEffects().forEach(eatEffect ->
+				player.addPotionEffect(new PotionEffect(
+						PotionEffectType.getByName(eatEffect.getType().name()),
+						eatEffect.getDuration(),
+						eatEffect.getLevel() - 1
+				))
+		);
+		oldStack.setAmount(oldStack.getAmount() - 1);
+		updateStack.accept(oldStack);
+	}
+
 	private void updateEating() {
 
 		Iterator<Player> iterator = eatingPlayers.iterator();
@@ -458,16 +475,7 @@ public class PluginData {
 						}
 
 						if (elapsedTime >= mainFood.getEatTime()) {
-							player.setFoodLevel(player.getFoodLevel() + mainFood.getFoodValue());
-							mainFood.getEatEffects().forEach(eatEffect ->
-									player.addPotionEffect(new PotionEffect(
-											PotionEffectType.getByName(eatEffect.getType().name()),
-											eatEffect.getDuration(),
-											eatEffect.getLevel() - 1
-									))
-							);
-							mainItemStack.setAmount(mainItemStack.getAmount() - 1);
-							player.getInventory().setItemInMainHand(mainItemStack);
+							consumeCustomFood(player, mainItemStack, mainFood, player.getInventory()::setItemInMainHand);
 							pd.mainhandFood = null;
 							pd.startMainhandEatTime = -1;
 						}
@@ -497,16 +505,7 @@ public class PluginData {
 						}
 
 						if (elapsedTime >= offFood.getEatTime()) {
-							player.setFoodLevel(player.getFoodLevel() + offFood.getFoodValue());
-							offFood.getEatEffects().forEach(eatEffect ->
-									player.addPotionEffect(new PotionEffect(
-											PotionEffectType.getByName(eatEffect.getType().name()),
-											eatEffect.getDuration(),
-											eatEffect.getLevel() - 1
-									))
-							);
-							offItemStack.setAmount(offItemStack.getAmount() - 1);
-							player.getInventory().setItemInOffHand(offItemStack);
+							consumeCustomFood(player, offItemStack, offFood, player.getInventory()::setItemInOffHand);
 							pd.offhandFood = null;
 							pd.startOffhandEatTime = -1;
 						}
