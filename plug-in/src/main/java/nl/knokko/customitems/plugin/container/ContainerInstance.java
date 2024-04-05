@@ -30,6 +30,7 @@ import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -104,7 +105,10 @@ public class ContainerInstance {
 			// Store changes in item meta
 			stack.setItemMeta(meta);
 		}
-		
+
+		// Since all AIR items share the same NBT, writing to the NBT of an AIR item has weird consequences...
+		if (stack.getType() == Material.AIR) return stack;
+
 		GeneralItemNBT nbt = KciNms.instance.items.generalReadWriteNbt(stack);
 		nbt.set(PLACEHOLDER_KEY, 1);
 		return nbt.backToBukkit();
