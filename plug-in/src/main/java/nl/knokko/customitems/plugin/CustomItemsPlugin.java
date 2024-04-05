@@ -146,6 +146,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 			enabledAreas = null;
 			instance = null;
 		}
+		latePopulator = null;
 		super.onDisable();
 	}
 
