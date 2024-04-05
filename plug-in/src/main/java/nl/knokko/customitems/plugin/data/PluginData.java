@@ -24,6 +24,7 @@ import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.nms.GeneralItemNBT;
 import nl.knokko.customitems.nms.KciNms;
+import nl.knokko.customitems.plugin.events.CustomFoodEatEvent;
 import nl.knokko.customitems.plugin.util.SoundPlayer;
 import nl.knokko.customitems.plugin.multisupport.worldguard.WorldGuardSupport;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
@@ -429,15 +430,20 @@ public class PluginData {
 			Player player, ItemStack oldStack,
 			CustomFoodValues food, Consumer<ItemStack> updateStack
 	) {
-		player.setFoodLevel(player.getFoodLevel() + food.getFoodValue());
-		food.getEatEffects().forEach(eatEffect ->
-				player.addPotionEffect(new PotionEffect(
-						PotionEffectType.getByName(eatEffect.getType().name()),
-						eatEffect.getDuration(),
-						eatEffect.getLevel() - 1
-				))
-		);
-		oldStack.setAmount(oldStack.getAmount() - 1);
+		CustomFoodEatEvent event = new CustomFoodEatEvent(player, oldStack, food, CustomItemsPlugin.getInstance().getSet());
+		Bukkit.getPluginManager().callEvent(event);
+
+		if (!event.isCancelled()) {
+			player.setFoodLevel(player.getFoodLevel() + food.getFoodValue());
+			food.getEatEffects().forEach(eatEffect ->
+					player.addPotionEffect(new PotionEffect(
+							PotionEffectType.getByName(eatEffect.getType().name()),
+							eatEffect.getDuration(),
+							eatEffect.getLevel() - 1
+					))
+			);
+			oldStack.setAmount(oldStack.getAmount() - 1);
+		}
 		updateStack.accept(oldStack);
 	}
 

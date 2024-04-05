@@ -80,8 +80,11 @@ class CIDenizenAddon {
         DenizenCore.commandRegistry.registerCommand(KciContainerCommand.class);
         DenizenCore.commandRegistry.registerCommand(GiveKciItemCommand.class);
         DenizenCore.commandRegistry.registerCommand(KciRemoveItemCommand.class);
+        DenizenCore.commandRegistry.registerCommand(LaunchKciProjectileCommand.class);
+        DenizenCore.commandRegistry.registerCommand(DropKciItemCommand.class);
         new KciItemsTag();
 
         Bukkit.getPluginManager().registerEvents(new KciContainerActionEvent(), CustomItemsPlugin.getInstance());
+        Bukkit.getPluginManager().registerEvents(new KciFoodEatEvent(), CustomItemsPlugin.getInstance());
     }
 }

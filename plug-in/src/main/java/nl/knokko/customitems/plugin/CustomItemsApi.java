@@ -7,9 +7,11 @@ import nl.knokko.customitems.plugin.container.ContainerInfo;
 import nl.knokko.customitems.plugin.container.ContainerInstance;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
+import nl.knokko.customitems.projectile.CustomProjectileValues;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -79,6 +81,16 @@ public class CustomItemsApi {
 
     public static boolean hasBlock(String blockName) {
         return CustomItemsPlugin.getInstance().getSet().get().getBlock(blockName).isPresent();
+    }
+
+    public static boolean hasProjectile(String projectileName) {
+        return CustomItemsPlugin.getInstance().getSet().get().getProjectile(projectileName).isPresent();
+    }
+
+    public static void launchProjectile(LivingEntity shooter, String projectileName) {
+        CustomItemsPlugin plugin = CustomItemsPlugin.getInstance();
+        Optional<CustomProjectileValues> maybeProjectile = plugin.getSet().get().getProjectile(projectileName);
+        maybeProjectile.ifPresent(projectile -> plugin.getProjectileManager().fireProjectile(shooter, projectile));
     }
 
     /**
