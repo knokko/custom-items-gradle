@@ -8,7 +8,9 @@ import nl.knokko.customitems.nms16plus.KciNmsEntities16Plus;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_16_R3.entity.CraftLivingEntity;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
 import java.util.Optional;
@@ -16,12 +18,21 @@ import java.util.Optional;
 public class KciNmsEntities16 extends KciNmsEntities16Plus {
 
     @Override
-    public void causeFakeProjectileDamage(Entity toDamage, Entity responsibleShooter, float damage, double projectilePositionX, double projectilePositionY, double projectilePositionZ, double projectileMotionX, double projectileMotionY, double projectileMotionZ) {
-        ((CraftEntity) toDamage).getHandle().damageEntity(new EntityDamageSourceIndirect("thrown",
-                new EntitySmallFireball(((CraftWorld) toDamage.getWorld()).getHandle(),
-                        projectilePositionX, projectilePositionY, projectilePositionZ,
-                        projectileMotionX, projectileMotionY, projectileMotionZ),
-                ((CraftEntity) responsibleShooter).getHandle()), damage);
+    public void causeFakeProjectileDamage(
+            Entity toDamage, LivingEntity responsibleShooter, float damage,
+            double projectilePositionX, double projectilePositionY, double projectilePositionZ,
+            double projectileMotionX, double projectileMotionY, double projectileMotionZ
+    ) {
+
+        EntitySmallFireball fakeProjectile = new EntitySmallFireball(((CraftWorld) toDamage.getWorld()).getHandle(),
+                projectilePositionX, projectilePositionY, projectilePositionZ,
+                projectileMotionX, projectileMotionY, projectileMotionZ);
+        fakeProjectile.setShooter(((CraftLivingEntity) responsibleShooter).getHandle());
+        fakeProjectile.projectileSource = responsibleShooter;
+
+        ((CraftEntity) toDamage).getHandle().damageEntity(new EntityDamageSourceIndirect(
+                "thrown", fakeProjectile, ((CraftEntity) responsibleShooter).getHandle()), damage
+        );
     }
 
     @Override

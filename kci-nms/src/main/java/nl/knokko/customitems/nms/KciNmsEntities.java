@@ -3,13 +3,14 @@ package nl.knokko.customitems.nms;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 public interface KciNmsEntities {
 
     void causeFakeProjectileDamage(
-            Entity toDamage, Entity responsibleShooter, float damage,
+            Entity toDamage, LivingEntity responsibleShooter, float damage,
             double projectilePositionX, double projectilePositionY, double projectilePositionZ,
             double projectileMotionX, double projectileMotionY, double projectileMotionZ
     );

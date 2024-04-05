@@ -6,19 +6,27 @@ import net.minecraft.server.v1_12_R1.EntityDamageSourceIndirect;
 import net.minecraft.server.v1_12_R1.EntitySmallFireball;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftLivingEntity;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 
 class EntityDamageHelper {
 
-    static void causeFakeProjectileDamage(Entity toDamage, Entity responsibleShooter, float damage,
-                                                 double projectilePositionX, double projectilePositionY, double projectilePositionZ,
-                                                 double projectileMotionX, double projectileMotionY, double projectileMotionZ) {
+    static void causeFakeProjectileDamage(
+                Entity toDamage, LivingEntity responsibleShooter, float damage,
+                double projectilePositionX, double projectilePositionY, double projectilePositionZ,
+                double projectileMotionX, double projectileMotionY, double projectileMotionZ
+    ) {
 
-        ((CraftEntity) toDamage).getHandle().damageEntity(new EntityDamageSourceIndirect("thrown",
-                new EntitySmallFireball(((CraftWorld) toDamage.getWorld()).getHandle(),
-                        projectilePositionX, projectilePositionY, projectilePositionZ,
-                        projectileMotionX, projectileMotionY, projectileMotionZ),
-                ((CraftEntity) responsibleShooter).getHandle()), damage);
+        EntitySmallFireball fakeProjectile = new EntitySmallFireball(((CraftWorld) toDamage.getWorld()).getHandle(),
+                projectilePositionX, projectilePositionY, projectilePositionZ,
+                projectileMotionX, projectileMotionY, projectileMotionZ);
+        fakeProjectile.shooter = ((CraftLivingEntity) responsibleShooter).getHandle();
+        fakeProjectile.projectileSource = responsibleShooter;
+
+        ((CraftEntity) toDamage).getHandle().damageEntity(new EntityDamageSourceIndirect(
+                "thrown", fakeProjectile, ((CraftEntity) responsibleShooter).getHandle()), damage
+        );
     }
 
     static void causeCustomPhysicalAttack(

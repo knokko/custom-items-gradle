@@ -13,7 +13,9 @@ import nl.knokko.customitems.nms16plus.KciNmsEntities16Plus;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_20_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_20_R3.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftLivingEntity;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
 import java.util.Optional;
@@ -22,13 +24,16 @@ class KciNmsEntities20 extends KciNmsEntities16Plus {
 
     @Override
     public void causeFakeProjectileDamage(
-            Entity toDamage, Entity responsibleShooter, float damage,
+            Entity toDamage, LivingEntity responsibleShooter, float damage,
             double projectilePositionX, double projectilePositionY, double projectilePositionZ,
             double projectileMotionX, double projectileMotionY, double projectileMotionZ
     ) {
+
         Item arrowItem = BuiltInRegistries.h.a(new MinecraftKey("arrow"));
         EntityTippedArrow fakeArrow = new EntityTippedArrow(((CraftWorld) toDamage.getWorld()).getHandle(),
                 projectilePositionX, projectileMotionY, projectileMotionZ, new ItemStack(arrowItem));
+        fakeArrow.b(((CraftLivingEntity) responsibleShooter).getHandle());
+        fakeArrow.projectileSource = responsibleShooter;
 
         net.minecraft.world.entity.Entity nmsEntity = ((CraftEntity) toDamage).getHandle();
         DamageSource indirectDamageSource = nmsEntity.dN().a(fakeArrow, ((CraftEntity) responsibleShooter).getHandle());

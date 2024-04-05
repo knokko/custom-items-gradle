@@ -8,6 +8,7 @@ import org.bukkit.craftbukkit.v1_12_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftHumanEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -15,7 +16,7 @@ class KciNmsEntities12 implements KciNmsEntities {
 
     @Override
     public void causeFakeProjectileDamage(
-            Entity toDamage, Entity responsibleShooter, float damage,
+            Entity toDamage, LivingEntity responsibleShooter, float damage,
             double projectilePositionX, double projectilePositionY, double projectilePositionZ,
             double projectileMotionX, double projectileMotionY, double projectileMotionZ
     ) {

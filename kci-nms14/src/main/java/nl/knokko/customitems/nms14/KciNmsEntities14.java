@@ -9,10 +9,12 @@ import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_14_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_14_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_14_R1.entity.CraftHumanEntity;
+import org.bukkit.craftbukkit.v1_14_R1.entity.CraftLivingEntity;
 import org.bukkit.craftbukkit.v1_14_R1.entity.CraftTrident;
 import org.bukkit.craftbukkit.v1_14_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -21,12 +23,21 @@ import java.util.Optional;
 class KciNmsEntities14 implements KciNmsEntities {
 
     @Override
-    public void causeFakeProjectileDamage(Entity toDamage, Entity responsibleShooter, float damage, double projectilePositionX, double projectilePositionY, double projectilePositionZ, double projectileMotionX, double projectileMotionY, double projectileMotionZ) {
-        ((CraftEntity) toDamage).getHandle().damageEntity(new EntityDamageSourceIndirect("thrown",
-                new EntitySmallFireball(((CraftWorld) toDamage.getWorld()).getHandle(),
-                        projectilePositionX, projectilePositionY, projectilePositionZ,
-                        projectileMotionX, projectileMotionY, projectileMotionZ),
-                ((CraftEntity) responsibleShooter).getHandle()), damage);
+    public void causeFakeProjectileDamage(
+            Entity toDamage, LivingEntity responsibleShooter, float damage,
+            double projectilePositionX, double projectilePositionY, double projectilePositionZ,
+            double projectileMotionX, double projectileMotionY, double projectileMotionZ
+    ) {
+
+        EntitySmallFireball fakeProjectile = new EntitySmallFireball(((CraftWorld) toDamage.getWorld()).getHandle(),
+                projectilePositionX, projectilePositionY, projectilePositionZ,
+                projectileMotionX, projectileMotionY, projectileMotionZ);
+        fakeProjectile.shooter = ((CraftLivingEntity) responsibleShooter).getHandle();
+        fakeProjectile.projectileSource = responsibleShooter;
+
+        ((CraftEntity) toDamage).getHandle().damageEntity(new EntityDamageSourceIndirect(
+                "thrown", fakeProjectile, ((CraftEntity) responsibleShooter).getHandle()), damage
+        );
     }
 
     @Override
