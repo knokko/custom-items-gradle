@@ -15,14 +15,13 @@ import nl.knokko.customitems.util.ValidationException;
 
 import java.util.*;
 
-import static nl.knokko.customitems.MCVersions.VERSION1_13;
-import static nl.knokko.customitems.MCVersions.VERSION1_16;
+import static nl.knokko.customitems.MCVersions.*;
 
 public class TreeGeneratorValues extends ModelValues {
 
     public static TreeGeneratorValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
-        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("TreeGenerator", encoding);
+        if (encoding < 1 || encoding > 3) throw new UnknownEncodingException("TreeGenerator", encoding);
 
         TreeGeneratorValues result = new TreeGeneratorValues(false);
         result.treeType = CITreeType.valueOf(input.readString());
@@ -42,6 +41,11 @@ public class TreeGeneratorValues extends ModelValues {
             result.allowedWorlds = Collections.unmodifiableList(allowedWorlds);
         } else result.allowedWorlds = Collections.emptyList();
 
+        if (encoding >= 3) {
+            result.minimumDepth = input.readInt();
+            result.maximumDepth = input.readInt();
+        }
+
         return result;
     }
 
@@ -54,6 +58,7 @@ public class TreeGeneratorValues extends ModelValues {
 
     private Chance chance;
     private int minNumTrees, maxNumTrees, maxNumAttempts;
+    private int minimumDepth, maximumDepth;
 
     public TreeGeneratorValues(boolean mutable) {
         super(mutable);
@@ -71,6 +76,8 @@ public class TreeGeneratorValues extends ModelValues {
         this.minNumTrees = 1;
         this.maxNumTrees = 2;
         this.maxNumAttempts = 3;
+        this.minimumDepth = 0;
+        this.maximumDepth = 0;
     }
 
     public TreeGeneratorValues(TreeGeneratorValues toCopy, boolean mutable) {
@@ -85,10 +92,12 @@ public class TreeGeneratorValues extends ModelValues {
         this.minNumTrees = toCopy.getMinNumTrees();
         this.maxNumTrees = toCopy.getMaxNumTrees();
         this.maxNumAttempts = toCopy.getMaxNumAttempts();
+        this.minimumDepth = toCopy.getMinimumDepth();
+        this.maximumDepth = toCopy.getMaximumDepth();
     }
 
     public void save(BitOutput output) {
-        output.addByte((byte) 2);
+        output.addByte((byte) 3);
 
         output.addString(treeType.name());
         allowedBiomes.save(output);
@@ -99,6 +108,7 @@ public class TreeGeneratorValues extends ModelValues {
         output.addInts(minNumTrees, maxNumTrees, maxNumAttempts);
         output.addInt(allowedWorlds.size());
         for (String allowedWorld : allowedWorlds) output.addString(allowedWorld);
+        output.addInts(minimumDepth, maximumDepth);
     }
 
     @Override
@@ -114,7 +124,8 @@ public class TreeGeneratorValues extends ModelValues {
                     && this.allowedTerrain.equals(otherTree.allowedTerrain) && this.allowedWorlds.equals(otherTree.allowedWorlds)
                     && this.logMaterial.equals(otherTree.logMaterial) && this.leavesMaterial.equals(otherTree.leavesMaterial)
                     && this.chance.equals(otherTree.chance) && this.minNumTrees == otherTree.minNumTrees
-                    && this.maxNumTrees == otherTree.maxNumTrees && this.maxNumAttempts == otherTree.maxNumAttempts;
+                    && this.maxNumTrees == otherTree.maxNumTrees && this.maxNumAttempts == otherTree.maxNumAttempts
+                    && this.minimumDepth == otherTree.minimumDepth && this.maximumDepth == otherTree.maximumDepth;
         } else {
             return false;
         }
@@ -172,6 +183,14 @@ public class TreeGeneratorValues extends ModelValues {
         return maxNumAttempts;
     }
 
+    public int getMinimumDepth() {
+        return minimumDepth;
+    }
+
+    public int getMaximumDepth() {
+        return maximumDepth;
+    }
+
     public void setTreeType(CITreeType treeType) {
         assertMutable();
         this.treeType = Objects.requireNonNull(treeType);
@@ -222,6 +241,16 @@ public class TreeGeneratorValues extends ModelValues {
         this.maxNumAttempts = maxNumAttempts;
     }
 
+    public void setMinimumDepth(int minimumDepth) {
+        assertMutable();
+        this.minimumDepth = minimumDepth;
+    }
+
+    public void setMaximumDepth(int maximumDepth) {
+        assertMutable();
+        this.maximumDepth = maximumDepth;
+    }
+
     public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         if (treeType == null) throw new ProgrammingValidationException("No tree type");
         if (allowedBiomes == null) throw new ProgrammingValidationException("No allowed biomes");
@@ -244,6 +273,10 @@ public class TreeGeneratorValues extends ModelValues {
         if (maxNumTrees > maxNumAttempts) {
             throw new ValidationException("Maximum number of trees can't be larger than maximum number of attempts");
         }
+        if (minimumDepth > maximumDepth) {
+            throw new ValidationException("Minimum depth can't be larger than maximum depth");
+        }
+        if (minimumDepth < 0) throw new ValidationException("Minimum depth can't be negative");
     }
 
     public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
@@ -255,6 +288,10 @@ public class TreeGeneratorValues extends ModelValues {
         }
         if (version > treeType.lastVersion) {
             throw new ValidationException(treeType + " doesn't exist anymore in MC " + MCVersions.createString(version));
+        }
+
+        if (maximumDepth > 0 && version < VERSION1_17) {
+            throw new ValidationException("Maximum depth must be 0 before MC 1.17");
         }
 
         Validation.scope("Biomes", allowedBiomes::validateExportVersion, version);

@@ -6,6 +6,7 @@ import nl.knokko.customitems.worldgen.CITreeType;
 import nl.knokko.customitems.worldgen.ProducedBlock;
 import nl.knokko.customitems.worldgen.TreeGeneratorValues;
 import org.bukkit.BlockChangeDelegate;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -29,6 +30,9 @@ public class TreeChangeDelegate implements BlockChangeDelegate {
 
     @Override
     public boolean setBlockData(int x, int y, int z, @NotNull BlockData blockData) {
+        // Spigot wants to place dirt below all trees on unnatural terrain, but we don't
+        if (blockData.getMaterial() == Material.DIRT) return true;
+
         Block block = world.getBlockAt(x, y, z);
 
         boolean isLeaves = blockData.getMaterial().name().contains("LEAVES");
