@@ -19,6 +19,8 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
+import static nl.knokko.customitems.MCVersions.VERSION1_14;
+
 public class KciPopulator extends BlockPopulator {
 
     private final ItemSetWrapper itemSet;
@@ -55,13 +57,42 @@ public class KciPopulator extends BlockPopulator {
                 int z = random.nextInt(16);
                 int y = world.getHighestBlockYAt(source.getBlock(x, 1, z).getLocation());
 
-                // y can be -1 if there are no blocks at all (like in some 'void' chunks in the End)
-                if (y >= 0) {
-                    Block block = source.getBlock(x, y, z);
-                    if (!block.getType().isSolid()) block = block.getRelative(BlockFace.DOWN);
+                // MC 1.13 to 1.14: World.getHighestBlockYAt returns the y-coordinate of highest block + 1
+                // MC 1.15 to 1.20: World.getHighestBlockYAt returns the y-coordinate of the highest block
+                if (KciNms.mcVersion <= VERSION1_14) y -= 1;
 
-                    if (shouldAcceptBlock(block, generator.getAllowedTerrain())
-                            && generator.getAllowedBiomes().isAllowed(CIBiome.valueOf(block.getBiome().name()))) {
+                if (y >= KciNms.instance.blocks.getMinHeight(world)) {
+                    Block block = source.getBlock(x, y, z);
+
+                    if (!generator.getAllowedBiomes().isAllowed(CIBiome.valueOf(block.getBiome().name()))) continue;
+                    
+                    int minDepth = generator.getMinimumDepth();
+                    int maxDepth = generator.getMaximumDepth();
+
+                    int randomWaterDepth = -1;
+                    if (maxDepth > 0 && generator.getAllowedTerrain().contains(CIMaterial.WATER)) {
+                        randomWaterDepth = minDepth + random.nextInt(1 + maxDepth - minDepth);
+                    }
+
+                    int currentDepth = 0;
+                    while (block.getType() == Material.WATER) {
+
+                        // Edge case: allow generating trees on the water surface when minDepth == 0 && maxDepth > 0
+                        if (currentDepth == 0 && randomWaterDepth == 0) break;
+
+                        block = block.getRelative(BlockFace.DOWN);
+                        y -= 1;
+                        currentDepth += 1;
+
+                        // Optimization: exit loop if we are too deep
+                        if (currentDepth > maxDepth) break;
+
+                        // Edge case: allow generating trees underwater, but above the bottom of the sea
+                        if (currentDepth == randomWaterDepth) break;
+                    }
+
+                    if (currentDepth >= minDepth && currentDepth <= maxDepth &&
+                            shouldAcceptBlock(block, generator.getAllowedTerrain())) {
 
                         if (world.generateTree(block.getRelative(BlockFace.UP).getLocation(), treeType, customTreeDelegate)) {
                             numGeneratedTrees += 1;

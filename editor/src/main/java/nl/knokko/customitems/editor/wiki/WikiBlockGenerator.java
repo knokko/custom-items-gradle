@@ -208,6 +208,7 @@ class WikiBlockGenerator {
         output.println("\t\t\t\tThis block has " + getGenerationChance(producer)
                 + " chance to be generated as " + description + " of custom " + getNiceTreeName(tree.getTreeType()) + ".");
         generateAllowedBiomes(output, "\t\t\t\t", tree.getAllowedBiomes(), tree.getAllowedWorlds());
+        if (tree.getMinimumDepth() > 0) output.println("\t\t\t\tThis tree only grows underwater.");
         output.println("\t\t\t</li>");
     }
 
