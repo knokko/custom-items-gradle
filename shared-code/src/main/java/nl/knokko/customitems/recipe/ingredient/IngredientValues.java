@@ -30,6 +30,8 @@ public abstract class IngredientValues extends ModelValues {
             return ItemBridgeIngredientValues.load(input, itemSet);
         } else if (encoding == NONE) {
             return new NoIngredientValues();
+        } else if (encoding == COPIED) {
+            return CopiedIngredientValues.load(input);
         } else {
             throw new UnknownEncodingException("Ingredient", encoding);
         }
