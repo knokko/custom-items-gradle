@@ -212,6 +212,10 @@ public class WikiRecipeGenerator {
             output.print(tabs + "\tItemBridge: " + ((ItemBridgeIngredientValues) ingredient).getItemId());
         }
 
+        if (ingredient instanceof CopiedIngredientValues) {
+            output.print(tabs + "\tCopied");
+        }
+
         int amount = (ingredient == null || ingredient instanceof NoIngredientValues) ? 0 : ingredient.getAmount();
         if (amount > 1) {
             output.println(tabs + "<div class=\"recipe-amount\">" + amount + "</div>");
@@ -454,6 +458,10 @@ public class WikiRecipeGenerator {
 
             output.println(tabs + "ItemBridge: " + itemBridgeResult.getItemId());
             amount = itemBridgeResult.getAmount();
+        }
+
+        if (result instanceof CopiedResultValues) {
+            output.println(tabs + "Copied");
         }
 
         return amount;

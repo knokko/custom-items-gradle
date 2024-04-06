@@ -193,6 +193,21 @@ public class RecipeHelper {
             return ItemBridgeSupport.isItem(item, ((ItemBridgeIngredientValues) ingredient).getItemId());
         }
 
+        if (ingredient instanceof CopiedIngredientValues) {
+            String encoded = ((CopiedIngredientValues) ingredient).getEncodedItem();
+            String serialized = StringEncoder.decode(encoded);
+
+            YamlConfiguration helperConfig = new YamlConfiguration();
+            try {
+                helperConfig.loadFromString(serialized);
+                ItemStack desiredIngredient = helperConfig.getItemStack("TheItemStack");
+                return item.isSimilar(desiredIngredient);
+            } catch (InvalidConfigurationException invalidConfig) {
+                Bukkit.getLogger().warning("A copied item stack ingredient is invalid");
+                return false;
+            }
+        }
+
         throw new IllegalArgumentException("Unknown ingredient class: " + ingredient.getClass());
     }
 
