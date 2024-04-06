@@ -28,6 +28,7 @@ public class RecipeEncoding {
 		public static final byte VANILLA_SIMPLE_NEW = 10;
 		public static final byte VANILLA_DATA_NEW = 11;
 		public static final byte CUSTOM_NEW = 12;
+		public static final byte COPIED = 13;
 	}
 	
 	public static class Result {

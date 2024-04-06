@@ -106,23 +106,7 @@ public class EditIngredient extends GuiMenu {
 			));
 		}, () -> !(currentIngredient instanceof NoIngredientValues)), 0.2f, 0.025f, 0.4f, 0.125f);
 
-		String currentItemDescription = "Currently ";
-		if (currentIngredient instanceof CustomItemIngredientValues) {
-			currentItemDescription += ((CustomItemIngredientValues) currentIngredient).getItem().getName();
-		} else if (currentIngredient instanceof DataVanillaIngredientValues) {
-			DataVanillaIngredientValues dataIngredient = (DataVanillaIngredientValues) currentIngredient;
-			currentItemDescription += dataIngredient.getMaterial() + " [" + dataIngredient.getDataValue() + "]";
-		} else if (currentIngredient instanceof ItemBridgeIngredientValues) {
-			currentItemDescription += "ItemBridge(" + ((ItemBridgeIngredientValues) currentIngredient).getItemId() + ")";
-		} else if (currentIngredient instanceof MimicIngredientValues) {
-			currentItemDescription += "Mimic(" + ((MimicIngredientValues) currentIngredient).getItemId() + ")";
-		} else if (currentIngredient instanceof NoIngredientValues) {
-			currentItemDescription += "empty";
-		} else if (currentIngredient instanceof SimpleVanillaIngredientValues) {
-			currentItemDescription += ((SimpleVanillaIngredientValues) currentIngredient).getMaterial();
-		} else {
-			currentItemDescription += "Unknown ingredient type: programming error";
-		}
+		String currentItemDescription = getCurrentItemDescription();
 		addComponent(new DynamicTextComponent(currentItemDescription, LABEL), 0.25f, 0.8f, 0.6f, 0.9f);
 		addComponent(
 				new DynamicTextComponent("Change to custom item...", LABEL),
@@ -175,6 +159,12 @@ public class EditIngredient extends GuiMenu {
 				state.getWindow().setMainComponent(returnMenu);
 			}));
 		}), 0.55f, 0.46f, 0.775f, 0.56f);
+		addComponent(new DynamicTextButton("copy from your server", BUTTON, HOVER, () -> {
+			state.getWindow().setMainComponent(new ChooseCopiedIngredient(returnMenu, copied -> {
+				listener.accept(copied);
+				state.getWindow().setMainComponent(returnMenu);
+			}));
+		}), 0.55f, 0.35f, 0.775f, 0.45f);
 
 		if (allowEmpty) {
 			addComponent(new DynamicTextButton("Set empty", EditProps.BUTTON, EditProps.HOVER, () -> {
@@ -185,7 +175,30 @@ public class EditIngredient extends GuiMenu {
 
 		HelpButtons.addHelpLink(this, "edit menu/recipes/edit ingredient.html");
 	}
-	
+
+	private String getCurrentItemDescription() {
+		String currentItemDescription = "Currently ";
+		if (currentIngredient instanceof CustomItemIngredientValues) {
+			currentItemDescription += ((CustomItemIngredientValues) currentIngredient).getItem().getName();
+		} else if (currentIngredient instanceof DataVanillaIngredientValues) {
+			DataVanillaIngredientValues dataIngredient = (DataVanillaIngredientValues) currentIngredient;
+			currentItemDescription += dataIngredient.getMaterial() + " [" + dataIngredient.getDataValue() + "]";
+		} else if (currentIngredient instanceof ItemBridgeIngredientValues) {
+			currentItemDescription += "ItemBridge(" + ((ItemBridgeIngredientValues) currentIngredient).getItemId() + ")";
+		} else if (currentIngredient instanceof MimicIngredientValues) {
+			currentItemDescription += "Mimic(" + ((MimicIngredientValues) currentIngredient).getItemId() + ")";
+		} else if (currentIngredient instanceof NoIngredientValues) {
+			currentItemDescription += "empty";
+		} else if (currentIngredient instanceof SimpleVanillaIngredientValues) {
+			currentItemDescription += ((SimpleVanillaIngredientValues) currentIngredient).getMaterial();
+		} else if (currentIngredient instanceof CopiedIngredientValues) {
+			currentItemDescription += "copied";
+		} else {
+			currentItemDescription += "Unknown ingredient type: programming error";
+		}
+		return currentItemDescription;
+	}
+
 	@Override
 	public GuiColor getBackgroundColor() {
 		return EditProps.BACKGROUND;
