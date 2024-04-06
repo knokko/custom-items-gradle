@@ -94,22 +94,35 @@ public class EditTreeGenerator extends GuiMenu {
 
         addComponent(new DynamicTextComponent(
                 "Minimum number of trees:", LABEL
-        ), 0.65f, 0.65f, 0.92f, 0.75f);
+        ), 0.65f, 0.675f, 0.92f, 0.75f);
         addComponent(new EagerIntEditField(
                 currentValues.getMinNumTrees(), 1, 100, EDIT_BASE, EDIT_ACTIVE, currentValues::setMinNumTrees
-        ), 0.93f, 0.65f, 0.99f, 0.75f);
+        ), 0.93f, 0.675f, 0.99f, 0.75f);
         addComponent(new DynamicTextComponent(
                 "Maximum number of trees:", LABEL
-        ), 0.65f, 0.5f, 0.92f, 0.6f);
+        ), 0.65f, 0.575f, 0.92f, 0.65f);
         addComponent(new EagerIntEditField(
                 currentValues.getMaxNumTrees(), 1, 100, EDIT_BASE, EDIT_ACTIVE, currentValues::setMaxNumTrees
-        ), 0.93f, 0.5f, 0.99f, 0.6f);
+        ), 0.93f, 0.575f, 0.99f, 0.65f);
         addComponent(new DynamicTextComponent(
                 "Maximum number of tree attempts:", LABEL
-        ), 0.6f, 0.35f, 0.92f, 0.45f);
+        ), 0.6f, 0.475f, 0.92f, 0.55f);
         addComponent(new EagerIntEditField(
                 currentValues.getMaxNumAttempts(), 1, 100, EDIT_BASE, EDIT_ACTIVE, currentValues::setMaxNumAttempts
-        ), 0.93f, 0.35f, 0.99f, 0.45f);
+        ), 0.93f, 0.475f, 0.99f, 0.55f);
+
+        addComponent(new DynamicTextComponent(
+                "Minimum depth in water (1.17+):", LABEL
+        ), 0.6f, 0.375f, 0.92f, 0.45f);
+        addComponent(new EagerIntEditField(
+                currentValues.getMinimumDepth(), 0, EDIT_BASE, EDIT_ACTIVE, currentValues::setMinimumDepth
+        ), 0.93f, 0.375f, 0.99f, 0.45f);
+        addComponent(new DynamicTextComponent(
+                "Maximum depth in water (1.17+):", LABEL
+        ), 0.6f, 0.275f, 0.92f, 0.35f);
+        addComponent(new EagerIntEditField(
+                currentValues.getMaximumDepth(), 0, EDIT_BASE, EDIT_ACTIVE, currentValues::setMaximumDepth
+        ), 0.93f, 0.275f, 0.99f, 0.35f);
 
         HelpButtons.addHelpLink(this, "edit menu/worldgen/tree/edit.html");
     }
