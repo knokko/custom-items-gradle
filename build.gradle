@@ -81,6 +81,7 @@ project(':plug-in') {
     dependencies {
         implementation project(':shared-code')
         implementation project(':kci-nms')
+        implementation project(':custom-recipes')
 // MARKER START NMS 12 DEPENDENCY
         runtimeOnly project(':kci-nms12')
 // MARKER END NMS 12 DEPENDENCY
@@ -108,6 +109,12 @@ project(':plug-in') {
     }
     shadowJar {
         relocate('de.tr7zw.changeme.nbtapi', 'nl.knokko.customitems.plugin.shadow.nbtapi')
+    }
+}
+
+project(':custom-recipes') {
+    dependencies {
+        compileOnly 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
     }
 }
 

@@ -1,2 +1,3 @@
 rootProject.name = 'custom-items'
-include 'bit-helper', 'gui', 'shared-code', 'plug-in', 'editor', 'kci-nms', 'kci-nms12', 'kci-nms13plus', 'kci-nms13', 'kci-nms14', 'kci-nms15', 'kci-nms16plus', 'kci-nms16'
+include 'bit-helper', 'gui', 'shared-code', 'plug-in', 'editor', 'kci-nms', 'custom-recipes',
+        'kci-nms12', 'kci-nms13plus', 'kci-nms13', 'kci-nms14', 'kci-nms15', 'kci-nms16plus', 'kci-nms16'
