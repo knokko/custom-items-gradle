@@ -1,6 +1,7 @@
 package nl.knokko.customitems.plugin.recipe;
 
 import nl.knokko.customitems.item.CIMaterial;
+import nl.knokko.customitems.item.CustomItemType;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomToolValues;
 import nl.knokko.customitems.nms.KciNms;
@@ -22,6 +23,7 @@ import nl.knokko.customitems.recipe.upgrade.UpgradeValues;
 import nl.knokko.customitems.recipe.upgrade.VariableUpgradeValues;
 import nl.knokko.customitems.util.StringEncoder;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
@@ -39,6 +41,52 @@ public class RecipeHelper {
         if (recipe instanceof ShapedRecipeValues) return new ShapedCraftingRecipeWrapper((ShapedRecipeValues) recipe);
         if (recipe instanceof ShapelessRecipeValues) return new ShapelessCraftingRecipeWrapper((ShapelessRecipeValues) recipe);
         throw new IllegalArgumentException("Unknown recipe class " + recipe.getClass());
+    }
+
+    public static Material getMaterial(IngredientValues ingredient) {
+        if (ingredient instanceof NoIngredientValues) return Material.AIR;
+
+        if (ingredient instanceof SimpleVanillaIngredientValues) {
+            return Material.valueOf(((SimpleVanillaIngredientValues) ingredient).getMaterial().name());
+        }
+
+        if (ingredient instanceof DataVanillaIngredientValues) {
+            return Material.valueOf(((DataVanillaIngredientValues) ingredient).getMaterial().name());
+        }
+
+        if (ingredient instanceof CustomItemIngredientValues) {
+            CustomItemIngredientValues custom = (CustomItemIngredientValues) ingredient;
+            return Material.valueOf(CustomItemWrapper.getMaterial(
+                    custom.getItem().getItemType(),
+                    custom.getItem().getOtherMaterial()
+            ).name());
+        }
+
+        if (ingredient instanceof MimicIngredientValues) {
+            ItemStack item = MimicSupport.fetchItem(((MimicIngredientValues) ingredient).getItemId(), 1);
+            return item != null ? item.getType() : Material.AIR;
+        }
+
+        if (ingredient instanceof ItemBridgeIngredientValues) {
+            return ItemBridgeSupport.fetchItem(((ItemBridgeIngredientValues) ingredient).getItemId(), 1).getType();
+        }
+
+        if (ingredient instanceof CopiedIngredientValues) {
+            String encoded = ((CopiedIngredientValues) ingredient).getEncodedItem();
+            String serialized = StringEncoder.decode(encoded);
+
+            YamlConfiguration helperConfig = new YamlConfiguration();
+            try {
+                helperConfig.loadFromString(serialized);
+                ItemStack item = helperConfig.getItemStack("TheItemStack");
+                return item != null ? item.getType() : Material.AIR;
+            } catch (InvalidConfigurationException invalidConfig) {
+                Bukkit.getLogger().warning("A copied item stack ingredient is invalid");
+                return Material.AIR;
+            }
+        }
+
+        throw new IllegalArgumentException("Unknown ingredient class: " + ingredient.getClass());
     }
 
     public static boolean shouldIngredientAcceptItemStack(IngredientValues ingredient, ItemStack itemStack) {

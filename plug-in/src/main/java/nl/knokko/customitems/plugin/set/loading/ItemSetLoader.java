@@ -27,7 +27,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.Semaphore;
 import java.util.function.Consumer;
 import java.util.logging.Level;
@@ -291,7 +293,20 @@ public class ItemSetLoader implements Listener {
                     busy.release();
                 };
             }
-            Bukkit.getScheduler().callSyncMethod(plugin, Executors.callable(nextSyncAction));
+            Future<Object> syncResult = Bukkit.getScheduler().callSyncMethod(plugin, Executors.callable(nextSyncAction));
+            Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+                try {
+                    syncResult.get();
+                } catch (ExecutionException | InterruptedException failed) {
+                    // Very dirty trick to recover after a failed reload
+                    if (busy.availablePermits() == 0) {
+                        System.err.println("An error occurred during KCI reloading");
+                        busy.release();
+                    }
+
+                    failed.printStackTrace();
+                }
+            });
         });
 
         return false;

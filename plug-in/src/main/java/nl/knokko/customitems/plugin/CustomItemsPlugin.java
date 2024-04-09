@@ -8,6 +8,7 @@ import nl.knokko.customitems.plugin.config.EnabledAreas;
 import nl.knokko.customitems.plugin.config.LanguageFile;
 import nl.knokko.customitems.plugin.events.*;
 import nl.knokko.customitems.plugin.multisupport.geyser.GeyserSupport;
+import nl.knokko.customitems.plugin.recipe.CustomItemsRecipes;
 import nl.knokko.customitems.plugin.tasks.*;
 import nl.knokko.customitems.plugin.tasks.miningspeed.MiningSpeedManager;
 import nl.knokko.customitems.plugin.multisupport.denizen.DenizenSupport;
@@ -19,7 +20,11 @@ import nl.knokko.customitems.plugin.set.loading.ItemSetLoader;
 import nl.knokko.customitems.plugin.worldgen.LatePopulator;
 import nl.knokko.customitems.plugin.worldgen.WorldgenListener;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import nl.knokko.customitems.plugin.command.CommandCustomItems;
@@ -41,6 +46,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 	private EnabledAreas enabledAreas;
 	private MiningSpeedManager miningSpeedManager;
 	private LatePopulator latePopulator;
+	private CustomItemsRecipes recipes;
 	
 	private int maxFlyingProjectiles;
 	private int chunkPopulationPeriod;
@@ -59,6 +65,9 @@ public class CustomItemsPlugin extends JavaPlugin {
 
 			latePopulator.stop();
 			latePopulator.start(this, chunkPopulationPeriod, chunkPopulationCount);
+
+			recipes.disable();
+			recipes.register();
 		}
 	}
 
@@ -91,6 +100,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 			Bukkit.getPluginManager().registerEvents(projectileManager, this);
 			Bukkit.getPluginManager().registerEvents(new TwoHandedEnforcer(itemSet), this);
 
+			Bukkit.getPluginManager().registerEvents(new AnvilEventHandler(itemSet), this);
 			AttackRangeEventHandler attackRangeEventHandler = new AttackRangeEventHandler(itemSet);
 			Bukkit.getScheduler().scheduleSyncRepeatingTask(this, attackRangeEventHandler::update, 1, 1);
 			Bukkit.getPluginManager().registerEvents(attackRangeEventHandler, this);
@@ -123,6 +133,8 @@ public class CustomItemsPlugin extends JavaPlugin {
 			CustomElytraVelocityManager.start(itemSet, this);
 			TwoHandedEnforcer.start(this, itemSet);
 			EquipmentSetAttributes.startUpdateTask(this, itemSet);
+			recipes = new CustomItemsRecipes(itemSet, this);
+			recipes.register();
 			miningSpeedManager = new MiningSpeedManager();
 			miningSpeedManager.start(this);
 			latePopulator = new LatePopulator(itemSet, getDataFolder(), enabledAreas);
@@ -144,6 +156,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 				itemSetLoader.getPluginData().saveData();
 			}
 			latePopulator.stop();
+			recipes.disable();
 			projectileManager.destroyCustomProjectiles();
 			enabledAreas = null;
 			instance = null;
