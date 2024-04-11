@@ -41,7 +41,15 @@ public class GeyserPackGenerator {
         jsonWriter.println("        \"description\": \"Resource pack for the Knokkos Custom Items plugin\",");
         jsonWriter.println("        \"name\": \"KCI Pack\",");
         jsonWriter.println("        \"uuid\": \"" + UUID.randomUUID() + "\",");
-        jsonWriter.println("    }");
+        jsonWriter.println("        \"version\": [1, 0, 0],");
+        jsonWriter.println("        \"min_engine_version\": [1, 18, 3]");
+        jsonWriter.println("    },");
+        jsonWriter.println("    \"modules\": [{");
+        jsonWriter.println("        \"description\": \"Adds the item models and textures for Knokkos Custom Items\",");
+        jsonWriter.println("        \"type\": \"resources\",");
+        jsonWriter.println("        \"uuid\": \"" + UUID.randomUUID() + "\",");
+        jsonWriter.println("        \"version\": [1, 0, 0]");
+        jsonWriter.println("    }]");
         jsonWriter.println("}");
 
         jsonWriter.flush();
