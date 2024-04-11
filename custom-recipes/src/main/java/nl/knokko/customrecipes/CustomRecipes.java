@@ -4,13 +4,17 @@ import nl.knokko.customrecipes.collector.DefaultResultCollector;
 import nl.knokko.customrecipes.collector.ResultCollectorEvent;
 import nl.knokko.customrecipes.ingredient.IngredientBlocker;
 import nl.knokko.customrecipes.production.Production;
+import nl.knokko.customrecipes.production.ShapedProduction;
+import nl.knokko.customrecipes.shaped.CustomShapedRecipe;
 import nl.knokko.customrecipes.shaped.CustomShapedRecipes;
 import org.bukkit.Bukkit;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.*;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -74,12 +78,12 @@ public class CustomRecipes implements Listener {
         ).map(blocker -> blocker.isIngredient);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH)
     public void showCraftingResult(PrepareItemCraftEvent event) {
         handleCrafting(event.getRecipe(), event.getInventory(), null);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void setCraftingResult(CraftItemEvent event) {
         Bukkit.broadcastMessage("CraftItemEvent: action is " + event.getAction());
         handleCrafting(event.getRecipe(), event.getInventory(), event);
@@ -118,14 +122,42 @@ public class CustomRecipes implements Listener {
             if (craftEvent != null) {
                 Bukkit.broadcastMessage("action is " + craftEvent.getAction() + " and production is " + production);
                 ResultCollectorEvent collectorEvent = new ResultCollectorEvent(
-                        production.result, production.maximumCount, craftEvent.getWhoClicked().getInventory(),
+                        production.result, production.maximumCustomCount, craftEvent.getWhoClicked().getInventory(),
                         craftEvent.getCursor(), craftEvent.getWhoClicked()::setItemOnCursor, craftEvent.getAction()
                 );
                 if (resultCollector != null) resultCollector.accept(collectorEvent);
+                int naturalConsumptionCount;
 
-                if (collectorEvent.actualProductionCount == -1 && production.needsManualWork) {
+                if (collectorEvent.actualProductionCount == -1 &&
+                        production.maximumCustomCount > production.maximumNaturalCount
+                        && craftEvent.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY
+                ) {
                     new DefaultResultCollector().accept(collectorEvent);
                 }
+
+                if (collectorEvent.actualProductionCount != -1) {
+                    craftEvent.setCancelled(true);
+                    naturalConsumptionCount = 0;
+                } else {
+                    if (craftEvent.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
+                        collectorEvent.actualProductionCount = production.maximumNaturalCount;
+                    } else {
+                        collectorEvent.actualProductionCount = 1;
+                    }
+                    naturalConsumptionCount = collectorEvent.actualProductionCount;
+                }
+
+                if (naturalConsumptionCount == collectorEvent.actualProductionCount && !production.hasSpecialIngredients) return;
+
+                if (recipe instanceof ShapedRecipe) {
+                    shaped.consumeIngredients((ShapedProduction) production, matrix, naturalConsumptionCount, collectorEvent.actualProductionCount);
+                }
+
+                if (recipe instanceof ShapelessRecipe) {
+                    // TODO
+                }
+
+                inventory.setMatrix(matrix);
             }
         } else {
             getRelevantBlockers(key != null ? key.getNamespace() : "").forEach(blockIngredient -> {

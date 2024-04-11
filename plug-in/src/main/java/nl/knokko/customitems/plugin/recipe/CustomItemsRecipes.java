@@ -91,7 +91,8 @@ public class CustomItemsRecipes {
         return new CustomIngredient(
                 RecipeHelper.getMaterial(ingredient),
                 itemStack -> RecipeHelper.shouldIngredientAcceptItemStack(ingredient, itemStack),
-                ingredient.getAmount()
+                ingredient.getAmount(),
+                convertResultToItemStack(ingredient.getRemainingItem())
         );
     }
 }

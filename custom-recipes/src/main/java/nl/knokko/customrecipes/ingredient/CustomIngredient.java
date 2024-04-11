@@ -10,14 +10,19 @@ public class CustomIngredient {
     public final Material material;
     public final Predicate<ItemStack> shouldAccept;
     public final int amount;
+    public final ItemStack remainingItem;
 
-    public CustomIngredient(Material material, Predicate<ItemStack> shouldAccept, int amount) {
+    public CustomIngredient(
+            Material material, Predicate<ItemStack> shouldAccept,
+            int amount, ItemStack remainingItem
+    ) {
         this.material = material;
         this.shouldAccept = shouldAccept;
-        this.amount = 1;
+        this.amount = amount;
+        this.remainingItem = remainingItem;
     }
 
     public CustomIngredient(Material material) {
-        this(material, ingredient -> true, 1);
+        this(material, ingredient -> true, 1, null);
     }
 }

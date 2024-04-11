@@ -7,8 +7,11 @@ public class ShapedProduction extends Production {
 
     public final ShapedPlacement placement;
 
-    public ShapedProduction(ItemStack result, int maximumCount, boolean needsManualWork, ShapedPlacement placement) {
-        super(result, maximumCount, needsManualWork);
+    public ShapedProduction(
+            ItemStack result, int maximumCustomCount, int maximumNaturalCount,
+            boolean hasSpecialIngredients, ShapedPlacement placement
+    ) {
+        super(result, maximumCustomCount, maximumNaturalCount, hasSpecialIngredients);
         this.placement = placement;
     }
 }

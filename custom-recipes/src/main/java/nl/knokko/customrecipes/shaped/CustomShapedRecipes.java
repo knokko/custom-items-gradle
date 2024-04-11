@@ -5,6 +5,7 @@ import nl.knokko.customrecipes.production.ShapedProduction;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -95,8 +96,9 @@ public class CustomShapedRecipes {
         Bukkit.broadcastMessage("#recipes is " + recipes.size());
         recipeLoop:
         for (CustomShapedRecipe recipe : recipes) {
-            int maximumCount = 64;
-            boolean needsManualWork = false;
+            int maximumCustomCount = 64;
+            int maximumNaturalCount = 64;
+            boolean hasSpecialIngredients = false;
 
             for (int x = 0; x < placement.sizeX; x++) {
                 for (int y = 0; y < placement.sizeY; y++) {
@@ -106,18 +108,30 @@ public class CustomShapedRecipes {
                     if (ingredient != null) {
                         int actualAmount = candidate != null ? candidate.getAmount() : 0;
                         if (actualAmount < ingredient.amount) continue recipeLoop;
+                        if (ingredient.remainingItem != null && actualAmount != ingredient.amount) continue recipeLoop;
                         if (!ingredient.shouldAccept.test(candidate)) continue recipeLoop;
 
-                        if (ingredient.amount > 0) maximumCount = min(maximumCount, actualAmount / ingredient.amount);
-                        if (ingredient.amount > 1) needsManualWork = true;
+                        if (ingredient.amount > 0) {
+                            maximumCustomCount = min(maximumCustomCount, actualAmount / ingredient.amount);
+                            maximumNaturalCount = min(maximumNaturalCount, actualAmount);
+                        }
+                        if (ingredient.remainingItem != null) maximumCustomCount = min(maximumCustomCount, 1);
+                        if (ingredient.amount > 1 || ingredient.remainingItem != null) hasSpecialIngredients = true;
                     }
                 }
             }
 
-            // TODO Remaining item & upgrading
-            return new ShapedProduction(recipe.result, maximumCount, needsManualWork, placement);
+            // TODO Upgrading
+            return new ShapedProduction(recipe.result, maximumCustomCount, maximumNaturalCount, hasSpecialIngredients, placement);
         }
 
         return null;
+    }
+
+    public void consumeIngredients(
+            ShapedProduction production, ItemStack[] matrix,
+            int naturalConsumptionCount, int actualConsumptionCount
+    ) {
+
     }
 }
