@@ -126,7 +126,7 @@ public class CustomToolWrapper extends CustomItemWrapper {
                 int maxBarValue = tool.getType().getMaxDurability();
                 int barValue = (int) ((1.0 - remainingFraction) * maxBarValue);
                 if (barValue >= maxBarValue - minBarValue) barValue = maxBarValue - minBarValue - 1;
-                if (barValue < 0) barValue = 0;
+                if (barValue < 1) barValue = 1;
 
                 //noinspection deprecation
                 tool.setDurability((short) barValue);
