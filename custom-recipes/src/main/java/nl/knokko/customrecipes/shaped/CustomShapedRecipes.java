@@ -115,6 +115,8 @@ public class CustomShapedRecipes {
                             maximumCustomCount = min(maximumCustomCount, actualAmount / ingredient.amount);
                             maximumNaturalCount = min(maximumNaturalCount, actualAmount);
                         }
+
+                        // TODO Add support for ingredients that are required, but not consumed
                         if (ingredient.remainingItem != null) maximumCustomCount = min(maximumCustomCount, 1);
                         if (ingredient.amount > 1 || ingredient.remainingItem != null) hasSpecialIngredients = true;
                     }
@@ -122,16 +124,36 @@ public class CustomShapedRecipes {
             }
 
             // TODO Upgrading
-            return new ShapedProduction(recipe.result, maximumCustomCount, maximumNaturalCount, hasSpecialIngredients, placement);
+            return new ShapedProduction(
+                    recipe.result, maximumCustomCount, maximumNaturalCount,
+                    hasSpecialIngredients, placement, recipe
+            );
         }
 
         return null;
     }
 
     public void consumeIngredients(
-            ShapedProduction production, ItemStack[] matrix,
-            int naturalConsumptionCount, int actualConsumptionCount
+            ShapedProduction production, ItemStack[] matrix, int consumptionCount
     ) {
+        Bukkit.broadcastMessage("Manually consume shaped ingredients");
+        ShapedPlacement placement = production.placement;
+        for (int x = 0; x < placement.sizeX; x++) {
+            for (int y = 0; y < placement.sizeY; y++) {
+                int matrixIndex = x + placement.offsetX + placement.gridSize * (y + placement.offsetY);
 
+                char ingredientChar = production.recipe.shape[y].charAt(x);
+                CustomIngredient ingredient = production.recipe.ingredientMap.get(ingredientChar);
+                if (ingredient == null) continue;
+
+                if (ingredient.remainingItem != null) {
+                    matrix[matrixIndex] = ingredient.remainingItem.clone();
+                    continue;
+                }
+
+                ItemStack consumed = matrix[matrixIndex];
+                consumed.setAmount(consumed.getAmount() - ingredient.amount * consumptionCount);
+            }
+        }
     }
 }

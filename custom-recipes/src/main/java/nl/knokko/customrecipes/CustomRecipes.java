@@ -80,6 +80,7 @@ public class CustomRecipes implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void showCraftingResult(PrepareItemCraftEvent event) {
+        Bukkit.broadcastMessage("PrepareItemCraftEvent");
         handleCrafting(event.getRecipe(), event.getInventory(), null);
     }
 
@@ -112,6 +113,7 @@ public class CustomRecipes implements Listener {
             }
 
             if (production == null) {
+                Bukkit.broadcastMessage("Cancel because production is null");
                 if (craftEvent != null) craftEvent.setCancelled(true);
                 inventory.setResult(null);
                 return;
@@ -136,32 +138,43 @@ public class CustomRecipes implements Listener {
                 }
 
                 if (collectorEvent.actualProductionCount != -1) {
+                    Bukkit.broadcastMessage("Cancel because actual production count is " + collectorEvent.actualProductionCount);
                     craftEvent.setCancelled(true);
                     naturalConsumptionCount = 0;
                 } else {
                     if (craftEvent.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
                         collectorEvent.actualProductionCount = production.maximumNaturalCount;
+                    } else if (craftEvent.getAction() == InventoryAction.NOTHING) {
+                        collectorEvent.actualProductionCount = 0;
                     } else {
                         collectorEvent.actualProductionCount = 1;
                     }
                     naturalConsumptionCount = collectorEvent.actualProductionCount;
                 }
 
+                if (naturalConsumptionCount == 0 && collectorEvent.actualProductionCount == 0) return;
                 if (naturalConsumptionCount == collectorEvent.actualProductionCount && !production.hasSpecialIngredients) return;
 
+                matrix = Arrays.copyOf(matrix, matrix.length);
+                for (int index = 0; index < matrix.length; index++) {
+                    if (matrix[index] != null) matrix[index] = matrix[index].clone();
+                }
+
                 if (recipe instanceof ShapedRecipe) {
-                    shaped.consumeIngredients((ShapedProduction) production, matrix, naturalConsumptionCount, collectorEvent.actualProductionCount);
+                    shaped.consumeIngredients((ShapedProduction) production, matrix, collectorEvent.actualProductionCount);
                 }
 
                 if (recipe instanceof ShapelessRecipe) {
                     // TODO
                 }
 
-                inventory.setMatrix(matrix);
+                ItemStack[] finalMatrix = matrix;
+                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> inventory.setMatrix(finalMatrix));
             }
         } else {
+            ItemStack[] finalMatrix = matrix;
             getRelevantBlockers(key != null ? key.getNamespace() : "").forEach(blockIngredient -> {
-                for (ItemStack ingredient : matrix) {
+                for (ItemStack ingredient : finalMatrix) {
                     if (blockIngredient.test(ingredient)) {
                         inventory.setResult(null);
                         Bukkit.broadcastMessage("blocked");

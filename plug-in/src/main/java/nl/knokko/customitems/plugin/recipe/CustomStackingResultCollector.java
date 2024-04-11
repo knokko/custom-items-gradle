@@ -39,9 +39,10 @@ public class CustomStackingResultCollector implements Consumer<ResultCollectorEv
          * sapphires (diamond hoes) to stack. To work around this problem, we need to fix this manually.
          */
         if (event.action == InventoryAction.NOTHING) {
-            if (itemSet.getItem(event.oldCursor) == customResult) {
+            if (itemSet.getItem(event.oldCursor) == customResult && event.oldCursor.getAmount() + event.result.getAmount() <= customResult.getMaxStacksize()) {
                 ItemStack newCursor = event.oldCursor.clone();
                 Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+                    Bukkit.broadcastMessage("Increase amount to " + (newCursor.getAmount() + event.result.getAmount()));
                     newCursor.setAmount(newCursor.getAmount() + event.result.getAmount());
                     event.changeCursor.accept(newCursor);
                 });
@@ -51,6 +52,7 @@ public class CustomStackingResultCollector implements Consumer<ResultCollectorEv
         }
 
         if (event.action == InventoryAction.PICKUP_ALL) {
+            // TODO Check maximum stacksize
             if (itemSet.getItem(event.oldCursor) == customResult) {
                 ItemStack newCursor = event.oldCursor.clone();
                 Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
@@ -59,7 +61,7 @@ public class CustomStackingResultCollector implements Consumer<ResultCollectorEv
                 });
                 event.actualProductionCount = 1;
                 return;
-            } else if (ItemUtils.isEmpty(event.result)) {
+            } else if (ItemUtils.isEmpty(event.oldCursor)) {
                 Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> event.changeCursor.accept(event.result));
                 event.actualProductionCount = 1;
                 return;
@@ -86,6 +88,7 @@ public class CustomStackingResultCollector implements Consumer<ResultCollectorEv
             for (int index = 0; index < contents.length; index++) {
                 if (remaining <= 0) break;
 
+                // TODO Prioritize existing stacks
                 ItemStack stack = contents[index];
                 if (ItemUtils.isEmpty(stack)) {
                     ItemStack newStack = event.result.clone();

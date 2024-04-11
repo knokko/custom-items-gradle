@@ -24,7 +24,7 @@ public class CustomItemsRecipes {
 
     public CustomItemsRecipes(ItemSetWrapper itemSet, JavaPlugin plugin) {
         this.itemSet = itemSet;
-        this.customRecipes = new CustomRecipes(plugin, new CustomStackingResultCollector(itemSet));
+        this.customRecipes = new CustomRecipes(plugin, new CustomStackingResultCollector(plugin, itemSet));
     }
 
     public void disable() {
