@@ -88,13 +88,13 @@ public class VersionTrimmer {
             case "jitpack":
                 allowedMarkers = new String[]{MARKER_GENERAL, MARKER_JAVA8, null};
                 allowedProjects = new String[]{
-                        "bit-helper", "gui", "shared-code", "plug-in", "editor", "kci-nms"
+                        "bit-helper", "gui", "custom-recipes", "shared-code", "plug-in", "editor", "kci-nms"
                 };
                 break;
             case "1.12":
                 allowedMarkers = new String[]{MARKER_GENERAL, MARKER_JAVA8, MARKER_NMS12_DEPENDENCY, null};
                 allowedProjects = new String[]{
-                        "bit-helper", "gui", "shared-code", "plug-in", "editor", "kci-nms", "kci-nms12"
+                        "bit-helper", "gui", "custom-recipes", "shared-code", "plug-in", "editor", "kci-nms", "kci-nms12"
                 };
                 break;
             case "1.13-to-1.16":
