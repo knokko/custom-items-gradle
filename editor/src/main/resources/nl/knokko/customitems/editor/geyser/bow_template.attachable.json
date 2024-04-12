@@ -1,0 +1,50 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:attachable": {
+    "description": {
+      "identifier": "geyser_custom:kci_%TEXTURE_NAME%",
+      "materials": {
+        "default": "entity_alphatest",
+        "enchanted": "entity_alphatest_glint"
+      },
+      "textures": {
+        "default": "textures/kci/%TEXTURE_NAME%_standby",
+        "bow_pulling_0": "textures/kci/%TEXTURE_NAME%_pulling_0",
+        "bow_pulling_1": "textures/kci/%TEXTURE_NAME%_pulling_1",
+        "bow_pulling_2": "textures/kci/%TEXTURE_NAME%_pulling_2",
+        "enchanted": "textures/misc/enchanted_item_glint"
+      },
+      "geometry": {
+        "default": "geometry.bow_standby",
+        "bow_pulling_0": "geometry.bow_pulling_0",
+        "bow_pulling_1": "geometry.bow_pulling_1",
+        "bow_pulling_2": "geometry.bow_pulling_2"
+      },
+      "animations": {
+        "wield": "animation.player.kci_bow.first_person",
+        "third_person": "animation.player.kci_bow",
+        "wield_first_person_pull": "animation.bow.wield_first_person_pull"
+      },
+      "scripts": {
+        "pre_animation": [
+          "v.charge_amount = math.clamp((q.main_hand_item_max_duration - (q.main_hand_item_use_duration - q.frame_alpha + 1.0)) / 10.0, 0.0, 1.0f);",
+          "v.total_frames = 3;",
+          "v.step = v.total_frames / 120;",
+          "v.frame = query.is_using_item ? math.clamp((v.frame ?? 0) + v.step, 1, v.total_frames) : 0;"
+        ],
+        "animate": [
+          {
+            "wield": "c.is_first_person"
+          },
+          {
+            "third_person": "!c.is_first_person"
+          },
+          {
+            "wield_first_person_pull": "query.main_hand_item_use_duration > 0.0f && c.is_first_person"
+          }
+        ]
+      },
+      "render_controllers": ["controller.render.kci_bow"]
+    }
+  }
+}

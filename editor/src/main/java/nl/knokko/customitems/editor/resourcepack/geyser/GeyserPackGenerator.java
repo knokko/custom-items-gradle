@@ -5,9 +5,7 @@ import nl.knokko.customitems.itemset.ItemSet;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.util.UUID;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class GeyserPackGenerator {
@@ -27,32 +25,24 @@ public class GeyserPackGenerator {
         textureGenerator.writeTexturesJson();
         textureGenerator.writeTextures();
 
+        GeyserPackAnimationGenerator animationsGenerator = new GeyserPackAnimationGenerator(itemSet, zipOutput);
+        animationsGenerator.writeBowsJson();
+        // TODO Crossbow animations and regular animations
+
+        GeyserPackAttachableGenerator attachableGenerator = new GeyserPackAttachableGenerator(itemSet, zipOutput);
+        attachableGenerator.generateBows();
+
+        GeyserPackControllerGenerator controllerGenerator = new GeyserPackControllerGenerator(itemSet, zipOutput);
+        controllerGenerator.generateBow();
+
         zipOutput.flush();
         zipOutput.close();
     }
 
     private void generateManifest() throws IOException {
-        zipOutput.putNextEntry(new ZipEntry("manifest.json"));
-        PrintWriter jsonWriter = new PrintWriter(zipOutput);
-
-        jsonWriter.println("{");
-        jsonWriter.println("    \"format_version\": 2,");
-        jsonWriter.println("    \"header\": {");
-        jsonWriter.println("        \"description\": \"Resource pack for the Knokkos Custom Items plugin\",");
-        jsonWriter.println("        \"name\": \"KCI Pack\",");
-        jsonWriter.println("        \"uuid\": \"" + UUID.randomUUID() + "\",");
-        jsonWriter.println("        \"version\": [1, 0, 0],");
-        jsonWriter.println("        \"min_engine_version\": [1, 18, 3]");
-        jsonWriter.println("    },");
-        jsonWriter.println("    \"modules\": [{");
-        jsonWriter.println("        \"description\": \"Adds the item models and textures for Knokkos Custom Items\",");
-        jsonWriter.println("        \"type\": \"resources\",");
-        jsonWriter.println("        \"uuid\": \"" + UUID.randomUUID() + "\",");
-        jsonWriter.println("        \"version\": [1, 0, 0]");
-        jsonWriter.println("    }]");
-        jsonWriter.println("}");
-
-        jsonWriter.flush();
-        zipOutput.closeEntry();
+        IOHelper.propagate(
+                "manifest.json", zipOutput, "manifest.json",
+                line -> line.replace("%RANDOM_ID%", UUID.randomUUID().toString())
+        );
     }
 }

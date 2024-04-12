@@ -1,0 +1,18 @@
+{
+  "format_version": 2,
+  "header": {
+    "description": "Custom Bow Example",
+    "name": "Custom Bow Example",
+    "uuid": "%RANDOM_ID%",
+    "version": [0, 0, 26],
+    "min_engine_version": [ 1, 13, 0 ]
+  },
+  "modules": [
+    {
+      "description": "Custom Bow Example",
+      "type": "resources",
+      "uuid": "%RANDOM_ID%",
+      "version": [0, 0, 26]
+    }
+  ]
+}
