@@ -211,8 +211,10 @@ class ResourcepackItemOverrider {
             int index = 0;
             for (ItemDurabilityClaim claim : damageAssignments.claimList) {
                 index += 1;
-                jsonWriter.println("        { \"predicate\": {\"custom_model_data\": " + claim.itemDamage + "}, \"model\": \"" + claim.resourcePath + "\"},");
+                jsonWriter.print("        { \"predicate\": {\"custom_model_data\": " + claim.itemDamage + "}, \"model\": \"" + claim.resourcePath + "\"}");
                 List<BowTextureEntry> pullTextures = claim.pullTextures;
+                if (index != damageAssignments.claimList.size() || !pullTextures.isEmpty()) jsonWriter.print(',');
+                jsonWriter.println();
 
                 int counter = 0;
                 for (BowTextureEntry pullTexture : pullTextures) {
