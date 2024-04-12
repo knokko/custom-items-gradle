@@ -22,7 +22,7 @@ public class GeyserPackTextureGenerator {
     public void writeTextures() throws IOException {
         // TODO Support (cross)bow textures
         for (BaseTextureValues texture : itemSet.getTextures()) {
-            zipOutput.putNextEntry(new ZipEntry("textures/minecraft/kci/" + texture.getName() + ".png"));
+            zipOutput.putNextEntry(new ZipEntry("textures/kci/" + texture.getName() + ".png"));
             ImageIO.write(texture.getImage(), "PNG", zipOutput);
             zipOutput.closeEntry();
         }
@@ -38,7 +38,7 @@ public class GeyserPackTextureGenerator {
         int counter = 1;
         for (BaseTextureValues texture : itemSet.getTextures()) {
             jsonWriter.println("        \"kci_" + texture.getName() + "\": {");
-            jsonWriter.println("            \"textures\": \"textures/minecraft/kci/" + texture.getName() + "\"");
+            jsonWriter.println("            \"textures\": \"textures/kci/" + texture.getName() + "\"");
             jsonWriter.print("        }");
             if (counter != itemSet.getTextures().size()) jsonWriter.print(",");
             jsonWriter.println();

@@ -109,7 +109,7 @@ class ResourcePackIO {
                         destination = new File(directory + "/kci.mcpack");
                     } else {
                         directory = new File(geyserDirectory + "/custom_mappings");
-                        destination = new File(directory + "/geyser_mappings.json");
+                        destination = new File(directory + "/kci_mappings.json");
                     }
                     if (!directory.isDirectory() && !directory.mkdir()) {
                         System.err.println("CustomItems couldn't find or create " + directory);
