@@ -86,7 +86,7 @@ class WikiProjectileGenerator {
                 output.println("\t\t</ul>");
             }
 
-            Collection<CustomItemValues> sources = itemSet.getItems().stream().filter(candidateItem -> {
+            Collection<CustomItemValues> sources = itemSet.items.stream().filter(candidateItem -> {
                 if (candidateItem instanceof CustomWandValues) {
                     CustomProjectileValues wandProjectile = ((CustomWandValues) candidateItem).getProjectile();
                     return wandProjectile != null && wandProjectile.getName().equals(projectile.getName());
@@ -110,7 +110,7 @@ class WikiProjectileGenerator {
                 }
             }
 
-            Collection<CustomProjectileValues> parentProjectiles = itemSet.getProjectiles().stream().filter(candidateProjectile -> {
+            Collection<CustomProjectileValues> parentProjectiles = itemSet.projectiles.stream().filter(candidateProjectile -> {
                return candidateProjectile.getInFlightEffects().stream().anyMatch(effectWaves -> {
                    return effectWaves.getEffects().stream().anyMatch(effect -> {
                        return effect instanceof SubProjectilesValues && ((SubProjectilesValues) effect).getChild().getName().equals(projectile.getName());

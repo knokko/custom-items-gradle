@@ -21,7 +21,7 @@ public class BlockCollectionEdit extends DedicatedCollectionEdit<CustomBlockValu
     private final boolean allowDeletions;
 
     public BlockCollectionEdit(EditMenu menu, boolean allowDeletions) {
-        super(menu, menu.getSet().getBlocks().references(), null);
+        super(menu, menu.getSet().blocks.references(), null);
         this.menu = menu;
         this.allowDeletions = allowDeletions;
     }
@@ -66,7 +66,7 @@ public class BlockCollectionEdit extends DedicatedCollectionEdit<CustomBlockValu
 
     @Override
     protected String deleteModel(BlockReference modelReference) {
-        return Validation.toErrorString(() -> menu.getSet().removeBlock(modelReference));
+        return Validation.toErrorString(() -> menu.getSet().blocks.remove(modelReference));
     }
 
     @Override

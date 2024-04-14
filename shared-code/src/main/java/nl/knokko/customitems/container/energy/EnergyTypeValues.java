@@ -196,10 +196,10 @@ public class EnergyTypeValues extends ModelValues {
     public void validateComplete(ItemSet itemSet, UUID oldID) throws ValidationException, ProgrammingValidationException {
         validateIndependent();
         if (oldID != null && !oldID.equals(id)) throw new ProgrammingValidationException("Can't change the ID");
-        if (oldID == null && itemSet.getEnergyType(id).isPresent()) {
+        if (oldID == null && itemSet.energyTypes.get(id).isPresent()) {
             throw new ProgrammingValidationException("Energy type with this ID already exists");
         }
-        if (itemSet.getEnergyTypes().stream().anyMatch(type -> !type.getId().equals(id) && type.getName().equals(name))) {
+        if (itemSet.energyTypes.stream().anyMatch(type -> !type.getId().equals(id) && type.getName().equals(name))) {
             throw new ValidationException("Energy type with name " + name + " already exists");
         }
     }

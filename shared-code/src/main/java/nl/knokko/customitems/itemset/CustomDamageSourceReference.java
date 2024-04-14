@@ -22,7 +22,7 @@ public class CustomDamageSourceReference extends UUIDBasedReference<CustomDamage
 
     @Override
     Collection<CustomDamageSource> getCollection() {
-        return itemSet.damageSources;
+        return itemSet.damageSources.elements;
     }
 
     @Override

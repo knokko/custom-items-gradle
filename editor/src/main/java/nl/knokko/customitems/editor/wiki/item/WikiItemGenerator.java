@@ -199,7 +199,7 @@ public class WikiItemGenerator {
     }
 
     private void generateEquipmentSetInfo(PrintWriter output) {
-        if (itemSet.getEquipmentSets().stream().anyMatch(
+        if (itemSet.equipmentSets.stream().anyMatch(
                 equipmentSet -> equipmentSet.getEntries().keySet().stream().anyMatch(
                         entry -> entry.item.get().getName().equals(item.getName())
                 )

@@ -17,7 +17,7 @@ class GeyserPackControllerGenerator {
     }
 
     void generateBow() throws IOException {
-        if (itemSet.getTextures().stream().anyMatch(texture -> texture instanceof BowTextureValues)) {
+        if (itemSet.textures.stream().anyMatch(texture -> texture instanceof BowTextureValues)) {
             IOHelper.propagate(
                     "kci_bow.render_controllers.json", zipOutput,
                     "render_controllers/kci_bow.render_controllers.json", null

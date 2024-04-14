@@ -49,7 +49,7 @@ public class CreateLinkSlot extends GuiMenu {
 
         addComponent(
                 CollectionSelect.createButton(
-                        itemSet.getContainers().references(),
+                        itemSet.containers.references(),
                         currentValues::setLinkedContainer,
                         containerReference -> containerReference.get().getName(),
                         currentValues.getLinkedContainerReference(), false

@@ -64,8 +64,8 @@ public class CrossbowTextureEdit extends GuiMenu {
             currentValues.setPullTextures(pulls);
 
             String error;
-            if (toModify == null) error = Validation.toErrorString(() -> set.addTexture(currentValues));
-            else error = Validation.toErrorString(() -> set.changeTexture(toModify, currentValues));
+            if (toModify == null) error = Validation.toErrorString(() -> set.textures.add(currentValues));
+            else error = Validation.toErrorString(() -> set.textures.change(toModify, currentValues));
 
             if (error == null) state.getWindow().setMainComponent(returnMenu);
             else errorComponent.setText(error);

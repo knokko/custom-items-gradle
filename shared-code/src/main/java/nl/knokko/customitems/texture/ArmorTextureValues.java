@@ -140,7 +140,7 @@ public class ArmorTextureValues extends ModelValues {
         if (name.isEmpty()) throw new ValidationException("Name can't be empty");
 
         if (oldName == null || !oldName.equals(name)) {
-            for (ArmorTextureValues otherArmorTexture : itemSet.getArmorTextures()) {
+            for (ArmorTextureValues otherArmorTexture : itemSet.armorTextures) {
                 if (otherArmorTexture.getName().equals(name)) {
                     throw new ValidationException("Another armor texture has the same name");
                 }

@@ -36,15 +36,15 @@ public class ItemDropGenerator {
     ItemDropGenerator(ItemSet itemSet, CustomItemValues item) {
         this.item = item;
 
-        this.blockDrops = itemSet.getBlockDrops().stream().filter(
+        this.blockDrops = itemSet.blockDrops.stream().filter(
                 blockDrop -> hasItem(item, blockDrop.getDrop().getOutputTable())
         ).collect(Collectors.toList());
 
-        this.mobDrops = itemSet.getMobDrops().stream().filter(
+        this.mobDrops = itemSet.mobDrops.stream().filter(
                 mobDrop -> hasItem(item, mobDrop.getDrop().getOutputTable())
         ).collect(Collectors.toList());
 
-        this.blocks = itemSet.getBlocks().stream().filter(
+        this.blocks = itemSet.blocks.stream().filter(
                 block -> block.getDrops().stream().anyMatch(
                         blockDrop -> hasItem(item, blockDrop.getDrop().getOutputTable())
                 )

@@ -56,7 +56,7 @@ public class CreateCustomBlockModel extends GuiMenu {
         TextureReference[] pTexture = { null };
         addComponent(new DynamicTextComponent("Editor texture:", LABEL), 0.4f, 0.55f, 0.6f, 0.65f);
         addComponent(CollectionSelect.createButton(
-                itemSet.getTextures().references(), newTexture -> pTexture[0] = newTexture,
+                itemSet.textures.references(), newTexture -> pTexture[0] = newTexture,
                 candidateTexture -> candidateTexture.get().getName(), null, false
         ), 0.625f, 0.55f, 0.8f, 0.65f);
 

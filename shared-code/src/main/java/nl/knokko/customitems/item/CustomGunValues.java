@@ -65,7 +65,7 @@ public class CustomGunValues extends CustomItemValues {
         byte encoding = input.readByte();
         if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("CustomGunNew", encoding);
 
-        this.projectile = itemSet.getProjectileReference(input.readString());
+        this.projectile = itemSet.projectiles.getReference(input.readString());
         this.ammo = GunAmmoValues.load(input, itemSet);
         this.amountPerShot = input.readInt();
 
@@ -120,7 +120,7 @@ public class CustomGunValues extends CustomItemValues {
     }
 
     private void loadGunOnlyProperties10(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
-        this.projectile = itemSet.getProjectileReference(input.readString());
+        this.projectile = itemSet.projectiles.getReference(input.readString());
         this.ammo = GunAmmoValues.load(input, itemSet);
         this.amountPerShot = input.readInt();
     }
@@ -190,7 +190,7 @@ public class CustomGunValues extends CustomItemValues {
     public void validateComplete(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         super.validateComplete(itemSet, oldName);
 
-        if (!itemSet.isReferenceValid(projectile)) throw new ProgrammingValidationException("Projectile is no longer valid");
+        if (!itemSet.projectiles.isValid(projectile)) throw new ProgrammingValidationException("Projectile is no longer valid");
         ammo.validateComplete(itemSet);
     }
 

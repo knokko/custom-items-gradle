@@ -26,8 +26,8 @@ public class CustomItemsApi {
     public static Collection<String> getAllItemNames() {
         ItemSet itemSet = CustomItemsPlugin.getInstance().getSet().get();
 
-        Collection<String> itemNames = new ArrayList<>(itemSet.getItems().size());
-        for (CustomItemValues item : itemSet.getItems()) {
+        Collection<String> itemNames = new ArrayList<>(itemSet.items.size());
+        for (CustomItemValues item : itemSet.items) {
             itemNames.add(item.getName());
         }
 
@@ -56,8 +56,8 @@ public class CustomItemsApi {
     public static Collection<String> getAllBlockNames() {
         ItemSet itemSet = CustomItemsPlugin.getInstance().getSet().get();
 
-        Collection<String> blockNames = new ArrayList<>(itemSet.getBlocks().size());
-        for (CustomItemValues item : itemSet.getItems()) {
+        Collection<String> blockNames = new ArrayList<>(itemSet.blocks.size());
+        for (CustomItemValues item : itemSet.items) {
             blockNames.add(item.getName());
         }
 
@@ -65,7 +65,7 @@ public class CustomItemsApi {
     }
 
     public static void placeBlock(Block destination, String customBlockName) {
-        Optional<CustomBlockValues> customBlock = CustomItemsPlugin.getInstance().getSet().get().getBlock(customBlockName);
+        Optional<CustomBlockValues> customBlock = CustomItemsPlugin.getInstance().getSet().get().blocks.get(customBlockName);
         if (customBlock.isPresent()) {
             MushroomBlockHelper.place(destination, customBlock.get());
         } else {
@@ -80,16 +80,16 @@ public class CustomItemsApi {
     }
 
     public static boolean hasBlock(String blockName) {
-        return CustomItemsPlugin.getInstance().getSet().get().getBlock(blockName).isPresent();
+        return CustomItemsPlugin.getInstance().getSet().get().blocks.get(blockName).isPresent();
     }
 
     public static boolean hasProjectile(String projectileName) {
-        return CustomItemsPlugin.getInstance().getSet().get().getProjectile(projectileName).isPresent();
+        return CustomItemsPlugin.getInstance().getSet().get().projectiles.get(projectileName).isPresent();
     }
 
     public static void launchProjectile(LivingEntity shooter, String projectileName) {
         CustomItemsPlugin plugin = CustomItemsPlugin.getInstance();
-        Optional<CustomProjectileValues> maybeProjectile = plugin.getSet().get().getProjectile(projectileName);
+        Optional<CustomProjectileValues> maybeProjectile = plugin.getSet().get().projectiles.get(projectileName);
         maybeProjectile.ifPresent(projectile -> plugin.getProjectileManager().fireProjectile(shooter, projectile));
     }
 

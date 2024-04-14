@@ -32,7 +32,7 @@ public class BowTextureEdit extends GuiMenu {
 	protected final ItemSet set;
 	protected final GuiComponent returnMenu;
 
-	protected final PullTextures pullTextures;
+	final PullTextures pullTextures;
 	protected final DynamicTextComponent errorComponent;
 
 	private final TextureReference toModify;
@@ -102,8 +102,8 @@ public class BowTextureEdit extends GuiMenu {
 			currentValues.setPullTextures(pulls);
 
 			String error;
-			if (toModify == null) error = Validation.toErrorString(() -> set.addTexture(currentValues));
-			else error = Validation.toErrorString(() -> set.changeTexture(toModify, currentValues));
+			if (toModify == null) error = Validation.toErrorString(() -> set.textures.add(currentValues));
+			else error = Validation.toErrorString(() -> set.textures.change(toModify, currentValues));
 
 			if (error == null) state.getWindow().setMainComponent(returnMenu);
 			else errorComponent.setText(error);

@@ -5,7 +5,6 @@ import nl.knokko.customitems.block.drop.SilkTouchRequirement;
 import nl.knokko.customitems.drops.BlockDropValues;
 import nl.knokko.customitems.drops.DropValues;
 import nl.knokko.customitems.item.*;
-import nl.knokko.customitems.itemset.BlockDropsView;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
@@ -55,7 +54,7 @@ public class MultiBlockBreakEventHandler implements Listener {
         int fortuneLevel = ItemUtils.isEmpty(mainItem) ? 0 : mainItem.getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS);
         CustomItemValues custom = itemSet.getItem(mainItem);
 
-        BlockDropsView customDrops = itemSet.getBlockDrops(
+        Iterable<BlockDropValues> customDrops = itemSet.getBlockDrops(
                 CIMaterial.getOrNull(KciNms.instance.items.getMaterialName(event.getBlock()))
         );
 

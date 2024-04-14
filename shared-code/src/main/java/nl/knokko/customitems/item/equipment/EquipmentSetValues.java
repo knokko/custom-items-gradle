@@ -130,7 +130,7 @@ public class EquipmentSetValues extends ModelValues {
 
         this.entries.put(new EquipmentEntry(
                 AttributeModifierValues.Slot.valueOf(input.readString()),
-                itemSet.getItemReference(input.readString())
+                itemSet.items.getReference(input.readString())
         ), input.readInt());
     }
 
@@ -139,7 +139,7 @@ public class EquipmentSetValues extends ModelValues {
         for (Map.Entry<EquipmentEntry, Integer> entry : entries.entrySet()) {
             if (entry.getKey() == null) throw new ProgrammingValidationException("Missing an equipment entry");
             if (entry.getValue() == null) throw new ProgrammingValidationException("Missing an equipment entry value");
-            if (!itemSet.isReferenceValid(entry.getKey().item)) {
+            if (!itemSet.items.isValid(entry.getKey().item)) {
                 throw new ProgrammingValidationException("Item is no longer valid");
             }
         }

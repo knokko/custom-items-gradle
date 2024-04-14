@@ -22,7 +22,7 @@ public class FuelRegistryReference extends StringBasedReference<CustomFuelRegist
 
     @Override
     Collection<CustomFuelRegistry> getCollection() {
-        return itemSet.fuelRegistries;
+        return itemSet.fuelRegistries.elements;
     }
 
     @Override

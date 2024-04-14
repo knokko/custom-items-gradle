@@ -25,7 +25,7 @@ public class AttributeMerger {
 
     public static RawAttribute[] merge(ItemSetWrapper itemSet, CustomItemValues item, Collection<UUID> upgradeIDs) {
         return merge(item, upgradeIDs.stream().map(
-                upgradeID -> itemSet.get().getUpgrade(upgradeID).get()
+                upgradeID -> itemSet.get().upgrades.get(upgradeID).get()
         ).collect(Collectors.toList()));
     }
 

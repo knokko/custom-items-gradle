@@ -49,7 +49,7 @@ public class IngredientComponent extends DynamicTextButton {
 					IngredientComponent.this.setIngredient(SimpleVanillaIngredientValues.createQuick(vanillaMaterial, 1));
 				}, candidateMaterial -> true, menu));
 			} else if (character == 'c') {
-				state.getWindow().setMainComponent(new CollectionSelect<>(set.getItems().references(), customItem -> {
+				state.getWindow().setMainComponent(new CollectionSelect<>(set.items.references(), customItem -> {
 					IngredientComponent.this.setIngredient(CustomItemIngredientValues.createQuick(customItem, 1));
 				}, candidateItem -> true, itemRef -> itemRef.get().getName(), menu, false));
 			} else if (character == 'd') {

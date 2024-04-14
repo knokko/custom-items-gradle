@@ -578,7 +578,7 @@ public class ContainerEventHandler implements Listener {
 
 			CustomBlockValues maybeCustomBlock = MushroomBlockHelper.getMushroomBlock(event.getClickedBlock());
 			if (maybeCustomBlock != null) {
-				BlockReference customBlockReference = itemSet.get().getBlockReference(maybeCustomBlock.getInternalID());
+				BlockReference customBlockReference = itemSet.get().blocks.getReference(maybeCustomBlock.getInternalID());
 				Inventory maybeMenu = pluginData().containerSelections.getBlockContainerMenu(
 						event.getClickedBlock().getLocation(), event.getPlayer(), new CustomContainerHost(customBlockReference)
 				);

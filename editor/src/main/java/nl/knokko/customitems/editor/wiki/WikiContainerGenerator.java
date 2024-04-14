@@ -112,7 +112,7 @@ class WikiContainerGenerator {
                 output.println("\t\tRight-click a " + NameHelper.getNiceEnumName(container.getHost().getVanillaEntity().name()) + "<br>");
             }
 
-            Collection<CustomItemValues> pocketContainers = itemSet.getItems().stream().filter(
+            Collection<CustomItemValues> pocketContainers = itemSet.items.stream().filter(
                     item -> item instanceof CustomPocketContainerValues && ((CustomPocketContainerValues) item).getContainers().stream().anyMatch(
                             candidateContainer -> candidateContainer.getName().equals(container.getName())
                     ) && item.getWikiVisibility() == WikiVisibility.VISIBLE

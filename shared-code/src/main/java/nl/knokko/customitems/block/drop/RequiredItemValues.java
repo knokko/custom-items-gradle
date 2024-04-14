@@ -108,7 +108,7 @@ public class RequiredItemValues extends ModelValues {
         int numItems = input.readInt();
         this.customItems = new ArrayList<>(numItems);
         for (int counter = 0; counter < numItems; counter++) {
-            this.customItems.add(itemSet.getItemReference(input.readString()));
+            this.customItems.add(itemSet.items.getReference(input.readString()));
         }
     }
 
@@ -205,7 +205,7 @@ public class RequiredItemValues extends ModelValues {
     ) throws ProgrammingValidationException {
         validateIndependent();
         for (ItemReference ownItem : this.customItems) {
-            if (!itemSet.isReferenceValid(ownItem)) {
+            if (!itemSet.items.isValid(ownItem)) {
                 throw new ProgrammingValidationException("A custom item is not (or no longer) valid");
             }
         }

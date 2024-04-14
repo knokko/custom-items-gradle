@@ -23,7 +23,7 @@ public class UpgradeReference extends UUIDBasedReference<Upgrade, UpgradeValues>
 
     @Override
     Collection<Upgrade> getCollection() {
-        return itemSet.upgrades;
+        return itemSet.upgrades.elements;
     }
 
     @Override

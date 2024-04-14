@@ -10,7 +10,6 @@ import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.Validation;
 import nl.knokko.customitems.util.ValidationException;
 
-import java.util.Arrays;
 import java.util.UUID;
 
 public class CustomSoundTypeValues extends ModelValues {
@@ -133,10 +132,10 @@ public class CustomSoundTypeValues extends ModelValues {
         if (soundCategory == null) throw new ProgrammingValidationException("No sound category");
 
         if (oldID != null && !oldID.equals(id)) throw new ProgrammingValidationException("Can't change the ID");
-        if (oldID == null && itemSet.getSoundType(id).isPresent()) {
+        if (oldID == null && itemSet.soundTypes.get(id).isPresent()) {
             throw new ProgrammingValidationException("Sound type with this ID already exists");
         }
-        if (itemSet.getSoundTypes().stream().anyMatch(type -> !type.getId().equals(id) && type.getName().equals(name))) {
+        if (itemSet.soundTypes.stream().anyMatch(type -> !type.getId().equals(id) && type.getName().equals(name))) {
             throw new ValidationException("Sound type with name " + name + " already exists");
         }
     }

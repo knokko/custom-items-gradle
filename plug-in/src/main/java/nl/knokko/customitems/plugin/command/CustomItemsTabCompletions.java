@@ -2,7 +2,6 @@ package nl.knokko.customitems.plugin.command;
 
 import com.google.common.collect.Lists;
 import nl.knokko.customitems.block.CustomBlockValues;
-import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.util.CommandHelper;
@@ -34,7 +33,7 @@ public class CustomItemsTabCompletions implements TabCompleter {
         ).stream().filter(
                 element -> element.equals("container") || element.equals("resourcepack")
                         || sender.hasPermission("customitems." + element) ||
-                        (element.equals("give") && itemSet.get().getItems().stream().anyMatch(
+                        (element.equals("give") && itemSet.get().items.stream().anyMatch(
                                 item -> sender.hasPermission("customitems.give." + item.getName())
                         ))
         ).collect(Collectors.toList());
@@ -66,8 +65,8 @@ public class CustomItemsTabCompletions implements TabCompleter {
             String prefix = args[1];
 
             if (first.equals("give")) {
-                List<String> result = new ArrayList<>(itemSet.get().getItems().size());
-                for (CustomItemValues item : itemSet.get().getItems()) {
+                List<String> result = new ArrayList<>(itemSet.get().items.size());
+                for (CustomItemValues item : itemSet.get().items) {
                     if (sender.hasPermission("customitems.give") || sender.hasPermission("customitems.give." + item.getName())) {
                         result.add(item.getName());
                         if (!item.getAlias().isEmpty()) {
@@ -90,8 +89,8 @@ public class CustomItemsTabCompletions implements TabCompleter {
             }
 
             if (first.equals("setblock") && sender.hasPermission("customitems.setblock")) {
-                List<String> result = new ArrayList<>(itemSet.get().getBlocks().size());
-                for (CustomBlockValues block : itemSet.get().getBlocks()) {
+                List<String> result = new ArrayList<>(itemSet.get().blocks.size());
+                for (CustomBlockValues block : itemSet.get().blocks) {
                     result.add(block.getName());
                 }
                 return filter(result, prefix);
@@ -102,8 +101,8 @@ public class CustomItemsTabCompletions implements TabCompleter {
             }
 
             if (first.equals("playsound")) {
-                List<String> result = new ArrayList<>(itemSet.get().getSoundTypes().size());
-                for (CustomSoundTypeValues sound : itemSet.get().getSoundTypes()) {
+                List<String> result = new ArrayList<>(itemSet.get().soundTypes.size());
+                for (CustomSoundTypeValues sound : itemSet.get().soundTypes) {
                     result.add(sound.getName());
                 }
                 return filter(result, prefix);
@@ -141,7 +140,7 @@ public class CustomItemsTabCompletions implements TabCompleter {
             if (first.equals("container")) {
                 String second = args[1];
                 if (second.equals("open") || second.equals("destroy")) {
-                    return filter(itemSet.get().getContainers().stream().map(container -> {
+                    return filter(itemSet.get().containers.stream().map(container -> {
                         if (container.getName().contains(" ")) return "'" + container.getName() + "'";
                         else return container.getName();
                     }).collect(Collectors.toList()), prefix);

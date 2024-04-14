@@ -40,7 +40,7 @@ public class HelpMobSpawner extends GuiMenu {
 			GuiComponentState state, ItemSet itemSet, Consumer<CustomItemValues> changeItem,
 			WrapperComponent<SimpleImageComponent> selectedImage, GuiComponent returnMenu
 	) {
-		state.getWindow().setMainComponent(new CollectionSelect<>(itemSet.getItems().references(), chosenItem -> {
+		state.getWindow().setMainComponent(new CollectionSelect<>(itemSet.items.references(), chosenItem -> {
 			changeItem.accept(chosenItem.get());
 			selectedImage.setComponent(new SimpleImageComponent(
 					state.getWindow().getTextureLoader().loadTexture(chosenItem.get().getTexture().getImage())

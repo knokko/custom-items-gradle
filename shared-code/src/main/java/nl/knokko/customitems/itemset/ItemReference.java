@@ -22,7 +22,7 @@ public class ItemReference extends StringBasedReference<CustomItem, CustomItemVa
 
     @Override
     Collection<CustomItem> getCollection() {
-        return itemSet.items;
+        return itemSet.items.elements;
     }
 
     @Override

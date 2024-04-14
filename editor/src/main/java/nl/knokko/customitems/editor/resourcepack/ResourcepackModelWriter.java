@@ -36,7 +36,7 @@ class ResourcepackModelWriter {
     }
 
     void writeCustomItemModels() throws IOException {
-        for (CustomItemValues item : itemSet.getItems()) {
+        for (CustomItemValues item : itemSet.items) {
 
             // Core item model
             ZipEntry entry = new ZipEntry("assets/minecraft/models/customitems/" + item.getName() + ".json");
@@ -70,7 +70,7 @@ class ResourcepackModelWriter {
 
     void writeCustomBlockModels() throws IOException {
         // Write the models of all custom blocks
-        for (CustomBlockValues block : itemSet.getBlocks()) {
+        for (CustomBlockValues block : itemSet.blocks) {
             ZipEntry blockModelEntry = new ZipEntry("assets/minecraft/models/customblocks/" + block.getName() + ".json");
             zipOutput.putNextEntry(blockModelEntry);
 
@@ -152,7 +152,7 @@ class ResourcepackModelWriter {
     }
 
     void writeProjectileCoverModels() throws IOException {
-        for (ProjectileCoverValues cover : itemSet.getProjectileCovers()) {
+        for (ProjectileCoverValues cover : itemSet.projectileCovers) {
             ZipEntry entry = new ZipEntry("assets/minecraft/models/customprojectiles/" + cover.getName() + ".json");
             zipOutput.putNextEntry(entry);
             cover.writeModel(zipOutput);

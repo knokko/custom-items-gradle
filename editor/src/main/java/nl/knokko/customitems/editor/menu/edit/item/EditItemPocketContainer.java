@@ -50,7 +50,7 @@ public class EditItemPocketContainer extends EditItemBase<CustomPocketContainerV
         );
         addComponent(new DynamicTextButton("Choose...", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new SelectContainers(
-                    this, menu.getSet().getContainers().references(), currentValues.getContainerReferences(), currentValues::setContainers
+                    this, menu.getSet().containers.references(), currentValues.getContainerReferences(), currentValues::setContainers
             ));
         }), 0.9f, 0.35f, 0.975f, 0.45f);
 

@@ -41,10 +41,10 @@ class WikiEnergyTypeGenerator {
                 output.println("\t\tPlayers will share their storage of this energy type, " +
                         "even if they don't share their container inventory.");
             }
-            if (itemSet.getContainers().stream().anyMatch(this::usesThisEnergy)) {
+            if (itemSet.containers.stream().anyMatch(this::usesThisEnergy)) {
                 output.println("\t\t<h2 id=\"containers-header\">Containers</h2>");
                 output.println("\t\t<ul>");
-                for (CustomContainerValues container : itemSet.getContainers()) {
+                for (CustomContainerValues container : itemSet.containers) {
                     if (usesThisEnergy(container)) {
                         output.println("\t\t\t<li><a href=\"../" + container.getName() + ".html\">" + getDisplayName(container) + "</a></li>");
                     }

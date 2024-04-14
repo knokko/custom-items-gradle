@@ -30,15 +30,15 @@ public class TestBackward4 {
     static void testItems4(ItemSet set, int numItems) {
         testItems3(set, numItems);
 
-        testHoeDefault4((CustomHoeValues) set.getItem("hoe_one").get());
-        testShearsDefault4((CustomShearsValues) set.getItem("shears_one").get());
-        testBowDefault4((CustomBowValues) set.getItem("bow_one").get());
+        testHoeDefault4((CustomHoeValues) set.items.get("hoe_one").get());
+        testShearsDefault4((CustomShearsValues) set.items.get("shears_one").get());
+        testBowDefault4((CustomBowValues) set.items.get("bow_one").get());
 
-        testSimple3((SimpleCustomItemValues) set.getItem("simple_three").get(), set.getSide());
-        testHelmet1((CustomArmorValues) set.getItem("helmet_one").get(), set.getSide());
-        testChestplate1((CustomArmorValues) set.getItem("chestplate_one").get(), set.getSide());
-        testLeggings1((CustomArmorValues) set.getItem("leggings_one").get(), set.getSide());
-        testBoots1((CustomArmorValues) set.getItem("boots_one").get(), set.getSide());
+        testSimple3((SimpleCustomItemValues) set.items.get("simple_three").get(), set.getSide());
+        testHelmet1((CustomArmorValues) set.items.get("helmet_one").get(), set.getSide());
+        testChestplate1((CustomArmorValues) set.items.get("chestplate_one").get(), set.getSide());
+        testLeggings1((CustomArmorValues) set.items.get("leggings_one").get(), set.getSide());
+        testBoots1((CustomArmorValues) set.items.get("boots_one").get(), set.getSide());
     }
 
     static void testSimple3(SimpleCustomItemValues item, ItemSet.Side side) {

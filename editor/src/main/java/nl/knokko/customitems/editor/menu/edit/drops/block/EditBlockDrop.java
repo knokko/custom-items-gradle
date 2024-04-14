@@ -113,7 +113,7 @@ public class EditBlockDrop extends GuiMenu {
 
 		if (toModify == null) {
 			addComponent(new DynamicTextButton("Create", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-				String error = Validation.toErrorString(() -> set.addBlockDrop(currentValues));
+				String error = Validation.toErrorString(() -> set.blockDrops.add(currentValues));
 				if (error == null) {
 					state.getWindow().setMainComponent(returnMenu);
 				} else {
@@ -122,7 +122,7 @@ public class EditBlockDrop extends GuiMenu {
 			}), 0.025f, 0.1f, 0.2f, 0.2f);
 		} else {
 			addComponent(new DynamicTextButton("Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-				String error = Validation.toErrorString(() -> set.changeBlockDrop(toModify, currentValues));
+				String error = Validation.toErrorString(() -> set.blockDrops.change(toModify, currentValues));
 				if (error == null) {
 					state.getWindow().setMainComponent(returnMenu);
 				} else {

@@ -76,7 +76,7 @@ public class EditSound extends GuiMenu {
 
         addComponent(new DynamicTextButton("Custom...", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new CollectionSelect<>(
-                    itemSet.getSoundTypes().references(), newSound -> {
+                    itemSet.soundTypes.references(), newSound -> {
                         currentValues.setVanillaSound(null);
                         currentValues.setCustomSound(newSound);
                         currentSoundComponent.setText(currentSoundString());

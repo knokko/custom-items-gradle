@@ -42,10 +42,10 @@ public class WikiGenerator {
         copyResource("blocks.css", new File(destinationFolder + "/blocks.css"));
         copyResource("damage-source.css", new File(destinationFolder + "/damage-source.css"));
 
-        List<EquipmentSetValues> equipmentSets = itemSet.getEquipmentSets().stream().collect(Collectors.toList());
+        List<EquipmentSetValues> equipmentSets = itemSet.equipmentSets.stream().collect(Collectors.toList());
         File itemsFolder = new File(destinationFolder + "/items");
         if (!itemsFolder.exists() && !itemsFolder.mkdir()) throw new IOException("Failed to create items folder");
-        for (CustomItemValues item : itemSet.getItems()) {
+        for (CustomItemValues item : itemSet.items) {
             if (item.getWikiVisibility() == WikiVisibility.VISIBLE) {
                 new WikiItemGenerator(itemSet, item, equipmentSets).generate(
                         new File(itemsFolder + "/" + item.getName() + ".html")
@@ -63,31 +63,31 @@ public class WikiGenerator {
 
         File damageSourcesFolder = new File(destinationFolder + "/damage-sources");
         if (!damageSourcesFolder.exists() && !damageSourcesFolder.mkdirs()) throw new IOException("Failed to create damage sources folder");
-        for (CustomDamageSourceReference damageSource : itemSet.getDamageSources().references()) {
+        for (CustomDamageSourceReference damageSource : itemSet.damageSources.references()) {
             new WikiDamageSourceGenerator(damageSource, itemSet).generate(new File(damageSourcesFolder + "/" + damageSource.get().getId() + ".html"));
         }
 
         File projectilesFolder = new File(destinationFolder + "/projectiles");
         if (!projectilesFolder.exists() && !projectilesFolder.mkdir()) throw new IOException("Failed to create projectiles folder");
-        for (CustomProjectileValues projectile : itemSet.getProjectiles()) {
+        for (CustomProjectileValues projectile : itemSet.projectiles) {
             new WikiProjectileGenerator(itemSet, projectile).generate(new File(projectilesFolder + "/" + projectile.getName() + ".html"));
         }
 
         File containersFolder = new File(destinationFolder + "/containers");
         if (!containersFolder.exists() && !containersFolder.mkdir()) throw new IOException("Failed to create containers folder");
-        for (CustomContainerValues container : itemSet.getContainers()) {
+        for (CustomContainerValues container : itemSet.containers) {
             new WikiContainerGenerator(itemSet, container).generate(new File(containersFolder + "/" + container.getName() + ".html"));
         }
 
         File energyFolder = new File(containersFolder + "/energy");
         if (!energyFolder.exists() && !energyFolder.mkdir()) throw new IOException("Failed to create container energy folder");
-        for (EnergyTypeValues energyType : itemSet.getEnergyTypes()) {
+        for (EnergyTypeValues energyType : itemSet.energyTypes) {
             new WikiEnergyTypeGenerator(itemSet, energyType).generate(new File(energyFolder + "/" + energyType.getName() + ".html"));
         }
 
         File blocksFolder = new File(destinationFolder + "/blocks");
         if (!blocksFolder.exists() && !blocksFolder.mkdir()) throw new IOException("Failed to create blocks folder");
-        for (CustomBlockValues block : itemSet.getBlocks()) {
+        for (CustomBlockValues block : itemSet.blocks) {
             new WikiBlockGenerator(itemSet, block).generate(new File(blocksFolder + "/" + block.getName() + ".html"));
         }
 

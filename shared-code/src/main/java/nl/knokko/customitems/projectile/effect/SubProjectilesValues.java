@@ -67,7 +67,7 @@ public class SubProjectilesValues extends ProjectileEffectValues {
     }
 
     private void load1(BitInput input, ItemSet itemSet) {
-        this.child = itemSet.getProjectileReference(input.readString());
+        this.child = itemSet.projectiles.getReference(input.readString());
         this.useParentLifetime = input.readBoolean();
         this.minAmount = input.readInt();
         this.maxAmount = input.readInt();
@@ -153,7 +153,7 @@ public class SubProjectilesValues extends ProjectileEffectValues {
     @Override
     public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         if (child == null) throw new ValidationException("You need to choose a child projectile");
-        if (!itemSet.isReferenceValid(child)) throw new ProgrammingValidationException("Child is no longer valid");
+        if (!itemSet.projectiles.isValid(child)) throw new ProgrammingValidationException("Child is no longer valid");
         if (minAmount < 0) throw new ValidationException("Minimum amount can't be negative");
         if (minAmount > maxAmount) throw new ValidationException("Minimum amount can't be larger than maximum amount");
         if (!Float.isFinite(angleToParent)) throw new ValidationException("Angle to parent must be finite");

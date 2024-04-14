@@ -73,7 +73,7 @@ public class CreateBlockProducerEntry extends GuiMenu {
 
         addComponent(new DynamicTextButton("Custom...", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new CollectionSelect<>(
-                    itemSet.getBlocks().references(), block -> {
+                    itemSet.blocks.references(), block -> {
                         currentValues.setBlock(new ProducedBlock(block));
                         selectedBlockLabel.setText("Block: " + block.get().getName());
                     }, candidateBlock -> true, candidateBlock -> candidateBlock.get().getName(), this, false

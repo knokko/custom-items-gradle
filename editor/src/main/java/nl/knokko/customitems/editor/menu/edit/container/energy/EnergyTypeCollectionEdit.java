@@ -17,7 +17,7 @@ public class EnergyTypeCollectionEdit extends DedicatedCollectionEdit<EnergyType
     private final ItemSet itemSet;
 
     public EnergyTypeCollectionEdit(GuiComponent returnMenu, ItemSet itemSet) {
-        super(returnMenu, itemSet.getEnergyTypes().references(), null);
+        super(returnMenu, itemSet.energyTypes.references(), null);
         this.itemSet = itemSet;
     }
 
@@ -55,7 +55,7 @@ public class EnergyTypeCollectionEdit extends DedicatedCollectionEdit<EnergyType
 
     @Override
     protected String deleteModel(EnergyTypeReference modelReference) {
-        return Validation.toErrorString(() -> itemSet.removeEnergyType(modelReference));
+        return Validation.toErrorString(() -> itemSet.energyTypes.remove(modelReference));
     }
 
     @Override

@@ -112,7 +112,7 @@ public class EditItemCrossbow extends EditItemTool<CustomCrossbowValues> {
                 "Custom shoot damage source:", LABEL
         ), 0.55f, -0.25f, 0.84f, -0.175f);
         addComponent(CollectionSelect.createButton(
-                menu.getSet().getDamageSources().references(), currentValues::setCustomShootDamageSource,
+                menu.getSet().damageSources.references(), currentValues::setCustomShootDamageSource,
                 damageSource -> damageSource.get().getName(), currentValues.getCustomShootDamageSourceReference(), true
         ), 0.85f, -0.25f, 0.98f, -0.175f);
 

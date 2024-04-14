@@ -70,7 +70,7 @@ public class EditSubProjectiles extends EditProjectileEffect<SubProjectilesValue
 				LABEL_X - 0.2f, 0.3f, LABEL_X, 0.4f
 		);
 		addComponent(CollectionSelect.createButton(
-				itemSet.getProjectiles().references(), currentValues::setChild,
+				itemSet.projectiles.references(), currentValues::setChild,
 				candidate -> candidate.get().getName(), currentValues.getChildReference(), false
 		), BUTTON_X, 0.31f, BUTTON_X + 0.2f, 0.39f);
 

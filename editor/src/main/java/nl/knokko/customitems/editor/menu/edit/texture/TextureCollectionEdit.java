@@ -27,7 +27,7 @@ public class TextureCollectionEdit extends DedicatedCollectionEdit<BaseTextureVa
 	private final EditMenu menu;
 
 	public TextureCollectionEdit(EditMenu menu) {
-		super(menu, menu.getSet().getTextures().references(), null);
+		super(menu, menu.getSet().textures.references(), null);
 		this.menu = menu;
 	}
 	
@@ -61,7 +61,7 @@ public class TextureCollectionEdit extends DedicatedCollectionEdit<BaseTextureVa
 							if (path != null) {
 								try {
 									BaseTextureValues fileImage = TextureEdit.loadBasicImage(new File(path));
-									String error = Validation.toErrorString(() -> menu.getSet().addTexture(fileImage));
+									String error = Validation.toErrorString(() -> menu.getSet().textures.add(fileImage));
 									if (error != null) {
 										errorComponent.setText(fileImage.getName() + ": " + error);
 									}
@@ -122,7 +122,7 @@ public class TextureCollectionEdit extends DedicatedCollectionEdit<BaseTextureVa
 
 	@Override
 	protected String deleteModel(TextureReference modelReference) {
-		return Validation.toErrorString(() -> menu.getSet().removeTexture(modelReference));
+		return Validation.toErrorString(() -> menu.getSet().textures.remove(modelReference));
 	}
 
 	@Override

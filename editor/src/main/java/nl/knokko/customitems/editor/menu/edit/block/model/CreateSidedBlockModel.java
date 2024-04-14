@@ -75,7 +75,7 @@ public class CreateSidedBlockModel extends GuiMenu {
         float maxY = minY + 0.1f;
         addComponent(new DynamicTextComponent(description, LABEL), 0.3f, minY, 0.4f, maxY);
         addComponent(CollectionSelect.createButton(
-                itemSet.getTextures().references(), chosenTexture -> chosenTextures[index] = chosenTexture,
+                itemSet.textures.references(), chosenTexture -> chosenTextures[index] = chosenTexture,
                 candidateTexture -> candidateTexture.get().getName(), null, false
         ), 0.425f, minY, 0.6f, maxY);
     }

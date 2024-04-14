@@ -18,7 +18,7 @@ public class FuelRegistryCollectionEdit extends DedicatedCollectionEdit<FuelRegi
 	private final ItemSet set;
 
 	public FuelRegistryCollectionEdit(GuiComponent returnMenu, ItemSet set) {
-		super(returnMenu, set.getFuelRegistries().references(), null);
+		super(returnMenu, set.fuelRegistries.references(), null);
 		this.set = set;
 	}
 	
@@ -60,7 +60,7 @@ public class FuelRegistryCollectionEdit extends DedicatedCollectionEdit<FuelRegi
 
 	@Override
 	protected String deleteModel(FuelRegistryReference modelReference) {
-		return Validation.toErrorString(() -> set.removeFuelRegistry(modelReference));
+		return Validation.toErrorString(() -> set.fuelRegistries.remove(modelReference));
 	}
 
 	@Override

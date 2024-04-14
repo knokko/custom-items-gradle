@@ -60,7 +60,7 @@ class ItemRecipeGenerator {
     ItemRecipeGenerator(ItemSet itemSet, CustomItemValues item) {
         this.itemSet = itemSet;
 
-        this.resultCraftingRecipes = itemSet.getCraftingRecipes().stream().filter(recipe -> {
+        this.resultCraftingRecipes = itemSet.craftingRecipes.stream().filter(recipe -> {
             if (isItem(item, recipe.getResult())) return true;
 
             if (recipe instanceof ShapedRecipeValues) {
@@ -83,7 +83,7 @@ class ItemRecipeGenerator {
         }).filter(recipe -> !WikiProtector.isRecipeSecret(recipe)).collect(Collectors.toList());
 
         this.resultContainerRecipes = new HashMap<>();
-        for (CustomContainerValues container : itemSet.getContainers()) {
+        for (CustomContainerValues container : itemSet.containers) {
 
             Collection<ContainerRecipeValues> relevantRecipes = container.getRecipes().stream().filter(
                     recipe -> isItem(item, recipe.getManualOutput()) || recipe.getOutputs().values().stream().anyMatch(
@@ -96,7 +96,7 @@ class ItemRecipeGenerator {
             }
         }
 
-        this.ingredientCraftingRecipes = itemSet.getCraftingRecipes().stream().filter(candidateRecipe -> {
+        this.ingredientCraftingRecipes = itemSet.craftingRecipes.stream().filter(candidateRecipe -> {
             if (candidateRecipe instanceof ShapedRecipeValues) {
                 ShapedRecipeValues shapedRecipe = (ShapedRecipeValues) candidateRecipe;
                 for (int x = 0; x < 3; x++) {
@@ -116,7 +116,7 @@ class ItemRecipeGenerator {
         }).filter(recipe -> !WikiProtector.isRecipeSecret(recipe)).collect(Collectors.toList());
 
         this.ingredientContainerRecipes = new HashMap<>();
-        for (CustomContainerValues container : itemSet.getContainers()) {
+        for (CustomContainerValues container : itemSet.containers) {
             Collection<ContainerRecipeValues> relevantRecipes = container.getRecipes().stream().filter(candidateRecipe ->
                 candidateRecipe.getInputs().values().stream().anyMatch(candidateIngredient -> isItem(item, candidateIngredient))
             ).filter(recipe -> !WikiProtector.isRecipeSecret(recipe)).collect(Collectors.toList());
@@ -170,8 +170,8 @@ class ItemRecipeGenerator {
 
             for (String containerName : ingredientContainerRecipes.keySet()) {
                 output.println("\t\t<h3><a href=\"../containers/" + containerName + ".html\">" +
-                        getDisplayName(itemSet.getContainer(containerName).get()) + " recipes</a></h3>");
-                CustomContainerValues container = itemSet.getContainer(containerName).get();
+                        getDisplayName(itemSet.containers.get(containerName).get()) + " recipes</a></h3>");
+                CustomContainerValues container = itemSet.containers.get(containerName).get();
 
                 Collection<ContainerRecipeValues> recipes = ingredientContainerRecipes.get(containerName);
                 for (ContainerRecipeValues recipe : recipes) {
@@ -196,8 +196,8 @@ class ItemRecipeGenerator {
 
             for (String containerName : resultContainerRecipes.keySet()) {
                 output.println("\t\t<h4><a href=\"../containers/" + containerName + ".html\">" +
-                        getDisplayName(itemSet.getContainer(containerName).get()) + " recipes</a></h4>");
-                CustomContainerValues container = itemSet.getContainer(containerName).get();
+                        getDisplayName(itemSet.containers.get(containerName).get()) + " recipes</a></h4>");
+                CustomContainerValues container = itemSet.containers.get(containerName).get();
 
                 Collection<ContainerRecipeValues> recipes = resultContainerRecipes.get(containerName);
                 for (ContainerRecipeValues recipe : recipes) {

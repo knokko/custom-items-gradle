@@ -22,7 +22,7 @@ public class ItemCollectionEdit extends DedicatedCollectionEdit<CustomItemValues
 	private final EditMenu menu;
 
 	public ItemCollectionEdit(EditMenu menu) {
-		super(menu, menu.getSet().getItems().references(), null);
+		super(menu, menu.getSet().items.references(), null);
 		this.menu = menu;
 	}
 	
@@ -103,7 +103,7 @@ public class ItemCollectionEdit extends DedicatedCollectionEdit<CustomItemValues
 
 	@Override
 	public String deleteModel(ItemReference itemToDelete) {
-		return Validation.toErrorString(() -> menu.getSet().removeItem(itemToDelete));
+		return Validation.toErrorString(() -> menu.getSet().items.remove(itemToDelete));
 	}
 
 	@Override

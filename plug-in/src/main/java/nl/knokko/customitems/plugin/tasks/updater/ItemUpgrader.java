@@ -129,7 +129,7 @@ public class ItemUpgrader {
         if (!ItemUtils.isEmpty(stack)) {
             NBT.get(stack, nbt -> {
                 for (UUID id : getExistingUpgradeIDs(nbt)) {
-                    Optional<UpgradeValues> upgrade = itemSet.get().getUpgrade(id);
+                    Optional<UpgradeValues> upgrade = itemSet.get().upgrades.get(id);
                     upgrade.ifPresent(upgrades::add);
                 }
             });
@@ -166,7 +166,7 @@ public class ItemUpgrader {
             Map<EnchantmentType, Integer> newKciEnchantments = new HashMap<>();
             if (customItem != null) ItemUpdater.addEnchantmentsToMap(newKciEnchantments, customItem.getDefaultEnchantments());
             for (UUID id : newUpgradeIDs) {
-                ItemUpdater.addEnchantmentsToMap(newKciEnchantments, itemSet.get().getUpgrade(id).get().getEnchantments());
+                ItemUpdater.addEnchantmentsToMap(newKciEnchantments, itemSet.get().upgrades.get(id).get().getEnchantments());
             }
             nbtResult.enchantmentAdjustments = ItemUpdater.determineEnchantmentAdjustments(
                     oldKciEnchantments, newKciEnchantments
@@ -203,7 +203,7 @@ public class ItemUpgrader {
                 newResult.setNewType(null);
                 newResult.setRepairPercentage(result.getRepairPercentage() + originalDurabilityPercentage - 100f);
                 newResult.setUpgrades(newUpgradeIDs.stream().map(
-                        id -> itemSet.get().getUpgradeReference(id)).collect(Collectors.toList()
+                        id -> itemSet.get().upgrades.getReference(id)).collect(Collectors.toList()
                 ));
 
                 nbtResult.newStack = addUpgrade(newStack, itemSet, newResult);

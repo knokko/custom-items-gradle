@@ -18,7 +18,7 @@ public class SimpleBlockModel implements BlockModel {
         byte encoding = input.readByte();
         if (encoding != 1) throw new UnknownEncodingException("SimpleBlockModel", encoding);
 
-        return new SimpleBlockModel(itemSet.getTextureReference(input.readString()));
+        return new SimpleBlockModel(itemSet.textures.getReference(input.readString()));
     }
 
     private final TextureReference texture;
@@ -50,7 +50,7 @@ public class SimpleBlockModel implements BlockModel {
     @Override
     public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         if (texture == null) throw new ValidationException("You need to select a texture");
-        if (!itemSet.isReferenceValid(texture)) throw new ProgrammingValidationException("Texture is no longer valid");
+        if (!itemSet.textures.isValid(texture)) throw new ProgrammingValidationException("Texture is no longer valid");
     }
 
     @Override

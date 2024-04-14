@@ -44,7 +44,7 @@ public class ChooseCustomResult extends GuiMenu {
         addComponent(new DynamicTextComponent("Item:", LABEL), 0.3f, 0.6f, 0.4f, 0.7f);
         addComponent(
                 CollectionSelect.createButton(
-                        itemSet.getItems().references(), result::setItem,
+                        itemSet.items.references(), result::setItem,
                         itemRef -> itemRef.get().getName(), result.getItemReference(), false
                 ), 0.45f, 0.6f, 0.65f, 0.7f
         );

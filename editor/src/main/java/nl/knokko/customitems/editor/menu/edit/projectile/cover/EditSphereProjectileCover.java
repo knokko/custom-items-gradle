@@ -45,7 +45,7 @@ public class EditSphereProjectileCover extends EditProjectileCover<SphereProject
 		);
 		addComponent(
 				CollectionSelect.createButton(
-						menu.getSet().getTextures().references(),
+						menu.getSet().textures.references(),
 						currentValues::setTexture,
 						textureReference -> textureReference.get().getName(),
 						currentValues.getTextureReference(), false

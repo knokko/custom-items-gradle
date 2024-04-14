@@ -219,7 +219,7 @@ class KciContainerActionEvent extends BukkitScriptEvent implements Listener {
                 }
 
                 if (key.equals("switch_container")) {
-                    Optional<CustomContainerValues> newContainer = event.itemSet.get().getContainer(value.asString());
+                    Optional<CustomContainerValues> newContainer = event.itemSet.get().containers.get(value.asString());
                     if (newContainer.isPresent()) {
                         CustomItemsPlugin.getInstance().getData().containerManager.attemptToSwitchToLinkedContainer(
                                 event.getPlayer(), newContainer.get()

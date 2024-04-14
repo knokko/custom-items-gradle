@@ -32,8 +32,6 @@ import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
 import nl.knokko.customitems.util.Chance;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-
 import static nl.knokko.customitems.serialization.TestBackward1.testRecipes1;
 import static nl.knokko.customitems.serialization.TestBackward3.testTextures3;
 import static nl.knokko.customitems.serialization.TestBackward5.testItems5;
@@ -63,19 +61,19 @@ public class TestBackward6 {
 
     static void testTexturesNew6(ItemSet set, int numTextures) {
         if (set.getSide() == ItemSet.Side.PLUGIN) {
-            assertEquals(0, set.getTextures().size());
+            assertEquals(0, set.textures.size());
             return;
         }
 
-        assertEquals(numTextures, set.getTextures().size());
+        assertEquals(numTextures, set.textures.size());
 
-        assertImageEqual(loadImage("quick_wand"), set.getTexture("quick_wand").get().getImage());
+        assertImageEqual(loadImage("quick_wand"), set.textures.get("quick_wand").get().getImage());
     }
 
     static void testItemsNew6(ItemSet set, int numItems) {
-        assertEquals(numItems, set.getItems().size());
+        assertEquals(numItems, set.items.size());
 
-        CustomTridentValues trident1 = (CustomTridentValues) set.getItem("trident_one").get();
+        CustomTridentValues trident1 = (CustomTridentValues) set.items.get("trident_one").get();
         assertEquals("trident_one", trident1.getName());
         assertEquals(CustomItemType.TRIDENT, trident1.getItemType());
         assertEquals("Cold Trident", trident1.getDisplayName());
@@ -130,27 +128,27 @@ public class TestBackward6 {
     }
 
     static void testRecipesNew6(ItemSet set, int numRecipes) {
-        assertEquals(numRecipes, set.getCraftingRecipes().size());
+        assertEquals(numRecipes, set.craftingRecipes.size());
 
-        assertTrue(set.getCraftingRecipes().stream().anyMatch(recipe -> recipe.equals(createCoralRecipe())));
+        assertTrue(set.craftingRecipes.stream().anyMatch(recipe -> recipe.equals(createCoralRecipe())));
     }
 
     static void testItemsOld6(ItemSet set, int numItems) {
         testItems5(set, numItems);
 
-        testHoeDefault6((CustomHoeValues) set.getItem("hoe_two").get());
-        testShearsDefault6((CustomShearsValues) set.getItem("shears_two").get());
-        testBowDefault6((CustomBowValues) set.getItem("bow_two").get());
-        testArmorDefault6((CustomArmorValues) set.getItem("helmet_two").get());
+        testHoeDefault6((CustomHoeValues) set.items.get("hoe_two").get());
+        testShearsDefault6((CustomShearsValues) set.items.get("shears_two").get());
+        testBowDefault6((CustomBowValues) set.items.get("bow_two").get());
+        testArmorDefault6((CustomArmorValues) set.items.get("helmet_two").get());
 
-        testShield1((CustomShieldValues) set.getItem("shield_one").get(), set.getSide());
-        testWand1((CustomWandValues) set.getItem("wand_one").get(), set.getSide());
+        testShield1((CustomShieldValues) set.items.get("shield_one").get(), set.getSide());
+        testWand1((CustomWandValues) set.items.get("wand_one").get(), set.getSide());
     }
 
     static void testRecipesOld6(ItemSet set, int numRecipes) {
         testRecipes1(set, numRecipes);
 
-        assertTrue(set.getCraftingRecipes().stream().anyMatch(recipe -> recipe.equals(createShapedRecipe2())));
+        assertTrue(set.craftingRecipes.stream().anyMatch(recipe -> recipe.equals(createShapedRecipe2())));
     }
 
     static ShapedRecipeValues createShapedRecipe2() {
@@ -163,7 +161,7 @@ public class TestBackward6 {
     }
 
     private static BlockDropValues createBlockDrop1(ItemSet itemSet, boolean useFlatChance) {
-        ItemReference simple1 = itemSet.getItemReference("simple1");
+        ItemReference simple1 = itemSet.items.getReference("simple1");
         return BlockDropValues.createQuick(
                 BlockType.STONE, SilkTouchRequirement.FORBIDDEN,
                 DropValues.createQuick(
@@ -191,13 +189,13 @@ public class TestBackward6 {
     }
 
     static void testBlockDropsOld6(ItemSet set, int numDrops, boolean useFlatChance) {
-        assertEquals(numDrops, set.getBlockDrops().size());
+        assertEquals(numDrops, set.blockDrops.size());
 
-        assertTrue(set.getBlockDrops().stream().anyMatch(blockDrop -> blockDrop.equals(createBlockDrop1(set, useFlatChance))));
+        assertTrue(set.blockDrops.stream().anyMatch(blockDrop -> blockDrop.equals(createBlockDrop1(set, useFlatChance))));
     }
 
     private static MobDropValues createSwordMobDrop(ItemSet itemSet) {
-        ItemReference sword1 = itemSet.getItemReference("sword1");
+        ItemReference sword1 = itemSet.items.getReference("sword1");
         return MobDropValues.createQuick(
                 CIEntityType.ZOMBIE, null,
                 DropValues.createQuick(
@@ -209,7 +207,7 @@ public class TestBackward6 {
     }
 
     private static MobDropValues createAxeMobDrop(ItemSet itemSet) {
-        ItemReference axe1 = itemSet.getItemReference("axe1");
+        ItemReference axe1 = itemSet.items.getReference("axe1");
         return MobDropValues.createQuick(
                 CIEntityType.SKELETON, "skelly",
                 DropValues.createQuick(
@@ -221,16 +219,16 @@ public class TestBackward6 {
     }
 
     static void testMobDropsOld6(ItemSet set, int numDrops) {
-        assertEquals(set.getMobDrops().size(), numDrops);
+        assertEquals(set.mobDrops.size(), numDrops);
 
-        assertTrue(set.getMobDrops().stream().anyMatch(drop -> drop.equals(createSwordMobDrop(set))));
-        assertTrue(set.getMobDrops().stream().anyMatch(drop -> drop.equals(createAxeMobDrop(set))));
+        assertTrue(set.mobDrops.stream().anyMatch(drop -> drop.equals(createSwordMobDrop(set))));
+        assertTrue(set.mobDrops.stream().anyMatch(drop -> drop.equals(createAxeMobDrop(set))));
     }
 
     static void testProjectileCoversOld6(ItemSet set, int numProjectileCovers) {
-        assertEquals(numProjectileCovers, set.getProjectileCovers().size());
+        assertEquals(numProjectileCovers, set.projectileCovers.size());
 
-        ProjectileCoverValues cover1 = set.getProjectileCover("sphere_one").get();
+        ProjectileCoverValues cover1 = set.projectileCovers.get("sphere_one").get();
         assertEquals("sphere_one", cover1.getName());
         assertEquals(CustomItemType.DIAMOND_SHOVEL, cover1.getItemType());
         if (set.getSide() == ItemSet.Side.EDITOR) {
@@ -240,20 +238,20 @@ public class TestBackward6 {
             assertEquals("test1", sphere1.getTexture().getName());
         }
 
-        ProjectileCoverValues cover2 = set.getProjectileCover("custom_one").get();
+        ProjectileCoverValues cover2 = set.projectileCovers.get("custom_one").get();
         assertEquals("custom_one", cover2.getName());
         assertEquals(CustomItemType.DIAMOND_SHOVEL, cover2.getItemType());
 
         if (set.getSide() == ItemSet.Side.EDITOR) {
-            CustomProjectileCoverValues custom1 = (CustomProjectileCoverValues) set.getProjectileCover("custom_one").get();
+            CustomProjectileCoverValues custom1 = (CustomProjectileCoverValues) set.projectileCovers.get("custom_one").get();
             assertStringResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", ((LegacyCustomItemModel) custom1.getModel()).getRawModel());
         }
     }
 
     static void testProjectilesOld6(ItemSet set, int numProjectiles) {
-        assertEquals(numProjectiles, set.getProjectiles().size());
+        assertEquals(numProjectiles, set.projectiles.size());
 
-        CustomProjectileValues crazy1 = set.getProjectile("crazy1").get();
+        CustomProjectileValues crazy1 = set.projectiles.get("crazy1").get();
         assertEquals("crazy1", crazy1.getName());
         assertEquals(3.5, crazy1.getDamage(), DELTA);
         assertEquals(1.6, crazy1.getMinLaunchAngle(), DELTA);
@@ -286,7 +284,7 @@ public class TestBackward6 {
 
         assertEquals(1, crazy1.getImpactEffects().size());
         assertTrue(crazy1.getImpactEffects().contains(SubProjectilesValues.createQuick(
-                set.getProjectileReference("crazy1"), true, 1, 2, 30f
+                set.projectiles.getReference("crazy1"), true, 1, 2, 30f
         )));
         assertEquals("sphere_one", crazy1.getCover().getName());
     }

@@ -76,8 +76,8 @@ public class ArmorTexturesEdit extends GuiMenu {
 		
 		addComponent(new DynamicTextButton(toModify == null ? "Create" : "Apply", SAVE_BASE, SAVE_HOVER, () -> {
 			String error;
-			if (toModify == null) error = Validation.toErrorString(() -> set.addArmorTexture(currentValues));
-			else error = Validation.toErrorString(() -> set.changeArmorTexture(toModify, currentValues));
+			if (toModify == null) error = Validation.toErrorString(() -> set.armorTextures.add(currentValues));
+			else error = Validation.toErrorString(() -> set.armorTextures.change(toModify, currentValues));
 
 			if (error == null) state.getWindow().setMainComponent(returnMenu);
 			else errorComponent.setText(error);

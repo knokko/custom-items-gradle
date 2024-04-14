@@ -25,7 +25,7 @@ class ResourcepackFancyPants {
     }
 
     public void copyShaderAndLicense() throws IOException {
-        if (itemSet.getFancyPantsArmorTextures().size() > 0) {
+        if (!itemSet.fancyPants.isEmpty()) {
             String[][] pathsToCopy = {
                     {
                             "ancientking/fancypants/rendertype_armor_cutout_no_cull.fsh",
@@ -66,7 +66,7 @@ class ResourcepackFancyPants {
     }
 
     public void generateEmptyTextures() throws IOException {
-        if (itemSet.getFancyPantsArmorTextures().size() > 0) {
+        if (!itemSet.fancyPants.isEmpty()) {
             BufferedImage emptyImage = new BufferedImage(64, 32, BufferedImage.TYPE_INT_ARGB);
             String[] destinations = {
                     "assets/minecraft/textures/models/armor/leather_layer_1_overlay.png",
@@ -92,14 +92,14 @@ class ResourcepackFancyPants {
     }
 
     public void generateFullTextures() throws IOException {
-        if (itemSet.getFancyPantsArmorTextures().size() > 0) {
+        if (!itemSet.fancyPants.isEmpty()) {
             // TODO Allow armor textures to be larger
             int width = 64;
             int height = width / 2;
 
             int totalWidth = width;
             int maxNumFrames = 1;
-            for (FancyPantsArmorTextureValues fpTexture : itemSet.getFancyPantsArmorTextures()) {
+            for (FancyPantsArmorTextureValues fpTexture : itemSet.fancyPants) {
                 if (fpTexture.getFrames().size() > maxNumFrames) maxNumFrames = fpTexture.getFrames().size();
                 if (fpTexture.getEmissivity() == FancyPantsArmorTextureValues.Emissivity.PARTIAL) totalWidth += 2 * width;
                 else totalWidth += width;
@@ -116,7 +116,7 @@ class ResourcepackFancyPants {
             copyImage("ancientking/fancypants/template/leather_layer_2.png", graphics2);
 
             int currentX = width;
-            for (FancyPantsArmorTextureValues fpTexture : itemSet.getFancyPantsArmorTextures()) {
+            for (FancyPantsArmorTextureValues fpTexture : itemSet.fancyPants) {
 
                 int currentY = 0;
                 for (FancyPantsArmorFrameValues frame : fpTexture.getFrames()) {

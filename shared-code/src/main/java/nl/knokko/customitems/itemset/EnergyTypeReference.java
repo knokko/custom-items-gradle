@@ -23,7 +23,7 @@ public class EnergyTypeReference extends UUIDBasedReference<EnergyType, EnergyTy
 
     @Override
     Collection<EnergyType> getCollection() {
-        return itemSet.energyTypes;
+        return itemSet.energyTypes.elements;
     }
 
     @Override

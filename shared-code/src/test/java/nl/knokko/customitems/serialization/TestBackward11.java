@@ -95,17 +95,17 @@ public class TestBackward11 {
     }
 
     static void testEquipmentSetsOld11(ItemSet set, int numEquipmentSets) {
-        assertEquals(numEquipmentSets, set.getEquipmentSets().size());
+        assertEquals(numEquipmentSets, set.equipmentSets.size());
 
-        assertTrue(set.getEquipmentSets().stream().anyMatch(equipmentSet -> {
+        assertTrue(set.equipmentSets.stream().anyMatch(equipmentSet -> {
             if (equipmentSet.getEntries().size() != 2) return false;
             if (equipmentSet.getEntryValue(
-                    new EquipmentEntry(AttributeModifierValues.Slot.HEAD, set.getItemReference("helmet_two"))
+                    new EquipmentEntry(AttributeModifierValues.Slot.HEAD, set.items.getReference("helmet_two"))
             ) != 5) {
                 return false;
             }
             if (equipmentSet.getEntryValue(
-                    new EquipmentEntry(AttributeModifierValues.Slot.CHEST, set.getItemReference("elytra1"))
+                    new EquipmentEntry(AttributeModifierValues.Slot.CHEST, set.items.getReference("elytra1"))
             ) != 3) {
                 return false;
             }
@@ -128,7 +128,7 @@ public class TestBackward11 {
     static void testRecipesOld11(ItemSet set, int numRecipes) {
         testRecipesOld10(set, numRecipes);
 
-        assertTrue(set.getCraftingRecipes().stream().anyMatch(recipe -> {
+        assertTrue(set.craftingRecipes.stream().anyMatch(recipe -> {
             if (!(recipe instanceof ShapelessRecipeValues)) return false;
             Collection<IngredientValues> ingredients = ((ShapelessRecipeValues) recipe).getIngredients();
             if (ingredients.size() != 1) return false;
@@ -147,39 +147,39 @@ public class TestBackward11 {
     static void testItemsOld11(ItemSet set, int numItems) {
         testItemsOld10(set, numItems);
 
-        testWandDefault11((CustomWandValues) set.getItem("wand3").get());
-        testGunDefault11((CustomGunValues) set.getItem("gun2").get());
-        testPocketContainerDefault11((CustomPocketContainerValues) set.getItem("pocket_container2").get());
-        testFoodDefault11((CustomFoodValues) set.getItem("food2").get());
-        testSimpleDefault11((SimpleCustomItemValues) set.getItem("simple5").get());
-        testToolDefault11((CustomToolValues) set.getItem("sword2").get());
-        testHoeDefault11((CustomHoeValues) set.getItem("hoe4").get());
-        testShearsDefault11((CustomShearsValues) set.getItem("shears4").get());
-        test3dHelmetDefault11((CustomHelmet3dValues) set.getItem("3dhelmet2").get());
-        testBowDefault11((CustomBowValues) set.getItem("bow4").get());
-        testArmorDefault11((CustomArmorValues) set.getItem("leggings2").get());
-        testShieldDefault11((CustomShieldValues) set.getItem("shield3").get());
+        testWandDefault11((CustomWandValues) set.items.get("wand3").get());
+        testGunDefault11((CustomGunValues) set.items.get("gun2").get());
+        testPocketContainerDefault11((CustomPocketContainerValues) set.items.get("pocket_container2").get());
+        testFoodDefault11((CustomFoodValues) set.items.get("food2").get());
+        testSimpleDefault11((SimpleCustomItemValues) set.items.get("simple5").get());
+        testToolDefault11((CustomToolValues) set.items.get("sword2").get());
+        testHoeDefault11((CustomHoeValues) set.items.get("hoe4").get());
+        testShearsDefault11((CustomShearsValues) set.items.get("shears4").get());
+        test3dHelmetDefault11((CustomHelmet3dValues) set.items.get("3dhelmet2").get());
+        testBowDefault11((CustomBowValues) set.items.get("bow4").get());
+        testArmorDefault11((CustomArmorValues) set.items.get("leggings2").get());
+        testShieldDefault11((CustomShieldValues) set.items.get("shield3").get());
 
-        testElytra1((CustomElytraValues) set.getItem("elytra1").get(), set.getSide());
-        testWand4((CustomWandValues) set.getItem("wand4").get());
-        testGun3((CustomGunValues) set.getItem("gun3").get());
-        testFood3((CustomFoodValues) set.getItem("food3").get());
+        testElytra1((CustomElytraValues) set.items.get("elytra1").get(), set.getSide());
+        testWand4((CustomWandValues) set.items.get("wand4").get());
+        testGun3((CustomGunValues) set.items.get("gun3").get());
+        testFood3((CustomFoodValues) set.items.get("food3").get());
     }
 
     static void testItemsNew11(ItemSet set, int numItems) {
         testItemsNew10(set, numItems);
 
-        testTridentDefault11((CustomTridentValues) set.getItem("trident3").get());
-        testCrossbowDefault11((CustomCrossbowValues) set.getItem("crossbow2").get());
-        testBlockItemDefault11((CustomBlockItemValues) set.getItem("block_item2").get());
+        testTridentDefault11((CustomTridentValues) set.items.get("trident3").get());
+        testCrossbowDefault11((CustomCrossbowValues) set.items.get("crossbow2").get());
+        testBlockItemDefault11((CustomBlockItemValues) set.items.get("block_item2").get());
 
-        testMusicDisc1((CustomMusicDiscValues) set.getItem("music_disc1").get());
+        testMusicDisc1((CustomMusicDiscValues) set.items.get("music_disc1").get());
     }
 
     static void testProjectilesOld11(ItemSet set, int numProjectiles) {
         testProjectilesOld9(set, numProjectiles);
 
-        CustomProjectileValues soundBolt = set.getProjectile("soundbolt").get();
+        CustomProjectileValues soundBolt = set.projectiles.get("soundbolt").get();
         assertEquals(1, soundBolt.getImpactEffects().size());
         PlaySoundValues soundEffect = (PlaySoundValues) soundBolt.getImpactEffects().iterator().next();
         SoundValues sound = soundEffect.getSound();
@@ -191,7 +191,7 @@ public class TestBackward11 {
     static void testContainersOld11(ItemSet set, int numContainers) {
         testContainersOld10(set, numContainers);
 
-        CustomContainerValues container5 = set.getContainer("container5").get();
+        CustomContainerValues container5 = set.containers.get("container5").get();
         assertTrue(container5.requiresPermission());
         assertEquals(2, container5.getHeight());
         assertEquals(ContainerStorageMode.GLOBAL, container5.getStorageMode());
@@ -200,12 +200,12 @@ public class TestBackward11 {
         assertTrue(container5.getSlot(2, 0) instanceof InputSlotValues);
         assertTrue(container5.getSlot(3, 0) instanceof OutputSlotValues);
 
-        EnergyTypeValues temperature = set.getEnergyTypes().stream().filter(energyType -> energyType.getName().equals("temperature")).findFirst().get();
+        EnergyTypeValues temperature = set.energyTypes.stream().filter(energyType -> energyType.getName().equals("temperature")).findFirst().get();
         EnergyIndicatorSlotValues energySlot = (EnergyIndicatorSlotValues) container5.getSlot(0, 0);
         assertEquals("temperature", energySlot.getEnergyType().getName());
         assertEquals(new IndicatorDomain(20, 70), energySlot.getIndicatorDomain());
         assertEquals(SlotDisplayValues.createQuick(
-                CustomDisplayItemValues.createQuick(set.getItemReference("simple2")),
+                CustomDisplayItemValues.createQuick(set.items.getReference("simple2")),
                 "test", listOf("Test"), 1
         ), energySlot.getDisplay());
         assertEquals(SlotDisplayValues.createQuick(
@@ -224,17 +224,17 @@ public class TestBackward11 {
 
         assertEquals(2, recipe.getEnergy().size());
         assertTrue(recipe.getEnergy().contains(RecipeEnergyValues.createQuick(
-                set.getEnergyTypeReference(temperature.getId()), RecipeEnergyOperation.REQUIRE_AT_LEAST, 100
+                set.energyTypes.getReference(temperature.getId()), RecipeEnergyOperation.REQUIRE_AT_LEAST, 100
         )));
         assertTrue(recipe.getEnergy().contains(RecipeEnergyValues.createQuick(
-                set.getEnergyTypeReference(temperature.getId()), RecipeEnergyOperation.DECREASE, 100
+                set.energyTypes.getReference(temperature.getId()), RecipeEnergyOperation.DECREASE, 100
         )));
     }
 
     static void testEnergyTypesOld11(ItemSet set, int numEnergyTypes) {
-        assertEquals(numEnergyTypes, set.getEnergyTypes().size());
+        assertEquals(numEnergyTypes, set.energyTypes.size());
 
-        EnergyTypeValues temperature = set.getEnergyTypes().stream().filter(
+        EnergyTypeValues temperature = set.energyTypes.stream().filter(
                 energyType -> energyType.getName().equals("temperature")
         ).findFirst().get();
         assertEquals(-200, temperature.getMinValue());
@@ -249,7 +249,7 @@ public class TestBackward11 {
     static void testBlocksNew11(ItemSet set, int numBlocks) {
         testBlocksNew9(set, numBlocks);
 
-        CustomBlockValues block2 = set.getBlock(2).get();
+        CustomBlockValues block2 = set.blocks.get(2).get();
 
         if (set.getSide() == ItemSet.Side.EDITOR) {
             CustomBlockModel model = (CustomBlockModel) block2.getModel();
@@ -271,25 +271,25 @@ public class TestBackward11 {
         assertEquals("trident2", customEntry.getItem().getName());
         assertEquals(-2, customEntry.getValue());
 
-        CustomBlockValues block3 = set.getBlock(3).get();
+        CustomBlockValues block3 = set.blocks.get(3).get();
         if (set.getSide() == ItemSet.Side.EDITOR) {
             assertTrue(block3.getModel() instanceof SidedBlockModel);
         }
     }
 
     static void testOreVeinsNew11(ItemSet set, int numGenerators) {
-        assertEquals(numGenerators, set.getOreVeinGenerators().size());
+        assertEquals(numGenerators, set.oreGenerators.size());
 
         OreVeinGeneratorValues generator1 = new OreVeinGeneratorValues(true);
         ReplaceBlocksValues blocksToReplace = new ReplaceBlocksValues(true);
         blocksToReplace.setVanillaBlocks(new HashSet<>(listOf(CIMaterial.STONE)));
-        blocksToReplace.setCustomBlocks(new HashSet<>(listOf(set.getBlockReference(1))));
+        blocksToReplace.setCustomBlocks(new HashSet<>(listOf(set.blocks.getReference(1))));
         generator1.setBlocksToReplace(blocksToReplace);
         AllowedBiomesValues allowedBiomes = new AllowedBiomesValues(true);
         allowedBiomes.setBlacklist(listOf(CIBiome.NETHER));
         generator1.setAllowedBiomes(allowedBiomes);
         generator1.setOreMaterial(BlockProducerValues.createQuick(BlockProducerValues.Entry.createQuick(
-                new ProducedBlock(set.getBlockReference(2)), Chance.percentage(70)
+                new ProducedBlock(set.blocks.getReference(2)), Chance.percentage(70)
         )));
         generator1.setMinY(5);
         generator1.setMaxY(15);
@@ -301,11 +301,11 @@ public class TestBackward11 {
         generator1.setMaxVeinSize(20);
         generator1.setMaxNumGrowAttempts(100);
 
-        assertTrue(set.getOreVeinGenerators().stream().anyMatch(generator -> generator.equals(generator1)));
+        assertTrue(set.oreGenerators.stream().anyMatch(generator -> generator.equals(generator1)));
     }
 
     static void testTreesNew11(ItemSet set, int numGenerators) {
-        assertEquals(numGenerators, set.getTreeGenerators().size());
+        assertEquals(numGenerators, set.treeGenerators.size());
 
         TreeGeneratorValues tree1 = new TreeGeneratorValues(true);
         tree1.setTreeType(CITreeType.REDWOOD);
@@ -314,10 +314,10 @@ public class TestBackward11 {
         tree1.setAllowedBiomes(allowedBiomes);
         ReplaceBlocksValues allowedTerrain = new ReplaceBlocksValues(true);
         allowedTerrain.setVanillaBlocks(EnumSet.of(CIMaterial.GRASS_BLOCK, CIMaterial.SNOW_BLOCK));
-        allowedTerrain.setCustomBlocks(new HashSet<>(listOf(set.getBlockReference(1))));
+        allowedTerrain.setCustomBlocks(new HashSet<>(listOf(set.blocks.getReference(1))));
         tree1.setAllowedTerrain(allowedTerrain);
         tree1.setLogMaterial(BlockProducerValues.createQuick(
-                BlockProducerValues.Entry.createQuick(new ProducedBlock(set.getBlockReference(3)), Chance.percentage(100))
+                BlockProducerValues.Entry.createQuick(new ProducedBlock(set.blocks.getReference(3)), Chance.percentage(100))
         ));
         tree1.setLeavesMaterial(BlockProducerValues.createQuick(
                 BlockProducerValues.Entry.createQuick(new ProducedBlock(CIMaterial.SPRUCE_LEAVES), Chance.percentage(30))
@@ -327,13 +327,13 @@ public class TestBackward11 {
         tree1.setMaxNumTrees(3);
         tree1.setMaxNumAttempts(10);
 
-        assertTrue(set.getTreeGenerators().stream().anyMatch(generator -> generator.equals(tree1)));
+        assertTrue(set.treeGenerators.stream().anyMatch(generator -> generator.equals(tree1)));
     }
 
     static void testSoundsOld11(ItemSet set, int numSounds) {
-        assertEquals(numSounds, set.getSoundTypes().size());
+        assertEquals(numSounds, set.soundTypes.size());
 
-        CustomSoundTypeValues test5sec = set.getSoundTypes().stream().filter(soundType -> soundType.getName().equals("test5sec")).findFirst().get();
+        CustomSoundTypeValues test5sec = set.soundTypes.stream().filter(soundType -> soundType.getName().equals("test5sec")).findFirst().get();
         assertEquals(AMBIENT, test5sec.getSoundCategory());
         if (set.getSide() == ItemSet.Side.EDITOR) {
             assertResourceEquals("nl/knokko/customitems/serialization/sound/test5sec.ogg", test5sec.getOggData());

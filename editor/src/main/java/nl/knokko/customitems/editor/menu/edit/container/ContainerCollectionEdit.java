@@ -21,7 +21,7 @@ public class ContainerCollectionEdit extends DedicatedCollectionEdit<CustomConta
 	private final EditMenu menu;
 
 	public ContainerCollectionEdit(EditMenu menu) {
-		super(menu.getContainerPortal(), menu.getSet().getContainers().references(), null);
+		super(menu.getContainerPortal(), menu.getSet().containers.references(), null);
 		this.menu = menu;
 	}
 	
@@ -61,7 +61,7 @@ public class ContainerCollectionEdit extends DedicatedCollectionEdit<CustomConta
 
 	@Override
 	protected String deleteModel(ContainerReference modelReference) {
-		return Validation.toErrorString(() -> menu.getSet().removeContainer(modelReference));
+		return Validation.toErrorString(() -> menu.getSet().containers.remove(modelReference));
 	}
 
 	@Override

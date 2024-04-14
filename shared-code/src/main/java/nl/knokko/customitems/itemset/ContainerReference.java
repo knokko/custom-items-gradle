@@ -22,7 +22,7 @@ public class ContainerReference extends StringBasedReference<CustomContainer, Cu
 
     @Override
     Collection<CustomContainer> getCollection() {
-        return itemSet.containers;
+        return itemSet.containers.elements;
     }
 
     @Override

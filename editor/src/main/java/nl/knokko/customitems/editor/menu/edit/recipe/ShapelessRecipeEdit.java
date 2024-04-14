@@ -20,7 +20,6 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
@@ -72,8 +71,8 @@ public class ShapelessRecipeEdit extends GuiMenu {
         ), 0.025f, 0.3f, 0.175f, 0.4f);
         addComponent(new DynamicTextButton(toModify == null ? "Create" : "Apply", SAVE_BASE, SAVE_HOVER, () -> {
             String error;
-            if (toModify == null) error = Validation.toErrorString(() -> itemSet.addRecipe(currentValues));
-            else error = Validation.toErrorString(() -> itemSet.changeRecipe(toModify, currentValues));
+            if (toModify == null) error = Validation.toErrorString(() -> itemSet.craftingRecipes.add(currentValues));
+            else error = Validation.toErrorString(() -> itemSet.craftingRecipes.change(toModify, currentValues));
 
             if (error == null) {
                 state.getWindow().setMainComponent(returnMenu);

@@ -78,7 +78,7 @@ public class EditItemTrident extends EditItemTool<CustomTridentValues> {
 				"Custom throw damage source:", LABEL
 		), 0.6f, -0.025f, 0.84f, 0.05f);
 		addComponent(CollectionSelect.createButton(
-				menu.getSet().getDamageSources().references(), currentValues::setCustomThrowDamageSource,
+				menu.getSet().damageSources.references(), currentValues::setCustomThrowDamageSource,
 				damageSource -> damageSource.get().getName(), currentValues.getCustomThrowDamageSourceReference(), true
 		), 0.85f, -0.025f, 0.95f, 0.05f);
 

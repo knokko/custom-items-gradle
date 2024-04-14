@@ -22,7 +22,7 @@ public class FancyPantsArmorTextureReference extends UUIDBasedReference<FancyPan
 
     @Override
     Collection<FancyPantsArmorTexture> getCollection() {
-        return itemSet.fancyPantsArmorTextures;
+        return itemSet.fancyPants.elements;
     }
 
     @Override

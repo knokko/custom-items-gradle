@@ -23,7 +23,7 @@ public class SoundTypeReference extends UUIDBasedReference<CustomSoundType, Cust
 
     @Override
     Collection<CustomSoundType> getCollection() {
-        return itemSet.soundTypes;
+        return itemSet.soundTypes.elements;
     }
 
     @Override

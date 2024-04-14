@@ -349,7 +349,7 @@ class ItemSubclassGenerator {
                                 "% resistance against " + damageSource + " damage</li>");
                     }
                 }
-                for (CustomDamageSourceReference damageSource : itemSet.getDamageSources().references()) {
+                for (CustomDamageSourceReference damageSource : itemSet.damageSources.references()) {
                     short resistance = armor.getDamageResistances().getResistance(damageSource);
                     if (resistance != 0) {
                         output.println("\t\t\t<li class=\"armor-damage-resistance\">" + resistance + "% resistance against "

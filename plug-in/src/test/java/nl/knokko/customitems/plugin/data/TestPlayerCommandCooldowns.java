@@ -1,6 +1,5 @@
 package nl.knokko.customitems.plugin.data;
 
-import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.ByteArrayBitInput;
 import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
 import nl.knokko.customitems.item.CustomItemType;
@@ -35,12 +34,12 @@ public class TestPlayerCommandCooldowns {
                 BaseTextureValues testTexture = new BaseTextureValues(true);
                 testTexture.setName("test_texture");
                 testTexture.setImage(new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB));
-                itemSet.addTexture(testTexture);
+                itemSet.textures.add(testTexture);
 
-                item.setTexture(itemSet.getTextureReference("test_texture"));
+                item.setTexture(itemSet.textures.getReference("test_texture"));
             }
 
-            itemSet.addItem(item);
+            itemSet.items.add(item);
 
             ItemSetWrapper wrapper = new ItemSetWrapper();
             wrapper.setItemSet(itemSet);
@@ -182,7 +181,7 @@ public class TestPlayerCommandCooldowns {
         ItemSetWrapper originalItemSet = createSingleItemSet(generateOriginalTestItem());
         CustomItemValues extraItem = new SimpleCustomItemValues(true);
         extraItem.setName("extra_item");
-        extraItem.setTexture(originalItemSet.get().getTextureReference("test_texture"));
+        extraItem.setTexture(originalItemSet.get().textures.getReference("test_texture"));
 
         ItemCommandSystem extraCommandSystem = new ItemCommandSystem(true);
         List<ItemCommand> extraCommandList = new ArrayList<>(1);
@@ -190,7 +189,7 @@ public class TestPlayerCommandCooldowns {
         extraCommandSystem.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_GENERAL, extraCommandList);
         extraItem.setCommandSystem(extraCommandSystem);
 
-        originalItemSet.get().addItem(extraItem);
+        originalItemSet.get().items.add(extraItem);
         originalItemSet.setItemSet(originalItemSet.get());
 
         PlayerCommandCooldowns originalCooldowns = new PlayerCommandCooldowns();

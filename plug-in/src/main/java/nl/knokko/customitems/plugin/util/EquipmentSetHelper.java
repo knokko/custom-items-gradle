@@ -42,7 +42,7 @@ public class EquipmentSetHelper {
         if (equippedItems.isEmpty()) return Collections.emptyList();
 
         Collection<EquipmentBonusValues> bonuses = new ArrayList<>();
-        for (EquipmentSetValues equipmentSet : itemSet.get().getEquipmentSets()) {
+        for (EquipmentSetValues equipmentSet : itemSet.get().equipmentSets) {
             int value = 0;
             for (EquipmentEntry equippedItem : equippedItems) {
                 Integer itemValue = equipmentSet.getEntryValue(equippedItem);

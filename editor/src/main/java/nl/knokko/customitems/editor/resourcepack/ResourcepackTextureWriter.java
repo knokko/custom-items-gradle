@@ -64,9 +64,9 @@ class ResourcepackTextureWriter {
 
     void writeBaseTextures() throws IOException {
         ExecutorService threadPool = Executors.newFixedThreadPool(20);
-        List<ScheduledResource> resources = new ArrayList<>(itemSet.getTextures().size());
+        List<ScheduledResource> resources = new ArrayList<>(itemSet.textures.size());
 
-        for (BaseTextureValues texture : itemSet.getTextures()) {
+        for (BaseTextureValues texture : itemSet.textures) {
 
             String baseTextureName = texture.getName();
             if (texture instanceof BowTextureValues || texture instanceof CrossbowTextureValues) {
@@ -174,7 +174,7 @@ class ResourcepackTextureWriter {
             citPrefix = "assets/minecraft/optifine/cit/";
         }
 
-        for (ArmorTextureValues armorTexture : itemSet.getArmorTextures()) {
+        for (ArmorTextureValues armorTexture : itemSet.armorTextures) {
             String prefix = citPrefix + "customarmor/" + armorTexture.getName() + "/";
             ZipEntry firstLayerEntry = new ZipEntry(prefix + "layer_1.png");
             zipOutput.putNextEntry(firstLayerEntry);
@@ -196,7 +196,7 @@ class ResourcepackTextureWriter {
         }
 
         // Link the custom armor to their textures
-        for (CustomItemValues item : itemSet.getItems()) {
+        for (CustomItemValues item : itemSet.items) {
             if (item instanceof CustomArmorValues) {
 
                 CustomArmorValues armor = (CustomArmorValues) item;
@@ -232,7 +232,7 @@ class ResourcepackTextureWriter {
             citPrefix = "assets/minecraft/optifine/cit/";
         }
 
-        for (CustomItemValues item : itemSet.getItems()) {
+        for (CustomItemValues item : itemSet.items) {
             if (item instanceof CustomElytraValues) {
                 CustomElytraValues elytra = (CustomElytraValues) item;
                 if (elytra.getWornElytraTexture() != null) {
@@ -257,7 +257,7 @@ class ResourcepackTextureWriter {
     }
 
     void writeContainerOverlayTextures() throws IOException {
-        for (CustomContainerValues container : itemSet.getContainers()) {
+        for (CustomContainerValues container : itemSet.containers) {
             if (container.getOverlayTexture() != null) {
 
                 ZipEntry overlayTextureEntry = new ZipEntry("assets/minecraft/textures/customcontainers/overlay/" + container.getName() + ".png");
@@ -267,7 +267,7 @@ class ResourcepackTextureWriter {
             }
         }
 
-        if (itemSet.getContainers().stream().anyMatch(container -> container.getOverlayTexture() != null)) {
+        if (itemSet.containers.stream().anyMatch(container -> container.getOverlayTexture() != null)) {
             ZipEntry blackTexture = new ZipEntry("assets/minecraft/textures/customcontainers/black.png");
             zipOutput.putNextEntry(blackTexture);
             ImageIO.write(new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB), "PNG", zipOutput);

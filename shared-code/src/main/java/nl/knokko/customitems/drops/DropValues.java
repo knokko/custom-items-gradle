@@ -86,7 +86,7 @@ public class DropValues extends ModelValues {
         Collection<OutputTableValues.Entry> tableEntries = new ArrayList<>(numAmounts);
         for (byte amount = (byte) minDropAmount; amount < maxDropAmount; amount++) {
             CustomItemResultValues mutableResult = new CustomItemResultValues(true);
-            mutableResult.setItem(itemSet.getItemReference(itemName));
+            mutableResult.setItem(itemSet.items.getReference(itemName));
             mutableResult.setAmount(amount);
 
             OutputTableValues.Entry mutableEntry = new OutputTableValues.Entry(true);
@@ -98,7 +98,7 @@ public class DropValues extends ModelValues {
 
         {
             CustomItemResultValues mutableResult = new CustomItemResultValues(true);
-            mutableResult.setItem(itemSet.getItemReference(itemName));
+            mutableResult.setItem(itemSet.items.getReference(itemName));
             mutableResult.setAmount((byte) maxDropAmount);
 
             OutputTableValues.Entry mutableEntry = new OutputTableValues.Entry(true);
@@ -120,7 +120,7 @@ public class DropValues extends ModelValues {
         this.requiredHeldItems = new RequiredItemValues(true);
         Collection<ItemReference> customItems = new ArrayList<>(numRequiredItems);
         for (int counter = 0; counter < numRequiredItems; counter++) {
-            customItems.add(itemSet.getItemReference(input.readString()));
+            customItems.add(itemSet.items.getReference(input.readString()));
         }
         this.requiredHeldItems.setCustomItems(customItems);
         this.requiredHeldItems = this.requiredHeldItems.copy(false);
@@ -138,7 +138,7 @@ public class DropValues extends ModelValues {
             int numRequiredItems = input.readInt();
             Collection<ItemReference> customItems = new ArrayList<>(numRequiredItems);
             for (int counter = 0; counter < numRequiredItems; counter++) {
-                customItems.add(itemSet.getItemReference(input.readString()));
+                customItems.add(itemSet.items.getReference(input.readString()));
             }
             this.requiredHeldItems = new RequiredItemValues(true);
             this.requiredHeldItems.setCustomItems(customItems);

@@ -6,7 +6,7 @@ import nl.knokko.customitems.util.Checks;
 
 import java.util.function.Supplier;
 
-abstract class UnstableReference<M extends Model<V>, V extends ModelValues> implements Supplier<V> {
+abstract class UnstableReference<M extends Model<V>, V extends ModelValues> extends ModelReference<M, V> implements Supplier<V> {
 
     final M model;
 

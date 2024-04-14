@@ -82,8 +82,8 @@ public class TextureEdit extends GuiMenu {
 		addComponent(createImageSelect(nameField), 0.75f, 0.4f, 0.9f, 0.5f);
 		addComponent(new DynamicTextButton(toModify != null ? "Apply" : "Create", SAVE_BASE, SAVE_HOVER, () -> {
 			String error;
-			if (toModify == null) error = Validation.toErrorString(() -> itemSet.addTexture(currentValues));
-			else error = Validation.toErrorString(() -> itemSet.changeTexture(toModify, currentValues));
+			if (toModify == null) error = Validation.toErrorString(() -> itemSet.textures.add(currentValues));
+			else error = Validation.toErrorString(() -> itemSet.textures.change(toModify, currentValues));
 
 			if (error == null) state.getWindow().setMainComponent(returnMenu);
 			else errorComponent.setText(error);

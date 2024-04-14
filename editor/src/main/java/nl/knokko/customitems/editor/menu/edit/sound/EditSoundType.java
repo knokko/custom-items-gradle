@@ -49,8 +49,8 @@ public class EditSoundType extends GuiMenu {
 
         addComponent(new DynamicTextButton("Done", SAVE_BASE, SAVE_HOVER, () -> {
             String error;
-            if (toModify == null) error = Validation.toErrorString(() -> itemSet.addSoundType(currentValues));
-            else error = Validation.toErrorString(() -> itemSet.changeSoundType(toModify, currentValues));
+            if (toModify == null) error = Validation.toErrorString(() -> itemSet.soundTypes.add(currentValues));
+            else error = Validation.toErrorString(() -> itemSet.soundTypes.change(toModify, currentValues));
 
             if (error == null) state.getWindow().setMainComponent(returnMenu);
             else errorComponent.setText(error);

@@ -60,7 +60,7 @@ class WikiEquipmentSetGenerator {
                 for (DamageSource damageSource : DamageSource.values()) {
                     if (bonus.getDamageResistances().getResistance(damageSource) != 0) hasDamageResistances = true;
                 }
-                for (CustomDamageSourceReference damageSource : itemSet.getDamageSources().references()) {
+                for (CustomDamageSourceReference damageSource : itemSet.damageSources.references()) {
                     if (bonus.getDamageResistances().getResistance(damageSource) != 0) hasDamageResistances = true;
                 }
 
@@ -74,7 +74,7 @@ class WikiEquipmentSetGenerator {
                                     + NameHelper.getNiceEnumName(damageSource.name()) + "</li>");
                         }
                     }
-                    for (CustomDamageSourceReference damageSource : itemSet.getDamageSources().references()) {
+                    for (CustomDamageSourceReference damageSource : itemSet.damageSources.references()) {
                         int resistance = bonus.getDamageResistances().getResistance(damageSource);
                         if (resistance != 0) {
                             output.println("\t\t\t\t\t<li>" + resistance + "% resistance to "

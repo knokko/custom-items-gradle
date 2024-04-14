@@ -23,7 +23,7 @@ public class LinkSlotValues extends ContainerSlotValues {
         byte encoding = input.readByte();
         if (encoding != 1) throw new UnknownEncodingException("LinkSlot", encoding);
 
-        slot.linkedContainer = itemSet.getContainerReference(input.readString());
+        slot.linkedContainer = itemSet.containers.getReference(input.readString());
         if (input.readBoolean()) slot.display = SlotDisplayValues.load(input, itemSet);
         else slot.display = null;
 
@@ -115,7 +115,7 @@ public class LinkSlotValues extends ContainerSlotValues {
     @Override
     public void validate(ItemSet itemSet, Collection<ContainerSlotValues> otherSlots) throws ValidationException, ProgrammingValidationException {
         if (linkedContainer == null) throw new ValidationException("You need to choose a container");
-        if (!itemSet.isReferenceValid(linkedContainer)) {
+        if (!itemSet.containers.isValid(linkedContainer)) {
             throw new ProgrammingValidationException("Linked container is no longer valid");
         }
         if (display != null) {

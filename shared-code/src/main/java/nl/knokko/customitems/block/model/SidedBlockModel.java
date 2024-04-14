@@ -19,9 +19,9 @@ public class SidedBlockModel implements BlockModel {
         if (encoding != 1) throw new UnknownEncodingException("SidedBlockModel", encoding);
 
         return new SidedBlockModel(
-                itemSet.getTextureReference(input.readString()), itemSet.getTextureReference(input.readString()),
-                itemSet.getTextureReference(input.readString()), itemSet.getTextureReference(input.readString()),
-                itemSet.getTextureReference(input.readString()), itemSet.getTextureReference(input.readString())
+                itemSet.textures.getReference(input.readString()), itemSet.textures.getReference(input.readString()),
+                itemSet.textures.getReference(input.readString()), itemSet.textures.getReference(input.readString()),
+                itemSet.textures.getReference(input.readString()), itemSet.textures.getReference(input.readString())
         );
     }
 
@@ -83,7 +83,7 @@ public class SidedBlockModel implements BlockModel {
     public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         for (TexturePair pair : getTexturePairs()) {
             if (pair.texture == null) throw new ValidationException("Missing " + pair.direction);
-            if (!itemSet.isReferenceValid(pair.texture)) throw new ProgrammingValidationException(pair.direction + " is no longer valid");
+            if (!itemSet.textures.isValid(pair.texture)) throw new ProgrammingValidationException(pair.direction + " is no longer valid");
         }
     }
 

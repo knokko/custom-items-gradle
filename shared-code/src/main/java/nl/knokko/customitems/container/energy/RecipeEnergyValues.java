@@ -19,7 +19,7 @@ public class RecipeEnergyValues extends ModelValues {
         if (encoding != 1) throw new UnknownEncodingException("RecipeEnergy", encoding);
 
         RecipeEnergyValues result = new RecipeEnergyValues(false);
-        result.energyType = itemSet.getEnergyTypeReference(new UUID(input.readLong(), input.readLong()));
+        result.energyType = itemSet.energyTypes.getReference(new UUID(input.readLong(), input.readLong()));
         result.operation = RecipeEnergyOperation.valueOf(input.readString());
         result.amount = input.readInt();
         return result;
@@ -131,7 +131,7 @@ public class RecipeEnergyValues extends ModelValues {
     public void validateComplete(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         validateIndependent();
 
-        if (!itemSet.isReferenceValid(energyType)) {
+        if (!itemSet.energyTypes.isValid(energyType)) {
             throw new ProgrammingValidationException("Energy type is invalid");
         }
 

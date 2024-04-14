@@ -74,7 +74,7 @@ public class EditReplaceBlocks extends GuiMenu {
         CustomBlocks customBlocks = new CustomBlocks();
         addComponent(new DynamicTextButton("+", SAVE_BASE, SAVE_HOVER, () -> {
             state.getWindow().setMainComponent(new CollectionSelect<>(
-                    itemSet.getBlocks().references(), newBlock -> {
+                    itemSet.blocks.references(), newBlock -> {
                         Set<BlockReference> newBlocks = currentValues.getCustomBlocks();
                         newBlocks.add(newBlock);
                         currentValues.setCustomBlocks(newBlocks);

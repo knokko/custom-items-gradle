@@ -74,7 +74,7 @@ class CommandCustomItemsTake {
                 }
             }
 
-            List<CustomItemValues> itemList = itemSet.get().getItems().stream().collect(Collectors.toList());
+            List<CustomItemValues> itemList = itemSet.get().items.stream().collect(Collectors.toList());
             int numItemsPerPage = 6 * 9;
             int firstItemIndex = numItemsPerPage * (page - 1);
 

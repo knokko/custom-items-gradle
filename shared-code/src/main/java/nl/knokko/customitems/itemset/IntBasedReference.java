@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-abstract class IntBasedReference<M extends Model<V>, V extends ModelValues> implements Supplier<V> {
+abstract class IntBasedReference<M extends Model<V>, V extends ModelValues> extends ModelReference<M, V> implements Supplier<V> {
 
     int id;
     ItemSet itemSet;

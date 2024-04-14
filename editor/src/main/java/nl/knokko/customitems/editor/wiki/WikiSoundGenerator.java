@@ -1,7 +1,6 @@
 package nl.knokko.customitems.editor.wiki;
 
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.sound.CustomSoundType;
 import nl.knokko.customitems.sound.CustomSoundTypeValues;
 
 import java.io.File;
@@ -17,7 +16,7 @@ class WikiSoundGenerator {
     }
 
     void generate(File soundsFolder) throws IOException {
-        for (CustomSoundTypeValues sound : itemSet.getSoundTypes()) {
+        for (CustomSoundTypeValues sound : itemSet.soundTypes) {
             Files.write(new File(soundsFolder + "/" + sound.getName() + ".ogg").toPath(), sound.getOggData());
         }
     }

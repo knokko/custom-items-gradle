@@ -22,7 +22,7 @@ public class ProjectileReference extends StringBasedReference<CustomProjectile, 
 
     @Override
     Collection<CustomProjectile> getCollection() {
-        return itemSet.projectiles;
+        return itemSet.projectiles.elements;
     }
 
     @Override

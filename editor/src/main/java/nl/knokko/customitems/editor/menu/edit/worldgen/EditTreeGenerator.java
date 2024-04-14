@@ -47,8 +47,8 @@ public class EditTreeGenerator extends GuiMenu {
 
         addComponent(new DynamicTextButton("Done", SAVE_BASE, SAVE_HOVER, () -> {
             String error;
-            if (toModify == null) error = Validation.toErrorString(() -> itemSet.addTreeGenerator(currentValues));
-            else error = Validation.toErrorString(() -> itemSet.changeTreeGenerator(toModify, currentValues));
+            if (toModify == null) error = Validation.toErrorString(() -> itemSet.treeGenerators.add(currentValues));
+            else error = Validation.toErrorString(() -> itemSet.treeGenerators.change(toModify, currentValues));
 
             if (error == null) state.getWindow().setMainComponent(returnMenu);
             else errorComponent.setText(error);

@@ -110,7 +110,7 @@ public class CustomBlockValues extends ModelValues {
         this.name = input.readString();
         this.loadDrops1(input, itemSet);
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
-            if (encoding == 1) this.model = new SimpleBlockModel(itemSet.getTextureReference(input.readString()));
+            if (encoding == 1) this.model = new SimpleBlockModel(itemSet.textures.getReference(input.readString()));
             else this.model = BlockModel.load(input, itemSet);
         } else {
             this.model = null;
@@ -225,10 +225,10 @@ public class CustomBlockValues extends ModelValues {
         if (oldInternalId != null && internalId != oldInternalId) {
             throw new ProgrammingValidationException("Can't change internal id");
         }
-        if (oldInternalId == null && itemSet.getBlock(internalId).isPresent()) {
+        if (oldInternalId == null && itemSet.blocks.get(internalId).isPresent()) {
             throw new ProgrammingValidationException("Block with id " + internalId + " already exists");
         }
-        if (itemSet.getBlocks().stream().anyMatch(block -> block.getInternalID() != internalId && block.getName().equals(name))) {
+        if (itemSet.blocks.stream().anyMatch(block -> block.getInternalID() != internalId && block.getName().equals(name))) {
             throw new ValidationException("Block with name " + name + " already exists");
         }
 

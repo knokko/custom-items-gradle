@@ -64,7 +64,7 @@ public class CreateFuelSlot extends GuiMenu {
 				0.25f, 0.6f, 0.4f, 0.65f
 		);
 		addComponent(CollectionSelect.createButton(
-				itemSet.getFuelRegistries().references(),
+				itemSet.fuelRegistries.references(),
 				currentValues::setFuelRegistry,
 				registry -> registry == null ? "Select..." : registry.get().getName(),
 				null, false

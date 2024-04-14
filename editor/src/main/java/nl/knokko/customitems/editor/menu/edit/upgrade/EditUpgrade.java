@@ -43,8 +43,8 @@ public class EditUpgrade extends GuiMenu {
 
         addComponent(new DynamicTextButton("Done", SAVE_BASE, SAVE_HOVER, () -> {
             String error;
-            if (toModify == null) error = Validation.toErrorString(() -> itemSet.addUpgrade(currentValues));
-            else error = Validation.toErrorString(() -> itemSet.changeUpgrade(toModify, currentValues));
+            if (toModify == null) error = Validation.toErrorString(() -> itemSet.upgrades.add(currentValues));
+            else error = Validation.toErrorString(() -> itemSet.upgrades.change(toModify, currentValues));
 
             if (error == null) state.getWindow().setMainComponent(returnMenu);
             else errorComponent.setText(error);

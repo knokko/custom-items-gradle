@@ -136,7 +136,7 @@ public class CustomProjectileValues extends ModelValues {
         this.loadProjectileEffects(input, itemSet);
         String coverName = input.readString();
         if (coverName != null) {
-            this.cover = itemSet.getProjectileCoverReference(coverName);
+            this.cover = itemSet.projectileCovers.getReference(coverName);
         } else {
             this.cover = null;
         }
@@ -164,7 +164,7 @@ public class CustomProjectileValues extends ModelValues {
 
         String coverName = input.readString();
         if (coverName != null) {
-            this.cover = itemSet.getProjectileCoverReference(coverName);
+            this.cover = itemSet.projectileCovers.getReference(coverName);
         } else {
             this.cover = null;
         }
@@ -195,12 +195,12 @@ public class CustomProjectileValues extends ModelValues {
 
         String coverName = input.readString();
         if (coverName != null) {
-            this.cover = itemSet.getProjectileCoverReference(coverName);
+            this.cover = itemSet.projectileCovers.getReference(coverName);
         } else {
             this.cover = null;
         }
         if (input.readBoolean()) {
-            this.customDamageSource = itemSet.getDamageSourceReference(new UUID(input.readLong(), input.readLong()));
+            this.customDamageSource = itemSet.damageSources.getReference(new UUID(input.readLong(), input.readLong()));
         } else this.customDamageSource = null;
 
         if (encoding > 1) {
@@ -460,7 +460,7 @@ public class CustomProjectileValues extends ModelValues {
     public void validate(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         if (name == null) throw new ProgrammingValidationException("No name");
         if (name.isEmpty()) throw new ValidationException("You need to choose a name");
-        if (!name.equals(oldName) && itemSet.getProjectile(name).isPresent())
+        if (!name.equals(oldName) && itemSet.projectiles.get(name).isPresent())
             throw new ValidationException("A projectile with this name already exists");
 
         if (damage < 0f) throw new ValidationException("Damage can't be negative");
@@ -508,10 +508,10 @@ public class CustomProjectileValues extends ModelValues {
             );
         }
 
-        if (cover != null && !itemSet.isReferenceValid(cover))
+        if (cover != null && !itemSet.projectileCovers.isValid(cover))
             throw new ProgrammingValidationException("Projectile cover is no longer valid");
 
-        if (customDamageSource != null && !itemSet.isReferenceValid(customDamageSource))
+        if (customDamageSource != null && !itemSet.damageSources.isValid(customDamageSource))
             throw new ProgrammingValidationException("Invalid custom damage source");
     }
 

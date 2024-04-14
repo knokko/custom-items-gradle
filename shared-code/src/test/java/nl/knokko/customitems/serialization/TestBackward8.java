@@ -83,9 +83,9 @@ public class TestBackward8 {
     static void testItemsNew8(ItemSet set, int numItems) {
         testItemsNew6(set, numItems);
 
-        testTridentDefault8((CustomTridentValues) set.getItem("trident_one").get());
+        testTridentDefault8((CustomTridentValues) set.items.get("trident_one").get());
 
-        CustomTridentValues item = (CustomTridentValues) set.getItem("trident2").get();
+        CustomTridentValues item = (CustomTridentValues) set.items.get("trident2").get();
         assertEquals("trident2", item.getName());
         assertEquals(CustomItemType.TRIDENT, item.getItemType());
         assertEquals("t2", item.getAlias());
@@ -109,10 +109,10 @@ public class TestBackward8 {
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
                         ReplacementConditionValues.ReplacementCondition.HASITEM,
-                        set.getItemReference( "trident_one"),
+                        set.items.getReference( "trident_one"),
                         ReplacementConditionValues.ReplacementOperation.ATLEAST,
                         1,
-                        set.getItemReference("trident_one")
+                        set.items.getReference("trident_one")
                 )
         ), item.getReplacementConditions());
         assertEquals(listOf(
@@ -136,12 +136,12 @@ public class TestBackward8 {
     static void testContainersOld8(ItemSet set, int numContainers) {
         testContainers7(set, numContainers);
 
-        CustomContainerValues container2 = set.getContainer("container2").get();
+        CustomContainerValues container2 = set.containers.get("container2").get();
         ContainerRecipeValues recipe = container2.getRecipes().stream().findFirst().get();
 
         OutputTableValues output = recipe.getOutputs().values().stream().findFirst().get();
         assertEquals(listOf(
-                OutputTableValues.Entry.createQuick(CustomItemResultValues.createQuick(set.getItemReference("simple1"), 1), 40),
+                OutputTableValues.Entry.createQuick(CustomItemResultValues.createQuick(set.items.getReference("simple1"), 1), 40),
                 OutputTableValues.Entry.createQuick(SimpleVanillaResultValues.createQuick(CIMaterial.DIAMOND, 2), 50)
         ), output.getEntries());
 
@@ -149,7 +149,7 @@ public class TestBackward8 {
         SlotDisplayValues outputPlaceholder = outputSlot.getPlaceholder();
         assertEquals("Simple Test", outputPlaceholder.getDisplayName());
         assertEquals(2, outputPlaceholder.getAmount());
-        assertEquals(CustomDisplayItemValues.createQuick(set.getItemReference("simple1")), outputPlaceholder.getDisplayItem());
+        assertEquals(CustomDisplayItemValues.createQuick(set.items.getReference("simple1")), outputPlaceholder.getDisplayItem());
         assertEquals(0, outputPlaceholder.getLore().size());
 
         InputSlotValues inputSlot = (InputSlotValues) container2.getSlot(1, 0);
@@ -170,20 +170,20 @@ public class TestBackward8 {
     }
 
     static void testFuelRegistriesOld8(ItemSet set, int numFuelRegistries) {
-        assertEquals(numFuelRegistries, set.getFuelRegistries().size());
+        assertEquals(numFuelRegistries, set.fuelRegistries.size());
 
-        FuelRegistryValues registry1 = set.getFuelRegistry("registry1").get();
+        FuelRegistryValues registry1 = set.fuelRegistries.get("registry1").get();
         assertEquals("registry1", registry1.getName());
         assertEquals(listOf(
                 FuelEntryValues.createQuick(SimpleVanillaIngredientValues.createQuick(CIMaterial.COAL, 1), 100),
-                FuelEntryValues.createQuick(CustomItemIngredientValues.createQuick(set.getItemReference("simple1"), 1), 500)
+                FuelEntryValues.createQuick(CustomItemIngredientValues.createQuick(set.items.getReference("simple1"), 1), 500)
         ), registry1.getEntries());
     }
 
     static void testMobDropsOld8(ItemSet set, int numBlockDrops) {
         testMobDropsOld6(set, numBlockDrops);
 
-        Iterator<MobDropValues> mobDropIterator = set.getMobDrops().iterator();
+        Iterator<MobDropValues> mobDropIterator = set.mobDrops.iterator();
         testDefaultMobDrop8(mobDropIterator.next());
         testDefaultMobDrop8(mobDropIterator.next());
     }
@@ -191,7 +191,7 @@ public class TestBackward8 {
     static void testBlockDropsOld8(ItemSet set, int numBlockDrops) {
         testBlockDropsOld6(set, numBlockDrops, true);
 
-        Iterator<BlockDropValues> blockDropIterator = set.getBlockDrops().iterator();
+        Iterator<BlockDropValues> blockDropIterator = set.blockDrops.iterator();
         BlockDropValues firstBlockDrop = blockDropIterator.next();
         testDefaultBlockDrop8(firstBlockDrop);
 
@@ -202,13 +202,13 @@ public class TestBackward8 {
 
         assertFalse(drop.shouldCancelNormalDrops());
         RequiredItemValues expectedRequiredItems = new RequiredItemValues(true);
-        expectedRequiredItems.setCustomItems(listOf(set.getItemReference("pickaxe1"), set.getItemReference("pickaxe_two")));
+        expectedRequiredItems.setCustomItems(listOf(set.items.getReference("pickaxe1"), set.items.getReference("pickaxe_two")));
         assertEquals(expectedRequiredItems, drop.getRequiredHeldItems());
 
         OutputTableValues dropTable = drop.getOutputTable();
         assertEquals(Chance.percentage(35), dropTable.getNothingChance());
         assertEquals(listOf(
-                OutputTableValues.Entry.createQuick(CustomItemResultValues.createQuick(set.getItemReference("simple1"), (byte) 1), 30),
+                OutputTableValues.Entry.createQuick(CustomItemResultValues.createQuick(set.items.getReference("simple1"), (byte) 1), 30),
                 OutputTableValues.Entry.createQuick(SimpleVanillaResultValues.createQuick(CIMaterial.ACACIA_DOOR, 2), 20),
                 OutputTableValues.Entry.createQuick(DataVanillaResultValues.createQuick(CIMaterial.WOOL, 3, 3), 10),
                 OutputTableValues.Entry.createQuick(CopiedResultValues.createQuick(copiedFromServerString()), 5)
@@ -234,27 +234,27 @@ public class TestBackward8 {
     static void testRecipesOld8(ItemSet set, int numRecipes) {
         testRecipesOld6(set, numRecipes);
 
-        assertTrue(set.getCraftingRecipes().stream().anyMatch(recipe -> recipe.equals(createShapedRecipe3(set))));
+        assertTrue(set.craftingRecipes.stream().anyMatch(recipe -> recipe.equals(createShapedRecipe3(set))));
     }
 
     static ShapedRecipeValues createShapedRecipe3(ItemSet set) {
         IngredientValues[] ingredients = {
-                CustomItemIngredientValues.createQuick(set.getItemReference("simple1"), 1), new NoIngredientValues(), new NoIngredientValues(),
-                new NoIngredientValues(), CustomItemIngredientValues.createQuick(set.getItemReference("simple2"), 1), new NoIngredientValues(),
-                new NoIngredientValues(), new NoIngredientValues(), CustomItemIngredientValues.createQuick(set.getItemReference("simple3"), 1)
+                CustomItemIngredientValues.createQuick(set.items.getReference("simple1"), 1), new NoIngredientValues(), new NoIngredientValues(),
+                new NoIngredientValues(), CustomItemIngredientValues.createQuick(set.items.getReference("simple2"), 1), new NoIngredientValues(),
+                new NoIngredientValues(), new NoIngredientValues(), CustomItemIngredientValues.createQuick(set.items.getReference("simple3"), 1)
         };
         return ShapedRecipeValues.createQuick(ingredients, CopiedResultValues.createQuick(copiedFromServerString()), false);
     }
 
     static void testArmorTexturesOld8(ItemSet set, int numArmorTextures) {
         if (set.getSide() == ItemSet.Side.PLUGIN) {
-            assertEquals(0, set.getArmorTextures().size());
+            assertEquals(0, set.armorTextures.size());
             return;
         }
 
-        assertEquals(numArmorTextures, set.getArmorTextures().size());
+        assertEquals(numArmorTextures, set.armorTextures.size());
 
-        ArmorTextureValues armorTexture1 = set.getArmorTexture("armor_texture1").get();
+        ArmorTextureValues armorTexture1 = set.armorTextures.get("armor_texture1").get();
         assertEquals("armor_texture1", armorTexture1.getName());
         assertImageEqual(loadImage("armor1layer1"), armorTexture1.getLayer1());
         assertImageEqual(loadImage("armor1layer2"), armorTexture1.getLayer2());
@@ -263,19 +263,19 @@ public class TestBackward8 {
     static void testItemsOld8(ItemSet set, int numItems) {
         testItemsOld6(set, numItems);
 
-        testShieldDefault8((CustomShieldValues) set.getItem("shield_one").get());
-        testWandDefault8((CustomWandValues) set.getItem("wand_one").get());
+        testShieldDefault8((CustomShieldValues) set.items.get("shield_one").get());
+        testWandDefault8((CustomWandValues) set.items.get("wand_one").get());
 
-        testWand2((CustomWandValues) set.getItem("wand2").get(), set);
+        testWand2((CustomWandValues) set.items.get("wand2").get(), set);
         // Yeah... naming mistake...
-        testSimple4((SimpleCustomItemValues) set.getItem("simple3").get(), set);
-        testShovel2((CustomToolValues) set.getItem("shovel2").get(), set);
-        testHoe3((CustomHoeValues) set.getItem("hoe3").get(), set);
-        testShears3((CustomShearsValues) set.getItem("shears3").get(), set);
-        test3dHelmet1((CustomHelmet3dValues) set.getItem("3dhelmet1").get(), set);
-        testBow3((CustomBowValues) set.getItem("bow3").get(), set);
-        testChestplate2((CustomArmorValues) set.getItem("chestplate2").get(), set);
-        testShield2((CustomShieldValues) set.getItem("shield2").get(), set);
+        testSimple4((SimpleCustomItemValues) set.items.get("simple3").get(), set);
+        testShovel2((CustomToolValues) set.items.get("shovel2").get(), set);
+        testHoe3((CustomHoeValues) set.items.get("hoe3").get(), set);
+        testShears3((CustomShearsValues) set.items.get("shears3").get(), set);
+        test3dHelmet1((CustomHelmet3dValues) set.items.get("3dhelmet1").get(), set);
+        testBow3((CustomBowValues) set.items.get("bow3").get(), set);
+        testChestplate2((CustomArmorValues) set.items.get("chestplate2").get(), set);
+        testShield2((CustomShieldValues) set.items.get("shield2").get(), set);
     }
 
     static void testWand2(CustomWandValues item, ItemSet itemSet) {
@@ -302,10 +302,10 @@ public class TestBackward8 {
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
                         ReplacementConditionValues.ReplacementCondition.HASITEM,
-                        itemSet.getItemReference("simple1"),
+                        itemSet.items.getReference("simple1"),
                         ReplacementConditionValues.ReplacementOperation.ATLEAST,
                         1,
-                        itemSet.getItemReference("simple2")
+                        itemSet.items.getReference("simple2")
                 )
         ), item.getReplacementConditions());
         assertEquals(listOf(
@@ -345,10 +345,10 @@ public class TestBackward8 {
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
                             ReplacementConditionValues.ReplacementCondition.MISSINGITEM,
-                            itemSet.getItemReference("simple2"),
+                            itemSet.items.getReference("simple2"),
                             ReplacementConditionValues.ReplacementOperation.EXACTLY,
                             1,
-                            itemSet.getItemReference("simple1")
+                            itemSet.items.getReference("simple1")
                         )
         ), item.getReplacementConditions());
         assertEquals(listOf(
@@ -383,10 +383,10 @@ public class TestBackward8 {
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
                         ReplacementConditionValues.ReplacementCondition.ISBROKEN,
-                        itemSet.getItemReference( "sword1"),
+                        itemSet.items.getReference( "sword1"),
                         ReplacementConditionValues.ReplacementOperation.EXACTLY,
                         1,
-                        itemSet.getItemReference("simple2")
+                        itemSet.items.getReference("simple2")
                 )
         ), item.getReplacementConditions());
         assertEquals(listOf(
@@ -426,10 +426,10 @@ public class TestBackward8 {
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
                         ReplacementConditionValues.ReplacementCondition.HASITEM,
-                        itemSet.getItemReference("simple_three"),
+                        itemSet.items.getReference("simple_three"),
                         ReplacementConditionValues.ReplacementOperation.ATMOST,
                         10,
-                        itemSet.getItemReference("simple2")
+                        itemSet.items.getReference("simple2")
                 )
         ), item.getReplacementConditions());
         assertEquals(listOf(
@@ -470,10 +470,10 @@ public class TestBackward8 {
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
                         ReplacementConditionValues.ReplacementCondition.HASITEM,
-                        itemSet.getItemReference("pickaxe1"),
+                        itemSet.items.getReference("pickaxe1"),
                         ReplacementConditionValues.ReplacementOperation.EXACTLY,
                         1,
-                        itemSet.getItemReference("sword1")
+                        itemSet.items.getReference("sword1")
                 )
         ), item.getReplacementConditions());
         assertEquals(listOf(
@@ -533,10 +533,10 @@ public class TestBackward8 {
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
                         ReplacementConditionValues.ReplacementCondition.HASITEM,
-                        itemSet.getItemReference( "pickaxe1"),
+                        itemSet.items.getReference( "pickaxe1"),
                         ReplacementConditionValues.ReplacementOperation.ATLEAST,
                         5,
-                        itemSet.getItemReference("simple2")
+                        itemSet.items.getReference("simple2")
                 )
         ), item.getReplacementConditions());
         assertEquals(listOf(
@@ -587,10 +587,10 @@ public class TestBackward8 {
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
                         ReplacementConditionValues.ReplacementCondition.ISBROKEN,
-                        itemSet.getItemReference( "sword1"),
+                        itemSet.items.getReference( "sword1"),
                         ReplacementConditionValues.ReplacementOperation.EXACTLY,
                         1,
-                        itemSet.getItemReference("boots_one")
+                        itemSet.items.getReference("boots_one")
                 )
         ), item.getReplacementConditions());
         assertEquals(listOf(
@@ -635,10 +635,10 @@ public class TestBackward8 {
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
                         ReplacementConditionValues.ReplacementCondition.MISSINGITEM,
-                        itemSet.getItemReference("simple1"),
+                        itemSet.items.getReference("simple1"),
                         ReplacementConditionValues.ReplacementOperation.EXACTLY,
                         7,
-                        itemSet.getItemReference("simple2")
+                        itemSet.items.getReference("simple2")
                 )
         ), item.getReplacementConditions());
         assertEquals(listOf(
@@ -686,10 +686,10 @@ public class TestBackward8 {
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
                         ReplacementConditionValues.ReplacementCondition.ISBROKEN,
-                        itemSet.getItemReference("pickaxe1"),
+                        itemSet.items.getReference("pickaxe1"),
                         ReplacementConditionValues.ReplacementOperation.ATMOST,
                         1,
-                        itemSet.getItemReference("bow_one")
+                        itemSet.items.getReference("bow_one")
                 )
         ), item.getReplacementConditions());
         assertEquals(0, item.getEquippedEffects().size());

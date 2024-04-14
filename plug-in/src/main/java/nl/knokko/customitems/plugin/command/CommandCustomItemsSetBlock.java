@@ -44,7 +44,7 @@ public class CommandCustomItemsSetBlock {
             return;
         }
 
-        Optional<CustomBlockValues> block = itemSet.get().getBlock(args[1]);
+        Optional<CustomBlockValues> block = itemSet.get().blocks.get(args[1]);
 
         if (!block.isPresent()) {
             if (enableOutput) {

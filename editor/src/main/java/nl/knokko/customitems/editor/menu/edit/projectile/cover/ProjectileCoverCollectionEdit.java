@@ -19,7 +19,7 @@ public class ProjectileCoverCollectionEdit extends DedicatedCollectionEdit<Proje
 	private final EditMenu menu;
 
 	public ProjectileCoverCollectionEdit(EditMenu menu, GuiComponent returnMenu) {
-		super(returnMenu, menu.getSet().getProjectileCovers().references(), null);
+		super(returnMenu, menu.getSet().projectileCovers.references(), null);
 		this.menu = menu;
 	}
 	
@@ -71,7 +71,7 @@ public class ProjectileCoverCollectionEdit extends DedicatedCollectionEdit<Proje
 
 	@Override
 	protected String deleteModel(ProjectileCoverReference modelReference) {
-		return Validation.toErrorString(() -> menu.getSet().removeProjectileCover(modelReference));
+		return Validation.toErrorString(() -> menu.getSet().projectileCovers.remove(modelReference));
 	}
 
 	@Override

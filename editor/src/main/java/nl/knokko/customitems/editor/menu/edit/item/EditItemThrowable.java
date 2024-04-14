@@ -37,7 +37,7 @@ public class EditItemThrowable extends EditItemBase<CustomThrowableValues> {
                 LABEL_X2 - 0.15f, 0.8f, LABEL_X2, 0.85f
         );
         addComponent(CollectionSelect.createButton(
-                menu.getSet().getProjectiles().references(),
+                menu.getSet().projectiles.references(),
                 currentValues::setProjectile,
                 projectile -> projectile.get().getName(),
                 currentValues.getProjectileReference(), true

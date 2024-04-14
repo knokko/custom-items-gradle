@@ -80,9 +80,9 @@ public class TestBackward9 {
     }
 
     static void testBlocksNew9(ItemSet set, int numBlocks) {
-        assertEquals(numBlocks, set.getBlocks().size());
+        assertEquals(numBlocks, set.blocks.size());
 
-        CustomBlockValues block1 = set.getBlock(1).get();
+        CustomBlockValues block1 = set.blocks.get(1).get();
         assertEquals("block1", block1.getName());
         assertEquals(1, block1.getDrops().size());
 
@@ -96,7 +96,7 @@ public class TestBackward9 {
         assertTrue(requiredItems.isEnabled());
         assertFalse(requiredItems.isInverted());
         assertEquals(listOf(
-                set.getItemReference("trident_one")
+                set.items.getReference("trident_one")
         ), requiredItems.getCustomItems());
         assertEquals(listOf(
                 RequiredItemValues.VanillaEntry.createQuick(CIMaterial.STONE_PICKAXE, false)
@@ -111,13 +111,13 @@ public class TestBackward9 {
 
     static void testTexturesNew9(ItemSet set, int numTextures) {
         if (set.getSide() == ItemSet.Side.PLUGIN) {
-            assertEquals(0, set.getTextures().size());
+            assertEquals(0, set.textures.size());
             return;
         }
 
         testTexturesNew6(set, numTextures);
 
-        CrossbowTextureValues crossbowTextures = (CrossbowTextureValues) set.getTexture("crossbow_texture").get();
+        CrossbowTextureValues crossbowTextures = (CrossbowTextureValues) set.textures.get("crossbow_texture").get();
         assertEquals("crossbow_texture", crossbowTextures.getName());
         assertImageEqual(loadImage("gun1"), crossbowTextures.getImage());
         assertImageEqual(loadImage("test1"), crossbowTextures.getArrowImage());
@@ -138,10 +138,10 @@ public class TestBackward9 {
     static void testItemsNew9(ItemSet set, int numItems) {
         testItemsNew8(set, numItems);
 
-        testTridentDefault9((CustomTridentValues) set.getItem("trident2").get());
+        testTridentDefault9((CustomTridentValues) set.items.get("trident2").get());
 
-        testCrossbow1((CustomCrossbowValues) set.getItem("crossbow1").get(), set);
-        testBlockItem1((CustomBlockItemValues) set.getItem("block_item1").get(), set);
+        testCrossbow1((CustomCrossbowValues) set.items.get("crossbow1").get(), set);
+        testBlockItem1((CustomBlockItemValues) set.items.get("block_item1").get(), set);
     }
 
     static void testBlockItem1(CustomBlockItemValues item, ItemSet set) {
@@ -180,10 +180,10 @@ public class TestBackward9 {
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
                         ReplacementConditionValues.ReplacementCondition.ISBROKEN,
-                        set.getItemReference("trident2"),
+                        set.items.getReference("trident2"),
                         ReplacementConditionValues.ReplacementOperation.EXACTLY,
                         1,
-                        set.getItemReference("crossbow1")
+                        set.items.getReference("crossbow1")
                 )
         ), item.getReplacementConditions());
         assertEquals(listOf(
@@ -237,10 +237,10 @@ public class TestBackward9 {
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
                         ReplacementConditionValues.ReplacementCondition.HASITEM,
-                        itemSet.getItemReference("trident2"),
+                        itemSet.items.getReference("trident2"),
                         ReplacementConditionValues.ReplacementOperation.EXACTLY,
                         1,
-                        itemSet.getItemReference("trident_one")
+                        itemSet.items.getReference("trident_one")
                 )
         ), item.getReplacementConditions());
         assertEquals(listOf(
@@ -270,7 +270,7 @@ public class TestBackward9 {
     static void testContainersOld9(ItemSet set, int numContainers) {
         testContainersOld8(set, numContainers);
 
-        CustomContainerValues container3 = set.getContainer("container3").get();
+        CustomContainerValues container3 = set.containers.get("container3").get();
         assertEquals(StorageSlotValues.createQuick(SlotDisplayValues.createQuick(
                 SimpleVanillaDisplayItemValues.createQuick(CIMaterial.IRON_BARDING), "safe storage", new ArrayList<>(), 1
         )), container3.getSlot(0, 0));
@@ -282,7 +282,7 @@ public class TestBackward9 {
     static void testProjectilesOld9(ItemSet set, int numProjectiles) {
         testProjectilesOld6(set, numProjectiles);
 
-        CustomProjectileValues crazy2 = set.getProjectile("crazy2").get();
+        CustomProjectileValues crazy2 = set.projectiles.get("crazy2").get();
         assertEquals(1, crazy2.getInFlightEffects().size());
         ProjectileEffectsValues inFlightEffects = crazy2.getInFlightEffects().iterator().next();
         assertEquals(listOf(
@@ -314,15 +314,15 @@ public class TestBackward9 {
     static void testRecipesOld9(ItemSet set, int numRecipes) {
         testRecipesOld8(set, numRecipes);
 
-        assertTrue(set.getCraftingRecipes().stream().anyMatch(recipe -> recipe.equals(createShapelessRecipe2(set))));
+        assertTrue(set.craftingRecipes.stream().anyMatch(recipe -> recipe.equals(createShapelessRecipe2(set))));
     }
 
     static ShapelessRecipeValues createShapelessRecipe2(ItemSet set) {
         List<IngredientValues> ingredients = listOf(
                 CustomItemIngredientValues.createQuick(
-                        set.getItemReference("simple1"), 3,
+                        set.items.getReference("simple1"), 3,
                         CustomItemResultValues.createQuick(
-                                set.getItemReference("simple2"), 2
+                                set.items.getReference("simple2"), 2
                         ), new IngredientConstraintsValues(true)
                 )
         );
@@ -332,19 +332,19 @@ public class TestBackward9 {
     static void testItemsOld9(ItemSet set, int numItems) {
         testItemsOld8(set, numItems);
 
-        testWandDefault9((CustomWandValues) set.getItem("wand2").get());
-        testSimpleDefault9((SimpleCustomItemValues) set.getItem("simple3").get());
-        testToolDefault9((CustomToolValues) set.getItem("shovel2").get());
-        testHoeDefault9((CustomHoeValues) set.getItem("hoe3").get());
-        testShearsDefault9((CustomShearsValues) set.getItem("shears3").get());
-        test3dHelmetDefault9((CustomHelmet3dValues) set.getItem("3dhelmet1").get());
-        testBowDefault9((CustomBowValues) set.getItem("bow3").get());
-        testArmorDefault9((CustomArmorValues) set.getItem("chestplate2").get());
-        testShieldDefault9((CustomShieldValues) set.getItem("shield2").get());
+        testWandDefault9((CustomWandValues) set.items.get("wand2").get());
+        testSimpleDefault9((SimpleCustomItemValues) set.items.get("simple3").get());
+        testToolDefault9((CustomToolValues) set.items.get("shovel2").get());
+        testHoeDefault9((CustomHoeValues) set.items.get("hoe3").get());
+        testShearsDefault9((CustomShearsValues) set.items.get("shears3").get());
+        test3dHelmetDefault9((CustomHelmet3dValues) set.items.get("3dhelmet1").get());
+        testBowDefault9((CustomBowValues) set.items.get("bow3").get());
+        testArmorDefault9((CustomArmorValues) set.items.get("chestplate2").get());
+        testShieldDefault9((CustomShieldValues) set.items.get("shield2").get());
 
-        testGun1((CustomGunValues) set.getItem("gun1").get(), set);
-        testPocketContainer1((CustomPocketContainerValues) set.getItem("pocket_container1").get(), set);
-        testFood1((CustomFoodValues) set.getItem("food1").get(), set);
+        testGun1((CustomGunValues) set.items.get("gun1").get(), set);
+        testPocketContainer1((CustomPocketContainerValues) set.items.get("pocket_container1").get(), set);
+        testFood1((CustomFoodValues) set.items.get("food1").get(), set);
     }
 
     static void testGun1(CustomGunValues item, ItemSet set) {
@@ -389,10 +389,10 @@ public class TestBackward9 {
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
                         ReplacementConditionValues.ReplacementCondition.HASITEM,
-                        set.getItemReference("simple2"),
+                        set.items.getReference("simple2"),
                         ReplacementConditionValues.ReplacementOperation.ATMOST,
                         5,
-                        set.getItemReference("simple1")
+                        set.items.getReference("simple1")
                 )
         ), item.getReplacementConditions());
         assertEquals(listOf(
@@ -402,7 +402,7 @@ public class TestBackward9 {
         assertEquals(1.25, item.getAttackRange(), 0.0);
         assertEquals("crazy1", item.getProjectile().getName());
         IndirectGunAmmoValues ammo = (IndirectGunAmmoValues) item.getAmmo();
-        assertEquals(CustomItemIngredientValues.createQuick(set.getItemReference("simple1"), 1), ammo.getReloadItem());
+        assertEquals(CustomItemIngredientValues.createQuick(set.items.getReference("simple1"), 1), ammo.getReloadItem());
         assertEquals(15, ammo.getCooldown());
         assertEquals(35, ammo.getStoredAmmo());
         assertEquals(25, ammo.getReloadTime());
@@ -452,10 +452,10 @@ public class TestBackward9 {
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
                         ReplacementConditionValues.ReplacementCondition.ISBROKEN,
-                        set.getItemReference("sword1"),
+                        set.items.getReference("sword1"),
                         ReplacementConditionValues.ReplacementOperation.ATLEAST,
                         5,
-                        set.getItemReference("simple1")
+                        set.items.getReference("simple1")
                 )
         ), item.getReplacementConditions());
         assertEquals(listOf(
@@ -464,7 +464,7 @@ public class TestBackward9 {
         assertEquals(listOf("{\"rank\":1}"), item.getExtraNbt());
         assertEquals(0.75, item.getAttackRange(), 0.0);
         assertEquals(new HashSet<>(listOf(
-                set.getContainerReference("container2")
+                set.containers.getReference("container2")
         )), item.getContainerReferences());
     }
 
@@ -511,10 +511,10 @@ public class TestBackward9 {
         assertEquals(listOf(
                 ReplacementConditionValues.createQuick(
                         ReplacementConditionValues.ReplacementCondition.MISSINGITEM,
-                        set.getItemReference("simple1"),
+                        set.items.getReference("simple1"),
                         ReplacementConditionValues.ReplacementOperation.EXACTLY,
                         3,
-                        set.getItemReference("simple2")
+                        set.items.getReference("simple2")
                 )
         ), item.getReplacementConditions());
         assertEquals(listOf(

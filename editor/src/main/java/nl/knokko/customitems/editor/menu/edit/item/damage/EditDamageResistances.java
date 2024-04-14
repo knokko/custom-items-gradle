@@ -47,7 +47,7 @@ public class EditDamageResistances extends GuiMenu {
 	protected void addComponents() {
 		addComponent(new DynamicTextButton("Cancel", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, onCancel), 0.025f, 0.8f, 0.15f, 0.875f);
 		addComponent(new DynamicTextButton("Custom...", BUTTON, HOVER, () -> {
-			state.getWindow().setMainComponent(new EditCustomDamageResistances(itemSet.getDamageSources(), this, resistances));
+			state.getWindow().setMainComponent(new EditCustomDamageResistances(itemSet.damageSources, this, resistances));
 		}), 0.025f, 0.5f, 0.175f, 0.6f);
 		DamageSource[] damageSources = DamageSource.values();
 		addComponent(new DynamicTextButton("Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {

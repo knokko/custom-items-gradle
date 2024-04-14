@@ -103,10 +103,10 @@ public class TestBackward12 {
     }
 
     static void testItemsFancy12(ItemSet itemSet, int numItems) {
-        assertEquals(numItems, itemSet.getItems().size());
+        assertEquals(numItems, itemSet.items.size());
 
-        testSimpleHelmet((CustomArmorValues) itemSet.getItem("simple_helmet").get());
-        testShinyBoots((CustomArmorValues) itemSet.getItem("shiny_boots").get());
+        testSimpleHelmet((CustomArmorValues) itemSet.items.get("simple_helmet").get());
+        testShinyBoots((CustomArmorValues) itemSet.items.get("shiny_boots").get());
     }
 
     static void testSimpleHelmet(CustomArmorValues helmet) {
@@ -122,9 +122,9 @@ public class TestBackward12 {
     }
 
     static void testFancyPantsTextures12(ItemSet itemSet, int numTextures) {
-        assertEquals(numTextures, itemSet.getFancyPantsArmorTextures().size());
+        assertEquals(numTextures, itemSet.fancyPants.size());
 
-        FancyPantsArmorTextureValues shiny = itemSet.getFancyPantsArmorTextures().stream().filter(fpTexture ->
+        FancyPantsArmorTextureValues shiny = itemSet.fancyPants.stream().filter(fpTexture ->
                 fpTexture.getName().equals("shiny")
         ).findFirst().get();
         assertEquals(5, shiny.getRgb());
@@ -162,7 +162,7 @@ public class TestBackward12 {
             }
         }
 
-        FancyPantsArmorTextureValues simple = itemSet.getFancyPantsArmorTextures().stream().filter(texture ->
+        FancyPantsArmorTextureValues simple = itemSet.fancyPants.stream().filter(texture ->
                 texture.getName().equals("simple")
         ).findFirst().get();
         assertEquals(0, simple.getRgb());
@@ -187,7 +187,7 @@ public class TestBackward12 {
     static void testOreVeinsNew12(ItemSet itemSet, int numOreVeins) {
         testOreVeinsNew11(itemSet, numOreVeins);
 
-        assertTrue(itemSet.getOreVeinGenerators().stream().anyMatch(oreVein -> oreVein.getAllowedWorlds().equals(
+        assertTrue(itemSet.oreGenerators.stream().anyMatch(oreVein -> oreVein.getAllowedWorlds().equals(
                 listOf("world_nether", "haha")
         )));
     }
@@ -195,7 +195,7 @@ public class TestBackward12 {
     static void testTreesNew12(ItemSet itemSet, int numTreeGenerators) {
         testTreesNew11(itemSet, numTreeGenerators);
 
-        assertTrue(itemSet.getTreeGenerators().stream().anyMatch(treeGenerator ->
+        assertTrue(itemSet.treeGenerators.stream().anyMatch(treeGenerator ->
                 treeGenerator.getAllowedWorlds().equals(listOf("tree_world"))
         ));
     }
@@ -203,7 +203,7 @@ public class TestBackward12 {
     static void testBlocksNew12(ItemSet itemSet, int numBlocks) {
         testBlocksNew11(itemSet, numBlocks);
 
-        CustomBlockValues musicBlock = itemSet.getBlock("music_block").get();
+        CustomBlockValues musicBlock = itemSet.blocks.get("music_block").get();
         BlockSoundsValues sounds = musicBlock.getSounds();
         assertEquals(VanillaSoundType.BLOCK_ANVIL_FALL, sounds.getLeftClickSound().getVanillaSound());
         assertNull(sounds.getRightClickSound());
@@ -220,20 +220,20 @@ public class TestBackward12 {
     static void testItemsOld12(ItemSet set, int numItems) {
         testItemsOld11(set, numItems);
 
-        testElytraDefault12((CustomElytraValues) set.getItem("elytra1").get());
-        testWandDefault12((CustomWandValues) set.getItem("wand4").get());
-        testGunDefault12((CustomGunValues) set.getItem("gun3").get());
-        testFoodDefault12((CustomFoodValues) set.getItem("food3").get());
+        testElytraDefault12((CustomElytraValues) set.items.get("elytra1").get());
+        testWandDefault12((CustomWandValues) set.items.get("wand4").get());
+        testGunDefault12((CustomGunValues) set.items.get("gun3").get());
+        testFoodDefault12((CustomFoodValues) set.items.get("food3").get());
 
-        testBoots2((CustomArmorValues) set.getItem("boots2").get(), set.getSide());
+        testBoots2((CustomArmorValues) set.items.get("boots2").get(), set.getSide());
     }
 
     static void testItemsNew12(ItemSet itemSet, int numItems) {
         testItemsNew11(itemSet, numItems);
 
-        testMusicDiscDefault12((CustomMusicDiscValues) itemSet.getItem("music_disc1").get());
+        testMusicDiscDefault12((CustomMusicDiscValues) itemSet.items.get("music_disc1").get());
 
-        testArrow1((CustomArrowValues) itemSet.getItem("arrow1").get());
+        testArrow1((CustomArrowValues) itemSet.items.get("arrow1").get());
     }
 
     static void testBoots2(CustomArmorValues boots, ItemSet.Side side) {
@@ -263,40 +263,40 @@ public class TestBackward12 {
     static void testEquipmentSetsOld12(ItemSet itemSet, int numEquipmentSets) {
         testEquipmentSetsOld11(itemSet, numEquipmentSets);
 
-        CustomDamageSourceValues shock = itemSet.getDamageSources().stream().filter(
+        CustomDamageSourceValues shock = itemSet.damageSources.stream().filter(
                 source -> source.getName().equals("shock")
         ).findFirst().get();
-        CustomDamageSourceValues frost = itemSet.getDamageSources().stream().filter(
+        CustomDamageSourceValues frost = itemSet.damageSources.stream().filter(
                 source -> source.getName().equals("frost")
         ).findFirst().get();
 
         DamageResistanceValues customResistances = new DamageResistanceValues(true);
-        customResistances.setResistance(itemSet.getDamageSourceReference(shock.getId()), (short) 50);
-        customResistances.setResistance(itemSet.getDamageSourceReference(frost.getId()), (short) -100);
+        customResistances.setResistance(itemSet.damageSources.getReference(shock.getId()), (short) 50);
+        customResistances.setResistance(itemSet.damageSources.getReference(frost.getId()), (short) -100);
 
-        assertTrue(itemSet.getEquipmentSets().stream().anyMatch(equipmentSet ->
+        assertTrue(itemSet.equipmentSets.stream().anyMatch(equipmentSet ->
                 equipmentSet.getEntries().size() == 1 && equipmentSet.getEntryValue(new EquipmentEntry(
-                        AttributeModifierValues.Slot.MAINHAND, itemSet.getItemReference("sword1")
+                        AttributeModifierValues.Slot.MAINHAND, itemSet.items.getReference("sword1")
                 )) == 1 && equipmentSet.getBonuses().size() == 1
                         && equipmentSet.getBonuses().iterator().next().getDamageResistances().equals(customResistances)
         ));
     }
 
     static void testDamageSourcesOld12(ItemSet itemSet, int numDamageSources) {
-        assertEquals(numDamageSources, itemSet.getDamageSources().size());
+        assertEquals(numDamageSources, itemSet.damageSources.size());
 
-        assertTrue(itemSet.getDamageSources().stream().anyMatch(source -> source.getName().equals("shock")));
-        assertTrue(itemSet.getDamageSources().stream().anyMatch(source -> source.getName().equals("frost")));
+        assertTrue(itemSet.damageSources.stream().anyMatch(source -> source.getName().equals("shock")));
+        assertTrue(itemSet.damageSources.stream().anyMatch(source -> source.getName().equals("frost")));
     }
 
     static void testUpgradesOld12(ItemSet itemSet, int numUpgrades) {
-        assertEquals(numUpgrades, itemSet.getUpgrades().size());
+        assertEquals(numUpgrades, itemSet.upgrades.size());
 
-        CustomDamageSourceReference shock = itemSet.getDamageSourceReference(itemSet.getDamageSources().stream().filter(
+        CustomDamageSourceReference shock = itemSet.damageSources.getReference(itemSet.damageSources.stream().filter(
                 candidate -> candidate.getName().equals("shock")
         ).findFirst().get().getId());
 
-        UpgradeValues upgrade = itemSet.getUpgrades().stream().filter(
+        UpgradeValues upgrade = itemSet.upgrades.stream().filter(
                 candidate -> candidate.getName().equals("shock")
         ).findFirst().get();
 
@@ -318,7 +318,7 @@ public class TestBackward12 {
     static void testRecipesOld12(ItemSet itemSet, int numRecipes) {
         testRecipesOld11(itemSet, numRecipes);
 
-        UpgradeValues upgrade = itemSet.getUpgrades().stream().filter(
+        UpgradeValues upgrade = itemSet.upgrades.stream().filter(
                 candidate -> candidate.getName().equals("shock")
         ).findFirst().get();
 
@@ -330,14 +330,14 @@ public class TestBackward12 {
                 EnchantmentType.MENDING, ConstraintOperator.EQUAL, 0
         )));
 
-        IngredientValues upgradeIngredient = CustomItemIngredientValues.createQuick(itemSet.getItemReference("pickaxe1"), 1);
+        IngredientValues upgradeIngredient = CustomItemIngredientValues.createQuick(itemSet.items.getReference("pickaxe1"), 1);
         upgradeIngredient.setConstraints(constraints);
 
         UpgradeResultValues upgradeResult = new UpgradeResultValues(true);
         upgradeResult.setNewType(SimpleVanillaResultValues.createQuick(CIMaterial.IRON_PICKAXE, 1));
         upgradeResult.setIngredientIndex(4);
         upgradeResult.setRepairPercentage(10f);
-        upgradeResult.setUpgrades(listOf(itemSet.getUpgradeReference(upgrade.getId())));
+        upgradeResult.setUpgrades(listOf(itemSet.upgrades.getReference(upgrade.getId())));
         upgradeResult.setKeepOldUpgrades(true);
         upgradeResult.setKeepOldEnchantments(false);
 
@@ -350,14 +350,14 @@ public class TestBackward12 {
         shapedUpgrade.setIngredientAt(1, 1, upgradeIngredient);
         shapedUpgrade.setResult(upgradeResult);
 
-        assertTrue(itemSet.getCraftingRecipes().stream().anyMatch(recipe -> recipe.equals(shapedUpgrade)));
+        assertTrue(itemSet.craftingRecipes.stream().anyMatch(recipe -> recipe.equals(shapedUpgrade)));
 
         ShapelessRecipeValues shapelessUpgrade = new ShapelessRecipeValues(true);
         shapelessUpgrade.setIngredients(listOf(upgradeIngredient, ironIngot, ironIngot, ironIngot));
         upgradeResult.setIngredientIndex(0);
         shapelessUpgrade.setResult(upgradeResult);
 
-        assertTrue(itemSet.getCraftingRecipes().stream().anyMatch(recipe -> recipe.equals(shapelessUpgrade)));
+        assertTrue(itemSet.craftingRecipes.stream().anyMatch(recipe -> recipe.equals(shapelessUpgrade)));
     }
 
     static void testBlockDropsOld12(ItemSet itemSet, int numBlockDrops) {
@@ -365,7 +365,7 @@ public class TestBackward12 {
 
         OutputTableValues dropTable = new OutputTableValues(true);
         dropTable.setEntries(listOf(OutputTableValues.Entry.createQuick(
-                CustomItemResultValues.createQuick(itemSet.getItemReference("simple1"), 1), Chance.percentage(50)
+                CustomItemResultValues.createQuick(itemSet.items.getReference("simple1"), 1), Chance.percentage(50)
         )));
 
         DropValues drop = new DropValues(true);
@@ -378,13 +378,13 @@ public class TestBackward12 {
         blockDrop.setMinFortuneLevel(1);
         blockDrop.setMaxFortuneLevel(1);
 
-        assertTrue(itemSet.getBlockDrops().stream().anyMatch(candidate -> candidate.equals(blockDrop)));
+        assertTrue(itemSet.blockDrops.stream().anyMatch(candidate -> candidate.equals(blockDrop)));
     }
 
     static void testProjectilesOld12(ItemSet itemSet, int numProjectiles) {
         testProjectilesOld11(itemSet, numProjectiles);
 
-        CustomProjectileValues shocking = itemSet.getProjectile("shocking").get();
+        CustomProjectileValues shocking = itemSet.projectiles.get("shocking").get();
         assertEquals("shock", shocking.getCustomDamageSourceReference().get().getName());
     }
 
@@ -397,15 +397,15 @@ public class TestBackward12 {
         ));
 
         LinkSlotValues linkSlot1 = LinkSlotValues.createQuick(
-                itemSet.getContainerReference("container1"),
+                itemSet.containers.getReference("container1"),
                 SlotDisplayValues.createQuick(
-                        CustomDisplayItemValues.createQuick(itemSet.getItemReference("simple1")),
+                        CustomDisplayItemValues.createQuick(itemSet.items.getReference("simple1")),
                         "", new ArrayList<>(), 1
                 )
         );
-        LinkSlotValues linkSlot2 = LinkSlotValues.createQuick(itemSet.getContainerReference("container2"), null);
+        LinkSlotValues linkSlot2 = LinkSlotValues.createQuick(itemSet.containers.getReference("container2"), null);
 
-        CustomContainerValues linkActions = itemSet.getContainer("linkActions").get();
+        CustomContainerValues linkActions = itemSet.containers.get("linkActions").get();
         assertEquals(2, linkActions.getHeight());
         assertEquals(boringActionSlot, linkActions.getSlot(0, 0));
         assertEquals(fancyActionSlot, linkActions.getSlot(1, 0));
@@ -447,9 +447,9 @@ public class TestBackward12 {
 
     static void testCombinedResourcepacksOld12(ItemSet itemSet, int numPacks) {
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
-            assertEquals(numPacks, itemSet.getCombinedResourcepacks().size());
+            assertEquals(numPacks, itemSet.combinedResourcepacks.size());
 
-            CombinedResourcepackValues staff = itemSet.getCombinedResourcepack("staff").get();
+            CombinedResourcepackValues staff = itemSet.combinedResourcepacks.get("staff").get();
             assertEquals(3, staff.getPriority());
             try {
                 ZipInputStream zipInput = new ZipInputStream(new ByteArrayInputStream(staff.getContent()));

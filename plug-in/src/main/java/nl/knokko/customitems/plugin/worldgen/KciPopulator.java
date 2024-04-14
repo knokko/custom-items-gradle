@@ -31,13 +31,13 @@ public class KciPopulator extends BlockPopulator {
 
     @Override
     public void populate(World world, Random random, Chunk source) {
-        for (TreeGeneratorValues generator : itemSet.get().getTreeGenerators()) {
+        for (TreeGeneratorValues generator : itemSet.get().treeGenerators) {
             if (generator.getAllowedWorlds().isEmpty() || generator.getAllowedWorlds().contains(world.getName())) {
                 applyTreeGenerator(generator, world, random, source);
             }
         }
 
-        for (OreVeinGeneratorValues generator : itemSet.get().getOreVeinGenerators()) {
+        for (OreVeinGeneratorValues generator : itemSet.get().oreGenerators) {
             if (generator.getAllowedWorlds().isEmpty() || generator.getAllowedWorlds().contains(world.getName())) {
                 applyOreVein(generator, world, random, source);
             }

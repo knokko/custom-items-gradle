@@ -19,10 +19,10 @@ public class UpgradeCollectionEdit extends DedicatedCollectionEdit<UpgradeValues
     private final ItemSet itemSet;
 
     public UpgradeCollectionEdit(GuiComponent returnMenu, ItemSet itemSet) {
-        super(returnMenu, itemSet.getUpgrades().references(), toCopy -> {
+        super(returnMenu, itemSet.upgrades.references(), toCopy -> {
             UpgradeValues newUpgrade = toCopy.copy(true);
             newUpgrade.chooseNewId();
-            return Validation.toErrorString(() -> itemSet.addUpgrade(newUpgrade));
+            return Validation.toErrorString(() -> itemSet.upgrades.add(newUpgrade));
         });
         this.itemSet = itemSet;
     }
@@ -60,7 +60,7 @@ public class UpgradeCollectionEdit extends DedicatedCollectionEdit<UpgradeValues
 
     @Override
     protected String deleteModel(UpgradeReference modelReference) {
-        return Validation.toErrorString(() -> itemSet.removeUpgrade(modelReference));
+        return Validation.toErrorString(() -> itemSet.upgrades.remove(modelReference));
     }
 
     @Override

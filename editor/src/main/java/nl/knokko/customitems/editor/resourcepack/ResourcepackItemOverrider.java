@@ -89,7 +89,7 @@ class ResourcepackItemOverrider {
     ) throws IOException {
         Set<CIMaterial> usedOtherMaterials = EnumSet.noneOf(CIMaterial.class);
 
-        for (CustomItemValues item : itemSet.getItems()) {
+        for (CustomItemValues item : itemSet.items) {
             if (item.getItemType() == CustomItemType.OTHER) {
                 usedOtherMaterials.add(item.getOtherMaterial());
             }
@@ -125,14 +125,14 @@ class ResourcepackItemOverrider {
 
             // Some bookkeeping
             int maxItemDamage = 0;
-            for (CustomItemValues item : itemSet.getItems()) {
+            for (CustomItemValues item : itemSet.items) {
                 if (item.getItemType() == CustomItemType.OTHER && item.getOtherMaterial() == currentOtherMaterial && item.getItemDamage() > maxItemDamage) {
                     maxItemDamage = item.getItemDamage();
                 }
             }
 
             // The interesting part...
-            List<CustomItemValues> currentItems = itemSet.getItems().stream().sorted(
+            List<CustomItemValues> currentItems = itemSet.items.stream().sorted(
                     Comparator.comparingInt(CustomItemValues::getItemDamage)
             ).filter(
                     item -> item.getItemType() == CustomItemType.OTHER && item.getOtherMaterial() == currentOtherMaterial

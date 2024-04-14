@@ -37,7 +37,7 @@ public class WikiDamageSourceGenerator {
             output.println("\t\t<h2>Inflicted by</h2>");
             output.println("\t\t<ul>");
 
-            for (CustomItemValues item : itemSet.getItems()) {
+            for (CustomItemValues item : itemSet.items) {
                 List<String> ways = new ArrayList<>();
                 if (damageSource.equals(item.getCustomMeleeDamageSourceReference())) ways.add("melee attack with");
 
@@ -65,7 +65,7 @@ public class WikiDamageSourceGenerator {
                 }
             }
 
-            for (CustomProjectileValues projectile : itemSet.getProjectiles()) {
+            for (CustomProjectileValues projectile : itemSet.projectiles) {
                 if (damageSource.equals(projectile.getCustomDamageSourceReference())) {
                     output.println("\t\t\t<li class=\"projectile-source\">struck by <a href=\"../projectiles/" +
                             projectile.getName() + ".html\">" + projectile.getName() + "</a></li>");
@@ -74,29 +74,29 @@ public class WikiDamageSourceGenerator {
 
             output.println("\t\t</ul>");
 
-            Collection<CustomItemValues> resistingItems = itemSet.getItems().stream().filter(item ->
+            Collection<CustomItemValues> resistingItems = itemSet.items.stream().filter(item ->
                     item instanceof CustomArmorValues
                             && ((CustomArmorValues) item).getDamageResistances().getResistance(damageSource) > 0
                             && item.getWikiVisibility() == WikiVisibility.VISIBLE
             ).collect(Collectors.toList());
-            Collection<CustomItemValues> vulnerableItems = itemSet.getItems().stream().filter(item ->
+            Collection<CustomItemValues> vulnerableItems = itemSet.items.stream().filter(item ->
                     item instanceof CustomArmorValues
                             && ((CustomArmorValues) item).getDamageResistances().getResistance(damageSource) < 0
                             && item.getWikiVisibility() == WikiVisibility.VISIBLE
             ).collect(Collectors.toList());
 
-            long numResistingUpgrades = itemSet.getUpgrades().stream().filter(upgrade ->
+            long numResistingUpgrades = itemSet.upgrades.stream().filter(upgrade ->
                     upgrade.getDamageResistances().getResistance(damageSource) > 0
             ).count();
-            long numVulnerableUpgrades = itemSet.getUpgrades().stream().filter(upgrade ->
+            long numVulnerableUpgrades = itemSet.upgrades.stream().filter(upgrade ->
                     upgrade.getDamageResistances().getResistance(damageSource) < 0
             ).count();
-            long numResistingEquipmentSets = itemSet.getEquipmentSets().stream().mapToLong(set ->
+            long numResistingEquipmentSets = itemSet.equipmentSets.stream().mapToLong(set ->
                     set.getBonuses().stream().filter(
                             bonuses -> bonuses.getDamageResistances().getResistance(damageSource) > 0
                     ).count()
             ).filter(value -> value > 0).count();
-            long numVulnerableEquipmentSets = itemSet.getEquipmentSets().stream().mapToLong(set ->
+            long numVulnerableEquipmentSets = itemSet.equipmentSets.stream().mapToLong(set ->
                     set.getBonuses().stream().filter(
                             bonuses -> bonuses.getDamageResistances().getResistance(damageSource) < 0
                     ).count()

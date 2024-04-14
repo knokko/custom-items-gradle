@@ -75,13 +75,13 @@ public class CustomItemIngredientValues extends IngredientValues {
     private void load1(BitInput input, ItemSet itemSet) {
         this.amount = 1;
         this.remainingItem = null;
-        this.item = itemSet.getItemReference(input.readJavaString());
+        this.item = itemSet.items.getReference(input.readJavaString());
     }
 
     private void load2(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         this.amount = input.readByte();
         loadRemainingItem(input, itemSet);
-        this.item = itemSet.getItemReference(input.readJavaString());
+        this.item = itemSet.items.getReference(input.readJavaString());
     }
 
     private void loadNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
@@ -89,7 +89,7 @@ public class CustomItemIngredientValues extends IngredientValues {
         if (encoding != 1) throw new UnknownEncodingException("InternalCustomIngredient", encoding);
 
         this.amount = input.readByte();
-        this.item = itemSet.getItemReference(input.readString());
+        this.item = itemSet.items.getReference(input.readString());
         loadRemainingItem(input, itemSet);
         this.constraints = IngredientConstraintsValues.load(input);
     }
@@ -179,6 +179,6 @@ public class CustomItemIngredientValues extends IngredientValues {
     public void validateComplete(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         super.validateComplete(itemSet);
 
-        if (!itemSet.isReferenceValid(item)) throw new ValidationException("Item is not or no longer valid");
+        if (!itemSet.items.isValid(item)) throw new ValidationException("Item is not or no longer valid");
     }
 }

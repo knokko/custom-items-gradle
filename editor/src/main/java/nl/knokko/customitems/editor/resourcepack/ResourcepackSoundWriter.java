@@ -27,7 +27,7 @@ class ResourcepackSoundWriter {
         jsonWriter.println("{");
 
         boolean hasPrevious = false;
-        for (CustomSoundTypeValues soundType : itemSet.getSoundTypes()) {
+        for (CustomSoundTypeValues soundType : itemSet.soundTypes) {
 
             // All sound entries, except the first one, should start by adding a comma to separate it from the previous
             // sound entry
@@ -47,7 +47,7 @@ class ResourcepackSoundWriter {
     }
 
     void writeSoundFiles() throws IOException {
-        for (CustomSoundTypeValues soundType : itemSet.getSoundTypes()) {
+        for (CustomSoundTypeValues soundType : itemSet.soundTypes) {
             ZipEntry entry = new ZipEntry("assets/minecraft/sounds/kci/" + soundType.getName() + ".ogg");
             zipOutput.putNextEntry(entry);
             zipOutput.write(soundType.getOggData());

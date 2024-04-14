@@ -98,13 +98,13 @@ public class CustomArmorValues extends CustomToolValues {
         this.loadLeatherColors(input);
         this.damageResistances = DamageResistanceValues.loadNew(input, itemSet);
         if (itemSet.getSide() == ItemSet.Side.EDITOR && input.readBoolean()) {
-            this.armorTexture = itemSet.getArmorTextureReference(input.readString());
+            this.armorTexture = itemSet.armorTextures.getReference(input.readString());
         } else {
             this.armorTexture = null;
         }
 
         if (encoding >= 2 && input.readBoolean()) {
-            this.fancyPantsTexture = itemSet.getFancyPantsArmorTextureReference(new UUID(input.readLong(), input.readLong()));
+            this.fancyPantsTexture = itemSet.fancyPants.getReference(new UUID(input.readLong(), input.readLong()));
         } else this.fancyPantsTexture = null;
     }
 
@@ -186,7 +186,7 @@ public class CustomArmorValues extends CustomToolValues {
         if (input.readBoolean()) {
             String armorTextureName = input.readString();
             if (itemSet.getSide() == ItemSet.Side.EDITOR) {
-                this.armorTexture = itemSet.getArmorTextureReference(armorTextureName);
+                this.armorTexture = itemSet.armorTextures.getReference(armorTextureName);
             } else {
                 this.armorTexture = null;
             }
@@ -383,10 +383,10 @@ public class CustomArmorValues extends CustomToolValues {
     public void validateComplete(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         super.validateComplete(itemSet, oldName);
 
-        if (armorTexture != null && !itemSet.isReferenceValid(armorTexture)) {
+        if (armorTexture != null && !itemSet.armorTextures.isValid(armorTexture)) {
             throw new ProgrammingValidationException("Armor texture is no longer valid");
         }
-        if (fancyPantsTexture != null && !itemSet.isReferenceValid(fancyPantsTexture)) {
+        if (fancyPantsTexture != null && !itemSet.fancyPants.isValid(fancyPantsTexture)) {
             throw new ProgrammingValidationException("FP texture is no longer valid");
         }
 

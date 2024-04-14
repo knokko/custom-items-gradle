@@ -19,7 +19,7 @@ public class CustomBlockModel implements BlockModel {
         byte encoding = input.readByte();
         if (encoding != 1) throw new UnknownEncodingException("CustomBlockModel", encoding);
 
-        return new CustomBlockModel((ModernCustomItemModel) ItemModel.load(input), itemSet.getTextureReference(input.readString()));
+        return new CustomBlockModel((ModernCustomItemModel) ItemModel.load(input), itemSet.textures.getReference(input.readString()));
     }
 
     private final ModernCustomItemModel itemModel;
@@ -48,7 +48,7 @@ public class CustomBlockModel implements BlockModel {
     public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         if (itemModel == null) throw new ValidationException("You need to choose a model");
         if (editorTexture == null) throw new ValidationException("You need to choose an Editor texture");
-        if (!itemSet.isReferenceValid(editorTexture)) {
+        if (!itemSet.textures.isValid(editorTexture)) {
             throw new ProgrammingValidationException("Editor texture is no longer valid");
         }
     }

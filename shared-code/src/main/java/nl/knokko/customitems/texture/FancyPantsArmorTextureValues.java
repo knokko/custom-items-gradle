@@ -179,13 +179,13 @@ public class FancyPantsArmorTextureValues extends ModelValues {
 
     public void validate(ItemSet itemSet, UUID oldID) throws ValidationException, ProgrammingValidationException {
         if (id == null) throw new ProgrammingValidationException("No ID");
-        if (oldID == null && itemSet.getFancyPantsArmorTexture(id).isPresent()) {
+        if (oldID == null && itemSet.fancyPants.get(id).isPresent()) {
             throw new ProgrammingValidationException("Another FP armor texture already has this ID");
         }
         if (oldID != null && !oldID.equals(id)) throw new ProgrammingValidationException("ID is immutable");
 
         Validation.safeName(name);
-        for (FancyPantsArmorTextureValues otherTexture : itemSet.getFancyPantsArmorTextures()) {
+        for (FancyPantsArmorTextureValues otherTexture : itemSet.fancyPants) {
             if (!otherTexture.getId().equals(id) && otherTexture.getName().equals(name)) {
                 throw new ValidationException("Another FP armor texture already has this name");
             }

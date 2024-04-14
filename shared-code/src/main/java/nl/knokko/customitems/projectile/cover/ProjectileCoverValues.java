@@ -138,7 +138,7 @@ public class ProjectileCoverValues extends ModelValues {
         }
         // item damage is nowadays picked right before exporting and thus doesn't really need validation
         Validation.safeName(name);
-        if (!name.equals(oldName) && itemSet.getProjectileCover(name).isPresent()) {
+        if (!name.equals(oldName) && itemSet.projectileCovers.get(name).isPresent()) {
             throw new ValidationException("Another projectile with this name already exists");
         }
     }

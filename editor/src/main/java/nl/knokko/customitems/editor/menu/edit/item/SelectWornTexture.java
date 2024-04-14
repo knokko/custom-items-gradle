@@ -41,9 +41,9 @@ public class SelectWornTexture extends GuiMenu {
 			state.getWindow().setMainComponent(returnMenu);
 		}), 0.025f, 0.8f, 0.2f, 0.9f);
 		
-		lastNumTextures = set.getArmorTextures().size();
+		lastNumTextures = set.armorTextures.size();
 		int index = 0;
-		for (ArmorTextureReference armorTextures : set.getArmorTextures().references()) {
+		for (ArmorTextureReference armorTextures : set.armorTextures.references()) {
 			addComponent(new DynamicTextButton(armorTextures.get().getName(), CHOOSE_BASE, CHOOSE_HOVER, () -> {
 				onChoose.accept(armorTextures);
 				state.getWindow().setMainComponent(returnMenu);
@@ -68,7 +68,7 @@ public class SelectWornTexture extends GuiMenu {
 	public void update() {
 		super.update();
 		
-		if (didInit && lastNumTextures != set.getArmorTextures().size()) {
+		if (didInit && lastNumTextures != set.armorTextures.size()) {
 			clearComponents();
 			addComponents();
 		}

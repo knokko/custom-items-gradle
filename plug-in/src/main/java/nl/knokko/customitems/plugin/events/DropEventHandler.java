@@ -143,7 +143,7 @@ public class DropEventHandler implements Listener {
             return;
         }
 
-        Collection<MobDropValues> drops = itemSet.getMobDrops(event.getEntity());
+        Iterable<MobDropValues> drops = itemSet.getMobDrops(event.getEntity());
         Random random = new Random();
 
         ItemStack usedItem = null;

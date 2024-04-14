@@ -22,7 +22,7 @@ public class TextureReference extends StringBasedReference<CustomTexture, BaseTe
 
     @Override
     Collection<CustomTexture> getCollection() {
-        return itemSet.textures;
+        return itemSet.textures.elements;
     }
 
     @Override

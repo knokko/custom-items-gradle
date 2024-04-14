@@ -53,10 +53,10 @@ public class ReplacementConditionValues extends ModelValues {
 
     private void load1(BitInput input, ItemSet itemSet) {
         this.condition = ReplacementCondition.valueOf(input.readJavaString());
-        this.item = itemSet.getItemReference(input.readJavaString());
+        this.item = itemSet.items.getReference(input.readJavaString());
         this.operation = ReplacementOperation.valueOf(input.readJavaString());
         this.value = input.readInt();
-        this.replaceItem = itemSet.getItemReference(input.readJavaString());
+        this.replaceItem = itemSet.items.getReference(input.readJavaString());
     }
 
     @Override
@@ -166,10 +166,10 @@ public class ReplacementConditionValues extends ModelValues {
 
     public void validateComplete(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         validateIndependent();
-        if (!itemSet.isReferenceValid(item)) {
+        if (!itemSet.items.isValid(item)) {
             throw new ValidationException("The item is not/no longer valid");
         }
-        if (!itemSet.isReferenceValid(replaceItem)) {
+        if (!itemSet.items.isValid(replaceItem)) {
             throw new ValidationException("The replace item is not/no longer valid");
         }
     }

@@ -28,7 +28,7 @@ class ResourcepackBlockOverrider {
     void overrideMushroomBlocks() throws IOException {
         for (MushroomBlockMapping.Type mushroomType : MushroomBlockMapping.Type.values()) {
             boolean hasSuchBlock = false;
-            for (CustomBlockValues block : itemSet.getBlocks()) {
+            for (CustomBlockValues block : itemSet.blocks) {
                 if (MushroomBlockMapping.getType(block.getInternalID()) == mushroomType) {
                     hasSuchBlock = true;
                     break;
@@ -68,7 +68,7 @@ class ResourcepackBlockOverrider {
                                 ", \"north\": " + directions[2] + ", \"south\": " + directions[3] + ", \"up\": " +
                                 directions[4] + ", \"west\": " + directions[5] + " },");
 
-                        Optional<CustomBlockValues> maybeBlock = itemSet.getBlock(id);
+                        Optional<CustomBlockValues> maybeBlock = itemSet.blocks.get(id);
                         String blockResource = maybeBlock.map(
                                 customBlockValues -> "customblocks/" + customBlockValues.getName()
                         ).orElseGet(() -> "block/lapisdemon/" + mushroomType.getResourceName() + "/default_true");
