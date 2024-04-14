@@ -1,15 +1,20 @@
 package nl.knokko.customitems.plugin.recipe;
 
+import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import nl.knokko.customitems.recipe.CraftingRecipeValues;
 import nl.knokko.customitems.recipe.ShapedRecipeValues;
+import nl.knokko.customitems.recipe.ingredient.CustomItemIngredientValues;
 import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
 import nl.knokko.customrecipes.CustomRecipes;
+import nl.knokko.customrecipes.furnace.CustomFurnaceRecipe;
 import nl.knokko.customrecipes.ingredient.CustomIngredient;
 import nl.knokko.customrecipes.ingredient.IngredientBlocker;
 import nl.knokko.customrecipes.shaped.CustomShapedRecipe;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -84,6 +89,24 @@ public class CustomItemsRecipes {
         }
 
         customRecipes.block(new IngredientBlocker(ItemUtils::isCustom));
+        customRecipes.furnace.add(new CustomFurnaceRecipe(
+                new ItemStack(Material.DIAMOND, 2),
+                toCustomIngredient(CustomItemIngredientValues.createQuick(
+                        itemSet.get().getItemReference("green_ingot"), 1
+                )), 0f, 40
+        ));
+        customRecipes.furnace.add(new CustomFurnaceRecipe(
+                new ItemStack(Material.BONE, 2),
+                toCustomIngredient(CustomItemIngredientValues.createQuick(
+                        itemSet.get().getItemReference("red_ingot"), 1
+                )), 0f, 40
+        ));
+
+        customRecipes.furnace.addBurnTimeFunction(itemStack -> {
+            CustomItemValues customItem = itemSet.getItem(itemStack);
+            if (customItem == null) return null;
+            return 0; // TODO Add burn time to custom items
+        });
         customRecipes.register();
     }
 
