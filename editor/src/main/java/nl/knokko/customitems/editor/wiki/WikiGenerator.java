@@ -75,7 +75,7 @@ public class WikiGenerator {
 
         File containersFolder = new File(destinationFolder + "/containers");
         if (!containersFolder.exists() && !containersFolder.mkdir()) throw new IOException("Failed to create containers folder");
-        for (CustomContainerValues container : itemSet.getContainers()) {
+        for (CustomContainerValues container : itemSet.containers) {
             new WikiContainerGenerator(itemSet, container).generate(new File(containersFolder + "/" + container.getName() + ".html"));
         }
 
@@ -87,7 +87,7 @@ public class WikiGenerator {
 
         File blocksFolder = new File(destinationFolder + "/blocks");
         if (!blocksFolder.exists() && !blocksFolder.mkdir()) throw new IOException("Failed to create blocks folder");
-        for (CustomBlockValues block : itemSet.getBlocks()) {
+        for (CustomBlockValues block : itemSet.blocks) {
             new WikiBlockGenerator(itemSet, block).generate(new File(blocksFolder + "/" + block.getName() + ".html"));
         }
 

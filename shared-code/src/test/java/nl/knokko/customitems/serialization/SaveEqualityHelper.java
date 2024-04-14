@@ -42,9 +42,9 @@ public class SaveEqualityHelper {
             ItemSet testSet = new ItemSet(new ByteArrayBitInput(bitOutput.getBytes()), side, true);
             assertEquals(originalSet.getExportSettings(), testSet.getExportSettings());
             if (side == ItemSet.Side.EDITOR) {
-                assertEquals(originalSet.getCombinedResourcepacks().size(), testSet.getCombinedResourcepacks().size());
-                for (CombinedResourcepackValues originalPack : originalSet.getCombinedResourcepacks()) {
-                    assertEquals(originalPack, testSet.getCombinedResourcepack(originalPack.getName()).get());
+                assertEquals(originalSet.combinedResourcepacks.size(), testSet.combinedResourcepacks.size());
+                for (CombinedResourcepackValues originalPack : originalSet.combinedResourcepacks) {
+                    assertEquals(originalPack, testSet.combinedResourcepacks.get(originalPack.getName()).get());
                 }
 
                 assertEquals(originalSet.getTextures().size(), testSet.getTextures().size());
@@ -52,9 +52,9 @@ public class SaveEqualityHelper {
                     assertEquals(originalTexture, testSet.getTexture(originalTexture.getName()).get());
                 }
 
-                assertEquals(originalSet.getArmorTextures().size(), testSet.getArmorTextures().size());
-                for (ArmorTextureValues originalArmorTexture : originalSet.getArmorTextures()) {
-                    assertEquals(originalArmorTexture, testSet.getArmorTexture(originalArmorTexture.getName()).get());
+                assertEquals(originalSet.armorTextures.size(), testSet.armorTextures.size());
+                for (ArmorTextureValues originalArmorTexture : originalSet.armorTextures) {
+                    assertEquals(originalArmorTexture, testSet.armorTextures.get(originalArmorTexture.getName()).get());
                 }
             }
 
@@ -103,9 +103,9 @@ public class SaveEqualityHelper {
                 assertEquals(originalUpgrade, testSet.getUpgrade(originalUpgrade.getId()).get());
             }
 
-            assertEquals(originalSet.getBlockDrops().size(), testSet.getBlockDrops().size());
-            for (BlockDropValues originalBlockDrop : originalSet.getBlockDrops()) {
-                assertTrue(testSet.getBlockDrops().stream().anyMatch(candidate -> candidate.equals(originalBlockDrop)));
+            assertEquals(originalSet.blockDrops.size(), testSet.blockDrops.size());
+            for (BlockDropValues originalBlockDrop : originalSet.blockDrops) {
+                assertTrue(testSet.blockDrops.stream().anyMatch(candidate -> candidate.equals(originalBlockDrop)));
             }
 
             assertEquals(originalSet.getMobDrops().size(), testSet.getMobDrops().size());
@@ -146,14 +146,14 @@ public class SaveEqualityHelper {
                 assertEquals(originalSoundType, testSet.getSoundType(originalSoundType.getId()).get());
             }
 
-            assertEquals(originalSet.getContainers().size(), testSet.getContainers().size());
-            for (CustomContainerValues originalContainer : originalSet.getContainers()) {
-                assertEquals(originalContainer, testSet.getContainer(originalContainer.getName()).get());
+            assertEquals(originalSet.containers.size(), testSet.containers.size());
+            for (CustomContainerValues originalContainer : originalSet.containers) {
+                assertEquals(originalContainer, testSet.containers.get(originalContainer.getName()).get());
             }
 
-            assertEquals(originalSet.getBlocks().size(), testSet.getBlocks().size());
-            for (CustomBlockValues originalBlock : originalSet.getBlocks()) {
-                assertEquals(originalBlock, testSet.getBlock(originalBlock.getInternalID()).get());
+            assertEquals(originalSet.blocks.size(), testSet.blocks.size());
+            for (CustomBlockValues originalBlock : originalSet.blocks) {
+                assertEquals(originalBlock, testSet.blocks.get(originalBlock.getInternalID()).get());
             }
 
             assertEquals(originalSet.getOreVeinGenerators().size(), testSet.getOreVeinGenerators().size());

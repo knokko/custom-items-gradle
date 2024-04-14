@@ -70,7 +70,7 @@ class ResourcepackModelWriter {
 
     void writeCustomBlockModels() throws IOException {
         // Write the models of all custom blocks
-        for (CustomBlockValues block : itemSet.getBlocks()) {
+        for (CustomBlockValues block : itemSet.blocks) {
             ZipEntry blockModelEntry = new ZipEntry("assets/minecraft/models/customblocks/" + block.getName() + ".json");
             zipOutput.putNextEntry(blockModelEntry);
 

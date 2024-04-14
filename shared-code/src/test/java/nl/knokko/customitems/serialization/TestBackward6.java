@@ -191,9 +191,9 @@ public class TestBackward6 {
     }
 
     static void testBlockDropsOld6(ItemSet set, int numDrops, boolean useFlatChance) {
-        assertEquals(numDrops, set.getBlockDrops().size());
+        assertEquals(numDrops, set.blockDrops.size());
 
-        assertTrue(set.getBlockDrops().stream().anyMatch(blockDrop -> blockDrop.equals(createBlockDrop1(set, useFlatChance))));
+        assertTrue(set.blockDrops.stream().anyMatch(blockDrop -> blockDrop.equals(createBlockDrop1(set, useFlatChance))));
     }
 
     private static MobDropValues createSwordMobDrop(ItemSet itemSet) {

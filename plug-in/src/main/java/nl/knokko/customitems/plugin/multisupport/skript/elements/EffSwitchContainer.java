@@ -25,7 +25,7 @@ public class EffSwitchContainer extends Effect {
 
     @Override
     protected void execute(Event event) {
-        Optional<CustomContainerValues> newContainer = CustomItemsPlugin.getInstance().getSet().get().getContainer(
+        Optional<CustomContainerValues> newContainer = CustomItemsPlugin.getInstance().getSet().get().containers.get(
                 newContainerName.getSingle(event)
         );
         if (newContainer.isPresent()) {

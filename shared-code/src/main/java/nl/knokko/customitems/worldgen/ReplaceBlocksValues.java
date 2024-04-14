@@ -27,7 +27,7 @@ public class ReplaceBlocksValues extends ModelValues {
         int numCustomBlocks = input.readInt();
         result.customBlocks = new HashSet<>(numCustomBlocks);
         for (int counter = 0; counter < numCustomBlocks; counter++) {
-            result.customBlocks.add(itemSet.getBlockReference(input.readInt()));
+            result.customBlocks.add(itemSet.blocks.getReference(input.readInt()));
         }
 
         int numVanillaBlocks = input.readInt();
@@ -101,7 +101,7 @@ public class ReplaceBlocksValues extends ModelValues {
     }
 
     public boolean contains(CustomBlockValues block, ItemSet itemSet) {
-        return contains(itemSet.getBlockReference(block.getInternalID()));
+        return contains(itemSet.blocks.getReference(block.getInternalID()));
     }
 
     public boolean contains(CIMaterial block) {
@@ -122,7 +122,7 @@ public class ReplaceBlocksValues extends ModelValues {
         if (customBlocks == null) throw new ProgrammingValidationException("No custom blocks");
         for (BlockReference block : customBlocks) {
             if (block == null) throw new ProgrammingValidationException("Missing a custom block");
-            if (!itemSet.isReferenceValid(block)) throw new ProgrammingValidationException("Block is no longer valid");
+            if (!itemSet.blocks.isValid(block)) throw new ProgrammingValidationException("Block is no longer valid");
         }
 
         if (vanillaBlocks == null) throw new ProgrammingValidationException("No vanilla blocks");

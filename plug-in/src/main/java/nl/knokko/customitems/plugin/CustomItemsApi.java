@@ -56,7 +56,7 @@ public class CustomItemsApi {
     public static Collection<String> getAllBlockNames() {
         ItemSet itemSet = CustomItemsPlugin.getInstance().getSet().get();
 
-        Collection<String> blockNames = new ArrayList<>(itemSet.getBlocks().size());
+        Collection<String> blockNames = new ArrayList<>(itemSet.blocks.size());
         for (CustomItemValues item : itemSet.getItems()) {
             blockNames.add(item.getName());
         }
@@ -65,7 +65,7 @@ public class CustomItemsApi {
     }
 
     public static void placeBlock(Block destination, String customBlockName) {
-        Optional<CustomBlockValues> customBlock = CustomItemsPlugin.getInstance().getSet().get().getBlock(customBlockName);
+        Optional<CustomBlockValues> customBlock = CustomItemsPlugin.getInstance().getSet().get().blocks.get(customBlockName);
         if (customBlock.isPresent()) {
             MushroomBlockHelper.place(destination, customBlock.get());
         } else {
@@ -80,7 +80,7 @@ public class CustomItemsApi {
     }
 
     public static boolean hasBlock(String blockName) {
-        return CustomItemsPlugin.getInstance().getSet().get().getBlock(blockName).isPresent();
+        return CustomItemsPlugin.getInstance().getSet().get().blocks.get(blockName).isPresent();
     }
 
     public static boolean hasProjectile(String projectileName) {

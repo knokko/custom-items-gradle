@@ -47,8 +47,8 @@ public class EditCombinedResourcepack extends GuiMenu {
 
         addComponent(new DynamicTextButton("Done", SAVE_BASE, SAVE_HOVER, () -> {
             String error;
-            if (toModify == null) error = Validation.toErrorString(() -> itemSet.addCombinedResourcepack(currentValues));
-            else error = Validation.toErrorString(() -> itemSet.changeCombinedResourcepack(toModify, currentValues));
+            if (toModify == null) error = Validation.toErrorString(() -> itemSet.combinedResourcepacks.add(currentValues));
+            else error = Validation.toErrorString(() -> itemSet.combinedResourcepacks.change(toModify, currentValues));
 
             if (error == null) state.getWindow().setMainComponent(returnMenu);
             else errorComponent.setText(error);

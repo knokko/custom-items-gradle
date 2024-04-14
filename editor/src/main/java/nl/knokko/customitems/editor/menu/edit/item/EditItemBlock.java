@@ -43,7 +43,7 @@ public class EditItemBlock extends EditItemBase<CustomBlockItemValues> {
         addComponent(new DynamicTextComponent("Block:", EditProps.LABEL),
                 0.70f, 0.5f, 0.80f, 0.6f);
         addComponent(CollectionSelect.createButton(
-                menu.getSet().getBlocks().references(),
+                menu.getSet().blocks.references(),
                 currentValues::setBlock,
                 block -> block.get().getName(),
                 currentValues.getBlockReference(), false

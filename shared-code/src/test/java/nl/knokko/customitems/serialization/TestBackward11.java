@@ -191,7 +191,7 @@ public class TestBackward11 {
     static void testContainersOld11(ItemSet set, int numContainers) {
         testContainersOld10(set, numContainers);
 
-        CustomContainerValues container5 = set.getContainer("container5").get();
+        CustomContainerValues container5 = set.containers.get("container5").get();
         assertTrue(container5.requiresPermission());
         assertEquals(2, container5.getHeight());
         assertEquals(ContainerStorageMode.GLOBAL, container5.getStorageMode());
@@ -249,7 +249,7 @@ public class TestBackward11 {
     static void testBlocksNew11(ItemSet set, int numBlocks) {
         testBlocksNew9(set, numBlocks);
 
-        CustomBlockValues block2 = set.getBlock(2).get();
+        CustomBlockValues block2 = set.blocks.get(2).get();
 
         if (set.getSide() == ItemSet.Side.EDITOR) {
             CustomBlockModel model = (CustomBlockModel) block2.getModel();
@@ -271,7 +271,7 @@ public class TestBackward11 {
         assertEquals("trident2", customEntry.getItem().getName());
         assertEquals(-2, customEntry.getValue());
 
-        CustomBlockValues block3 = set.getBlock(3).get();
+        CustomBlockValues block3 = set.blocks.get(3).get();
         if (set.getSide() == ItemSet.Side.EDITOR) {
             assertTrue(block3.getModel() instanceof SidedBlockModel);
         }
@@ -283,13 +283,13 @@ public class TestBackward11 {
         OreVeinGeneratorValues generator1 = new OreVeinGeneratorValues(true);
         ReplaceBlocksValues blocksToReplace = new ReplaceBlocksValues(true);
         blocksToReplace.setVanillaBlocks(new HashSet<>(listOf(CIMaterial.STONE)));
-        blocksToReplace.setCustomBlocks(new HashSet<>(listOf(set.getBlockReference(1))));
+        blocksToReplace.setCustomBlocks(new HashSet<>(listOf(set.blocks.getReference(1))));
         generator1.setBlocksToReplace(blocksToReplace);
         AllowedBiomesValues allowedBiomes = new AllowedBiomesValues(true);
         allowedBiomes.setBlacklist(listOf(CIBiome.NETHER));
         generator1.setAllowedBiomes(allowedBiomes);
         generator1.setOreMaterial(BlockProducerValues.createQuick(BlockProducerValues.Entry.createQuick(
-                new ProducedBlock(set.getBlockReference(2)), Chance.percentage(70)
+                new ProducedBlock(set.blocks.getReference(2)), Chance.percentage(70)
         )));
         generator1.setMinY(5);
         generator1.setMaxY(15);
@@ -314,10 +314,10 @@ public class TestBackward11 {
         tree1.setAllowedBiomes(allowedBiomes);
         ReplaceBlocksValues allowedTerrain = new ReplaceBlocksValues(true);
         allowedTerrain.setVanillaBlocks(EnumSet.of(CIMaterial.GRASS_BLOCK, CIMaterial.SNOW_BLOCK));
-        allowedTerrain.setCustomBlocks(new HashSet<>(listOf(set.getBlockReference(1))));
+        allowedTerrain.setCustomBlocks(new HashSet<>(listOf(set.blocks.getReference(1))));
         tree1.setAllowedTerrain(allowedTerrain);
         tree1.setLogMaterial(BlockProducerValues.createQuick(
-                BlockProducerValues.Entry.createQuick(new ProducedBlock(set.getBlockReference(3)), Chance.percentage(100))
+                BlockProducerValues.Entry.createQuick(new ProducedBlock(set.blocks.getReference(3)), Chance.percentage(100))
         ));
         tree1.setLeavesMaterial(BlockProducerValues.createQuick(
                 BlockProducerValues.Entry.createQuick(new ProducedBlock(CIMaterial.SPRUCE_LEAVES), Chance.percentage(30))

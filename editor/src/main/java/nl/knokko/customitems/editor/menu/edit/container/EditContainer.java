@@ -152,13 +152,13 @@ public class EditContainer extends GuiMenu {
 		
 		if (toModify != null) {
 			addComponent(new DynamicTextButton("Apply", SAVE_BASE, SAVE_HOVER, () -> {
-				String error = Validation.toErrorString(() -> menu.getSet().changeContainer(toModify, currentValues));
+				String error = Validation.toErrorString(() -> menu.getSet().containers.change(toModify, currentValues));
 				if (error == null) state.getWindow().setMainComponent(new ContainerCollectionEdit(menu));
 				else errorComponent.setText(error);
 			}), 0.025f, 0.025f, 0.175f, 0.125f);
 		} else {
 			addComponent(new DynamicTextButton("Create", SAVE_BASE, SAVE_HOVER, () -> {
-				String error = Validation.toErrorString(() -> menu.getSet().addContainer(currentValues));
+				String error = Validation.toErrorString(() -> menu.getSet().containers.add(currentValues));
 				if (error != null) {
 					errorComponent.setText(error);
 				} else {

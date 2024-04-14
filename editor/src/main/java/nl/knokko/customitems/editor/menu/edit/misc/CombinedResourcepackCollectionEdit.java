@@ -19,7 +19,7 @@ public class CombinedResourcepackCollectionEdit extends DedicatedCollectionEdit<
     private final ItemSet itemSet;
 
     public CombinedResourcepackCollectionEdit(GuiComponent returnMenu, ItemSet itemSet) {
-        super(returnMenu, itemSet.getCombinedResourcepacks().references(), null);
+        super(returnMenu, itemSet.combinedResourcepacks.references(), null);
         this.itemSet = itemSet;
     }
 
@@ -57,7 +57,7 @@ public class CombinedResourcepackCollectionEdit extends DedicatedCollectionEdit<
 
     @Override
     protected String deleteModel(CombinedResourcepackReference modelReference) {
-        return Validation.toErrorString(() -> itemSet.removeCombinedResourcepack(modelReference));
+        return Validation.toErrorString(() -> itemSet.combinedResourcepacks.remove(modelReference));
     }
 
     @Override

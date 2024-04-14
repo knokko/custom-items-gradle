@@ -22,7 +22,7 @@ public class BlockReference extends IntBasedReference<CustomBlock, CustomBlockVa
 
     @Override
     Collection<CustomBlock> getCollection() {
-        return itemSet.blocks;
+        return itemSet.blocks.elements;
     }
 
     @Override

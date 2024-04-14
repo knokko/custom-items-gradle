@@ -8,7 +8,6 @@ import nl.knokko.customitems.drops.*;
 import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomTridentValues;
-import nl.knokko.customitems.itemset.BlockDropsView;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.MobDropsView;
 import nl.knokko.customitems.itemset.ItemSet;
@@ -29,7 +28,7 @@ public class ItemSetWrapper {
     private Map<String, CustomItemValues> itemMap;
     private boolean hasCustomTridents;
     private Map<CIEntityType, Collection<MobDrop>> mobDropMap;
-    private Map<BlockType, Collection<BlockDrop>> blockDropMap;
+    private Map<BlockType, Collection<BlockDropValues>> blockDropMap;
     private Map<String, ContainerInfo> containerInfoMap;
     private Map<CustomContainerHost, List<CustomContainerValues>> containerHostMap;
 
@@ -68,26 +67,26 @@ public class ItemSetWrapper {
 
     private void initBlockDropMap() {
         this.blockDropMap = new EnumMap<>(BlockType.class);
-        for (BlockDropValues blockDrop : this.currentItemSet.getBlockDrops()) {
+        for (BlockDropValues blockDrop : this.currentItemSet.blockDrops) {
 
             if (!this.blockDropMap.containsKey(blockDrop.getBlockType())) {
                 this.blockDropMap.put(blockDrop.getBlockType(), new ArrayList<>());
             }
 
-            this.blockDropMap.get(blockDrop.getBlockType()).add(new BlockDrop(blockDrop));
+            this.blockDropMap.get(blockDrop.getBlockType()).add(blockDrop);
         }
     }
 
     private void initContainerInfoMap() {
-        this.containerInfoMap = new HashMap<>(this.currentItemSet.getContainers().size());
-        for (CustomContainerValues container : this.currentItemSet.getContainers()) {
+        this.containerInfoMap = new HashMap<>(this.currentItemSet.containers.size());
+        for (CustomContainerValues container : this.currentItemSet.containers) {
             this.containerInfoMap.put(container.getName(), new ContainerInfo(container));
         }
     }
 
     private void initContainerTypeMap() {
         this.containerHostMap = new HashMap<>();
-        for (CustomContainerValues container : this.currentItemSet.getContainers()) {
+        for (CustomContainerValues container : this.currentItemSet.containers) {
             List<CustomContainerValues> hostContainers = this.containerHostMap.computeIfAbsent(
                     container.getHost(), k -> new ArrayList<>()
             );
@@ -168,16 +167,16 @@ public class ItemSetWrapper {
         return result;
     }
 
-    public BlockDropsView getBlockDrops(BlockType blockType) {
-        Collection<BlockDrop> rawCollection = this.blockDropMap.get(blockType);
-        return new BlockDropsView(rawCollection == null ? Collections.emptyList() : rawCollection);
+    public Iterable<BlockDropValues> getBlockDrops(BlockType blockType) {
+        Collection<BlockDropValues> rawCollection = this.blockDropMap.get(blockType);
+        return rawCollection == null ? Collections.emptyList() : rawCollection;
     }
 
-    public BlockDropsView getBlockDrops(CIMaterial material) {
-        if (material == null) return new BlockDropsView(Collections.emptyList());
+    public Iterable<BlockDropValues> getBlockDrops(CIMaterial material) {
+        if (material == null) return Collections.emptyList();
 
         BlockType blockType = BlockType.fromBukkitMaterial(material);
-        if (blockType == null) return new BlockDropsView(Collections.emptyList());
+        if (blockType == null) return Collections.emptyList();
         return this.getBlockDrops(blockType);
     }
 

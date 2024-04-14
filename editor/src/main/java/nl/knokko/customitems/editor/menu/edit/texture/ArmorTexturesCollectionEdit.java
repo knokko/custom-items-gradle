@@ -18,7 +18,7 @@ public class ArmorTexturesCollectionEdit extends DedicatedCollectionEdit<ArmorTe
 	private final ItemSet set;
 	
 	public ArmorTexturesCollectionEdit(GuiComponent returnMenu, ItemSet set) {
-		super(returnMenu, set.getArmorTextures().references(), null);
+		super(returnMenu, set.armorTextures.references(), null);
 		this.set = set;
 	}
 	
@@ -61,7 +61,7 @@ public class ArmorTexturesCollectionEdit extends DedicatedCollectionEdit<ArmorTe
 
 	@Override
 	protected String deleteModel(ArmorTextureReference modelReference) {
-		return Validation.toErrorString(() -> set.removeArmorTexture(modelReference));
+		return Validation.toErrorString(() -> set.armorTextures.remove(modelReference));
 	}
 
 	@Override

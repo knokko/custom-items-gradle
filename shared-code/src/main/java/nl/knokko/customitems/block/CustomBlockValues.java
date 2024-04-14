@@ -225,10 +225,10 @@ public class CustomBlockValues extends ModelValues {
         if (oldInternalId != null && internalId != oldInternalId) {
             throw new ProgrammingValidationException("Can't change internal id");
         }
-        if (oldInternalId == null && itemSet.getBlock(internalId).isPresent()) {
+        if (oldInternalId == null && itemSet.blocks.get(internalId).isPresent()) {
             throw new ProgrammingValidationException("Block with id " + internalId + " already exists");
         }
-        if (itemSet.getBlocks().stream().anyMatch(block -> block.getInternalID() != internalId && block.getName().equals(name))) {
+        if (itemSet.blocks.stream().anyMatch(block -> block.getInternalID() != internalId && block.getName().equals(name))) {
             throw new ValidationException("Block with name " + name + " already exists");
         }
 

@@ -55,7 +55,7 @@ public class ResourcepackCombiner {
     }
 
     public void writeLate() throws IOException {
-        Stream<CombinedResourcepackValues> latePacks = itemSet.getCombinedResourcepacks().stream().filter(
+        Stream<CombinedResourcepackValues> latePacks = itemSet.combinedResourcepacks.stream().filter(
                 pack -> pack.getPriority() < 0
         ).sorted(Comparator.comparingInt(CombinedResourcepackValues::getPriority).reversed());
 
@@ -63,7 +63,7 @@ public class ResourcepackCombiner {
     }
 
     public void writeEarly() throws IOException {
-        Stream<CombinedResourcepackValues> earlyPacks = itemSet.getCombinedResourcepacks().stream().filter(
+        Stream<CombinedResourcepackValues> earlyPacks = itemSet.combinedResourcepacks.stream().filter(
                 pack -> pack.getPriority() > 0
         ).sorted(Comparator.comparingInt(CombinedResourcepackValues::getPriority).reversed());
 

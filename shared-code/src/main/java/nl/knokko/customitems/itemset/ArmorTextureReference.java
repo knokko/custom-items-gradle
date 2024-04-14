@@ -22,7 +22,7 @@ public class ArmorTextureReference extends StringBasedReference<ArmorTexture, Ar
 
     @Override
     Collection<ArmorTexture> getCollection() {
-        return itemSet.armorTextures;
+        return itemSet.armorTextures.elements;
     }
 
     @Override

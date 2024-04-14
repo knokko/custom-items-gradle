@@ -19,7 +19,7 @@ class ResourcepackFontOverrider {
     }
 
     void overrideContainerOverlayChars() throws IOException {
-        if (itemSet.getContainers().stream().anyMatch(container -> container.getOverlayTexture() != null)) {
+        if (itemSet.containers.stream().anyMatch(container -> container.getOverlayTexture() != null)) {
             ZipEntry entry = new ZipEntry("assets/minecraft/font/default.json");
             zipOutput.putNextEntry(entry);
 
@@ -29,7 +29,7 @@ class ResourcepackFontOverrider {
 
             int nextOverlayChar = 0xE000;
 
-            for (CustomContainerValues container : itemSet.getContainers()) {
+            for (CustomContainerValues container : itemSet.containers) {
                 if (container.getOverlayTexture() != null) {
                     nextOverlayChar += 1;
                     container.setOverlayChar((char) nextOverlayChar);

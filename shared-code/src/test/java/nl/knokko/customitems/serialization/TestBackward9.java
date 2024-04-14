@@ -80,9 +80,9 @@ public class TestBackward9 {
     }
 
     static void testBlocksNew9(ItemSet set, int numBlocks) {
-        assertEquals(numBlocks, set.getBlocks().size());
+        assertEquals(numBlocks, set.blocks.size());
 
-        CustomBlockValues block1 = set.getBlock(1).get();
+        CustomBlockValues block1 = set.blocks.get(1).get();
         assertEquals("block1", block1.getName());
         assertEquals(1, block1.getDrops().size());
 
@@ -270,7 +270,7 @@ public class TestBackward9 {
     static void testContainersOld9(ItemSet set, int numContainers) {
         testContainersOld8(set, numContainers);
 
-        CustomContainerValues container3 = set.getContainer("container3").get();
+        CustomContainerValues container3 = set.containers.get("container3").get();
         assertEquals(StorageSlotValues.createQuick(SlotDisplayValues.createQuick(
                 SimpleVanillaDisplayItemValues.createQuick(CIMaterial.IRON_BARDING), "safe storage", new ArrayList<>(), 1
         )), container3.getSlot(0, 0));
@@ -464,7 +464,7 @@ public class TestBackward9 {
         assertEquals(listOf("{\"rank\":1}"), item.getExtraNbt());
         assertEquals(0.75, item.getAttackRange(), 0.0);
         assertEquals(new HashSet<>(listOf(
-                set.getContainerReference("container2")
+                set.containers.getReference("container2")
         )), item.getContainerReferences());
     }
 

@@ -27,7 +27,7 @@ public class CustomContainerHost {
         } else if (hostType == 2) {
             return new CustomContainerHost(CIMaterial.valueOf(input.readString()));
         } else if (hostType == 3) {
-            return new CustomContainerHost(itemSet.getBlockReference(input.readInt()));
+            return new CustomContainerHost(itemSet.blocks.getReference(input.readInt()));
         } else if (hostType == 4) {
             return new CustomContainerHost(CIEntityType.valueOf(input.readString()));
         } else {
@@ -135,7 +135,7 @@ public class CustomContainerHost {
     }
 
     public void validate(ItemSet itemSet) throws ProgrammingValidationException {
-        if (this.customBlock != null && !itemSet.isReferenceValid(this.customBlock)) {
+        if (this.customBlock != null && !itemSet.blocks.isValid(this.customBlock)) {
             throw new ProgrammingValidationException("Custom block is no longer valid");
         }
     }

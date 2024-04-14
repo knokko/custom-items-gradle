@@ -18,7 +18,7 @@ public final class ProducedBlock {
         byte encoding = input.readByte();
         if (encoding != 1) throw new UnknownEncodingException("ProducedBlock", encoding);
 
-        if (input.readBoolean()) return new ProducedBlock(itemSet.getBlockReference(input.readInt()));
+        if (input.readBoolean()) return new ProducedBlock(itemSet.blocks.getReference(input.readInt()));
         else return new ProducedBlock(CIMaterial.valueOf(input.readString()));
     }
 
@@ -83,7 +83,7 @@ public final class ProducedBlock {
         if ((customBlock == null) == (vanillaBlock == null)) {
             throw new ProgrammingValidationException("Exactly 1 of customBlock and vanillaBlock must be null");
         }
-        if (customBlock != null && !itemSet.isReferenceValid(customBlock)) {
+        if (customBlock != null && !itemSet.blocks.isValid(customBlock)) {
             throw new ProgrammingValidationException("Block is no longer valid");
         }
     }

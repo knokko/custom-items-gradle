@@ -203,7 +203,7 @@ public class TestBackward12 {
     static void testBlocksNew12(ItemSet itemSet, int numBlocks) {
         testBlocksNew11(itemSet, numBlocks);
 
-        CustomBlockValues musicBlock = itemSet.getBlock("music_block").get();
+        CustomBlockValues musicBlock = itemSet.blocks.get("music_block").get();
         BlockSoundsValues sounds = musicBlock.getSounds();
         assertEquals(VanillaSoundType.BLOCK_ANVIL_FALL, sounds.getLeftClickSound().getVanillaSound());
         assertNull(sounds.getRightClickSound());
@@ -378,7 +378,7 @@ public class TestBackward12 {
         blockDrop.setMinFortuneLevel(1);
         blockDrop.setMaxFortuneLevel(1);
 
-        assertTrue(itemSet.getBlockDrops().stream().anyMatch(candidate -> candidate.equals(blockDrop)));
+        assertTrue(itemSet.blockDrops.stream().anyMatch(candidate -> candidate.equals(blockDrop)));
     }
 
     static void testProjectilesOld12(ItemSet itemSet, int numProjectiles) {
@@ -397,15 +397,15 @@ public class TestBackward12 {
         ));
 
         LinkSlotValues linkSlot1 = LinkSlotValues.createQuick(
-                itemSet.getContainerReference("container1"),
+                itemSet.containers.getReference("container1"),
                 SlotDisplayValues.createQuick(
                         CustomDisplayItemValues.createQuick(itemSet.getItemReference("simple1")),
                         "", new ArrayList<>(), 1
                 )
         );
-        LinkSlotValues linkSlot2 = LinkSlotValues.createQuick(itemSet.getContainerReference("container2"), null);
+        LinkSlotValues linkSlot2 = LinkSlotValues.createQuick(itemSet.containers.getReference("container2"), null);
 
-        CustomContainerValues linkActions = itemSet.getContainer("linkActions").get();
+        CustomContainerValues linkActions = itemSet.containers.get("linkActions").get();
         assertEquals(2, linkActions.getHeight());
         assertEquals(boringActionSlot, linkActions.getSlot(0, 0));
         assertEquals(fancyActionSlot, linkActions.getSlot(1, 0));
@@ -447,9 +447,9 @@ public class TestBackward12 {
 
     static void testCombinedResourcepacksOld12(ItemSet itemSet, int numPacks) {
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
-            assertEquals(numPacks, itemSet.getCombinedResourcepacks().size());
+            assertEquals(numPacks, itemSet.combinedResourcepacks.size());
 
-            CombinedResourcepackValues staff = itemSet.getCombinedResourcepack("staff").get();
+            CombinedResourcepackValues staff = itemSet.combinedResourcepacks.get("staff").get();
             assertEquals(3, staff.getPriority());
             try {
                 ZipInputStream zipInput = new ZipInputStream(new ByteArrayInputStream(staff.getContent()));

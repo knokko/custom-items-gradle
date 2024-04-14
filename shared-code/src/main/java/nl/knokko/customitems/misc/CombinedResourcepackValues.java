@@ -114,12 +114,12 @@ public class CombinedResourcepackValues extends ModelValues {
         }
 
         boolean changedName = oldName == null || !oldName.equals(this.name);
-        if (changedName && itemSet.getCombinedResourcepacks().stream().anyMatch(otherPack -> otherPack.getName().equals(this.name))) {
+        if (changedName && itemSet.combinedResourcepacks.stream().anyMatch(otherPack -> otherPack.getName().equals(this.name))) {
             throw new ValidationException("Another pack already has this name");
         }
 
         boolean changedPriority = oldPriority == null || oldPriority != this.priority;
-        if (changedPriority && itemSet.getCombinedResourcepacks().stream().anyMatch(otherPack -> otherPack.getPriority() == this.priority)) {
+        if (changedPriority && itemSet.combinedResourcepacks.stream().anyMatch(otherPack -> otherPack.getPriority() == this.priority)) {
             throw new ValidationException("Another pack already has this priority");
         }
     }

@@ -136,7 +136,7 @@ public class TestBackward8 {
     static void testContainersOld8(ItemSet set, int numContainers) {
         testContainers7(set, numContainers);
 
-        CustomContainerValues container2 = set.getContainer("container2").get();
+        CustomContainerValues container2 = set.containers.get("container2").get();
         ContainerRecipeValues recipe = container2.getRecipes().stream().findFirst().get();
 
         OutputTableValues output = recipe.getOutputs().values().stream().findFirst().get();
@@ -191,7 +191,7 @@ public class TestBackward8 {
     static void testBlockDropsOld8(ItemSet set, int numBlockDrops) {
         testBlockDropsOld6(set, numBlockDrops, true);
 
-        Iterator<BlockDropValues> blockDropIterator = set.getBlockDrops().iterator();
+        Iterator<BlockDropValues> blockDropIterator = set.blockDrops.iterator();
         BlockDropValues firstBlockDrop = blockDropIterator.next();
         testDefaultBlockDrop8(firstBlockDrop);
 
@@ -248,13 +248,13 @@ public class TestBackward8 {
 
     static void testArmorTexturesOld8(ItemSet set, int numArmorTextures) {
         if (set.getSide() == ItemSet.Side.PLUGIN) {
-            assertEquals(0, set.getArmorTextures().size());
+            assertEquals(0, set.armorTextures.size());
             return;
         }
 
-        assertEquals(numArmorTextures, set.getArmorTextures().size());
+        assertEquals(numArmorTextures, set.armorTextures.size());
 
-        ArmorTextureValues armorTexture1 = set.getArmorTexture("armor_texture1").get();
+        ArmorTextureValues armorTexture1 = set.armorTextures.get("armor_texture1").get();
         assertEquals("armor_texture1", armorTexture1.getName());
         assertImageEqual(loadImage("armor1layer1"), armorTexture1.getLayer1());
         assertImageEqual(loadImage("armor1layer2"), armorTexture1.getLayer2());

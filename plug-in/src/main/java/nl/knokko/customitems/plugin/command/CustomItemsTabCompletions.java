@@ -90,8 +90,8 @@ public class CustomItemsTabCompletions implements TabCompleter {
             }
 
             if (first.equals("setblock") && sender.hasPermission("customitems.setblock")) {
-                List<String> result = new ArrayList<>(itemSet.get().getBlocks().size());
-                for (CustomBlockValues block : itemSet.get().getBlocks()) {
+                List<String> result = new ArrayList<>(itemSet.get().blocks.size());
+                for (CustomBlockValues block : itemSet.get().blocks) {
                     result.add(block.getName());
                 }
                 return filter(result, prefix);
@@ -141,7 +141,7 @@ public class CustomItemsTabCompletions implements TabCompleter {
             if (first.equals("container")) {
                 String second = args[1];
                 if (second.equals("open") || second.equals("destroy")) {
-                    return filter(itemSet.get().getContainers().stream().map(container -> {
+                    return filter(itemSet.get().containers.stream().map(container -> {
                         if (container.getName().contains(" ")) return "'" + container.getName() + "'";
                         else return container.getName();
                     }).collect(Collectors.toList()), prefix);

@@ -62,7 +62,7 @@ public class CustomPocketContainerValues extends CustomItemValues {
         int numContainers = input.readInt();
         this.containers = new HashSet<>(numContainers);
         for (int counter = 0; counter < numContainers; counter++) {
-            this.containers.add(itemSet.getContainerReference(input.readString()));
+            this.containers.add(itemSet.containers.getReference(input.readString()));
         }
     }
 
@@ -93,7 +93,7 @@ public class CustomPocketContainerValues extends CustomItemValues {
         this.containers = new HashSet<>(numContainers);
 
         for (int counter = 0; counter < numContainers; counter++) {
-            this.containers.add(itemSet.getContainerReference(input.readString()));
+            this.containers.add(itemSet.containers.getReference(input.readString()));
         }
     }
 
@@ -155,7 +155,7 @@ public class CustomPocketContainerValues extends CustomItemValues {
         super.validateComplete(itemSet, oldName);
 
         for (ContainerReference reference : containers) {
-            if (!itemSet.isReferenceValid(reference)) throw new ProgrammingValidationException("A container is no longer valid");
+            if (!itemSet.containers.isValid(reference)) throw new ProgrammingValidationException("A container is no longer valid");
         }
     }
 }

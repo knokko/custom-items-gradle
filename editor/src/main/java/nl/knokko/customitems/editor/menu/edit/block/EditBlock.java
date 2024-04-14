@@ -45,8 +45,8 @@ public class EditBlock extends GuiMenu  {
 
         addComponent(new DynamicTextButton(toModify == null ? "Create" : "Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
             String error = Validation.toErrorString(() -> {
-                if (toModify == null) set.addBlock(currentValues);
-                else set.changeBlock(toModify, currentValues);
+                if (toModify == null) set.blocks.add(currentValues);
+                else set.blocks.change(toModify, currentValues);
             });
 
             if (error == null) {

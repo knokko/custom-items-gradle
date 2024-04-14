@@ -22,11 +22,6 @@ public class FakeItemSet extends ItemSet {
     }
 
     @Override
-    public ArmorTextureReference getArmorTextureReference(String name) {
-        return new ArmorTextureReference(name, this);
-    }
-
-    @Override
     public FancyPantsArmorTextureReference getFancyPantsArmorTextureReference(UUID id) {
         return new FancyPantsArmorTextureReference(id, this);
     }
@@ -34,16 +29,6 @@ public class FakeItemSet extends ItemSet {
     @Override
     public ItemReference getItemReference(String name) {
         return new ItemReference(name, this);
-    }
-
-    @Override
-    public BlockReference getBlockReference(int internalID) {
-        return new BlockReference(internalID, this);
-    }
-
-    @Override
-    public ContainerReference getContainerReference(String name) {
-        return new ContainerReference(name, this);
     }
 
     @Override

@@ -366,7 +366,7 @@ public class CustomContainerValues extends ModelValues {
     public void validate(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         if (name == null) throw new ProgrammingValidationException("No name");
         if (name.isEmpty()) throw new ValidationException("Name can't be empty");
-        if (!name.equals(oldName) && itemSet.getContainer(name).isPresent()) {
+        if (!name.equals(oldName) && itemSet.containers.get(name).isPresent()) {
             throw new ValidationException("Another container with this name already exists");
         }
         if (selectionIcon == null) throw new ProgrammingValidationException("No selection icon");

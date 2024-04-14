@@ -20,7 +20,7 @@ public class BlockDropCollectionEdit extends DedicatedCollectionEdit<BlockDropVa
 	private final EditMenu menu;
 
 	public BlockDropCollectionEdit(EditMenu menu) {
-		super(menu, menu.getSet().getBlockDrops().references(), toAdd -> Validation.toErrorString(() -> menu.getSet().addBlockDrop(toAdd)));
+		super(menu, menu.getSet().blockDrops.references(), toAdd -> Validation.toErrorString(() -> menu.getSet().blockDrops.add(toAdd)));
 		this.menu = menu;
 	}
 	
@@ -68,7 +68,7 @@ public class BlockDropCollectionEdit extends DedicatedCollectionEdit<BlockDropVa
 
 	@Override
 	protected String deleteModel(BlockDropReference modelReference) {
-		return Validation.toErrorString(() -> menu.getSet().removeBlockDrop(modelReference));
+		return Validation.toErrorString(() -> menu.getSet().blockDrops.remove(modelReference));
 	}
 
 	@Override

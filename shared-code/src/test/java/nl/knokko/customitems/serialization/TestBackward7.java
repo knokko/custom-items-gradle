@@ -55,9 +55,9 @@ public class TestBackward7 {
     }
 
     static void testContainers7(ItemSet set, int numContainers) {
-        assertEquals(numContainers, set.getContainers().size());
+        assertEquals(numContainers, set.containers.size());
 
-        CustomContainerValues container1 = set.getContainer("container1").get();
+        CustomContainerValues container1 = set.containers.get("container1").get();
         assertEquals("container1", container1.getName());
         assertEquals(SlotDisplayValues.createQuick(
             CustomDisplayItemValues.createQuick(set.getItemReference("simple2")),

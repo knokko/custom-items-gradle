@@ -79,7 +79,7 @@ public class ChooseContainerHost extends GuiMenu {
 
         addComponent(new DynamicTextButton("Choose custom block", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new CollectionSelect<>(
-                    itemSet.getBlocks().references(),
+                    itemSet.blocks.references(),
                     chosenBlock -> onSelect.accept(new CustomContainerHost(chosenBlock)),
                     candidateBlock -> true,
                     candidateBlock -> candidateBlock.get().getName(),

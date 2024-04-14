@@ -168,7 +168,7 @@ public class TestBackward10 {
     static void testBlockDropsOld10(ItemSet set, int numBlockDrops) {
         testBlockDropsOld8(set, numBlockDrops);
 
-        Iterator<BlockDropValues> blockDropIterator = set.getBlockDrops().iterator();
+        Iterator<BlockDropValues> blockDropIterator = set.blockDrops.iterator();
         blockDropIterator.next();
         testDefaultBlockDrop10(blockDropIterator.next());
 
@@ -192,10 +192,10 @@ public class TestBackward10 {
     }
 
     static void testContainersNew10(ItemSet itemSet, int numContainers) {
-        assertEquals(numContainers, itemSet.getContainers().size());
+        assertEquals(numContainers, itemSet.containers.size());
 
-        CustomContainerValues container2 = itemSet.getContainer("container2").get();
-        assertEquals(new CustomContainerHost(itemSet.getBlockReference(1)), container2.getHost());
+        CustomContainerValues container2 = itemSet.containers.get("container2").get();
+        assertEquals(new CustomContainerHost(itemSet.blocks.getReference(1)), container2.getHost());
         assertEquals(ManualOutputSlotValues.createQuick("the_output", SlotDisplayValues.createQuick(
                 SimpleVanillaDisplayItemValues.createQuick(CIMaterial.COBBLESTONE), "", listOf(), 1
         )), container2.getSlot(0, 0));
@@ -204,7 +204,7 @@ public class TestBackward10 {
     static void testContainersOld10(ItemSet set, int numContainers) {
         testContainersOld9(set, numContainers);
 
-        CustomContainerValues container4 = set.getContainer("container4").get();
+        CustomContainerValues container4 = set.containers.get("container4").get();
 
         assertEquals(new CustomContainerHost(CIMaterial.GRASS), container4.getHost());
 

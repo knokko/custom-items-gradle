@@ -33,9 +33,9 @@ class CommandCustomItemsList {
             sender.sendMessage(ChatColor.RED + "There are 0 custom items");
         }
 
-        if (itemSet.get().getBlocks().size() > 0) {
+        if (!itemSet.get().blocks.isEmpty()) {
             sender.sendMessage(ChatColor.AQUA + "All custom blocks:");
-            for (CustomBlockValues block : itemSet.get().getBlocks()) {
+            for (CustomBlockValues block : itemSet.get().blocks) {
                 sender.sendMessage(block.getName());
             }
         } else {

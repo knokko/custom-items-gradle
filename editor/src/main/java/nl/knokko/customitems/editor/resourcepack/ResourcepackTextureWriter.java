@@ -174,7 +174,7 @@ class ResourcepackTextureWriter {
             citPrefix = "assets/minecraft/optifine/cit/";
         }
 
-        for (ArmorTextureValues armorTexture : itemSet.getArmorTextures()) {
+        for (ArmorTextureValues armorTexture : itemSet.armorTextures) {
             String prefix = citPrefix + "customarmor/" + armorTexture.getName() + "/";
             ZipEntry firstLayerEntry = new ZipEntry(prefix + "layer_1.png");
             zipOutput.putNextEntry(firstLayerEntry);
@@ -257,7 +257,7 @@ class ResourcepackTextureWriter {
     }
 
     void writeContainerOverlayTextures() throws IOException {
-        for (CustomContainerValues container : itemSet.getContainers()) {
+        for (CustomContainerValues container : itemSet.containers) {
             if (container.getOverlayTexture() != null) {
 
                 ZipEntry overlayTextureEntry = new ZipEntry("assets/minecraft/textures/customcontainers/overlay/" + container.getName() + ".png");
@@ -267,7 +267,7 @@ class ResourcepackTextureWriter {
             }
         }
 
-        if (itemSet.getContainers().stream().anyMatch(container -> container.getOverlayTexture() != null)) {
+        if (itemSet.containers.stream().anyMatch(container -> container.getOverlayTexture() != null)) {
             ZipEntry blackTexture = new ZipEntry("assets/minecraft/textures/customcontainers/black.png");
             zipOutput.putNextEntry(blackTexture);
             ImageIO.write(new BufferedImage(1, 1, BufferedImage.TYPE_INT_RGB), "PNG", zipOutput);

@@ -66,7 +66,7 @@ public class CustomBlockItemValues extends CustomItemValues {
         if (encoding != 1) throw new UnknownEncodingException("BlockItemNew", encoding);
 
         this.maxStacksize = input.readByte();
-        this.block = itemSet.getBlockReference(input.readInt());
+        this.block = itemSet.blocks.getReference(input.readInt());
     }
 
     protected void saveBlockItemPropertiesNew(BitOutput output, ItemSet.Side targetSide) {
@@ -84,7 +84,7 @@ public class CustomBlockItemValues extends CustomItemValues {
     }
 
     private void loadBlockOnlyProperties10(BitInput input, ItemSet itemSet) {
-        this.block = itemSet.getBlockReference(input.readInt());
+        this.block = itemSet.blocks.getReference(input.readInt());
         this.maxStacksize = (byte) input.readInt();
     }
 
@@ -155,6 +155,6 @@ public class CustomBlockItemValues extends CustomItemValues {
     public void validateComplete(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         super.validateComplete(itemSet, oldName);
 
-        if (!itemSet.isReferenceValid(block)) throw new ProgrammingValidationException("Block is no longer valid");
+        if (!itemSet.blocks.isValid(block)) throw new ProgrammingValidationException("Block is no longer valid");
     }
 }
