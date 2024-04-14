@@ -2,10 +2,10 @@ package nl.knokko.customrecipes;
 
 import nl.knokko.customrecipes.collector.DefaultResultCollector;
 import nl.knokko.customrecipes.collector.ResultCollectorEvent;
+import nl.knokko.customrecipes.furnace.CustomFurnaceRecipes;
 import nl.knokko.customrecipes.ingredient.IngredientBlocker;
 import nl.knokko.customrecipes.production.Production;
 import nl.knokko.customrecipes.production.ShapedProduction;
-import nl.knokko.customrecipes.shaped.CustomShapedRecipe;
 import nl.knokko.customrecipes.shaped.CustomShapedRecipes;
 import org.bukkit.Bukkit;
 import org.bukkit.Keyed;
@@ -13,9 +13,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.inventory.InventoryAction;
-import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.*;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -29,6 +27,7 @@ public class CustomRecipes implements Listener {
     private final JavaPlugin plugin;
     private final Consumer<ResultCollectorEvent> resultCollector;
     public final CustomShapedRecipes shaped = new CustomShapedRecipes();
+    public final CustomFurnaceRecipes furnace = new CustomFurnaceRecipes();
 
     private Collection<IngredientBlocker> blockers = new ArrayList<>();
 
@@ -59,6 +58,7 @@ public class CustomRecipes implements Listener {
     public void reset() {
         removeRecipes();
         shaped.clear();
+        furnace.clear();
         blockers = new ArrayList<>();
     }
 
@@ -68,8 +68,10 @@ public class CustomRecipes implements Listener {
 
         this.blockers = Collections.unmodifiableCollection(blockers);
         shaped.register(plugin, keys);
+        furnace.register(plugin, keys);
 
         Bukkit.getPluginManager().registerEvents(this, plugin);
+        Bukkit.getPluginManager().registerEvents(furnace, plugin);
     }
 
     private Stream<Predicate<ItemStack>> getRelevantBlockers(String namespace) {
