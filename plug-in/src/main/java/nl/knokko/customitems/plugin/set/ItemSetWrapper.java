@@ -44,8 +44,8 @@ public class ItemSetWrapper {
 
     private void initItemMap() {
         this.hasCustomTridents = false;
-        this.itemMap = new HashMap<>(this.currentItemSet.getItems().size());
-        for (CustomItemValues item : this.currentItemSet.getItems()) {
+        this.itemMap = new HashMap<>(this.currentItemSet.items.size());
+        for (CustomItemValues item : this.currentItemSet.items) {
             this.itemMap.put(item.getName(), item);
             if (item instanceof CustomTridentValues) {
                 this.hasCustomTridents = true;
@@ -122,7 +122,7 @@ public class ItemSetWrapper {
     public ItemReference getItemReference(ItemStack itemStack) {
         CustomItemValues itemValues = this.getItem(itemStack);
         if (itemValues == null) return null;
-        return this.get().getItemReference(itemValues.getName());
+        return this.get().items.getReference(itemValues.getName());
     }
 
     public MobDropsView getMobDrops(CIEntityType entityType) {

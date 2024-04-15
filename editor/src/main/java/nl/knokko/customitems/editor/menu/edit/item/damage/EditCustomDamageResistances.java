@@ -4,7 +4,7 @@ import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.DamageResistanceValues;
 import nl.knokko.customitems.itemset.CustomDamageSourceReference;
-import nl.knokko.customitems.itemset.CustomDamageSourcesView;
+import nl.knokko.customitems.itemset.DamageSourceManager;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -16,12 +16,12 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class EditCustomDamageResistances extends GuiMenu {
 
-    private final CustomDamageSourcesView allDamageSources;
+    private final DamageSourceManager allDamageSources;
     private final GuiComponent returnMenu;
     private final DamageResistanceValues currentResistances;
 
     public EditCustomDamageResistances(
-            CustomDamageSourcesView allDamageSources, GuiComponent returnMenu, DamageResistanceValues currentResistances
+            DamageSourceManager allDamageSources, GuiComponent returnMenu, DamageResistanceValues currentResistances
     ) {
         this.allDamageSources = allDamageSources;
         this.returnMenu = returnMenu;

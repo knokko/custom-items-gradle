@@ -25,7 +25,7 @@ public class RecipeCollectionEdit extends DedicatedCollectionEdit<CraftingRecipe
 	private final EditMenu menu;
 
 	public RecipeCollectionEdit(EditMenu menu) {
-		super(menu, menu.getSet().getCraftingRecipes().references(), null);
+		super(menu, menu.getSet().craftingRecipes.references(), null);
 		this.menu = menu;
 	}
 	
@@ -86,7 +86,7 @@ public class RecipeCollectionEdit extends DedicatedCollectionEdit<CraftingRecipe
 
 	@Override
 	protected String deleteModel(CraftingRecipeReference modelReference) {
-		return Validation.toErrorString(() -> menu.getSet().removeCraftingRecipe(modelReference));
+		return Validation.toErrorString(() -> menu.getSet().craftingRecipes.remove(modelReference));
 	}
 
 	@Override

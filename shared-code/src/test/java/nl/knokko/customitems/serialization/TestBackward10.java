@@ -86,7 +86,7 @@ public class TestBackward10 {
 
         if (set.getSide() == ItemSet.Side.PLUGIN) return;
 
-        AnimatedTextureValues animated = (AnimatedTextureValues) set.getTexture("animated_texture").get();
+        AnimatedTextureValues animated = (AnimatedTextureValues) set.textures.get("animated_texture").get();
         assertEquals("animated_texture", animated.getName());
         assertImageEqual(loadImage("random3"), animated.getImage());
 
@@ -120,39 +120,39 @@ public class TestBackward10 {
     static void testItemsOld10(ItemSet set, int numItems) {
         testItemsOld9(set, numItems);
 
-        testGunDefault10((CustomGunValues) set.getItem("gun1").get());
-        testPocketContainerDefault10((CustomPocketContainerValues) set.getItem("pocket_container1").get());
-        testFoodDefault10((CustomFoodValues) set.getItem("food1").get());
+        testGunDefault10((CustomGunValues) set.items.get("gun1").get());
+        testPocketContainerDefault10((CustomPocketContainerValues) set.items.get("pocket_container1").get());
+        testFoodDefault10((CustomFoodValues) set.items.get("food1").get());
 
-        testWand3((CustomWandValues) set.getItem("wand3").get());
-        testGun2((CustomGunValues) set.getItem("gun2").get(), set.getSide());
-        testPocketContainer2((CustomPocketContainerValues) set.getItem("pocket_container2").get(), set.getSide());
-        testFood2((CustomFoodValues) set.getItem("food2").get());
-        testSimple5((SimpleCustomItemValues) set.getItem("simple5").get());
-        testSword2((CustomToolValues) set.getItem("sword2").get());
-        testHoe4((CustomHoeValues) set.getItem("hoe4").get());
-        testShears4((CustomShearsValues) set.getItem("shears4").get());
-        test3dHelmet2((CustomHelmet3dValues) set.getItem("3dhelmet2").get(), set.getSide());
-        testBow4((CustomBowValues) set.getItem("bow4").get());
-        testLeggings2((CustomArmorValues) set.getItem("leggings2").get());
-        testShield3((CustomShieldValues) set.getItem("shield3").get());
+        testWand3((CustomWandValues) set.items.get("wand3").get());
+        testGun2((CustomGunValues) set.items.get("gun2").get(), set.getSide());
+        testPocketContainer2((CustomPocketContainerValues) set.items.get("pocket_container2").get(), set.getSide());
+        testFood2((CustomFoodValues) set.items.get("food2").get());
+        testSimple5((SimpleCustomItemValues) set.items.get("simple5").get());
+        testSword2((CustomToolValues) set.items.get("sword2").get());
+        testHoe4((CustomHoeValues) set.items.get("hoe4").get());
+        testShears4((CustomShearsValues) set.items.get("shears4").get());
+        test3dHelmet2((CustomHelmet3dValues) set.items.get("3dhelmet2").get(), set.getSide());
+        testBow4((CustomBowValues) set.items.get("bow4").get());
+        testLeggings2((CustomArmorValues) set.items.get("leggings2").get());
+        testShield3((CustomShieldValues) set.items.get("shield3").get());
     }
 
     static void testItemsNew10(ItemSet set, int numItems) {
         testItemsNew9(set, numItems);
 
-        testCrossbowDefault10((CustomCrossbowValues) set.getItem("crossbow1").get());
-        testBlockItemDefault10((CustomBlockItemValues) set.getItem("block_item1").get());
+        testCrossbowDefault10((CustomCrossbowValues) set.items.get("crossbow1").get());
+        testBlockItemDefault10((CustomBlockItemValues) set.items.get("block_item1").get());
 
-        testTrident3((CustomTridentValues) set.getItem("trident3").get());
-        testCrossbow2((CustomCrossbowValues) set.getItem("crossbow2").get());
-        testBlockItem2((CustomBlockItemValues) set.getItem("block_item2").get());
+        testTrident3((CustomTridentValues) set.items.get("trident3").get());
+        testCrossbow2((CustomCrossbowValues) set.items.get("crossbow2").get());
+        testBlockItem2((CustomBlockItemValues) set.items.get("block_item2").get());
     }
 
     static void testRecipesOld10(ItemSet set, int numRecipes) {
         testRecipesOld9(set, numRecipes);
 
-        assertTrue(set.getCraftingRecipes().stream().anyMatch(
+        assertTrue(set.craftingRecipes.stream().anyMatch(
                 candidateRecipe -> candidateRecipe.equals(createShapelessRecipe3())
         ));
     }
@@ -160,7 +160,7 @@ public class TestBackward10 {
     static void testRecipesNew10(ItemSet set, int numRecipes) {
         testRecipesNew6(set, numRecipes);
 
-        assertTrue(set.getCraftingRecipes().stream().anyMatch(
+        assertTrue(set.craftingRecipes.stream().anyMatch(
                 candidateRecipe -> candidateRecipe.equals(createShapedRecipe4())
         ));
     }

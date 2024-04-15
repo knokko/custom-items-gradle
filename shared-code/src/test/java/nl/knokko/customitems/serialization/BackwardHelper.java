@@ -132,7 +132,7 @@ public class BackwardHelper {
     }
 
     public static void checkTexture(ItemSet itemSet, String expectedName) {
-        BaseTextureValues texture = itemSet.getTexture(expectedName).get();
+        BaseTextureValues texture = itemSet.textures.get(expectedName).get();
         BufferedImage expectedImage = loadImage(texture.getName());
         BufferedImage actualImage = texture.getImage();
 

@@ -74,7 +74,7 @@ public class CustomItemResultValues extends ResultValues {
 
     private void load1(BitInput input, ItemSet itemSet) {
         this.amount = loadAmount(input);
-        this.item = itemSet.getItemReference(input.readJavaString());
+        this.item = itemSet.items.getReference(input.readJavaString());
     }
 
     @Override
@@ -142,7 +142,7 @@ public class CustomItemResultValues extends ResultValues {
     public void validateComplete(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         validateIndependent();
 
-        if (!itemSet.isReferenceValid(item)) throw new ProgrammingValidationException("The item is not or no longer valid");
+        if (!itemSet.items.isValid(item)) throw new ProgrammingValidationException("The item is not or no longer valid");
     }
 
     @Override

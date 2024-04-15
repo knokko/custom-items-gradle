@@ -19,7 +19,7 @@ public class DamageSourceCollectionEdit extends DedicatedCollectionEdit<CustomDa
     private final ItemSet itemSet;
 
     public DamageSourceCollectionEdit(GuiComponent returnMenu, ItemSet itemSet) {
-        super(returnMenu, itemSet.getDamageSources().references(), null);
+        super(returnMenu, itemSet.damageSources.references(), null);
         this.itemSet = itemSet;
     }
 
@@ -57,7 +57,7 @@ public class DamageSourceCollectionEdit extends DedicatedCollectionEdit<CustomDa
 
     @Override
     protected String deleteModel(CustomDamageSourceReference modelReference) {
-        return Validation.toErrorString(() -> itemSet.removeDamageSource(modelReference));
+        return Validation.toErrorString(() -> itemSet.damageSources.remove(modelReference));
     }
 
     @Override

@@ -52,7 +52,7 @@ public class CommandCustomItemsSound {
 
         String soundName = args[1];
         SoundTypeReference sound = null;
-        for (SoundTypeReference candidate : itemSet.get().getSoundTypes().references()) {
+        for (SoundTypeReference candidate : itemSet.get().soundTypes.references()) {
             if (candidate.get().getName().equals(soundName)) {
                 sound = candidate;
                 break;

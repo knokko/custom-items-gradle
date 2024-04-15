@@ -179,7 +179,7 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 
 		if (toModify != null) {
 			addComponent(new DynamicTextButton("Apply", SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-				String error = Validation.toErrorString(() -> menu.getSet().changeItem(toModify, currentValues));
+				String error = Validation.toErrorString(() -> menu.getSet().items.change(toModify, currentValues));
 				if (error != null) {
 					errorComponent.setText(error);
 					errorComponent.setProperties(EditProps.ERROR);
@@ -189,7 +189,7 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 			}), 0.025f, 0.1f, 0.15f, 0.2f);
 		} else {
 			addComponent(new DynamicTextButton("Create", SAVE_BASE, SAVE_HOVER, () -> {
-				String error = Validation.toErrorString(() -> menu.getSet().addItem(currentValues));
+				String error = Validation.toErrorString(() -> menu.getSet().items.add(currentValues));
 				if (error != null) {
 					errorComponent.setProperties(EditProps.ERROR);
 					errorComponent.setText(error);
@@ -265,7 +265,7 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 			);
 			addComponent(
 					CollectionSelect.createButton(
-							menu.getSet().getTextures().references(),
+							menu.getSet().textures.references(),
 							currentValues::setTexture,
 							this::allowTexture,
 							textureReference -> textureReference.get().getName(),
@@ -344,7 +344,7 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 				WikiVisibility.class, currentValues::setWikiVisibility, currentValues.getWikiVisibility()
 		), BUTTON_X, -0.63f, BUTTON_X + 0.1f, -0.58f);
 		addComponent(CollectionSelect.createButton(
-				menu.getSet().getDamageSources().references(), currentValues::setCustomMeleeDamageSource,
+				menu.getSet().damageSources.references(), currentValues::setCustomMeleeDamageSource,
 				damageSource -> damageSource.get().getName(), currentValues.getCustomMeleeDamageSourceReference(), true
 		), BUTTON_X, -0.69f, BUTTON_X + 0.1f, -0.64f);
 		addComponent(new DynamicTextButton("Translations [1.14+]...", BUTTON, HOVER, () -> {
@@ -424,14 +424,14 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 	
 	private void addReplaceComponent() {
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			if (menu.getSet().getItems().size() > 0) {
+			if (!menu.getSet().items.isEmpty()) {
 				state.getWindow().setMainComponent(new ReplacementCollectionEdit(
 						currentValues.getReplacementConditions(),
 						currentValues.getConditionOp(),
 						newConditions -> currentValues.setReplaceConditions(new ArrayList<>(newConditions)),
 						EditItemBase.this,
 						getExampleReplaceCondition(),
-						menu.getSet().getItems().references(), currentValues::setConditionOp
+						menu.getSet().items.references(), currentValues::setConditionOp
 				));
 			} else {
 				errorComponent.setText("No items defined yet, so cannot replace this item with other items.");

@@ -37,7 +37,7 @@ public class CustomItemsRecipes {
     }
 
     public void register() {
-        for (CraftingRecipeValues recipe : itemSet.get().getCraftingRecipes()) {
+        for (CraftingRecipeValues recipe : itemSet.get().craftingRecipes) {
             if (recipe instanceof ShapedRecipeValues) {
                 ShapedRecipeValues shapedRecipe = (ShapedRecipeValues) recipe;
 
@@ -92,13 +92,13 @@ public class CustomItemsRecipes {
         customRecipes.furnace.add(new CustomFurnaceRecipe(
                 new ItemStack(Material.DIAMOND, 2),
                 toCustomIngredient(CustomItemIngredientValues.createQuick(
-                        itemSet.get().getItemReference("green_ingot"), 1
+                        itemSet.get().items.getReference("green_ingot"), 1
                 )), 0f, 40
         ));
         customRecipes.furnace.add(new CustomFurnaceRecipe(
                 new ItemStack(Material.BONE, 2),
                 toCustomIngredient(CustomItemIngredientValues.createQuick(
-                        itemSet.get().getItemReference("red_ingot"), 1
+                        itemSet.get().items.getReference("red_ingot"), 1
                 )), 0f, 40
         ));
 

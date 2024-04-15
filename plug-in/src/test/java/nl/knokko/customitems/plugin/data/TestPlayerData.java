@@ -37,15 +37,15 @@ public class TestPlayerData {
 		ItemSet rawSet = new ItemSet(ItemSet.Side.EDITOR);
 		CustomWandValues dummyWand = WITH.copy(true);
 		try {
-			rawSet.addTexture(BaseTextureValues.createQuick("test", new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB)));
+			rawSet.textures.add(BaseTextureValues.createQuick("test", new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB)));
 
 			CustomProjectileValues dummyProjectile = new CustomProjectileValues(true);
 			dummyProjectile.setName("test");
-			rawSet.addProjectile(dummyProjectile);
+			rawSet.projectiles.add(dummyProjectile);
 
-			dummyWand.setTexture(rawSet.getTextureReference("test"));
-			dummyWand.setProjectile(rawSet.getProjectileReference("test"));
-			rawSet.addItem(dummyWand);
+			dummyWand.setTexture(rawSet.textures.getReference("test"));
+			dummyWand.setProjectile(rawSet.projectiles.getReference("test"));
+			rawSet.items.add(dummyWand);
 		} catch (Exception ex) {
 			throw new RuntimeException("Failure", ex);
 		}
@@ -97,7 +97,7 @@ public class TestPlayerData {
 
 		CustomProjectileValues dummyProjectile = new CustomProjectileValues(true);
 		dummyProjectile.setName("dummy_projectile");
-		dummyItemSet.addProjectile(dummyProjectile);
+		dummyItemSet.projectiles.add(dummyProjectile);
 
 		List<ItemCommand> dummyCommands = new ArrayList<>(1);
 		dummyCommands.add(TestPlayerCommandCooldowns.createTestCommand("summon villager", 100));
@@ -105,22 +105,22 @@ public class TestPlayerData {
 		ItemCommandSystem dummyCommandSystem = new ItemCommandSystem(true);
 		dummyCommandSystem.setCommandsFor(ItemCommandEvent.MELEE_ATTACK_ENTITY, dummyCommands);
 
-		dummyItemSet.addTexture(BaseTextureValues.createQuick("dummy_texture", new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB)));
+		dummyItemSet.textures.add(BaseTextureValues.createQuick("dummy_texture", new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB)));
 
 		CustomWandValues dummyWand = new CustomWandValues(true);
 		dummyWand.setName("dummy_wand");
-		dummyWand.setProjectile(dummyItemSet.getProjectileReference(dummyProjectile.getName()));
+		dummyWand.setProjectile(dummyItemSet.projectiles.getReference(dummyProjectile.getName()));
 		dummyWand.setCommandSystem(dummyCommandSystem);
-		dummyWand.setTexture(dummyItemSet.getTextureReference("dummy_texture"));
+		dummyWand.setTexture(dummyItemSet.textures.getReference("dummy_texture"));
 
 		CustomThrowableValues dummyThrowable = new CustomThrowableValues(true);
 		dummyThrowable.setName("dummy_throwable");
-		dummyThrowable.setProjectile(dummyItemSet.getProjectileReference(dummyProjectile.getName()));
-		dummyThrowable.setTexture(dummyItemSet.getTextureReference("dummy_texture"));
+		dummyThrowable.setProjectile(dummyItemSet.projectiles.getReference(dummyProjectile.getName()));
+		dummyThrowable.setTexture(dummyItemSet.textures.getReference("dummy_texture"));
 		dummyThrowable.setCooldown(10);
 
-		dummyItemSet.addItem(dummyWand);
-		dummyItemSet.addItem(dummyThrowable);
+		dummyItemSet.items.add(dummyWand);
+		dummyItemSet.items.add(dummyThrowable);
 
 		ItemSetWrapper wrappedSet = new ItemSetWrapper();
 		wrappedSet.setItemSet(dummyItemSet);

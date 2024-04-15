@@ -24,7 +24,7 @@ public class ResourcepackLanguageWriter {
 
     void writeLanguageFiles() throws IOException {
         Set<String> languages = new HashSet<>();
-        for (CustomItemValues item : itemSet.getItems()) {
+        for (CustomItemValues item : itemSet.items) {
             for (TranslationEntry translation : item.getTranslations()) {
                 languages.add(translation.getLanguage());
             }
@@ -37,7 +37,7 @@ public class ResourcepackLanguageWriter {
             jsonWriter.println("{");
 
             boolean isFirst = true;
-            for (CustomItemValues item : itemSet.getItems()) {
+            for (CustomItemValues item : itemSet.items) {
                 for (TranslationEntry translation : item.getTranslations()) {
                     if (translation.getLanguage().equals(language)) {
                         if (!isFirst) jsonWriter.println(",");

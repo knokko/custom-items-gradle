@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-public abstract class UUIDBasedReference<M extends Model<V>, V extends ModelValues> implements Supplier<V> {
+public abstract class UUIDBasedReference<M extends Model<V>, V extends ModelValues> extends ModelReference<M, V> implements Supplier<V> {
 
     UUID id;
     ItemSet itemSet;

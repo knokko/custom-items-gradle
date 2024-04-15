@@ -102,7 +102,7 @@ public class CustomCrossbowValues extends CustomToolValues {
         this.fireworkSpeedMultiplier = input.readFloat();
         this.arrowGravity = input.readBoolean();
         if (encoding >= 2) {
-            if (input.readBoolean()) this.customShootDamageSource = itemSet.getDamageSourceReference(new UUID(
+            if (input.readBoolean()) this.customShootDamageSource = itemSet.damageSources.getReference(new UUID(
                     input.readLong(), input.readLong()
             )); else this.customShootDamageSource = null;
         } else this.customShootDamageSource = null;
@@ -314,7 +314,7 @@ public class CustomCrossbowValues extends CustomToolValues {
     public void validateComplete(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         super.validateComplete(itemSet, oldName);
 
-        if (customShootDamageSource != null && !itemSet.isReferenceValid(customShootDamageSource)) {
+        if (customShootDamageSource != null && !itemSet.damageSources.isValid(customShootDamageSource)) {
             throw new ProgrammingValidationException("Custom shoot damage source is invalid");
         }
     }

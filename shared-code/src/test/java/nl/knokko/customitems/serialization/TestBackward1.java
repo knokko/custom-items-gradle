@@ -30,39 +30,39 @@ public class TestBackward1 {
 
     static void testTextures1(ItemSet itemSet, int numTextures) {
         if (itemSet.getSide() == ItemSet.Side.PLUGIN) {
-            assertEquals(0, itemSet.getTextures().size());
+            assertEquals(0, itemSet.textures.size());
             return;
         }
 
-        assertEquals(numTextures, itemSet.getTextures().size());
+        assertEquals(numTextures, itemSet.textures.size());
 
         checkTexture(itemSet, "test1");
         checkTexture(itemSet, "gun1");
     }
 
     static void testItems1(ItemSet itemSet, int numItems) {
-        assertEquals(numItems, itemSet.getItems().size());
+        assertEquals(numItems, itemSet.items.size());
 
-        SimpleCustomItemValues simple1 = (SimpleCustomItemValues) itemSet.getItem("simple1").get();
+        SimpleCustomItemValues simple1 = (SimpleCustomItemValues) itemSet.items.get("simple1").get();
         assertEquals(CustomItemType.DIAMOND_HOE, simple1.getItemType());
         // Internal item damage is no longer relevant
         assertEquals("Simple 1", simple1.getDisplayName());
         assertEquals(listOf("line1", "Second line"), simple1.getLore());
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
-            assertEquals(itemSet.getTextureReference("test1"), simple1.getTextureReference());
+            assertEquals(itemSet.textures.getReference("test1"), simple1.getTextureReference());
         } else {
             assertNull(simple1.getTextureReference());
         }
     }
 
     static void testRecipes1(ItemSet set, int numRecipes) {
-        assertEquals(numRecipes, set.getCraftingRecipes().size());
-        assertTrue(set.getCraftingRecipes().stream().anyMatch(candidate -> candidate.equals(getShapedRecipe1(set))));
-        assertTrue(set.getCraftingRecipes().stream().anyMatch(candidate -> candidate.equals(getShapelessRecipe1(set))));
+        assertEquals(numRecipes, set.craftingRecipes.size());
+        assertTrue(set.craftingRecipes.stream().anyMatch(candidate -> candidate.equals(getShapedRecipe1(set))));
+        assertTrue(set.craftingRecipes.stream().anyMatch(candidate -> candidate.equals(getShapelessRecipe1(set))));
     }
 
     static ShapedRecipeValues getShapedRecipe1(ItemSet itemSet) {
-        ItemReference simple1 = itemSet.getItemReference("simple1");
+        ItemReference simple1 = itemSet.items.getReference("simple1");
         IngredientValues[] ingredients = {
                 new NoIngredientValues(), new NoIngredientValues(), new NoIngredientValues(),
 
@@ -76,7 +76,7 @@ public class TestBackward1 {
     }
 
     static ShapelessRecipeValues getShapelessRecipe1(ItemSet itemSet) {
-        ItemReference simple1 = itemSet.getItemReference("simple1");
+        ItemReference simple1 = itemSet.items.getReference("simple1");
         List<IngredientValues> ingredients = listOf(
                 CustomItemIngredientValues.createQuick(simple1, 1),
                 SimpleVanillaIngredientValues.createQuick(CIMaterial.APPLE, 1),

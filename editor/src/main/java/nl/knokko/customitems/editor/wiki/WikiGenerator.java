@@ -45,7 +45,7 @@ public class WikiGenerator {
         List<EquipmentSetValues> equipmentSets = itemSet.getEquipmentSets().stream().collect(Collectors.toList());
         File itemsFolder = new File(destinationFolder + "/items");
         if (!itemsFolder.exists() && !itemsFolder.mkdir()) throw new IOException("Failed to create items folder");
-        for (CustomItemValues item : itemSet.getItems()) {
+        for (CustomItemValues item : itemSet.items) {
             if (item.getWikiVisibility() == WikiVisibility.VISIBLE) {
                 new WikiItemGenerator(itemSet, item, equipmentSets).generate(
                         new File(itemsFolder + "/" + item.getName() + ".html")
@@ -63,13 +63,13 @@ public class WikiGenerator {
 
         File damageSourcesFolder = new File(destinationFolder + "/damage-sources");
         if (!damageSourcesFolder.exists() && !damageSourcesFolder.mkdirs()) throw new IOException("Failed to create damage sources folder");
-        for (CustomDamageSourceReference damageSource : itemSet.getDamageSources().references()) {
+        for (CustomDamageSourceReference damageSource : itemSet.damageSources.references()) {
             new WikiDamageSourceGenerator(damageSource, itemSet).generate(new File(damageSourcesFolder + "/" + damageSource.get().getId() + ".html"));
         }
 
         File projectilesFolder = new File(destinationFolder + "/projectiles");
         if (!projectilesFolder.exists() && !projectilesFolder.mkdir()) throw new IOException("Failed to create projectiles folder");
-        for (CustomProjectileValues projectile : itemSet.getProjectiles()) {
+        for (CustomProjectileValues projectile : itemSet.projectiles) {
             new WikiProjectileGenerator(itemSet, projectile).generate(new File(projectilesFolder + "/" + projectile.getName() + ".html"));
         }
 

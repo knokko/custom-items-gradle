@@ -73,7 +73,6 @@ public class ArmorTextureManager extends ModelManager<ArmorTexture, ArmorTexture
     }
 
     public ArmorTextureReference getReference(String name) throws NoSuchElementException {
-        if (itemSet instanceof FakeItemSet) return new ArmorTextureReference(name, itemSet);
         if (itemSet.finishedLoading) {
             return new ArmorTextureReference(CollectionHelper.find(elements, texture -> texture.getValues().getName(), name).get());
         } else {

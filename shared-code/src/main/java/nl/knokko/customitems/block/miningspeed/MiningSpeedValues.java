@@ -25,7 +25,6 @@ public class MiningSpeedValues extends ModelValues {
 
     public static MiningSpeedValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
-        System.out.println("Loading mining speed with encoding " + encoding);
         if (encoding != 1) throw new UnknownEncodingException("MiningSpeed", encoding);
 
         MiningSpeedValues result = new MiningSpeedValues(false);

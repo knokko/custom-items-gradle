@@ -38,9 +38,9 @@ public class AnimatedTextureEdit extends GuiMenu {
         addComponent(new DynamicTextButton("Apply", SAVE_BASE, SAVE_HOVER, () -> {
             String error;
             if (toModify == null) {
-                error = Validation.toErrorString(() -> menu.getSet().addTexture(currentValues));
+                error = Validation.toErrorString(() -> menu.getSet().textures.add(currentValues));
             } else {
-                error = Validation.toErrorString(() -> menu.getSet().changeTexture(toModify, currentValues));
+                error = Validation.toErrorString(() -> menu.getSet().textures.change(toModify, currentValues));
             }
             if (error == null) {
                 state.getWindow().setMainComponent(menu.getTextureOverview());

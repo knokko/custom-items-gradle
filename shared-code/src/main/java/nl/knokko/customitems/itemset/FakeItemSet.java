@@ -14,11 +14,7 @@ public class FakeItemSet extends ItemSet {
         this.intReferences = new ArrayList<>();
         this.stringReferences = new ArrayList<>();
         this.uuidReferences = new ArrayList<>();
-    }
-
-    @Override
-    public TextureReference getTextureReference(String name) {
-        return new TextureReference(name, this);
+        this.finishedLoading = false;
     }
 
     @Override
@@ -27,32 +23,12 @@ public class FakeItemSet extends ItemSet {
     }
 
     @Override
-    public ItemReference getItemReference(String name) {
-        return new ItemReference(name, this);
-    }
-
-    @Override
     public FuelRegistryReference getFuelRegistryReference(String name) {
         return new FuelRegistryReference(name, this);
     }
 
     @Override
-    public ProjectileReference getProjectileReference(String name) {
-        return new ProjectileReference(name, this);
-    }
-
-    @Override
     public ProjectileCoverReference getProjectileCoverReference(String name) {
         return new ProjectileCoverReference(name, this);
-    }
-
-    @Override
-    public SoundTypeReference getSoundTypeReference(UUID id) {
-        return new SoundTypeReference(id, this);
-    }
-
-    @Override
-    public CustomDamageSourceReference getDamageSourceReference(UUID id) {
-        return new CustomDamageSourceReference(id, this);
     }
 }

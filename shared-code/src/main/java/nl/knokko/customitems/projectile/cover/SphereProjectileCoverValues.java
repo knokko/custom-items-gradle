@@ -54,7 +54,7 @@ public class SphereProjectileCoverValues extends ProjectileCoverValues {
 
     private void load1(BitInput input, ItemSet itemSet) {
         loadSharedProperties1(input);
-        this.texture = itemSet.getTextureReference(input.readString());
+        this.texture = itemSet.textures.getReference(input.readString());
         this.slotsPerAxis = input.readInt();
         this.scale = input.readDouble();
     }
@@ -118,7 +118,7 @@ public class SphereProjectileCoverValues extends ProjectileCoverValues {
     public void validate(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         super.validate(itemSet, oldName);
         if (texture == null) throw new ValidationException("You need to choose a texture");
-        if (!itemSet.isReferenceValid(texture)) throw new ProgrammingValidationException("Texture is no longer valid");
+        if (!itemSet.textures.isValid(texture)) throw new ProgrammingValidationException("Texture is no longer valid");
         if (slotsPerAxis <= 0) throw new ValidationException("The slots per axis must be positive");
         if (slotsPerAxis > 50) throw new ValidationException("The slots per axis can't be larger than 50");
         if (scale <= 0.0) throw new ValidationException("The scale must be positive");

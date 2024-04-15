@@ -56,7 +56,7 @@ public class GeyserPackTextureGenerator {
 
     public void writeTextures() throws IOException {
         // TODO Support crossbow textures
-        for (BaseTextureValues texture : itemSet.getTextures()) {
+        for (BaseTextureValues texture : itemSet.textures) {
             if (texture instanceof BowTextureValues) {
                 writeBowTexture((BowTextureValues) texture);
             } else {
@@ -73,13 +73,13 @@ public class GeyserPackTextureGenerator {
         jsonWriter.println("    \"texture_name\": \"atlas.items\",");
         jsonWriter.println("    \"texture_data\": {");
         int counter = 1;
-        for (BaseTextureValues texture : itemSet.getTextures()) {
+        for (BaseTextureValues texture : itemSet.textures) {
             String texturePath = "textures/kci/" + texture.getName();
             if (texture instanceof BowTextureValues) texturePath += "_standby";
             jsonWriter.println("        \"kci_" + texture.getName() + "\": {");
             jsonWriter.println("            \"textures\": \"" + texturePath + "\"");
             jsonWriter.print("        }");
-            if (counter != itemSet.getTextures().size()) jsonWriter.print(",");
+            if (counter != itemSet.textures.size()) jsonWriter.print(",");
             jsonWriter.println();
 
             counter += 1;

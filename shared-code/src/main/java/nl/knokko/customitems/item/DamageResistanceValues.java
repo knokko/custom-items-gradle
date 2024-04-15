@@ -31,7 +31,7 @@ public class DamageResistanceValues extends ModelValues {
             loadVanilla(input, result, numVanillaResistances);
             int numCustomResistances = input.readInt();
             for (int counter = 0; counter < numCustomResistances; counter++) {
-                result.customResistanceMap.put(itemSet.getDamageSourceReference(new UUID(input.readLong(), input.readLong())), input.readShort());
+                result.customResistanceMap.put(itemSet.damageSources.getReference(new UUID(input.readLong(), input.readLong())), input.readShort());
             }
         }
         return result;
@@ -155,7 +155,7 @@ public class DamageResistanceValues extends ModelValues {
         if (customResistanceMap == null) throw new ProgrammingValidationException("No custom resistances");
         for (CustomDamageSourceReference damageSource : customResistanceMap.keySet()) {
             if (damageSource == null) throw new ProgrammingValidationException("Missing a custom damage source");
-            if (!itemSet.isReferenceValid(damageSource)) throw new ProgrammingValidationException("Damage source is invalid");
+            if (!itemSet.damageSources.isValid(damageSource)) throw new ProgrammingValidationException("Damage source is invalid");
         }
         if (customResistanceMap.containsValue(null)) throw new ProgrammingValidationException("Contains null resistance");
         if (customResistanceMap.containsValue((short) 0)) throw new ProgrammingValidationException("Contains 0 resistance");

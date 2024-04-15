@@ -47,7 +47,7 @@ class WikiBlockGenerator {
             output.println("\t\t<h1>" + block.getName() + "</h1>");
             output.println("\t\t<img src=\"../textures/" + block.getModel().getPrimaryTexture().get().getName() + ".png\" class=\"block-icon\" /><br>");
 
-            Collection<CustomItemValues> placingItems = itemSet.getItems().stream().filter(
+            Collection<CustomItemValues> placingItems = itemSet.items.stream().filter(
                     item -> item instanceof CustomBlockItemValues
                             && ((CustomBlockItemValues) item).getBlock().getName().equals(block.getName())
                             && item.getWikiVisibility() == WikiVisibility.VISIBLE

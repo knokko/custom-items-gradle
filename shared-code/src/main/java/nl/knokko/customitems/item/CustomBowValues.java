@@ -100,7 +100,7 @@ public class CustomBowValues extends CustomToolValues {
         this.shootDurabilityLoss = input.readInt();
         if (encoding >= 2) {
             if (input.readBoolean()) {
-                this.customShootDamageSource = itemSet.getDamageSourceReference(new UUID(input.readLong(), input.readLong()));
+                this.customShootDamageSource = itemSet.damageSources.getReference(new UUID(input.readLong(), input.readLong()));
             } else this.customShootDamageSource = null;
         } else this.customShootDamageSource = null;
     }
@@ -366,7 +366,7 @@ public class CustomBowValues extends CustomToolValues {
         super.validateComplete(itemSet, oldName);
 
         if (!(texture.get() instanceof BowTextureValues)) throw new ProgrammingValidationException("Texture must be a bow texture");
-        if (customShootDamageSource != null && !itemSet.isReferenceValid(customShootDamageSource)) {
+        if (customShootDamageSource != null && !itemSet.damageSources.isValid(customShootDamageSource)) {
             throw new ProgrammingValidationException("Custom shoot damage source is invalid");
         }
     }

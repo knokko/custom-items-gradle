@@ -117,7 +117,7 @@ public class CustomTridentValues extends CustomToolValues {
         }
 
         if (encoding >= 3 && input.readBoolean()) {
-            this.customThrowDamageSource = itemSet.getDamageSourceReference(new UUID(input.readLong(), input.readLong()));
+            this.customThrowDamageSource = itemSet.damageSources.getReference(new UUID(input.readLong(), input.readLong()));
         } else this.customThrowDamageSource = null;
     }
 
@@ -325,7 +325,7 @@ public class CustomTridentValues extends CustomToolValues {
     public void validateComplete(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         super.validateComplete(itemSet, oldName);
 
-        if (customThrowDamageSource != null && !itemSet.isReferenceValid(customThrowDamageSource)) {
+        if (customThrowDamageSource != null && !itemSet.damageSources.isValid(customThrowDamageSource)) {
             throw new ProgrammingValidationException("Invalid custom throw damage source");
         }
     }

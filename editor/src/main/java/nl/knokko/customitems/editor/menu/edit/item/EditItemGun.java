@@ -37,7 +37,7 @@ public class EditItemGun extends EditItemBase<CustomGunValues> {
                 0.6f, 0.8f, 0.7f, 0.85f
         );
         addComponent(CollectionSelect.createButton(
-                menu.getSet().getProjectiles().references(),
+                menu.getSet().projectiles.references(),
                 currentValues::setProjectile,
                 projectileReference -> projectileReference.get().getName(),
                 currentValues.getProjectileReference(), false

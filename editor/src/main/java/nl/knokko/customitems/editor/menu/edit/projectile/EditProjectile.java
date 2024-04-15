@@ -185,7 +185,7 @@ public class EditProjectile extends GuiMenu {
 				"Custom damage source:", LABEL
 		), LABEL_X2 - 0.3f, 0.24f, LABEL_X2, 0.32f);
 		addComponent(CollectionSelect.createButton(
-				menu.getSet().getDamageSources().references(), currentValues::setCustomDamageSource,
+				menu.getSet().damageSources.references(), currentValues::setCustomDamageSource,
 				damageSource -> damageSource.get().getName(), currentValues.getCustomDamageSourceReference(), true
 		), BUTTON_X2, 0.24f, BUTTON_X2 + 0.1f, 0.32f);
 		addComponent(new DynamicTextComponent(
@@ -204,8 +204,8 @@ public class EditProjectile extends GuiMenu {
 		// The Create/Apply button
 		addComponent(new DynamicTextButton(toModify == null ? "Create" : "Apply", SAVE_BASE, SAVE_HOVER, () -> {
 			String error;
-			if (toModify == null) error = Validation.toErrorString(() -> menu.getSet().addProjectile(currentValues));
-			else error = Validation.toErrorString(() -> menu.getSet().changeProjectile(toModify, currentValues));
+			if (toModify == null) error = Validation.toErrorString(() -> menu.getSet().projectiles.add(currentValues));
+			else error = Validation.toErrorString(() -> menu.getSet().projectiles.change(toModify, currentValues));
 
 			if (error == null) {
 				state.getWindow().setMainComponent(menu.getProjectileMenu().getProjectileOverview());

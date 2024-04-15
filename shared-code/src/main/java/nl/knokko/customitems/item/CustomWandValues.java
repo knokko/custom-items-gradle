@@ -86,7 +86,7 @@ public class CustomWandValues extends CustomItemValues {
         if (encoding < 1 || encoding > 3) throw new UnknownEncodingException("WandNew", encoding);
 
         String projectileName = input.readString();
-        if (projectileName != null) this.projectile = itemSet.getProjectileReference(projectileName);
+        if (projectileName != null) this.projectile = itemSet.projectiles.getReference(projectileName);
         else this.projectile = null;
 
         if (input.readBoolean()) {
@@ -182,7 +182,7 @@ public class CustomWandValues extends CustomItemValues {
     }
 
     private void loadWandOnlyProperties9(BitInput input, ItemSet itemSet) {
-        this.projectile = itemSet.getProjectileReference(input.readString());
+        this.projectile = itemSet.projectiles.getReference(input.readString());
         this.cooldown = input.readInt();
         if (input.readBoolean()) {
             this.charges = WandChargeValues.load1(input);
@@ -296,7 +296,7 @@ public class CustomWandValues extends CustomItemValues {
     public void validateComplete(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         super.validateComplete(itemSet, oldName);
 
-        if (projectile != null && !itemSet.isReferenceValid(projectile)) {
+        if (projectile != null && !itemSet.projectiles.isValid(projectile)) {
             throw new ProgrammingValidationException("Projectile is no longer valid");
         }
     }

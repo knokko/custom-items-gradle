@@ -63,9 +63,9 @@ class CommandCustomItemsDebug {
         } else {
             sender.sendMessage(ChatColor.YELLOW + "Your items were exported by a very old version of the Editor.");
         }
-        sender.sendMessage("There are " + itemSet.get().getItems().size() + " custom items");
-        sender.sendMessage("There are " + itemSet.get().getCraftingRecipes().size() + " custom crafting recipes");
-        sender.sendMessage("There are " + itemSet.get().getProjectiles().size() + " custom projectiles");
+        sender.sendMessage("There are " + itemSet.get().items.size() + " custom items");
+        sender.sendMessage("There are " + itemSet.get().craftingRecipes.size() + " custom crafting recipes");
+        sender.sendMessage("There are " + itemSet.get().projectiles.size() + " custom projectiles");
         sender.sendMessage("There are " + itemSet.get().containers.size() + " custom containers");
         sender.sendMessage("There are " + itemSet.get().blocks.size() + " custom blocks");
 

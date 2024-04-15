@@ -110,7 +110,7 @@ public class CustomBlockValues extends ModelValues {
         this.name = input.readString();
         this.loadDrops1(input, itemSet);
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
-            if (encoding == 1) this.model = new SimpleBlockModel(itemSet.getTextureReference(input.readString()));
+            if (encoding == 1) this.model = new SimpleBlockModel(itemSet.textures.getReference(input.readString()));
             else this.model = BlockModel.load(input, itemSet);
         } else {
             this.model = null;

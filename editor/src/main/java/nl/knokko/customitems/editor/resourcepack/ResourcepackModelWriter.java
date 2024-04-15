@@ -36,7 +36,7 @@ class ResourcepackModelWriter {
     }
 
     void writeCustomItemModels() throws IOException {
-        for (CustomItemValues item : itemSet.getItems()) {
+        for (CustomItemValues item : itemSet.items) {
 
             // Core item model
             ZipEntry entry = new ZipEntry("assets/minecraft/models/customitems/" + item.getName() + ".json");

@@ -82,7 +82,6 @@ public class BlockManager extends ModelManager<CustomBlock, CustomBlockValues, B
     }
 
     public BlockReference getReference(int blockID) throws NoSuchElementException {
-        if (itemSet instanceof FakeItemSet) return new BlockReference(blockID, itemSet);
         if (itemSet.finishedLoading) {
             return new BlockReference(CollectionHelper.find(elements, block -> block.getValues().getInternalID(), blockID).get());
         } else {
@@ -98,7 +97,11 @@ public class BlockManager extends ModelManager<CustomBlock, CustomBlockValues, B
         return CollectionHelper.find(elements, block -> block.getValues().getName(), name).map(CustomBlock::getValues);
     }
 
-    public void combine(BlockManager primary, BlockManager secondary) throws ValidationException {
+    @Override
+    public void combine(
+            ModelManager<CustomBlock, CustomBlockValues, BlockReference> primary,
+            ModelManager<CustomBlock, CustomBlockValues, BlockReference> secondary
+    ) throws ValidationException {
         elements.addAll(primary.elements);
         if (!secondary.elements.isEmpty()) throw new ValidationException("The secondary item set can't have blocks");
     }

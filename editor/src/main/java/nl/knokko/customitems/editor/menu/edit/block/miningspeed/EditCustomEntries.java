@@ -31,7 +31,7 @@ class EditCustomEntries extends GuiMenu {
             float minY = maxY - 0.1f;
 
             addComponent(CollectionSelect.createButton(
-                    itemSet.getItems().references(),
+                    itemSet.items.references(),
                     entry::setItemReference,
                     itemRef -> itemRef.get().getName(),
                     entry.getItemReference(), false

@@ -35,7 +35,7 @@ public class CustomArrowValues extends CustomItemValues {
             shootEffects.add(AttackEffectGroupValues.load(input, itemSet));
         }
         arrow.shootEffects = Collections.unmodifiableList(shootEffects);
-        if (encoding >= 2 && input.readBoolean()) arrow.customShootDamageSource = itemSet.getDamageSourceReference(
+        if (encoding >= 2 && input.readBoolean()) arrow.customShootDamageSource = itemSet.damageSources.getReference(
                 new UUID(input.readLong(), input.readLong())
         ); else arrow.customShootDamageSource = null;
 
@@ -197,7 +197,7 @@ public class CustomArrowValues extends CustomItemValues {
         super.validateComplete(itemSet, oldName);
 
         for (AttackEffectGroupValues effects : shootEffects) Validation.scope("Shoot effect", effects::validate, itemSet);
-        if (customShootDamageSource != null && !itemSet.isReferenceValid(customShootDamageSource)) {
+        if (customShootDamageSource != null && !itemSet.damageSources.isValid(customShootDamageSource)) {
             throw new ProgrammingValidationException("Invalid custom shoot damage source");
         }
     }

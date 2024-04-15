@@ -19,7 +19,7 @@ public class SoundTypeCollectionEdit extends DedicatedCollectionEdit<CustomSound
     private final ItemSet itemSet;
 
     public SoundTypeCollectionEdit(GuiComponent returnMenu, ItemSet itemSet) {
-        super(returnMenu, itemSet.getSoundTypes().references(), null);
+        super(returnMenu, itemSet.soundTypes.references(), null);
         this.itemSet = itemSet;
     }
 
@@ -58,7 +58,7 @@ public class SoundTypeCollectionEdit extends DedicatedCollectionEdit<CustomSound
 
     @Override
     protected String deleteModel(SoundTypeReference modelReference) {
-        return Validation.toErrorString(() -> itemSet.removeSoundType(modelReference));
+        return Validation.toErrorString(() -> itemSet.soundTypes.remove(modelReference));
     }
 
     @Override

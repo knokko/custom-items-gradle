@@ -30,7 +30,7 @@ public class GeyserMappingsGenerator {
 
     public void writeItemMappings() throws IOException {
         Set<String> vanillaItems = new HashSet<>();
-        for (CustomItemValues item : itemSet.getItems()) {
+        for (CustomItemValues item : itemSet.items) {
             vanillaItems.add(getVanillaName(item));
         }
 
@@ -47,7 +47,7 @@ public class GeyserMappingsGenerator {
 
             boolean isFirst = true;
             // TODO Maybe call itemSet.assignInternalItemDamages()
-            for (CustomItemValues item : itemSet.getItems()) {
+            for (CustomItemValues item : itemSet.items) {
                 if (getVanillaName(item).equals(vanillaItem)) {
                     if (!isFirst) jsonWriter.println(',');
                     isFirst = false;

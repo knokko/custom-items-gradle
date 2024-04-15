@@ -57,8 +57,8 @@ public class ShapedRecipeEdit extends GuiMenu {
 		}), 0.1f, 0.85f, 0.25f, 0.95f);
 		addComponent(new DynamicTextButton(toModify == null ? "Create" : "Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
 			String error;
-			if (toModify == null) error = Validation.toErrorString(() -> menu.getSet().addRecipe(currentValues));
-			else error = Validation.toErrorString(() -> menu.getSet().changeRecipe(toModify, currentValues));
+			if (toModify == null) error = Validation.toErrorString(() -> menu.getSet().craftingRecipes.add(currentValues));
+			else error = Validation.toErrorString(() -> menu.getSet().craftingRecipes.change(toModify, currentValues));
 
 			if (error != null) errorComponent.setText(error);
 			else state.getWindow().setMainComponent(menu.getRecipeOverview());

@@ -21,7 +21,7 @@ public class CustomThrowableValues extends CustomItemValues {
 
         CustomThrowableValues result = new CustomThrowableValues(false);
         result.loadSharedPropertiesNew(input, itemSet);
-        result.projectile = itemSet.getProjectileReference(input.readString());
+        result.projectile = itemSet.projectiles.getReference(input.readString());
         result.maxStackSize = input.readByte();
         result.cooldown = input.readInt();
         result.amountPerShot = input.readInt();
@@ -149,6 +149,6 @@ public class CustomThrowableValues extends CustomItemValues {
     public void validateComplete(ItemSet itemSet, String oldName) throws ValidationException, ProgrammingValidationException {
         super.validateComplete(itemSet, oldName);
 
-        if (!itemSet.isReferenceValid(projectile)) throw new ValidationException("Projectile is no longer valid");
+        if (!itemSet.projectiles.isValid(projectile)) throw new ValidationException("Projectile is no longer valid");
     }
 }

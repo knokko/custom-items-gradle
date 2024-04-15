@@ -18,7 +18,7 @@ class GeyserPackAttachableGenerator {
     }
 
     void generateBows() throws IOException {
-        for (BaseTextureValues texture : itemSet.getTextures()) {
+        for (BaseTextureValues texture : itemSet.textures) {
             if (texture instanceof BowTextureValues) {
                 IOHelper.propagate(
                         "bow_template.attachable.json", zipOutput,

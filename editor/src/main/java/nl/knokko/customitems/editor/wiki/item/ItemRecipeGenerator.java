@@ -60,7 +60,7 @@ class ItemRecipeGenerator {
     ItemRecipeGenerator(ItemSet itemSet, CustomItemValues item) {
         this.itemSet = itemSet;
 
-        this.resultCraftingRecipes = itemSet.getCraftingRecipes().stream().filter(recipe -> {
+        this.resultCraftingRecipes = itemSet.craftingRecipes.stream().filter(recipe -> {
             if (isItem(item, recipe.getResult())) return true;
 
             if (recipe instanceof ShapedRecipeValues) {
@@ -96,7 +96,7 @@ class ItemRecipeGenerator {
             }
         }
 
-        this.ingredientCraftingRecipes = itemSet.getCraftingRecipes().stream().filter(candidateRecipe -> {
+        this.ingredientCraftingRecipes = itemSet.craftingRecipes.stream().filter(candidateRecipe -> {
             if (candidateRecipe instanceof ShapedRecipeValues) {
                 ShapedRecipeValues shapedRecipe = (ShapedRecipeValues) candidateRecipe;
                 for (int x = 0; x < 3; x++) {

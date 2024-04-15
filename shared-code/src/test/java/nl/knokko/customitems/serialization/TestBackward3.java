@@ -31,7 +31,7 @@ public class TestBackward3 {
 
         if (set.getSide() == ItemSet.Side.PLUGIN) return;
 
-        BowTextureValues bow1 = (BowTextureValues) set.getTexture("bow_one").get();
+        BowTextureValues bow1 = (BowTextureValues) set.textures.get("bow_one").get();
         assertEquals("bow_one", bow1.getName());
         assertImageEqual(loadImage("gun2"), bow1.getImage());
         assertEquals(4, bow1.getPullTextures().size());
@@ -52,16 +52,16 @@ public class TestBackward3 {
     static void testItems3(ItemSet set, int numItems) {
         testItems2(set, numItems);
 
-        testSimpleDefault3((SimpleCustomItemValues) set.getItem("simple1").get());
-        testSimpleDefault3((SimpleCustomItemValues) set.getItem("simple2").get());
-        testToolDefault3((CustomToolValues) set.getItem("sword1").get());
-        testToolDefault3((CustomToolValues) set.getItem("pickaxe1").get());
-        testToolDefault3((CustomToolValues) set.getItem("axe1").get());
-        testToolDefault3((CustomToolValues) set.getItem("shovel1").get());
+        testSimpleDefault3((SimpleCustomItemValues) set.items.get("simple1").get());
+        testSimpleDefault3((SimpleCustomItemValues) set.items.get("simple2").get());
+        testToolDefault3((CustomToolValues) set.items.get("sword1").get());
+        testToolDefault3((CustomToolValues) set.items.get("pickaxe1").get());
+        testToolDefault3((CustomToolValues) set.items.get("axe1").get());
+        testToolDefault3((CustomToolValues) set.items.get("shovel1").get());
 
-        testHoe1((CustomHoeValues) set.getItem("hoe_one").get(), set.getSide());
-        testShears1((CustomShearsValues) set.getItem("shears_one").get(), set.getSide());
-        testBow1((CustomBowValues) set.getItem("bow_one").get(), set.getItemReference("simple1"), set.getSide());
+        testHoe1((CustomHoeValues) set.items.get("hoe_one").get(), set.getSide());
+        testShears1((CustomShearsValues) set.items.get("shears_one").get(), set.getSide());
+        testBow1((CustomBowValues) set.items.get("bow_one").get(), set.items.getReference("simple1"), set.getSide());
     }
 
     static void testHoe1(CustomHoeValues item, ItemSet.Side side) {

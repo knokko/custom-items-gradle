@@ -206,8 +206,8 @@ public class BaseTextureValues extends ModelValues {
         this.validateIndependent();
 
         boolean nameConflict = false;
-        if (oldName == null && itemSet.getTexture(this.name).isPresent()) nameConflict = true;
-        if (oldName != null && !oldName.equals(this.name) && itemSet.getTexture(this.name).isPresent()) nameConflict = true;
+        if (oldName == null && itemSet.textures.get(this.name).isPresent()) nameConflict = true;
+        if (oldName != null && !oldName.equals(this.name) && itemSet.textures.get(this.name).isPresent()) nameConflict = true;
         if (nameConflict) {
             throw new ValidationException("A texture with name " + this.name + " already exists");
         }

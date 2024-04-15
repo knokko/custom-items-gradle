@@ -17,7 +17,7 @@ public class ProjectileCollectionEdit extends DedicatedCollectionEdit<CustomProj
 	private final EditMenu menu;
 
 	public ProjectileCollectionEdit(EditMenu menu, GuiComponent returnMenu) {
-		super(returnMenu, menu.getSet().getProjectiles().references(), null);
+		super(returnMenu, menu.getSet().projectiles.references(), null);
 		this.menu = menu;
 	}
 	
@@ -55,7 +55,7 @@ public class ProjectileCollectionEdit extends DedicatedCollectionEdit<CustomProj
 
 	@Override
 	protected String deleteModel(ProjectileReference modelReference) {
-		return Validation.toErrorString(() -> menu.getSet().removeProjectile(modelReference));
+		return Validation.toErrorString(() -> menu.getSet().projectiles.remove(modelReference));
 	}
 
 	@Override

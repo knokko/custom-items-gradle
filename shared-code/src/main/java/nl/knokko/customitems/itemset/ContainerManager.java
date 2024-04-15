@@ -68,7 +68,6 @@ public class ContainerManager extends ModelManager<CustomContainer, CustomContai
     }
 
     public ContainerReference getReference(String containerName) throws NoSuchElementException {
-        if (itemSet instanceof FakeItemSet) return new ContainerReference(containerName, itemSet);
         if (itemSet.finishedLoading) {
             return new ContainerReference(CollectionHelper.find(elements, container -> container.getValues().getName(), containerName).get());
         } else {
@@ -78,10 +77,5 @@ public class ContainerManager extends ModelManager<CustomContainer, CustomContai
 
     public Optional<CustomContainerValues> get(String containerName) {
         return CollectionHelper.find(elements, container -> container.getValues().getName(), containerName).map(CustomContainer::getValues);
-    }
-
-    public void combine(ContainerManager primary, ContainerManager secondary) {
-        elements.addAll(primary.elements);
-        elements.addAll(secondary.elements);
     }
 }

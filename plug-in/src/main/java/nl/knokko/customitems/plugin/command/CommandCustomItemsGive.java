@@ -30,7 +30,7 @@ public class CommandCustomItemsGive {
 
     void handle(String[] args, CommandSender sender, boolean enableOutput) {
         if (
-                !sender.hasPermission("customitems.give") && itemSet.get().getItems().stream().noneMatch(
+                !sender.hasPermission("customitems.give") && itemSet.get().items.stream().noneMatch(
                         item -> sender.hasPermission("customitems.give." + item.getName())
                 )
         ) {
@@ -45,7 +45,7 @@ public class CommandCustomItemsGive {
 
             // If no such item is found, try to find one with the given alias
             if (item == null) {
-                for (CustomItemValues candidate : itemSet.get().getItems()) {
+                for (CustomItemValues candidate : itemSet.get().items) {
                     if (candidate.getAlias().equals(args[1])) {
                         item = candidate;
                         break;

@@ -44,7 +44,7 @@ public class ManageBlockModel extends GuiMenu {
         addComponent(new DynamicTextComponent("Change to a...", LABEL), 0.5f, 0.7f, 0.7f, 0.8f);
 
         addComponent(new DynamicTextButton("model with the same texture on each side", BUTTON, HOVER, () -> {
-            state.getWindow().setMainComponent(new CollectionSelect<>(itemSet.getTextures().references(), chosenTexture -> {
+            state.getWindow().setMainComponent(new CollectionSelect<>(itemSet.textures.references(), chosenTexture -> {
                 changeModel.accept(new SimpleBlockModel(chosenTexture));
             }, candidateTexture -> candidateTexture.get().getClass() == BaseTextureValues.class,
                     candidateTexture -> candidateTexture.get().getName(), returnMenu, false

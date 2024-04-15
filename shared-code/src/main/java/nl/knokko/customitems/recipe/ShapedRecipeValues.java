@@ -226,7 +226,7 @@ public class ShapedRecipeValues extends CraftingRecipeValues {
             throw new ValidationException("You need at least 1 ingredient");
         }
 
-        for (CraftingRecipeReference otherReference : itemSet.getCraftingRecipes().references()) {
+        for (CraftingRecipeReference otherReference : itemSet.craftingRecipes.references()) {
             if (selfReference == null || !selfReference.equals(otherReference)) {
                 CraftingRecipeValues otherRecipe = otherReference.get();
                 if (otherRecipe instanceof ShapedRecipeValues) {

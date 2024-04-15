@@ -51,7 +51,7 @@ public class TestBackward7 {
         assertEquals(100, entry1.getBurnTime());
         assertEquals(SimpleVanillaIngredientValues.createQuick(CIMaterial.COAL, 1), entry1.getFuel());
         assertEquals(500, entry2.getBurnTime());
-        assertEquals(CustomItemIngredientValues.createQuick(set.getItemReference("simple1"), 1), entry2.getFuel());
+        assertEquals(CustomItemIngredientValues.createQuick(set.items.getReference("simple1"), 1), entry2.getFuel());
     }
 
     static void testContainers7(ItemSet set, int numContainers) {
@@ -60,7 +60,7 @@ public class TestBackward7 {
         CustomContainerValues container1 = set.containers.get("container1").get();
         assertEquals("container1", container1.getName());
         assertEquals(SlotDisplayValues.createQuick(
-            CustomDisplayItemValues.createQuick(set.getItemReference("simple2")),
+            CustomDisplayItemValues.createQuick(set.items.getReference("simple2")),
                 "First Container", listOf("Just", "some", "lore"), 3
         ), container1.getSelectionIcon());
         assertEquals(FuelMode.ANY, container1.getFuelMode());
@@ -77,7 +77,7 @@ public class TestBackward7 {
                     assertEquals("input2", ((InputSlotValues) slot).getName());
                 } else if (x == 2 && y == 0) {
                     assertEquals(DecorationSlotValues.createQuick(SlotDisplayValues.createQuick(
-                            CustomDisplayItemValues.createQuick(set.getItemReference("wand_one")),
+                            CustomDisplayItemValues.createQuick(set.items.getReference("wand_one")),
                             "Wand Show-off", new ArrayList<>(0), 1
                     )), slot);
                 } else if (x == 3 && y == 1) {
@@ -120,7 +120,7 @@ public class TestBackward7 {
         assertEquals(
                 OutputTableValues.createQuick(
                         OutputTableValues.Entry.createQuick(
-                                CustomItemResultValues.createQuick(set.getItemReference("simple1"), 2),
+                                CustomItemResultValues.createQuick(set.items.getReference("simple1"), 2),
                                 100)
                 ),
                 recipe.getOutputs().get("output1")

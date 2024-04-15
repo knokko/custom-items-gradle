@@ -42,8 +42,8 @@ public class EditCustomDamageSource extends GuiMenu {
 
         addComponent(new DynamicTextButton("Done", SAVE_BASE, SAVE_HOVER, () -> {
             String error;
-            if (toModify == null) error = Validation.toErrorString(() -> itemSet.addDamageSource(currentValues));
-            else error = Validation.toErrorString(() -> itemSet.changeDamageSource(toModify, currentValues));
+            if (toModify == null) error = Validation.toErrorString(() -> itemSet.damageSources.add(currentValues));
+            else error = Validation.toErrorString(() -> itemSet.damageSources.change(toModify, currentValues));
 
             if (error == null) state.getWindow().setMainComponent(returnMenu);
             else errorComponent.setText(error);

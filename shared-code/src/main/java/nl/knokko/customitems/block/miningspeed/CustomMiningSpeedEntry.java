@@ -23,7 +23,7 @@ public class CustomMiningSpeedEntry extends ModelValues {
 
         CustomMiningSpeedEntry result = new CustomMiningSpeedEntry(false);
         result.value = input.readInt();
-        result.item = itemSet.getItemReference(input.readString());
+        result.item = itemSet.items.getReference(input.readString());
         return result;
     }
 
@@ -92,6 +92,6 @@ public class CustomMiningSpeedEntry extends ModelValues {
     public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         validateValue(value);
         if (item == null) throw new ValidationException("You must choose a custom item");
-        if (!itemSet.isReferenceValid(item)) throw new ProgrammingValidationException("Item is no longer valid");
+        if (!itemSet.items.isValid(item)) throw new ProgrammingValidationException("Item is no longer valid");
     }
 }

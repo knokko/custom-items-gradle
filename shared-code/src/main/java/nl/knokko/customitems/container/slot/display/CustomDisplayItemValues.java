@@ -43,7 +43,7 @@ public class CustomDisplayItemValues extends SlotDisplayItemValues {
     }
 
     private void load1(BitInput input, ItemSet itemSet) {
-        this.customItem = itemSet.getItemReference(input.readString());
+        this.customItem = itemSet.items.getReference(input.readString());
     }
 
     @Override
@@ -88,7 +88,7 @@ public class CustomDisplayItemValues extends SlotDisplayItemValues {
     @Override
     public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
         if (customItem == null) throw new ValidationException("You need to choose an item");
-        if (!itemSet.isReferenceValid(customItem)) throw new ProgrammingValidationException("Item is no longer valid");
+        if (!itemSet.items.isValid(customItem)) throw new ProgrammingValidationException("Item is no longer valid");
     }
 
     @Override

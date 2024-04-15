@@ -108,7 +108,7 @@ public class CustomDamageEventHandler implements Listener {
     private CustomProjectileValues getCustomProjectile(List<MetadataValue> meta) {
         for (MetadataValue value : meta) {
             if (value.getOwningPlugin() == CustomItemsPlugin.getInstance()) {
-                Optional<CustomProjectileValues> customProjectile = itemSet.get().getProjectile(value.asString());
+                Optional<CustomProjectileValues> customProjectile = itemSet.get().projectiles.get(value.asString());
                 if (customProjectile.isPresent()) return customProjectile.get();
             }
         }

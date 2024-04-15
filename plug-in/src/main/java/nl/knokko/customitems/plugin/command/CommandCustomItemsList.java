@@ -20,9 +20,9 @@ class CommandCustomItemsList {
             return;
         }
 
-        if (itemSet.get().getItems().size() > 0) {
+        if (!itemSet.get().items.isEmpty()) {
             sender.sendMessage(ChatColor.AQUA + "All custom items:");
-            for (CustomItemValues item : itemSet.get().getItems()) {
+            for (CustomItemValues item : itemSet.get().items) {
                 if (item.getAlias().isEmpty()) {
                     sender.sendMessage(item.getName());
                 } else {

@@ -85,7 +85,7 @@ public class CustomDamageSourceValues extends ModelValues {
 
     public void validateComplete(ItemSet itemSet, UUID previousID) throws ValidationException, ProgrammingValidationException {
         validateIndependent();
-        if (previousID == null && itemSet.getDamageSource(this.id).isPresent()) {
+        if (previousID == null && itemSet.damageSources.get(this.id).isPresent()) {
             throw new ProgrammingValidationException("Another damage source has this ID");
         }
         if (previousID != null && !previousID.equals(this.id)) {

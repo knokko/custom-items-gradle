@@ -350,7 +350,7 @@ public class WikiRecipeGenerator {
                             + " resistance by " + (-resistance) + "%</li>");
                 }
             }
-            for (CustomDamageSourceReference customSource : itemSet.getDamageSources().references()) {
+            for (CustomDamageSourceReference customSource : itemSet.damageSources.references()) {
                 short resistance = upgrade.get().getDamageResistances().getResistance(customSource);
                 if (resistance > 0) {
                     output.println(prefix + "\t<li>Increases " + customSource.get().getName()

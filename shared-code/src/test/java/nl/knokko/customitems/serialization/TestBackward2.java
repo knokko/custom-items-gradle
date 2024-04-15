@@ -22,13 +22,13 @@ public class TestBackward2 {
     static void testItems2(ItemSet set, int numItems) {
         testItems1(set, numItems);
 
-        testSimpleDefault2((SimpleCustomItemValues) set.getItem("simple1").get());
+        testSimpleDefault2((SimpleCustomItemValues) set.items.get("simple1").get());
 
-        testSimpleItem2(set.getItem("simple2").get(), set.getSide());
-        testSword1((CustomToolValues) set.getItem("sword1").get(), set.getSide());
-        testPickaxe1((CustomToolValues) set.getItem("pickaxe1").get(), set.getSide());
-        testAxe1((CustomToolValues) set.getItem("axe1").get(), set.getSide());
-        testShovel1((CustomToolValues) set.getItem("shovel1").get(), set.getSide());
+        testSimpleItem2(set.items.get("simple2").get(), set.getSide());
+        testSword1((CustomToolValues) set.items.get("sword1").get(), set.getSide());
+        testPickaxe1((CustomToolValues) set.items.get("pickaxe1").get(), set.getSide());
+        testAxe1((CustomToolValues) set.items.get("axe1").get(), set.getSide());
+        testShovel1((CustomToolValues) set.items.get("shovel1").get(), set.getSide());
     }
 
     private static void testSimpleItem2(CustomItemValues item, ItemSet.Side side) {

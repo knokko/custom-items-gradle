@@ -27,7 +27,7 @@ public class SoundValues extends ModelValues {
             result.customSound = null;
         } else {
             result.vanillaSound = null;
-            result.customSound = itemSet.getSoundTypeReference(new UUID(input.readLong(), input.readLong()));
+            result.customSound = itemSet.soundTypes.getReference(new UUID(input.readLong(), input.readLong()));
         }
 
         result.volume = input.readFloat();
@@ -156,7 +156,7 @@ public class SoundValues extends ModelValues {
         if ((vanillaSound == null) == (customSound == null)) {
             throw new ValidationException("You must choose either a vanilla sound or a custom sound");
         }
-        if (customSound != null && !itemSet.isReferenceValid(customSound)) {
+        if (customSound != null && !itemSet.soundTypes.isValid(customSound)) {
             throw new ProgrammingValidationException("Custom sound is invalid");
         }
         if (volume <= 0f) throw new ValidationException("Volume must be positive");

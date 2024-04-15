@@ -5,8 +5,6 @@ import nl.knokko.customitems.container.energy.EnergyType;
 import nl.knokko.customitems.container.energy.EnergyTypeValues;
 import nl.knokko.customitems.container.fuel.FuelRegistryValues;
 import nl.knokko.customitems.container.fuel.CustomFuelRegistry;
-import nl.knokko.customitems.damage.CustomDamageSource;
-import nl.knokko.customitems.damage.CustomDamageSourceValues;
 import nl.knokko.customitems.drops.*;
 import nl.knokko.customitems.encoding.SetEncoding;
 import nl.knokko.customitems.item.*;
@@ -17,17 +15,11 @@ import nl.knokko.customitems.item.equipment.EquipmentSetValues;
 import nl.knokko.customitems.item.model.DefaultItemModel;
 import nl.knokko.customitems.item.model.DefaultModelType;
 import nl.knokko.customitems.item.model.ItemModel;
-import nl.knokko.customitems.projectile.CustomProjectileValues;
-import nl.knokko.customitems.projectile.CustomProjectile;
 import nl.knokko.customitems.projectile.cover.ProjectileCoverValues;
 import nl.knokko.customitems.projectile.cover.ProjectileCover;
-import nl.knokko.customitems.recipe.CraftingRecipeValues;
-import nl.knokko.customitems.recipe.CustomCraftingRecipe;
 import nl.knokko.customitems.recipe.upgrade.Upgrade;
 import nl.knokko.customitems.recipe.upgrade.UpgradeValues;
 import nl.knokko.customitems.settings.ExportSettingsValues;
-import nl.knokko.customitems.sound.CustomSoundType;
-import nl.knokko.customitems.sound.CustomSoundTypeValues;
 import nl.knokko.customitems.texture.*;
 import nl.knokko.customitems.trouble.IntegrityException;
 import nl.knokko.customitems.trouble.OutdatedItemSetException;
@@ -69,23 +61,19 @@ public class ItemSet {
 
         result.exportSettings = primary.exportSettings;
         result.combinedResourcepacks.combine(primary.combinedResourcepacks, secondary.combinedResourcepacks);
-        result.textures.addAll(primary.textures);
-        result.textures.addAll(secondary.textures);
+        result.textures.combine(primary.textures, secondary.textures);
         result.armorTextures.combine(primary.armorTextures, secondary.armorTextures);
         result.fancyPantsArmorTextures.addAll(primary.fancyPantsArmorTextures);
         result.fancyPantsArmorTextures.addAll(secondary.fancyPantsArmorTextures);
 
-        result.items.addAll(primary.items);
-        result.items.addAll(secondary.items);
+        result.items.combine(primary.items, secondary.items);
 
         result.equipmentSets.addAll(primary.equipmentSets);
         result.equipmentSets.addAll(secondary.equipmentSets);
 
-        result.damageSources.addAll(primary.damageSources);
-        result.damageSources.addAll(secondary.damageSources);
+        result.damageSources.combine(primary.damageSources, secondary.damageSources);
 
-        result.craftingRecipes.addAll(primary.craftingRecipes);
-        result.craftingRecipes.addAll(secondary.craftingRecipes);
+        result.craftingRecipes.combine(primary.craftingRecipes, secondary.craftingRecipes);
 
         result.upgrades.addAll(primary.upgrades);
         result.upgrades.addAll(secondary.upgrades);
@@ -100,11 +88,9 @@ public class ItemSet {
         result.energyTypes.addAll(primary.energyTypes);
         result.energyTypes.addAll(secondary.energyTypes);
 
-        result.soundTypes.addAll(primary.soundTypes);
-        result.soundTypes.addAll(secondary.soundTypes);
+        result.soundTypes.combine(primary.soundTypes, secondary.soundTypes);
 
-        result.projectiles.addAll(primary.projectiles);
-        result.projectiles.addAll(secondary.projectiles);
+        result.projectiles.combine(primary.projectiles, secondary.projectiles);
         result.projectileCovers.addAll(primary.projectileCovers);
         result.projectileCovers.addAll(secondary.projectileCovers);
 
@@ -116,12 +102,12 @@ public class ItemSet {
         result.treeGenerators.addAll(secondary.treeGenerators);
 
         for (String deletedItem : primary.removedItemNames) {
-            if (secondary.getItem(deletedItem).isPresent()) {
+            if (secondary.items.get(deletedItem).isPresent()) {
                 throw new ValidationException("The secondary set has item " + deletedItem + ", which is removed in the primary set");
             }
         }
         for (String deletedItem : secondary.removedItemNames) {
-            if (primary.getItem(deletedItem).isPresent()) {
+            if (primary.items.get(deletedItem).isPresent()) {
                 throw new ValidationException("The primary set has item " + deletedItem + ", which is removed in the secondary set");
             }
         }
@@ -148,21 +134,21 @@ public class ItemSet {
 
     private ExportSettingsValues exportSettings;
     public final CombinedResourcepackManager combinedResourcepacks = new CombinedResourcepackManager(this);
-    Collection<CustomTexture> textures;
+    public final TextureManager textures = new TextureManager(this);
     public final ArmorTextureManager armorTextures = new ArmorTextureManager(this);
     Collection<FancyPantsArmorTexture> fancyPantsArmorTextures;
-    Collection<CustomItem> items;
+    public final ItemManager items = new ItemManager(this);
     Collection<EquipmentSet> equipmentSets;
-    Collection<CustomDamageSource> damageSources;
-    Collection<CustomCraftingRecipe> craftingRecipes;
+    public final DamageSourceManager damageSources = new DamageSourceManager(this);
+    public final RecipeManager craftingRecipes = new RecipeManager(this);
     Collection<Upgrade> upgrades;
     public final BlockDropManager blockDrops = new BlockDropManager(this);
     Collection<MobDrop> mobDrops;
     public final ContainerManager containers = new ContainerManager(this);
     Collection<CustomFuelRegistry> fuelRegistries;
     Collection<EnergyType> energyTypes;
-    Collection<CustomSoundType> soundTypes;
-    Collection<CustomProjectile> projectiles;
+    public final SoundTypeManager soundTypes = new SoundTypeManager(this);
+    public final ProjectileManager projectiles = new ProjectileManager(this);
     Collection<ProjectileCover> projectileCovers;
     public final BlockManager blocks = new BlockManager(this);
     Collection<OreVeinGenerator> oreVeinGenerators;
@@ -191,20 +177,14 @@ public class ItemSet {
 
     private void initialize() {
         exportSettings = new ExportSettingsValues(false);
-        textures = new ArrayList<>();
         fancyPantsArmorTextures = new ArrayList<>();
-        items = new ArrayList<>();
         equipmentSets = new ArrayList<>();
-        damageSources = new ArrayList<>();
-        craftingRecipes = new ArrayList<>();
         upgrades = new ArrayList<>();
         mobDrops = new ArrayList<>();
         oreVeinGenerators = new ArrayList<>();
         treeGenerators = new ArrayList<>();
         fuelRegistries = new ArrayList<>();
         energyTypes = new ArrayList<>();
-        soundTypes = new ArrayList<>();
-        projectiles = new ArrayList<>();
         projectileCovers = new ArrayList<>();
 
         removedItemNames = new ArrayList<>();
@@ -214,16 +194,17 @@ public class ItemSet {
 
     public boolean isEmpty() {
         for (Collection<?> relevantCollection : new Collection<?>[]{
-                this.textures, this.fancyPantsArmorTextures, this.items, this.equipmentSets,
-                this.damageSources, this.craftingRecipes, this.upgrades, this.mobDrops,
+                this.fancyPantsArmorTextures, this.equipmentSets,
+                this.upgrades, this.mobDrops,
                 this.oreVeinGenerators, this.treeGenerators, this.fuelRegistries, this.energyTypes,
-                this.soundTypes, this.projectiles, this.projectileCovers, this.removedItemNames,
+                this.projectileCovers, this.removedItemNames,
         }) {
             if (!relevantCollection.isEmpty()) return false;
         }
 
         for (ModelManager<?, ?, ?> manager : new ModelManager<?, ?, ?>[] {
-                armorTextures, blockDrops, blocks, containers, combinedResourcepacks
+                textures, armorTextures, items, craftingRecipes, damageSources, blockDrops, blocks, containers,
+                combinedResourcepacks, soundTypes, projectiles
         }) {
             if (!manager.isEmpty()) return false;
         }
@@ -242,7 +223,7 @@ public class ItemSet {
         Map<CustomItemType, ItemDurabilityAssignments> assignmentMap = new EnumMap<>(CustomItemType.class);
 
         Map<CustomItemType, Set<Short>> lockedDamageAssignments = new EnumMap<>(CustomItemType.class);
-        for (CustomItemValues item : getItems()) {
+        for (CustomItemValues item : items) {
             if (!item.shouldUpdateAutomatically() && item.getItemDamage() > 0) {
                 Set<Short> lockedAssignments = lockedDamageAssignments.computeIfAbsent(item.getItemType(), k -> new HashSet<>());
                 if (!lockedAssignments.contains(item.getItemDamage())) {
@@ -264,8 +245,8 @@ public class ItemSet {
             }
         }
 
-        for (CustomItem itemModel : items) {
-            CustomItemValues item = itemModel.cloneValues();
+        for (CustomItemValues originalItem : items) {
+            CustomItemValues item = originalItem.copy(true);
             if (item.shouldUpdateAutomatically() || item.getItemDamage() <= 0) {
                 CustomItemType itemType = item.getItemType();
                 ItemDurabilityAssignments assignments = assignmentMap.get(itemType);
@@ -320,7 +301,7 @@ public class ItemSet {
                     }
                 }
 
-                itemModel.setValues(item);
+                this.items.getReference(originalItem.getName()).getModel().setValues(item);
             }
         }
 
@@ -368,7 +349,7 @@ public class ItemSet {
 
         if (targetSide == Side.EDITOR) {
             combinedResourcepacks.save(output, threadPool, targetSide);
-            saveParallelCollection(output, threadPool, textures, (texture, textureData) -> texture.getValues().save(textureData));
+            textures.save(output, threadPool, targetSide);
             armorTextures.save(output, threadPool, targetSide);
         } else {
             output.addLong(System.currentTimeMillis());
@@ -379,20 +360,20 @@ public class ItemSet {
                 (texture, textureData) -> texture.getValues().save(textureData, targetSide)
         );
         saveParallelCollection(output, threadPool, projectileCovers, (cover, coverData) -> cover.getValues().save(coverData, targetSide));
-        saveParallelCollection(output, threadPool, projectiles, (projectile, projectileData) -> projectile.getValues().save(projectileData));
-        saveParallelCollection(output, threadPool, items, (item, itemData) -> item.getValues().save(itemData, targetSide));
+        projectiles.save(output, threadPool, targetSide);
+        items.save(output, threadPool, targetSide);
         saveParallelCollection(output, threadPool, equipmentSets, (set, setData) -> set.getValues().save(setData));
-        saveParallelCollection(output, threadPool, damageSources, (source, sourceData) -> source.getValues().save(sourceData));
+        damageSources.save(output, threadPool, targetSide);
         blocks.save(output, threadPool, targetSide);
         saveParallelCollection(output, threadPool, oreVeinGenerators, (ores, oreData) -> ores.getValues().save(oreData));
         saveParallelCollection(output, threadPool, treeGenerators, (trees, treeData) -> trees.getValues().save(treeData));
-        saveParallelCollection(output, threadPool, craftingRecipes, (recipe, recipeData) -> recipe.getValues().save(recipeData));
+        craftingRecipes.save(output, threadPool, targetSide);
         saveParallelCollection(output, threadPool, upgrades, (upgrade, upgradeData) -> upgrade.getValues().save(upgradeData));
         blockDrops.save(output, threadPool, targetSide);
         saveParallelCollection(output, threadPool, mobDrops, (drop, dropData) -> drop.getValues().save(dropData));
         saveParallelCollection(output, threadPool, fuelRegistries, (registry, registryData) -> registry.getValues().save(registryData));
         saveParallelCollection(output, threadPool, energyTypes, (energy, energyData) -> energy.getValues().save(energyData));
-        saveParallelCollection(output, threadPool, soundTypes, (sound, soundData) -> sound.getValues().save(soundData, targetSide));
+        soundTypes.save(output, threadPool, targetSide);
         containers.save(output, threadPool, targetSide);
         saveParallelCollection(output, threadPool, removedItemNames, (itemName, itemData) -> itemData.addString(itemName));
 
@@ -504,7 +485,6 @@ public class ItemSet {
 
     private void initDefaults4() {
         this.projectileCovers = new ArrayList<>();
-        this.projectiles = new ArrayList<>();
         initDefaults5();
     }
 
@@ -530,7 +510,6 @@ public class ItemSet {
     private void initDefaults9() {
         this.equipmentSets = new ArrayList<>();
         this.energyTypes = new ArrayList<>();
-        this.soundTypes = new ArrayList<>();
         this.oreVeinGenerators = new ArrayList<>();
         this.treeGenerators = new ArrayList<>();
         initDefaults10();
@@ -539,7 +518,6 @@ public class ItemSet {
     private void initDefaults10() {
         this.exportSettings = new ExportSettingsValues(false);
         this.fancyPantsArmorTextures = new ArrayList<>();
-        this.damageSources = new ArrayList<>();
         this.upgrades = new ArrayList<>();
         initDefaults11();
     }
@@ -554,22 +532,6 @@ public class ItemSet {
         }
     }
 
-    private void loadTextures(BitInput input, boolean readEncoding, boolean expectCompressed) throws UnknownEncodingException {
-        if (side == Side.EDITOR) {
-            int numTextures = input.readInt();
-            this.textures = new ArrayList<>(numTextures);
-            for (int counter = 0; counter < numTextures; counter++) {
-                if (readEncoding) {
-                    this.textures.add(new CustomTexture(BaseTextureValues.load(input, expectCompressed)));
-                } else {
-                    this.textures.add(new CustomTexture(BaseTextureValues.load(input, BaseTextureValues.ENCODING_SIMPLE_1, expectCompressed)));
-                }
-            }
-        } else {
-            this.textures = new ArrayList<>(0);
-        }
-    }
-
     private void loadFancyPantsArmorTextures(BitInput input) throws UnknownEncodingException {
         int numFpTextures = input.readInt();
         this.fancyPantsArmorTextures = new ArrayList<>(numFpTextures);
@@ -578,27 +540,11 @@ public class ItemSet {
         }
     }
 
-    private void loadItems(BitInput input, boolean checkCustomModel) throws UnknownEncodingException {
-        int numItems = input.readInt();
-        this.items = new ArrayList<>(numItems);
-        for (int counter = 0; counter < numItems; counter++) {
-            this.items.add(new CustomItem(CustomItemValues.load(input, this, checkCustomModel)));
-        }
-    }
-
     private void loadEquipmentSets(BitInput input) throws UnknownEncodingException {
         int numEquipmentSets = input.readInt();
         this.equipmentSets = new ArrayList<>(numEquipmentSets);
         for (int counter = 0; counter < numEquipmentSets; counter++) {
             this.equipmentSets.add(new EquipmentSet(EquipmentSetValues.load(input, this)));
-        }
-    }
-
-    private void loadDamageSources(BitInput input) throws UnknownEncodingException {
-        int numDamageSources = input.readInt();
-        this.damageSources = new ArrayList<>(numDamageSources);
-        for (int counter = 0; counter < numDamageSources; counter++) {
-            this.damageSources.add(new CustomDamageSource(CustomDamageSourceValues.load(input)));
         }
     }
 
@@ -618,14 +564,6 @@ public class ItemSet {
         }
     }
 
-    private void loadCraftingRecipes(BitInput input) throws UnknownEncodingException {
-        int numRecipes = input.readInt();
-        this.craftingRecipes = new ArrayList<>(numRecipes);
-        for (int counter = 0; counter < numRecipes; counter++) {
-            this.craftingRecipes.add(new CustomCraftingRecipe(CraftingRecipeValues.load(input, this)));
-        }
-    }
-
     private void loadMobDrops(BitInput input) throws UnknownEncodingException {
         int numMobDrops = input.readInt();
         this.mobDrops = new ArrayList<>(numMobDrops);
@@ -642,14 +580,6 @@ public class ItemSet {
         }
     }
 
-    private void loadProjectiles(BitInput input) throws UnknownEncodingException {
-        int numProjectiles = input.readInt();
-        this.projectiles = new ArrayList<>(numProjectiles);
-        for (int counter = 0; counter < numProjectiles; counter++) {
-            this.projectiles.add(new CustomProjectile(CustomProjectileValues.load(input, this)));
-        }
-    }
-
     private void loadFuelRegistries(BitInput input) throws UnknownEncodingException {
         int numFuelRegistries = input.readInt();
         this.fuelRegistries = new ArrayList<>(numFuelRegistries);
@@ -663,14 +593,6 @@ public class ItemSet {
         this.energyTypes = new ArrayList<>(numEnergyTypes);
         for (int counter = 0; counter < numEnergyTypes; counter++) {
             this.energyTypes.add(new EnergyType(EnergyTypeValues.load(input)));
-        }
-    }
-
-    private void loadSoundTypes(BitInput input) throws UnknownEncodingException {
-        int numSoundTypes = input.readInt();
-        this.soundTypes = new ArrayList<>(numSoundTypes);
-        for (int counter = 0; counter < numSoundTypes; counter++) {
-            this.soundTypes.add(new CustomSoundType(CustomSoundTypeValues.load(input, this)));
         }
     }
 
@@ -695,15 +617,15 @@ public class ItemSet {
     }
 
     private void load1(BitInput input) throws UnknownEncodingException {
-        loadTextures(input, false, false);
-        loadItems(input, false);
-        loadCraftingRecipes(input);
+        textures.load(input, false, false);
+        items.loadWithoutModel(input);
+        craftingRecipes.load(input);
     }
 
     private void load2(BitInput input) throws UnknownEncodingException {
-        loadTextures(input, true, false);
-        loadItems(input, false);
-        loadCraftingRecipes(input);
+        textures.load(input, true, false);
+        items.loadWithoutModel(input);
+        craftingRecipes.load(input);
     }
 
     private void load3(BitInput input) throws UnknownEncodingException {
@@ -713,19 +635,19 @@ public class ItemSet {
     }
 
     private void load4(BitInput input) throws UnknownEncodingException {
-        loadTextures(input, true, false);
-        loadItems(input, true);
-        loadCraftingRecipes(input);
+        textures.load(input, true, false);
+        items.load(input);
+        craftingRecipes.load(input);
         blockDrops.load(input);
         loadMobDrops(input);
     }
 
     private void load5(BitInput input) throws UnknownEncodingException {
-        loadTextures(input, true, false);
+        textures.load(input, true, false);
         loadProjectileCovers(input);
-        loadProjectiles(input);
-        loadItems(input, true);
-        loadCraftingRecipes(input);
+        projectiles.load(input);
+        items.load(input);
+        craftingRecipes.load(input);
         blockDrops.load(input);
         loadMobDrops(input);
     }
@@ -775,12 +697,12 @@ public class ItemSet {
     private void load8(BitInput rawInput) throws IntegrityException, UnknownEncodingException {
         loadWithIntegrityCheck(rawInput, (input, hash) -> {
             loadExportTime(input);
-            loadTextures(input, true, true);
+            textures.load(input, true, true);
             armorTextures.load(input);
             loadProjectileCovers(input);
-            loadProjectiles(input);
-            loadItems(input, true);
-            loadCraftingRecipes(input);
+            projectiles.load(input);
+            items.load(input);
+            craftingRecipes.load(input);
             blockDrops.load(input);
             loadMobDrops(input);
             loadFuelRegistries(input);
@@ -792,13 +714,13 @@ public class ItemSet {
     private void load9(BitInput rawInput) throws IntegrityException, UnknownEncodingException {
         loadWithIntegrityCheck(rawInput, (input, hash) -> {
             loadExportTime(input);
-            loadTextures(input, true, true);
+            textures.load(input, true, true);
             armorTextures.load(input);
             loadProjectileCovers(input);
-            loadProjectiles(input);
-            loadItems(input, true);
+            projectiles.load(input);
+            items.load(input);
             blocks.load(input);
-            loadCraftingRecipes(input);
+            craftingRecipes.load(input);
             blockDrops.load(input);
             loadMobDrops(input);
             loadFuelRegistries(input);
@@ -810,21 +732,21 @@ public class ItemSet {
     private void load10(BitInput rawInput) throws IntegrityException, UnknownEncodingException {
         loadWithIntegrityCheck(rawInput, (input, hash) -> {
             loadExportTime(input);
-            loadTextures(input, true, true);
+            textures.load(input, true, true);
             armorTextures.load(input);
             loadProjectileCovers(input);
-            loadProjectiles(input);
-            loadItems(input, true);
+            projectiles.load(input);
+            items.load(input);
             loadEquipmentSets(input);
             blocks.load(input);
             loadOreVeinGenerators(input);
             loadTreeGenerators(input);
-            loadCraftingRecipes(input);
+            craftingRecipes.load(input);
             blockDrops.load(input);
             loadMobDrops(input);
             loadFuelRegistries(input);
             loadEnergyTypes(input);
-            loadSoundTypes(input);
+            soundTypes.load(input);
             containers.load(input);
             loadDeletedItemNames(input);
         });
@@ -835,24 +757,24 @@ public class ItemSet {
             this.exportSettings = ExportSettingsValues.load(input);
             loadExportTime(input);
             combinedResourcepacks.load(input);
-            loadTextures(input, true, true);
+            textures.load(input, true, true);
             armorTextures.load(input);
             loadFancyPantsArmorTextures(input);
             loadProjectileCovers(input);
-            loadProjectiles(input);
-            loadItems(input, true);
+            projectiles.load(input);
+            items.load(input);
             loadEquipmentSets(input);
-            loadDamageSources(input);
+            damageSources.load(input);
             blocks.load(input);
             loadOreVeinGenerators(input);
             loadTreeGenerators(input);
-            loadCraftingRecipes(input);
+            craftingRecipes.load(input);
             this.upgrades = CollectionHelper.load(input, input1 -> new Upgrade(UpgradeValues.load(input1, this)));
             blockDrops.load(input);
             loadMobDrops(input);
             loadFuelRegistries(input);
             loadEnergyTypes(input);
-            loadSoundTypes(input);
+            soundTypes.load(input);
             containers.load(input);
             loadDeletedItemNames(input);
         });
@@ -870,16 +792,8 @@ public class ItemSet {
         return exportTime;
     }
 
-    public CustomTexturesView getTextures() {
-        return new CustomTexturesView(textures);
-    }
-
     public FancyPantsArmorTexturesView getFancyPantsArmorTextures() {
         return new FancyPantsArmorTexturesView(fancyPantsArmorTextures);
-    }
-
-    public CustomItemsView getItems() {
-        return new CustomItemsView(items);
     }
 
     public Set<String> getRemovedItemNames() {
@@ -890,24 +804,12 @@ public class ItemSet {
         return new EquipmentSetsView(equipmentSets);
     }
 
-    public CustomDamageSourcesView getDamageSources() {
-        return new CustomDamageSourcesView(damageSources);
-    }
-
-    public CustomRecipesView getCraftingRecipes() {
-        return new CustomRecipesView(craftingRecipes);
-    }
-
     public UpgradesView getUpgrades() {
         return new UpgradesView(upgrades);
     }
 
     public MobDropsView getMobDrops() {
         return new MobDropsView(mobDrops);
-    }
-
-    public CustomProjectilesView getProjectiles() {
-        return new CustomProjectilesView(projectiles);
     }
 
     public ProjectileCoversView getProjectileCovers() {
@@ -922,24 +824,12 @@ public class ItemSet {
         return new EnergyTypesView(energyTypes);
     }
 
-    public CustomSoundTypesView getSoundTypes() {
-        return new CustomSoundTypesView(soundTypes);
-    }
-
     public OreVeinGeneratorsView getOreVeinGenerators() {
         return new OreVeinGeneratorsView(oreVeinGenerators);
     }
 
     public TreeGeneratorsView getTreeGenerators() {
         return new TreeGeneratorsView(treeGenerators);
-    }
-
-    public TextureReference getTextureReference(String textureName) throws NoSuchElementException {
-        if (finishedLoading) {
-            return new TextureReference(CollectionHelper.find(textures, texture -> texture.getValues().getName(), textureName).get());
-        } else {
-            return new TextureReference(textureName, this);
-        }
     }
 
     public FancyPantsArmorTextureReference getFancyPantsArmorTextureReference(UUID id) throws NoSuchElementException {
@@ -949,22 +839,6 @@ public class ItemSet {
             ).get());
         } else {
             return new FancyPantsArmorTextureReference(id, this);
-        }
-    }
-
-    public ItemReference getItemReference(String itemName) throws NoSuchElementException {
-        if (finishedLoading) {
-            return new ItemReference(CollectionHelper.find(items, item -> item.getValues().getName(), itemName).get());
-        } else {
-            return new ItemReference(itemName, this);
-        }
-    }
-
-    public CustomDamageSourceReference getDamageSourceReference(UUID damageSourceID) throws NoSuchElementException {
-        if (finishedLoading) {
-            return new CustomDamageSourceReference(CollectionHelper.find(damageSources, damageSource -> damageSource.getValues().getId(), damageSourceID).get());
-        } else {
-            return new CustomDamageSourceReference(damageSourceID, this);
         }
     }
 
@@ -992,22 +866,6 @@ public class ItemSet {
         }
     }
 
-    public SoundTypeReference getSoundTypeReference(UUID soundID) throws NoSuchElementException {
-        if (finishedLoading) {
-            return new SoundTypeReference(CollectionHelper.find(soundTypes, soundType -> soundType.getValues().getId(), soundID).get());
-        } else {
-            return new SoundTypeReference(soundID, this);
-        }
-    }
-
-    public ProjectileReference getProjectileReference(String projectileName) throws NoSuchElementException {
-        if (finishedLoading) {
-            return new ProjectileReference(CollectionHelper.find(projectiles, projectile -> projectile.getValues().getName(), projectileName).get());
-        } else {
-            return new ProjectileReference(projectileName, this);
-        }
-    }
-
     public ProjectileCoverReference getProjectileCoverReference(String coverName) throws NoSuchElementException {
         if (finishedLoading) {
             return new ProjectileCoverReference(CollectionHelper.find(projectileCovers, cover -> cover.getValues().getName(), coverName).get());
@@ -1016,20 +874,8 @@ public class ItemSet {
         }
     }
 
-    public Optional<BaseTextureValues> getTexture(String textureName) {
-        return CollectionHelper.find(textures, texture -> texture.getValues().getName(), textureName).map(CustomTexture::getValues);
-    }
-
     public Optional<FancyPantsArmorTextureValues> getFancyPantsArmorTexture(UUID id) {
         return CollectionHelper.find(fancyPantsArmorTextures, fpTexture -> fpTexture.getValues().getId(), id).map(FancyPantsArmorTexture::getValues);
-    }
-
-    public Optional<CustomItemValues> getItem(String itemName) {
-        return CollectionHelper.find(items, item -> item.getValues().getName(), itemName).map(CustomItem::getValues);
-    }
-
-    public Optional<CustomDamageSourceValues> getDamageSource(UUID damageSourceID) {
-        return CollectionHelper.find(damageSources, damageSource -> damageSource.getValues().getId(), damageSourceID).map(CustomDamageSource::getValues);
     }
 
     public Optional<UpgradeValues> getUpgrade(UUID upgradeID) {
@@ -1044,14 +890,6 @@ public class ItemSet {
         return CollectionHelper.find(energyTypes, energyType -> energyType.getValues().getId(), id).map(EnergyType::getValues);
     }
 
-    public Optional<CustomSoundTypeValues> getSoundType(UUID id) {
-        return CollectionHelper.find(soundTypes, soundType -> soundType.getValues().getId(), id).map(CustomSoundType::getValues);
-    }
-
-    public Optional<CustomProjectileValues> getProjectile(String projectileName) {
-        return CollectionHelper.find(projectiles, projectile -> projectile.getValues().getName(), projectileName).map(CustomProjectile::getValues);
-    }
-
     public Optional<ProjectileCoverValues> getProjectileCover(String coverName) {
         return CollectionHelper.find(projectileCovers, cover -> cover.getValues().getName(), coverName).map(ProjectileCover::getValues);
     }
@@ -1061,28 +899,12 @@ public class ItemSet {
         return collection.contains(model);
     }
 
-    public boolean isReferenceValid(TextureReference reference) {
-        return isReferenceValid(textures, reference.getModel());
-    }
-
     public boolean isReferenceValid(FancyPantsArmorTextureReference reference) {
         return isReferenceValid(fancyPantsArmorTextures, reference.getModel());
     }
 
-    public boolean isReferenceValid(ItemReference reference) {
-        return isReferenceValid(items, reference.getModel());
-    }
-
     public boolean isReferenceValid(EquipmentSetReference reference) {
         return isReferenceValid(equipmentSets, reference.getModel());
-    }
-
-    public boolean isReferenceValid(CustomDamageSourceReference reference) {
-        return isReferenceValid(damageSources, reference.getModel());
-    }
-
-    public boolean isReferenceValid(CraftingRecipeReference reference) {
-        return isReferenceValid(craftingRecipes, reference.getModel());
     }
 
     public boolean isReferenceValid(UpgradeReference reference) {
@@ -1109,14 +931,6 @@ public class ItemSet {
         return isReferenceValid(energyTypes, reference.getModel());
     }
 
-    public boolean isReferenceValid(SoundTypeReference reference) {
-        return isReferenceValid(soundTypes, reference.getModel());
-    }
-
-    public boolean isReferenceValid(ProjectileReference reference) {
-        return isReferenceValid(projectiles, reference.getModel());
-    }
-
     public boolean isReferenceValid(ProjectileCoverReference reference) {
         return isReferenceValid(projectileCovers, reference.getModel());
     }
@@ -1129,23 +943,13 @@ public class ItemSet {
         // Avoid annoying NullPointerException's by first doing a general validation check
         validate();
 
-        for (BaseTextureValues texture : getTextures()) {
-            Validation.scope(
-                    "Texture " + texture.getName(),
-                    () -> texture.validateExportVersion(version)
-            );
-        }
+        textures.validateExportVersion(version);
 
         for (FancyPantsArmorTextureValues fpTexture : getFancyPantsArmorTextures()) {
             Validation.scope("FP texture " + fpTexture.getName(), fpTexture::validateExportVersion, version);
         }
 
-        for (CustomItemValues item : getItems()) {
-            Validation.scope(
-                    "Item " + item.getName(),
-                    () -> item.validateExportVersion(version)
-            );
-        }
+        items.validateExportVersion(version);
 
         for (EquipmentSetValues equipmentSet : getEquipmentSets()) {
             Validation.scope(
@@ -1154,12 +958,7 @@ public class ItemSet {
             );
         }
 
-        for (CraftingRecipeValues recipe : getCraftingRecipes()) {
-            Validation.scope(
-                    "Recipe for " + recipe.getResult(),
-                    () -> recipe.validateExportVersion(version)
-            );
-        }
+        craftingRecipes.validateExportVersion(version);
 
         for (UpgradeValues upgrade : getUpgrades()) {
             Validation.scope("Upgrade " + upgrade.getName(), upgrade::validateExportVersion, version);
@@ -1174,12 +973,7 @@ public class ItemSet {
             );
         }
 
-        for (CustomProjectileValues projectile : getProjectiles()) {
-            Validation.scope(
-                    "Projectile " + projectile.getName(),
-                    () -> projectile.validateExportVersion(version)
-            );
-        }
+        projectiles.validateExportVersion(version);
 
         for (ProjectileCoverValues projectileCover : getProjectileCovers()) {
             Validation.scope(
@@ -1218,13 +1012,7 @@ public class ItemSet {
     }
 
     private void validate() throws ValidationException, ProgrammingValidationException {
-        for (CustomTexture texture : textures) {
-            Validation.scope(
-                    "Texture " + texture.getValues().getName(),
-                    () -> texture.getValues().validateComplete(this, texture.getValues().getName())
-            );
-        }
-        validateUniqueIDs("texture name", textures, texture -> texture.getValues().getName());
+        textures.validate();
 
         for (FancyPantsArmorTextureValues fpTexture : getFancyPantsArmorTextures()) {
             Validation.scope(
@@ -1236,14 +1024,7 @@ public class ItemSet {
         validateUniqueIDs("FP texture name", fancyPantsArmorTextures, fpTexture -> fpTexture.getValues().getName());
         validateUniqueIDs("FP texture RGB value", fancyPantsArmorTextures, fpTexture -> fpTexture.getValues().getRgb());
 
-        for (CustomItem item : items) {
-            Validation.scope(
-                    "Item " + item.getValues().getName(),
-                    () -> item.getValues().validateComplete(this, item.getValues().getName())
-            );
-        }
-        validateUniqueIDs("item name", items, item -> item.getValues().getName());
-
+        items.validate();
         for (EquipmentSet equipmentSet : equipmentSets) {
             Validation.scope(
                     "Equipment set " + equipmentSet.getValues(),
@@ -1251,20 +1032,8 @@ public class ItemSet {
             );
         }
 
-        for (CustomDamageSourceValues damageSource : getDamageSources()) {
-            Validation.scope(
-                    "Damage source " + damageSource.getName(),
-                    () -> damageSource.validateComplete(this, damageSource.getId())
-            );
-        }
-        validateUniqueIDs("Damage sources", damageSources, damageSource -> damageSource.getValues().getId());
-
-        for (CustomCraftingRecipe recipe : craftingRecipes) {
-            Validation.scope(
-                    "Recipe for " + recipe.getValues().getResult(),
-                    () -> recipe.getValues().validate(this, new CraftingRecipeReference(recipe))
-            );
-        }
+        damageSources.validate();
+        craftingRecipes.validate();
 
         for (UpgradeValues upgrade : getUpgrades()) {
             Validation.scope(
@@ -1283,13 +1052,7 @@ public class ItemSet {
             );
         }
 
-        for (CustomProjectile projectile : projectiles) {
-            Validation.scope(
-                    "Projectile " + projectile.getValues().getName(),
-                    () -> projectile.getValues().validate(this, projectile.getValues().getName())
-            );
-        }
-        validateUniqueIDs("projectile name", projectiles, projectile -> projectile.getValues().getName());
+        projectiles.validate();
 
         for (ProjectileCover projectileCover : projectileCovers) {
             Validation.scope(
@@ -1316,15 +1079,7 @@ public class ItemSet {
         validateUniqueIDs("energy type id", energyTypes, energyType -> energyType.getValues().getId());
         validateUniqueIDs("energy type name", energyTypes, energyType -> energyType.getValues().getName());
 
-        for (CustomSoundTypeValues soundType : getSoundTypes()) {
-            Validation.scope(
-                    "Sound type " + soundType.getName(),
-                    () -> soundType.validate(this, soundType.getId())
-            );
-        }
-        validateUniqueIDs("sound type id", soundTypes, soundType -> soundType.getValues().getId());
-        validateUniqueIDs("sound type name", soundTypes, soundType -> soundType.getValues().getName());
-
+        soundTypes.validate();
         blocks.validate();
 
         for (OreVeinGenerator oreVeinGenerator : oreVeinGenerators) {
@@ -1345,19 +1100,6 @@ public class ItemSet {
     public void setExportSettings(ExportSettingsValues newExportSettings) throws ValidationException, ProgrammingValidationException {
         newExportSettings.validate();
         this.exportSettings = newExportSettings;
-        maybeCreateBackup();
-    }
-
-    public void addTexture(BaseTextureValues newTexture) throws ValidationException, ProgrammingValidationException {
-        newTexture.validateComplete(this, null);
-        this.textures.add(new CustomTexture(newTexture));
-        maybeCreateBackup();
-    }
-
-    public void changeTexture(TextureReference textureToChange, BaseTextureValues newTextureValues) throws ValidationException, ProgrammingValidationException {
-        if (!isReferenceValid(textureToChange)) throw new ProgrammingValidationException("Texture to change is invalid");
-        newTextureValues.validateComplete(this, textureToChange.get().getName());
-        textureToChange.getModel().setValues(newTextureValues);
         maybeCreateBackup();
     }
 
@@ -1390,19 +1132,6 @@ public class ItemSet {
         maybeCreateBackup();
     }
 
-    public void addItem(CustomItemValues newItem) throws ValidationException, ProgrammingValidationException {
-        newItem.validateComplete(this, null);
-        this.items.add(new CustomItem(newItem));
-        maybeCreateBackup();
-    }
-
-    public void changeItem(ItemReference itemToChange, CustomItemValues newItemValues) throws ValidationException, ProgrammingValidationException {
-        if (!isReferenceValid(itemToChange)) throw new ProgrammingValidationException("Item to change is invalid");
-        newItemValues.validateComplete(this, itemToChange.get().getName());
-        itemToChange.getModel().setValues(newItemValues);
-        maybeCreateBackup();
-    }
-
     public void addEquipmentSet(EquipmentSetValues newEquipmentSet) throws ValidationException, ProgrammingValidationException {
         newEquipmentSet.validate(this);
         this.equipmentSets.add(new EquipmentSet(newEquipmentSet));
@@ -1415,35 +1144,6 @@ public class ItemSet {
         if (!isReferenceValid(setToChange)) throw new ProgrammingValidationException("Equipment set is invalid");
         newSetValues.validate(this);
         setToChange.getModel().setValues(newSetValues);
-        maybeCreateBackup();
-    }
-
-    public void addDamageSource(CustomDamageSourceValues newDamageSource) throws ValidationException, ProgrammingValidationException {
-        newDamageSource.validateComplete(this, null);
-        this.damageSources.add(new CustomDamageSource(newDamageSource));
-        maybeCreateBackup();
-    }
-
-    public void changeDamageSource(
-            CustomDamageSourceReference sourceToChange, CustomDamageSourceValues newSourceValues
-    ) throws ValidationException, ProgrammingValidationException {
-        newSourceValues.validateComplete(this, sourceToChange.get().getId());
-        sourceToChange.getModel().setValues(newSourceValues);
-        maybeCreateBackup();
-    }
-
-    public void addRecipe(CraftingRecipeValues newRecipe) throws ValidationException, ProgrammingValidationException {
-        newRecipe.validate(this, null);
-        this.craftingRecipes.add(new CustomCraftingRecipe(newRecipe));
-        maybeCreateBackup();
-    }
-
-    public void changeRecipe(
-            CraftingRecipeReference recipeToChange, CraftingRecipeValues newRecipeValues
-    ) throws ValidationException, ProgrammingValidationException {
-        if (!isReferenceValid(recipeToChange)) throw new ProgrammingValidationException("Recipe to change is invalid");
-        newRecipeValues.validate(this, recipeToChange);
-        recipeToChange.getModel().setValues(newRecipeValues);
         maybeCreateBackup();
     }
 
@@ -1472,19 +1172,6 @@ public class ItemSet {
         if (!isReferenceValid(dropToChange)) throw new ProgrammingValidationException("Mob drop to be changed is invalid");
         newValues.validate(this);
         dropToChange.getModel().setValues(newValues);
-        maybeCreateBackup();
-    }
-
-    public void addProjectile(CustomProjectileValues projectileToAdd) throws ValidationException, ProgrammingValidationException {
-        projectileToAdd.validate(this, null);
-        this.projectiles.add(new CustomProjectile(projectileToAdd));
-        maybeCreateBackup();
-    }
-
-    public void changeProjectile(ProjectileReference projectileToChange, CustomProjectileValues newValues) throws ValidationException, ProgrammingValidationException {
-        if (!isReferenceValid(projectileToChange)) throw new ProgrammingValidationException("Projectile to be changed is invalid");
-        newValues.validate(this, projectileToChange.get().getName());
-        projectileToChange.getModel().setValues(newValues);
         maybeCreateBackup();
     }
 
@@ -1530,21 +1217,6 @@ public class ItemSet {
         if (!isReferenceValid(energyToChange)) throw new ProgrammingValidationException("Energy type to change is invalid");
         newValues.validateComplete(this, energyToChange.get().getId());
         energyToChange.getModel().setValues(newValues);
-        maybeCreateBackup();
-    }
-
-    public void addSoundType(CustomSoundTypeValues soundToAdd) throws ValidationException, ProgrammingValidationException {
-        soundToAdd.validate(this, null);
-        this.soundTypes.add(new CustomSoundType(soundToAdd));
-        maybeCreateBackup();
-    }
-
-    public void changeSoundType(
-            SoundTypeReference soundToChange, CustomSoundTypeValues newValues
-    ) throws ValidationException, ProgrammingValidationException {
-        if (!isReferenceValid(soundToChange)) throw new ProgrammingValidationException("Sound type to change is invalid");
-        newValues.validate(this, soundToChange.get().getId());
-        soundToChange.getModel().setValues(newValues);
         maybeCreateBackup();
     }
 
@@ -1597,31 +1269,14 @@ public class ItemSet {
         maybeCreateBackup();
     }
 
-    public void removeTexture(TextureReference textureToRemove) throws ValidationException, ProgrammingValidationException {
-        removeModel(this.textures, textureToRemove.getModel());
-    }
-
     public void removeFancyPantsArmorTexture(
             FancyPantsArmorTextureReference textureToRemove
     ) throws ValidationException, ProgrammingValidationException {
         removeModel(this.fancyPantsArmorTextures, textureToRemove.getModel());
     }
 
-    public void removeItem(ItemReference itemToRemove) throws ValidationException, ProgrammingValidationException {
-        removeModel(this.items, itemToRemove.getModel());
-        this.removedItemNames.add(itemToRemove.getModel().getValues().getName());
-    }
-
     public void removeEquipmentSet(EquipmentSetReference setToRemove) throws ValidationException, ProgrammingValidationException {
         removeModel(this.equipmentSets, setToRemove.getModel());
-    }
-
-    public void removeDamageSource(CustomDamageSourceReference sourceToRemove) throws ValidationException, ProgrammingValidationException {
-        removeModel(this.damageSources, sourceToRemove.getModel());
-    }
-
-    public void removeCraftingRecipe(CraftingRecipeReference recipeToRemove) throws ValidationException, ProgrammingValidationException {
-        removeModel(this.craftingRecipes, recipeToRemove.getModel());
     }
 
     public void removeUpgrade(UpgradeReference upgradeToRemove) throws ValidationException, ProgrammingValidationException {
@@ -1630,10 +1285,6 @@ public class ItemSet {
 
     public void removeMobDrop(MobDropReference mobDropToRemove) throws ValidationException, ProgrammingValidationException {
         removeModel(this.mobDrops, mobDropToRemove.getModel());
-    }
-
-    public void removeProjectile(ProjectileReference projectileToRemove) throws ValidationException, ProgrammingValidationException {
-        removeModel(this.projectiles, projectileToRemove.getModel());
     }
 
     public void removeProjectileCover(ProjectileCoverReference coverToRemove) throws ValidationException, ProgrammingValidationException {
@@ -1654,10 +1305,6 @@ public class ItemSet {
 
     public void removeEnergyType(EnergyTypeReference energyToRemove) throws ValidationException, ProgrammingValidationException {
         removeModel(this.energyTypes, energyToRemove.getModel());
-    }
-
-    public void removeSoundType(SoundTypeReference soundToRemove) throws ValidationException, ProgrammingValidationException {
-        removeModel(this.soundTypes, soundToRemove.getModel());
     }
 
     public enum Side {

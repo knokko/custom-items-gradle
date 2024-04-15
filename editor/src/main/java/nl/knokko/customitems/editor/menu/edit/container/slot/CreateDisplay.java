@@ -96,7 +96,7 @@ public class CreateDisplay extends GuiMenu {
 		);
 		addComponent(new DynamicTextButton("Custom item", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new CollectionSelect<>(
-					itemSet.getItems().references(), selectedItem -> {
+					itemSet.items.references(), selectedItem -> {
 						selectedItemDisplay.setText(selectedItem.get().getName());
 						currentValues.setDisplayItem(CustomDisplayItemValues.createQuick(selectedItem));
 					}, candidate -> true, selectedItem -> selectedItem.get().getName(), this, false

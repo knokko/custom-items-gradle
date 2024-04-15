@@ -38,8 +38,8 @@ public class ChooseRequiredHeldItems extends GuiMenu {
 			GuiComponent returnMenu, String noSelectionString
 	) {
 		this.selectedItems = new ArrayList<>(selectedItems);
-		this.selectableItems = new ArrayList<>(itemSet.getItems().size());
-		for (ItemReference item : itemSet.getItems().references()) {
+		this.selectableItems = new ArrayList<>(itemSet.items.size());
+		for (ItemReference item : itemSet.items.references()) {
 			selectableItems.add(item);
 		}
 		this.selectableItems.removeAll(selectedItems);

@@ -302,7 +302,7 @@ public abstract class CustomItemValues extends ModelValues {
 
     protected void loadEditorOnlyProperties1(BitInput input, ItemSet itemSet, boolean checkCustomModel) {
         String textureName = input.readJavaString();
-        this.texture = itemSet.getTextureReference(textureName);
+        this.texture = itemSet.textures.getReference(textureName);
 
         if (checkCustomModel && input.readBoolean()) {
             this.model = new LegacyCustomItemModel(input.readByteArray());
@@ -360,7 +360,7 @@ public abstract class CustomItemValues extends ModelValues {
         if (encoding >= 4) {
             this.isTwoHanded = input.readBoolean();
             this.indestructible = input.readBoolean();
-            if (input.readBoolean()) this.customMeleeDamageSource = itemSet.getDamageSourceReference(new UUID(
+            if (input.readBoolean()) this.customMeleeDamageSource = itemSet.damageSources.getReference(new UUID(
                     input.readLong(), input.readLong())
             ); else this.customMeleeDamageSource = null;
         } else {
@@ -379,7 +379,7 @@ public abstract class CustomItemValues extends ModelValues {
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             if (encoding >= 3) {
                 String textureName = input.readString();
-                this.texture = itemSet.getTextureReference(textureName);
+                this.texture = itemSet.textures.getReference(textureName);
                 this.model = ItemModel.load(input);
                 if (encoding >= 4) {
                     this.wikiVisibility = WikiVisibility.valueOf(input.readString());
@@ -1234,7 +1234,7 @@ public abstract class CustomItemValues extends ModelValues {
         if (oldName != null && !oldName.equals(name)) {
             throw new ProgrammingValidationException("Changing the name of a custom item should not be possible");
         }
-        if (oldName == null && itemSet.getItem(name).isPresent()) {
+        if (oldName == null && itemSet.items.get(name).isPresent()) {
             throw new ValidationException("A custom item with name " + name + " already exists");
         }
 
@@ -1242,7 +1242,7 @@ public abstract class CustomItemValues extends ModelValues {
             throw new ValidationException("A custom item with name " + name + " was once deleted");
         }
 
-        if (!itemSet.isReferenceValid(texture)) {
+        if (!itemSet.textures.isValid(texture)) {
             throw new ProgrammingValidationException("The chosen texture is not (or no longer) valid");
         }
 
@@ -1254,7 +1254,7 @@ public abstract class CustomItemValues extends ModelValues {
             Validation.scope("Attack effects", attackEffectGroup::validate, itemSet);
         }
 
-        if (customMeleeDamageSource != null && !itemSet.isReferenceValid(customMeleeDamageSource)) {
+        if (customMeleeDamageSource != null && !itemSet.damageSources.isValid(customMeleeDamageSource)) {
             throw new ProgrammingValidationException("Custom melee damage source is invalid");
         }
     }

@@ -18,7 +18,7 @@ public class WikiTextureGenerator {
     public void generate(File texturesFolder) throws IOException {
         if (!texturesFolder.isDirectory() && !texturesFolder.mkdirs()) throw new IOException("Failed to create the textures folder");
 
-        for (BaseTextureValues texture : itemSet.getTextures()) {
+        for (BaseTextureValues texture : itemSet.textures) {
             ImageIO.write(texture.getImage(), "PNG", new File(texturesFolder + "/" + texture.getName() + ".png"));
         }
     }
