@@ -95,9 +95,9 @@ public class TestBackward11 {
     }
 
     static void testEquipmentSetsOld11(ItemSet set, int numEquipmentSets) {
-        assertEquals(numEquipmentSets, set.getEquipmentSets().size());
+        assertEquals(numEquipmentSets, set.equipmentSets.size());
 
-        assertTrue(set.getEquipmentSets().stream().anyMatch(equipmentSet -> {
+        assertTrue(set.equipmentSets.stream().anyMatch(equipmentSet -> {
             if (equipmentSet.getEntries().size() != 2) return false;
             if (equipmentSet.getEntryValue(
                     new EquipmentEntry(AttributeModifierValues.Slot.HEAD, set.items.getReference("helmet_two"))
@@ -200,7 +200,7 @@ public class TestBackward11 {
         assertTrue(container5.getSlot(2, 0) instanceof InputSlotValues);
         assertTrue(container5.getSlot(3, 0) instanceof OutputSlotValues);
 
-        EnergyTypeValues temperature = set.getEnergyTypes().stream().filter(energyType -> energyType.getName().equals("temperature")).findFirst().get();
+        EnergyTypeValues temperature = set.energyTypes.stream().filter(energyType -> energyType.getName().equals("temperature")).findFirst().get();
         EnergyIndicatorSlotValues energySlot = (EnergyIndicatorSlotValues) container5.getSlot(0, 0);
         assertEquals("temperature", energySlot.getEnergyType().getName());
         assertEquals(new IndicatorDomain(20, 70), energySlot.getIndicatorDomain());
@@ -224,17 +224,17 @@ public class TestBackward11 {
 
         assertEquals(2, recipe.getEnergy().size());
         assertTrue(recipe.getEnergy().contains(RecipeEnergyValues.createQuick(
-                set.getEnergyTypeReference(temperature.getId()), RecipeEnergyOperation.REQUIRE_AT_LEAST, 100
+                set.energyTypes.getReference(temperature.getId()), RecipeEnergyOperation.REQUIRE_AT_LEAST, 100
         )));
         assertTrue(recipe.getEnergy().contains(RecipeEnergyValues.createQuick(
-                set.getEnergyTypeReference(temperature.getId()), RecipeEnergyOperation.DECREASE, 100
+                set.energyTypes.getReference(temperature.getId()), RecipeEnergyOperation.DECREASE, 100
         )));
     }
 
     static void testEnergyTypesOld11(ItemSet set, int numEnergyTypes) {
-        assertEquals(numEnergyTypes, set.getEnergyTypes().size());
+        assertEquals(numEnergyTypes, set.energyTypes.size());
 
-        EnergyTypeValues temperature = set.getEnergyTypes().stream().filter(
+        EnergyTypeValues temperature = set.energyTypes.stream().filter(
                 energyType -> energyType.getName().equals("temperature")
         ).findFirst().get();
         assertEquals(-200, temperature.getMinValue());
@@ -278,7 +278,7 @@ public class TestBackward11 {
     }
 
     static void testOreVeinsNew11(ItemSet set, int numGenerators) {
-        assertEquals(numGenerators, set.getOreVeinGenerators().size());
+        assertEquals(numGenerators, set.oreGenerators.size());
 
         OreVeinGeneratorValues generator1 = new OreVeinGeneratorValues(true);
         ReplaceBlocksValues blocksToReplace = new ReplaceBlocksValues(true);
@@ -301,11 +301,11 @@ public class TestBackward11 {
         generator1.setMaxVeinSize(20);
         generator1.setMaxNumGrowAttempts(100);
 
-        assertTrue(set.getOreVeinGenerators().stream().anyMatch(generator -> generator.equals(generator1)));
+        assertTrue(set.oreGenerators.stream().anyMatch(generator -> generator.equals(generator1)));
     }
 
     static void testTreesNew11(ItemSet set, int numGenerators) {
-        assertEquals(numGenerators, set.getTreeGenerators().size());
+        assertEquals(numGenerators, set.treeGenerators.size());
 
         TreeGeneratorValues tree1 = new TreeGeneratorValues(true);
         tree1.setTreeType(CITreeType.REDWOOD);
@@ -327,7 +327,7 @@ public class TestBackward11 {
         tree1.setMaxNumTrees(3);
         tree1.setMaxNumAttempts(10);
 
-        assertTrue(set.getTreeGenerators().stream().anyMatch(generator -> generator.equals(tree1)));
+        assertTrue(set.treeGenerators.stream().anyMatch(generator -> generator.equals(tree1)));
     }
 
     static void testSoundsOld11(ItemSet set, int numSounds) {

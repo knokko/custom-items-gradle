@@ -58,9 +58,9 @@ public class SaveEqualityHelper {
                 }
             }
 
-            assertEquals(originalSet.getFancyPantsArmorTextures().size(), testSet.getFancyPantsArmorTextures().size());
-            for (FancyPantsArmorTextureValues originalTexture : originalSet.getFancyPantsArmorTextures()) {
-                FancyPantsArmorTextureValues testTexture = testSet.getFancyPantsArmorTexture(originalTexture.getId()).get();
+            assertEquals(originalSet.fancyPants.size(), testSet.fancyPants.size());
+            for (FancyPantsArmorTextureValues originalTexture : originalSet.fancyPants) {
+                FancyPantsArmorTextureValues testTexture = testSet.fancyPants.get(originalTexture.getId()).get();
 
                 // The frames are not present on the plug-in side
                 if (side == ItemSet.Side.PLUGIN) {
@@ -83,9 +83,9 @@ public class SaveEqualityHelper {
 
             assertEquals(originalSet.getRemovedItemNames(), testSet.getRemovedItemNames());
 
-            assertEquals(originalSet.getEquipmentSets().size(), testSet.getEquipmentSets().size());
-            for (EquipmentSetValues originalEquipmentSet : originalSet.getEquipmentSets()) {
-                assertTrue(testSet.getEquipmentSets().stream().anyMatch(candidate -> candidate.equals(originalEquipmentSet)));
+            assertEquals(originalSet.equipmentSets.size(), testSet.equipmentSets.size());
+            for (EquipmentSetValues originalEquipmentSet : originalSet.equipmentSets) {
+                assertTrue(testSet.equipmentSets.stream().anyMatch(candidate -> candidate.equals(originalEquipmentSet)));
             }
 
             assertEquals(originalSet.damageSources.size(), testSet.damageSources.size());
@@ -98,9 +98,9 @@ public class SaveEqualityHelper {
                 assertTrue(testSet.craftingRecipes.stream().anyMatch(candidate -> candidate.equals(originalRecipe)));
             }
 
-            assertEquals(originalSet.getUpgrades().size(), testSet.getUpgrades().size());
-            for (UpgradeValues originalUpgrade : originalSet.getUpgrades()) {
-                assertEquals(originalUpgrade, testSet.getUpgrade(originalUpgrade.getId()).get());
+            assertEquals(originalSet.upgrades.size(), testSet.upgrades.size());
+            for (UpgradeValues originalUpgrade : originalSet.upgrades) {
+                assertEquals(originalUpgrade, testSet.upgrades.get(originalUpgrade.getId()).get());
             }
 
             assertEquals(originalSet.blockDrops.size(), testSet.blockDrops.size());
@@ -108,19 +108,19 @@ public class SaveEqualityHelper {
                 assertTrue(testSet.blockDrops.stream().anyMatch(candidate -> candidate.equals(originalBlockDrop)));
             }
 
-            assertEquals(originalSet.getMobDrops().size(), testSet.getMobDrops().size());
-            for (MobDropValues originalMobDrop : originalSet.getMobDrops()) {
-                assertTrue(testSet.getMobDrops().stream().anyMatch(candidate -> candidate.equals(originalMobDrop)));
+            assertEquals(originalSet.mobDrops.size(), testSet.mobDrops.size());
+            for (MobDropValues originalMobDrop : originalSet.mobDrops) {
+                assertTrue(testSet.mobDrops.stream().anyMatch(candidate -> candidate.equals(originalMobDrop)));
             }
 
-            assertEquals(originalSet.getProjectileCovers().size(), testSet.getProjectileCovers().size());
+            assertEquals(originalSet.projectileCovers.size(), testSet.projectileCovers.size());
             if (side == ItemSet.Side.EDITOR) {
-                for (ProjectileCoverValues originalProjectileCover : originalSet.getProjectileCovers()) {
-                    assertEquals(originalProjectileCover, testSet.getProjectileCover(originalProjectileCover.getName()).get());
+                for (ProjectileCoverValues originalProjectileCover : originalSet.projectileCovers) {
+                    assertEquals(originalProjectileCover, testSet.projectileCovers.get(originalProjectileCover.getName()).get());
                 }
             } else {
-                for (ProjectileCoverValues originalProjectileCover : originalSet.getProjectileCovers()) {
-                    assertTrue(testSet.getProjectileCovers().stream().anyMatch(testProjectileCover ->
+                for (ProjectileCoverValues originalProjectileCover : originalSet.projectileCovers) {
+                    assertTrue(testSet.projectileCovers.stream().anyMatch(testProjectileCover ->
                             originalProjectileCover.getName().equals(testProjectileCover.getName())
                             && originalProjectileCover.getItemType() == testProjectileCover.getItemType()));
                 }
@@ -131,14 +131,14 @@ public class SaveEqualityHelper {
                 assertEquals(originalProjectile, testSet.projectiles.get(originalProjectile.getName()).get());
             }
 
-            assertEquals(originalSet.getFuelRegistries().size(), testSet.getFuelRegistries().size());
-            for (FuelRegistryValues originalFuelRegistry : originalSet.getFuelRegistries()) {
-                assertEquals(originalFuelRegistry, testSet.getFuelRegistry(originalFuelRegistry.getName()).get());
+            assertEquals(originalSet.fuelRegistries.size(), testSet.fuelRegistries.size());
+            for (FuelRegistryValues originalFuelRegistry : originalSet.fuelRegistries) {
+                assertEquals(originalFuelRegistry, testSet.fuelRegistries.get(originalFuelRegistry.getName()).get());
             }
 
-            assertEquals(originalSet.getEnergyTypes().size(), testSet.getEnergyTypes().size());
-            for (EnergyTypeValues originalEnergyType : originalSet.getEnergyTypes()) {
-                assertEquals(originalEnergyType, testSet.getEnergyType(originalEnergyType.getId()).get());
+            assertEquals(originalSet.energyTypes.size(), testSet.energyTypes.size());
+            for (EnergyTypeValues originalEnergyType : originalSet.energyTypes) {
+                assertEquals(originalEnergyType, testSet.energyTypes.get(originalEnergyType.getId()).get());
             }
 
             assertEquals(originalSet.soundTypes.size(), testSet.soundTypes.size());
@@ -156,14 +156,14 @@ public class SaveEqualityHelper {
                 assertEquals(originalBlock, testSet.blocks.get(originalBlock.getInternalID()).get());
             }
 
-            assertEquals(originalSet.getOreVeinGenerators().size(), testSet.getOreVeinGenerators().size());
-            for (OreVeinGeneratorValues generator : originalSet.getOreVeinGenerators()) {
-                assertTrue(testSet.getOreVeinGenerators().stream().anyMatch(candidate -> candidate.equals(generator)));
+            assertEquals(originalSet.oreGenerators.size(), testSet.oreGenerators.size());
+            for (OreVeinGeneratorValues generator : originalSet.oreGenerators) {
+                assertTrue(testSet.oreGenerators.stream().anyMatch(candidate -> candidate.equals(generator)));
             }
 
-            assertEquals(originalSet.getTreeGenerators().size(), testSet.getTreeGenerators().size());
-            for (TreeGeneratorValues generator : originalSet.getTreeGenerators()) {
-                assertTrue(testSet.getTreeGenerators().stream().anyMatch(candidate -> candidate.equals(generator)));
+            assertEquals(originalSet.treeGenerators.size(), testSet.treeGenerators.size());
+            for (TreeGeneratorValues generator : originalSet.treeGenerators) {
+                assertTrue(testSet.treeGenerators.stream().anyMatch(candidate -> candidate.equals(generator)));
             }
         }
     }

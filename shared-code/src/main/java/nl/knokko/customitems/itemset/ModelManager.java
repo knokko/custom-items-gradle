@@ -157,9 +157,14 @@ public abstract class ModelManager<
         return new ModelManager<M, V, R>.References();
     }
 
-    public void combine(ModelManager<M, V, R> primary, ModelManager<M, V, R> secondary) throws ValidationException {
+    public void combine(ModelManager<M, ?, ?> primary, ModelManager<M, ?, ?> secondary) throws ValidationException {
         elements.addAll(primary.elements);
         elements.addAll(secondary.elements);
+    }
+
+    public void combineUnchecked(ModelManager<?, ?, ?> primary, ModelManager<?, ?, ?> secondary) throws ValidationException {
+        //noinspection unchecked
+        combine((ModelManager<M, ?, ?>) primary, (ModelManager<M, ?, ?>) secondary);
     }
 
     private static class CollectionViewIterator<M extends Model<V>, V extends ModelValues> implements Iterator<V> {

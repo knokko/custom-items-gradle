@@ -40,9 +40,9 @@ public class TestBackward7 {
     }
 
     static void testFuelRegistries7(ItemSet set, int numFuelRegistries) {
-        assertEquals(numFuelRegistries, set.getFuelRegistries().size());
+        assertEquals(numFuelRegistries, set.fuelRegistries.size());
 
-        FuelRegistryValues registry1 = set.getFuelRegistry("registry1").get();
+        FuelRegistryValues registry1 = set.fuelRegistries.get("registry1").get();
         assertEquals("registry1", registry1.getName());
         assertEquals(2, registry1.getEntries().size());
         FuelEntryValues entry1 = registry1.getEntries().get(0);
@@ -82,7 +82,7 @@ public class TestBackward7 {
                     )), slot);
                 } else if (x == 3 && y == 1) {
                     assertEquals(FuelSlotValues.createQuick(
-                            "fuel1", set.getFuelRegistryReference("registry1"), null), slot);
+                            "fuel1", set.fuelRegistries.getReference("registry1"), null), slot);
                 } else if (x == 4 && y == 0) {
                     assertEquals(FuelIndicatorSlotValues.createQuick("fuel1", SlotDisplayValues.createQuick(
                             SimpleVanillaDisplayItemValues.createQuick(CIMaterial.LAVA_BUCKET),

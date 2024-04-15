@@ -170,9 +170,9 @@ public class TestBackward8 {
     }
 
     static void testFuelRegistriesOld8(ItemSet set, int numFuelRegistries) {
-        assertEquals(numFuelRegistries, set.getFuelRegistries().size());
+        assertEquals(numFuelRegistries, set.fuelRegistries.size());
 
-        FuelRegistryValues registry1 = set.getFuelRegistry("registry1").get();
+        FuelRegistryValues registry1 = set.fuelRegistries.get("registry1").get();
         assertEquals("registry1", registry1.getName());
         assertEquals(listOf(
                 FuelEntryValues.createQuick(SimpleVanillaIngredientValues.createQuick(CIMaterial.COAL, 1), 100),
@@ -183,7 +183,7 @@ public class TestBackward8 {
     static void testMobDropsOld8(ItemSet set, int numBlockDrops) {
         testMobDropsOld6(set, numBlockDrops);
 
-        Iterator<MobDropValues> mobDropIterator = set.getMobDrops().iterator();
+        Iterator<MobDropValues> mobDropIterator = set.mobDrops.iterator();
         testDefaultMobDrop8(mobDropIterator.next());
         testDefaultMobDrop8(mobDropIterator.next());
     }

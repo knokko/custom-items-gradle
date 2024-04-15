@@ -51,7 +51,7 @@ public class CreateEnergyIndicatorSlot extends GuiMenu {
 
         addComponent(
                 CollectionSelect.createButton(
-                        itemSet.getEnergyTypes().references(),
+                        itemSet.energyTypes.references(),
                         currentValues::setEnergyType,
                         energyTypeReference -> energyTypeReference.get().getName(),
                         currentValues.getEnergyTypeReference(), false

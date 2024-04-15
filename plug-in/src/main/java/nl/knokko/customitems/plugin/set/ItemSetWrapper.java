@@ -9,7 +9,6 @@ import nl.knokko.customitems.item.CIMaterial;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.item.CustomTridentValues;
 import nl.knokko.customitems.itemset.ItemReference;
-import nl.knokko.customitems.itemset.MobDropsView;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.plugin.container.ContainerInfo;
 import nl.knokko.customitems.plugin.set.item.CustomItemWrapper;
@@ -27,7 +26,7 @@ public class ItemSetWrapper {
 
     private Map<String, CustomItemValues> itemMap;
     private boolean hasCustomTridents;
-    private Map<CIEntityType, Collection<MobDrop>> mobDropMap;
+    private Map<CIEntityType, Collection<MobDropValues>> mobDropMap;
     private Map<BlockType, Collection<BlockDropValues>> blockDropMap;
     private Map<String, ContainerInfo> containerInfoMap;
     private Map<CustomContainerHost, List<CustomContainerValues>> containerHostMap;
@@ -55,13 +54,13 @@ public class ItemSetWrapper {
 
     private void initMobDropMap() {
         this.mobDropMap = new EnumMap<>(CIEntityType.class);
-        for (MobDropValues mobDrop : this.currentItemSet.getMobDrops()) {
+        for (MobDropValues mobDrop : this.currentItemSet.mobDrops) {
 
             if (!this.mobDropMap.containsKey(mobDrop.getEntityType())) {
                 this.mobDropMap.put(mobDrop.getEntityType(), new ArrayList<>());
             }
 
-            this.mobDropMap.get(mobDrop.getEntityType()).add(new MobDrop(mobDrop));
+            this.mobDropMap.get(mobDrop.getEntityType()).add(mobDrop);
         }
     }
 
@@ -125,12 +124,12 @@ public class ItemSetWrapper {
         return this.get().items.getReference(itemValues.getName());
     }
 
-    public MobDropsView getMobDrops(CIEntityType entityType) {
-        Collection<MobDrop> rawCollection = this.mobDropMap.get(entityType);
-        return new MobDropsView(rawCollection == null ? Collections.emptyList() : rawCollection);
+    public Iterable<MobDropValues> getMobDrops(CIEntityType entityType) {
+        Collection<MobDropValues> rawCollection = this.mobDropMap.get(entityType);
+        return rawCollection == null ? Collections.emptyList() : rawCollection;
     }
 
-    public Collection<MobDropValues> getMobDrops(Entity entity) {
+    public Iterable<MobDropValues> getMobDrops(Entity entity) {
 
         CIEntityType entityType;
         if (entity instanceof Player) {
@@ -147,7 +146,7 @@ public class ItemSetWrapper {
         }
 
         if (entityType == null) return Collections.emptyList();
-        MobDropsView potentialDrops = this.getMobDrops(entityType);
+        Iterable<MobDropValues> potentialDrops = this.getMobDrops(entityType);
 
         int numDrops = 0;
         for (MobDropValues mobDrop : potentialDrops) {

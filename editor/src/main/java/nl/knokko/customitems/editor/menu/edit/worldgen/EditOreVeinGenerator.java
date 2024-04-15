@@ -45,8 +45,8 @@ public class EditOreVeinGenerator extends GuiMenu {
 
         addComponent(new DynamicTextButton("Done", SAVE_BASE, SAVE_HOVER, () -> {
             String error;
-            if (toModify == null) error = Validation.toErrorString(() -> itemSet.addOreVeinGenerator(currentValues));
-            else error = Validation.toErrorString(() -> itemSet.changeOreVeinGenerator(toModify, currentValues));
+            if (toModify == null) error = Validation.toErrorString(() -> itemSet.oreGenerators.add(currentValues));
+            else error = Validation.toErrorString(() -> itemSet.oreGenerators.change(toModify, currentValues));
 
             if (error == null) state.getWindow().setMainComponent(returnMenu);
             else errorComponent.setText(error);

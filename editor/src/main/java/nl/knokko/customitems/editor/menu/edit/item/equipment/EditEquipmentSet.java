@@ -47,8 +47,8 @@ class EditEquipmentSet extends GuiMenu {
             currentValues.setBonuses(bonuses);
 
             String error;
-            if (toModify == null) error = Validation.toErrorString(() -> itemSet.addEquipmentSet(currentValues));
-            else error = Validation.toErrorString(() -> itemSet.changeEquipmentSet(toModify, currentValues));
+            if (toModify == null) error = Validation.toErrorString(() -> itemSet.equipmentSets.add(currentValues));
+            else error = Validation.toErrorString(() -> itemSet.equipmentSets.change(toModify, currentValues));
 
             if (error == null) state.getWindow().setMainComponent(returnMenu);
             else errorComponent.setText(error);

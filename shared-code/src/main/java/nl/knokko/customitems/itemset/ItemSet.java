@@ -1,42 +1,40 @@
 package nl.knokko.customitems.itemset;
 
 import nl.knokko.customitems.bithelper.*;
-import nl.knokko.customitems.container.energy.EnergyType;
-import nl.knokko.customitems.container.energy.EnergyTypeValues;
-import nl.knokko.customitems.container.fuel.FuelRegistryValues;
-import nl.knokko.customitems.container.fuel.CustomFuelRegistry;
-import nl.knokko.customitems.drops.*;
 import nl.knokko.customitems.encoding.SetEncoding;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.durability.ItemDurabilityAssignments;
 import nl.knokko.customitems.item.durability.ItemDurabilityClaim;
-import nl.knokko.customitems.item.equipment.EquipmentSet;
-import nl.knokko.customitems.item.equipment.EquipmentSetValues;
 import nl.knokko.customitems.item.model.DefaultItemModel;
 import nl.knokko.customitems.item.model.DefaultModelType;
 import nl.knokko.customitems.item.model.ItemModel;
 import nl.knokko.customitems.projectile.cover.ProjectileCoverValues;
-import nl.knokko.customitems.projectile.cover.ProjectileCover;
-import nl.knokko.customitems.recipe.upgrade.Upgrade;
-import nl.knokko.customitems.recipe.upgrade.UpgradeValues;
 import nl.knokko.customitems.settings.ExportSettingsValues;
 import nl.knokko.customitems.texture.*;
 import nl.knokko.customitems.trouble.IntegrityException;
 import nl.knokko.customitems.trouble.OutdatedItemSetException;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.*;
-import nl.knokko.customitems.worldgen.OreVeinGenerator;
-import nl.knokko.customitems.worldgen.OreVeinGeneratorValues;
-import nl.knokko.customitems.worldgen.TreeGenerator;
-import nl.knokko.customitems.worldgen.TreeGeneratorValues;
 
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class ItemSet {
+
+    static final Field[] MANAGER_FIELDS;
+
+    static {
+        List<Field> managerFields = new ArrayList<>();
+        Field[] fields = ItemSet.class.getDeclaredFields();
+        for (Field field : fields) {
+            if (ModelManager.class.isAssignableFrom(field.getType())) managerFields.add(field);
+        }
+
+        MANAGER_FIELDS = managerFields.toArray(new Field[0]);
+    }
 
     private static long generateFakeExportTime() {
         /*
@@ -58,48 +56,18 @@ public class ItemSet {
     public static ItemSet combine(ItemSet primary, ItemSet secondary) throws ValidationException {
 
         ItemSet result = new ItemSet(Side.EDITOR);
-
         result.exportSettings = primary.exportSettings;
-        result.combinedResourcepacks.combine(primary.combinedResourcepacks, secondary.combinedResourcepacks);
-        result.textures.combine(primary.textures, secondary.textures);
-        result.armorTextures.combine(primary.armorTextures, secondary.armorTextures);
-        result.fancyPantsArmorTextures.addAll(primary.fancyPantsArmorTextures);
-        result.fancyPantsArmorTextures.addAll(secondary.fancyPantsArmorTextures);
 
-        result.items.combine(primary.items, secondary.items);
-
-        result.equipmentSets.addAll(primary.equipmentSets);
-        result.equipmentSets.addAll(secondary.equipmentSets);
-
-        result.damageSources.combine(primary.damageSources, secondary.damageSources);
-
-        result.craftingRecipes.combine(primary.craftingRecipes, secondary.craftingRecipes);
-
-        result.upgrades.addAll(primary.upgrades);
-        result.upgrades.addAll(secondary.upgrades);
-
-        result.blockDrops.combine(primary.blockDrops, secondary.blockDrops);
-        result.mobDrops.addAll(primary.mobDrops);
-        result.mobDrops.addAll(secondary.mobDrops);
-
-        result.containers.combine(primary.containers, secondary.containers);
-        result.fuelRegistries.addAll(primary.fuelRegistries);
-        result.fuelRegistries.addAll(secondary.fuelRegistries);
-        result.energyTypes.addAll(primary.energyTypes);
-        result.energyTypes.addAll(secondary.energyTypes);
-
-        result.soundTypes.combine(primary.soundTypes, secondary.soundTypes);
-
-        result.projectiles.combine(primary.projectiles, secondary.projectiles);
-        result.projectileCovers.addAll(primary.projectileCovers);
-        result.projectileCovers.addAll(secondary.projectileCovers);
-
-        result.blocks.combine(primary.blocks, secondary.blocks);
-
-        result.oreVeinGenerators.addAll(primary.oreVeinGenerators);
-        result.oreVeinGenerators.addAll(secondary.oreVeinGenerators);
-        result.treeGenerators.addAll(primary.treeGenerators);
-        result.treeGenerators.addAll(secondary.treeGenerators);
+        for (Field field : MANAGER_FIELDS) {
+            try {
+                ModelManager<?, ?, ?> destination = (ModelManager<?, ?, ?>) field.get(result);
+                ModelManager<?, ?, ?> primaryManager = (ModelManager<?, ?, ?>) field.get(primary);
+                ModelManager<?, ?, ?> secondaryManager = (ModelManager<?, ?, ?>) field.get(secondary);
+                destination.combineUnchecked(primaryManager, secondaryManager);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         for (String deletedItem : primary.removedItemNames) {
             if (secondary.items.get(deletedItem).isPresent()) {
@@ -132,29 +100,28 @@ public class ItemSet {
 
     private long exportTime;
 
-    private ExportSettingsValues exportSettings;
+    private ExportSettingsValues exportSettings = new ExportSettingsValues(false);
     public final CombinedResourcepackManager combinedResourcepacks = new CombinedResourcepackManager(this);
     public final TextureManager textures = new TextureManager(this);
     public final ArmorTextureManager armorTextures = new ArmorTextureManager(this);
-    Collection<FancyPantsArmorTexture> fancyPantsArmorTextures;
+    public final FancyPantsManager fancyPants = new FancyPantsManager(this);
     public final ItemManager items = new ItemManager(this);
-    Collection<EquipmentSet> equipmentSets;
+    public final EquipmentSetManager equipmentSets = new EquipmentSetManager(this);
     public final DamageSourceManager damageSources = new DamageSourceManager(this);
     public final RecipeManager craftingRecipes = new RecipeManager(this);
-    Collection<Upgrade> upgrades;
+    public final UpgradeManager upgrades = new UpgradeManager(this);
     public final BlockDropManager blockDrops = new BlockDropManager(this);
-    Collection<MobDrop> mobDrops;
+    public final MobDropManager mobDrops = new MobDropManager(this);
     public final ContainerManager containers = new ContainerManager(this);
-    Collection<CustomFuelRegistry> fuelRegistries;
-    Collection<EnergyType> energyTypes;
+    public final FuelRegistryManager fuelRegistries = new FuelRegistryManager(this);
+    public final EnergyTypeManager energyTypes = new EnergyTypeManager(this);
     public final SoundTypeManager soundTypes = new SoundTypeManager(this);
     public final ProjectileManager projectiles = new ProjectileManager(this);
-    Collection<ProjectileCover> projectileCovers;
+    public final ProjectileCoverManager projectileCovers = new ProjectileCoverManager(this);
     public final BlockManager blocks = new BlockManager(this);
-    Collection<OreVeinGenerator> oreVeinGenerators;
-    Collection<TreeGenerator> treeGenerators;
-
-    Collection<String> removedItemNames;
+    public final OreGeneratorManager oreGenerators = new OreGeneratorManager(this);
+    public final TreeGeneratorManager treeGenerators = new TreeGeneratorManager(this);
+    Collection<String> removedItemNames = new ArrayList<>();
 
     // When non-null, this function should be called occasionally
     public Consumer<ItemSet> createBackup;
@@ -162,9 +129,8 @@ public class ItemSet {
     final Side side;
 
     public ItemSet(Side side) {
-        Checks.notNull(side);
-        this.side = side;
-        initialize();
+        this.side = Objects.requireNonNull(side);
+        this.finishedLoading = true;
     }
 
     public ItemSet(
@@ -175,37 +141,19 @@ public class ItemSet {
         load(input, allowOutdated);
     }
 
-    private void initialize() {
-        exportSettings = new ExportSettingsValues(false);
-        fancyPantsArmorTextures = new ArrayList<>();
-        equipmentSets = new ArrayList<>();
-        upgrades = new ArrayList<>();
-        mobDrops = new ArrayList<>();
-        oreVeinGenerators = new ArrayList<>();
-        treeGenerators = new ArrayList<>();
-        fuelRegistries = new ArrayList<>();
-        energyTypes = new ArrayList<>();
-        projectileCovers = new ArrayList<>();
-
-        removedItemNames = new ArrayList<>();
-
-        finishedLoading = true;
+    private Collection<ModelManager<?, ?, ?>> getAllManagers() {
+        return Arrays.stream(MANAGER_FIELDS).map(field -> {
+            try {
+                return (ModelManager<?, ?, ?>) field.get(this);
+            } catch (IllegalAccessException e) {
+                throw new Error(e);
+            }
+        }).collect(Collectors.toList());
     }
 
     public boolean isEmpty() {
-        for (Collection<?> relevantCollection : new Collection<?>[]{
-                this.fancyPantsArmorTextures, this.equipmentSets,
-                this.upgrades, this.mobDrops,
-                this.oreVeinGenerators, this.treeGenerators, this.fuelRegistries, this.energyTypes,
-                this.projectileCovers, this.removedItemNames,
-        }) {
-            if (!relevantCollection.isEmpty()) return false;
-        }
-
-        for (ModelManager<?, ?, ?> manager : new ModelManager<?, ?, ?>[] {
-                textures, armorTextures, items, craftingRecipes, damageSources, blockDrops, blocks, containers,
-                combinedResourcepacks, soundTypes, projectiles
-        }) {
+        if (!removedItemNames.isEmpty()) return false;
+        for (ModelManager<?, ?, ?> manager : getAllManagers()) {
             if (!manager.isEmpty()) return false;
         }
 
@@ -305,8 +253,8 @@ public class ItemSet {
             }
         }
 
-        for (ProjectileCover coverModel : projectileCovers) {
-            ProjectileCoverValues cover = coverModel.cloneValues();
+        for (ProjectileCoverValues originalCover : projectileCovers) {
+            ProjectileCoverValues cover = originalCover.copy(true);
             CustomItemType itemType = cover.getItemType();
 
             ItemDurabilityAssignments assignments = assignmentMap.get(itemType);
@@ -320,7 +268,7 @@ public class ItemSet {
             String resourcePath = "customprojectiles/" + cover.getName();
             assignments.claimList.add(new ItemDurabilityClaim(resourcePath, itemDamage, null));
 
-            coverModel.setValues(cover);
+            projectileCovers.getReference(originalCover.getName()).getModel().setValues(cover);
         }
 
         for (ItemDurabilityAssignments assignments : assignmentMap.values()) {
@@ -355,57 +303,27 @@ public class ItemSet {
             output.addLong(System.currentTimeMillis());
         }
 
-        saveParallelCollection(
-                output, threadPool, fancyPantsArmorTextures,
-                (texture, textureData) -> texture.getValues().save(textureData, targetSide)
-        );
-        saveParallelCollection(output, threadPool, projectileCovers, (cover, coverData) -> cover.getValues().save(coverData, targetSide));
+        fancyPants.save(output, threadPool, targetSide);
+        projectileCovers.save(output, threadPool, targetSide);
         projectiles.save(output, threadPool, targetSide);
         items.save(output, threadPool, targetSide);
-        saveParallelCollection(output, threadPool, equipmentSets, (set, setData) -> set.getValues().save(setData));
+        equipmentSets.save(output, threadPool, targetSide);
         damageSources.save(output, threadPool, targetSide);
         blocks.save(output, threadPool, targetSide);
-        saveParallelCollection(output, threadPool, oreVeinGenerators, (ores, oreData) -> ores.getValues().save(oreData));
-        saveParallelCollection(output, threadPool, treeGenerators, (trees, treeData) -> trees.getValues().save(treeData));
+        oreGenerators.save(output, threadPool, targetSide);
+        treeGenerators.save(output, threadPool, targetSide);
         craftingRecipes.save(output, threadPool, targetSide);
-        saveParallelCollection(output, threadPool, upgrades, (upgrade, upgradeData) -> upgrade.getValues().save(upgradeData));
+        upgrades.save(output, threadPool, targetSide);
         blockDrops.save(output, threadPool, targetSide);
-        saveParallelCollection(output, threadPool, mobDrops, (drop, dropData) -> drop.getValues().save(dropData));
-        saveParallelCollection(output, threadPool, fuelRegistries, (registry, registryData) -> registry.getValues().save(registryData));
-        saveParallelCollection(output, threadPool, energyTypes, (energy, energyData) -> energy.getValues().save(energyData));
+        mobDrops.save(output, threadPool, targetSide);
+        fuelRegistries.save(output, threadPool, targetSide);
+        energyTypes.save(output, threadPool, targetSide);
         soundTypes.save(output, threadPool, targetSide);
         containers.save(output, threadPool, targetSide);
-        saveParallelCollection(output, threadPool, removedItemNames, (itemName, itemData) -> itemData.addString(itemName));
+        output.addInt(removedItemNames.size());
+        for (String removed : removedItemNames) output.addString(removed);
 
         threadPool.shutdown();
-    }
-
-    private <T> void saveParallelCollection(
-            BitOutput output, ExecutorService threadPool,
-            Collection<T> elements, BiConsumer<T, ByteArrayBitOutput> saveElement
-    ) {
-        output.addInt(elements.size());
-        List<Future<ByteArrayBitOutput>> allElementsData = new ArrayList<>();
-        for (T element : elements) {
-            allElementsData.add(threadPool.submit(() -> {
-                ByteArrayBitOutput elementData = new ByteArrayBitOutput(10000);
-                saveElement.accept(element, elementData);
-                return elementData;
-            }));
-        }
-        allElementsData.forEach(futureData -> {
-            try {
-                ByteArrayBitOutput elementData = futureData.get();
-                output.addBytes(Arrays.copyOf(elementData.getBackingArray(), elementData.getByteIndex()));
-                if (elementData.getBoolIndex() > 0) {
-                    boolean[] last = BitHelper.byteToBinary(elementData.getBackingArray()[elementData.getByteIndex()]);
-                    for (int index = 0; index < elementData.getBoolIndex(); index++)
-                        output.addBoolean(last[index]);
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
-            }
-        });
     }
 
     private void load(
@@ -419,180 +337,43 @@ public class ItemSet {
         if (!allowOutdated && encoding < SetEncoding.ENCODING_11) throw new OutdatedItemSetException();
         if (encoding == SetEncoding.ENCODING_1) {
             load1(input);
-            initDefaults1();
         } else if (encoding == SetEncoding.ENCODING_2) {
             load2(input);
-            initDefaults2();
         } else if (encoding == SetEncoding.ENCODING_3) {
             load3(input);
-            initDefaults3();
         } else if (encoding == SetEncoding.ENCODING_4) {
             load4(input);
-            initDefaults4();
         } else if (encoding == SetEncoding.ENCODING_5) {
             load5(input);
-            initDefaults5();
         } else if (encoding == SetEncoding.ENCODING_6) {
             load6(input);
-            initDefaults6();
         } else if (encoding == SetEncoding.ENCODING_7) {
             load7(input);
-            initDefaults7();
         } else if (encoding == SetEncoding.ENCODING_8) {
             load8(input);
-            initDefaults8();
         } else if (encoding == SetEncoding.ENCODING_9) {
             load9(input);
-            initDefaults9();
         } else if (encoding == SetEncoding.ENCODING_10) {
             load10(input);
-            initDefaults10();
         } else if (encoding == SetEncoding.ENCODING_11) {
             load11(input);
-            initDefaults11();
         } else {
             throw new UnknownEncodingException("ItemSet", encoding);
         }
         finishedLoading = true;
 
         // Ensure that all references find their model (this must happen before the user can rename models)
-        for (IntBasedReference<?, ?> intReference : intReferences) {
-            intReference.get();
-        }
-        for (StringBasedReference<?, ?> stringReference : stringReferences) {
-            stringReference.get();
-        }
-        for (UUIDBasedReference<?, ?> uuidReference : uuidReferences) {
-            uuidReference.get();
-        }
+        for (IntBasedReference<?, ?> intReference : intReferences) intReference.get();
+        for (StringBasedReference<?, ?> stringReference : stringReferences) stringReference.get();
+        for (UUIDBasedReference<?, ?> uuidReference : uuidReferences) uuidReference.get();
         intReferences = null;
         stringReferences = null;
         uuidReferences = null;
     }
 
-    private void initDefaults1() {
-        initDefaults2();
-    }
-
-    private void initDefaults2() {
-        this.mobDrops = new ArrayList<>();
-        initDefaults3();
-    }
-
-    private void initDefaults3() {
-        initDefaults4();
-    }
-
-    private void initDefaults4() {
-        this.projectileCovers = new ArrayList<>();
-        initDefaults5();
-    }
-
-    private void initDefaults5() {
-        this.exportTime = generateFakeExportTime();
-        initDefaults6();
-    }
-
-    private void initDefaults6() {
-        this.fuelRegistries = new ArrayList<>();
-        this.initDefaults7();
-    }
-
-    private void initDefaults7() {
-        this.removedItemNames = new ArrayList<>();
-        initDefaults8();
-    }
-
-    private void initDefaults8() {
-        initDefaults9();
-    }
-
-    private void initDefaults9() {
-        this.equipmentSets = new ArrayList<>();
-        this.energyTypes = new ArrayList<>();
-        this.oreVeinGenerators = new ArrayList<>();
-        this.treeGenerators = new ArrayList<>();
-        initDefaults10();
-    }
-
-    private void initDefaults10() {
-        this.exportSettings = new ExportSettingsValues(false);
-        this.fancyPantsArmorTextures = new ArrayList<>();
-        this.upgrades = new ArrayList<>();
-        initDefaults11();
-    }
-
-    private void initDefaults11() {
-        // Nothing to be done until encoding 12 has been made
-    }
-
     private void loadExportTime(BitInput input) {
         if (side == Side.PLUGIN) {
             this.exportTime = input.readLong();
-        }
-    }
-
-    private void loadFancyPantsArmorTextures(BitInput input) throws UnknownEncodingException {
-        int numFpTextures = input.readInt();
-        this.fancyPantsArmorTextures = new ArrayList<>(numFpTextures);
-        for (int counter = 0; counter < numFpTextures; counter++) {
-            this.fancyPantsArmorTextures.add(new FancyPantsArmorTexture(FancyPantsArmorTextureValues.load(input, side)));
-        }
-    }
-
-    private void loadEquipmentSets(BitInput input) throws UnknownEncodingException {
-        int numEquipmentSets = input.readInt();
-        this.equipmentSets = new ArrayList<>(numEquipmentSets);
-        for (int counter = 0; counter < numEquipmentSets; counter++) {
-            this.equipmentSets.add(new EquipmentSet(EquipmentSetValues.load(input, this)));
-        }
-    }
-
-    private void loadOreVeinGenerators(BitInput input) throws UnknownEncodingException {
-        int numGenerators = input.readInt();
-        this.oreVeinGenerators = new ArrayList<>(numGenerators);
-        for (int counter = 0; counter < numGenerators; counter++) {
-            this.oreVeinGenerators.add(new OreVeinGenerator(OreVeinGeneratorValues.load(input, this)));
-        }
-    }
-
-    private void loadTreeGenerators(BitInput input) throws UnknownEncodingException {
-        int numGenerators = input.readInt();
-        this.treeGenerators = new ArrayList<>(numGenerators);
-        for (int counter = 0; counter < numGenerators; counter++) {
-            this.treeGenerators.add(new TreeGenerator(TreeGeneratorValues.load(input, this)));
-        }
-    }
-
-    private void loadMobDrops(BitInput input) throws UnknownEncodingException {
-        int numMobDrops = input.readInt();
-        this.mobDrops = new ArrayList<>(numMobDrops);
-        for (int counter = 0; counter < numMobDrops; counter++) {
-            this.mobDrops.add(new MobDrop(MobDropValues.load(input, this)));
-        }
-    }
-
-    private void loadProjectileCovers(BitInput input) throws UnknownEncodingException {
-        int numProjectileCovers = input.readInt();
-        this.projectileCovers = new ArrayList<>(numProjectileCovers);
-        for (int counter = 0; counter < numProjectileCovers; counter++) {
-            this.projectileCovers.add(new ProjectileCover(ProjectileCoverValues.load(input, this)));
-        }
-    }
-
-    private void loadFuelRegistries(BitInput input) throws UnknownEncodingException {
-        int numFuelRegistries = input.readInt();
-        this.fuelRegistries = new ArrayList<>(numFuelRegistries);
-        for (int counter = 0; counter < numFuelRegistries; counter++) {
-            this.fuelRegistries.add(new CustomFuelRegistry(FuelRegistryValues.load(input, this)));
-        }
-    }
-
-    private void loadEnergyTypes(BitInput input) throws UnknownEncodingException {
-        int numEnergyTypes = input.readInt();
-        this.energyTypes = new ArrayList<>(numEnergyTypes);
-        for (int counter = 0; counter < numEnergyTypes; counter++) {
-            this.energyTypes.add(new EnergyType(EnergyTypeValues.load(input)));
         }
     }
 
@@ -617,12 +398,14 @@ public class ItemSet {
     }
 
     private void load1(BitInput input) throws UnknownEncodingException {
+        exportTime = generateFakeExportTime();
         textures.load(input, false, false);
         items.loadWithoutModel(input);
         craftingRecipes.load(input);
     }
 
     private void load2(BitInput input) throws UnknownEncodingException {
+        exportTime = generateFakeExportTime();
         textures.load(input, true, false);
         items.loadWithoutModel(input);
         craftingRecipes.load(input);
@@ -631,25 +414,27 @@ public class ItemSet {
     private void load3(BitInput input) throws UnknownEncodingException {
         load2(input);
         blockDrops.load(input);
-        loadMobDrops(input);
+        mobDrops.load(input);
     }
 
     private void load4(BitInput input) throws UnknownEncodingException {
+        exportTime = generateFakeExportTime();
         textures.load(input, true, false);
         items.load(input);
         craftingRecipes.load(input);
         blockDrops.load(input);
-        loadMobDrops(input);
+        mobDrops.load(input);
     }
 
     private void load5(BitInput input) throws UnknownEncodingException {
+        exportTime = generateFakeExportTime();
         textures.load(input, true, false);
-        loadProjectileCovers(input);
+        projectileCovers.load(input);
         projectiles.load(input);
         items.load(input);
         craftingRecipes.load(input);
         blockDrops.load(input);
-        loadMobDrops(input);
+        mobDrops.load(input);
     }
 
     private interface LoadFunction {
@@ -689,7 +474,7 @@ public class ItemSet {
         loadWithIntegrityCheck(rawInput, (input, hash) -> {
             this.exportTime = -Math.abs(hash);
             load5(input);
-            loadFuelRegistries(input);
+            fuelRegistries.load(input);
             containers.load(input);
         });
     }
@@ -699,13 +484,13 @@ public class ItemSet {
             loadExportTime(input);
             textures.load(input, true, true);
             armorTextures.load(input);
-            loadProjectileCovers(input);
+            projectileCovers.load(input);
             projectiles.load(input);
             items.load(input);
             craftingRecipes.load(input);
             blockDrops.load(input);
-            loadMobDrops(input);
-            loadFuelRegistries(input);
+            mobDrops.load(input);
+            fuelRegistries.load(input);
             containers.load(input);
             loadDeletedItemNames(input);
         });
@@ -716,14 +501,14 @@ public class ItemSet {
             loadExportTime(input);
             textures.load(input, true, true);
             armorTextures.load(input);
-            loadProjectileCovers(input);
+            projectileCovers.load(input);
             projectiles.load(input);
             items.load(input);
             blocks.load(input);
             craftingRecipes.load(input);
             blockDrops.load(input);
-            loadMobDrops(input);
-            loadFuelRegistries(input);
+            mobDrops.load(input);
+            fuelRegistries.load(input);
             containers.load(input);
             loadDeletedItemNames(input);
         });
@@ -734,18 +519,18 @@ public class ItemSet {
             loadExportTime(input);
             textures.load(input, true, true);
             armorTextures.load(input);
-            loadProjectileCovers(input);
+            projectileCovers.load(input);
             projectiles.load(input);
             items.load(input);
-            loadEquipmentSets(input);
+            equipmentSets.load(input);
             blocks.load(input);
-            loadOreVeinGenerators(input);
-            loadTreeGenerators(input);
+            oreGenerators.load(input);
+            treeGenerators.load(input);
             craftingRecipes.load(input);
             blockDrops.load(input);
-            loadMobDrops(input);
-            loadFuelRegistries(input);
-            loadEnergyTypes(input);
+            mobDrops.load(input);
+            fuelRegistries.load(input);
+            energyTypes.load(input);
             soundTypes.load(input);
             containers.load(input);
             loadDeletedItemNames(input);
@@ -759,21 +544,21 @@ public class ItemSet {
             combinedResourcepacks.load(input);
             textures.load(input, true, true);
             armorTextures.load(input);
-            loadFancyPantsArmorTextures(input);
-            loadProjectileCovers(input);
+            fancyPants.load(input);
+            projectileCovers.load(input);
             projectiles.load(input);
             items.load(input);
-            loadEquipmentSets(input);
+            equipmentSets.load(input);
             damageSources.load(input);
             blocks.load(input);
-            loadOreVeinGenerators(input);
-            loadTreeGenerators(input);
+            oreGenerators.load(input);
+            treeGenerators.load(input);
             craftingRecipes.load(input);
-            this.upgrades = CollectionHelper.load(input, input1 -> new Upgrade(UpgradeValues.load(input1, this)));
+            upgrades.load(input);
             blockDrops.load(input);
-            loadMobDrops(input);
-            loadFuelRegistries(input);
-            loadEnergyTypes(input);
+            mobDrops.load(input);
+            fuelRegistries.load(input);
+            energyTypes.load(input);
             soundTypes.load(input);
             containers.load(input);
             loadDeletedItemNames(input);
@@ -792,147 +577,8 @@ public class ItemSet {
         return exportTime;
     }
 
-    public FancyPantsArmorTexturesView getFancyPantsArmorTextures() {
-        return new FancyPantsArmorTexturesView(fancyPantsArmorTextures);
-    }
-
     public Set<String> getRemovedItemNames() {
         return new HashSet<>(removedItemNames);
-    }
-
-    public EquipmentSetsView getEquipmentSets() {
-        return new EquipmentSetsView(equipmentSets);
-    }
-
-    public UpgradesView getUpgrades() {
-        return new UpgradesView(upgrades);
-    }
-
-    public MobDropsView getMobDrops() {
-        return new MobDropsView(mobDrops);
-    }
-
-    public ProjectileCoversView getProjectileCovers() {
-        return new ProjectileCoversView(projectileCovers);
-    }
-
-    public FuelRegistriesView getFuelRegistries() {
-        return new FuelRegistriesView(fuelRegistries);
-    }
-
-    public EnergyTypesView getEnergyTypes() {
-        return new EnergyTypesView(energyTypes);
-    }
-
-    public OreVeinGeneratorsView getOreVeinGenerators() {
-        return new OreVeinGeneratorsView(oreVeinGenerators);
-    }
-
-    public TreeGeneratorsView getTreeGenerators() {
-        return new TreeGeneratorsView(treeGenerators);
-    }
-
-    public FancyPantsArmorTextureReference getFancyPantsArmorTextureReference(UUID id) throws NoSuchElementException {
-        if (finishedLoading) {
-            return new FancyPantsArmorTextureReference(CollectionHelper.find(
-                    fancyPantsArmorTextures, fpTexture -> fpTexture.getValues().getId(), id
-            ).get());
-        } else {
-            return new FancyPantsArmorTextureReference(id, this);
-        }
-    }
-
-    public UpgradeReference getUpgradeReference(UUID upgradeID) throws NoSuchElementException {
-        if (finishedLoading) {
-            return new UpgradeReference(CollectionHelper.find(upgrades, upgrade -> upgrade.getValues().getId(), upgradeID).get());
-        } else {
-            return new UpgradeReference(upgradeID, this);
-        }
-    }
-
-    public FuelRegistryReference getFuelRegistryReference(String registryName) throws NoSuchElementException {
-        if (finishedLoading) {
-            return new FuelRegistryReference(CollectionHelper.find(fuelRegistries, registry -> registry.getValues().getName(), registryName).get());
-        } else {
-            return new FuelRegistryReference(registryName, this);
-        }
-    }
-
-    public EnergyTypeReference getEnergyTypeReference(UUID typeID) throws NoSuchElementException {
-        if (finishedLoading) {
-            return new EnergyTypeReference(CollectionHelper.find(energyTypes, energyType -> energyType.getValues().getId(), typeID).get());
-        } else {
-            return new EnergyTypeReference(typeID, this);
-        }
-    }
-
-    public ProjectileCoverReference getProjectileCoverReference(String coverName) throws NoSuchElementException {
-        if (finishedLoading) {
-            return new ProjectileCoverReference(CollectionHelper.find(projectileCovers, cover -> cover.getValues().getName(), coverName).get());
-        } else {
-            return new ProjectileCoverReference(coverName, this);
-        }
-    }
-
-    public Optional<FancyPantsArmorTextureValues> getFancyPantsArmorTexture(UUID id) {
-        return CollectionHelper.find(fancyPantsArmorTextures, fpTexture -> fpTexture.getValues().getId(), id).map(FancyPantsArmorTexture::getValues);
-    }
-
-    public Optional<UpgradeValues> getUpgrade(UUID upgradeID) {
-        return CollectionHelper.find(upgrades, upgrade -> upgrade.getValues().getId(), upgradeID).map(Upgrade::getValues);
-    }
-
-    public Optional<FuelRegistryValues> getFuelRegistry(String registryName) {
-        return CollectionHelper.find(fuelRegistries, registry -> registry.getValues().getName(), registryName).map(CustomFuelRegistry::getValues);
-    }
-
-    public Optional<EnergyTypeValues> getEnergyType(UUID id) {
-        return CollectionHelper.find(energyTypes, energyType -> energyType.getValues().getId(), id).map(EnergyType::getValues);
-    }
-
-    public Optional<ProjectileCoverValues> getProjectileCover(String coverName) {
-        return CollectionHelper.find(projectileCovers, cover -> cover.getValues().getName(), coverName).map(ProjectileCover::getValues);
-    }
-
-    private <T> boolean isReferenceValid(Collection<T> collection, T model) {
-        if (model == null) return false;
-        return collection.contains(model);
-    }
-
-    public boolean isReferenceValid(FancyPantsArmorTextureReference reference) {
-        return isReferenceValid(fancyPantsArmorTextures, reference.getModel());
-    }
-
-    public boolean isReferenceValid(EquipmentSetReference reference) {
-        return isReferenceValid(equipmentSets, reference.getModel());
-    }
-
-    public boolean isReferenceValid(UpgradeReference reference) {
-        return isReferenceValid(upgrades, reference.getModel());
-    }
-
-    public boolean isReferenceValid(MobDropReference reference) {
-        return isReferenceValid(mobDrops, reference.getModel());
-    }
-
-    public boolean isReferenceValid(OreVeinGeneratorReference reference) {
-        return isReferenceValid(oreVeinGenerators, reference.getModel());
-    }
-
-    public boolean isReferenceValid(TreeGeneratorReference reference) {
-        return isReferenceValid(treeGenerators, reference.getModel());
-    }
-
-    public boolean isReferenceValid(FuelRegistryReference reference) {
-        return isReferenceValid(fuelRegistries, reference.getModel());
-    }
-
-    public boolean isReferenceValid(EnergyTypeReference reference) {
-        return isReferenceValid(energyTypes, reference.getModel());
-    }
-
-    public boolean isReferenceValid(ProjectileCoverReference reference) {
-        return isReferenceValid(projectileCovers, reference.getModel());
     }
 
     public boolean hasItemBeenDeleted(String itemName) {
@@ -943,368 +589,17 @@ public class ItemSet {
         // Avoid annoying NullPointerException's by first doing a general validation check
         validate();
 
-        textures.validateExportVersion(version);
-
-        for (FancyPantsArmorTextureValues fpTexture : getFancyPantsArmorTextures()) {
-            Validation.scope("FP texture " + fpTexture.getName(), fpTexture::validateExportVersion, version);
-        }
-
-        items.validateExportVersion(version);
-
-        for (EquipmentSetValues equipmentSet : getEquipmentSets()) {
-            Validation.scope(
-                    "Equipment set " + equipmentSet,
-                    () -> equipmentSet.validateExportVersion(version)
-            );
-        }
-
-        craftingRecipes.validateExportVersion(version);
-
-        for (UpgradeValues upgrade : getUpgrades()) {
-            Validation.scope("Upgrade " + upgrade.getName(), upgrade::validateExportVersion, version);
-        }
-
-        blockDrops.validateExportVersion(version);
-
-        for (MobDropValues mobDrop : getMobDrops()) {
-            Validation.scope(
-                    "Mob drop for " + mobDrop.getEntityType(),
-                    () -> mobDrop.validateExportVersion(version)
-            );
-        }
-
-        projectiles.validateExportVersion(version);
-
-        for (ProjectileCoverValues projectileCover : getProjectileCovers()) {
-            Validation.scope(
-                    "Projectile cover " + projectileCover.getName(),
-                    () -> projectileCover.validateExportVersion(version)
-            );
-        }
-
-        for (FuelRegistryValues fuelRegistry : getFuelRegistries()) {
-            Validation.scope(
-                    "Fuel registry " + fuelRegistry.getName(),
-                    () -> fuelRegistry.validateExportVersion(version)
-            );
-        }
-
-        blocks.validateExportVersion(version);
-
-        for (OreVeinGeneratorValues oreVein : getOreVeinGenerators()) {
-            Validation.scope("Ore vein generator " + oreVein, oreVein::validateExportVersion, version);
-        }
-
-        for (TreeGeneratorValues treeGenerator : getTreeGenerators()) {
-            Validation.scope("Tree generator " + treeGenerator, treeGenerator::validateExportVersion, version);
-        }
-    }
-
-    private <M, I> void validateUniqueIDs(
-            String description, Collection<M> collection, Function<M, I> getID
-    ) throws ProgrammingValidationException {
-        Set<I> foundIDs = new HashSet<>(collection.size());
-        for (M element : collection) {
-            I id = getID.apply(element);
-            if (foundIDs.contains(id)) throw new ProgrammingValidationException("Duplicate " + description + " " + id);
-            foundIDs.add(id);
-        }
+        for (ModelManager<?, ?, ?> manager : getAllManagers()) manager.validateExportVersion(version);
     }
 
     private void validate() throws ValidationException, ProgrammingValidationException {
-        textures.validate();
-
-        for (FancyPantsArmorTextureValues fpTexture : getFancyPantsArmorTextures()) {
-            Validation.scope(
-                    "FP texture " + fpTexture.getName(),
-                    () -> fpTexture.validate(this, fpTexture.getId())
-            );
-        }
-        validateUniqueIDs("FP texture ID", fancyPantsArmorTextures, fpTexture -> fpTexture.getValues().getId());
-        validateUniqueIDs("FP texture name", fancyPantsArmorTextures, fpTexture -> fpTexture.getValues().getName());
-        validateUniqueIDs("FP texture RGB value", fancyPantsArmorTextures, fpTexture -> fpTexture.getValues().getRgb());
-
-        items.validate();
-        for (EquipmentSet equipmentSet : equipmentSets) {
-            Validation.scope(
-                    "Equipment set " + equipmentSet.getValues(),
-                    equipmentSet.getValues()::validate, this
-            );
-        }
-
-        damageSources.validate();
-        craftingRecipes.validate();
-
-        for (UpgradeValues upgrade : getUpgrades()) {
-            Validation.scope(
-                    "Upgrade " + upgrade.getName(),
-                    () -> upgrade.validateComplete(this, upgrade.getId())
-            );
-        }
-        validateUniqueIDs("upgrade id", upgrades, upgrade -> upgrade.getValues().getId());
-
-        blockDrops.validate();
-
-        for (MobDrop mobDrop : mobDrops) {
-            Validation.scope(
-                    "Mob drop for " + mobDrop.getValues().getEntityType(),
-                    () -> mobDrop.getValues().validate(this)
-            );
-        }
-
-        projectiles.validate();
-
-        for (ProjectileCover projectileCover : projectileCovers) {
-            Validation.scope(
-                    "Projectile cover " + projectileCover.getValues().getName(),
-                    () -> projectileCover.getValues().validate(this, projectileCover.getValues().getName())
-            );
-        }
-        validateUniqueIDs("projectile cover name", projectileCovers, projectileCover -> projectileCover.getValues().getName());
-
-        for (CustomFuelRegistry fuelRegistry : fuelRegistries) {
-            Validation.scope(
-                    "Fuel registry " + fuelRegistry.getValues().getName(),
-                    () -> fuelRegistry.getValues().validate(this, fuelRegistry.getValues().getName())
-            );
-        }
-        validateUniqueIDs("fuel registry name", fuelRegistries, fuelRegistry -> fuelRegistry.getValues().getName());
-
-        for (EnergyTypeValues energyType : getEnergyTypes()) {
-            Validation.scope(
-                    "Energy type " + energyType.getName(),
-                    () -> energyType.validateComplete(this, energyType.getId())
-            );
-        }
-        validateUniqueIDs("energy type id", energyTypes, energyType -> energyType.getValues().getId());
-        validateUniqueIDs("energy type name", energyTypes, energyType -> energyType.getValues().getName());
-
-        soundTypes.validate();
-        blocks.validate();
-
-        for (OreVeinGenerator oreVeinGenerator : oreVeinGenerators) {
-            Validation.scope(
-                    "Ore vein generator " + oreVeinGenerator,
-                    () -> oreVeinGenerator.getValues().validate(this)
-            );
-        }
-
-        for (TreeGenerator treeGenerator : treeGenerators) {
-            Validation.scope(
-                    "Tree generator " + treeGenerator,
-                    () -> treeGenerator.getValues().validate(this)
-            );
-        }
+        for (ModelManager<?, ?, ?> manager : getAllManagers()) manager.validate();
     }
 
     public void setExportSettings(ExportSettingsValues newExportSettings) throws ValidationException, ProgrammingValidationException {
         newExportSettings.validate();
         this.exportSettings = newExportSettings;
         maybeCreateBackup();
-    }
-
-    public int findFreeFancyPantsArmorRgb() {
-        int candidateRgb = 0;
-        whileLoop:
-        while (true) {
-            for (FancyPantsArmorTextureValues existing : getFancyPantsArmorTextures()) {
-                if (existing.getRgb() == candidateRgb) {
-                    candidateRgb += 1;
-                    continue whileLoop;
-                }
-            }
-            return candidateRgb;
-        }
-    }
-
-    public void addFancyPantsArmorTexture(FancyPantsArmorTextureValues newTexture) throws ValidationException, ProgrammingValidationException {
-        newTexture.validate(this, null);
-        this.fancyPantsArmorTextures.add(new FancyPantsArmorTexture(newTexture));
-        maybeCreateBackup();
-    }
-
-    public void changeFancyPantsArmorTexture(
-            FancyPantsArmorTextureReference textureToChange, FancyPantsArmorTextureValues newTextureValues
-    ) throws ValidationException, ProgrammingValidationException {
-        if (!isReferenceValid(textureToChange)) throw new ProgrammingValidationException("FP texture to change is invalid");
-        newTextureValues.validate(this, textureToChange.get().getId());
-        textureToChange.getModel().setValues(newTextureValues);
-        maybeCreateBackup();
-    }
-
-    public void addEquipmentSet(EquipmentSetValues newEquipmentSet) throws ValidationException, ProgrammingValidationException {
-        newEquipmentSet.validate(this);
-        this.equipmentSets.add(new EquipmentSet(newEquipmentSet));
-        maybeCreateBackup();
-    }
-
-    public void changeEquipmentSet(
-            EquipmentSetReference setToChange, EquipmentSetValues newSetValues
-    ) throws ValidationException, ProgrammingValidationException {
-        if (!isReferenceValid(setToChange)) throw new ProgrammingValidationException("Equipment set is invalid");
-        newSetValues.validate(this);
-        setToChange.getModel().setValues(newSetValues);
-        maybeCreateBackup();
-    }
-
-    public void addUpgrade(UpgradeValues newUpgrade) throws ValidationException, ProgrammingValidationException {
-        newUpgrade.validateComplete(this, null);
-        this.upgrades.add(new Upgrade(newUpgrade));
-        maybeCreateBackup();
-    }
-
-    public void changeUpgrade(
-            UpgradeReference upgradeToChange, UpgradeValues newUpgradeValues
-    ) throws ValidationException, ProgrammingValidationException {
-        if (!isReferenceValid(upgradeToChange)) throw new ProgrammingValidationException("Upgrade to change is invalid");
-        newUpgradeValues.validateComplete(this, upgradeToChange.get().getId());
-        upgradeToChange.getModel().setValues(newUpgradeValues);
-        maybeCreateBackup();
-    }
-
-    public void addMobDrop(MobDropValues dropToAdd) throws ValidationException, ProgrammingValidationException {
-        dropToAdd.validate(this);
-        this.mobDrops.add(new MobDrop(dropToAdd));
-        maybeCreateBackup();
-    }
-
-    public void changeMobDrop(MobDropReference dropToChange, MobDropValues newValues) throws ValidationException, ProgrammingValidationException {
-        if (!isReferenceValid(dropToChange)) throw new ProgrammingValidationException("Mob drop to be changed is invalid");
-        newValues.validate(this);
-        dropToChange.getModel().setValues(newValues);
-        maybeCreateBackup();
-    }
-
-    public void addProjectileCover(ProjectileCoverValues coverToAdd) throws ValidationException, ProgrammingValidationException {
-        coverToAdd.validate(this, null);
-        this.projectileCovers.add(new ProjectileCover(coverToAdd));
-        maybeCreateBackup();
-    }
-
-    public void changeProjectileCover(
-            ProjectileCoverReference coverToChange, ProjectileCoverValues newValues
-    ) throws ValidationException, ProgrammingValidationException {
-        if (!isReferenceValid(coverToChange)) throw new ProgrammingValidationException("Projectile cover to change is invalid");
-        newValues.validate(this, coverToChange.get().getName());
-        coverToChange.getModel().setValues(newValues);
-        maybeCreateBackup();
-    }
-
-    public void addFuelRegistry(FuelRegistryValues registryToAdd) throws ValidationException, ProgrammingValidationException {
-        registryToAdd.validate(this, null);
-        this.fuelRegistries.add(new CustomFuelRegistry(registryToAdd));
-        maybeCreateBackup();
-    }
-
-    public void changeFuelRegistry(
-            FuelRegistryReference registryToChange, FuelRegistryValues newValues
-    ) throws ValidationException, ProgrammingValidationException {
-        if (!isReferenceValid(registryToChange)) throw new ProgrammingValidationException("Fuel registry to change is invalid");
-        newValues.validate(this, registryToChange.get().getName());
-        registryToChange.getModel().setValues(newValues);
-        maybeCreateBackup();
-    }
-
-    public void addEnergyType(EnergyTypeValues energyToAdd) throws ValidationException, ProgrammingValidationException {
-        energyToAdd.validateComplete(this, null);
-        this.energyTypes.add(new EnergyType(energyToAdd));
-        maybeCreateBackup();
-    }
-
-    public void changeEnergyType(
-            EnergyTypeReference energyToChange, EnergyTypeValues newValues
-    ) throws ValidationException, ProgrammingValidationException {
-        if (!isReferenceValid(energyToChange)) throw new ProgrammingValidationException("Energy type to change is invalid");
-        newValues.validateComplete(this, energyToChange.get().getId());
-        energyToChange.getModel().setValues(newValues);
-        maybeCreateBackup();
-    }
-
-    public void addOreVeinGenerator(OreVeinGeneratorValues toAdd) throws ValidationException, ProgrammingValidationException {
-        toAdd.validate(this);
-        this.oreVeinGenerators.add(new OreVeinGenerator(toAdd));
-        maybeCreateBackup();
-    }
-
-    public void changeOreVeinGenerator(
-            OreVeinGeneratorReference generatorToChange, OreVeinGeneratorValues newValues
-    ) throws ValidationException, ProgrammingValidationException {
-        if (!isReferenceValid(generatorToChange)) throw new ProgrammingValidationException("Generator to change is invalid");
-        newValues.validate(this);
-        generatorToChange.getModel().setValues(newValues);
-        maybeCreateBackup();
-    }
-
-    public void addTreeGenerator(TreeGeneratorValues toAdd) throws ValidationException, ProgrammingValidationException {
-        toAdd.validate(this);
-        this.treeGenerators.add(new TreeGenerator(toAdd));
-        maybeCreateBackup();
-    }
-
-    public void changeTreeGenerator(
-            TreeGeneratorReference generatorToChange, TreeGeneratorValues newValues
-    ) throws ValidationException, ProgrammingValidationException {
-        if (!isReferenceValid(generatorToChange)) throw new ProgrammingValidationException("Generator to change is invalid");
-        newValues.validate(this);
-        generatorToChange.getModel().setValues(newValues);
-        maybeCreateBackup();
-    }
-
-    private <T> void removeModel(Collection<T> collection, T model) throws ValidationException, ProgrammingValidationException {
-        if (model == null) throw new ProgrammingValidationException("Model is invalid");
-        String errorMessage = null;
-
-        if (!collection.remove(model)) throw new ProgrammingValidationException("Model no longer exists");
-        try {
-            this.validate();
-        } catch (ValidationException | ProgrammingValidationException validation) {
-            errorMessage = validation.getMessage();
-        }
-
-        if (errorMessage != null) {
-            collection.add(model);
-            throw new ValidationException(errorMessage);
-        }
-
-        maybeCreateBackup();
-    }
-
-    public void removeFancyPantsArmorTexture(
-            FancyPantsArmorTextureReference textureToRemove
-    ) throws ValidationException, ProgrammingValidationException {
-        removeModel(this.fancyPantsArmorTextures, textureToRemove.getModel());
-    }
-
-    public void removeEquipmentSet(EquipmentSetReference setToRemove) throws ValidationException, ProgrammingValidationException {
-        removeModel(this.equipmentSets, setToRemove.getModel());
-    }
-
-    public void removeUpgrade(UpgradeReference upgradeToRemove) throws ValidationException, ProgrammingValidationException {
-        removeModel(this.upgrades, upgradeToRemove.getModel());
-    }
-
-    public void removeMobDrop(MobDropReference mobDropToRemove) throws ValidationException, ProgrammingValidationException {
-        removeModel(this.mobDrops, mobDropToRemove.getModel());
-    }
-
-    public void removeProjectileCover(ProjectileCoverReference coverToRemove) throws ValidationException, ProgrammingValidationException {
-        removeModel(this.projectileCovers, coverToRemove.getModel());
-    }
-
-    public void removeFuelRegistry(FuelRegistryReference registryToRemove) throws ValidationException, ProgrammingValidationException {
-        removeModel(this.fuelRegistries, registryToRemove.getModel());
-    }
-
-    public void removeOreVeinGenerator(OreVeinGeneratorReference generatorToRemove) throws ValidationException, ProgrammingValidationException {
-        removeModel(this.oreVeinGenerators, generatorToRemove.getModel());
-    }
-
-    public void removeTreeGenerator(TreeGeneratorReference generatorToRemove) throws ValidationException, ProgrammingValidationException {
-        removeModel(this.treeGenerators, generatorToRemove.getModel());
-    }
-
-    public void removeEnergyType(EnergyTypeReference energyToRemove) throws ValidationException, ProgrammingValidationException {
-        removeModel(this.energyTypes, energyToRemove.getModel());
     }
 
     public enum Side {

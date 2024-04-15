@@ -219,16 +219,16 @@ public class TestBackward6 {
     }
 
     static void testMobDropsOld6(ItemSet set, int numDrops) {
-        assertEquals(set.getMobDrops().size(), numDrops);
+        assertEquals(set.mobDrops.size(), numDrops);
 
-        assertTrue(set.getMobDrops().stream().anyMatch(drop -> drop.equals(createSwordMobDrop(set))));
-        assertTrue(set.getMobDrops().stream().anyMatch(drop -> drop.equals(createAxeMobDrop(set))));
+        assertTrue(set.mobDrops.stream().anyMatch(drop -> drop.equals(createSwordMobDrop(set))));
+        assertTrue(set.mobDrops.stream().anyMatch(drop -> drop.equals(createAxeMobDrop(set))));
     }
 
     static void testProjectileCoversOld6(ItemSet set, int numProjectileCovers) {
-        assertEquals(numProjectileCovers, set.getProjectileCovers().size());
+        assertEquals(numProjectileCovers, set.projectileCovers.size());
 
-        ProjectileCoverValues cover1 = set.getProjectileCover("sphere_one").get();
+        ProjectileCoverValues cover1 = set.projectileCovers.get("sphere_one").get();
         assertEquals("sphere_one", cover1.getName());
         assertEquals(CustomItemType.DIAMOND_SHOVEL, cover1.getItemType());
         if (set.getSide() == ItemSet.Side.EDITOR) {
@@ -238,12 +238,12 @@ public class TestBackward6 {
             assertEquals("test1", sphere1.getTexture().getName());
         }
 
-        ProjectileCoverValues cover2 = set.getProjectileCover("custom_one").get();
+        ProjectileCoverValues cover2 = set.projectileCovers.get("custom_one").get();
         assertEquals("custom_one", cover2.getName());
         assertEquals(CustomItemType.DIAMOND_SHOVEL, cover2.getItemType());
 
         if (set.getSide() == ItemSet.Side.EDITOR) {
-            CustomProjectileCoverValues custom1 = (CustomProjectileCoverValues) set.getProjectileCover("custom_one").get();
+            CustomProjectileCoverValues custom1 = (CustomProjectileCoverValues) set.projectileCovers.get("custom_one").get();
             assertStringResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", ((LegacyCustomItemModel) custom1.getModel()).getRawModel());
         }
     }

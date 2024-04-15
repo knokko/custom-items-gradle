@@ -24,7 +24,7 @@ public class EnergyIndicatorSlotValues extends ContainerSlotValues {
         if (encoding != 1) throw new UnknownEncodingException("EnergyIndicatorSlot", encoding);
 
         EnergyIndicatorSlotValues result = new EnergyIndicatorSlotValues(false);
-        result.energyType = itemSet.getEnergyTypeReference(new UUID(input.readLong(), input.readLong()));
+        result.energyType = itemSet.energyTypes.getReference(new UUID(input.readLong(), input.readLong()));
         result.display = SlotDisplayValues.load(input, itemSet);
         result.placeholder = SlotDisplayValues.load(input, itemSet);
         result.indicatorDomain = IndicatorDomain.load(input);
@@ -154,7 +154,7 @@ public class EnergyIndicatorSlotValues extends ContainerSlotValues {
     @Override
     public void validate(ItemSet itemSet, Collection<ContainerSlotValues> otherSlots) throws ValidationException, ProgrammingValidationException {
         if (energyType == null) throw new ProgrammingValidationException("No energy type");
-        if (!itemSet.isReferenceValid(energyType)) throw new ProgrammingValidationException("Energy type is invalid");
+        if (!itemSet.energyTypes.isValid(energyType)) throw new ProgrammingValidationException("Energy type is invalid");
         if (display == null) throw new ProgrammingValidationException("No display");
         Validation.scope("Display", display::validate, itemSet);
         if (placeholder == null) throw new ProgrammingValidationException("No placeholder");

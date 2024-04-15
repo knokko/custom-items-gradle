@@ -65,11 +65,11 @@ public abstract class EditProjectileCover<V extends ProjectileCoverValues> exten
 		
 		if (toModify == null) {
 			addComponent(new DynamicTextButton("Create", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-				handleError(Validation.toErrorString(() -> menu.getSet().addProjectileCover(currentValues)));
+				handleError(Validation.toErrorString(() -> menu.getSet().projectileCovers.add(currentValues)));
 			}), 0.025f, 0.2f, 0.2f, 0.3f);
 		} else {
 			addComponent(new DynamicTextButton("Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-				handleError(Validation.toErrorString(() -> menu.getSet().changeProjectileCover(toModify, currentValues)));
+				handleError(Validation.toErrorString(() -> menu.getSet().projectileCovers.change(toModify, currentValues)));
 			}), 0.025f, 0.2f, 0.2f, 0.3f);
 		}
 	}

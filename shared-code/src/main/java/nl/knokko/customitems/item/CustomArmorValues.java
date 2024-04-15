@@ -104,7 +104,7 @@ public class CustomArmorValues extends CustomToolValues {
         }
 
         if (encoding >= 2 && input.readBoolean()) {
-            this.fancyPantsTexture = itemSet.getFancyPantsArmorTextureReference(new UUID(input.readLong(), input.readLong()));
+            this.fancyPantsTexture = itemSet.fancyPants.getReference(new UUID(input.readLong(), input.readLong()));
         } else this.fancyPantsTexture = null;
     }
 
@@ -386,7 +386,7 @@ public class CustomArmorValues extends CustomToolValues {
         if (armorTexture != null && !itemSet.armorTextures.isValid(armorTexture)) {
             throw new ProgrammingValidationException("Armor texture is no longer valid");
         }
-        if (fancyPantsTexture != null && !itemSet.isReferenceValid(fancyPantsTexture)) {
+        if (fancyPantsTexture != null && !itemSet.fancyPants.isValid(fancyPantsTexture)) {
             throw new ProgrammingValidationException("FP texture is no longer valid");
         }
 

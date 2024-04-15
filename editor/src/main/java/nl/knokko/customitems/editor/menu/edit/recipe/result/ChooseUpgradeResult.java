@@ -59,7 +59,7 @@ public class ChooseUpgradeResult extends GuiMenu {
 
         addComponent(new DynamicTextButton("Upgrades...", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new MultiCollectionSelect<>(
-                    this, itemSet.getUpgrades().references(), currentValues::setUpgrades, currentValues.getUpgrades()
+                    this, itemSet.upgrades.references(), currentValues::setUpgrades, currentValues.getUpgrades()
             ));
         }), 0.3f, 0.8f, 0.45f, 0.9f);
         addComponent(new DynamicTextComponent("Repair", LABEL), 0.3f, 0.65f, 0.4f, 0.75f);

@@ -168,7 +168,7 @@ public class EditItemArmor<V extends CustomArmorValues> extends EditItemTool<V> 
 			);
 			addComponent(new ConditionalTextButton("FancyPants texture...", BUTTON, HOVER, () -> {
 				state.getWindow().setMainComponent(new CollectionSelect<>(
-						menu.getSet().getFancyPantsArmorTextures().references(),
+						menu.getSet().fancyPants.references(),
 						currentValues::setFancyPantsTexture, candidate -> true,
 						candidate -> candidate.get().getName(), this, true
 				));

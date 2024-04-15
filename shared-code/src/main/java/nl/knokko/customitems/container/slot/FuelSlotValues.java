@@ -61,7 +61,7 @@ public class FuelSlotValues extends ContainerSlotValues {
 
     private void load1(BitInput input, ItemSet itemSet) {
         this.name = input.readString();
-        this.fuelRegistry = itemSet.getFuelRegistryReference(input.readString());
+        this.fuelRegistry = itemSet.fuelRegistries.getReference(input.readString());
     }
 
     private void initDefaults1() {
@@ -167,7 +167,7 @@ public class FuelSlotValues extends ContainerSlotValues {
             throw new ValidationException("Another fuel slot has the same name");
         }
         if (fuelRegistry == null) throw new ValidationException("You need to choose a fuel registry");
-        if (!itemSet.isReferenceValid(fuelRegistry)) {
+        if (!itemSet.fuelRegistries.isValid(fuelRegistry)) {
             throw new ProgrammingValidationException("Fuel registry is no longer valid");
         }
         // Note: placeholder is optional

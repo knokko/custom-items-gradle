@@ -43,8 +43,8 @@ public class EditEnergyType extends GuiMenu {
 
         addComponent(new DynamicTextButton("Apply", SAVE_BASE, SAVE_HOVER, () -> {
             String error;
-            if (toModify == null) error = Validation.toErrorString(() -> itemSet.addEnergyType(currentValues));
-            else error = Validation.toErrorString(() -> itemSet.changeEnergyType(toModify, currentValues));
+            if (toModify == null) error = Validation.toErrorString(() -> itemSet.energyTypes.add(currentValues));
+            else error = Validation.toErrorString(() -> itemSet.energyTypes.change(toModify, currentValues));
 
             if (error == null) {
                 state.getWindow().setMainComponent(returnMenu);

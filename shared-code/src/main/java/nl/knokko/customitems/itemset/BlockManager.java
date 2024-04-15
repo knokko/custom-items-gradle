@@ -99,8 +99,8 @@ public class BlockManager extends ModelManager<CustomBlock, CustomBlockValues, B
 
     @Override
     public void combine(
-            ModelManager<CustomBlock, CustomBlockValues, BlockReference> primary,
-            ModelManager<CustomBlock, CustomBlockValues, BlockReference> secondary
+            ModelManager<CustomBlock, ?, ?> primary,
+            ModelManager<CustomBlock, ?, ?> secondary
     ) throws ValidationException {
         elements.addAll(primary.elements);
         if (!secondary.elements.isEmpty()) throw new ValidationException("The secondary item set can't have blocks");

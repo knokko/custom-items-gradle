@@ -23,8 +23,8 @@ public class OreVeinGeneratorCollectionEdit extends DedicatedCollectionEdit<OreV
 
     public OreVeinGeneratorCollectionEdit(GuiComponent returnMenu, ItemSet itemSet) {
         super(
-                returnMenu, itemSet.getOreVeinGenerators().references(),
-                generator -> Validation.toErrorString(() -> itemSet.addOreVeinGenerator(generator))
+                returnMenu, itemSet.oreGenerators.references(),
+                generator -> Validation.toErrorString(() -> itemSet.oreGenerators.add(generator))
         );
         this.itemSet = itemSet;
     }
@@ -74,7 +74,7 @@ public class OreVeinGeneratorCollectionEdit extends DedicatedCollectionEdit<OreV
 
     @Override
     protected String deleteModel(OreVeinGeneratorReference modelReference) {
-        return Validation.toErrorString(() -> itemSet.removeOreVeinGenerator(modelReference));
+        return Validation.toErrorString(() -> itemSet.oreGenerators.remove(modelReference));
     }
 
     @Override

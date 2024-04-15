@@ -32,7 +32,7 @@ public class LatePopulator {
         taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
 
             // Only do world population when there is at least 1 populator
-            if (itemSet.get().getOreVeinGenerators().size() != 0 || itemSet.get().getTreeGenerators().size() != 0) {
+            if (!itemSet.get().oreGenerators.isEmpty() || !itemSet.get().treeGenerators.isEmpty()) {
                 for (World world : Bukkit.getWorlds()) {
 
                     // Only do world population in enabled worlds

@@ -35,7 +35,7 @@ public class ContainerRecipeEnergyCollectionEdit extends InlineCollectionEdit<Re
 
         addComponent(new DynamicTextComponent("Energy type:", LABEL), 0.21f, minY, 0.32f, maxY);
         addComponent(CollectionSelect.createButton(
-                itemSet.getEnergyTypes().references(),
+                itemSet.energyTypes.references(),
                 item::setEnergyType,
                 energyTypeReference -> energyTypeReference.get().getName(),
                 item.getEnergyTypeReference(), false

@@ -23,8 +23,8 @@ public class TreeGeneratorCollectionEdit extends DedicatedCollectionEdit<TreeGen
 
     public TreeGeneratorCollectionEdit(GuiComponent returnMenu, ItemSet itemSet) {
         super(
-                returnMenu, itemSet.getTreeGenerators().references(),
-                newGenerator -> Validation.toErrorString(() -> itemSet.addTreeGenerator(newGenerator))
+                returnMenu, itemSet.treeGenerators.references(),
+                newGenerator -> Validation.toErrorString(() -> itemSet.treeGenerators.add(newGenerator))
         );
         this.itemSet = itemSet;
     }
@@ -74,7 +74,7 @@ public class TreeGeneratorCollectionEdit extends DedicatedCollectionEdit<TreeGen
 
     @Override
     protected String deleteModel(TreeGeneratorReference modelReference) {
-        return Validation.toErrorString(() -> itemSet.removeTreeGenerator(modelReference));
+        return Validation.toErrorString(() -> itemSet.treeGenerators.remove(modelReference));
     }
 
     @Override

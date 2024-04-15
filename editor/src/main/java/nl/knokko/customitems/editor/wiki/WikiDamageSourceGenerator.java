@@ -85,18 +85,18 @@ public class WikiDamageSourceGenerator {
                             && item.getWikiVisibility() == WikiVisibility.VISIBLE
             ).collect(Collectors.toList());
 
-            long numResistingUpgrades = itemSet.getUpgrades().stream().filter(upgrade ->
+            long numResistingUpgrades = itemSet.upgrades.stream().filter(upgrade ->
                     upgrade.getDamageResistances().getResistance(damageSource) > 0
             ).count();
-            long numVulnerableUpgrades = itemSet.getUpgrades().stream().filter(upgrade ->
+            long numVulnerableUpgrades = itemSet.upgrades.stream().filter(upgrade ->
                     upgrade.getDamageResistances().getResistance(damageSource) < 0
             ).count();
-            long numResistingEquipmentSets = itemSet.getEquipmentSets().stream().mapToLong(set ->
+            long numResistingEquipmentSets = itemSet.equipmentSets.stream().mapToLong(set ->
                     set.getBonuses().stream().filter(
                             bonuses -> bonuses.getDamageResistances().getResistance(damageSource) > 0
                     ).count()
             ).filter(value -> value > 0).count();
-            long numVulnerableEquipmentSets = itemSet.getEquipmentSets().stream().mapToLong(set ->
+            long numVulnerableEquipmentSets = itemSet.equipmentSets.stream().mapToLong(set ->
                     set.getBonuses().stream().filter(
                             bonuses -> bonuses.getDamageResistances().getResistance(damageSource) < 0
                     ).count()

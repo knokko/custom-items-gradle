@@ -132,10 +132,10 @@ class WikiBlockGenerator {
                 output.println("\t\t</ul>");
             }
 
-            boolean isGeneratedInTrees = itemSet.getTreeGenerators().stream().anyMatch(
+            boolean isGeneratedInTrees = itemSet.treeGenerators.stream().anyMatch(
                     generator -> canProduceBlock(generator.getLogMaterial()) || canProduceBlock(generator.getLeavesMaterial())
             );
-            boolean isGeneratedAsOre = itemSet.getOreVeinGenerators().stream().anyMatch(
+            boolean isGeneratedAsOre = itemSet.oreGenerators.stream().anyMatch(
                     generator -> canProduceBlock(generator.getOreMaterial())
             );
             if (isGeneratedInTrees || isGeneratedAsOre) {
@@ -144,7 +144,7 @@ class WikiBlockGenerator {
                 if (isGeneratedInTrees) {
                     output.println("\t\t<h3>Trees</h3>");
                     output.println("\t\t<ul>");
-                    for (TreeGeneratorValues tree : itemSet.getTreeGenerators()) {
+                    for (TreeGeneratorValues tree : itemSet.treeGenerators) {
                         if (canProduceBlock(tree.getLogMaterial())) {
                             generateTreeGenerationInfo(output, tree, tree.getLogMaterial(), "log");
                         }
@@ -159,7 +159,7 @@ class WikiBlockGenerator {
                     output.println("\t\t<h3>Ore</h3>");
                     output.println("\t\t<ul>");
 
-                    for (OreVeinGeneratorValues generator : itemSet.getOreVeinGenerators()) {
+                    for (OreVeinGeneratorValues generator : itemSet.oreGenerators) {
                         if (canProduceBlock(generator.getOreMaterial())) {
                             output.println("\t\t\t<li>");
                             output.println("\t\t\t\tThis block has " + getGenerationChance(generator.getOreMaterial())

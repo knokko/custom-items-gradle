@@ -102,7 +102,7 @@ public class EditMobDrop extends GuiMenu {
 		DynamicTextButton doneButton;
 		if (toModify == null) {
 			doneButton = new DynamicTextButton("Create", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-				String error = Validation.toErrorString(() -> set.addMobDrop(currentValues));
+				String error = Validation.toErrorString(() -> set.mobDrops.add(currentValues));
 				if (error == null) {
 					state.getWindow().setMainComponent(returnMenu);
 				} else {
@@ -111,7 +111,7 @@ public class EditMobDrop extends GuiMenu {
 			});
 		} else {
 			doneButton = new DynamicTextButton("Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-				String error = Validation.toErrorString(() -> set.changeMobDrop(toModify, currentValues));
+				String error = Validation.toErrorString(() -> set.mobDrops.change(toModify, currentValues));
 				if (error == null) {
 					state.getWindow().setMainComponent(returnMenu);
 				} else {

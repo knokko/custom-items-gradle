@@ -1,7 +1,6 @@
 package nl.knokko.customitems.itemset;
 
 import java.util.ArrayList;
-import java.util.UUID;
 
 /**
  * This is a dirty subclass of ItemSet that overrides all reference getter methods
@@ -15,20 +14,5 @@ public class FakeItemSet extends ItemSet {
         this.stringReferences = new ArrayList<>();
         this.uuidReferences = new ArrayList<>();
         this.finishedLoading = false;
-    }
-
-    @Override
-    public FancyPantsArmorTextureReference getFancyPantsArmorTextureReference(UUID id) {
-        return new FancyPantsArmorTextureReference(id, this);
-    }
-
-    @Override
-    public FuelRegistryReference getFuelRegistryReference(String name) {
-        return new FuelRegistryReference(name, this);
-    }
-
-    @Override
-    public ProjectileCoverReference getProjectileCoverReference(String name) {
-        return new ProjectileCoverReference(name, this);
     }
 }

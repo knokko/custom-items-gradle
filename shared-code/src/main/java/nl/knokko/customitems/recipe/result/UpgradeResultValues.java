@@ -26,7 +26,7 @@ public class UpgradeResultValues extends ResultValues {
         result.ingredientIndex = input.readInt();
         result.inputSlotName = input.readString();
         result.upgrades = Collections.unmodifiableList(CollectionHelper.load(input, innerInput ->
-                itemSet.getUpgradeReference(new UUID(innerInput.readLong(), innerInput.readLong()))
+                itemSet.upgrades.getReference(new UUID(innerInput.readLong(), innerInput.readLong()))
         ));
         result.repairPercentage = input.readFloat();
         if (input.readBoolean()) result.newType = ResultValues.load(input, itemSet);
@@ -230,7 +230,7 @@ public class UpgradeResultValues extends ResultValues {
         validateIndependent();
 
         for (UpgradeReference upgrade : upgrades) {
-            if (!itemSet.isReferenceValid(upgrade)) throw new ProgrammingValidationException("Upgrade is no longer valid");
+            if (!itemSet.upgrades.isValid(upgrade)) throw new ProgrammingValidationException("Upgrade is no longer valid");
         }
 
         if (newType != null) {

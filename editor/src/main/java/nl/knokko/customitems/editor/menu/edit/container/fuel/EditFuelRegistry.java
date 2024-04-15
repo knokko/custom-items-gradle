@@ -70,7 +70,7 @@ public class EditFuelRegistry extends GuiMenu {
 		
 		if (toModify != null) {
 			addComponent(new DynamicTextButton("Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-				String error = Validation.toErrorString(() -> set.changeFuelRegistry(toModify, currentValues));
+				String error = Validation.toErrorString(() -> set.fuelRegistries.change(toModify, currentValues));
 				if (error != null) {
 					errorComponent.setText(error);
 					errorComponent.setProperties(EditProps.ERROR);
@@ -80,7 +80,7 @@ public class EditFuelRegistry extends GuiMenu {
 			}), 0.025f, 0.1f, 0.15f, 0.2f);
 		} else {
 			addComponent(new DynamicTextButton("Create", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-				String error = Validation.toErrorString(() -> set.addFuelRegistry(currentValues));
+				String error = Validation.toErrorString(() -> set.fuelRegistries.add(currentValues));
 				if (error != null) {
 					errorComponent.setProperties(EditProps.ERROR);
 					errorComponent.setText(error);

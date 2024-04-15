@@ -47,7 +47,7 @@ public class FancyPantsArmorEdit extends GuiMenu {
         this.currentValues = oldValues.copy(true);
         this.toModify = toModify;
 
-        if (toModify == null) currentValues.setRgb(itemSet.findFreeFancyPantsArmorRgb());
+        if (toModify == null) currentValues.setRgb(itemSet.fancyPants.findFreeRgb());
     }
 
     @Override
@@ -66,8 +66,8 @@ public class FancyPantsArmorEdit extends GuiMenu {
 
         addComponent(new DynamicTextButton("Done", SAVE_BASE, SAVE_HOVER, () -> {
             String error;
-            if (toModify == null) error = Validation.toErrorString(() -> itemSet.addFancyPantsArmorTexture(currentValues));
-            else error = Validation.toErrorString(() -> itemSet.changeFancyPantsArmorTexture(toModify, currentValues));
+            if (toModify == null) error = Validation.toErrorString(() -> itemSet.fancyPants.add(currentValues));
+            else error = Validation.toErrorString(() -> itemSet.fancyPants.change(toModify, currentValues));
 
             if (error == null) state.getWindow().setMainComponent(returnMenu);
             else errorComponent.setText(error);

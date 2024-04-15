@@ -151,7 +151,7 @@ public class EditProjectile extends GuiMenu {
 				LABEL_X2 - 0.2f, 0.64f, LABEL_X2, 0.72f
 		);
 		addComponent(CollectionSelect.createButton(
-				menu.getSet().getProjectileCovers().references(), currentValues::setCover,
+				menu.getSet().projectileCovers.references(), currentValues::setCover,
 				coverRef -> coverRef.get().getName(), currentValues.getCoverReference(), true
 		), BUTTON_X2, 0.64f, BUTTON_X2 + 0.09f, 0.71f);
 

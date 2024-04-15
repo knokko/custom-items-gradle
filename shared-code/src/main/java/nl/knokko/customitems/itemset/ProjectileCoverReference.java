@@ -21,7 +21,7 @@ public class ProjectileCoverReference extends StringBasedReference<ProjectileCov
 
     @Override
     Collection<ProjectileCover> getCollection() {
-        return itemSet.projectileCovers;
+        return itemSet.projectileCovers.elements;
     }
 
     @Override

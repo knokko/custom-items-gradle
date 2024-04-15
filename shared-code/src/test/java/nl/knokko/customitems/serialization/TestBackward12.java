@@ -122,9 +122,9 @@ public class TestBackward12 {
     }
 
     static void testFancyPantsTextures12(ItemSet itemSet, int numTextures) {
-        assertEquals(numTextures, itemSet.getFancyPantsArmorTextures().size());
+        assertEquals(numTextures, itemSet.fancyPants.size());
 
-        FancyPantsArmorTextureValues shiny = itemSet.getFancyPantsArmorTextures().stream().filter(fpTexture ->
+        FancyPantsArmorTextureValues shiny = itemSet.fancyPants.stream().filter(fpTexture ->
                 fpTexture.getName().equals("shiny")
         ).findFirst().get();
         assertEquals(5, shiny.getRgb());
@@ -162,7 +162,7 @@ public class TestBackward12 {
             }
         }
 
-        FancyPantsArmorTextureValues simple = itemSet.getFancyPantsArmorTextures().stream().filter(texture ->
+        FancyPantsArmorTextureValues simple = itemSet.fancyPants.stream().filter(texture ->
                 texture.getName().equals("simple")
         ).findFirst().get();
         assertEquals(0, simple.getRgb());
@@ -187,7 +187,7 @@ public class TestBackward12 {
     static void testOreVeinsNew12(ItemSet itemSet, int numOreVeins) {
         testOreVeinsNew11(itemSet, numOreVeins);
 
-        assertTrue(itemSet.getOreVeinGenerators().stream().anyMatch(oreVein -> oreVein.getAllowedWorlds().equals(
+        assertTrue(itemSet.oreGenerators.stream().anyMatch(oreVein -> oreVein.getAllowedWorlds().equals(
                 listOf("world_nether", "haha")
         )));
     }
@@ -195,7 +195,7 @@ public class TestBackward12 {
     static void testTreesNew12(ItemSet itemSet, int numTreeGenerators) {
         testTreesNew11(itemSet, numTreeGenerators);
 
-        assertTrue(itemSet.getTreeGenerators().stream().anyMatch(treeGenerator ->
+        assertTrue(itemSet.treeGenerators.stream().anyMatch(treeGenerator ->
                 treeGenerator.getAllowedWorlds().equals(listOf("tree_world"))
         ));
     }
@@ -274,7 +274,7 @@ public class TestBackward12 {
         customResistances.setResistance(itemSet.damageSources.getReference(shock.getId()), (short) 50);
         customResistances.setResistance(itemSet.damageSources.getReference(frost.getId()), (short) -100);
 
-        assertTrue(itemSet.getEquipmentSets().stream().anyMatch(equipmentSet ->
+        assertTrue(itemSet.equipmentSets.stream().anyMatch(equipmentSet ->
                 equipmentSet.getEntries().size() == 1 && equipmentSet.getEntryValue(new EquipmentEntry(
                         AttributeModifierValues.Slot.MAINHAND, itemSet.items.getReference("sword1")
                 )) == 1 && equipmentSet.getBonuses().size() == 1
@@ -290,13 +290,13 @@ public class TestBackward12 {
     }
 
     static void testUpgradesOld12(ItemSet itemSet, int numUpgrades) {
-        assertEquals(numUpgrades, itemSet.getUpgrades().size());
+        assertEquals(numUpgrades, itemSet.upgrades.size());
 
         CustomDamageSourceReference shock = itemSet.damageSources.getReference(itemSet.damageSources.stream().filter(
                 candidate -> candidate.getName().equals("shock")
         ).findFirst().get().getId());
 
-        UpgradeValues upgrade = itemSet.getUpgrades().stream().filter(
+        UpgradeValues upgrade = itemSet.upgrades.stream().filter(
                 candidate -> candidate.getName().equals("shock")
         ).findFirst().get();
 
@@ -318,7 +318,7 @@ public class TestBackward12 {
     static void testRecipesOld12(ItemSet itemSet, int numRecipes) {
         testRecipesOld11(itemSet, numRecipes);
 
-        UpgradeValues upgrade = itemSet.getUpgrades().stream().filter(
+        UpgradeValues upgrade = itemSet.upgrades.stream().filter(
                 candidate -> candidate.getName().equals("shock")
         ).findFirst().get();
 
@@ -337,7 +337,7 @@ public class TestBackward12 {
         upgradeResult.setNewType(SimpleVanillaResultValues.createQuick(CIMaterial.IRON_PICKAXE, 1));
         upgradeResult.setIngredientIndex(4);
         upgradeResult.setRepairPercentage(10f);
-        upgradeResult.setUpgrades(listOf(itemSet.getUpgradeReference(upgrade.getId())));
+        upgradeResult.setUpgrades(listOf(itemSet.upgrades.getReference(upgrade.getId())));
         upgradeResult.setKeepOldUpgrades(true);
         upgradeResult.setKeepOldEnchantments(false);
 

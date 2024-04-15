@@ -42,7 +42,7 @@ public class WikiGenerator {
         copyResource("blocks.css", new File(destinationFolder + "/blocks.css"));
         copyResource("damage-source.css", new File(destinationFolder + "/damage-source.css"));
 
-        List<EquipmentSetValues> equipmentSets = itemSet.getEquipmentSets().stream().collect(Collectors.toList());
+        List<EquipmentSetValues> equipmentSets = itemSet.equipmentSets.stream().collect(Collectors.toList());
         File itemsFolder = new File(destinationFolder + "/items");
         if (!itemsFolder.exists() && !itemsFolder.mkdir()) throw new IOException("Failed to create items folder");
         for (CustomItemValues item : itemSet.items) {
@@ -81,7 +81,7 @@ public class WikiGenerator {
 
         File energyFolder = new File(containersFolder + "/energy");
         if (!energyFolder.exists() && !energyFolder.mkdir()) throw new IOException("Failed to create container energy folder");
-        for (EnergyTypeValues energyType : itemSet.getEnergyTypes()) {
+        for (EnergyTypeValues energyType : itemSet.energyTypes) {
             new WikiEnergyTypeGenerator(itemSet, energyType).generate(new File(energyFolder + "/" + energyType.getName() + ".html"));
         }
 

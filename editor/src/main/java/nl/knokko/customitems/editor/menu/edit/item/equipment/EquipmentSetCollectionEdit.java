@@ -20,8 +20,8 @@ public class EquipmentSetCollectionEdit extends DedicatedCollectionEdit<Equipmen
 
     public EquipmentSetCollectionEdit(EditMenu menu) {
         super(
-                menu.getItemOverview(), menu.getSet().getEquipmentSets().references(),
-                toAdd -> Validation.toErrorString(() -> menu.getSet().addEquipmentSet(toAdd))
+                menu.getItemOverview(), menu.getSet().equipmentSets.references(),
+                toAdd -> Validation.toErrorString(() -> menu.getSet().equipmentSets.add(toAdd))
         );
         this.menu = menu;
     }
@@ -61,7 +61,7 @@ public class EquipmentSetCollectionEdit extends DedicatedCollectionEdit<Equipmen
 
     @Override
     protected String deleteModel(EquipmentSetReference modelReference) {
-        return Validation.toErrorString(() -> menu.getSet().removeEquipmentSet(modelReference));
+        return Validation.toErrorString(() -> menu.getSet().equipmentSets.remove(modelReference));
     }
 
     @Override

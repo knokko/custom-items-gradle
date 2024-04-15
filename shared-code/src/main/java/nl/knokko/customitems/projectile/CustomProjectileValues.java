@@ -136,7 +136,7 @@ public class CustomProjectileValues extends ModelValues {
         this.loadProjectileEffects(input, itemSet);
         String coverName = input.readString();
         if (coverName != null) {
-            this.cover = itemSet.getProjectileCoverReference(coverName);
+            this.cover = itemSet.projectileCovers.getReference(coverName);
         } else {
             this.cover = null;
         }
@@ -164,7 +164,7 @@ public class CustomProjectileValues extends ModelValues {
 
         String coverName = input.readString();
         if (coverName != null) {
-            this.cover = itemSet.getProjectileCoverReference(coverName);
+            this.cover = itemSet.projectileCovers.getReference(coverName);
         } else {
             this.cover = null;
         }
@@ -195,7 +195,7 @@ public class CustomProjectileValues extends ModelValues {
 
         String coverName = input.readString();
         if (coverName != null) {
-            this.cover = itemSet.getProjectileCoverReference(coverName);
+            this.cover = itemSet.projectileCovers.getReference(coverName);
         } else {
             this.cover = null;
         }
@@ -508,7 +508,7 @@ public class CustomProjectileValues extends ModelValues {
             );
         }
 
-        if (cover != null && !itemSet.isReferenceValid(cover))
+        if (cover != null && !itemSet.projectileCovers.isValid(cover))
             throw new ProgrammingValidationException("Projectile cover is no longer valid");
 
         if (customDamageSource != null && !itemSet.damageSources.isValid(customDamageSource))

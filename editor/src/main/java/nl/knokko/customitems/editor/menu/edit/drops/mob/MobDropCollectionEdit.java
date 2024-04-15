@@ -19,7 +19,9 @@ public class MobDropCollectionEdit extends DedicatedCollectionEdit<MobDropValues
 	private final EditMenu menu;
 
 	public MobDropCollectionEdit(EditMenu menu) {
-		super(menu, menu.getSet().getMobDrops().references(), newDrop -> Validation.toErrorString(() -> menu.getSet().addMobDrop(newDrop)));
+		super(menu, menu.getSet().mobDrops.references(), newDrop -> Validation.toErrorString(
+				() -> menu.getSet().mobDrops.add(newDrop))
+		);
 		this.menu = menu;
 	}
 	
@@ -69,7 +71,7 @@ public class MobDropCollectionEdit extends DedicatedCollectionEdit<MobDropValues
 
 	@Override
 	protected String deleteModel(MobDropReference modelReference) {
-		return Validation.toErrorString(() -> menu.getSet().removeMobDrop(modelReference));
+		return Validation.toErrorString(() -> menu.getSet().mobDrops.remove(modelReference));
 	}
 
 	@Override

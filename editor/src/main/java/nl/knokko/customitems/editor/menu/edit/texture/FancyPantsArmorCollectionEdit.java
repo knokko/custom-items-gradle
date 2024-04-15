@@ -19,7 +19,7 @@ public class FancyPantsArmorCollectionEdit extends DedicatedCollectionEdit<Fancy
     private final ItemSet itemSet;
 
     public FancyPantsArmorCollectionEdit(GuiComponent returnMenu, ItemSet itemSet) {
-        super(returnMenu, itemSet.getFancyPantsArmorTextures().references(), null);
+        super(returnMenu, itemSet.fancyPants.references(), null);
         this.itemSet = itemSet;
     }
 
@@ -58,7 +58,7 @@ public class FancyPantsArmorCollectionEdit extends DedicatedCollectionEdit<Fancy
 
     @Override
     protected String deleteModel(FancyPantsArmorTextureReference modelReference) {
-        return Validation.toErrorString(() -> itemSet.removeFancyPantsArmorTexture(modelReference));
+        return Validation.toErrorString(() -> itemSet.fancyPants.remove(modelReference));
     }
 
     @Override

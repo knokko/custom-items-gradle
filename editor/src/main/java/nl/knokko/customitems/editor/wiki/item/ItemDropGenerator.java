@@ -40,7 +40,7 @@ public class ItemDropGenerator {
                 blockDrop -> hasItem(item, blockDrop.getDrop().getOutputTable())
         ).collect(Collectors.toList());
 
-        this.mobDrops = itemSet.getMobDrops().stream().filter(
+        this.mobDrops = itemSet.mobDrops.stream().filter(
                 mobDrop -> hasItem(item, mobDrop.getDrop().getOutputTable())
         ).collect(Collectors.toList());
 

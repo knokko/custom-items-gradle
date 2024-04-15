@@ -152,7 +152,7 @@ class ResourcepackModelWriter {
     }
 
     void writeProjectileCoverModels() throws IOException {
-        for (ProjectileCoverValues cover : itemSet.getProjectileCovers()) {
+        for (ProjectileCoverValues cover : itemSet.projectileCovers) {
             ZipEntry entry = new ZipEntry("assets/minecraft/models/customprojectiles/" + cover.getName() + ".json");
             zipOutput.putNextEntry(entry);
             cover.writeModel(zipOutput);

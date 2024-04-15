@@ -181,7 +181,7 @@ public class TestBackward10 {
     static void testMobDropsOld10(ItemSet set, int numMobDrops) {
         testMobDropsOld8(set, numMobDrops);
 
-        Iterator<MobDropValues> mobDropIterator = set.getMobDrops().iterator();
+        Iterator<MobDropValues> mobDropIterator = set.mobDrops.iterator();
         mobDropIterator.next();
         testDefaultMobDrop10(mobDropIterator.next());
 

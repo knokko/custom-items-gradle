@@ -188,7 +188,7 @@ public class UpgradeValues extends ModelValues {
         if (oldId != null && !oldId.equals(id)) {
             throw new ProgrammingValidationException("Can't change ID");
         }
-        if (oldId == null && itemSet.getUpgrade(id).isPresent()) {
+        if (oldId == null && itemSet.upgrades.get(id).isPresent()) {
             throw new ProgrammingValidationException("Another upgrade already has this ID");
         }
 
