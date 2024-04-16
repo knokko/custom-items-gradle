@@ -3,31 +3,30 @@ package nl.knokko.customitems.itemset;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 import nl.knokko.customitems.recipe.CraftingRecipeValues;
-import nl.knokko.customitems.recipe.CustomCraftingRecipe;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.Validation;
 import nl.knokko.customitems.util.ValidationException;
 
-public class RecipeManager extends ModelManager<CustomCraftingRecipe, CraftingRecipeValues, CraftingRecipeReference> {
+public class RecipeManager extends ModelManager<CraftingRecipeValues, CraftingRecipeReference> {
 
     protected RecipeManager(ItemSet itemSet) {
         super(itemSet);
     }
 
     @Override
-    protected void saveElement(CustomCraftingRecipe element, BitOutput output, ItemSet.Side targetSide) {
-        element.getValues().save(output);
+    protected void saveElement(CraftingRecipeValues element, BitOutput output, ItemSet.Side targetSide) {
+        element.save(output);
     }
 
     @Override
-    protected CraftingRecipeReference createReference(CustomCraftingRecipe element) {
+    CraftingRecipeReference createReference(Model<CraftingRecipeValues> element) {
         return new CraftingRecipeReference(element);
     }
 
     @Override
-    protected CustomCraftingRecipe loadElement(BitInput input) throws UnknownEncodingException {
-        return new CustomCraftingRecipe(CraftingRecipeValues.load(input, itemSet));
+    protected CraftingRecipeValues loadElement(BitInput input) throws UnknownEncodingException {
+        return CraftingRecipeValues.load(input, itemSet);
     }
 
     @Override
@@ -40,7 +39,7 @@ public class RecipeManager extends ModelManager<CustomCraftingRecipe, CraftingRe
 
     @Override
     public void validate() throws ValidationException, ProgrammingValidationException {
-        for (CustomCraftingRecipe model : elements) {
+        for (Model<CraftingRecipeValues> model : elements) {
             CraftingRecipeValues recipe = model.getValues();
             Validation.scope(
                     "Recipe for " + recipe.getResult(),
@@ -50,14 +49,13 @@ public class RecipeManager extends ModelManager<CustomCraftingRecipe, CraftingRe
     }
 
     @Override
-    protected void validate(CraftingRecipeValues recipe) throws ValidationException, ProgrammingValidationException {
-        throw new UnsupportedOperationException();
+    protected void validateCreation(CraftingRecipeValues values) throws ValidationException, ProgrammingValidationException {
+        values.validate(itemSet, null);
     }
 
     @Override
-    protected CustomCraftingRecipe checkAndCreateElement(CraftingRecipeValues values) throws ValidationException, ProgrammingValidationException {
-        values.validate(itemSet, null);
-        return new CustomCraftingRecipe(values);
+    protected void validate(CraftingRecipeValues recipe) throws ValidationException, ProgrammingValidationException {
+        throw new UnsupportedOperationException();
     }
 
     @Override

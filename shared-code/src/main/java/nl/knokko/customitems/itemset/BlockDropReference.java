@@ -1,10 +1,9 @@
 package nl.knokko.customitems.itemset;
 
 import nl.knokko.customitems.drops.BlockDropValues;
-import nl.knokko.customitems.drops.BlockDrop;
 
-public class BlockDropReference extends UnstableReference<BlockDrop, BlockDropValues> {
-    BlockDropReference(BlockDrop model) {
+public class BlockDropReference extends UnstableReference<BlockDropValues> {
+    BlockDropReference(Model<BlockDropValues> model) {
         super(model);
     }
 }

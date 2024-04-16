@@ -3,7 +3,6 @@ package nl.knokko.customitems.itemset;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 import nl.knokko.customitems.texture.BaseTextureValues;
-import nl.knokko.customitems.texture.CustomTexture;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.CollectionHelper;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -14,19 +13,19 @@ import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-public class TextureManager extends ModelManager<CustomTexture, BaseTextureValues, TextureReference> {
+public class TextureManager extends ModelManager<BaseTextureValues, TextureReference> {
 
     protected TextureManager(ItemSet itemSet) {
         super(itemSet);
     }
 
     @Override
-    protected void saveElement(CustomTexture texture, BitOutput output, ItemSet.Side targetSide) {
-        texture.getValues().save(output);
+    protected void saveElement(BaseTextureValues texture, BitOutput output, ItemSet.Side targetSide) {
+        texture.save(output);
     }
 
     @Override
-    protected TextureReference createReference(CustomTexture element) {
+    TextureReference createReference(Model<BaseTextureValues> element) {
         return new TextureReference(element);
     }
 
@@ -41,16 +40,16 @@ public class TextureManager extends ModelManager<CustomTexture, BaseTextureValue
             this.elements = new ArrayList<>(numTextures);
             for (int counter = 0; counter < numTextures; counter++) {
                 if (readEncoding) {
-                    this.elements.add(new CustomTexture(BaseTextureValues.load(input, expectCompressed)));
+                    this.elements.add(new Model<>(BaseTextureValues.load(input, expectCompressed)));
                 } else {
-                    this.elements.add(new CustomTexture(BaseTextureValues.load(input, BaseTextureValues.ENCODING_SIMPLE_1, expectCompressed)));
+                    this.elements.add(new Model<>(BaseTextureValues.load(input, BaseTextureValues.ENCODING_SIMPLE_1, expectCompressed)));
                 }
             }
         }
     }
 
     @Override
-    protected CustomTexture loadElement(BitInput input) throws UnknownEncodingException {
+    protected BaseTextureValues loadElement(BitInput input) throws UnknownEncodingException {
         throw new UnsupportedOperationException();
     }
 
@@ -69,17 +68,16 @@ public class TextureManager extends ModelManager<CustomTexture, BaseTextureValue
     }
 
     @Override
+    protected void validateCreation(BaseTextureValues values) throws ValidationException, ProgrammingValidationException {
+        values.validateComplete(itemSet, null);
+    }
+
+    @Override
     protected void validate(BaseTextureValues texture) throws ValidationException, ProgrammingValidationException {
         Validation.scope(
                 "Texture " + texture.getName(),
                 () -> texture.validateComplete(itemSet, texture.getName())
         );
-    }
-
-    @Override
-    protected CustomTexture checkAndCreateElement(BaseTextureValues values) throws ValidationException, ProgrammingValidationException {
-        values.validateComplete(itemSet, null);
-        return new CustomTexture(values);
     }
 
     @Override
@@ -96,6 +94,6 @@ public class TextureManager extends ModelManager<CustomTexture, BaseTextureValue
     }
 
     public Optional<BaseTextureValues> get(String name) {
-        return CollectionHelper.find(elements, texture -> texture.getValues().getName(), name).map(CustomTexture::getValues);
+        return CollectionHelper.find(elements, texture -> texture.getValues().getName(), name).map(Model::getValues);
     }
 }

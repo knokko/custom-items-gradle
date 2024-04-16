@@ -2,7 +2,6 @@ package nl.knokko.customitems.itemset;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
-import nl.knokko.customitems.misc.CombinedResourcepack;
 import nl.knokko.customitems.misc.CombinedResourcepackValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.CollectionHelper;
@@ -12,21 +11,19 @@ import nl.knokko.customitems.util.ValidationException;
 
 import java.util.Optional;
 
-public class CombinedResourcepackManager extends ModelManager<
-        CombinedResourcepack, CombinedResourcepackValues, CombinedResourcepackReference
-        > {
+public class CombinedResourcepackManager extends ModelManager<CombinedResourcepackValues, CombinedResourcepackReference> {
 
     protected CombinedResourcepackManager(ItemSet itemSet) {
         super(itemSet);
     }
 
     @Override
-    protected void saveElement(CombinedResourcepack element, BitOutput output, ItemSet.Side targetSide) {
-        element.getValues().save(output);
+    protected void saveElement(CombinedResourcepackValues element, BitOutput output, ItemSet.Side targetSide) {
+        element.save(output);
     }
 
     @Override
-    protected CombinedResourcepackReference createReference(CombinedResourcepack element) {
+    CombinedResourcepackReference createReference(Model<CombinedResourcepackValues> element) {
         return new CombinedResourcepackReference(element);
     }
 
@@ -36,8 +33,8 @@ public class CombinedResourcepackManager extends ModelManager<
     }
 
     @Override
-    protected CombinedResourcepack loadElement(BitInput input) throws UnknownEncodingException {
-        return new CombinedResourcepack(CombinedResourcepackValues.load(input));
+    protected CombinedResourcepackValues loadElement(BitInput input) throws UnknownEncodingException {
+        return CombinedResourcepackValues.load(input);
     }
 
     @Override
@@ -53,6 +50,11 @@ public class CombinedResourcepackManager extends ModelManager<
     }
 
     @Override
+    protected void validateCreation(CombinedResourcepackValues values) throws ValidationException, ProgrammingValidationException {
+        values.validate(itemSet, null, null);
+    }
+
+    @Override
     protected void validate(CombinedResourcepackValues combinedPack) throws ValidationException, ProgrammingValidationException {
         Validation.scope(
                 "Combined resourcepack " + combinedPack.getName(),
@@ -61,22 +63,11 @@ public class CombinedResourcepackManager extends ModelManager<
     }
 
     @Override
-    protected CombinedResourcepack checkAndCreateElement(CombinedResourcepackValues values) throws ValidationException, ProgrammingValidationException {
-        values.validate(itemSet, null, null);
-        return new CombinedResourcepack(values);
-    }
-
-    @Override
     protected void validateChange(CombinedResourcepackReference reference, CombinedResourcepackValues newValues) throws ValidationException, ProgrammingValidationException {
         newValues.validate(itemSet, reference.get().getName(), reference.get().getPriority());
     }
 
     public Optional<CombinedResourcepackValues> get(String name) {
-        return CollectionHelper.find(elements, pack -> pack.getValues().getName(), name).map(CombinedResourcepack::getValues);
-    }
-
-    public void combine(CombinedResourcepackManager primary, CombinedResourcepackManager secondary) {
-        elements.addAll(primary.elements);
-        elements.addAll(secondary.elements);
+        return CollectionHelper.find(elements, pack -> pack.getValues().getName(), name).map(Model::getValues);
     }
 }

@@ -2,7 +2,6 @@ package nl.knokko.customitems.itemset;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
-import nl.knokko.customitems.container.energy.EnergyType;
 import nl.knokko.customitems.container.energy.EnergyTypeValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.CollectionHelper;
@@ -14,25 +13,25 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
-public class EnergyTypeManager extends ModelManager<EnergyType, EnergyTypeValues, EnergyTypeReference> {
+public class EnergyTypeManager extends ModelManager<EnergyTypeValues, EnergyTypeReference> {
 
     protected EnergyTypeManager(ItemSet itemSet) {
         super(itemSet);
     }
 
     @Override
-    protected void saveElement(EnergyType element, BitOutput output, ItemSet.Side targetSide) {
-        element.getValues().save(output);
+    protected void saveElement(EnergyTypeValues element, BitOutput output, ItemSet.Side targetSide) {
+        element.save(output);
     }
 
     @Override
-    protected EnergyTypeReference createReference(EnergyType element) {
+    EnergyTypeReference createReference(Model<EnergyTypeValues> element) {
         return new EnergyTypeReference(element);
     }
 
     @Override
-    protected EnergyType loadElement(BitInput input) throws UnknownEncodingException {
-        return new EnergyType(EnergyTypeValues.load(input));
+    protected EnergyTypeValues loadElement(BitInput input) throws UnknownEncodingException {
+        return EnergyTypeValues.load(input);
     }
 
     @Override
@@ -48,17 +47,16 @@ public class EnergyTypeManager extends ModelManager<EnergyType, EnergyTypeValues
     }
 
     @Override
+    protected void validateCreation(EnergyTypeValues values) throws ValidationException, ProgrammingValidationException {
+        values.validateComplete(itemSet, null);
+    }
+
+    @Override
     protected void validate(EnergyTypeValues energyType) throws ValidationException, ProgrammingValidationException {
         Validation.scope(
                 "Energy type " + energyType.getName(),
                 () -> energyType.validateComplete(itemSet, energyType.getId())
         );
-    }
-
-    @Override
-    protected EnergyType checkAndCreateElement(EnergyTypeValues values) throws ValidationException, ProgrammingValidationException {
-        values.validateComplete(itemSet, null);
-        return new EnergyType(values);
     }
 
     @Override
@@ -75,6 +73,6 @@ public class EnergyTypeManager extends ModelManager<EnergyType, EnergyTypeValues
     }
 
     public Optional<EnergyTypeValues> get(UUID id) {
-        return CollectionHelper.find(elements, energyType -> energyType.getValues().getId(), id).map(EnergyType::getValues);
+        return CollectionHelper.find(elements, energyType -> energyType.getValues().getId(), id).map(Model::getValues);
     }
 }

@@ -1,18 +1,17 @@
 package nl.knokko.customitems.itemset;
 
-import nl.knokko.customitems.recipe.upgrade.Upgrade;
 import nl.knokko.customitems.recipe.upgrade.UpgradeValues;
 
 import java.util.Collection;
 import java.util.UUID;
 
-public class UpgradeReference extends UUIDBasedReference<Upgrade, UpgradeValues> {
+public class UpgradeReference extends UUIDBasedReference<UpgradeValues> {
 
     UpgradeReference(UUID id, ItemSet itemSet) {
         super(id, itemSet);
     }
 
-    UpgradeReference(Upgrade model) {
+    UpgradeReference(Model<UpgradeValues> model) {
         super(model);
     }
 
@@ -22,7 +21,7 @@ public class UpgradeReference extends UUIDBasedReference<Upgrade, UpgradeValues>
     }
 
     @Override
-    Collection<Upgrade> getCollection() {
+    Collection<Model<UpgradeValues>> getCollection() {
         return itemSet.upgrades.elements;
     }
 
@@ -33,7 +32,7 @@ public class UpgradeReference extends UUIDBasedReference<Upgrade, UpgradeValues>
 
     @Override
     public String toString() {
-        Upgrade upgrade = getModel();
+        Model<UpgradeValues> upgrade = getModel();
         if (upgrade != null) return upgrade.getValues().getName();
         else return "Upgrade " + id;
     }

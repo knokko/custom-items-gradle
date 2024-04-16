@@ -2,7 +2,6 @@ package nl.knokko.customitems.itemset;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
-import nl.knokko.customitems.projectile.cover.ProjectileCover;
 import nl.knokko.customitems.projectile.cover.ProjectileCoverValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.CollectionHelper;
@@ -13,25 +12,25 @@ import nl.knokko.customitems.util.ValidationException;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-public class ProjectileCoverManager extends ModelManager<ProjectileCover, ProjectileCoverValues, ProjectileCoverReference> {
+public class ProjectileCoverManager extends ModelManager<ProjectileCoverValues, ProjectileCoverReference> {
 
     protected ProjectileCoverManager(ItemSet itemSet) {
         super(itemSet);
     }
 
     @Override
-    protected void saveElement(ProjectileCover projectileCover, BitOutput output, ItemSet.Side targetSide) {
-        projectileCover.getValues().save(output, targetSide);
+    protected void saveElement(ProjectileCoverValues projectileCover, BitOutput output, ItemSet.Side targetSide) {
+        projectileCover.save(output, targetSide);
     }
 
     @Override
-    protected ProjectileCoverReference createReference(ProjectileCover element) {
+    ProjectileCoverReference createReference(Model<ProjectileCoverValues> element) {
         return new ProjectileCoverReference(element);
     }
 
     @Override
-    protected ProjectileCover loadElement(BitInput input) throws UnknownEncodingException {
-        return new ProjectileCover(ProjectileCoverValues.load(input, itemSet));
+    protected ProjectileCoverValues loadElement(BitInput input) throws UnknownEncodingException {
+        return ProjectileCoverValues.load(input, itemSet);
     }
 
     @Override
@@ -51,17 +50,16 @@ public class ProjectileCoverManager extends ModelManager<ProjectileCover, Projec
     }
 
     @Override
+    protected void validateCreation(ProjectileCoverValues values) throws ValidationException, ProgrammingValidationException {
+        values.validate(itemSet, null);
+    }
+
+    @Override
     protected void validate(ProjectileCoverValues projectileCover) throws ValidationException, ProgrammingValidationException {
         Validation.scope(
                 "Projectile cover " + projectileCover.getName(),
                 () -> projectileCover.validate(itemSet, projectileCover.getName())
         );
-    }
-
-    @Override
-    protected ProjectileCover checkAndCreateElement(ProjectileCoverValues values) throws ValidationException, ProgrammingValidationException {
-        values.validate(itemSet, null);
-        return new ProjectileCover(values);
     }
 
     @Override
@@ -78,6 +76,6 @@ public class ProjectileCoverManager extends ModelManager<ProjectileCover, Projec
     }
 
     public Optional<ProjectileCoverValues> get(String name) {
-        return CollectionHelper.find(elements, cover -> cover.getValues().getName(), name).map(ProjectileCover::getValues);
+        return CollectionHelper.find(elements, cover -> cover.getValues().getName(), name).map(Model::getValues);
     }
 }

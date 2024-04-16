@@ -3,7 +3,6 @@ package nl.knokko.customitems.itemset;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 import nl.knokko.customitems.block.BlockConstants;
-import nl.knokko.customitems.block.CustomBlock;
 import nl.knokko.customitems.block.CustomBlockValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.CollectionHelper;
@@ -14,27 +13,27 @@ import nl.knokko.customitems.util.ValidationException;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-public class BlockManager extends ModelManager<CustomBlock, CustomBlockValues, BlockReference> {
+public class BlockManager extends ModelManager<CustomBlockValues, BlockReference> {
 
     BlockManager(ItemSet itemSet) {
         super(itemSet);
     }
 
     @Override
-    protected void saveElement(CustomBlock block, BitOutput output, ItemSet.Side targetSide) {
-        output.addInt(block.getValues().getInternalID());
-        block.getValues().save(output, targetSide);
+    protected void saveElement(CustomBlockValues block, BitOutput output, ItemSet.Side targetSide) {
+        output.addInt(block.getInternalID());
+        block.save(output, targetSide);
     }
 
     @Override
-    protected BlockReference createReference(CustomBlock block) {
+    BlockReference createReference(Model<CustomBlockValues> block) {
         return new BlockReference(block);
     }
 
     @Override
-    protected CustomBlock loadElement(BitInput input) throws UnknownEncodingException {
+    protected CustomBlockValues loadElement(BitInput input) throws UnknownEncodingException {
         int id = input.readInt();
-        return new CustomBlock(CustomBlockValues.load(input, itemSet, id));
+        return CustomBlockValues.load(input, itemSet, id);
     }
 
     @Override
@@ -53,18 +52,17 @@ public class BlockManager extends ModelManager<CustomBlock, CustomBlockValues, B
     }
 
     @Override
+    protected void validateCreation(CustomBlockValues values) throws ValidationException, ProgrammingValidationException {
+        values.setInternalId(this.findFreeBlockId());
+        values.validateComplete(itemSet, null);
+    }
+
+    @Override
     protected void validate(CustomBlockValues block) throws ValidationException, ProgrammingValidationException {
         Validation.scope(
                 "Block " + block.getName(),
                 () -> block.validateComplete(itemSet, block.getInternalID())
         );
-    }
-
-    @Override
-    protected CustomBlock checkAndCreateElement(CustomBlockValues values) throws ValidationException, ProgrammingValidationException {
-        values.setInternalId(this.findFreeBlockId());
-        values.validateComplete(itemSet, null);
-        return new CustomBlock(values);
     }
 
     @Override
@@ -90,17 +88,17 @@ public class BlockManager extends ModelManager<CustomBlock, CustomBlockValues, B
     }
 
     public Optional<CustomBlockValues> get(int internalId) {
-        return CollectionHelper.find(elements, block -> block.getValues().getInternalID(), internalId).map(CustomBlock::getValues);
+        return CollectionHelper.find(elements, block -> block.getValues().getInternalID(), internalId).map(Model::getValues);
     }
 
     public Optional<CustomBlockValues> get(String name) {
-        return CollectionHelper.find(elements, block -> block.getValues().getName(), name).map(CustomBlock::getValues);
+        return CollectionHelper.find(elements, block -> block.getValues().getName(), name).map(Model::getValues);
     }
 
     @Override
     public void combine(
-            ModelManager<CustomBlock, ?, ?> primary,
-            ModelManager<CustomBlock, ?, ?> secondary
+            ModelManager<CustomBlockValues, ?> primary,
+            ModelManager<CustomBlockValues, ?> secondary
     ) throws ValidationException {
         elements.addAll(primary.elements);
         if (!secondary.elements.isEmpty()) throw new ValidationException("The secondary item set can't have blocks");

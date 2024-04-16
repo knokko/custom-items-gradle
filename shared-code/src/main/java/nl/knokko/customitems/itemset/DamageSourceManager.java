@@ -2,7 +2,6 @@ package nl.knokko.customitems.itemset;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
-import nl.knokko.customitems.damage.CustomDamageSource;
 import nl.knokko.customitems.damage.CustomDamageSourceValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.CollectionHelper;
@@ -14,25 +13,25 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
-public class DamageSourceManager extends ModelManager<CustomDamageSource, CustomDamageSourceValues, CustomDamageSourceReference> {
+public class DamageSourceManager extends ModelManager<CustomDamageSourceValues, CustomDamageSourceReference> {
 
     protected DamageSourceManager(ItemSet itemSet) {
         super(itemSet);
     }
 
     @Override
-    protected void saveElement(CustomDamageSource element, BitOutput output, ItemSet.Side targetSide) {
-        element.getValues().save(output);
+    protected void saveElement(CustomDamageSourceValues element, BitOutput output, ItemSet.Side targetSide) {
+        element.save(output);
     }
 
     @Override
-    protected CustomDamageSourceReference createReference(CustomDamageSource element) {
+    CustomDamageSourceReference createReference(Model<CustomDamageSourceValues> element) {
         return new CustomDamageSourceReference(element);
     }
 
     @Override
-    protected CustomDamageSource loadElement(BitInput input) throws UnknownEncodingException {
-        return new CustomDamageSource(CustomDamageSourceValues.load(input));
+    protected CustomDamageSourceValues loadElement(BitInput input) throws UnknownEncodingException {
+        return CustomDamageSourceValues.load(input);
     }
 
     @Override
@@ -47,17 +46,16 @@ public class DamageSourceManager extends ModelManager<CustomDamageSource, Custom
     }
 
     @Override
+    protected void validateCreation(CustomDamageSourceValues values) throws ValidationException, ProgrammingValidationException {
+        values.validateComplete(itemSet, null);
+    }
+
+    @Override
     protected void validate(CustomDamageSourceValues damageSource) throws ValidationException, ProgrammingValidationException {
         Validation.scope(
                 "Damage source " + damageSource.getName(),
                 () -> damageSource.validateComplete(itemSet, damageSource.getId())
         );
-    }
-
-    @Override
-    protected CustomDamageSource checkAndCreateElement(CustomDamageSourceValues values) throws ValidationException, ProgrammingValidationException {
-        values.validateComplete(itemSet, null);
-        return new CustomDamageSource(values);
     }
 
     @Override
@@ -74,6 +72,6 @@ public class DamageSourceManager extends ModelManager<CustomDamageSource, Custom
     }
 
     public Optional<CustomDamageSourceValues> get(UUID damageSourceID) {
-        return CollectionHelper.find(elements, damageSource -> damageSource.getValues().getId(), damageSourceID).map(CustomDamageSource::getValues);
+        return CollectionHelper.find(elements, damageSource -> damageSource.getValues().getId(), damageSourceID).map(Model::getValues);
     }
 }
