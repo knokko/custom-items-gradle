@@ -57,4 +57,9 @@ public class SetEncoding {
 	 * Added export settings
 	 */
 	public static final byte ENCODING_11 = 10;
+
+	/**
+	 * Added furnace recipes
+	 */
+	public static final byte ENCODING_12 = 11;
 }

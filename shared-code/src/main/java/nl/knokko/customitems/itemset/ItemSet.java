@@ -109,6 +109,8 @@ public class ItemSet {
     public final EquipmentSetManager equipmentSets = new EquipmentSetManager(this);
     public final DamageSourceManager damageSources = new DamageSourceManager(this);
     public final RecipeManager craftingRecipes = new RecipeManager(this);
+    public final FurnaceRecipeManager furnaceRecipes = new FurnaceRecipeManager(this);
+    public final FurnaceFuelManager furnaceFuel = new FurnaceFuelManager(this);
     public final UpgradeManager upgrades = new UpgradeManager(this);
     public final BlockDropManager blockDrops = new BlockDropManager(this);
     public final MobDropManager mobDrops = new MobDropManager(this);
@@ -279,7 +281,7 @@ public class ItemSet {
     }
 
     public void save(BitOutput output, Side targetSide) {
-        output.addByte(SetEncoding.ENCODING_11);
+        output.addByte(SetEncoding.ENCODING_12);
 
         ByteArrayBitOutput checkedOutput = new ByteArrayBitOutput();
         saveContent(checkedOutput, targetSide);
@@ -322,6 +324,8 @@ public class ItemSet {
         containers.save(output, threadPool, targetSide);
         output.addInt(removedItemNames.size());
         for (String removed : removedItemNames) output.addString(removed);
+        furnaceRecipes.save(output, threadPool, targetSide);
+        furnaceFuel.save(output, threadPool, targetSide);
 
         threadPool.shutdown();
     }
@@ -357,6 +361,8 @@ public class ItemSet {
             load10(input);
         } else if (encoding == SetEncoding.ENCODING_11) {
             load11(input);
+        } else if (encoding == SetEncoding.ENCODING_12) {
+            load12(input);
         } else {
             throw new UnknownEncodingException("ItemSet", encoding);
         }
@@ -537,31 +543,48 @@ public class ItemSet {
         });
     }
 
+    private void loadContent11(BitInput input) throws UnknownEncodingException {
+        this.exportSettings = ExportSettingsValues.load(input);
+        loadExportTime(input);
+        combinedResourcepacks.load(input);
+        textures.load(input, true, true);
+        armorTextures.load(input);
+        fancyPants.load(input);
+        projectileCovers.load(input);
+        projectiles.load(input);
+        items.load(input);
+        equipmentSets.load(input);
+        damageSources.load(input);
+        blocks.load(input);
+        oreGenerators.load(input);
+        treeGenerators.load(input);
+        craftingRecipes.load(input);
+        upgrades.load(input);
+        blockDrops.load(input);
+        mobDrops.load(input);
+        fuelRegistries.load(input);
+        energyTypes.load(input);
+        soundTypes.load(input);
+        containers.load(input);
+        loadDeletedItemNames(input);
+    }
+
     private void load11(BitInput rawInput) throws IntegrityException, UnknownEncodingException {
         loadWithIntegrityCheck(rawInput, (input, hash) -> {
-            this.exportSettings = ExportSettingsValues.load(input);
-            loadExportTime(input);
-            combinedResourcepacks.load(input);
-            textures.load(input, true, true);
-            armorTextures.load(input);
-            fancyPants.load(input);
-            projectileCovers.load(input);
-            projectiles.load(input);
-            items.load(input);
-            equipmentSets.load(input);
-            damageSources.load(input);
-            blocks.load(input);
-            oreGenerators.load(input);
-            treeGenerators.load(input);
-            craftingRecipes.load(input);
-            upgrades.load(input);
-            blockDrops.load(input);
-            mobDrops.load(input);
-            fuelRegistries.load(input);
-            energyTypes.load(input);
-            soundTypes.load(input);
-            containers.load(input);
-            loadDeletedItemNames(input);
+            loadContent11(input);
+        });
+    }
+
+    private void loadContent12(BitInput input) throws UnknownEncodingException {
+        loadContent11(input);
+
+        furnaceRecipes.load(input);
+        furnaceFuel.load(input);
+    }
+
+    private void load12(BitInput rawInput) throws IntegrityException, UnknownEncodingException {
+        loadWithIntegrityCheck(rawInput, (input, hash) -> {
+            loadContent12(input);
         });
     }
 
