@@ -2,7 +2,6 @@ package nl.knokko.customitems.itemset;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
-import nl.knokko.customitems.recipe.upgrade.Upgrade;
 import nl.knokko.customitems.recipe.upgrade.UpgradeValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.CollectionHelper;
@@ -14,25 +13,25 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
-public class UpgradeManager extends ModelManager<Upgrade, UpgradeValues, UpgradeReference> {
+public class UpgradeManager extends ModelManager<UpgradeValues, UpgradeReference> {
 
     protected UpgradeManager(ItemSet itemSet) {
         super(itemSet);
     }
 
     @Override
-    protected void saveElement(Upgrade upgrade, BitOutput output, ItemSet.Side targetSide) {
-        upgrade.getValues().save(output);
+    protected void saveElement(UpgradeValues upgrade, BitOutput output, ItemSet.Side targetSide) {
+        upgrade.save(output);
     }
 
     @Override
-    protected UpgradeReference createReference(Upgrade element) {
+    UpgradeReference createReference(Model<UpgradeValues> element) {
         return new UpgradeReference(element);
     }
 
     @Override
-    protected Upgrade loadElement(BitInput input) throws UnknownEncodingException {
-        return new Upgrade(UpgradeValues.load(input, itemSet));
+    protected UpgradeValues loadElement(BitInput input) throws UnknownEncodingException {
+        return UpgradeValues.load(input, itemSet);
     }
 
     @Override
@@ -47,17 +46,16 @@ public class UpgradeManager extends ModelManager<Upgrade, UpgradeValues, Upgrade
     }
 
     @Override
+    protected void validateCreation(UpgradeValues values) throws ValidationException, ProgrammingValidationException {
+        values.validateComplete(itemSet, null);
+    }
+
+    @Override
     protected void validate(UpgradeValues upgrade) throws ValidationException, ProgrammingValidationException {
         Validation.scope(
                 "Upgrade " + upgrade.getName(),
                 () -> upgrade.validateComplete(itemSet, upgrade.getId())
         );
-    }
-
-    @Override
-    protected Upgrade checkAndCreateElement(UpgradeValues values) throws ValidationException, ProgrammingValidationException {
-        values.validateComplete(itemSet, null);
-        return new Upgrade(values);
     }
 
     @Override
@@ -74,6 +72,6 @@ public class UpgradeManager extends ModelManager<Upgrade, UpgradeValues, Upgrade
     }
 
     public Optional<UpgradeValues> get(UUID id) {
-        return CollectionHelper.find(elements, upgrade -> upgrade.getValues().getId(), id).map(Upgrade::getValues);
+        return CollectionHelper.find(elements, upgrade -> upgrade.getValues().getId(), id).map(Model::getValues);
     }
 }

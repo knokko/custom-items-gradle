@@ -1,31 +1,28 @@
 package nl.knokko.customitems.itemset;
 
-import nl.knokko.customitems.model.Model;
 import nl.knokko.customitems.model.ModelValues;
-import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.CollectionHelper;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 
-abstract class StringBasedReference<M extends Model<V>, V extends ModelValues> extends ModelReference<M, V> implements Supplier<V> {
+abstract class StringBasedReference<V extends ModelValues> extends ModelReference<V> implements Supplier<V> {
 
     String name;
     ItemSet itemSet;
 
-    M model;
+    Model<V> model;
 
     StringBasedReference(String name, ItemSet itemSet) {
-        Checks.nonNull(name, itemSet);
-        this.name = name;
-        this.itemSet = itemSet;
+        this.name = Objects.requireNonNull(name);
+        this.itemSet = Objects.requireNonNull(itemSet);
         itemSet.stringReferences.add(this);
     }
 
-    StringBasedReference(M model) {
-        Checks.notNull(model);
-        this.model = model;
+    StringBasedReference(Model<V> model) {
+        this.model = Objects.requireNonNull(model);
     }
 
     @Override
@@ -33,7 +30,7 @@ abstract class StringBasedReference<M extends Model<V>, V extends ModelValues> e
     public boolean equals(Object other) {
         if (other.getClass() == this.getClass()) {
             String ownName = name != null ? name : extractIdentity(model.getValues());
-            StringBasedReference<M, V> otherRef = (StringBasedReference<M, V>) other;
+            StringBasedReference<V> otherRef = (StringBasedReference<V>) other;
             String otherName = otherRef.name != null ? otherRef.name : otherRef.extractIdentity(otherRef.model.getValues());
             return ownName.equals(otherName);
         } else {
@@ -55,25 +52,25 @@ abstract class StringBasedReference<M extends Model<V>, V extends ModelValues> e
 
     abstract String getDescription();
 
-    abstract Collection<M> getCollection();
+    abstract Collection<Model<V>> getCollection();
 
     abstract String extractIdentity(V values);
 
     public V get() {
-        M foundModel = getModel();
+        Model<V> foundModel = getModel();
         if (foundModel == null) {
             throw new RuntimeException("Can't find " + getDescription() + " with name " + name);
         }
         return foundModel.getValues();
     }
 
-    M getModel() {
+    Model<V> getModel() {
         if (model == null) {
             if (!itemSet.finishedLoading) {
                 throw new IllegalStateException("Attempted to load " + getDescription() + name + " before the item set finished loading");
             }
 
-            Optional<M> foundModel = CollectionHelper.find(getCollection(), item -> extractIdentity(item.getValues()), name);
+            Optional<Model<V>> foundModel = CollectionHelper.find(getCollection(), item -> extractIdentity(item.getValues()), name);
 
             if (foundModel.isPresent()) {
                 model = foundModel.get();

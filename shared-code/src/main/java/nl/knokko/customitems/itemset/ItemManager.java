@@ -2,7 +2,6 @@ package nl.knokko.customitems.itemset;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
-import nl.knokko.customitems.item.CustomItem;
 import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.CollectionHelper;
@@ -14,19 +13,19 @@ import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-public class ItemManager extends ModelManager<CustomItem, CustomItemValues, ItemReference> {
+public class ItemManager extends ModelManager<CustomItemValues, ItemReference> {
 
     protected ItemManager(ItemSet itemSet) {
         super(itemSet);
     }
 
     @Override
-    protected void saveElement(CustomItem item, BitOutput output, ItemSet.Side targetSide) {
-        item.getValues().save(output, targetSide);
+    protected void saveElement(CustomItemValues item, BitOutput output, ItemSet.Side targetSide) {
+        item.save(output, targetSide);
     }
 
     @Override
-    protected ItemReference createReference(CustomItem element) {
+    ItemReference createReference(Model<CustomItemValues> element) {
         return new ItemReference(element);
     }
 
@@ -34,13 +33,13 @@ public class ItemManager extends ModelManager<CustomItem, CustomItemValues, Item
         int numItems = input.readInt();
         this.elements = new ArrayList<>(numItems);
         for (int counter = 0; counter < numItems; counter++) {
-            this.elements.add(new CustomItem(CustomItemValues.load(input, itemSet, false)));
+            this.elements.add(new Model<>(CustomItemValues.load(input, itemSet, false)));
         }
     }
 
     @Override
-    protected CustomItem loadElement(BitInput input) throws UnknownEncodingException {
-        return new CustomItem(CustomItemValues.load(input, itemSet, true));
+    protected CustomItemValues loadElement(BitInput input) throws UnknownEncodingException {
+        return CustomItemValues.load(input, itemSet, true);
     }
 
     @Override
@@ -58,17 +57,16 @@ public class ItemManager extends ModelManager<CustomItem, CustomItemValues, Item
     }
 
     @Override
+    protected void validateCreation(CustomItemValues values) throws ValidationException, ProgrammingValidationException {
+        values.validateComplete(itemSet, null);
+    }
+
+    @Override
     protected void validate(CustomItemValues item) throws ValidationException, ProgrammingValidationException {
         Validation.scope(
                 "Item " + item.getName(),
                 () -> item.validateComplete(itemSet, item.getName())
         );
-    }
-
-    @Override
-    protected CustomItem checkAndCreateElement(CustomItemValues values) throws ValidationException, ProgrammingValidationException {
-        values.validateComplete(itemSet, null);
-        return new CustomItem(values);
     }
 
     @Override
@@ -92,6 +90,6 @@ public class ItemManager extends ModelManager<CustomItem, CustomItemValues, Item
     }
 
     public Optional<CustomItemValues> get(String itemName) {
-        return CollectionHelper.find(elements, item -> item.getValues().getName(), itemName).map(CustomItem::getValues);
+        return CollectionHelper.find(elements, item -> item.getValues().getName(), itemName).map(Model::getValues);
     }
 }

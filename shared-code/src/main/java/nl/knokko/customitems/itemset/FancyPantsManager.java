@@ -2,7 +2,6 @@ package nl.knokko.customitems.itemset;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
-import nl.knokko.customitems.texture.FancyPantsArmorTexture;
 import nl.knokko.customitems.texture.FancyPantsArmorTextureValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.CollectionHelper;
@@ -14,26 +13,25 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
-public class FancyPantsManager extends ModelManager<
-        FancyPantsArmorTexture, FancyPantsArmorTextureValues, FancyPantsArmorTextureReference> {
+public class FancyPantsManager extends ModelManager<FancyPantsArmorTextureValues, FancyPantsArmorTextureReference> {
 
     protected FancyPantsManager(ItemSet itemSet) {
         super(itemSet);
     }
 
     @Override
-    protected void saveElement(FancyPantsArmorTexture element, BitOutput output, ItemSet.Side targetSide) {
-        element.getValues().save(output, targetSide);
+    protected void saveElement(FancyPantsArmorTextureValues element, BitOutput output, ItemSet.Side targetSide) {
+        element.save(output, targetSide);
     }
 
     @Override
-    protected FancyPantsArmorTextureReference createReference(FancyPantsArmorTexture element) {
+    FancyPantsArmorTextureReference createReference(Model<FancyPantsArmorTextureValues> element) {
         return new FancyPantsArmorTextureReference(element);
     }
 
     @Override
-    protected FancyPantsArmorTexture loadElement(BitInput input) throws UnknownEncodingException {
-        return new FancyPantsArmorTexture(FancyPantsArmorTextureValues.load(input, itemSet.getSide()));
+    protected FancyPantsArmorTextureValues loadElement(BitInput input) throws UnknownEncodingException {
+        return FancyPantsArmorTextureValues.load(input, itemSet.getSide());
     }
 
     @Override
@@ -52,17 +50,16 @@ public class FancyPantsManager extends ModelManager<
     }
 
     @Override
+    protected void validateCreation(FancyPantsArmorTextureValues values) throws ValidationException, ProgrammingValidationException {
+        values.validate(itemSet, null);
+    }
+
+    @Override
     protected void validate(FancyPantsArmorTextureValues fpTexture) throws ValidationException, ProgrammingValidationException {
         Validation.scope(
                 "FP texture " + fpTexture.getName(),
                 () -> fpTexture.validate(itemSet, fpTexture.getId())
         );
-    }
-
-    @Override
-    protected FancyPantsArmorTexture checkAndCreateElement(FancyPantsArmorTextureValues values) throws ValidationException, ProgrammingValidationException {
-        values.validate(itemSet, null);
-        return new FancyPantsArmorTexture(values);
     }
 
     @Override
@@ -81,7 +78,7 @@ public class FancyPantsManager extends ModelManager<
     }
 
     public Optional<FancyPantsArmorTextureValues> get(UUID id) {
-        return CollectionHelper.find(elements, fpTexture -> fpTexture.getValues().getId(), id).map(FancyPantsArmorTexture::getValues);
+        return CollectionHelper.find(elements, fpTexture -> fpTexture.getValues().getId(), id).map(Model::getValues);
     }
 
     public int findFreeRgb() {

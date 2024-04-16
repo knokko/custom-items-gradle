@@ -6,28 +6,27 @@ import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.Validation;
 import nl.knokko.customitems.util.ValidationException;
-import nl.knokko.customitems.worldgen.TreeGenerator;
 import nl.knokko.customitems.worldgen.TreeGeneratorValues;
 
-public class TreeGeneratorManager extends ModelManager<TreeGenerator, TreeGeneratorValues, TreeGeneratorReference> {
+public class TreeGeneratorManager extends ModelManager<TreeGeneratorValues, TreeGeneratorReference> {
 
     protected TreeGeneratorManager(ItemSet itemSet) {
         super(itemSet);
     }
 
     @Override
-    protected void saveElement(TreeGenerator treeGenerator, BitOutput output, ItemSet.Side targetSide) {
-        treeGenerator.getValues().save(output);
+    protected void saveElement(TreeGeneratorValues treeGenerator, BitOutput output, ItemSet.Side targetSide) {
+        treeGenerator.save(output);
     }
 
     @Override
-    protected TreeGeneratorReference createReference(TreeGenerator element) {
+    TreeGeneratorReference createReference(Model<TreeGeneratorValues> element) {
         return new TreeGeneratorReference(element);
     }
 
     @Override
-    protected TreeGenerator loadElement(BitInput input) throws UnknownEncodingException {
-        return new TreeGenerator(TreeGeneratorValues.load(input, itemSet));
+    protected TreeGeneratorValues loadElement(BitInput input) throws UnknownEncodingException {
+        return TreeGeneratorValues.load(input, itemSet);
     }
 
     @Override
@@ -43,9 +42,8 @@ public class TreeGeneratorManager extends ModelManager<TreeGenerator, TreeGenera
     }
 
     @Override
-    protected TreeGenerator checkAndCreateElement(TreeGeneratorValues values) throws ValidationException, ProgrammingValidationException {
+    protected void validateCreation(TreeGeneratorValues values) throws ValidationException, ProgrammingValidationException {
         values.validate(itemSet);
-        return new TreeGenerator(values);
     }
 
     @Override

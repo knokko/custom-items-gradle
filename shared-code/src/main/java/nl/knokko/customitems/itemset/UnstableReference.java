@@ -1,24 +1,23 @@
 package nl.knokko.customitems.itemset;
 
-import nl.knokko.customitems.model.Model;
 import nl.knokko.customitems.model.ModelValues;
-import nl.knokko.customitems.util.Checks;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
-abstract class UnstableReference<M extends Model<V>, V extends ModelValues> extends ModelReference<M, V> implements Supplier<V> {
+abstract class UnstableReference<V extends ModelValues> extends ModelReference<V> implements Supplier<V> {
 
-    final M model;
+    final Model<V> model;
 
-    UnstableReference(M model) {
-        Checks.notNull(model);
-        this.model = model;
+    UnstableReference(Model<V> model) {
+        this.model = Objects.requireNonNull(model);
     }
 
     @Override
     public boolean equals(Object other) {
         if (other.getClass() == this.getClass()) {
-            return model == ((UnstableReference) other).model;
+            //noinspection unchecked
+            return model == ((UnstableReference<V>) other).model;
         } else {
             return false;
         }
@@ -33,7 +32,7 @@ abstract class UnstableReference<M extends Model<V>, V extends ModelValues> exte
         return model.getValues();
     }
 
-    M getModel() {
+    Model<V> getModel() {
         return model;
     }
 }

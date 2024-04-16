@@ -4,7 +4,6 @@ import nl.knokko.customitems.bithelper.BitHelper;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
-import nl.knokko.customitems.model.Model;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -18,12 +17,10 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public abstract class ModelManager<
-        M extends Model<V>, V extends ModelValues, R extends ModelReference<M, V>
-        > implements Iterable<V> {
+public abstract class ModelManager<V extends ModelValues, R extends ModelReference<V>> implements Iterable<V> {
 
-    protected final ItemSet itemSet;
-    protected Collection<M> elements = new ArrayList<>();
+    final ItemSet itemSet;
+    Collection<Model<V>> elements = new ArrayList<>();
 
     protected ModelManager(ItemSet itemSet) {
         this.itemSet = itemSet;
@@ -33,15 +30,15 @@ public abstract class ModelManager<
         return elements.isEmpty();
     }
 
-    protected abstract void saveElement(M element, BitOutput output, ItemSet.Side targetSide);
+    protected abstract void saveElement(V element, BitOutput output, ItemSet.Side targetSide);
 
     public void save(BitOutput output, ExecutorService threadPool, ItemSet.Side targetSide) {
         output.addInt(elements.size());
         List<Future<ByteArrayBitOutput>> allElementsData = new ArrayList<>();
-        for (M element : elements) {
+        for (Model<V> element : elements) {
             allElementsData.add(threadPool.submit(() -> {
                 ByteArrayBitOutput elementData = new ByteArrayBitOutput(10000);
-                saveElement(element, elementData, targetSide);
+                saveElement(element.getValues(), elementData, targetSide);
                 return elementData;
             }));
         }
@@ -60,26 +57,26 @@ public abstract class ModelManager<
         });
     }
 
-    protected <I> void validateUniqueIDs(
-            String description, Collection<M> collection, Function<M, I> getID
+    <I> void validateUniqueIDs(
+            String description, Collection<Model<V>> collection, Function<Model<V>, I> getID
     ) throws ProgrammingValidationException {
         Set<I> foundIDs = new HashSet<>(collection.size());
-        for (M element : collection) {
+        for (Model<V> element : collection) {
             I id = getID.apply(element);
             if (foundIDs.contains(id)) throw new ProgrammingValidationException("Duplicate " + description + " " + id);
             foundIDs.add(id);
         }
     }
 
-    protected abstract R createReference(M element);
+    abstract R createReference(Model<V> element);
 
-    protected abstract M loadElement(BitInput input) throws UnknownEncodingException;
+    protected abstract V loadElement(BitInput input) throws UnknownEncodingException;
 
     public void load(BitInput input) throws UnknownEncodingException {
         int numElements = input.readInt();
         elements = new ArrayList<>(numElements);
         for (int counter = 0; counter < numElements; counter++) {
-            elements.add(loadElement(input));
+            elements.add(new Model<>(loadElement(input)));
         }
     }
 
@@ -88,7 +85,7 @@ public abstract class ModelManager<
     }
 
     public boolean isValid(R reference) {
-        M element = reference.getModel();
+        Model<V> element = reference.getModel();
         if (element == null) return false;
         return elements.contains(element);
     }
@@ -98,20 +95,20 @@ public abstract class ModelManager<
     ) throws ValidationException, ProgrammingValidationException;
 
     public void validateExportVersion(int mcVersion) throws ValidationException, ProgrammingValidationException {
-        for (M element : elements) validateExportVersion(element.getValues(), mcVersion);
+        for (Model<V> element : elements) validateExportVersion(element.getValues(), mcVersion);
     }
 
     protected abstract void validate(V element) throws ValidationException, ProgrammingValidationException;
 
     public void validate() throws ValidationException, ProgrammingValidationException {
-        for (M element : elements) validate(element.getValues());
+        for (Model<V> element : elements) validate(element.getValues());
     }
 
-    protected abstract M checkAndCreateElement(V values) throws ValidationException, ProgrammingValidationException;
+    protected abstract void validateCreation(V values) throws ValidationException, ProgrammingValidationException;
 
     public void add(V values) throws ValidationException, ProgrammingValidationException {
-        M toAdd = checkAndCreateElement(values);
-        elements.add(toAdd);
+        validateCreation(values);
+        elements.add(new Model<>(values));
         itemSet.maybeCreateBackup();
     }
 
@@ -125,7 +122,7 @@ public abstract class ModelManager<
     }
 
     public void remove(R reference) throws ValidationException, ProgrammingValidationException {
-        M model = reference.getModel();
+        Model<V> model = reference.getModel();
         if (model == null) throw new ProgrammingValidationException("Model is invalid");
         String errorMessage = null;
 
@@ -154,24 +151,24 @@ public abstract class ModelManager<
     }
 
     public Iterable<R> references() {
-        return new ModelManager<M, V, R>.References();
+        return new ModelManager<V, R>.References();
     }
 
-    public void combine(ModelManager<M, ?, ?> primary, ModelManager<M, ?, ?> secondary) throws ValidationException {
+    public void combine(ModelManager<V, ?> primary, ModelManager<V, ?> secondary) throws ValidationException {
         elements.addAll(primary.elements);
         elements.addAll(secondary.elements);
     }
 
-    public void combineUnchecked(ModelManager<?, ?, ?> primary, ModelManager<?, ?, ?> secondary) throws ValidationException {
+    public void combineUnchecked(ModelManager<?, ?> primary, ModelManager<?, ?> secondary) throws ValidationException {
         //noinspection unchecked
-        combine((ModelManager<M, ?, ?>) primary, (ModelManager<M, ?, ?>) secondary);
+        combine((ModelManager<V, ?>) primary, (ModelManager<V, ?>) secondary);
     }
 
-    private static class CollectionViewIterator<M extends Model<V>, V extends ModelValues> implements Iterator<V> {
+    private static class CollectionViewIterator<V extends ModelValues> implements Iterator<V> {
 
-        private final Iterator<M> modelIterator;
+        private final Iterator<Model<V>> modelIterator;
 
-        CollectionViewIterator(Iterator<M> modelIterator) {
+        CollectionViewIterator(Iterator<Model<V>> modelIterator) {
             this.modelIterator = modelIterator;
         }
 
@@ -190,15 +187,15 @@ public abstract class ModelManager<
 
         @Override
         public Iterator<R> iterator() {
-            return new ModelManager<M, V, R>.ReferenceIterator(elements.iterator());
+            return new ModelManager<V, R>.ReferenceIterator(elements.iterator());
         }
     }
 
     private class ReferenceIterator implements Iterator<R> {
 
-        private final Iterator<M> modelIterator;
+        private final Iterator<Model<V>> modelIterator;
 
-        private ReferenceIterator(Iterator<M> modelIterator) {
+        private ReferenceIterator(Iterator<Model<V>> modelIterator) {
             this.modelIterator = modelIterator;
         }
 

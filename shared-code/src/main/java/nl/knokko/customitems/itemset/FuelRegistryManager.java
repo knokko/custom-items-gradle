@@ -2,7 +2,6 @@ package nl.knokko.customitems.itemset;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
-import nl.knokko.customitems.container.fuel.CustomFuelRegistry;
 import nl.knokko.customitems.container.fuel.FuelRegistryValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.CollectionHelper;
@@ -13,25 +12,25 @@ import nl.knokko.customitems.util.ValidationException;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-public class FuelRegistryManager extends ModelManager<CustomFuelRegistry, FuelRegistryValues, FuelRegistryReference> {
+public class FuelRegistryManager extends ModelManager<FuelRegistryValues, FuelRegistryReference> {
 
     protected FuelRegistryManager(ItemSet itemSet) {
         super(itemSet);
     }
 
     @Override
-    protected void saveElement(CustomFuelRegistry element, BitOutput output, ItemSet.Side targetSide) {
-        element.getValues().save(output);
+    protected void saveElement(FuelRegistryValues element, BitOutput output, ItemSet.Side targetSide) {
+        element.save(output);
     }
 
     @Override
-    protected FuelRegistryReference createReference(CustomFuelRegistry element) {
+    FuelRegistryReference createReference(Model<FuelRegistryValues> element) {
         return new FuelRegistryReference(element);
     }
 
     @Override
-    protected CustomFuelRegistry loadElement(BitInput input) throws UnknownEncodingException {
-        return new CustomFuelRegistry(FuelRegistryValues.load(input, itemSet));
+    protected FuelRegistryValues loadElement(BitInput input) throws UnknownEncodingException {
+        return FuelRegistryValues.load(input, itemSet);
     }
 
     @Override
@@ -49,17 +48,16 @@ public class FuelRegistryManager extends ModelManager<CustomFuelRegistry, FuelRe
     }
 
     @Override
+    protected void validateCreation(FuelRegistryValues values) throws ValidationException, ProgrammingValidationException {
+        values.validate(itemSet, null);
+    }
+
+    @Override
     protected void validate(FuelRegistryValues fuelRegistry) throws ValidationException, ProgrammingValidationException {
         Validation.scope(
                 "Fuel registry " + fuelRegistry.getName(),
                 () -> fuelRegistry.validate(itemSet, fuelRegistry.getName())
         );
-    }
-
-    @Override
-    protected CustomFuelRegistry checkAndCreateElement(FuelRegistryValues values) throws ValidationException, ProgrammingValidationException {
-        values.validate(itemSet, null);
-        return new CustomFuelRegistry(values);
     }
 
     @Override
@@ -76,6 +74,6 @@ public class FuelRegistryManager extends ModelManager<CustomFuelRegistry, FuelRe
     }
 
     public Optional<FuelRegistryValues> get(String name) {
-        return CollectionHelper.find(elements, registry -> registry.getValues().getName(), name).map(CustomFuelRegistry::getValues);
+        return CollectionHelper.find(elements, registry -> registry.getValues().getName(), name).map(Model::getValues);
     }
 }

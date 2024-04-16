@@ -2,32 +2,31 @@ package nl.knokko.customitems.itemset;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
-import nl.knokko.customitems.item.equipment.EquipmentSet;
 import nl.knokko.customitems.item.equipment.EquipmentSetValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.Validation;
 import nl.knokko.customitems.util.ValidationException;
 
-public class EquipmentSetManager extends ModelManager<EquipmentSet, EquipmentSetValues, EquipmentSetReference> {
+public class EquipmentSetManager extends ModelManager<EquipmentSetValues, EquipmentSetReference> {
 
     protected EquipmentSetManager(ItemSet itemSet) {
         super(itemSet);
     }
 
     @Override
-    protected void saveElement(EquipmentSet element, BitOutput output, ItemSet.Side targetSide) {
-        element.getValues().save(output);
+    protected void saveElement(EquipmentSetValues element, BitOutput output, ItemSet.Side targetSide) {
+        element.save(output);
     }
 
     @Override
-    protected EquipmentSetReference createReference(EquipmentSet element) {
+    EquipmentSetReference createReference(Model<EquipmentSetValues> element) {
         return new EquipmentSetReference(element);
     }
 
     @Override
-    protected EquipmentSet loadElement(BitInput input) throws UnknownEncodingException {
-        return new EquipmentSet(EquipmentSetValues.load(input, itemSet));
+    protected EquipmentSetValues loadElement(BitInput input) throws UnknownEncodingException {
+        return EquipmentSetValues.load(input, itemSet);
     }
 
     @Override
@@ -44,9 +43,8 @@ public class EquipmentSetManager extends ModelManager<EquipmentSet, EquipmentSet
     }
 
     @Override
-    protected EquipmentSet checkAndCreateElement(EquipmentSetValues values) throws ValidationException, ProgrammingValidationException {
+    protected void validateCreation(EquipmentSetValues values) throws ValidationException, ProgrammingValidationException {
         values.validate(itemSet);
-        return new EquipmentSet(values);
     }
 
     @Override

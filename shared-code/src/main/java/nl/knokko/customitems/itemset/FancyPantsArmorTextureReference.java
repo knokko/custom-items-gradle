@@ -1,17 +1,16 @@
 package nl.knokko.customitems.itemset;
 
-import nl.knokko.customitems.texture.FancyPantsArmorTexture;
 import nl.knokko.customitems.texture.FancyPantsArmorTextureValues;
 
 import java.util.Collection;
 import java.util.UUID;
 
-public class FancyPantsArmorTextureReference extends UUIDBasedReference<FancyPantsArmorTexture, FancyPantsArmorTextureValues> {
+public class FancyPantsArmorTextureReference extends UUIDBasedReference<FancyPantsArmorTextureValues> {
     FancyPantsArmorTextureReference(UUID id, ItemSet itemSet) {
         super(id, itemSet);
     }
 
-    FancyPantsArmorTextureReference(FancyPantsArmorTexture model) {
+    FancyPantsArmorTextureReference(Model<FancyPantsArmorTextureValues> model) {
         super(model);
     }
 
@@ -21,7 +20,7 @@ public class FancyPantsArmorTextureReference extends UUIDBasedReference<FancyPan
     }
 
     @Override
-    Collection<FancyPantsArmorTexture> getCollection() {
+    Collection<Model<FancyPantsArmorTextureValues>> getCollection() {
         return itemSet.fancyPants.elements;
     }
 

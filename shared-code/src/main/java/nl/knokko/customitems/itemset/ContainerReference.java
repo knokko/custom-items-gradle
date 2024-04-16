@@ -1,17 +1,16 @@
 package nl.knokko.customitems.itemset;
 
 import nl.knokko.customitems.container.CustomContainerValues;
-import nl.knokko.customitems.container.CustomContainer;
 
 import java.util.Collection;
 
-public class ContainerReference extends StringBasedReference<CustomContainer, CustomContainerValues> {
+public class ContainerReference extends StringBasedReference<CustomContainerValues> {
 
     ContainerReference(String name, ItemSet itemSet) {
         super(name, itemSet);
     }
 
-    ContainerReference(CustomContainer model) {
+    ContainerReference(Model<CustomContainerValues> model) {
         super(model);
     }
 
@@ -21,7 +20,7 @@ public class ContainerReference extends StringBasedReference<CustomContainer, Cu
     }
 
     @Override
-    Collection<CustomContainer> getCollection() {
+    Collection<Model<CustomContainerValues>> getCollection() {
         return itemSet.containers.elements;
     }
 

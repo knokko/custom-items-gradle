@@ -1,11 +1,10 @@
 package nl.knokko.customitems.itemset;
 
-import nl.knokko.customitems.worldgen.OreVeinGenerator;
 import nl.knokko.customitems.worldgen.OreVeinGeneratorValues;
 
-public class OreVeinGeneratorReference extends UnstableReference<OreVeinGenerator, OreVeinGeneratorValues> {
+public class OreVeinGeneratorReference extends UnstableReference<OreVeinGeneratorValues> {
 
-    OreVeinGeneratorReference(OreVeinGenerator model) {
+    OreVeinGeneratorReference(Model<OreVeinGeneratorValues> model) {
         super(model);
     }
 }

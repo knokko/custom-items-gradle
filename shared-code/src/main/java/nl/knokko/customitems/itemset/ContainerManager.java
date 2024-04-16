@@ -2,7 +2,6 @@ package nl.knokko.customitems.itemset;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
-import nl.knokko.customitems.container.CustomContainer;
 import nl.knokko.customitems.container.CustomContainerValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.CollectionHelper;
@@ -13,25 +12,25 @@ import nl.knokko.customitems.util.ValidationException;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-public class ContainerManager extends ModelManager<CustomContainer, CustomContainerValues, ContainerReference> {
+public class ContainerManager extends ModelManager<CustomContainerValues, ContainerReference> {
 
     protected ContainerManager(ItemSet itemSet) {
         super(itemSet);
     }
 
     @Override
-    protected void saveElement(CustomContainer element, BitOutput output, ItemSet.Side targetSide) {
-        element.getValues().save(output);
+    protected void saveElement(CustomContainerValues element, BitOutput output, ItemSet.Side targetSide) {
+        element.save(output);
     }
 
     @Override
-    protected ContainerReference createReference(CustomContainer element) {
+    ContainerReference createReference(Model<CustomContainerValues> element) {
         return new ContainerReference(element);
     }
 
     @Override
-    protected CustomContainer loadElement(BitInput input) throws UnknownEncodingException {
-        return new CustomContainer(CustomContainerValues.load(input, itemSet));
+    protected CustomContainerValues loadElement(BitInput input) throws UnknownEncodingException {
+        return CustomContainerValues.load(input, itemSet);
     }
 
     @Override
@@ -49,17 +48,16 @@ public class ContainerManager extends ModelManager<CustomContainer, CustomContai
     }
 
     @Override
+    protected void validateCreation(CustomContainerValues values) throws ValidationException, ProgrammingValidationException {
+        values.validate(itemSet, null);
+    }
+
+    @Override
     protected void validate(CustomContainerValues container) throws ValidationException, ProgrammingValidationException {
         Validation.scope(
                 "Container " + container.getName(),
                 () -> container.validate(itemSet, container.getName())
         );
-    }
-
-    @Override
-    protected CustomContainer checkAndCreateElement(CustomContainerValues values) throws ValidationException, ProgrammingValidationException {
-        values.validate(itemSet, null);
-        return new CustomContainer(values);
     }
 
     @Override
@@ -76,6 +74,6 @@ public class ContainerManager extends ModelManager<CustomContainer, CustomContai
     }
 
     public Optional<CustomContainerValues> get(String containerName) {
-        return CollectionHelper.find(elements, container -> container.getValues().getName(), containerName).map(CustomContainer::getValues);
+        return CollectionHelper.find(elements, container -> container.getValues().getName(), containerName).map(Model::getValues);
     }
 }

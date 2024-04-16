@@ -60,9 +60,9 @@ public class ItemSet {
 
         for (Field field : MANAGER_FIELDS) {
             try {
-                ModelManager<?, ?, ?> destination = (ModelManager<?, ?, ?>) field.get(result);
-                ModelManager<?, ?, ?> primaryManager = (ModelManager<?, ?, ?>) field.get(primary);
-                ModelManager<?, ?, ?> secondaryManager = (ModelManager<?, ?, ?>) field.get(secondary);
+                ModelManager<?, ?> destination = (ModelManager<?, ?>) field.get(result);
+                ModelManager<?, ?> primaryManager = (ModelManager<?, ?>) field.get(primary);
+                ModelManager<?, ?> secondaryManager = (ModelManager<?, ?>) field.get(secondary);
                 destination.combineUnchecked(primaryManager, secondaryManager);
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
@@ -92,9 +92,9 @@ public class ItemSet {
     }
 
     // <---- INTERNAL USE ONLY ---->
-    Collection<IntBasedReference<?, ?>> intReferences;
-    Collection<StringBasedReference<?, ?>> stringReferences;
-    Collection<UUIDBasedReference<?, ?>> uuidReferences;
+    Collection<IntBasedReference<?>> intReferences;
+    Collection<StringBasedReference<?>> stringReferences;
+    Collection<UUIDBasedReference<?>> uuidReferences;
     boolean finishedLoading;
     // <---- END OF INTERNAL USE ---->
 
@@ -143,10 +143,10 @@ public class ItemSet {
         load(input, allowOutdated);
     }
 
-    private Collection<ModelManager<?, ?, ?>> getAllManagers() {
+    private Collection<ModelManager<?, ?>> getAllManagers() {
         return Arrays.stream(MANAGER_FIELDS).map(field -> {
             try {
-                return (ModelManager<?, ?, ?>) field.get(this);
+                return (ModelManager<?, ?>) field.get(this);
             } catch (IllegalAccessException e) {
                 throw new Error(e);
             }
@@ -155,7 +155,7 @@ public class ItemSet {
 
     public boolean isEmpty() {
         if (!removedItemNames.isEmpty()) return false;
-        for (ModelManager<?, ?, ?> manager : getAllManagers()) {
+        for (ModelManager<?, ?> manager : getAllManagers()) {
             if (!manager.isEmpty()) return false;
         }
 
@@ -369,9 +369,9 @@ public class ItemSet {
         finishedLoading = true;
 
         // Ensure that all references find their model (this must happen before the user can rename models)
-        for (IntBasedReference<?, ?> intReference : intReferences) intReference.get();
-        for (StringBasedReference<?, ?> stringReference : stringReferences) stringReference.get();
-        for (UUIDBasedReference<?, ?> uuidReference : uuidReferences) uuidReference.get();
+        for (IntBasedReference<?> intReference : intReferences) intReference.get();
+        for (StringBasedReference<?> stringReference : stringReferences) stringReference.get();
+        for (UUIDBasedReference<?> uuidReference : uuidReferences) uuidReference.get();
         intReferences = null;
         stringReferences = null;
         uuidReferences = null;
@@ -612,11 +612,11 @@ public class ItemSet {
         // Avoid annoying NullPointerException's by first doing a general validation check
         validate();
 
-        for (ModelManager<?, ?, ?> manager : getAllManagers()) manager.validateExportVersion(version);
+        for (ModelManager<?, ?> manager : getAllManagers()) manager.validateExportVersion(version);
     }
 
     private void validate() throws ValidationException, ProgrammingValidationException {
-        for (ModelManager<?, ?, ?> manager : getAllManagers()) manager.validate();
+        for (ModelManager<?, ?> manager : getAllManagers()) manager.validate();
     }
 
     public void setExportSettings(ExportSettingsValues newExportSettings) throws ValidationException, ProgrammingValidationException {

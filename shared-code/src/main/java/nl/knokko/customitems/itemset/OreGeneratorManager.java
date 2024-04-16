@@ -6,28 +6,27 @@ import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.Validation;
 import nl.knokko.customitems.util.ValidationException;
-import nl.knokko.customitems.worldgen.OreVeinGenerator;
 import nl.knokko.customitems.worldgen.OreVeinGeneratorValues;
 
-public class OreGeneratorManager extends ModelManager<OreVeinGenerator, OreVeinGeneratorValues, OreVeinGeneratorReference> {
+public class OreGeneratorManager extends ModelManager<OreVeinGeneratorValues, OreVeinGeneratorReference> {
 
     protected OreGeneratorManager(ItemSet itemSet) {
         super(itemSet);
     }
 
     @Override
-    protected void saveElement(OreVeinGenerator oreGenerator, BitOutput output, ItemSet.Side targetSide) {
-        oreGenerator.getValues().save(output);
+    protected void saveElement(OreVeinGeneratorValues oreGenerator, BitOutput output, ItemSet.Side targetSide) {
+        oreGenerator.save(output);
     }
 
     @Override
-    protected OreVeinGeneratorReference createReference(OreVeinGenerator element) {
+    OreVeinGeneratorReference createReference(Model<OreVeinGeneratorValues> element) {
         return new OreVeinGeneratorReference(element);
     }
 
     @Override
-    protected OreVeinGenerator loadElement(BitInput input) throws UnknownEncodingException {
-        return new OreVeinGenerator(OreVeinGeneratorValues.load(input, itemSet));
+    protected OreVeinGeneratorValues loadElement(BitInput input) throws UnknownEncodingException {
+        return OreVeinGeneratorValues.load(input, itemSet);
     }
 
     @Override
@@ -44,9 +43,8 @@ public class OreGeneratorManager extends ModelManager<OreVeinGenerator, OreVeinG
     }
 
     @Override
-    protected OreVeinGenerator checkAndCreateElement(OreVeinGeneratorValues values) throws ValidationException, ProgrammingValidationException {
+    protected void validateCreation(OreVeinGeneratorValues values) throws ValidationException, ProgrammingValidationException {
         values.validate(itemSet);
-        return new OreVeinGenerator(values);
     }
 
     @Override

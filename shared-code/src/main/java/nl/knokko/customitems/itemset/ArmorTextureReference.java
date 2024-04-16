@@ -1,17 +1,16 @@
 package nl.knokko.customitems.itemset;
 
-import nl.knokko.customitems.texture.ArmorTexture;
 import nl.knokko.customitems.texture.ArmorTextureValues;
 
 import java.util.Collection;
 
-public class ArmorTextureReference extends StringBasedReference<ArmorTexture, ArmorTextureValues> {
+public class ArmorTextureReference extends StringBasedReference<ArmorTextureValues> {
 
     ArmorTextureReference(String name, ItemSet itemSet) {
         super(name, itemSet);
     }
 
-    ArmorTextureReference(ArmorTexture model) {
+    ArmorTextureReference(Model<ArmorTextureValues> model) {
         super(model);
     }
 
@@ -21,7 +20,7 @@ public class ArmorTextureReference extends StringBasedReference<ArmorTexture, Ar
     }
 
     @Override
-    Collection<ArmorTexture> getCollection() {
+    Collection<Model<ArmorTextureValues>> getCollection() {
         return itemSet.armorTextures.elements;
     }
 

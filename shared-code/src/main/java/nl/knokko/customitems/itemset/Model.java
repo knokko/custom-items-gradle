@@ -1,8 +1,10 @@
-package nl.knokko.customitems.model;
+package nl.knokko.customitems.itemset;
 
-public abstract class Model<V extends ModelValues> {
+import nl.knokko.customitems.model.ModelValues;
 
-    protected V values;
+final class Model<V extends ModelValues> {
+
+    private V values;
 
     @SuppressWarnings("unchecked")
     public Model(V values) {
@@ -11,11 +13,6 @@ public abstract class Model<V extends ModelValues> {
 
     public V getValues() {
         return values;
-    }
-
-    @SuppressWarnings("unchecked")
-    public V cloneValues() {
-        return (V) values.copy(true);
     }
 
     @SuppressWarnings("unchecked")
