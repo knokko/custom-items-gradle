@@ -1,9 +1,9 @@
 package nl.knokko.customitems.itemset;
 
-import nl.knokko.customitems.recipe.FurnaceRecipeValues;
+import nl.knokko.customitems.recipe.KciFurnaceRecipe;
 
-public class FurnaceRecipeReference extends UnstableReference<FurnaceRecipeValues> {
-    FurnaceRecipeReference(Model<FurnaceRecipeValues> model) {
+public class FurnaceRecipeReference extends UnstableReference<KciFurnaceRecipe> {
+    FurnaceRecipeReference(Model<KciFurnaceRecipe> model) {
         super(model);
     }
 }

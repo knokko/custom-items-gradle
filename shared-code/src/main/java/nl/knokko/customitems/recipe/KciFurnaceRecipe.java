@@ -4,10 +4,10 @@ import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
-import nl.knokko.customitems.recipe.ingredient.IngredientValues;
-import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
-import nl.knokko.customitems.recipe.result.ResultValues;
-import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
+import nl.knokko.customitems.recipe.ingredient.KciIngredient;
+import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredient;
+import nl.knokko.customitems.recipe.result.KciResult;
+import nl.knokko.customitems.recipe.result.SimpleVanillaResult;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.Validation;
@@ -15,34 +15,34 @@ import nl.knokko.customitems.util.ValidationException;
 
 import static nl.knokko.customitems.MCVersions.VERSION1_13;
 
-public class FurnaceRecipeValues extends ModelValues {
+public class KciFurnaceRecipe extends ModelValues {
 
-    public static FurnaceRecipeValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+    public static KciFurnaceRecipe load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
         if (encoding != 1) throw new UnknownEncodingException("FurnaceRecipe", encoding);
 
-        FurnaceRecipeValues recipe = new FurnaceRecipeValues(false);
-        recipe.input = IngredientValues.load(input, itemSet);
-        recipe.result = ResultValues.load(input, itemSet);
+        KciFurnaceRecipe recipe = new KciFurnaceRecipe(false);
+        recipe.input = KciIngredient.load(input, itemSet);
+        recipe.result = KciResult.load(input, itemSet);
         recipe.experience = input.readFloat();
         recipe.cookTime = input.readInt();
         return recipe;
     }
 
-    private IngredientValues input;
-    private ResultValues result;
+    private KciIngredient input;
+    private KciResult result;
 
     private float experience;
     private int cookTime;
 
-    public FurnaceRecipeValues(boolean mutable) {
+    public KciFurnaceRecipe(boolean mutable) {
         super(mutable);
-        this.input = new SimpleVanillaIngredientValues(false);
-        this.result = new SimpleVanillaResultValues(false);
+        this.input = new SimpleVanillaIngredient(false);
+        this.result = new SimpleVanillaResult(false);
         // TODO Find default experience and cooking time
     }
 
-    public FurnaceRecipeValues(FurnaceRecipeValues toCopy, boolean mutable) {
+    public KciFurnaceRecipe(KciFurnaceRecipe toCopy, boolean mutable) {
         super(mutable);
         this.input = toCopy.getInput();
         this.result = toCopy.getResult();
@@ -66,23 +66,23 @@ public class FurnaceRecipeValues extends ModelValues {
 
     @Override
     public boolean equals(Object other) {
-        if (other instanceof FurnaceRecipeValues) {
-            FurnaceRecipeValues recipe = (FurnaceRecipeValues) other;
+        if (other instanceof KciFurnaceRecipe) {
+            KciFurnaceRecipe recipe = (KciFurnaceRecipe) other;
             return this.input.equals(recipe.input) && this.result.equals(recipe.result) &&
                     this.experience == recipe.experience && this.cookTime == recipe.getCookTime();
         } else return false;
     }
 
     @Override
-    public FurnaceRecipeValues copy(boolean mutable) {
-        return new FurnaceRecipeValues(this, mutable);
+    public KciFurnaceRecipe copy(boolean mutable) {
+        return new KciFurnaceRecipe(this, mutable);
     }
 
-    public IngredientValues getInput() {
+    public KciIngredient getInput() {
         return input;
     }
 
-    public ResultValues getResult() {
+    public KciResult getResult() {
         return result;
     }
 
@@ -94,12 +94,12 @@ public class FurnaceRecipeValues extends ModelValues {
         return cookTime;
     }
 
-    public void setInput(IngredientValues input) {
+    public void setInput(KciIngredient input) {
         assertMutable();
         this.input = input.copy(false);
     }
 
-    public void setResult(ResultValues result) {
+    public void setResult(KciResult result) {
         assertMutable();
         this.result = result.copy(false);
     }
