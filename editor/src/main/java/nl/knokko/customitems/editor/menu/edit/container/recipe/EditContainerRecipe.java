@@ -2,8 +2,8 @@ package nl.knokko.customitems.editor.menu.edit.container.recipe;
 
 import java.util.function.Consumer;
 
-import nl.knokko.customitems.container.ContainerRecipeValues;
-import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.container.ContainerRecipe;
+import nl.knokko.customitems.container.KciContainer;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
@@ -21,16 +21,16 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 public class EditContainerRecipe extends GuiMenu {
 
 	private final ItemSet itemSet;
-	private final CustomContainerValues container;
+	private final KciContainer container;
 	private final GuiComponent returnMenu;
-	private final ContainerRecipeValues currentValues;
-	private final Consumer<ContainerRecipeValues> changeValues;
+	private final ContainerRecipe currentValues;
+	private final Consumer<ContainerRecipe> changeValues;
 
 	private final DynamicTextComponent errorComponent;
 
 	public EditContainerRecipe(
-            ItemSet itemSet, CustomContainerValues container, GuiComponent returnMenu,
-            ContainerRecipeValues oldValues, Consumer<ContainerRecipeValues> changeValues
+			ItemSet itemSet, KciContainer container, GuiComponent returnMenu,
+			ContainerRecipe oldValues, Consumer<ContainerRecipe> changeValues
 	) {
 		this.itemSet = itemSet;
 		this.container = container;

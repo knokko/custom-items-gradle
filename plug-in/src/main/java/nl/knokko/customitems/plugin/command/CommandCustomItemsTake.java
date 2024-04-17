@@ -1,6 +1,6 @@
 package nl.knokko.customitems.plugin.command;
 
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -74,7 +74,7 @@ class CommandCustomItemsTake {
                 }
             }
 
-            List<CustomItemValues> itemList = itemSet.get().items.stream().collect(Collectors.toList());
+            List<KciItem> itemList = itemSet.get().items.stream().collect(Collectors.toList());
             int numItemsPerPage = 6 * 9;
             int firstItemIndex = numItemsPerPage * (page - 1);
 
@@ -94,7 +94,7 @@ class CommandCustomItemsTake {
 
             for (int itemIndex = firstItemIndex; itemIndex <= lastItemIndex; itemIndex++) {
                 int inventoryIndex = itemIndex - firstItemIndex;
-                CustomItemValues customItem = itemList.get(itemIndex);
+                KciItem customItem = itemList.get(itemIndex);
                 takeInventory.setItem(inventoryIndex, wrap(customItem).create(customItem.getMaxStacksize()));
             }
             target.openInventory(takeInventory);

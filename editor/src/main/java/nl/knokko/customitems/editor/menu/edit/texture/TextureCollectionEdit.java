@@ -7,11 +7,11 @@ import nl.knokko.customitems.editor.menu.edit.*;
 import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.TextureReference;
-import nl.knokko.customitems.texture.BaseTextureValues;
-import nl.knokko.customitems.texture.BowTextureValues;
-import nl.knokko.customitems.texture.CrossbowTextureValues;
+import nl.knokko.customitems.texture.KciTexture;
+import nl.knokko.customitems.texture.BowTexture;
+import nl.knokko.customitems.texture.CrossbowTexture;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.texture.animated.AnimatedTextureValues;
+import nl.knokko.customitems.texture.animated.AnimatedTexture;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import org.lwjgl.system.MemoryStack;
@@ -22,7 +22,7 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.BUTTON;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.HOVER;
 import static org.lwjgl.util.nfd.NativeFileDialog.*;
 
-public class TextureCollectionEdit extends DedicatedCollectionEdit<BaseTextureValues, TextureReference> {
+public class TextureCollectionEdit extends DedicatedCollectionEdit<KciTexture, TextureReference> {
 	
 	private final EditMenu menu;
 
@@ -60,7 +60,7 @@ public class TextureCollectionEdit extends DedicatedCollectionEdit<BaseTextureVa
 							String path = NFD_PathSet_GetPath(pathSet, imageIndex);
 							if (path != null) {
 								try {
-									BaseTextureValues fileImage = TextureEdit.loadBasicImage(new File(path));
+									KciTexture fileImage = TextureEdit.loadBasicImage(new File(path));
 									String error = Validation.toErrorString(() -> menu.getSet().textures.add(fileImage));
 									if (error != null) {
 										errorComponent.setText(fileImage.getName() + ": " + error);
@@ -89,27 +89,27 @@ public class TextureCollectionEdit extends DedicatedCollectionEdit<BaseTextureVa
 	}
 
 	@Override
-	protected String getModelLabel(BaseTextureValues model) {
+	protected String getModelLabel(KciTexture model) {
 		return model.getName();
 	}
 
 	@Override
-	protected BufferedImage getModelIcon(BaseTextureValues model) {
+	protected BufferedImage getModelIcon(KciTexture model) {
 		return model.getImage();
 	}
 
 	@Override
-	protected boolean canEditModel(BaseTextureValues model) {
+	protected boolean canEditModel(KciTexture model) {
 		return true;
 	}
 
-	private GuiComponent createEditMenu(TextureReference toModify, BaseTextureValues oldValues) {
-		if (oldValues instanceof CrossbowTextureValues) {
-			return new CrossbowTextureEdit(menu, toModify, (CrossbowTextureValues) oldValues);
-		} else if (oldValues instanceof BowTextureValues) {
-			return new BowTextureEdit(menu, toModify, (BowTextureValues) oldValues);
-		} else if (oldValues instanceof AnimatedTextureValues) {
-			return new AnimatedTextureEdit(menu, toModify, (AnimatedTextureValues) oldValues);
+	private GuiComponent createEditMenu(TextureReference toModify, KciTexture oldValues) {
+		if (oldValues instanceof CrossbowTexture) {
+			return new CrossbowTextureEdit(menu, toModify, (CrossbowTexture) oldValues);
+		} else if (oldValues instanceof BowTexture) {
+			return new BowTextureEdit(menu, toModify, (BowTexture) oldValues);
+		} else if (oldValues instanceof AnimatedTexture) {
+			return new AnimatedTextureEdit(menu, toModify, (AnimatedTexture) oldValues);
 		} else {
 			return new TextureEdit(menu, toModify, oldValues);
 		}

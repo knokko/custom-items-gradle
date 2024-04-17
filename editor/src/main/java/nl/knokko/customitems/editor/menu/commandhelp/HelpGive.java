@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.menu.commandhelp;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -18,7 +18,7 @@ public class HelpGive extends GuiMenu {
 
 	private final WrapperComponent<SimpleImageComponent> selectedItemImage;
 	private final DynamicTextComponent infoComponent;
-	private CustomItemValues selectedItem;
+	private KciItem selectedItem;
 
 	public HelpGive(ItemSet set, GuiComponent returnMenu) {
 		this.set = set;

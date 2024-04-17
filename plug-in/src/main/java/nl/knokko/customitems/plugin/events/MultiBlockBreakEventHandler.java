@@ -1,9 +1,9 @@
 package nl.knokko.customitems.plugin.events;
 
-import nl.knokko.customitems.block.CustomBlockValues;
+import nl.knokko.customitems.block.KciBlock;
 import nl.knokko.customitems.block.drop.SilkTouchRequirement;
-import nl.knokko.customitems.drops.BlockDropValues;
-import nl.knokko.customitems.drops.DropValues;
+import nl.knokko.customitems.drops.BlockDrop;
+import nl.knokko.customitems.drops.KciDrop;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
@@ -52,24 +52,24 @@ public class MultiBlockBreakEventHandler implements Listener {
         ItemStack mainItem = event.getPlayer().getInventory().getItemInMainHand();
         boolean usedSilkTouch = !ItemUtils.isEmpty(mainItem) && mainItem.containsEnchantment(Enchantment.SILK_TOUCH);
         int fortuneLevel = ItemUtils.isEmpty(mainItem) ? 0 : mainItem.getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS);
-        CustomItemValues custom = itemSet.getItem(mainItem);
+        KciItem custom = itemSet.getItem(mainItem);
 
-        Iterable<BlockDropValues> customDrops = itemSet.getBlockDrops(
-                CIMaterial.getOrNull(KciNms.instance.items.getMaterialName(event.getBlock()))
+        Iterable<BlockDrop> customDrops = itemSet.getBlockDrops(
+                VMaterial.getOrNull(KciNms.instance.items.getMaterialName(event.getBlock()))
         );
 
         Random random = new Random();
         boolean cancelDefaultDrops = false;
         Collection<ItemStack> stacksToDrop = new ArrayList<>();
 
-        for (BlockDropValues blockDrop : customDrops) {
+        for (BlockDrop blockDrop : customDrops) {
             if (usedSilkTouch && blockDrop.getSilkTouchRequirement() == SilkTouchRequirement.FORBIDDEN) continue;
             if (!usedSilkTouch && blockDrop.getSilkTouchRequirement() == SilkTouchRequirement.REQUIRED) continue;
 
             if (fortuneLevel < blockDrop.getMinFortuneLevel()) continue;
             if (blockDrop.getMaxFortuneLevel() != null && fortuneLevel > blockDrop.getMaxFortuneLevel()) continue;
 
-            DropValues drop = blockDrop.getDrop();
+            KciDrop drop = blockDrop.getDrop();
             if (collectDrops(stacksToDrop, drop, event.getBlock().getLocation(), random, itemSet, mainItem)) {
                 cancelDefaultDrops = true;
             }
@@ -80,7 +80,7 @@ public class MultiBlockBreakEventHandler implements Listener {
             boolean wasSolid = KciNms.instance.items.isMaterialSolid(event.getBlock());
             boolean wasFakeMainHand = DualWieldSupport.isFakeMainHand(event);
 
-            MultiBlockBreakValues mbb = custom.getMultiBlockBreak();
+            MultiBlockBreak mbb = custom.getMultiBlockBreak();
             Collection<Block> extraBlocksToBreak = new ArrayList<>();
 
             if (mbb.getSize() > 1) {
@@ -90,16 +90,16 @@ public class MultiBlockBreakEventHandler implements Listener {
                 int coreZ = event.getBlock().getZ();
 
                 String blockType = KciNms.instance.items.getMaterialName(event.getBlock());
-                CustomBlockValues customBlock = MushroomBlockHelper.getMushroomBlock(event.getBlock());
+                KciBlock customBlock = MushroomBlockHelper.getMushroomBlock(event.getBlock());
 
                 for (int x = 1 + coreX - mbb.getSize(); x < coreX + mbb.getSize(); x++) {
                     for (int y = 1 + coreY - mbb.getSize(); y < coreY + mbb.getSize(); y++) {
                         for (int z = 1 + coreZ - mbb.getSize(); z < coreZ + mbb.getSize(); z++) {
                             if (x != coreX || y != coreY || z != coreZ) {
                                 boolean isCloseEnough;
-                                if (mbb.getShape() == MultiBlockBreakValues.Shape.CUBE) {
+                                if (mbb.getShape() == MultiBlockBreak.Shape.CUBE) {
                                     isCloseEnough = true;
-                                } else if (mbb.getShape() == MultiBlockBreakValues.Shape.MANHATTAN) {
+                                } else if (mbb.getShape() == MultiBlockBreak.Shape.MANHATTAN) {
                                     int dx = Math.abs(x - coreX);
                                     int dy = Math.abs(y - coreY);
                                     int dz = Math.abs(z - coreZ);
@@ -111,7 +111,7 @@ public class MultiBlockBreakEventHandler implements Listener {
                                     boolean isSameBlock;
                                     Block candidateBlock = event.getBlock().getWorld().getBlockAt(x, y, z);
                                     if (customBlock != null) {
-                                        CustomBlockValues candidateCustomBlock = MushroomBlockHelper.getMushroomBlock(candidateBlock);
+                                        KciBlock candidateCustomBlock = MushroomBlockHelper.getMushroomBlock(candidateBlock);
                                         isSameBlock = candidateCustomBlock != null && candidateCustomBlock.getInternalID() == customBlock.getInternalID();
                                     } else {
                                         String candidateBlockType = KciNms.instance.items.getMaterialName(candidateBlock);
@@ -179,7 +179,7 @@ public class MultiBlockBreakEventHandler implements Listener {
 
         // Simple custom items with shear internal type should have normal drops
         // instead of shear drops
-        if (!cancelDefaultDrops && custom != null && custom.getItemType() == CustomItemType.SHEARS && !(custom instanceof CustomShearsValues)) {
+        if (!cancelDefaultDrops && custom != null && custom.getItemType() == KciItemType.SHEARS && !(custom instanceof KciShears)) {
             cancelDefaultDrops = true;
             Collection<ItemStack> regularDrops = event.getBlock().getDrops();
 

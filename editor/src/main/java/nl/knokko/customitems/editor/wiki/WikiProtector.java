@@ -1,24 +1,24 @@
 package nl.knokko.customitems.editor.wiki;
 
-import nl.knokko.customitems.container.ContainerRecipeValues;
+import nl.knokko.customitems.container.ContainerRecipe;
 import nl.knokko.customitems.item.WikiVisibility;
-import nl.knokko.customitems.recipe.CraftingRecipeValues;
-import nl.knokko.customitems.recipe.OutputTableValues;
-import nl.knokko.customitems.recipe.ShapedRecipeValues;
-import nl.knokko.customitems.recipe.ShapelessRecipeValues;
-import nl.knokko.customitems.recipe.ingredient.CustomItemIngredientValues;
-import nl.knokko.customitems.recipe.ingredient.IngredientValues;
-import nl.knokko.customitems.recipe.result.CustomItemResultValues;
-import nl.knokko.customitems.recipe.result.ResultValues;
-import nl.knokko.customitems.recipe.result.UpgradeResultValues;
+import nl.knokko.customitems.recipe.KciCraftingRecipe;
+import nl.knokko.customitems.recipe.OutputTable;
+import nl.knokko.customitems.recipe.KciShapedRecipe;
+import nl.knokko.customitems.recipe.KciShapelessRecipe;
+import nl.knokko.customitems.recipe.ingredient.CustomItemIngredient;
+import nl.knokko.customitems.recipe.ingredient.KciIngredient;
+import nl.knokko.customitems.recipe.result.CustomItemResult;
+import nl.knokko.customitems.recipe.result.KciResult;
+import nl.knokko.customitems.recipe.result.UpgradeResult;
 
 public class WikiProtector {
 
-    public static boolean isRecipeSecret(CraftingRecipeValues recipe) {
+    public static boolean isRecipeSecret(KciCraftingRecipe recipe) {
         if (isResultSecret(recipe.getResult())) return true;
 
-        if (recipe instanceof ShapedRecipeValues) {
-            ShapedRecipeValues shapedRecipe = (ShapedRecipeValues) recipe;
+        if (recipe instanceof KciShapedRecipe) {
+            KciShapedRecipe shapedRecipe = (KciShapedRecipe) recipe;
             for (int x = 0; x < 3; x++) {
                 for (int y = 0; y < 3; y++) {
                     if (isIngredientSecret(shapedRecipe.getIngredientAt(x, y))) return true;
@@ -26,30 +26,30 @@ public class WikiProtector {
             }
             return false;
         } else {
-            ShapelessRecipeValues shapelessRecipe = (ShapelessRecipeValues) recipe;
+            KciShapelessRecipe shapelessRecipe = (KciShapelessRecipe) recipe;
             return shapelessRecipe.getIngredients().stream().anyMatch(WikiProtector::isIngredientSecret);
         }
     }
 
-    public static boolean isRecipeSecret(ContainerRecipeValues recipe) {
+    public static boolean isRecipeSecret(ContainerRecipe recipe) {
         return isResultSecret(recipe.getManualOutput())
                 || recipe.getOutputs().values().stream().anyMatch(WikiProtector::isOutputTableSecret)
                 || recipe.getInputs().values().stream().anyMatch(WikiProtector::isIngredientSecret);
     }
 
-    private static boolean isOutputTableSecret(OutputTableValues table) {
+    private static boolean isOutputTableSecret(OutputTable table) {
         return table.getEntries().stream().anyMatch(entry -> isResultSecret(entry.getResult()));
     }
 
-    public static boolean isIngredientSecret(IngredientValues ingredient) {
+    public static boolean isIngredientSecret(KciIngredient ingredient) {
         if (isResultSecret(ingredient.getRemainingItem())) return true;
-        return ingredient instanceof CustomItemIngredientValues
-                && ((CustomItemIngredientValues) ingredient).getItem().getWikiVisibility() == WikiVisibility.SECRET;
+        return ingredient instanceof CustomItemIngredient
+                && ((CustomItemIngredient) ingredient).getItem().getWikiVisibility() == WikiVisibility.SECRET;
     }
 
-    public static boolean isResultSecret(ResultValues result) {
-        if (result instanceof UpgradeResultValues) return isResultSecret(((UpgradeResultValues) result).getNewType());
-        return result instanceof CustomItemResultValues
-                && ((CustomItemResultValues) result).getItem().getWikiVisibility() == WikiVisibility.SECRET;
+    public static boolean isResultSecret(KciResult result) {
+        if (result instanceof UpgradeResult) return isResultSecret(((UpgradeResult) result).getNewType());
+        return result instanceof CustomItemResult
+                && ((CustomItemResult) result).getItem().getWikiVisibility() == WikiVisibility.SECRET;
     }
 }

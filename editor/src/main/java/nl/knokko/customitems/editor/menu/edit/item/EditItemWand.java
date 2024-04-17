@@ -6,10 +6,10 @@ import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.*;
-import nl.knokko.customitems.item.AttributeModifierValues.Attribute;
-import nl.knokko.customitems.item.AttributeModifierValues.Operation;
-import nl.knokko.customitems.item.AttributeModifierValues.Slot;
-import nl.knokko.customitems.item.CustomItemType.Category;
+import nl.knokko.customitems.item.KciAttributeModifier.Attribute;
+import nl.knokko.customitems.item.KciAttributeModifier.Operation;
+import nl.knokko.customitems.item.KciAttributeModifier.Slot;
+import nl.knokko.customitems.item.KciItemType.Category;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
@@ -20,16 +20,16 @@ import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
-public class EditItemWand extends EditItemBase<CustomWandValues> {
+public class EditItemWand extends EditItemBase<KciWand> {
 	
-	private static final AttributeModifierValues EXAMPLE = AttributeModifierValues.createQuick(
+	private static final KciAttributeModifier EXAMPLE = KciAttributeModifier.createQuick(
 			Attribute.MOVEMENT_SPEED, Slot.OFFHAND, Operation.MULTIPLY, 1.2
 	);
 	
 	private static final float BUTTON_X2 = 0.75f;
 	private static final float LABEL_X2 = BUTTON_X2 - 0.01f;
 	
-	public EditItemWand(EditMenu menu, CustomWandValues oldValues, ItemReference toModify) {
+	public EditItemWand(EditMenu menu, KciWand oldValues, ItemReference toModify) {
 		super(menu, oldValues, toModify);
 	}
 	
@@ -59,11 +59,11 @@ public class EditItemWand extends EditItemBase<CustomWandValues> {
 							if (newMaxCharges == 1) {
 								currentValues.setCharges(null);
 							} else {
-								WandChargeValues previousCharges = currentValues.getCharges();
+								WandCharges previousCharges = currentValues.getCharges();
 								if (previousCharges == null) {
-									currentValues.setCharges(WandChargeValues.createQuick(newMaxCharges, 60));
+									currentValues.setCharges(WandCharges.createQuick(newMaxCharges, 60));
 								} else {
-									WandChargeValues newValues = previousCharges.copy(true);
+									WandCharges newValues = previousCharges.copy(true);
 									newValues.setMaxCharges(newMaxCharges);
 									currentValues.setCharges(newValues);
 								}
@@ -92,7 +92,7 @@ public class EditItemWand extends EditItemBase<CustomWandValues> {
 				new RechargeWrapper<>(new EagerIntEditField(
 						currentValues.getCharges() != null ? currentValues.getCharges().getRechargeTime() : 60,
 						1, EDIT_BASE, EDIT_ACTIVE, newRechargeTime -> {
-							WandChargeValues newCharges = currentValues.getCharges().copy(true);
+							WandCharges newCharges = currentValues.getCharges().copy(true);
 							newCharges.setRechargeTime(newRechargeTime);
 							currentValues.setCharges(newCharges);
 				})),
@@ -137,7 +137,7 @@ public class EditItemWand extends EditItemBase<CustomWandValues> {
 	}
 
 	@Override
-	protected AttributeModifierValues getExampleAttributeModifier() {
+	protected KciAttributeModifier getExampleAttributeModifier() {
 		return EXAMPLE;
 	}
 

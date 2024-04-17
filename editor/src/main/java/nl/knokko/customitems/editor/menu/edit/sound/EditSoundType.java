@@ -6,8 +6,8 @@ import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.SoundTypeReference;
-import nl.knokko.customitems.sound.CISoundCategory;
-import nl.knokko.customitems.sound.CustomSoundTypeValues;
+import nl.knokko.customitems.sound.VSoundCategory;
+import nl.knokko.customitems.sound.KciSoundType;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -22,14 +22,14 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class EditSoundType extends GuiMenu {
 
-    private final CustomSoundTypeValues currentValues;
+    private final KciSoundType currentValues;
     private final SoundTypeReference toModify;
 
     private final GuiComponent returnMenu;
     private final ItemSet itemSet;
 
     public EditSoundType(
-            CustomSoundTypeValues oldValues, SoundTypeReference toModify,
+            KciSoundType oldValues, SoundTypeReference toModify,
             GuiComponent returnMenu, ItemSet itemSet
     ) {
         this.currentValues = oldValues.copy(true);
@@ -74,7 +74,7 @@ public class EditSoundType extends GuiMenu {
 
         addComponent(new DynamicTextComponent("Category:", LABEL), 0.3f, 0.4f, 0.45f, 0.5f);
         addComponent(
-                EnumSelect.createSelectButton(CISoundCategory.class, currentValues::setSoundCategory, currentValues.getSoundCategory()),
+                EnumSelect.createSelectButton(VSoundCategory.class, currentValues::setSoundCategory, currentValues.getSoundCategory()),
                 0.5f, 0.4f, 0.7f, 0.5f
         );
 

@@ -1,7 +1,7 @@
 package nl.knokko.customitems.plugin.events;
 
-import nl.knokko.customitems.item.CIMaterial;
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.VMaterial;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.multisupport.geyser.GeyserSupport;
@@ -16,11 +16,7 @@ import org.bukkit.inventory.*;
 import java.util.*;
 
 import static nl.knokko.customitems.MCVersions.VERSION1_13;
-import static nl.knokko.customitems.plugin.recipe.RecipeHelper.convertResultToItemStack;
-import static nl.knokko.customitems.plugin.recipe.RecipeHelper.shouldIngredientAcceptAmountless;
 import static nl.knokko.customitems.plugin.set.item.CustomToolWrapper.wrap;
-import static org.bukkit.enchantments.Enchantment.*;
-import static org.bukkit.enchantments.Enchantment.VANISHING_CURSE;
 
 public class InventoryEventHandler implements Listener {
 
@@ -87,13 +83,13 @@ public class InventoryEventHandler implements Listener {
                                 if (event.getAction() == InventoryAction.PICKUP_ALL) {
 
                                     // We will have to do this manually...
-                                    if (event.getCursor() == null || KciNms.instance.items.getMaterialName(event.getCursor()).equals(CIMaterial.AIR.name())) {
+                                    if (event.getCursor() == null || KciNms.instance.items.getMaterialName(event.getCursor()).equals(VMaterial.AIR.name())) {
                                         event.setCursor(recipe.getResult());
                                     } else {
                                         event.getCursor().setAmount(
                                                 event.getCursor().getAmount() + recipe.getResult().getAmount());
                                     }
-                                    if (contents[0] != null && !KciNms.instance.items.getMaterialName(contents[0]).equals(CIMaterial.AIR.name())) {
+                                    if (contents[0] != null && !KciNms.instance.items.getMaterialName(contents[0]).equals(VMaterial.AIR.name())) {
                                         int newAmount = contents[0].getAmount() - recipeAmount0;
                                         if (newAmount > 0) {
                                             contents[0].setAmount(newAmount);
@@ -101,7 +97,7 @@ public class InventoryEventHandler implements Listener {
                                             contents[0] = null;
                                         }
                                     }
-                                    if (contents[1] != null && !KciNms.instance.items.getMaterialName(contents[1]).equals(CIMaterial.AIR.name())
+                                    if (contents[1] != null && !KciNms.instance.items.getMaterialName(contents[1]).equals(VMaterial.AIR.name())
                                             && ingredients.size() > 1 && ingredients.get(1) != null) {
                                         int newAmount = contents[1].getAmount() - recipeAmount1;
                                         if (newAmount > 0) {
@@ -175,8 +171,8 @@ public class InventoryEventHandler implements Listener {
             ItemStack cursor = event.getCursor();
             ItemStack current = event.getCurrentItem();
 
-            CustomItemValues customCursor = itemSet.getItem(cursor);
-            CustomItemValues customCurrent = itemSet.getItem(current);
+            KciItem customCursor = itemSet.getItem(cursor);
+            KciItem customCurrent = itemSet.getItem(current);
 
             // This block makes custom items stackable
             if (customCursor != null && customCursor == customCurrent && wrap(customCursor).needsStackingHelp() &&
@@ -223,7 +219,7 @@ public class InventoryEventHandler implements Listener {
                 }
             }
         } else if (action == InventoryAction.COLLECT_TO_CURSOR) {
-            CustomItemValues customItem = itemSet.getItem(event.getCursor());
+            KciItem customItem = itemSet.getItem(event.getCursor());
             if (customItem != null && wrap(customItem).needsStackingHelp()) {
                 event.setCancelled(true);
                 int currentStacksize = event.getCursor().getAmount();
@@ -244,7 +240,7 @@ public class InventoryEventHandler implements Listener {
                 for (int slotIndex = 0; slotIndex < numSlots; slotIndex++) {
                     if (slotIndex != event.getRawSlot()) {
                         ItemStack otherSlot = view.getItem(slotIndex);
-                        CustomItemValues otherCustom = itemSet.getItem(otherSlot);
+                        KciItem otherCustom = itemSet.getItem(otherSlot);
                         if (customItem == otherCustom) {
                             int newStacksize = Math.min(
                                     currentStacksize + otherSlot.getAmount(),
@@ -278,7 +274,7 @@ public class InventoryEventHandler implements Listener {
         } else if (action == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
             // This block ensures that shift-clicking custom items can stack them
             ItemStack clickedItem = event.getCurrentItem();
-            CustomItemValues customClicked = itemSet.getItem(clickedItem);
+            KciItem customClicked = itemSet.getItem(clickedItem);
 
             if (customClicked != null && wrap(customClicked).needsStackingHelp()) {
                 event.setCancelled(true);
@@ -336,7 +332,7 @@ public class InventoryEventHandler implements Listener {
                 // Try to put the clicked item in a slot that contains the same custom item, but is not full
                 for (int index = minDestIndex; index < boundDestIndex; index++) {
                     ItemStack destItem = destItems[index];
-                    CustomItemValues destCandidate = itemSet.getItem(destItem);
+                    KciItem destCandidate = itemSet.getItem(destItem);
                     if (destCandidate == customClicked) {
 
                         int remainingSpace = destCandidate.getMaxStacksize() - destItem.getAmount();
@@ -402,8 +398,8 @@ public class InventoryEventHandler implements Listener {
         // Don't mess with creative clicks
         if (event.getClick() != ClickType.CREATIVE) {
 
-            CustomItemValues customCurrent = itemSet.getItem(event.getCurrentItem());
-            CustomItemValues customCursor = itemSet.getItem(event.getCursor());
+            KciItem customCurrent = itemSet.getItem(event.getCurrentItem());
+            KciItem customCursor = itemSet.getItem(event.getCursor());
 
             if ((customCurrent != null && wrap(customCurrent).needsStackingHelp()) || (customCursor != null && wrap(customCursor).needsStackingHelp())) {
                 guardInventoryEvents(event, event.getWhoClicked().getUniqueId());
@@ -418,7 +414,7 @@ public class InventoryEventHandler implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void handleCustomItemDragging(InventoryDragEvent event) {
-        CustomItemValues customItem = itemSet.getItem(event.getOldCursor());
+        KciItem customItem = itemSet.getItem(event.getOldCursor());
         if (customItem != null && wrap(customItem).needsStackingHelp()) {
             int numSlots = event.getNewItems().size();
 
@@ -479,7 +475,7 @@ public class InventoryEventHandler implements Listener {
             ItemStack[] inventoryContents = event.getPlayer().getInventory().getStorageContents();
 
             for (int craftingIndex = 0; craftingIndex < craftingContents.length; craftingIndex++) {
-                CustomItemValues customItem = itemSet.getItem(craftingContents[craftingIndex]);
+                KciItem customItem = itemSet.getItem(craftingContents[craftingIndex]);
                 if (customItem != null && !craftingContents[craftingIndex].equals(result)) {
 
                     for (ItemStack currentStack : inventoryContents) {

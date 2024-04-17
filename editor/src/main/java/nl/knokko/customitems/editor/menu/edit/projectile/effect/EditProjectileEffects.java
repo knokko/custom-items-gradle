@@ -7,7 +7,7 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.projectile.effect.ProjectileEffectsValues;
+import nl.knokko.customitems.projectile.effect.ProjectileEffects;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -22,13 +22,13 @@ public class EditProjectileEffects extends GuiMenu {
 	
 	private final ItemSet set;
 	private final GuiComponent returnMenu;
-	private final ProjectileEffectsValues currentValues;
-	private final Consumer<ProjectileEffectsValues> changeValues;
+	private final ProjectileEffects currentValues;
+	private final Consumer<ProjectileEffects> changeValues;
 	private final DynamicTextComponent errorComponent;
 	
 	public EditProjectileEffects(
             ItemSet set, GuiComponent returnMenu,
-            ProjectileEffectsValues oldValues, Consumer<ProjectileEffectsValues> changeValues
+            ProjectileEffects oldValues, Consumer<ProjectileEffects> changeValues
 	) {
 		this.set = set;
 		this.returnMenu = returnMenu;

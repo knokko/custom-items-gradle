@@ -1,11 +1,11 @@
 package nl.knokko.customitems.plugin.tasks;
 
-import nl.knokko.customitems.item.CustomGunValues;
-import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.item.CustomWandValues;
-import nl.knokko.customitems.item.WandChargeValues;
-import nl.knokko.customitems.item.gun.DirectGunAmmoValues;
-import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
+import nl.knokko.customitems.item.KciGun;
+import nl.knokko.customitems.item.KciItem;
+import nl.knokko.customitems.item.KciWand;
+import nl.knokko.customitems.item.WandCharges;
+import nl.knokko.customitems.item.gun.DirectGunAmmo;
+import nl.knokko.customitems.item.gun.IndirectGunAmmo;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;
@@ -23,7 +23,7 @@ public class TestMobWands {
         assertFalse(cooldown.canShoot(currentTick));
     }
 
-    private void testCooldownOnly(CustomItemValues item) {
+    private void testCooldownOnly(KciItem item) {
         MobWands.MobCooldown cooldown = new MobWands.MobCooldown(item);
         assertNoCooldownAtAll(cooldown, 0L);
         assertNoCooldownAtAll(cooldown, 123456789L);
@@ -36,9 +36,9 @@ public class TestMobWands {
 
     @Test
     public void testMobDirectGunCooldown() {
-        DirectGunAmmoValues ammo = new DirectGunAmmoValues(true);
+        DirectGunAmmo ammo = new DirectGunAmmo(true);
         ammo.setCooldown(10);
-        CustomGunValues gun = new CustomGunValues(true);
+        KciGun gun = new KciGun(true);
         gun.setAmmo(ammo);
 
         testCooldownOnly(gun);
@@ -46,9 +46,9 @@ public class TestMobWands {
 
     @Test
     public void testMobIndirectGunCooldown() {
-        IndirectGunAmmoValues ammo = new IndirectGunAmmoValues(true);
+        IndirectGunAmmo ammo = new IndirectGunAmmo(true);
         ammo.setCooldown(10);
-        CustomGunValues gun = new CustomGunValues(true);
+        KciGun gun = new KciGun(true);
         gun.setAmmo(ammo);
 
         testCooldownOnly(gun);
@@ -56,7 +56,7 @@ public class TestMobWands {
 
     @Test
     public void testMobWandCooldownWithoutCharges() {
-        CustomWandValues wand = new CustomWandValues(true);
+        KciWand wand = new KciWand(true);
         wand.setCooldown(10);
 
         testCooldownOnly(wand);
@@ -69,9 +69,9 @@ public class TestMobWands {
 
     @Test
     public void testMobCooldownWithCharges() {
-        CustomWandValues wand = new CustomWandValues(true);
+        KciWand wand = new KciWand(true);
         wand.setCooldown(10);
-        wand.setCharges(WandChargeValues.createQuick(5, 30));
+        wand.setCharges(WandCharges.createQuick(5, 30));
 
         MobWands.MobCooldown cooldown = new MobWands.MobCooldown(wand);
 

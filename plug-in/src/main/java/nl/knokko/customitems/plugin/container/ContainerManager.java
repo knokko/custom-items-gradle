@@ -2,7 +2,7 @@ package nl.knokko.customitems.plugin.container;
 
 import de.tr7zw.changeme.nbtapi.NBT;
 import nl.knokko.customitems.container.ContainerStorageMode;
-import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.container.KciContainer;
 import nl.knokko.customitems.plugin.data.PlayerData;
 import nl.knokko.customitems.plugin.data.container.*;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
@@ -37,7 +37,7 @@ public class ContainerManager {
     }
 
     public ContainerInstance getCustomContainer(
-            Location location, String stringHost, Player newViewer, CustomContainerValues prototype
+            Location location, String stringHost, Player newViewer, KciContainer prototype
     ) {
 
         ContainerStorageMode storageMode = prototype.getStorageMode();
@@ -143,7 +143,7 @@ public class ContainerManager {
     }
 
     public int destroyCustomContainer(
-            CustomContainerValues prototype, String stringHost, Location dropLocation
+            KciContainer prototype, String stringHost, Location dropLocation
     ) {
         return storage.destroyAtStringHost(prototype, stringHost, dropLocation);
     }
@@ -164,7 +164,7 @@ public class ContainerManager {
         }
     }
 
-    public void attemptToSwitchToLinkedContainer(Player player, CustomContainerValues newContainer) {
+    public void attemptToSwitchToLinkedContainer(Player player, KciContainer newContainer) {
         if (hasPermission(player, newContainer)) {
             ContainerInstance oldInstance = getOpened(player);
             if (oldInstance != null) {
@@ -198,7 +198,7 @@ public class ContainerManager {
     }
 
 
-    public void selectCustomContainer(Player player, CustomContainerValues selected) {
+    public void selectCustomContainer(Player player, KciContainer selected) {
         if (!hasPermission(player, selected)) {
             player.sendMessage(ChatColor.DARK_RED + "You don't have permission to open this custom container");
             return;

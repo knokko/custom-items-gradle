@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.container;
 
 import nl.knokko.customitems.container.ContainerStorageMode;
-import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.container.KciContainer;
 import nl.knokko.customitems.container.fuel.FuelMode;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
@@ -25,12 +25,12 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 public class EditContainer extends GuiMenu {
 	
 	private final EditMenu menu;
-	private final CustomContainerValues currentValues;
+	private final KciContainer currentValues;
 	private final ContainerReference toModify;
 	private final DynamicTextComponent errorComponent;
 	
 	public EditContainer(
-			EditMenu menu, CustomContainerValues oldValues, ContainerReference toModify
+            EditMenu menu, KciContainer oldValues, ContainerReference toModify
 	) {
 		this.menu = menu;
 		this.currentValues = oldValues.copy(true);

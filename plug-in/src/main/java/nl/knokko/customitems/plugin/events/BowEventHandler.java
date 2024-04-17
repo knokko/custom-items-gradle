@@ -1,6 +1,6 @@
 package nl.knokko.customitems.plugin.events;
 
-import nl.knokko.customitems.effect.ChancePotionEffectValues;
+import nl.knokko.customitems.effect.ChancePotionEffect;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
@@ -47,7 +47,7 @@ public class BowEventHandler implements Listener {
 
     @EventHandler(priority = EventPriority.LOW)
     public void pickupCustomArrows(PlayerPickupArrowEvent event) {
-        CustomArrowValues customArrow = null;
+        KciArrow customArrow = null;
 
         // This work-around is needed because the return type of event.getArrow() is either Arrow or AbstractArrow,
         // depending on the minecraft version, which causes incompatible byte code problems
@@ -63,9 +63,9 @@ public class BowEventHandler implements Listener {
 
         for (MetadataValue meta : arrow.getMetadata("CustomArrowName")) {
             if (meta.getOwningPlugin() == CustomItemsPlugin.getInstance()) {
-                CustomItemValues customItem = itemSet.getItem(meta.asString());
-                if (customItem instanceof CustomArrowValues) {
-                    customArrow = (CustomArrowValues) customItem;
+                KciItem customItem = itemSet.getItem(meta.asString());
+                if (customItem instanceof KciArrow) {
+                    customArrow = (KciArrow) customItem;
                     break;
                 }
             }
@@ -83,9 +83,9 @@ public class BowEventHandler implements Listener {
             PlayerInventory inv = ((Player) event.getEntity()).getInventory();
 
             int[] oldArrowCounts = ArrowTracker.countArrows(inv);
-            CustomArrowValues[] oldArrowTypes = ArrowTracker.getArrowTypes(inv, itemSet);
+            KciArrow[] oldArrowTypes = ArrowTracker.getArrowTypes(inv, itemSet);
             Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
-                CustomArrowValues arrowType = ArrowTracker.determineUsedArrowType(oldArrowCounts, oldArrowTypes, inv);
+                KciArrow arrowType = ArrowTracker.determineUsedArrowType(oldArrowCounts, oldArrowTypes, inv);
                 if (arrowType != null) {
 
                     Arrow arrow = (Arrow) projectile;
@@ -100,9 +100,9 @@ public class BowEventHandler implements Listener {
             });
         }
 
-        CustomItemValues customItem = itemSet.getItem(event.getBow());
+        KciItem customItem = itemSet.getItem(event.getBow());
 
-        if (customItem instanceof CustomBowValues || customItem instanceof CustomCrossbowValues) {
+        if (customItem instanceof KciBow || customItem instanceof KciCrossbow) {
             if (projectile instanceof Arrow || projectile instanceof Firework) {
 
                 // Only decrease durability when shot by a player
@@ -119,11 +119,11 @@ public class BowEventHandler implements Listener {
                                 player.getInventory().getItemInOffHand();
 
                         boolean broke;
-                        if (customItem instanceof CustomBowValues) {
-                            CustomBowValues bow = (CustomBowValues) customItem;
+                        if (customItem instanceof KciBow) {
+                            KciBow bow = (KciBow) customItem;
                             broke = wrap(bow).decreaseDurability(bowOrCrossbow, bow.getShootDurabilityLoss());
                         } else {
-                            CustomCrossbowValues crossbow = (CustomCrossbowValues) customItem;
+                            KciCrossbow crossbow = (KciCrossbow) customItem;
                             if (projectile instanceof Arrow) {
                                 broke = wrap(crossbow).decreaseDurability(bowOrCrossbow, crossbow.getArrowDurabilityLoss());
                             } else {
@@ -154,13 +154,13 @@ public class BowEventHandler implements Listener {
                     double speedMultiplier;
                     boolean gravity;
 
-                    if (customItem instanceof CustomBowValues) {
-                        CustomBowValues bow = (CustomBowValues) customItem;
+                    if (customItem instanceof KciBow) {
+                        KciBow bow = (KciBow) customItem;
                         knockbackStrength = bow.getKnockbackStrength();
                         speedMultiplier = bow.getSpeedMultiplier();
                         gravity = bow.hasGravity();
                     } else {
-                        CustomCrossbowValues crossbow = (CustomCrossbowValues) customItem;
+                        KciCrossbow crossbow = (KciCrossbow) customItem;
                         knockbackStrength = crossbow.getArrowKnockbackStrength();
                         speedMultiplier = crossbow.getArrowSpeedMultiplier();
                         gravity = crossbow.hasArrowGravity();
@@ -174,8 +174,8 @@ public class BowEventHandler implements Listener {
 
                     // The item SHOULD be a crossbow, but could hypothetically be a bow
                     // (not in normal minecraft behavior, but perhaps other plug-ins do something weird)
-                    if (customItem instanceof CustomCrossbowValues) {
-                        CustomCrossbowValues crossbow = (CustomCrossbowValues) customItem;
+                    if (customItem instanceof KciCrossbow) {
+                        KciCrossbow crossbow = (KciCrossbow) customItem;
                         firework.setVelocity(firework.getVelocity().multiply(crossbow.getFireworkSpeedMultiplier()));
                     }
                 }
@@ -199,17 +199,17 @@ public class BowEventHandler implements Listener {
             for (MetadataValue meta : metas) {
                 if (meta.getOwningPlugin() == plugin) {
 
-                    CustomItemValues customBowOrCrossbow = itemSet.getItem(meta.asString());
-                    if (customBowOrCrossbow instanceof CustomBowValues || customBowOrCrossbow instanceof CustomCrossbowValues) {
+                    KciItem customBowOrCrossbow = itemSet.getItem(meta.asString());
+                    if (customBowOrCrossbow instanceof KciBow || customBowOrCrossbow instanceof KciCrossbow) {
 
                         double damageMultiplier;
-                        if (customBowOrCrossbow instanceof CustomBowValues) {
-                            damageMultiplier = ((CustomBowValues) customBowOrCrossbow).getDamageMultiplier();
+                        if (customBowOrCrossbow instanceof KciBow) {
+                            damageMultiplier = ((KciBow) customBowOrCrossbow).getDamageMultiplier();
                         } else {
                             if (event.getDamager() instanceof Arrow) {
-                                damageMultiplier = ((CustomCrossbowValues) customBowOrCrossbow).getArrowDamageMultiplier();
+                                damageMultiplier = ((KciCrossbow) customBowOrCrossbow).getArrowDamageMultiplier();
                             } else {
-                                damageMultiplier = ((CustomCrossbowValues) customBowOrCrossbow).getFireworkDamageMultiplier();
+                                damageMultiplier = ((KciCrossbow) customBowOrCrossbow).getFireworkDamageMultiplier();
                             }
                         }
 
@@ -219,7 +219,7 @@ public class BowEventHandler implements Listener {
                         {
 
                             Collection<PotionEffect> effects = new ArrayList<>();
-                            for (ChancePotionEffectValues effect : customBowOrCrossbow.getOnHitTargetEffects()) {
+                            for (ChancePotionEffect effect : customBowOrCrossbow.getOnHitTargetEffects()) {
                                 if (effect.getChance().apply(rng)) {
                                     effects.add(new PotionEffect(
                                             Objects.requireNonNull(PotionEffectType.getByName(effect.getType().name())),
@@ -239,7 +239,7 @@ public class BowEventHandler implements Listener {
 
                         if (shooter instanceof LivingEntity) {
                             Collection<org.bukkit.potion.PotionEffect> effects = new ArrayList<> ();
-                            for (ChancePotionEffectValues effect : customBowOrCrossbow.getOnHitPlayerEffects()) {
+                            for (ChancePotionEffect effect : customBowOrCrossbow.getOnHitPlayerEffects()) {
                                 if (effect.getChance().apply(rng)) {
                                     effects.add(new org.bukkit.potion.PotionEffect(
                                             Objects.requireNonNull(PotionEffectType.getByName(effect.getType().name())),
@@ -260,10 +260,10 @@ public class BowEventHandler implements Listener {
                 metas = arrow.getMetadata("CustomArrowName");
                 for (MetadataValue meta : metas) {
                     if (meta.getOwningPlugin() == CustomItemsPlugin.getInstance()) {
-                        CustomItemValues customItem = itemSet.getItem(meta.asString());
-                        if (customItem instanceof CustomArrowValues) {
+                        KciItem customItem = itemSet.getItem(meta.asString());
+                        if (customItem instanceof KciArrow) {
 
-                            CustomArrowValues customArrow = (CustomArrowValues) customItem;
+                            KciArrow customArrow = (KciArrow) customItem;
                             event.setDamage(event.getDamage() * customArrow.getDamageMultiplier());
 
                             ProjectileSource shooter = arrow.getShooter();
@@ -283,15 +283,15 @@ public class BowEventHandler implements Listener {
             List<MetadataValue> metas = event.getDamager().getMetadata("CustomTridentName");
             for (MetadataValue meta : metas) {
                 if (meta.getOwningPlugin() == plugin) {
-                    CustomItemValues shouldBeCustomTrident = plugin.getSet().getItem(meta.asString());
-                    if (shouldBeCustomTrident instanceof CustomTridentValues) {
-                        CustomTridentValues customTrident = (CustomTridentValues) shouldBeCustomTrident;
+                    KciItem shouldBeCustomTrident = plugin.getSet().getItem(meta.asString());
+                    if (shouldBeCustomTrident instanceof KciTrident) {
+                        KciTrident customTrident = (KciTrident) shouldBeCustomTrident;
                         event.setDamage(event.getDamage() * customTrident.getThrowDamageMultiplier());
                         LivingEntity target = (LivingEntity) event.getEntity();
                         Random rng = new Random();
                         {
                             Collection<PotionEffect> effects = new ArrayList<> ();
-                            for (ChancePotionEffectValues effect : customTrident.getOnHitTargetEffects()) {
+                            for (ChancePotionEffect effect : customTrident.getOnHitTargetEffects()) {
                                 if (effect.getChance().apply(rng)) {
                                     effects.add(new PotionEffect(
                                             Objects.requireNonNull(PotionEffectType.getByName(effect.getType().name())),
@@ -306,7 +306,7 @@ public class BowEventHandler implements Listener {
                             if (projectile.getShooter() instanceof LivingEntity) {
                                 LivingEntity shooter = (LivingEntity) projectile.getShooter();
                                 Collection<org.bukkit.potion.PotionEffect> effects = new ArrayList<> ();
-                                for (ChancePotionEffectValues effect : customTrident.getOnHitPlayerEffects()) {
+                                for (ChancePotionEffect effect : customTrident.getOnHitPlayerEffects()) {
                                     if (effect.getChance().apply(rng)) {
                                         effects.add(new org.bukkit.potion.PotionEffect(
                                                 Objects.requireNonNull(PotionEffectType.getByName(effect.getType().name())),
@@ -329,7 +329,7 @@ public class BowEventHandler implements Listener {
     public void processCustomTridentThrow(ProjectileLaunchEvent event) {
         if (isTrident(event.getEntity())) {
             Projectile trident = event.getEntity();
-            CustomTridentValues customTrident = null;
+            KciTrident customTrident = null;
 
             /*
              * KciNms will throw an error when we attempt to use tridents in a minecraft version where tridents are
@@ -344,9 +344,9 @@ public class BowEventHandler implements Listener {
             try {
                 ItemStack tridentItem = KciNms.instance.entities.getTridentItem(trident);
 
-                CustomItemValues customTridentItem = itemSet.getItem(tridentItem);
-                if (customTridentItem instanceof CustomTridentValues) {
-                    customTrident = (CustomTridentValues) customTridentItem;
+                KciItem customTridentItem = itemSet.getItem(tridentItem);
+                if (customTridentItem instanceof KciTrident) {
+                    customTrident = (KciTrident) customTridentItem;
 
                     boolean broke = wrap(customTrident).decreaseDurability(tridentItem, customTrident.getThrowDurabilityLoss());
                     if (broke) {

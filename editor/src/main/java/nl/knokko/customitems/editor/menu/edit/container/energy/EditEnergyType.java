@@ -1,6 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.container.energy;
 
-import nl.knokko.customitems.container.energy.EnergyTypeValues;
+import nl.knokko.customitems.container.energy.EnergyType;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.EnergyTypeReference;
@@ -20,11 +20,11 @@ public class EditEnergyType extends GuiMenu {
 
     private final GuiComponent returnMenu;
     private final ItemSet itemSet;
-    private final EnergyTypeValues currentValues;
+    private final EnergyType currentValues;
     private final EnergyTypeReference toModify;
 
     public EditEnergyType(
-            GuiComponent returnMenu, ItemSet itemSet, EnergyTypeValues oldValues, EnergyTypeReference toModify
+            GuiComponent returnMenu, ItemSet itemSet, EnergyType oldValues, EnergyTypeReference toModify
     ) {
         this.returnMenu = returnMenu;
         this.itemSet = itemSet;

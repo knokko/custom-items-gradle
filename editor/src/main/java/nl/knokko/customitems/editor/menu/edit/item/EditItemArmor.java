@@ -5,10 +5,10 @@ import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.item.damage.EditDamageResistances;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.item.AttributeModifierValues;
-import nl.knokko.customitems.item.CustomArmorValues;
-import nl.knokko.customitems.item.CustomItemType;
-import nl.knokko.customitems.item.DamageResistanceValues;
+import nl.knokko.customitems.item.KciAttributeModifier;
+import nl.knokko.customitems.item.KciArmor;
+import nl.knokko.customitems.item.KciItemType;
+import nl.knokko.customitems.item.DamageResistance;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.gui.component.WrapperComponent;
 import nl.knokko.gui.component.text.ConditionalTextButton;
@@ -20,92 +20,92 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import java.util.function.IntConsumer;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
-import static nl.knokko.customitems.item.AttributeModifierValues.*;
+import static nl.knokko.customitems.item.KciAttributeModifier.*;
 
-public class EditItemArmor<V extends CustomArmorValues> extends EditItemTool<V> {
+public class EditItemArmor<V extends KciArmor> extends EditItemTool<V> {
 	
 	public EditItemArmor(EditMenu menu, V oldValues, ItemReference toModify) {
 		super(menu, oldValues, toModify);
 	}
 	
 	@Override
-	protected AttributeModifierValues getExampleAttributeModifier() {
+	protected KciAttributeModifier getExampleAttributeModifier() {
 		double armor;
 		Slot slot;
-		CustomItemType i = currentValues.getItemType();
-		if (i == CustomItemType.NETHERITE_HELMET) {
+		KciItemType i = currentValues.getItemType();
+		if (i == KciItemType.NETHERITE_HELMET) {
 			armor = 3;
 			slot = Slot.HEAD;
-		} else if (i == CustomItemType.NETHERITE_CHESTPLATE) {
+		} else if (i == KciItemType.NETHERITE_CHESTPLATE) {
 			armor = 8;
 			slot = Slot.CHEST;
-		} else if (i == CustomItemType.NETHERITE_LEGGINGS) {
+		} else if (i == KciItemType.NETHERITE_LEGGINGS) {
 			armor = 6;
 			slot = Slot.LEGS;
-		} else if (i == CustomItemType.NETHERITE_BOOTS) {
+		} else if (i == KciItemType.NETHERITE_BOOTS) {
 			armor = 3;
 			slot = Slot.FEET;
-		} else if (i == CustomItemType.DIAMOND_HELMET) {
+		} else if (i == KciItemType.DIAMOND_HELMET) {
 			armor = 3;
 			slot = Slot.HEAD;
-		} else if (i == CustomItemType.DIAMOND_CHESTPLATE) {
+		} else if (i == KciItemType.DIAMOND_CHESTPLATE) {
 			armor = 8;
 			slot = Slot.CHEST;
-		} else if (i == CustomItemType.DIAMOND_LEGGINGS) {
+		} else if (i == KciItemType.DIAMOND_LEGGINGS) {
 			armor = 6;
 			slot = Slot.LEGS;
-		} else if (i == CustomItemType.DIAMOND_BOOTS) {
+		} else if (i == KciItemType.DIAMOND_BOOTS) {
 			armor = 3;
 			slot = Slot.FEET;
-		} else if (i == CustomItemType.IRON_HELMET) {
+		} else if (i == KciItemType.IRON_HELMET) {
 			armor = 2;
 			slot = Slot.HEAD;
-		} else if (i == CustomItemType.IRON_CHESTPLATE) {
+		} else if (i == KciItemType.IRON_CHESTPLATE) {
 			armor = 6;
 			slot = Slot.CHEST;
-		} else if (i == CustomItemType.IRON_LEGGINGS) {
+		} else if (i == KciItemType.IRON_LEGGINGS) {
 			armor = 5;
 			slot = Slot.LEGS;
-		} else if (i == CustomItemType.IRON_BOOTS) {
+		} else if (i == KciItemType.IRON_BOOTS) {
 			armor = 2;
 			slot = Slot.FEET;
-		} else if (i == CustomItemType.CHAINMAIL_HELMET) {
+		} else if (i == KciItemType.CHAINMAIL_HELMET) {
 			armor = 2;
 			slot = Slot.HEAD;
-		} else if (i == CustomItemType.CHAINMAIL_CHESTPLATE) {
+		} else if (i == KciItemType.CHAINMAIL_CHESTPLATE) {
 			armor = 5;
 			slot = Slot.CHEST;
-		} else if (i == CustomItemType.CHAINMAIL_LEGGINGS) {
+		} else if (i == KciItemType.CHAINMAIL_LEGGINGS) {
 			armor = 4;
 			slot = Slot.LEGS;
-		} else if (i == CustomItemType.CHAINMAIL_BOOTS) {
+		} else if (i == KciItemType.CHAINMAIL_BOOTS) {
 			armor = 1;
 			slot = Slot.FEET;
-		} else if (i == CustomItemType.GOLD_HELMET) {
+		} else if (i == KciItemType.GOLD_HELMET) {
 			armor = 2;
 			slot = Slot.HEAD;
-		} else if (i == CustomItemType.GOLD_CHESTPLATE) {
+		} else if (i == KciItemType.GOLD_CHESTPLATE) {
 			armor = 5;
 			slot = Slot.CHEST;
-		} else if (i == CustomItemType.GOLD_LEGGINGS) {
+		} else if (i == KciItemType.GOLD_LEGGINGS) {
 			armor = 3;
 			slot = Slot.LEGS;
-		} else if (i == CustomItemType.GOLD_BOOTS) {
+		} else if (i == KciItemType.GOLD_BOOTS) {
 			armor = 1;
 			slot = Slot.FEET;
-		} else if (i == CustomItemType.LEATHER_HELMET) {
+		} else if (i == KciItemType.LEATHER_HELMET) {
 			armor = 1;
 			slot = Slot.HEAD;
-		} else if (i == CustomItemType.LEATHER_CHESTPLATE) {
+		} else if (i == KciItemType.LEATHER_CHESTPLATE) {
 			armor = 3;
 			slot = Slot.CHEST;
-		} else if (i == CustomItemType.LEATHER_LEGGINGS) {
+		} else if (i == KciItemType.LEATHER_LEGGINGS) {
 			armor = 2;
 			slot = Slot.LEGS;
-		} else if (i == CustomItemType.LEATHER_BOOTS) {
+		} else if (i == KciItemType.LEATHER_BOOTS) {
 			armor = 1;
 			slot = Slot.FEET;
-		} else if (i == CustomItemType.ELYTRA) {
+		} else if (i == KciItemType.ELYTRA) {
 			armor = 1;
 			slot = Slot.CHEST;
 		} else {
@@ -127,7 +127,7 @@ public class EditItemArmor<V extends CustomArmorValues> extends EditItemTool<V> 
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new EditDamageResistances(menu.getSet(), currentValues.getDamageResistances(), () -> {
 				state.getWindow().setMainComponent(this);
-			}, (DamageResistanceValues newResistances) -> {
+			}, (DamageResistance newResistances) -> {
 				state.getWindow().setMainComponent(this);
 				currentValues.setDamageResistances(newResistances);
 			}));

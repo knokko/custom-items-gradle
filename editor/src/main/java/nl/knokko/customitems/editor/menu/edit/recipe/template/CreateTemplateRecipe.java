@@ -5,11 +5,11 @@ import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.EditIngredient;
 import nl.knokko.customitems.editor.menu.edit.recipe.result.ChooseResult;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.recipe.ShapedRecipeValues;
-import nl.knokko.customitems.recipe.ingredient.IngredientValues;
-import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
-import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
-import nl.knokko.customitems.recipe.result.ResultValues;
+import nl.knokko.customitems.recipe.KciShapedRecipe;
+import nl.knokko.customitems.recipe.ingredient.KciIngredient;
+import nl.knokko.customitems.recipe.ingredient.NoIngredient;
+import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredient;
+import nl.knokko.customitems.recipe.result.KciResult;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -23,14 +23,14 @@ import java.util.function.Function;
 public class CreateTemplateRecipe extends GuiMenu {
 
     private final String[] materialNames;
-    private final List<IngredientValues> selectedIngredients;
-    private ResultValues selectedResult;
-    private final Function<List<IngredientValues>, IngredientValues[]> shapeIngredients;
+    private final List<KciIngredient> selectedIngredients;
+    private KciResult selectedResult;
+    private final Function<List<KciIngredient>, KciIngredient[]> shapeIngredients;
     private final GuiComponent returnMenu;
     private final ItemSet set;
 
     public CreateTemplateRecipe(
-            String[] materialNames, Function<List<IngredientValues>, IngredientValues[]> shapeIngredients, GuiComponent returnMenu,
+            String[] materialNames, Function<List<KciIngredient>, KciIngredient[]> shapeIngredients, GuiComponent returnMenu,
             ItemSet set
     ) {
         this.materialNames = materialNames;
@@ -57,7 +57,7 @@ public class CreateTemplateRecipe extends GuiMenu {
             addComponent(new DynamicTextButton("Choose...", EditProps.BUTTON, EditProps.HOVER, () -> {
                 state.getWindow().setMainComponent(new EditIngredient(this,
                         newIngredient -> selectedIngredients.set(rememberIndex, newIngredient),
-                        new SimpleVanillaIngredientValues(false), false, set)
+                        new SimpleVanillaIngredient(false), false, set)
                 );
             }), 0.6f, 0.7f - materialIndex * 0.15f, 0.75f, 0.8f - materialIndex * 0.15f);
             materialIndex++;
@@ -86,14 +86,14 @@ public class CreateTemplateRecipe extends GuiMenu {
                     return;
                 }
 
-                IngredientValues[] ingredientMatrix = shapeIngredients.apply(selectedIngredients);
+                KciIngredient[] ingredientMatrix = shapeIngredients.apply(selectedIngredients);
                 for (int ingredientIndex = 0; ingredientIndex < ingredientMatrix.length; ingredientIndex++) {
                     if (ingredientMatrix[ingredientIndex] == null) {
-                        ingredientMatrix[ingredientIndex] = new NoIngredientValues();
+                        ingredientMatrix[ingredientIndex] = new NoIngredient();
                     }
                 }
 
-                ShapedRecipeValues shapedRecipe = ShapedRecipeValues.createQuick(ingredientMatrix, selectedResult, true);
+                KciShapedRecipe shapedRecipe = KciShapedRecipe.createQuick(ingredientMatrix, selectedResult, true);
                 String error = Validation.toErrorString(() -> set.craftingRecipes.add(shapedRecipe));
                 if (error != null) {
                     errorComponent.setText(error);

@@ -5,7 +5,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
-import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.container.KciContainer;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -25,7 +25,7 @@ public class EffSwitchContainer extends Effect {
 
     @Override
     protected void execute(Event event) {
-        Optional<CustomContainerValues> newContainer = CustomItemsPlugin.getInstance().getSet().get().containers.get(
+        Optional<KciContainer> newContainer = CustomItemsPlugin.getInstance().getSet().get().containers.get(
                 newContainerName.getSingle(event)
         );
         if (newContainer.isPresent()) {

@@ -3,8 +3,8 @@ package nl.knokko.customitems.editor.menu.edit.container.slot;
 import java.util.Collection;
 import java.util.function.Consumer;
 
-import nl.knokko.customitems.container.slot.ContainerSlotValues;
-import nl.knokko.customitems.container.slot.OutputSlotValues;
+import nl.knokko.customitems.container.slot.ContainerSlot;
+import nl.knokko.customitems.container.slot.OutputSlot;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
@@ -22,19 +22,19 @@ public class CreateOutputSlot extends GuiMenu {
 	
 	private final GuiComponent returnMenu;
 	private final ItemSet itemSet;
-	private final Collection<ContainerSlotValues> existingSlots;
-	private final OutputSlotValues currentValues;
-	private final Consumer<ContainerSlotValues> submitSlot;
+	private final Collection<ContainerSlot> existingSlots;
+	private final OutputSlot currentValues;
+	private final Consumer<ContainerSlot> submitSlot;
 	private final DynamicTextComponent errorComponent;
 	
 	public CreateOutputSlot(
-			GuiComponent returnMenu, ItemSet itemSet,
-			Collection<ContainerSlotValues> existingSlots, Consumer<ContainerSlotValues> submitSlot
+            GuiComponent returnMenu, ItemSet itemSet,
+            Collection<ContainerSlot> existingSlots, Consumer<ContainerSlot> submitSlot
 	) {
 		this.returnMenu = returnMenu;
 		this.itemSet = itemSet;
 		this.existingSlots = existingSlots;
-		this.currentValues = new OutputSlotValues(true);
+		this.currentValues = new OutputSlot(true);
 		this.submitSlot = submitSlot;
 		this.errorComponent = new DynamicTextComponent("", EditProps.ERROR);
 	}

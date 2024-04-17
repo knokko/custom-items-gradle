@@ -3,9 +3,9 @@ package nl.knokko.customitems.editor.menu.edit.container.slot;
 import java.util.Collection;
 import java.util.function.Consumer;
 
-import nl.knokko.customitems.container.fuel.FuelRegistryValues;
-import nl.knokko.customitems.container.slot.ContainerSlotValues;
-import nl.knokko.customitems.container.slot.FuelSlotValues;
+import nl.knokko.customitems.container.fuel.ContainerFuelRegistry;
+import nl.knokko.customitems.container.slot.ContainerSlot;
+import nl.knokko.customitems.container.slot.FuelSlot;
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.container.fuel.EditFuelRegistry;
@@ -25,19 +25,19 @@ public class CreateFuelSlot extends GuiMenu {
 	
 	private final GuiComponent returnMenu;
 	private final ItemSet itemSet;
-	private final Collection<ContainerSlotValues> otherSlots;
-	private final FuelSlotValues currentValues;
-	private final Consumer<ContainerSlotValues> submitSlot;
+	private final Collection<ContainerSlot> otherSlots;
+	private final FuelSlot currentValues;
+	private final Consumer<ContainerSlot> submitSlot;
 	private final DynamicTextComponent errorComponent;
 	
 	public CreateFuelSlot(
 			GuiComponent returnMenu, ItemSet itemSet,
-			Collection<ContainerSlotValues> otherSlots, Consumer<ContainerSlotValues> submitSlot
+			Collection<ContainerSlot> otherSlots, Consumer<ContainerSlot> submitSlot
 	) {
 		this.returnMenu = returnMenu;
 		this.itemSet = itemSet;
 		this.otherSlots = otherSlots;
-		this.currentValues = new FuelSlotValues(true);
+		this.currentValues = new FuelSlot(true);
 		this.submitSlot = submitSlot;
 		this.errorComponent = new DynamicTextComponent("", EditProps.ERROR);
 	}
@@ -72,7 +72,7 @@ public class CreateFuelSlot extends GuiMenu {
 		);
 		addComponent(new DynamicTextButton("Create new", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new EditFuelRegistry(
-					this, itemSet, new FuelRegistryValues(true), null
+					this, itemSet, new ContainerFuelRegistry(true), null
 			));
 		}), 0.6f, 0.6f, 0.75f, 0.65f);
 		

@@ -2,7 +2,7 @@ package nl.knokko.customitems.editor.menu.commandhelp;
 
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -23,7 +23,7 @@ public class HelpMobSpawner extends GuiMenu {
 	private final ItemSet set;
 	private final GuiComponent returnMenu;
 
-	private CustomItemValues selectedMainHand, selectedOffHand, selectedHelmet, selectedChestplate, selectedLeggings,
+	private KciItem selectedMainHand, selectedOffHand, selectedHelmet, selectedChestplate, selectedLeggings,
 			selectedBoots;
 
 	public HelpMobSpawner(ItemSet set, GuiComponent returnMenu) {
@@ -37,7 +37,7 @@ public class HelpMobSpawner extends GuiMenu {
 	}
 
 	static void goToItemSelectMenu(
-			GuiComponentState state, ItemSet itemSet, Consumer<CustomItemValues> changeItem,
+			GuiComponentState state, ItemSet itemSet, Consumer<KciItem> changeItem,
 			WrapperComponent<SimpleImageComponent> selectedImage, GuiComponent returnMenu
 	) {
 		state.getWindow().setMainComponent(new CollectionSelect<>(itemSet.items.references(), chosenItem -> {

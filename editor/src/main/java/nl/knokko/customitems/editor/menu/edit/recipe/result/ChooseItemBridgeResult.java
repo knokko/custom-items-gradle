@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.recipe.result;
 
 import nl.knokko.customitems.editor.util.Validation;
-import nl.knokko.customitems.recipe.result.ItemBridgeResultValues;
+import nl.knokko.customitems.recipe.result.ItemBridgeResult;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -17,14 +17,14 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 public class ChooseItemBridgeResult extends GuiMenu {
 
     private final GuiComponent returnMenu;
-    private final Consumer<ItemBridgeResultValues> onSelect;
+    private final Consumer<ItemBridgeResult> onSelect;
 
-    private final ItemBridgeResultValues result;
+    private final ItemBridgeResult result;
 
-    public ChooseItemBridgeResult(GuiComponent returnMenu, Consumer<ItemBridgeResultValues> onSelect) {
+    public ChooseItemBridgeResult(GuiComponent returnMenu, Consumer<ItemBridgeResult> onSelect) {
         this.returnMenu = returnMenu;
         this.onSelect = onSelect;
-        this.result = new ItemBridgeResultValues(true);
+        this.result = new ItemBridgeResult(true);
     }
 
     @Override

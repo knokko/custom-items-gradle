@@ -6,7 +6,7 @@ import com.denizenscript.denizencore.exceptions.InvalidArgumentsException;
 import com.denizenscript.denizencore.objects.Argument;
 import com.denizenscript.denizencore.scripts.ScriptEntry;
 import com.denizenscript.denizencore.scripts.commands.AbstractCommand;
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import org.bukkit.inventory.ItemStack;
@@ -70,7 +70,7 @@ public class KciRemoveItemCommand extends AbstractCommand {
         int itemIndex = 0;
         while (amount > 0 && itemIndex < contents.length) {
             ItemStack item = contents[itemIndex];
-            CustomItemValues customItem = itemSet.getItem(item);
+            KciItem customItem = itemSet.getItem(item);
             if (customItem != null && customItem.getName().equals(itemName)) {
                 if (amount >= item.getAmount()) {
                     amount -= item.getAmount();

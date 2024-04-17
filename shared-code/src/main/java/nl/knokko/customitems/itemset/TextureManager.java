@@ -2,7 +2,7 @@ package nl.knokko.customitems.itemset;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
-import nl.knokko.customitems.texture.BaseTextureValues;
+import nl.knokko.customitems.texture.KciTexture;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.CollectionHelper;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -13,19 +13,19 @@ import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-public class TextureManager extends ModelManager<BaseTextureValues, TextureReference> {
+public class TextureManager extends ModelManager<KciTexture, TextureReference> {
 
     protected TextureManager(ItemSet itemSet) {
         super(itemSet);
     }
 
     @Override
-    protected void saveElement(BaseTextureValues texture, BitOutput output, ItemSet.Side targetSide) {
+    protected void saveElement(KciTexture texture, BitOutput output, ItemSet.Side targetSide) {
         texture.save(output);
     }
 
     @Override
-    TextureReference createReference(Model<BaseTextureValues> element) {
+    TextureReference createReference(Model<KciTexture> element) {
         return new TextureReference(element);
     }
 
@@ -40,21 +40,21 @@ public class TextureManager extends ModelManager<BaseTextureValues, TextureRefer
             this.elements = new ArrayList<>(numTextures);
             for (int counter = 0; counter < numTextures; counter++) {
                 if (readEncoding) {
-                    this.elements.add(new Model<>(BaseTextureValues.load(input, expectCompressed)));
+                    this.elements.add(new Model<>(KciTexture.load(input, expectCompressed)));
                 } else {
-                    this.elements.add(new Model<>(BaseTextureValues.load(input, BaseTextureValues.ENCODING_SIMPLE_1, expectCompressed)));
+                    this.elements.add(new Model<>(KciTexture.load(input, KciTexture.ENCODING_SIMPLE_1, expectCompressed)));
                 }
             }
         }
     }
 
     @Override
-    protected BaseTextureValues loadElement(BitInput input) throws UnknownEncodingException {
+    protected KciTexture loadElement(BitInput input) throws UnknownEncodingException {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    protected void validateExportVersion(BaseTextureValues texture, int mcVersion) throws ValidationException, ProgrammingValidationException {
+    protected void validateExportVersion(KciTexture texture, int mcVersion) throws ValidationException, ProgrammingValidationException {
         Validation.scope(
                 "Texture " + texture.getName(),
                 () -> texture.validateExportVersion(mcVersion)
@@ -68,12 +68,12 @@ public class TextureManager extends ModelManager<BaseTextureValues, TextureRefer
     }
 
     @Override
-    protected void validateCreation(BaseTextureValues values) throws ValidationException, ProgrammingValidationException {
+    protected void validateCreation(KciTexture values) throws ValidationException, ProgrammingValidationException {
         values.validateComplete(itemSet, null);
     }
 
     @Override
-    protected void validate(BaseTextureValues texture) throws ValidationException, ProgrammingValidationException {
+    protected void validate(KciTexture texture) throws ValidationException, ProgrammingValidationException {
         Validation.scope(
                 "Texture " + texture.getName(),
                 () -> texture.validateComplete(itemSet, texture.getName())
@@ -81,7 +81,7 @@ public class TextureManager extends ModelManager<BaseTextureValues, TextureRefer
     }
 
     @Override
-    protected void validateChange(TextureReference reference, BaseTextureValues newValues) throws ValidationException, ProgrammingValidationException {
+    protected void validateChange(TextureReference reference, KciTexture newValues) throws ValidationException, ProgrammingValidationException {
         newValues.validateComplete(itemSet, reference.get().getName());
     }
 
@@ -93,7 +93,7 @@ public class TextureManager extends ModelManager<BaseTextureValues, TextureRefer
         }
     }
 
-    public Optional<BaseTextureValues> get(String name) {
+    public Optional<KciTexture> get(String name) {
         return CollectionHelper.find(elements, texture -> texture.getValues().getName(), name).map(Model::getValues);
     }
 }

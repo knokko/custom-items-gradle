@@ -1,7 +1,7 @@
 package nl.knokko.customitems.plugin.events;
 
-import nl.knokko.customitems.item.CustomHelmet3dValues;
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.Kci3dHelmet;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import org.bukkit.Bukkit;
@@ -47,9 +47,9 @@ public class Helmet3dEventHandler implements Listener {
                     ItemStack newCursor = event.getCurrentItem().clone();
 
                     ItemStack newArmor = event.getCursor().clone();
-                    CustomItemValues newCustomArmor = itemSet.getItem(newArmor);
+                    KciItem newCustomArmor = itemSet.getItem(newArmor);
 
-                    if (newCustomArmor instanceof CustomHelmet3dValues) {
+                    if (newCustomArmor instanceof Kci3dHelmet) {
                         HumanEntity player = event.getWhoClicked();
 
                         Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
@@ -68,11 +68,11 @@ public class Helmet3dEventHandler implements Listener {
     @EventHandler
     public void equip3dHelmets(PlayerInteractEvent event) {
         ItemStack eventItem = event.getItem();
-        CustomItemValues customEventItem = itemSet.getItem(eventItem);
+        KciItem customEventItem = itemSet.getItem(eventItem);
 
         // Equip 3d custom helmets upon right click
         if ((event.getAction() == Action.RIGHT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_AIR)
-                && customEventItem instanceof CustomHelmet3dValues) {
+                && customEventItem instanceof Kci3dHelmet) {
             PlayerInventory inv = event.getPlayer().getInventory();
 
             EquipmentSlot hand = event.getHand();
@@ -81,13 +81,13 @@ public class Helmet3dEventHandler implements Listener {
                 ItemStack oldHelmet = inv.getHelmet();
                 if (hand == EquipmentSlot.HAND) {
                     ItemStack oldItem = inv.getItemInMainHand();
-                    if (itemSet.getItem(oldItem) instanceof CustomHelmet3dValues) {
+                    if (itemSet.getItem(oldItem) instanceof Kci3dHelmet) {
                         inv.setItemInMainHand(oldHelmet);
                         inv.setHelmet(oldItem);
                     }
                 } else if (hand == EquipmentSlot.OFF_HAND) {
                     ItemStack oldItem = inv.getItemInOffHand();
-                    if (itemSet.getItem(oldItem) instanceof CustomHelmet3dValues) {
+                    if (itemSet.getItem(oldItem) instanceof Kci3dHelmet) {
                         inv.setItemInOffHand(oldHelmet);
                         inv.setHelmet(oldItem);
                     }

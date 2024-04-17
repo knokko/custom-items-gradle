@@ -8,13 +8,13 @@ import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ProjectileCoverReference;
-import nl.knokko.customitems.projectile.cover.CustomProjectileCoverValues;
-import nl.knokko.customitems.projectile.cover.ProjectileCoverValues;
-import nl.knokko.customitems.projectile.cover.SphereProjectileCoverValues;
+import nl.knokko.customitems.projectile.cover.CustomProjectileCover;
+import nl.knokko.customitems.projectile.cover.ProjectileCover;
+import nl.knokko.customitems.projectile.cover.SphereProjectileCover;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
-public class ProjectileCoverCollectionEdit extends DedicatedCollectionEdit<ProjectileCoverValues, ProjectileCoverReference> {
+public class ProjectileCoverCollectionEdit extends DedicatedCollectionEdit<ProjectileCover, ProjectileCoverReference> {
 	
 	private final EditMenu menu;
 
@@ -34,31 +34,31 @@ public class ProjectileCoverCollectionEdit extends DedicatedCollectionEdit<Proje
 	}
 
 	@Override
-	protected String getModelLabel(ProjectileCoverValues model) {
+	protected String getModelLabel(ProjectileCover model) {
 		return model.getName();
 	}
 
 	@Override
-	protected BufferedImage getModelIcon(ProjectileCoverValues model) {
-		if (model instanceof SphereProjectileCoverValues) {
-			return ((SphereProjectileCoverValues) model).getTexture().getImage();
+	protected BufferedImage getModelIcon(ProjectileCover model) {
+		if (model instanceof SphereProjectileCover) {
+			return ((SphereProjectileCover) model).getTexture().getImage();
 		} else {
 			return null;
 		}
 	}
 
 	@Override
-	protected boolean canEditModel(ProjectileCoverValues model) {
+	protected boolean canEditModel(ProjectileCover model) {
 		return true;
 	}
 
 	private GuiComponent createEditMenu(ProjectileCoverReference coverReference, boolean copy) {
-		ProjectileCoverValues coverValues = coverReference.get();
+		ProjectileCover coverValues = coverReference.get();
 		ProjectileCoverReference toModify = copy ? null : coverReference;
-		if (coverValues instanceof SphereProjectileCoverValues) {
-			return new EditSphereProjectileCover(menu, (SphereProjectileCoverValues) coverValues, toModify);
-		} else if (coverValues instanceof CustomProjectileCoverValues) {
-			return new EditCustomProjectileCover(menu, (CustomProjectileCoverValues) coverValues, toModify);
+		if (coverValues instanceof SphereProjectileCover) {
+			return new EditSphereProjectileCover(menu, (SphereProjectileCover) coverValues, toModify);
+		} else if (coverValues instanceof CustomProjectileCover) {
+			return new EditCustomProjectileCover(menu, (CustomProjectileCover) coverValues, toModify);
 		} else {
 			throw new Error("It looks like we forgot the edit menu for this projectile cover type. Please report on discord or BukkitDev");
 		}

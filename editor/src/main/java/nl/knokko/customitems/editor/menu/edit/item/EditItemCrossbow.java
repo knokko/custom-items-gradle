@@ -4,11 +4,11 @@ import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.texture.CrossbowTextureEdit;
-import nl.knokko.customitems.item.AttributeModifierValues;
-import nl.knokko.customitems.item.CustomCrossbowValues;
+import nl.knokko.customitems.item.KciAttributeModifier;
+import nl.knokko.customitems.item.KciCrossbow;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.TextureReference;
-import nl.knokko.customitems.texture.CrossbowTextureValues;
+import nl.knokko.customitems.texture.CrossbowTexture;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.image.CheckboxComponent;
@@ -18,22 +18,22 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
-public class EditItemCrossbow extends EditItemTool<CustomCrossbowValues> {
+public class EditItemCrossbow extends EditItemTool<KciCrossbow> {
 
-    private static final AttributeModifierValues EXAMPLE_ATTRIBUTE_MODIFIER = AttributeModifierValues.createQuick(
-            AttributeModifierValues.Attribute.MOVEMENT_SPEED,
-            AttributeModifierValues.Slot.OFFHAND,
-            AttributeModifierValues.Operation.ADD_FACTOR,
+    private static final KciAttributeModifier EXAMPLE_ATTRIBUTE_MODIFIER = KciAttributeModifier.createQuick(
+            KciAttributeModifier.Attribute.MOVEMENT_SPEED,
+            KciAttributeModifier.Slot.OFFHAND,
+            KciAttributeModifier.Operation.ADD_FACTOR,
             1.5
     );
 
-    public EditItemCrossbow(EditMenu menu, CustomCrossbowValues oldValues, ItemReference toModify) {
+    public EditItemCrossbow(EditMenu menu, KciCrossbow oldValues, ItemReference toModify) {
         super(menu, oldValues, toModify);
     }
 
     @Override
     protected GuiComponent createLoadTextureMenu() {
-        return new CrossbowTextureEdit(menu.getSet(), this, null, new CrossbowTextureValues(true));
+        return new CrossbowTextureEdit(menu.getSet(), this, null, new CrossbowTexture(true));
     }
 
     @Override
@@ -120,12 +120,12 @@ public class EditItemCrossbow extends EditItemTool<CustomCrossbowValues> {
     }
 
     @Override
-    protected AttributeModifierValues getExampleAttributeModifier() {
+    protected KciAttributeModifier getExampleAttributeModifier() {
         return EXAMPLE_ATTRIBUTE_MODIFIER;
     }
 
     @Override
     protected boolean allowTexture(TextureReference candidate) {
-        return candidate.get() instanceof CrossbowTextureValues;
+        return candidate.get() instanceof CrossbowTexture;
     }
 }

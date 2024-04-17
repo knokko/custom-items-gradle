@@ -12,7 +12,7 @@ import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ArmorTextureReference;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.texture.ArmorTextureValues;
+import nl.knokko.customitems.texture.ArmorTexture;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -28,12 +28,12 @@ public class ArmorTexturesEdit extends GuiMenu {
 	private final ItemSet set;
 
 	private final ArmorTextureReference toModify;
-	private final ArmorTextureValues currentValues;
+	private final ArmorTexture currentValues;
 
 	private final DynamicTextComponent errorComponent;
 
 	public ArmorTexturesEdit(
-            GuiComponent returnMenu, ItemSet set, ArmorTextureReference toModify, ArmorTextureValues oldValues
+            GuiComponent returnMenu, ItemSet set, ArmorTextureReference toModify, ArmorTexture oldValues
 	) {
 		this.returnMenu = returnMenu;
 		this.set = set;

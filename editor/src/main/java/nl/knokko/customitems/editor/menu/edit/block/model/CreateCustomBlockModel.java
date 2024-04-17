@@ -10,7 +10,7 @@ import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.item.model.ModernCustomItemModel;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
-import nl.knokko.customitems.texture.BaseTextureValues;
+import nl.knokko.customitems.texture.KciTexture;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -41,7 +41,7 @@ public class CreateCustomBlockModel extends GuiMenu {
 
         addComponent(new DynamicTextButton("Load texture...", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(
-                    new TextureEdit(itemSet, this, null, new BaseTextureValues(true))
+                    new TextureEdit(itemSet, this, null, new KciTexture(true))
             );
         }), 0.025f, 0.4f, 0.2f, 0.5f);
 

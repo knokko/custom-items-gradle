@@ -4,9 +4,9 @@ import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.item.AttributeModifierValues;
-import nl.knokko.customitems.item.CustomGunValues;
-import nl.knokko.customitems.item.CustomItemType;
+import nl.knokko.customitems.item.KciAttributeModifier;
+import nl.knokko.customitems.item.KciGun;
+import nl.knokko.customitems.item.KciItemType;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.text.EagerIntEditField;
@@ -15,16 +15,16 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
-public class EditItemGun extends EditItemBase<CustomGunValues> {
+public class EditItemGun extends EditItemBase<KciGun> {
 
-    private static final AttributeModifierValues EXAMPLE_MODIFIER = AttributeModifierValues.createQuick(
-            AttributeModifierValues.Attribute.ATTACK_DAMAGE,
-            AttributeModifierValues.Slot.MAINHAND,
-            AttributeModifierValues.Operation.ADD,
+    private static final KciAttributeModifier EXAMPLE_MODIFIER = KciAttributeModifier.createQuick(
+            KciAttributeModifier.Attribute.ATTACK_DAMAGE,
+            KciAttributeModifier.Slot.MAINHAND,
+            KciAttributeModifier.Operation.ADD,
             3
     );
 
-    public EditItemGun(EditMenu menu, CustomGunValues oldValues, ItemReference toModify) {
+    public EditItemGun(EditMenu menu, KciGun oldValues, ItemReference toModify) {
         super(menu, oldValues, toModify);
     }
 
@@ -72,12 +72,12 @@ public class EditItemGun extends EditItemBase<CustomGunValues> {
     }
 
     @Override
-    protected AttributeModifierValues getExampleAttributeModifier() {
+    protected KciAttributeModifier getExampleAttributeModifier() {
         return EXAMPLE_MODIFIER;
     }
 
     @Override
-    protected CustomItemType.Category getCategory() {
-        return CustomItemType.Category.GUN;
+    protected KciItemType.Category getCategory() {
+        return KciItemType.Category.GUN;
     }
 }

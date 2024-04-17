@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.recipe.ingredient.constraint;
 
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.recipe.ingredient.constraint.IngredientConstraintsValues;
+import nl.knokko.customitems.recipe.ingredient.constraint.IngredientConstraints;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -14,12 +14,12 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 public class EditIngredientConstraints extends GuiMenu {
 
     private final GuiComponent returnMenu;
-    private final Consumer<IngredientConstraintsValues> updateConstraints;
-    private final IngredientConstraintsValues currentConstraints;
+    private final Consumer<IngredientConstraints> updateConstraints;
+    private final IngredientConstraints currentConstraints;
 
     public EditIngredientConstraints(
-            GuiComponent returnMenu, Consumer<IngredientConstraintsValues> updateConstraints,
-            IngredientConstraintsValues oldConstraints
+            GuiComponent returnMenu, Consumer<IngredientConstraints> updateConstraints,
+            IngredientConstraints oldConstraints
     ) {
         this.returnMenu = returnMenu;
         this.updateConstraints = updateConstraints;

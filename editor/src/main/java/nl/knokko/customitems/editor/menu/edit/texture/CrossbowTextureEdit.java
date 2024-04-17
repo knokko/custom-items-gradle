@@ -7,7 +7,7 @@ import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.texture.BowTextureEntry;
-import nl.knokko.customitems.texture.CrossbowTextureValues;
+import nl.knokko.customitems.texture.CrossbowTexture;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
@@ -29,19 +29,19 @@ public class CrossbowTextureEdit extends GuiMenu {
     private final GuiComponent returnMenu;
 
     private final TextureReference toModify;
-    private final CrossbowTextureValues currentValues;
+    private final CrossbowTexture currentValues;
 
     private final DynamicTextComponent errorComponent = new DynamicTextComponent("", ERROR);
     private final PullTextureMenu pullTextureMenu = new PullTextureMenu();
 
     public CrossbowTextureEdit(
-            EditMenu menu, TextureReference toModify, CrossbowTextureValues oldValues
+            EditMenu menu, TextureReference toModify, CrossbowTexture oldValues
     ) {
         this(menu.getSet(), menu.getTextureOverview(), toModify, oldValues);
     }
 
     public CrossbowTextureEdit(
-            ItemSet set, GuiComponent returnMenu, TextureReference toModify, CrossbowTextureValues oldValues
+            ItemSet set, GuiComponent returnMenu, TextureReference toModify, CrossbowTexture oldValues
     ) {
         this.set = set;
         this.returnMenu = returnMenu;

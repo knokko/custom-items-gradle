@@ -3,8 +3,8 @@ package nl.knokko.customitems.editor.menu.edit.recipe.result;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.recipe.result.ResultValues;
-import nl.knokko.customitems.recipe.result.UpgradeResultValues;
+import nl.knokko.customitems.recipe.result.KciResult;
+import nl.knokko.customitems.recipe.result.UpgradeResult;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -18,16 +18,16 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class ChooseResult extends GuiMenu {
 	
-	private final Consumer<ResultValues> listener;
+	private final Consumer<KciResult> listener;
 	private final GuiComponent returnMenu;
 	private final ItemSet set;
 	private final boolean allowNull;
-	private final ResultValues oldResult;
-	private final BiFunction<GuiComponent, UpgradeResultValues, GuiComponent> createUpgradeIngredientMenu;
+	private final KciResult oldResult;
+	private final BiFunction<GuiComponent, UpgradeResult, GuiComponent> createUpgradeIngredientMenu;
 	
 	public ChooseResult(
-			GuiComponent returnMenu, Consumer<ResultValues> listener, ItemSet set, boolean allowNull, ResultValues oldResult,
-			BiFunction<GuiComponent, UpgradeResultValues, GuiComponent> createUpgradeIngredientMenu
+            GuiComponent returnMenu, Consumer<KciResult> listener, ItemSet set, boolean allowNull, KciResult oldResult,
+            BiFunction<GuiComponent, UpgradeResult, GuiComponent> createUpgradeIngredientMenu
 	) {
 		this.listener = listener;
 		this.returnMenu = returnMenu;
@@ -75,7 +75,7 @@ public class ChooseResult extends GuiMenu {
 			addComponent(new DynamicTextButton("Upgrade ingredient", BUTTON, HOVER, () -> {
 				state.getWindow().setMainComponent(new ChooseUpgradeResult(
 						returnMenu, set, listener,
-						oldResult instanceof UpgradeResultValues ? (UpgradeResultValues) oldResult : new UpgradeResultValues(true),
+						oldResult instanceof UpgradeResult ? (UpgradeResult) oldResult : new UpgradeResult(true),
 						createUpgradeIngredientMenu
 				));
 			}), 0.775f, 0.65f, 0.95f, 0.75f);

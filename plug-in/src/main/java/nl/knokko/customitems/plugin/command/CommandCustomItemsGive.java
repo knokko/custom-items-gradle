@@ -1,6 +1,6 @@
 package nl.knokko.customitems.plugin.command;
 
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.config.LanguageFile;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
@@ -41,11 +41,11 @@ public class CommandCustomItemsGive {
         if (args.length == 2 || args.length == 3 || args.length == 4) {
 
             // Try to find a custom item with the give name
-            CustomItemValues item = itemSet.getItem(args[1]);
+            KciItem item = itemSet.getItem(args[1]);
 
             // If no such item is found, try to find one with the given alias
             if (item == null) {
-                for (CustomItemValues candidate : itemSet.get().items) {
+                for (KciItem candidate : itemSet.get().items) {
                     if (candidate.getAlias().equals(args[1])) {
                         item = candidate;
                         break;
@@ -109,7 +109,7 @@ public class CommandCustomItemsGive {
         }
     }
 
-    public static boolean giveCustomItemToInventory(ItemSetWrapper itemSet, Inventory inventory, CustomItemValues item, int amount) {
+    public static boolean giveCustomItemToInventory(ItemSetWrapper itemSet, Inventory inventory, KciItem item, int amount) {
         boolean wasGiven = false;
 
         if (wrap(item).needsStackingHelp()) {
@@ -120,7 +120,7 @@ public class CommandCustomItemsGive {
                     if (freeSlotIndex == -1) freeSlotIndex = index;
                 } else {
                     ItemStack existingStack = contents[index];
-                    CustomItemValues existingItem = itemSet.getItem(existingStack);
+                    KciItem existingItem = itemSet.getItem(existingStack);
                     if (existingItem == item && item.getMaxStacksize() >= existingStack.getAmount() + amount) {
                         existingStack.setAmount(existingStack.getAmount() + amount);
                         inventory.setStorageContents(contents);
@@ -142,7 +142,7 @@ public class CommandCustomItemsGive {
         }
     }
 
-    private void giveTheItem(CommandSender sender, Player receiver, CustomItemValues item, int amount, boolean enableOutput) {
+    private void giveTheItem(CommandSender sender, Player receiver, KciItem item, int amount, boolean enableOutput) {
         boolean wasGiven = giveCustomItemToInventory(itemSet, receiver.getInventory(), item, amount);
 
         if (enableOutput) {

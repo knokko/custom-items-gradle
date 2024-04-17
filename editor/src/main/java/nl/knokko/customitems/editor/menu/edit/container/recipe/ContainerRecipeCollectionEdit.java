@@ -4,25 +4,25 @@ import java.awt.image.BufferedImage;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import nl.knokko.customitems.container.ContainerRecipeValues;
-import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.container.ContainerRecipe;
+import nl.knokko.customitems.container.KciContainer;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.collection.SelfDedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.StringLength;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.recipe.OutputTableValues;
-import nl.knokko.customitems.recipe.result.CustomItemResultValues;
+import nl.knokko.customitems.recipe.OutputTable;
+import nl.knokko.customitems.recipe.result.CustomItemResult;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
-public class ContainerRecipeCollectionEdit extends SelfDedicatedCollectionEdit<ContainerRecipeValues> {
+public class ContainerRecipeCollectionEdit extends SelfDedicatedCollectionEdit<ContainerRecipe> {
 	
 	private final ItemSet itemSet;
-	private final CustomContainerValues container;
+	private final KciContainer container;
 
 	public ContainerRecipeCollectionEdit(
-            ItemSet itemSet, CustomContainerValues container, GuiComponent returnMenu
+			ItemSet itemSet, KciContainer container, GuiComponent returnMenu
 	) {
 		super(container.getRecipes(), container::setRecipes, returnMenu);
 		this.itemSet = itemSet;
@@ -35,14 +35,14 @@ public class ContainerRecipeCollectionEdit extends SelfDedicatedCollectionEdit<C
 		addComponent(new DynamicTextButton("Add recipe", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new EditContainerRecipe(
 					itemSet, container, this,
-					new ContainerRecipeValues(true), this::addModel
+					new ContainerRecipe(true), this::addModel
 			));
 		}), 0.025f, 0.2f, 0.2f, 0.3f);
 		HelpButtons.addHelpLink(this, "edit menu/containers/recipes/overview.html");
 	}
 
     @Override
-	protected String getModelLabel(ContainerRecipeValues model) {
+	protected String getModelLabel(ContainerRecipe model) {
 		int modelIndex = -1;
 		for (int index = 0; index < liveCollection.size(); index++) {
 			if (model == liveCollection.get(index)) {
@@ -56,7 +56,7 @@ public class ContainerRecipeCollectionEdit extends SelfDedicatedCollectionEdit<C
 		result.append(": ");
 
 		int entryCounter = 0;
-		for (Map.Entry<String, OutputTableValues> output : model.getOutputs().entrySet()) {
+		for (Map.Entry<String, OutputTable> output : model.getOutputs().entrySet()) {
 			result.append(output.getValue());
 			if (entryCounter != model.getOutputs().size() - 1) result.append(',');
 			entryCounter += 1;
@@ -71,14 +71,14 @@ public class ContainerRecipeCollectionEdit extends SelfDedicatedCollectionEdit<C
 	}
 
 	@Override
-	protected BufferedImage getModelIcon(ContainerRecipeValues model) {
+	protected BufferedImage getModelIcon(ContainerRecipe model) {
 
 		// If we find an output with a custom item, take it!
-		for (Map.Entry<String, OutputTableValues> output : model.getOutputs().entrySet()) {
-			OutputTableValues currentTable = output.getValue();
-			for (OutputTableValues.Entry entry : currentTable.getEntries()) {
-				if (entry.getResult() instanceof CustomItemResultValues) {
-					CustomItemResultValues customResult = (CustomItemResultValues) entry.getResult();
+		for (Map.Entry<String, OutputTable> output : model.getOutputs().entrySet()) {
+			OutputTable currentTable = output.getValue();
+			for (OutputTable.Entry entry : currentTable.getEntries()) {
+				if (entry.getResult() instanceof CustomItemResult) {
+					CustomItemResult customResult = (CustomItemResult) entry.getResult();
 					return customResult.getItem().getTexture().getImage();
 				}
 			}
@@ -89,12 +89,12 @@ public class ContainerRecipeCollectionEdit extends SelfDedicatedCollectionEdit<C
 	}
 
 	@Override
-	protected boolean canEditModel(ContainerRecipeValues model) {
+	protected boolean canEditModel(ContainerRecipe model) {
 		return true;
 	}
 
 	@Override
-	protected GuiComponent createEditMenu(ContainerRecipeValues oldModelValues, Consumer<ContainerRecipeValues> changeModelValues) {
+	protected GuiComponent createEditMenu(ContainerRecipe oldModelValues, Consumer<ContainerRecipe> changeModelValues) {
 		return new EditContainerRecipe(
 				itemSet, container, this, oldModelValues, changeModelValues
 		);
@@ -106,7 +106,7 @@ public class ContainerRecipeCollectionEdit extends SelfDedicatedCollectionEdit<C
 	}
 
 	@Override
-	protected CopyMode getCopyMode(ContainerRecipeValues model) {
+	protected CopyMode getCopyMode(ContainerRecipe model) {
 		return CopyMode.SEPARATE_MENU;
 	}
 }

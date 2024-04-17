@@ -5,18 +5,18 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 import java.util.function.Consumer;
 
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.projectile.effect.AccelerationValues;
-import nl.knokko.customitems.projectile.effect.ProjectileEffectValues;
+import nl.knokko.customitems.projectile.effect.PEAcceleration;
+import nl.knokko.customitems.projectile.effect.ProjectileEffect;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerFloatEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
-public abstract class EditAcceleration<V extends AccelerationValues> extends EditProjectileEffect<V> {
+public abstract class EditAcceleration<V extends PEAcceleration> extends EditProjectileEffect<V> {
 	
 	private static final float BUTTON_X = 0.5f;
 	private static final float LABEL_X = BUTTON_X - 0.01f;
 	
-	public EditAcceleration(V oldValues, Consumer<ProjectileEffectValues> applyChanges, GuiComponent returnMenu) {
+	public EditAcceleration(V oldValues, Consumer<ProjectileEffect> applyChanges, GuiComponent returnMenu) {
 		super(oldValues, applyChanges, returnMenu);
 	}
 	

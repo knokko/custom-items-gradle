@@ -1,6 +1,6 @@
 package nl.knokko.customitems.plugin.events;
 
-import nl.knokko.customitems.item.CustomFoodValues;
+import nl.knokko.customitems.item.KciFood;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -18,14 +18,14 @@ public class CustomFoodEatEvent extends PlayerEvent implements Cancellable {
     }
 
     public final ItemStack foodStack;
-    public final CustomFoodValues customFood;
+    public final KciFood customFood;
     public final ItemSetWrapper itemSet;
 
     private boolean isCancelled = false;
 
     public CustomFoodEatEvent(
             Player who, ItemStack foodStack,
-            CustomFoodValues customFood, ItemSetWrapper itemSet
+            KciFood customFood, ItemSetWrapper itemSet
     ) {
         super(who);
         this.foodStack = foodStack;

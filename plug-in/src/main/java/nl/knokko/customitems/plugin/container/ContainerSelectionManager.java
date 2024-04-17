@@ -1,10 +1,10 @@
 package nl.knokko.customitems.plugin.container;
 
-import nl.knokko.customitems.container.CustomContainerHost;
-import nl.knokko.customitems.container.CustomContainerValues;
-import nl.knokko.customitems.drops.CIEntityType;
-import nl.knokko.customitems.item.CIMaterial;
-import nl.knokko.customitems.item.CustomPocketContainerValues;
+import nl.knokko.customitems.container.ContainerHost;
+import nl.knokko.customitems.container.KciContainer;
+import nl.knokko.customitems.drops.VEntityType;
+import nl.knokko.customitems.item.VMaterial;
+import nl.knokko.customitems.item.KciPocketContainer;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.data.PlayerData;
 import nl.knokko.customitems.plugin.data.container.PassiveLocation;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
 public class ContainerSelectionManager {
 
-    static boolean hasPermission(Player player, CustomContainerValues container) {
+    static boolean hasPermission(Player player, KciContainer container) {
         return !container.requiresPermission() || player.hasPermission("customitems.container.openany") ||
                 player.hasPermission("customitems.container.open." + container.getName());
     }
@@ -45,8 +45,8 @@ public class ContainerSelectionManager {
         this.playerData = playerData;
     }
 
-    private List<CustomContainerValues> getContainersToChooseFrom(
-            Player player, Collection<CustomContainerValues> candidates
+    private List<KciContainer> getContainersToChooseFrom(
+            Player player, Collection<KciContainer> candidates
     ) {
         return candidates.stream().filter(
                 candidate -> hasPermission(player, candidate) && !candidate.isHidden()
@@ -54,7 +54,7 @@ public class ContainerSelectionManager {
     }
 
     private Inventory createContainerSelectionMenu(
-            Collection<CustomContainerValues> containers) {
+            Collection<KciContainer> containers) {
         int invSize = 1 + containers.size();
         if (invSize % 9 != 0) {
             invSize = 9 + 9 * (invSize / 9);
@@ -62,7 +62,7 @@ public class ContainerSelectionManager {
 
         Inventory menu = Bukkit.createInventory(null, invSize, "Choose custom container");
         {
-            ItemStack cancelStack = KciNms.instance.items.createStack(CIMaterial.BARRIER.name(), 1);
+            ItemStack cancelStack = KciNms.instance.items.createStack(VMaterial.BARRIER.name(), 1);
             ItemMeta meta = cancelStack.getItemMeta();
             assert meta != null;
             meta.setDisplayName("Cancel");
@@ -71,7 +71,7 @@ public class ContainerSelectionManager {
         }
 
         int listIndex = 0;
-        for (CustomContainerValues container : containers) {
+        for (KciContainer container : containers) {
             menu.setItem(listIndex + 1, ContainerInstance.fromDisplay(container.getSelectionIcon()));
             listIndex++;
         }
@@ -79,19 +79,19 @@ public class ContainerSelectionManager {
         return menu;
     }
 
-    public List<CustomContainerValues> getShown(HumanEntity player) {
+    public List<KciContainer> getShown(HumanEntity player) {
         for (Entry entry : entries) {
             if (entry.inventory.getViewers().contains(player)) return entry.containers;
         }
         return null;
     }
 
-    public Inventory getBlockContainerMenu(Location location, Player player, CustomContainerHost host) {
+    public Inventory getBlockContainerMenu(Location location, Player player, ContainerHost host) {
         if (!WorldGuardSupport.canInteract(location.getBlock(), player)) {
             return null;
         }
 
-        List<CustomContainerValues> permittedContainers = getContainersToChooseFrom(player, itemSet.getContainers(host));
+        List<KciContainer> permittedContainers = getContainersToChooseFrom(player, itemSet.getContainers(host));
 
         if (permittedContainers.isEmpty()) {
             return null;
@@ -110,8 +110,8 @@ public class ContainerSelectionManager {
         }
     }
 
-    public void openPocketContainerMenu(Player player, CustomPocketContainerValues pocketContainer) {
-        List<CustomContainerValues> permittedContainers = getContainersToChooseFrom(
+    public void openPocketContainerMenu(Player player, KciPocketContainer pocketContainer) {
+        List<KciContainer> permittedContainers = getContainersToChooseFrom(
                 player, pocketContainer.getContainers()
         );
         PlayerData pd = PlayerData.get(player, playerData);
@@ -129,10 +129,10 @@ public class ContainerSelectionManager {
     }
 
     public void openEntityContainerMenu(Player player, Entity entity) {
-        Collection<CustomContainerValues> candidates = itemSet.getContainers(
-                new CustomContainerHost(CIEntityType.valueOf(entity.getType().name()))
+        Collection<KciContainer> candidates = itemSet.getContainers(
+                new ContainerHost(VEntityType.valueOf(entity.getType().name()))
         );
-        List<CustomContainerValues> permittedContainers = getContainersToChooseFrom(player, candidates);
+        List<KciContainer> permittedContainers = getContainersToChooseFrom(player, candidates);
 
         PlayerData pd = PlayerData.get(player, playerData);
 
@@ -161,9 +161,9 @@ public class ContainerSelectionManager {
     private static class Entry {
 
         final Inventory inventory;
-        final List<CustomContainerValues> containers;
+        final List<KciContainer> containers;
 
-        Entry(Inventory inventory, List<CustomContainerValues> containers) {
+        Entry(Inventory inventory, List<KciContainer> containers) {
             this.inventory = inventory;
             this.containers = containers;
         }

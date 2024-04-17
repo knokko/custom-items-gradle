@@ -1,11 +1,11 @@
 package nl.knokko.customitems.editor.menu.edit.block;
 
-import nl.knokko.customitems.block.BlockSoundsValues;
+import nl.knokko.customitems.block.BlockSounds;
 import nl.knokko.customitems.editor.menu.edit.sound.EditSound;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.sound.SoundValues;
+import nl.knokko.customitems.sound.KciSound;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
@@ -22,12 +22,12 @@ public class EditBlockSounds extends GuiMenu {
 
     private final GuiComponent returnMenu;
     private final ItemSet itemSet;
-    private final Consumer<BlockSoundsValues> acceptChanges;
-    private final BlockSoundsValues currentSounds;
+    private final Consumer<BlockSounds> acceptChanges;
+    private final BlockSounds currentSounds;
 
     public EditBlockSounds(
             GuiComponent returnMenu, ItemSet itemSet,
-            Consumer<BlockSoundsValues> acceptChanges, BlockSoundsValues oldSounds
+            Consumer<BlockSounds> acceptChanges, BlockSounds oldSounds
     ) {
         this.returnMenu = returnMenu;
         this.itemSet = itemSet;
@@ -35,7 +35,7 @@ public class EditBlockSounds extends GuiMenu {
         this.currentSounds = oldSounds.copy(true);
     }
 
-    private GuiComponent createClearButton(Supplier<SoundValues> get, Consumer<SoundValues> set) {
+    private GuiComponent createClearButton(Supplier<KciSound> get, Consumer<KciSound> set) {
         return new WrapperComponent<DynamicTextButton>(new DynamicTextButton("X", QUIT_BASE, QUIT_HOVER, () -> {
             set.accept(null);
         })) {
@@ -46,8 +46,8 @@ public class EditBlockSounds extends GuiMenu {
         };
     }
 
-    private SoundValues getOrNew(SoundValues sound) {
-        return sound != null ? sound : new SoundValues(true);
+    private KciSound getOrNew(KciSound sound) {
+        return sound != null ? sound : new KciSound(true);
     }
 
     @Override

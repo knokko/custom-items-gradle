@@ -6,7 +6,6 @@ import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.data.PluginData;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.item.CustomToolWrapper;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -17,7 +16,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
@@ -40,28 +38,28 @@ public class ItemInteractEventHandler implements Listener {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 
             ItemStack item = event.getItem();
-            CustomItemValues custom = itemSet.getItem(item);
+            KciItem custom = itemSet.getItem(item);
 
             if (custom != null) {
 
-                CIMaterial type = CIMaterial.getOrNull(KciNms.instance.items.getMaterialName(event.getClickedBlock()));
+                VMaterial type = VMaterial.getOrNull(KciNms.instance.items.getMaterialName(event.getClickedBlock()));
 
                 // Don't let custom items be used as their internal item
-                boolean canBeTilled = type == CIMaterial.DIRT || type == CIMaterial.GRASS
-                        || type == CIMaterial.GRASS_BLOCK || type == CIMaterial.GRASS_PATH
-                        || type == CIMaterial.COARSE_DIRT || type == CIMaterial.DIRT_PATH
-                        || type == CIMaterial.ROOTED_DIRT;
-                boolean canBeSheared = type == CIMaterial.PUMPKIN || type == CIMaterial.BEE_NEST
-                        || type == CIMaterial.BEEHIVE;
+                boolean canBeTilled = type == VMaterial.DIRT || type == VMaterial.GRASS
+                        || type == VMaterial.GRASS_BLOCK || type == VMaterial.GRASS_PATH
+                        || type == VMaterial.COARSE_DIRT || type == VMaterial.DIRT_PATH
+                        || type == VMaterial.ROOTED_DIRT;
+                boolean canBeSheared = type == VMaterial.PUMPKIN || type == VMaterial.BEE_NEST
+                        || type == VMaterial.BEEHIVE;
 
                 if (wrap(custom).forbidDefaultUse(item)) {
 
                     // But don't cancel unnecessary events (so don't prevent opening containers)
-                    if (custom.getItemType().canServe(CustomItemType.Category.HOE)) {
+                    if (custom.getItemType().canServe(KciItemType.Category.HOE)) {
                         if (canBeTilled) {
                             event.setCancelled(true);
                         }
-                    } else if (custom.getItemType().canServe(CustomItemType.Category.SHEAR)) {
+                    } else if (custom.getItemType().canServe(KciItemType.Category.SHEAR)) {
                         if (canBeSheared) {
                             event.setCancelled(true);
                         }
@@ -69,19 +67,19 @@ public class ItemInteractEventHandler implements Listener {
                         // Shouldn't happen, but better safe than sorry
                         event.setCancelled(true);
                     }
-                } else if (custom instanceof CustomToolValues) {
-                    CustomToolValues tool = (CustomToolValues) custom;
+                } else if (custom instanceof KciTool) {
+                    KciTool tool = (KciTool) custom;
                     boolean broke = false;
 
-                    if (tool instanceof CustomHoeValues) {
-                        CustomHoeValues customHoe = (CustomHoeValues) tool;
+                    if (tool instanceof KciHoe) {
+                        KciHoe customHoe = (KciHoe) tool;
                         if (canBeTilled) {
                             broke = CustomToolWrapper.wrap(tool).decreaseDurability(item, customHoe.getTillDurabilityLoss());
                         }
                     }
 
-                    if (tool instanceof CustomShearsValues) {
-                        CustomShearsValues customShears = (CustomShearsValues) tool;
+                    if (tool instanceof KciShears) {
+                        KciShears customShears = (KciShears) tool;
                         if (canBeSheared) {
                             broke = CustomToolWrapper.wrap(tool).decreaseDurability(item, customShears.getShearDurabilityLoss());
                         }
@@ -110,15 +108,15 @@ public class ItemInteractEventHandler implements Listener {
         ItemStack main = event.getPlayer().getInventory().getItemInMainHand();
         ItemStack off = event.getPlayer().getInventory().getItemInOffHand();
 
-        CustomItemValues customMain = CIMaterial.getOrNull(KciNms.instance.items.getMaterialName(main)) == CIMaterial.SHEARS
+        KciItem customMain = VMaterial.getOrNull(KciNms.instance.items.getMaterialName(main)) == VMaterial.SHEARS
                 ? itemSet.getItem(main) : null;
-        CustomItemValues customOff = CIMaterial.getOrNull(KciNms.instance.items.getMaterialName(off)) == CIMaterial.SHEARS
+        KciItem customOff = VMaterial.getOrNull(KciNms.instance.items.getMaterialName(off)) == VMaterial.SHEARS
                 ? itemSet.getItem(off) : null;
 
         if (customMain != null) {
             if (wrap(customMain).forbidDefaultUse(main)) event.setCancelled(true);
-            else if (customMain instanceof CustomShearsValues) {
-                CustomShearsValues tool = (CustomShearsValues) customMain;
+            else if (customMain instanceof KciShears) {
+                KciShears tool = (KciShears) customMain;
                 boolean broke = CustomToolWrapper.wrap(tool).decreaseDurability(main, tool.getShearDurabilityLoss());
                 if (broke) {
                     String newItemName = checkBrokenCondition(tool.getReplacementConditions());
@@ -131,8 +129,8 @@ public class ItemInteractEventHandler implements Listener {
             }
         } else if (customOff != null) {
             if (wrap(customOff).forbidDefaultUse(off)) event.setCancelled(true);
-            else if (customOff instanceof CustomShearsValues) {
-                CustomShearsValues tool = (CustomShearsValues) customOff;
+            else if (customOff instanceof KciShears) {
+                KciShears tool = (KciShears) customOff;
                 boolean broke = CustomToolWrapper.wrap(tool).decreaseDurability(off, tool.getShearDurabilityLoss());
                 if (broke) {
                     String newItemName = checkBrokenCondition(tool.getReplacementConditions());
@@ -150,11 +148,11 @@ public class ItemInteractEventHandler implements Listener {
     public void updateGunsAndWands(PlayerInteractEvent event) {
         if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 
-            CustomItemValues usedItem = itemSet.getItem(event.getItem());
+            KciItem usedItem = itemSet.getItem(event.getItem());
             PluginData data = CustomItemsPlugin.getInstance().getData();
 
-            if ((usedItem instanceof CustomWandValues || usedItem instanceof CustomGunValues ||
-                    usedItem instanceof CustomThrowableValues)
+            if ((usedItem instanceof KciWand || usedItem instanceof KciGun ||
+                    usedItem instanceof KciThrowable)
             ) {
                 if (data.hasPermissionToShoot(event.getPlayer(), usedItem)) {
                     data.setShooting(event.getPlayer());
@@ -168,15 +166,15 @@ public class ItemInteractEventHandler implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void finishEating(PlayerItemConsumeEvent event) {
         ItemStack eatenStack = event.getItem();
-        CustomItemValues eatenItem = itemSet.getItem(eatenStack);
-        if (eatenItem instanceof CustomFoodValues) {
+        KciItem eatenItem = itemSet.getItem(eatenStack);
+        if (eatenItem instanceof KciFood) {
             event.setCancelled(true);
 
             PlayerInventory inv = event.getPlayer().getInventory();
             boolean isMainHand = eatenStack.equals(inv.getItemInMainHand());
             if (isMainHand || eatenStack.equals(inv.getItemInOffHand())) {
                 PluginData.consumeCustomFood(
-                        event.getPlayer(), eatenStack, (CustomFoodValues) eatenItem,
+                        event.getPlayer(), eatenStack, (KciFood) eatenItem,
                         isMainHand ? inv::setItemInMainHand : inv::setItemInOffHand
                 );
             }
@@ -187,8 +185,8 @@ public class ItemInteractEventHandler implements Listener {
     public void startEating(PlayerInteractEvent event) {
         if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
             ItemStack usedStack = event.getItem();
-            CustomItemValues usedItem = itemSet.getItem(usedStack);
-            if (usedItem instanceof CustomFoodValues && !Objects.requireNonNull(usedStack).getType().isEdible()) {
+            KciItem usedItem = itemSet.getItem(usedStack);
+            if (usedItem instanceof KciFood && !Objects.requireNonNull(usedStack).getType().isEdible()) {
                 CustomItemsPlugin.getInstance().getData().setEating(event.getPlayer());
             }
         }
@@ -201,7 +199,7 @@ public class ItemInteractEventHandler implements Listener {
             item = event.getPlayer().getInventory().getItemInMainHand();
         else
             item = event.getPlayer().getInventory().getItemInOffHand();
-        CustomItemValues custom = itemSet.getItem(item);
+        KciItem custom = itemSet.getItem(item);
         if (custom != null && wrap(custom).forbidDefaultUse(item)) {
             // Don't let custom items be used as their internal item
             event.setCancelled(true);

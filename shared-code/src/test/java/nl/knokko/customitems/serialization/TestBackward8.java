@@ -1,36 +1,36 @@
 package nl.knokko.customitems.serialization;
 
-import nl.knokko.customitems.block.drop.RequiredItemValues;
+import nl.knokko.customitems.block.drop.RequiredItems;
 import nl.knokko.customitems.block.drop.SilkTouchRequirement;
-import nl.knokko.customitems.container.ContainerRecipeValues;
-import nl.knokko.customitems.container.CustomContainerValues;
-import nl.knokko.customitems.container.fuel.FuelEntryValues;
-import nl.knokko.customitems.container.fuel.FuelRegistryValues;
+import nl.knokko.customitems.container.ContainerRecipe;
+import nl.knokko.customitems.container.KciContainer;
+import nl.knokko.customitems.container.fuel.ContainerFuelEntry;
+import nl.knokko.customitems.container.fuel.ContainerFuelRegistry;
 import nl.knokko.customitems.container.slot.*;
 import nl.knokko.customitems.container.slot.display.*;
-import nl.knokko.customitems.damage.DamageSource;
+import nl.knokko.customitems.damage.VDamageSource;
 import nl.knokko.customitems.drops.*;
 import nl.knokko.customitems.effect.*;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.command.ItemCommand;
 import nl.knokko.customitems.item.command.ItemCommandEvent;
 import nl.knokko.customitems.item.command.ItemCommandSystem;
-import nl.knokko.customitems.item.enchantment.EnchantmentType;
-import nl.knokko.customitems.item.enchantment.EnchantmentValues;
+import nl.knokko.customitems.item.enchantment.VEnchantmentType;
+import nl.knokko.customitems.item.enchantment.LeveledEnchantment;
 import nl.knokko.customitems.item.model.DefaultItemModel;
 import nl.knokko.customitems.item.model.LegacyCustomItemModel;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.recipe.OutputTableValues;
-import nl.knokko.customitems.recipe.ShapedRecipeValues;
-import nl.knokko.customitems.recipe.ingredient.CustomItemIngredientValues;
-import nl.knokko.customitems.recipe.ingredient.IngredientValues;
-import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
-import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
-import nl.knokko.customitems.recipe.result.CopiedResultValues;
-import nl.knokko.customitems.recipe.result.CustomItemResultValues;
-import nl.knokko.customitems.recipe.result.DataVanillaResultValues;
-import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
-import nl.knokko.customitems.texture.ArmorTextureValues;
+import nl.knokko.customitems.recipe.OutputTable;
+import nl.knokko.customitems.recipe.KciShapedRecipe;
+import nl.knokko.customitems.recipe.ingredient.CustomItemIngredient;
+import nl.knokko.customitems.recipe.ingredient.KciIngredient;
+import nl.knokko.customitems.recipe.ingredient.NoIngredient;
+import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredient;
+import nl.knokko.customitems.recipe.result.CopiedResult;
+import nl.knokko.customitems.recipe.result.CustomItemResult;
+import nl.knokko.customitems.recipe.result.DataVanillaResult;
+import nl.knokko.customitems.recipe.result.SimpleVanillaResult;
+import nl.knokko.customitems.texture.ArmorTexture;
 import nl.knokko.customitems.util.Chance;
 import org.junit.jupiter.api.Test;
 
@@ -83,11 +83,11 @@ public class TestBackward8 {
     static void testItemsNew8(ItemSet set, int numItems) {
         testItemsNew6(set, numItems);
 
-        testTridentDefault8((CustomTridentValues) set.items.get("trident_one").get());
+        testTridentDefault8((KciTrident) set.items.get("trident_one").get());
 
-        CustomTridentValues item = (CustomTridentValues) set.items.get("trident2").get();
+        KciTrident item = (KciTrident) set.items.get("trident2").get();
         assertEquals("trident2", item.getName());
-        assertEquals(CustomItemType.TRIDENT, item.getItemType());
+        assertEquals(KciItemType.TRIDENT, item.getItemType());
         assertEquals("t2", item.getAlias());
         assertEquals("Second Test Trident", item.getDisplayName());
         assertEquals(0, item.getLore().size());
@@ -105,25 +105,25 @@ public class TestBackward8 {
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
         assertEquals(new ItemCommandSystem(true), item.getCommandSystem());
-        assertEquals(ReplacementConditionValues.ConditionOperation.NONE, item.getConditionOp());
+        assertEquals(ReplacementConditionEntry.ConditionOperation.NONE, item.getConditionOp());
         assertEquals(listOf(
-                ReplacementConditionValues.createQuick(
-                        ReplacementConditionValues.ReplacementCondition.HASITEM,
+                ReplacementConditionEntry.createQuick(
+                        ReplacementConditionEntry.ReplacementCondition.HASITEM,
                         set.items.getReference( "trident_one"),
-                        ReplacementConditionValues.ReplacementOperation.ATLEAST,
+                        ReplacementConditionEntry.ReplacementOperation.ATLEAST,
                         1,
                         set.items.getReference("trident_one")
                 )
         ), item.getReplacementConditions());
         assertEquals(listOf(
-                EquippedPotionEffectValues.createQuick(EffectType.REGENERATION, 2, AttributeModifierValues.Slot.MAINHAND)
+                EquippedPotionEffect.createQuick(VEffectType.REGENERATION, 2, KciAttributeModifier.Slot.MAINHAND)
         ), item.getEquippedEffects());
         assertEquals(listOf("{\"trident\":\"t2\"}"), item.getExtraNbt());
         assertEquals(1.75f, item.getAttackRange(), 0f);
         assertTrue(item.allowAnvilActions());
         assertTrue(item.allowEnchanting());
         assertEquals(500, (long) item.getMaxDurabilityNew());
-        assertEquals(new NoIngredientValues(), item.getRepairItem());
+        assertEquals(new NoIngredient(), item.getRepairItem());
         assertEquals(1, item.getEntityHitDurabilityLoss());
         assertEquals(2, item.getBlockBreakDurabilityLoss());
         assertEquals(1, item.getThrowDurabilityLoss());
@@ -136,54 +136,54 @@ public class TestBackward8 {
     static void testContainersOld8(ItemSet set, int numContainers) {
         testContainers7(set, numContainers);
 
-        CustomContainerValues container2 = set.containers.get("container2").get();
-        ContainerRecipeValues recipe = container2.getRecipes().stream().findFirst().get();
+        KciContainer container2 = set.containers.get("container2").get();
+        ContainerRecipe recipe = container2.getRecipes().stream().findFirst().get();
 
-        OutputTableValues output = recipe.getOutputs().values().stream().findFirst().get();
+        OutputTable output = recipe.getOutputs().values().stream().findFirst().get();
         assertEquals(listOf(
-                OutputTableValues.Entry.createQuick(CustomItemResultValues.createQuick(set.items.getReference("simple1"), 1), 40),
-                OutputTableValues.Entry.createQuick(SimpleVanillaResultValues.createQuick(CIMaterial.DIAMOND, 2), 50)
+                OutputTable.Entry.createQuick(CustomItemResult.createQuick(set.items.getReference("simple1"), 1), 40),
+                OutputTable.Entry.createQuick(SimpleVanillaResult.createQuick(VMaterial.DIAMOND, 2), 50)
         ), output.getEntries());
 
-        OutputSlotValues outputSlot = (OutputSlotValues) container2.getSlot(0, 0);
-        SlotDisplayValues outputPlaceholder = outputSlot.getPlaceholder();
+        OutputSlot outputSlot = (OutputSlot) container2.getSlot(0, 0);
+        SlotDisplay outputPlaceholder = outputSlot.getPlaceholder();
         assertEquals("Simple Test", outputPlaceholder.getDisplayName());
         assertEquals(2, outputPlaceholder.getAmount());
-        assertEquals(CustomDisplayItemValues.createQuick(set.items.getReference("simple1")), outputPlaceholder.getDisplayItem());
+        assertEquals(CustomDisplayItem.createQuick(set.items.getReference("simple1")), outputPlaceholder.getDisplayItem());
         assertEquals(0, outputPlaceholder.getLore().size());
 
-        InputSlotValues inputSlot = (InputSlotValues) container2.getSlot(1, 0);
-        SlotDisplayValues inputPlaceholder = inputSlot.getPlaceholder();
+        InputSlot inputSlot = (InputSlot) container2.getSlot(1, 0);
+        SlotDisplay inputPlaceholder = inputSlot.getPlaceholder();
         assertEquals("", inputPlaceholder.getDisplayName());
         assertEquals(listOf(
                 "test the lore"
         ), inputPlaceholder.getLore());
         assertEquals(1, inputPlaceholder.getAmount());
-        assertEquals(SimpleVanillaDisplayItemValues.createQuick(CIMaterial.ACACIA_FENCE), inputPlaceholder.getDisplayItem());
+        assertEquals(SimpleVanillaDisplayItem.createQuick(VMaterial.ACACIA_FENCE), inputPlaceholder.getDisplayItem());
 
-        FuelSlotValues fuelSlot = (FuelSlotValues) container2.getSlot(0, 1);
-        SlotDisplayValues fuelPlaceholder = fuelSlot.getPlaceholder();
+        FuelSlot fuelSlot = (FuelSlot) container2.getSlot(0, 1);
+        SlotDisplay fuelPlaceholder = fuelSlot.getPlaceholder();
         assertEquals("", fuelPlaceholder.getDisplayName());
         assertEquals(0, fuelPlaceholder.getLore().size());
         assertEquals(10, fuelPlaceholder.getAmount());
-        assertEquals(DataVanillaDisplayItemValues.createQuick(CIMaterial.WOOL, (byte) 8), fuelPlaceholder.getDisplayItem());
+        assertEquals(DataVanillaDisplayItem.createQuick(VMaterial.WOOL, (byte) 8), fuelPlaceholder.getDisplayItem());
     }
 
     static void testFuelRegistriesOld8(ItemSet set, int numFuelRegistries) {
         assertEquals(numFuelRegistries, set.fuelRegistries.size());
 
-        FuelRegistryValues registry1 = set.fuelRegistries.get("registry1").get();
+        ContainerFuelRegistry registry1 = set.fuelRegistries.get("registry1").get();
         assertEquals("registry1", registry1.getName());
         assertEquals(listOf(
-                FuelEntryValues.createQuick(SimpleVanillaIngredientValues.createQuick(CIMaterial.COAL, 1), 100),
-                FuelEntryValues.createQuick(CustomItemIngredientValues.createQuick(set.items.getReference("simple1"), 1), 500)
+                ContainerFuelEntry.createQuick(SimpleVanillaIngredient.createQuick(VMaterial.COAL, 1), 100),
+                ContainerFuelEntry.createQuick(CustomItemIngredient.createQuick(set.items.getReference("simple1"), 1), 500)
         ), registry1.getEntries());
     }
 
     static void testMobDropsOld8(ItemSet set, int numBlockDrops) {
         testMobDropsOld6(set, numBlockDrops);
 
-        Iterator<MobDropValues> mobDropIterator = set.mobDrops.iterator();
+        Iterator<MobDrop> mobDropIterator = set.mobDrops.iterator();
         testDefaultMobDrop8(mobDropIterator.next());
         testDefaultMobDrop8(mobDropIterator.next());
     }
@@ -191,43 +191,43 @@ public class TestBackward8 {
     static void testBlockDropsOld8(ItemSet set, int numBlockDrops) {
         testBlockDropsOld6(set, numBlockDrops, true);
 
-        Iterator<BlockDropValues> blockDropIterator = set.blockDrops.iterator();
-        BlockDropValues firstBlockDrop = blockDropIterator.next();
+        Iterator<BlockDrop> blockDropIterator = set.blockDrops.iterator();
+        BlockDrop firstBlockDrop = blockDropIterator.next();
         testDefaultBlockDrop8(firstBlockDrop);
 
-        BlockDropValues blockDrop = blockDropIterator.next();
-        assertEquals(BlockType.STONE, blockDrop.getBlockType());
+        BlockDrop blockDrop = blockDropIterator.next();
+        assertEquals(VBlockType.STONE, blockDrop.getBlockType());
         assertEquals(SilkTouchRequirement.OPTIONAL, blockDrop.getSilkTouchRequirement());
-        DropValues drop = blockDrop.getDrop();
+        KciDrop drop = blockDrop.getDrop();
 
         assertFalse(drop.shouldCancelNormalDrops());
-        RequiredItemValues expectedRequiredItems = new RequiredItemValues(true);
+        RequiredItems expectedRequiredItems = new RequiredItems(true);
         expectedRequiredItems.setCustomItems(listOf(set.items.getReference("pickaxe1"), set.items.getReference("pickaxe_two")));
         assertEquals(expectedRequiredItems, drop.getRequiredHeldItems());
 
-        OutputTableValues dropTable = drop.getOutputTable();
+        OutputTable dropTable = drop.getOutputTable();
         assertEquals(Chance.percentage(35), dropTable.getNothingChance());
         assertEquals(listOf(
-                OutputTableValues.Entry.createQuick(CustomItemResultValues.createQuick(set.items.getReference("simple1"), (byte) 1), 30),
-                OutputTableValues.Entry.createQuick(SimpleVanillaResultValues.createQuick(CIMaterial.ACACIA_DOOR, 2), 20),
-                OutputTableValues.Entry.createQuick(DataVanillaResultValues.createQuick(CIMaterial.WOOL, 3, 3), 10),
-                OutputTableValues.Entry.createQuick(CopiedResultValues.createQuick(copiedFromServerString()), 5)
+                OutputTable.Entry.createQuick(CustomItemResult.createQuick(set.items.getReference("simple1"), (byte) 1), 30),
+                OutputTable.Entry.createQuick(SimpleVanillaResult.createQuick(VMaterial.ACACIA_DOOR, 2), 20),
+                OutputTable.Entry.createQuick(DataVanillaResult.createQuick(VMaterial.WOOL, 3, 3), 10),
+                OutputTable.Entry.createQuick(CopiedResult.createQuick(copiedFromServerString()), 5)
         ), dropTable.getEntries());
     }
 
-    static void testDefaultBlockDrop8(BlockDropValues blockDrop) {
+    static void testDefaultBlockDrop8(BlockDrop blockDrop) {
         assertEquals(SilkTouchRequirement.FORBIDDEN, blockDrop.getSilkTouchRequirement());
         testDefaultDrop8(blockDrop.getDrop());
         testDefaultBlockDrop10(blockDrop);
     }
 
-    static void testDefaultMobDrop8(MobDropValues mobDrop) {
+    static void testDefaultMobDrop8(MobDrop mobDrop) {
         testDefaultDrop8(mobDrop.getDrop());
         testDefaultMobDrop10(mobDrop);
     }
 
-    static void testDefaultDrop8(DropValues drop) {
-        assertEquals(new RequiredItemValues(false), drop.getRequiredHeldItems());
+    static void testDefaultDrop8(KciDrop drop) {
+        assertEquals(new RequiredItems(false), drop.getRequiredHeldItems());
         testDefaultDrop10(drop);
     }
 
@@ -237,13 +237,13 @@ public class TestBackward8 {
         assertTrue(set.craftingRecipes.stream().anyMatch(recipe -> recipe.equals(createShapedRecipe3(set))));
     }
 
-    static ShapedRecipeValues createShapedRecipe3(ItemSet set) {
-        IngredientValues[] ingredients = {
-                CustomItemIngredientValues.createQuick(set.items.getReference("simple1"), 1), new NoIngredientValues(), new NoIngredientValues(),
-                new NoIngredientValues(), CustomItemIngredientValues.createQuick(set.items.getReference("simple2"), 1), new NoIngredientValues(),
-                new NoIngredientValues(), new NoIngredientValues(), CustomItemIngredientValues.createQuick(set.items.getReference("simple3"), 1)
+    static KciShapedRecipe createShapedRecipe3(ItemSet set) {
+        KciIngredient[] ingredients = {
+                CustomItemIngredient.createQuick(set.items.getReference("simple1"), 1), new NoIngredient(), new NoIngredient(),
+                new NoIngredient(), CustomItemIngredient.createQuick(set.items.getReference("simple2"), 1), new NoIngredient(),
+                new NoIngredient(), new NoIngredient(), CustomItemIngredient.createQuick(set.items.getReference("simple3"), 1)
         };
-        return ShapedRecipeValues.createQuick(ingredients, CopiedResultValues.createQuick(copiedFromServerString()), false);
+        return KciShapedRecipe.createQuick(ingredients, CopiedResult.createQuick(copiedFromServerString()), false);
     }
 
     static void testArmorTexturesOld8(ItemSet set, int numArmorTextures) {
@@ -254,7 +254,7 @@ public class TestBackward8 {
 
         assertEquals(numArmorTextures, set.armorTextures.size());
 
-        ArmorTextureValues armorTexture1 = set.armorTextures.get("armor_texture1").get();
+        ArmorTexture armorTexture1 = set.armorTextures.get("armor_texture1").get();
         assertEquals("armor_texture1", armorTexture1.getName());
         assertImageEqual(loadImage("armor1layer1"), armorTexture1.getLayer1());
         assertImageEqual(loadImage("armor1layer2"), armorTexture1.getLayer2());
@@ -263,24 +263,24 @@ public class TestBackward8 {
     static void testItemsOld8(ItemSet set, int numItems) {
         testItemsOld6(set, numItems);
 
-        testShieldDefault8((CustomShieldValues) set.items.get("shield_one").get());
-        testWandDefault8((CustomWandValues) set.items.get("wand_one").get());
+        testShieldDefault8((KciShield) set.items.get("shield_one").get());
+        testWandDefault8((KciWand) set.items.get("wand_one").get());
 
-        testWand2((CustomWandValues) set.items.get("wand2").get(), set);
+        testWand2((KciWand) set.items.get("wand2").get(), set);
         // Yeah... naming mistake...
-        testSimple4((SimpleCustomItemValues) set.items.get("simple3").get(), set);
-        testShovel2((CustomToolValues) set.items.get("shovel2").get(), set);
-        testHoe3((CustomHoeValues) set.items.get("hoe3").get(), set);
-        testShears3((CustomShearsValues) set.items.get("shears3").get(), set);
-        test3dHelmet1((CustomHelmet3dValues) set.items.get("3dhelmet1").get(), set);
-        testBow3((CustomBowValues) set.items.get("bow3").get(), set);
-        testChestplate2((CustomArmorValues) set.items.get("chestplate2").get(), set);
-        testShield2((CustomShieldValues) set.items.get("shield2").get(), set);
+        testSimple4((KciSimpleItem) set.items.get("simple3").get(), set);
+        testShovel2((KciTool) set.items.get("shovel2").get(), set);
+        testHoe3((KciHoe) set.items.get("hoe3").get(), set);
+        testShears3((KciShears) set.items.get("shears3").get(), set);
+        test3dHelmet1((Kci3dHelmet) set.items.get("3dhelmet1").get(), set);
+        testBow3((KciBow) set.items.get("bow3").get(), set);
+        testChestplate2((KciArmor) set.items.get("chestplate2").get(), set);
+        testShield2((KciShield) set.items.get("shield2").get(), set);
     }
 
-    static void testWand2(CustomWandValues item, ItemSet itemSet) {
+    static void testWand2(KciWand item, ItemSet itemSet) {
         assertEquals("wand2", item.getName());
-        assertEquals(CustomItemType.DIAMOND_HOE, item.getItemType());
+        assertEquals(KciItemType.DIAMOND_HOE, item.getItemType());
         assertEquals("wand2", item.getAlias());
         assertEquals("Wand 2", item.getDisplayName());
         assertEquals(0, item.getLore().size());
@@ -298,19 +298,19 @@ public class TestBackward8 {
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
         assertEquals(new ItemCommandSystem(false), item.getCommandSystem());
-        assertEquals(ReplacementConditionValues.ConditionOperation.AND, item.getConditionOp());
+        assertEquals(ReplacementConditionEntry.ConditionOperation.AND, item.getConditionOp());
         assertEquals(listOf(
-                ReplacementConditionValues.createQuick(
-                        ReplacementConditionValues.ReplacementCondition.HASITEM,
+                ReplacementConditionEntry.createQuick(
+                        ReplacementConditionEntry.ReplacementCondition.HASITEM,
                         itemSet.items.getReference("simple1"),
-                        ReplacementConditionValues.ReplacementOperation.ATLEAST,
+                        ReplacementConditionEntry.ReplacementOperation.ATLEAST,
                         1,
                         itemSet.items.getReference("simple2")
                 )
         ), item.getReplacementConditions());
         assertEquals(listOf(
-                EquippedPotionEffectValues.createQuick(
-                        EffectType.JUMP, 2, AttributeModifierValues.Slot.OFFHAND
+                EquippedPotionEffect.createQuick(
+                        VEffectType.JUMP, 2, KciAttributeModifier.Slot.OFFHAND
                 )
         ), item.getEquippedEffects());
         assertEquals(listOf("{\"test_int\":1}", "{\"parent\":{\"child\":{\"test_string\":\"2\"}}}"), item.getExtraNbt());
@@ -321,9 +321,9 @@ public class TestBackward8 {
         assertEquals(40, item.getCooldown());
     }
 
-    static void testSimple4(SimpleCustomItemValues item, ItemSet itemSet) {
+    static void testSimple4(KciSimpleItem item, ItemSet itemSet) {
         assertEquals("simple3", item.getName());
-        assertEquals(CustomItemType.DIAMOND_HOE, item.getItemType());
+        assertEquals(KciItemType.DIAMOND_HOE, item.getItemType());
         assertEquals("sim3", item.getAlias());
         assertEquals("Third Simple", item.getDisplayName());
         assertEquals(0, item.getLore().size());
@@ -341,27 +341,27 @@ public class TestBackward8 {
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
         assertEquals(new ItemCommandSystem(false), item.getCommandSystem());
-        assertEquals(ReplacementConditionValues.ConditionOperation.NONE, item.getConditionOp());
+        assertEquals(ReplacementConditionEntry.ConditionOperation.NONE, item.getConditionOp());
         assertEquals(listOf(
-                ReplacementConditionValues.createQuick(
-                            ReplacementConditionValues.ReplacementCondition.MISSINGITEM,
+                ReplacementConditionEntry.createQuick(
+                            ReplacementConditionEntry.ReplacementCondition.MISSINGITEM,
                             itemSet.items.getReference("simple2"),
-                            ReplacementConditionValues.ReplacementOperation.EXACTLY,
+                            ReplacementConditionEntry.ReplacementOperation.EXACTLY,
                             1,
                             itemSet.items.getReference("simple1")
                         )
         ), item.getReplacementConditions());
         assertEquals(listOf(
-                EquippedPotionEffectValues.createQuick(EffectType.SLOW, 1, AttributeModifierValues.Slot.MAINHAND)
+                EquippedPotionEffect.createQuick(VEffectType.SLOW, 1, KciAttributeModifier.Slot.MAINHAND)
         ), item.getEquippedEffects());
         assertEquals(listOf("{\"type\":\"simple\"}"), item.getExtraNbt());
         assertEquals(0.5f, item.getAttackRange(), 0f);
         assertEquals(64, item.getMaxStacksize());
     }
 
-    static void testShovel2(CustomToolValues item, ItemSet itemSet) {
+    static void testShovel2(KciTool item, ItemSet itemSet) {
         assertEquals("shovel2", item.getName());
-        assertEquals(CustomItemType.IRON_SHOVEL, item.getItemType());
+        assertEquals(KciItemType.IRON_SHOVEL, item.getItemType());
         assertEquals("shov2", item.getAlias());
         assertEquals("Second Shovel", item.getDisplayName());
         assertEquals(0, item.getLore().size());
@@ -379,32 +379,32 @@ public class TestBackward8 {
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
         assertEquals(new ItemCommandSystem(false), item.getCommandSystem());
-        assertEquals(ReplacementConditionValues.ConditionOperation.OR, item.getConditionOp());
+        assertEquals(ReplacementConditionEntry.ConditionOperation.OR, item.getConditionOp());
         assertEquals(listOf(
-                ReplacementConditionValues.createQuick(
-                        ReplacementConditionValues.ReplacementCondition.ISBROKEN,
+                ReplacementConditionEntry.createQuick(
+                        ReplacementConditionEntry.ReplacementCondition.ISBROKEN,
                         itemSet.items.getReference( "sword1"),
-                        ReplacementConditionValues.ReplacementOperation.EXACTLY,
+                        ReplacementConditionEntry.ReplacementOperation.EXACTLY,
                         1,
                         itemSet.items.getReference("simple2")
                 )
         ), item.getReplacementConditions());
         assertEquals(listOf(
-                EquippedPotionEffectValues.createQuick(EffectType.FAST_DIGGING, 1, AttributeModifierValues.Slot.MAINHAND)
+                EquippedPotionEffect.createQuick(VEffectType.FAST_DIGGING, 1, KciAttributeModifier.Slot.MAINHAND)
         ), item.getEquippedEffects());
         assertEquals(listOf("{\"type\":\"shovel\"}"), item.getExtraNbt());
         assertEquals(3.5f, item.getAttackRange(), 0f);
         assertTrue(item.allowAnvilActions());
         assertTrue(item.allowEnchanting());
         assertEquals(500, (long) item.getMaxDurabilityNew());
-        assertEquals(new NoIngredientValues(), item.getRepairItem());
+        assertEquals(new NoIngredient(), item.getRepairItem());
         assertEquals(2, item.getEntityHitDurabilityLoss());
         assertEquals(1, item.getBlockBreakDurabilityLoss());
     }
 
-    static void testHoe3(CustomHoeValues item, ItemSet itemSet) {
+    static void testHoe3(KciHoe item, ItemSet itemSet) {
         assertEquals("hoe3", item.getName());
-        assertEquals(CustomItemType.IRON_HOE, item.getItemType());
+        assertEquals(KciItemType.IRON_HOE, item.getItemType());
         assertEquals("h3", item.getAlias());
         assertEquals("Third Hoe", item.getDisplayName());
         assertEquals(0, item.getLore().size());
@@ -422,33 +422,33 @@ public class TestBackward8 {
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
         assertEquals(new ItemCommandSystem(false), item.getCommandSystem());
-        assertEquals(ReplacementConditionValues.ConditionOperation.NONE, item.getConditionOp());
+        assertEquals(ReplacementConditionEntry.ConditionOperation.NONE, item.getConditionOp());
         assertEquals(listOf(
-                ReplacementConditionValues.createQuick(
-                        ReplacementConditionValues.ReplacementCondition.HASITEM,
+                ReplacementConditionEntry.createQuick(
+                        ReplacementConditionEntry.ReplacementCondition.HASITEM,
                         itemSet.items.getReference("simple_three"),
-                        ReplacementConditionValues.ReplacementOperation.ATMOST,
+                        ReplacementConditionEntry.ReplacementOperation.ATMOST,
                         10,
                         itemSet.items.getReference("simple2")
                 )
         ), item.getReplacementConditions());
         assertEquals(listOf(
-                EquippedPotionEffectValues.createQuick(EffectType.REGENERATION, 3, AttributeModifierValues.Slot.OFFHAND)
+                EquippedPotionEffect.createQuick(VEffectType.REGENERATION, 3, KciAttributeModifier.Slot.OFFHAND)
         ), item.getEquippedEffects());
         assertEquals(listOf("{\"int_type\":5}"), item.getExtraNbt());
         assertEquals(0.75f, item.getAttackRange(), 0f);
         assertTrue(item.allowAnvilActions());
         assertTrue(item.allowEnchanting());
         assertEquals(500, (long) item.getMaxDurabilityNew());
-        assertEquals(new NoIngredientValues(), item.getRepairItem());
+        assertEquals(new NoIngredient(), item.getRepairItem());
         assertEquals(0, item.getEntityHitDurabilityLoss());
         assertEquals(0, item.getBlockBreakDurabilityLoss());
         assertEquals(1, item.getTillDurabilityLoss());
     }
 
-    static void testShears3(CustomShearsValues item, ItemSet itemSet) {
+    static void testShears3(KciShears item, ItemSet itemSet) {
         assertEquals("shears3", item.getName());
-        assertEquals(CustomItemType.SHEARS, item.getItemType());
+        assertEquals(KciItemType.SHEARS, item.getItemType());
         assertEquals("sh3", item.getAlias());
         assertEquals("Third Shears", item.getDisplayName());
         assertEquals(0, item.getLore().size());
@@ -466,33 +466,33 @@ public class TestBackward8 {
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
         assertEquals(new ItemCommandSystem(true), item.getCommandSystem());
-        assertEquals(ReplacementConditionValues.ConditionOperation.NONE, item.getConditionOp());
+        assertEquals(ReplacementConditionEntry.ConditionOperation.NONE, item.getConditionOp());
         assertEquals(listOf(
-                ReplacementConditionValues.createQuick(
-                        ReplacementConditionValues.ReplacementCondition.HASITEM,
+                ReplacementConditionEntry.createQuick(
+                        ReplacementConditionEntry.ReplacementCondition.HASITEM,
                         itemSet.items.getReference("pickaxe1"),
-                        ReplacementConditionValues.ReplacementOperation.EXACTLY,
+                        ReplacementConditionEntry.ReplacementOperation.EXACTLY,
                         1,
                         itemSet.items.getReference("sword1")
                 )
         ), item.getReplacementConditions());
         assertEquals(listOf(
-                EquippedPotionEffectValues.createQuick(EffectType.INVISIBILITY, 1, AttributeModifierValues.Slot.MAINHAND)
+                EquippedPotionEffect.createQuick(VEffectType.INVISIBILITY, 1, KciAttributeModifier.Slot.MAINHAND)
         ), item.getEquippedEffects());
         assertEquals(listOf("{\"int_type\":9}"), item.getExtraNbt());
         assertEquals(1.25f, item.getAttackRange(), 0f);
         assertTrue(item.allowAnvilActions());
         assertTrue(item.allowEnchanting());
         assertEquals(500, (long) item.getMaxDurabilityNew());
-        assertEquals(new NoIngredientValues(), item.getRepairItem());
+        assertEquals(new NoIngredient(), item.getRepairItem());
         assertEquals(0, item.getEntityHitDurabilityLoss());
         assertEquals(1, item.getBlockBreakDurabilityLoss());
         assertEquals(1, item.getShearDurabilityLoss());
     }
 
-    static void test3dHelmet1(CustomHelmet3dValues item, ItemSet itemSet) {
+    static void test3dHelmet1(Kci3dHelmet item, ItemSet itemSet) {
         assertEquals("3dhelmet1", item.getName());
-        assertEquals(CustomItemType.IRON_HOE, item.getItemType());
+        assertEquals(KciItemType.IRON_HOE, item.getItemType());
         assertEquals("3d1", item.getAlias());
         assertEquals("A 3D Helmet!", item.getDisplayName());
         assertEquals(listOf(
@@ -500,15 +500,15 @@ public class TestBackward8 {
                 "that works without Optifine"
         ), item.getLore());
         assertEquals(listOf(
-                AttributeModifierValues.createQuick(
-                        AttributeModifierValues.Attribute.ARMOR,
-                        AttributeModifierValues.Slot.HEAD,
-                        AttributeModifierValues.Operation.ADD,
+                KciAttributeModifier.createQuick(
+                        KciAttributeModifier.Attribute.ARMOR,
+                        KciAttributeModifier.Slot.HEAD,
+                        KciAttributeModifier.Operation.ADD,
                         6.0
                 )
         ), item.getAttributeModifiers());
         assertEquals(listOf(
-                EnchantmentValues.createQuick(EnchantmentType.THORNS, 2)
+                LeveledEnchantment.createQuick(VEnchantmentType.THORNS, 2)
         ), item.getDefaultEnchantments());
         assertEquals(listOf(
                 true, false, true, false, false, false, false, false
@@ -521,37 +521,37 @@ public class TestBackward8 {
             assertNull(item.getModel());
         }
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.INVISIBILITY, 30, 1, Chance.percentage(100))
+                ChancePotionEffect.createQuick(VEffectType.INVISIBILITY, 30, 1, Chance.percentage(100))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.POISON, 100, 1, Chance.percentage(100))
+                ChancePotionEffect.createQuick(VEffectType.POISON, 100, 1, Chance.percentage(100))
         ), item.getOnHitTargetEffects());
         ItemCommandSystem summonSheepSystem = new ItemCommandSystem(true);
         summonSheepSystem.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_GENERAL, listOf(ItemCommand.createFromLegacy("summon sheep")));
         assertEquals(summonSheepSystem, item.getCommandSystem());
-        assertEquals(ReplacementConditionValues.ConditionOperation.NONE, item.getConditionOp());
+        assertEquals(ReplacementConditionEntry.ConditionOperation.NONE, item.getConditionOp());
         assertEquals(listOf(
-                ReplacementConditionValues.createQuick(
-                        ReplacementConditionValues.ReplacementCondition.HASITEM,
+                ReplacementConditionEntry.createQuick(
+                        ReplacementConditionEntry.ReplacementCondition.HASITEM,
                         itemSet.items.getReference( "pickaxe1"),
-                        ReplacementConditionValues.ReplacementOperation.ATLEAST,
+                        ReplacementConditionEntry.ReplacementOperation.ATLEAST,
                         5,
                         itemSet.items.getReference("simple2")
                 )
         ), item.getReplacementConditions());
         assertEquals(listOf(
-                EquippedPotionEffectValues.createQuick(EffectType.SLOW, 1, AttributeModifierValues.Slot.HEAD)
+                EquippedPotionEffect.createQuick(VEffectType.SLOW, 1, KciAttributeModifier.Slot.HEAD)
         ), item.getEquippedEffects());
         assertEquals(listOf("{\"type\":\"3dhelmet\"}"), item.getExtraNbt());
         assertEquals(0.25f, item.getAttackRange(), 0f);
         assertTrue(item.allowAnvilActions());
         assertFalse(item.allowEnchanting());
         assertEquals(123, (long) item.getMaxDurabilityNew());
-        assertEquals(new NoIngredientValues(), item.getRepairItem());
+        assertEquals(new NoIngredient(), item.getRepairItem());
         assertEquals(3, item.getEntityHitDurabilityLoss());
         assertEquals(4, item.getBlockBreakDurabilityLoss());
-        for (DamageSource source : DamageSource.values()) {
-            if (source == DamageSource.SUFFOCATION) {
+        for (VDamageSource source : VDamageSource.values()) {
+            if (source == VDamageSource.SUFFOCATION) {
                 assertEquals(100, item.getDamageResistances().getResistance(source));
             } else {
                 assertEquals(0, item.getDamageResistances().getResistance(source));
@@ -559,9 +559,9 @@ public class TestBackward8 {
         }
     }
 
-    static void testBow3(CustomBowValues item, ItemSet itemSet) {
+    static void testBow3(KciBow item, ItemSet itemSet) {
         assertEquals("bow3", item.getName());
-        assertEquals(CustomItemType.BOW, item.getItemType());
+        assertEquals(KciItemType.BOW, item.getItemType());
         assertEquals("b3", item.getAlias());
         assertEquals("Third Bow", item.getDisplayName());
         assertEquals(0, item.getLore().size());
@@ -577,31 +577,31 @@ public class TestBackward8 {
         }
         assertNull(item.getModel());
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.NIGHT_VISION, 1000, 1, Chance.percentage(100))
+                ChancePotionEffect.createQuick(VEffectType.NIGHT_VISION, 1000, 1, Chance.percentage(100))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.WITHER, 100, 2, Chance.percentage(100))
+                ChancePotionEffect.createQuick(VEffectType.WITHER, 100, 2, Chance.percentage(100))
         ), item.getOnHitTargetEffects());
         assertEquals(new ItemCommandSystem(true), item.getCommandSystem());
-        assertEquals(ReplacementConditionValues.ConditionOperation.NONE, item.getConditionOp());
+        assertEquals(ReplacementConditionEntry.ConditionOperation.NONE, item.getConditionOp());
         assertEquals(listOf(
-                ReplacementConditionValues.createQuick(
-                        ReplacementConditionValues.ReplacementCondition.ISBROKEN,
+                ReplacementConditionEntry.createQuick(
+                        ReplacementConditionEntry.ReplacementCondition.ISBROKEN,
                         itemSet.items.getReference( "sword1"),
-                        ReplacementConditionValues.ReplacementOperation.EXACTLY,
+                        ReplacementConditionEntry.ReplacementOperation.EXACTLY,
                         1,
                         itemSet.items.getReference("boots_one")
                 )
         ), item.getReplacementConditions());
         assertEquals(listOf(
-                EquippedPotionEffectValues.createQuick(EffectType.SPEED, 2, AttributeModifierValues.Slot.OFFHAND)
+                EquippedPotionEffect.createQuick(VEffectType.SPEED, 2, KciAttributeModifier.Slot.OFFHAND)
         ), item.getEquippedEffects());
         assertEquals(listOf("{\"type\":\"bow\"}"), item.getExtraNbt());
         assertEquals(1.75f, item.getAttackRange(), 0f);
         assertTrue(item.allowAnvilActions());
         assertTrue(item.allowEnchanting());
         assertEquals(500, (long) item.getMaxDurabilityNew());
-        assertEquals(new NoIngredientValues(), item.getRepairItem());
+        assertEquals(new NoIngredient(), item.getRepairItem());
         assertEquals(0, item.getEntityHitDurabilityLoss());
         assertEquals(0, item.getBlockBreakDurabilityLoss());
         assertEquals(1, item.getShootDurabilityLoss());
@@ -611,9 +611,9 @@ public class TestBackward8 {
         assertTrue(item.hasGravity());
     }
 
-    static void testChestplate2(CustomArmorValues item, ItemSet itemSet) {
+    static void testChestplate2(KciArmor item, ItemSet itemSet) {
         assertEquals("chestplate2", item.getName());
-        assertEquals(CustomItemType.IRON_CHESTPLATE, item.getItemType());
+        assertEquals(KciItemType.IRON_CHESTPLATE, item.getItemType());
         assertEquals("chess2", item.getAlias());
         assertEquals("Second Chestplate", item.getDisplayName());
         assertEquals(0, item.getLore().size());
@@ -631,28 +631,28 @@ public class TestBackward8 {
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
         assertEquals(new ItemCommandSystem(false), item.getCommandSystem());
-        assertEquals(ReplacementConditionValues.ConditionOperation.NONE, item.getConditionOp());
+        assertEquals(ReplacementConditionEntry.ConditionOperation.NONE, item.getConditionOp());
         assertEquals(listOf(
-                ReplacementConditionValues.createQuick(
-                        ReplacementConditionValues.ReplacementCondition.MISSINGITEM,
+                ReplacementConditionEntry.createQuick(
+                        ReplacementConditionEntry.ReplacementCondition.MISSINGITEM,
                         itemSet.items.getReference("simple1"),
-                        ReplacementConditionValues.ReplacementOperation.EXACTLY,
+                        ReplacementConditionEntry.ReplacementOperation.EXACTLY,
                         7,
                         itemSet.items.getReference("simple2")
                 )
         ), item.getReplacementConditions());
         assertEquals(listOf(
-                EquippedPotionEffectValues.createQuick(EffectType.DAMAGE_RESISTANCE, 1, AttributeModifierValues.Slot.CHEST)
+                EquippedPotionEffect.createQuick(VEffectType.DAMAGE_RESISTANCE, 1, KciAttributeModifier.Slot.CHEST)
         ), item.getEquippedEffects());
         assertEquals(listOf("{\"type\":\"chest\"}"), item.getExtraNbt());
         assertEquals(4.25f, item.getAttackRange(), 0f);
         assertTrue(item.allowAnvilActions());
         assertTrue(item.allowEnchanting());
         assertEquals(500, (long) item.getMaxDurabilityNew());
-        assertEquals(new NoIngredientValues(), item.getRepairItem());
+        assertEquals(new NoIngredient(), item.getRepairItem());
         assertEquals(0, item.getEntityHitDurabilityLoss());
         assertEquals(0, item.getBlockBreakDurabilityLoss());
-        for (DamageSource source : DamageSource.values()) {
+        for (VDamageSource source : VDamageSource.values()) {
             assertEquals(0, item.getDamageResistances().getResistance(source));
         }
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
@@ -662,9 +662,9 @@ public class TestBackward8 {
         }
     }
 
-    static void testShield2(CustomShieldValues item, ItemSet itemSet) {
+    static void testShield2(KciShield item, ItemSet itemSet) {
         assertEquals("shield2", item.getName());
-        assertEquals(CustomItemType.SHIELD, item.getItemType());
+        assertEquals(KciItemType.SHIELD, item.getItemType());
         assertEquals("s2", item.getAlias());
         assertEquals("Second Shield", item.getDisplayName());
         assertEquals(0, item.getLore().size());
@@ -682,12 +682,12 @@ public class TestBackward8 {
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
         assertEquals(new ItemCommandSystem(true), item.getCommandSystem());
-        assertEquals(ReplacementConditionValues.ConditionOperation.AND, item.getConditionOp());
+        assertEquals(ReplacementConditionEntry.ConditionOperation.AND, item.getConditionOp());
         assertEquals(listOf(
-                ReplacementConditionValues.createQuick(
-                        ReplacementConditionValues.ReplacementCondition.ISBROKEN,
+                ReplacementConditionEntry.createQuick(
+                        ReplacementConditionEntry.ReplacementCondition.ISBROKEN,
                         itemSet.items.getReference("pickaxe1"),
-                        ReplacementConditionValues.ReplacementOperation.ATMOST,
+                        ReplacementConditionEntry.ReplacementOperation.ATMOST,
                         1,
                         itemSet.items.getReference("bow_one")
                 )
@@ -698,16 +698,16 @@ public class TestBackward8 {
         assertTrue(item.allowAnvilActions());
         assertTrue(item.allowEnchanting());
         assertEquals(500, (long) item.getMaxDurabilityNew());
-        assertEquals(new NoIngredientValues(), item.getRepairItem());
+        assertEquals(new NoIngredient(), item.getRepairItem());
         assertEquals(0, item.getEntityHitDurabilityLoss());
         assertEquals(0, item.getBlockBreakDurabilityLoss());
         assertEquals(4.0, item.getThresholdDamage(), 0.0);
         assertTrue(item.getBlockingModel() instanceof DefaultItemModel);
     }
 
-    static void testBaseDefault8(CustomItemValues item) {
+    static void testBaseDefault8(KciItem item) {
         // Wands don't have empty string as default alias due to issue #124
-        if (!(item instanceof CustomWandValues)) {
+        if (!(item instanceof KciWand)) {
             assertEquals("", item.getAlias());
         }
         assertEquals(0, item.getReplacementConditions().size());
@@ -717,47 +717,47 @@ public class TestBackward8 {
         TestBackward9.testBaseDefault9(item);
     }
 
-    static void testSimpleDefault8(SimpleCustomItemValues item) {
+    static void testSimpleDefault8(KciSimpleItem item) {
         testBaseDefault8(item);
         TestBackward9.testSimpleDefault9(item);
     }
 
-    static void testToolDefault8(CustomToolValues item) {
+    static void testToolDefault8(KciTool item) {
         testBaseDefault8(item);
         TestBackward9.testToolDefault9(item);
     }
 
-    static void testArmorDefault8(CustomArmorValues item) {
+    static void testArmorDefault8(KciArmor item) {
         testToolDefault8(item);
         TestBackward9.testArmorDefault9(item);
     }
 
-    static void testHoeDefault8(CustomHoeValues item) {
+    static void testHoeDefault8(KciHoe item) {
         testToolDefault8(item);
         TestBackward9.testHoeDefault9(item);
     }
 
-    static void testShearsDefault8(CustomShearsValues item) {
+    static void testShearsDefault8(KciShears item) {
         testToolDefault8(item);
         TestBackward9.testShearsDefault9(item);
     }
 
-    static void testBowDefault8(CustomBowValues item) {
+    static void testBowDefault8(KciBow item) {
         testToolDefault8(item);
         TestBackward9.testBowDefault9(item);
     }
 
-    static void testShieldDefault8(CustomShieldValues item) {
+    static void testShieldDefault8(KciShield item) {
         testToolDefault8(item);
         TestBackward9.testShieldDefault9(item);
     }
 
-    static void testWandDefault8(CustomWandValues item) {
+    static void testWandDefault8(KciWand item) {
         testBaseDefault8(item);
         TestBackward9.testWandDefault9(item);
     }
 
-    static void testTridentDefault8(CustomTridentValues item) {
+    static void testTridentDefault8(KciTrident item) {
         testToolDefault8(item);
         TestBackward9.testTridentDefault9(item);
     }

@@ -3,14 +3,14 @@ package nl.knokko.customitems.editor.menu.edit.recipe.result;
 import java.util.function.Consumer;
 
 import nl.knokko.customitems.editor.menu.edit.recipe.ChooseCopiedItemStack;
-import nl.knokko.customitems.recipe.result.CopiedResultValues;
+import nl.knokko.customitems.recipe.result.CopiedResult;
 import nl.knokko.gui.component.GuiComponent;
 
 public class ChooseCopyResult extends ChooseCopiedItemStack {
 	
-	private final Consumer<CopiedResultValues> onChoose;
+	private final Consumer<CopiedResult> onChoose;
 
-	public ChooseCopyResult(GuiComponent cancelMenu, Consumer<CopiedResultValues> onChoose) {
+	public ChooseCopyResult(GuiComponent cancelMenu, Consumer<CopiedResult> onChoose) {
 		super(cancelMenu);
 		this.onChoose = onChoose;
 	}
@@ -18,6 +18,6 @@ public class ChooseCopyResult extends ChooseCopiedItemStack {
 
 	@Override
 	protected void onPaste(String content) {
-		onChoose.accept(CopiedResultValues.createQuick(content));
+		onChoose.accept(CopiedResult.createQuick(content));
 	}
 }

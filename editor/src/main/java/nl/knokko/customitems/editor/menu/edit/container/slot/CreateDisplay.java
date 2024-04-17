@@ -9,7 +9,7 @@ import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.menu.edit.recipe.result.ChooseDataVanillaResult;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
-import nl.knokko.customitems.item.CIMaterial;
+import nl.knokko.customitems.item.VMaterial;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -26,18 +26,18 @@ public class CreateDisplay extends GuiMenu {
 	
 	private final GuiComponent returnMenu;
 	private final ItemSet itemSet;
-	private final SlotDisplayValues currentValues;
-	private final Consumer<SlotDisplayValues> setDisplay;
+	private final SlotDisplay currentValues;
+	private final Consumer<SlotDisplay> setDisplay;
 	private final boolean selectAmount;
 	private final DynamicTextComponent errorComponent;
 	
 	public CreateDisplay(
 			GuiComponent returnMenu, ItemSet itemSet,
-			Consumer<SlotDisplayValues> setDisplay, boolean selectAmount
+			Consumer<SlotDisplay> setDisplay, boolean selectAmount
 	) {
 		this.returnMenu = returnMenu;
 		this.itemSet = itemSet;
-		this.currentValues = new SlotDisplayValues(true);
+		this.currentValues = new SlotDisplay(true);
 		this.setDisplay = setDisplay;
 		this.selectAmount = selectAmount;
 		this.errorComponent = new DynamicTextComponent("", EditProps.ERROR);
@@ -98,22 +98,22 @@ public class CreateDisplay extends GuiMenu {
 			state.getWindow().setMainComponent(new CollectionSelect<>(
 					itemSet.items.references(), selectedItem -> {
 						selectedItemDisplay.setText(selectedItem.get().getName());
-						currentValues.setDisplayItem(CustomDisplayItemValues.createQuick(selectedItem));
+						currentValues.setDisplayItem(CustomDisplayItem.createQuick(selectedItem));
 					}, candidate -> true, selectedItem -> selectedItem.get().getName(), this, false
 			));
 		}), 0.6f, 0.6f, 0.75f, 0.65f);
 		addComponent(new DynamicTextButton("Simple vanilla item", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new EnumSelect<>(
-					CIMaterial.class, newMaterial -> {
+					VMaterial.class, newMaterial -> {
 						selectedItemDisplay.setText(newMaterial.toString());
-						currentValues.setDisplayItem(SimpleVanillaDisplayItemValues.createQuick(newMaterial));
+						currentValues.setDisplayItem(SimpleVanillaDisplayItem.createQuick(newMaterial));
 					}, candidate -> true, this
 			));
 		}), 0.6f, 0.525f, 0.85f, 0.575f);
 		addComponent(new DynamicTextButton("Data vanilla item", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new ChooseDataVanillaResult(this, false, dataResult -> {
 				selectedItemDisplay.setText(dataResult.getMaterial() + " [" + dataResult.getDataValue() + "]");
-				currentValues.setDisplayItem(DataVanillaDisplayItemValues.createQuick(
+				currentValues.setDisplayItem(DataVanillaDisplayItem.createQuick(
 						dataResult.getMaterial(), dataResult.getDataValue()
 				));
 				currentValues.setAmount(dataResult.getAmount());

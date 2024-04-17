@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.container.recipe;
 
 import nl.knokko.customitems.container.energy.RecipeEnergyOperation;
-import nl.knokko.customitems.container.energy.RecipeEnergyValues;
+import nl.knokko.customitems.container.energy.RecipeEnergy;
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.menu.edit.collection.InlineCollectionEdit;
@@ -16,14 +16,14 @@ import java.util.function.Consumer;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
-public class ContainerRecipeEnergyCollectionEdit extends InlineCollectionEdit<RecipeEnergyValues> {
+public class ContainerRecipeEnergyCollectionEdit extends InlineCollectionEdit<RecipeEnergy> {
 
     private final ItemSet itemSet;
 
     public ContainerRecipeEnergyCollectionEdit(
             GuiComponent returnMenu, ItemSet itemSet,
-            Collection<RecipeEnergyValues> currentCollection,
-            Consumer<Collection<RecipeEnergyValues>> onApply
+            Collection<RecipeEnergy> currentCollection,
+            Consumer<Collection<RecipeEnergy>> onApply
     ) {
         super(returnMenu, currentCollection, onApply);
         this.itemSet = itemSet;
@@ -31,7 +31,7 @@ public class ContainerRecipeEnergyCollectionEdit extends InlineCollectionEdit<Re
 
     @Override
     protected void addRowComponents(int itemIndex, float minY, float maxY) {
-        RecipeEnergyValues item = ownCollection.get(itemIndex);
+        RecipeEnergy item = ownCollection.get(itemIndex);
 
         addComponent(new DynamicTextComponent("Energy type:", LABEL), 0.21f, minY, 0.32f, maxY);
         addComponent(CollectionSelect.createButton(
@@ -57,8 +57,8 @@ public class ContainerRecipeEnergyCollectionEdit extends InlineCollectionEdit<Re
     }
 
     @Override
-    protected RecipeEnergyValues addNew() {
-        return new RecipeEnergyValues(true);
+    protected RecipeEnergy addNew() {
+        return new RecipeEnergy(true);
     }
 
     @Override

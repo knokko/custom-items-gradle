@@ -1,14 +1,12 @@
 package nl.knokko.customitems.editor.resourcepack;
 
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.item.TranslationEntry;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.sound.CustomSoundTypeValues;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -24,7 +22,7 @@ public class ResourcepackLanguageWriter {
 
     void writeLanguageFiles() throws IOException {
         Set<String> languages = new HashSet<>();
-        for (CustomItemValues item : itemSet.items) {
+        for (KciItem item : itemSet.items) {
             for (TranslationEntry translation : item.getTranslations()) {
                 languages.add(translation.getLanguage());
             }
@@ -37,7 +35,7 @@ public class ResourcepackLanguageWriter {
             jsonWriter.println("{");
 
             boolean isFirst = true;
-            for (CustomItemValues item : itemSet.items) {
+            for (KciItem item : itemSet.items) {
                 for (TranslationEntry translation : item.getTranslations()) {
                     if (translation.getLanguage().equals(language)) {
                         if (!isFirst) jsonWriter.println(",");

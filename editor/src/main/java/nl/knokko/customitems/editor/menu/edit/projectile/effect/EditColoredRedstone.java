@@ -6,8 +6,8 @@ import java.util.function.IntConsumer;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.projectile.effect.ColoredRedstoneValues;
-import nl.knokko.customitems.projectile.effect.ProjectileEffectValues;
+import nl.knokko.customitems.projectile.effect.PEColoredRedstone;
+import nl.knokko.customitems.projectile.effect.ProjectileEffect;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerFloatEditField;
 import nl.knokko.gui.component.text.EagerIntEditField;
@@ -15,7 +15,7 @@ import nl.knokko.gui.component.text.FloatEditField;
 import nl.knokko.gui.component.text.IntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
-public class EditColoredRedstone extends EditProjectileEffect<ColoredRedstoneValues> {
+public class EditColoredRedstone extends EditProjectileEffect<PEColoredRedstone> {
 	
 	private static final float BUTTON_X = 0.425f;
 	private static final float LABEL_X = BUTTON_X - 0.01f;
@@ -23,7 +23,7 @@ public class EditColoredRedstone extends EditProjectileEffect<ColoredRedstoneVal
 	private static final float LABEL_X2 = BUTTON_X2 - 0.01f;
 
 	public EditColoredRedstone(
-			ColoredRedstoneValues oldValues, Consumer<ProjectileEffectValues> applyValues, GuiComponent returnMenu
+			PEColoredRedstone oldValues, Consumer<ProjectileEffect> applyValues, GuiComponent returnMenu
 	) {
 		super(oldValues, applyValues, returnMenu);
 	}

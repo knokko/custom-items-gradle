@@ -5,7 +5,7 @@ import com.denizenscript.denizen.objects.ItemTag;
 import com.denizenscript.denizen.objects.LocationTag;
 import com.denizenscript.denizencore.DenizenCore;
 import com.denizenscript.denizencore.objects.core.ElementTag;
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.plugin.CustomItemsApi;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
@@ -68,7 +68,7 @@ class CIDenizenAddon {
             int count = 0;
             ItemSetWrapper itemSet = CustomItemsPlugin.getInstance().getSet();
             for (ItemStack content : contents) {
-                CustomItemValues customItem = itemSet.getItem(content);
+                KciItem customItem = itemSet.getItem(content);
                 if (customItem != null && customItem.getName().equals(itemName)) {
                     count += content.getAmount();
                 }

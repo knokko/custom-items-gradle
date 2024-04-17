@@ -1,10 +1,10 @@
 package nl.knokko.customitems.plugin.tasks;
 
-import nl.knokko.customitems.item.CustomElytraValues;
-import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.item.elytra.GlideAccelerationValues;
+import nl.knokko.customitems.item.KciElytra;
+import nl.knokko.customitems.item.KciItem;
+import nl.knokko.customitems.item.elytra.GlideAcceleration;
 import nl.knokko.customitems.item.elytra.GlideAxis;
-import nl.knokko.customitems.item.elytra.VelocityModifierValues;
+import nl.knokko.customitems.item.elytra.VelocityModifier;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import org.bukkit.Bukkit;
@@ -23,9 +23,9 @@ public class CustomElytraVelocityManager {
                 if (player.isGliding()) {
 
                     ItemStack chestStack = player.getInventory().getChestplate();
-                    CustomItemValues customChestplate = itemSet.getItem(chestStack);
-                    if (customChestplate instanceof CustomElytraValues) {
-                        CustomElytraValues elytra = (CustomElytraValues) customChestplate;
+                    KciItem customChestplate = itemSet.getItem(chestStack);
+                    if (customChestplate instanceof KciElytra) {
+                        KciElytra elytra = (KciElytra) customChestplate;
                         Vector velocity = player.getVelocity();
                         Vector newVelocity = velocity.clone();
 
@@ -34,7 +34,7 @@ public class CustomElytraVelocityManager {
                         float horizontalVelocity = (float) sqrt(velocity.getX() * velocity.getX() + velocity.getZ() * velocity.getZ());
                         float verticalVelocity = (float) velocity.getY();
 
-                        for (VelocityModifierValues velocityModifier : elytra.getVelocityModifiers()) {
+                        for (VelocityModifier velocityModifier : elytra.getVelocityModifiers()) {
                             if (
                                     pitch >= velocityModifier.getMinPitch() && pitch <= velocityModifier.getMaxPitch() &&
                                             horizontalVelocity >= velocityModifier.getMinHorizontalVelocity() &&
@@ -42,7 +42,7 @@ public class CustomElytraVelocityManager {
                                             verticalVelocity >= velocityModifier.getMinVerticalVelocity() &&
                                             verticalVelocity <= velocityModifier.getMaxVerticalVelocity()
                             ) {
-                                for (GlideAccelerationValues acceleration : velocityModifier.getAccelerations()) {
+                                for (GlideAcceleration acceleration : velocityModifier.getAccelerations()) {
                                     float amount = acceleration.getFactor();
                                     if (acceleration.getSourceAxis() == GlideAxis.HORIZONTAL) {
                                         amount *= horizontalVelocity;

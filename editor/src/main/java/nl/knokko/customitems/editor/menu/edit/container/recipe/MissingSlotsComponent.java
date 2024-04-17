@@ -2,14 +2,11 @@ package nl.knokko.customitems.editor.menu.edit.container.recipe;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Map;
 
-import nl.knokko.customitems.container.ContainerRecipeValues;
-import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.container.ContainerRecipe;
+import nl.knokko.customitems.container.KciContainer;
 import nl.knokko.customitems.container.slot.*;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.recipe.OutputTableValues;
-import nl.knokko.customitems.recipe.ingredient.IngredientValues;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
@@ -17,24 +14,24 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 public class MissingSlotsComponent extends GuiMenu {
 
-	private final CustomContainerValues container;
-	private final ContainerRecipeValues recipe;
+	private final KciContainer container;
+	private final ContainerRecipe recipe;
 
-	public MissingSlotsComponent(CustomContainerValues container, ContainerRecipeValues recipe) {
+	public MissingSlotsComponent(KciContainer container, ContainerRecipe recipe) {
 		this.container = container;
 		this.recipe = recipe;
 	}
 
 	@Override
 	protected void addComponents() {
-		Iterable<ContainerSlotValues> slots = CustomContainerValues.createSlotList(container.getSlots());
+		Iterable<ContainerSlot> slots = KciContainer.createSlotList(container.getSlots());
 		
 		Collection<String> missingInputSlots = new ArrayList<>();
 		inputLoop:
 		for (String inputSlotName : recipe.getInputs().keySet()) {
-			for (ContainerSlotValues slot : slots) {
-				if (slot instanceof InputSlotValues) {
-					InputSlotValues inputSlot = (InputSlotValues) slot;
+			for (ContainerSlot slot : slots) {
+				if (slot instanceof InputSlot) {
+					InputSlot inputSlot = (InputSlot) slot;
 					if (inputSlot.getName().equals(inputSlotName)) {
 						continue inputLoop;
 					}
@@ -46,9 +43,9 @@ public class MissingSlotsComponent extends GuiMenu {
 		Collection<String> missingOutputSlots = new ArrayList<>();
 		outputLoop:
 		for (String outputSlotName : recipe.getOutputs().keySet()) {
-			for (ContainerSlotValues slot : slots) {
-				if (slot instanceof OutputSlotValues) {
-					OutputSlotValues outputSlot = (OutputSlotValues) slot;
+			for (ContainerSlot slot : slots) {
+				if (slot instanceof OutputSlot) {
+					OutputSlot outputSlot = (OutputSlot) slot;
 					if (outputSlot.getName().equals(outputSlotName)) {
 						continue outputLoop;
 					}
@@ -60,9 +57,9 @@ public class MissingSlotsComponent extends GuiMenu {
 		boolean missingManualOutputSlot = false;
 		if (recipe.getManualOutputSlotName() != null) {
 			missingManualOutputSlot = true;
-			for (ContainerSlotValues slot : slots) {
-				if (slot instanceof ManualOutputSlotValues) {
-					ManualOutputSlotValues outputSlot = (ManualOutputSlotValues) slot;
+			for (ContainerSlot slot : slots) {
+				if (slot instanceof ManualOutputSlot) {
+					ManualOutputSlot outputSlot = (ManualOutputSlot) slot;
 					if (outputSlot.getName().equals(recipe.getManualOutputSlotName())) {
 						missingManualOutputSlot = false;
 						break;

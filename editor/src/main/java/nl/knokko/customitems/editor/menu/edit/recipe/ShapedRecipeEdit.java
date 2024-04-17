@@ -8,7 +8,7 @@ import nl.knokko.customitems.editor.menu.edit.recipe.result.ResultComponent;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.CraftingRecipeReference;
-import nl.knokko.customitems.recipe.ShapedRecipeValues;
+import nl.knokko.customitems.recipe.KciShapedRecipe;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -21,7 +21,7 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 public class ShapedRecipeEdit extends GuiMenu {
 	
 	private final EditMenu menu;
-	private final ShapedRecipeValues currentValues;
+	private final KciShapedRecipe currentValues;
 	private final CraftingRecipeReference toModify;
 
 	private final Ingredients ingredientsComponent;
@@ -30,7 +30,7 @@ public class ShapedRecipeEdit extends GuiMenu {
 
 	private EagerTextEditField permissionField;
 
-	public ShapedRecipeEdit(EditMenu menu, ShapedRecipeValues oldValues, CraftingRecipeReference toModify) {
+	public ShapedRecipeEdit(EditMenu menu, KciShapedRecipe oldValues, CraftingRecipeReference toModify) {
 		this.menu = menu;
 		this.currentValues = oldValues.copy(true);
 		this.toModify = toModify;

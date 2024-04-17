@@ -2,13 +2,12 @@ package nl.knokko.customitems.editor.menu.edit.item;
 
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
-import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.texture.BowTextureEdit;
-import nl.knokko.customitems.item.AttributeModifierValues;
-import nl.knokko.customitems.item.CustomBowValues;
+import nl.knokko.customitems.item.KciAttributeModifier;
+import nl.knokko.customitems.item.KciBow;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.TextureReference;
-import nl.knokko.customitems.texture.BowTextureValues;
+import nl.knokko.customitems.texture.BowTexture;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.image.CheckboxComponent;
@@ -18,16 +17,16 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
-public class EditItemBow extends EditItemTool<CustomBowValues> {
+public class EditItemBow extends EditItemTool<KciBow> {
 	
-	private static final AttributeModifierValues EXAMPLE_ATTRIBUTE_MODIFIER = AttributeModifierValues.createQuick(
-			AttributeModifierValues.Attribute.MOVEMENT_SPEED,
-			AttributeModifierValues.Slot.OFFHAND,
-			AttributeModifierValues.Operation.ADD_FACTOR,
+	private static final KciAttributeModifier EXAMPLE_ATTRIBUTE_MODIFIER = KciAttributeModifier.createQuick(
+			KciAttributeModifier.Attribute.MOVEMENT_SPEED,
+			KciAttributeModifier.Slot.OFFHAND,
+			KciAttributeModifier.Operation.ADD_FACTOR,
 			1.5
 	);
 
-	public EditItemBow(EditMenu menu, CustomBowValues oldValues, ItemReference toModify) {
+	public EditItemBow(EditMenu menu, KciBow oldValues, ItemReference toModify) {
 		super(menu, oldValues, toModify);
 	}
 
@@ -38,11 +37,11 @@ public class EditItemBow extends EditItemTool<CustomBowValues> {
 
 	@Override
 	protected GuiComponent createLoadTextureMenu() {
-		return new BowTextureEdit(menu.getSet(), this, null, new BowTextureValues(true));
+		return new BowTextureEdit(menu.getSet(), this, null, new BowTexture(true));
 	}
 
 	@Override
-	protected AttributeModifierValues getExampleAttributeModifier() {
+	protected KciAttributeModifier getExampleAttributeModifier() {
 		return EXAMPLE_ATTRIBUTE_MODIFIER;
 	}
 
@@ -102,6 +101,6 @@ public class EditItemBow extends EditItemTool<CustomBowValues> {
 
 	@Override
 	protected boolean allowTexture(TextureReference texture) {
-		return texture.get() instanceof BowTextureValues;
+		return texture.get() instanceof BowTexture;
 	}
 }

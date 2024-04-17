@@ -2,7 +2,6 @@ package nl.knokko.customitems.editor.wiki.item;
 
 import nl.knokko.customitems.attack.effect.*;
 import nl.knokko.customitems.editor.wiki.WikiHelper;
-import nl.knokko.customitems.effect.PotionEffectValues;
 import nl.knokko.customitems.util.Chance;
 
 import java.io.PrintWriter;
@@ -11,15 +10,15 @@ import java.util.Locale;
 
 class AttackEffectsGenerator {
 
-    private final Collection<AttackEffectGroupValues> attackEffects;
+    private final Collection<AttackEffectGroup> attackEffects;
 
-    AttackEffectsGenerator(Collection<AttackEffectGroupValues> attackEffects) {
+    AttackEffectsGenerator(Collection<AttackEffectGroup> attackEffects) {
         this.attackEffects = attackEffects;
     }
 
     void generate(PrintWriter output, String tabs) {
         output.println(tabs + "<ul class=\"attack-effect-group-list\">");
-        for (AttackEffectGroupValues group : attackEffects) {
+        for (AttackEffectGroup group : attackEffects) {
             output.println(tabs + "\t<li class=\"attack-effect-group\">");
             generateGroup(output, tabs + "\t\t", group);
             output.println(tabs + "\t</li>");
@@ -27,7 +26,7 @@ class AttackEffectsGenerator {
         output.println(tabs + "</ul>");
     }
 
-    private void generateGroup(PrintWriter output, String tabs, AttackEffectGroupValues group) {
+    private void generateGroup(PrintWriter output, String tabs, AttackEffectGroup group) {
         if (group.getOriginalDamageThreshold() > 0f || group.getFinalDamageThreshold() > 0f) {
             output.println(tabs + "Requirements:");
             output.println(tabs + "<ul class=\"attack-effect-group-requirement-list\">");
@@ -47,11 +46,11 @@ class AttackEffectsGenerator {
         generateEffectList(output, tabs, group.getVictimEffects(), "Victim effects");
     }
 
-    private void generateEffectList(PrintWriter output, String tabs, Collection<AttackEffectValues> effects, String description) {
+    private void generateEffectList(PrintWriter output, String tabs, Collection<AttackEffect> effects, String description) {
         if (!effects.isEmpty()) {
             output.println(tabs + description + ":");
             output.println(tabs + "<ul class=\"attack-effect-list\">");
-            for (AttackEffectValues effect : effects) {
+            for (AttackEffect effect : effects) {
                 output.println(tabs + "\t<li class=\"attack-effect\">");
                 generateEffect(output, tabs + "\t\t", effect);
                 output.println(tabs + "\t</li>");
@@ -60,21 +59,21 @@ class AttackEffectsGenerator {
         }
     }
 
-    private void generateEffect(PrintWriter output, String tabs, AttackEffectValues effect) {
-        if (effect instanceof AttackDealDamageValues) {
-            AttackDealDamageValues damageEffect = (AttackDealDamageValues) effect;
+    private void generateEffect(PrintWriter output, String tabs, AttackEffect effect) {
+        if (effect instanceof AttackEffectDelayedDamage) {
+            AttackEffectDelayedDamage damageEffect = (AttackEffectDelayedDamage) effect;
             output.println(tabs + "Takes " + (damageEffect.getDamage() / 2f) + " hearts damage after " + damageEffect.getDelay() + " ticks");
-        } else if (effect instanceof AttackDropWeaponValues) {
+        } else if (effect instanceof AttackEffectDropWeapon) {
             output.println(tabs + "Drops weapon or shield");
-        } else if (effect instanceof AttackIgniteValues) {
-            output.println(tabs + "Is set on fire for " + ((AttackIgniteValues) effect).getDuration() + " ticks");
-        } else if (effect instanceof AttackLaunchValues) {
-            AttackLaunchValues launchEffect = (AttackLaunchValues) effect;
+        } else if (effect instanceof AttackEffectIgnite) {
+            output.println(tabs + "Is set on fire for " + ((AttackEffectIgnite) effect).getDuration() + " ticks");
+        } else if (effect instanceof AttackEffectLaunchProjectile) {
+            AttackEffectLaunchProjectile launchEffect = (AttackEffectLaunchProjectile) effect;
             output.println(tabs + "Is launched in direction " + launchEffect.getDirection().name().toLowerCase(Locale.ROOT) + " with speed " + launchEffect.getSpeed());
-        } else if (effect instanceof AttackPlaySoundValues) {
-            output.println(tabs + "Hears sound " + ((AttackPlaySoundValues) effect).getSound());
-        } else if (effect instanceof AttackPotionEffectValues) {
-            output.println(tabs + "Gets " + WikiHelper.describePotionEffect(((AttackPotionEffectValues) effect).getPotionEffect()));
+        } else if (effect instanceof AttackEffectPlaySound) {
+            output.println(tabs + "Hears sound " + ((AttackEffectPlaySound) effect).getSound());
+        } else if (effect instanceof AttackEffectPotion) {
+            output.println(tabs + "Gets " + WikiHelper.describePotionEffect(((AttackEffectPotion) effect).getPotionEffect()));
         } else {
             output.println(tabs + "Unknown effect");
             System.err.println("Unknown effect: " + effect.getClass());

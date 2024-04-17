@@ -5,7 +5,7 @@ import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.CombinedResourcepackReference;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.misc.CombinedResourcepackValues;
+import nl.knokko.customitems.misc.CombinedResourcepack;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
@@ -14,7 +14,7 @@ import java.awt.image.BufferedImage;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.BUTTON;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.HOVER;
 
-public class CombinedResourcepackCollectionEdit extends DedicatedCollectionEdit<CombinedResourcepackValues, CombinedResourcepackReference> {
+public class CombinedResourcepackCollectionEdit extends DedicatedCollectionEdit<CombinedResourcepack, CombinedResourcepackReference> {
 
     private final ItemSet itemSet;
 
@@ -28,7 +28,7 @@ public class CombinedResourcepackCollectionEdit extends DedicatedCollectionEdit<
         super.addComponents();
         addComponent(new DynamicTextButton("Add combined resourcepack", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new EditCombinedResourcepack(
-                    itemSet, this, null, new CombinedResourcepackValues(true)
+                    itemSet, this, null, new CombinedResourcepack(true)
             ));
         }), 0.025f, 0.35f, 0.275f, 0.45f);
 
@@ -36,17 +36,17 @@ public class CombinedResourcepackCollectionEdit extends DedicatedCollectionEdit<
     }
 
     @Override
-    protected String getModelLabel(CombinedResourcepackValues model) {
+    protected String getModelLabel(CombinedResourcepack model) {
         return model.getName() + " (" + model.getPriority() + ")";
     }
 
     @Override
-    protected BufferedImage getModelIcon(CombinedResourcepackValues model) {
+    protected BufferedImage getModelIcon(CombinedResourcepack model) {
         return null;
     }
 
     @Override
-    protected boolean canEditModel(CombinedResourcepackValues model) {
+    protected boolean canEditModel(CombinedResourcepack model) {
         return true;
     }
 

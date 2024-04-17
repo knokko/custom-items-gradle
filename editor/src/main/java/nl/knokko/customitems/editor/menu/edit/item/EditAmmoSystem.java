@@ -5,11 +5,11 @@ import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.EditIngredient;
 import nl.knokko.customitems.editor.menu.edit.sound.EditSound;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
-import nl.knokko.customitems.item.gun.DirectGunAmmoValues;
-import nl.knokko.customitems.item.gun.GunAmmoValues;
-import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
+import nl.knokko.customitems.item.gun.DirectGunAmmo;
+import nl.knokko.customitems.item.gun.GunAmmo;
+import nl.knokko.customitems.item.gun.IndirectGunAmmo;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.sound.SoundValues;
+import nl.knokko.customitems.sound.KciSound;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
@@ -28,28 +28,28 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 public class EditAmmoSystem extends GuiMenu {
 
     private final GuiComponent returnMenu;
-    private final Consumer<GunAmmoValues> changeAmmo;
+    private final Consumer<GunAmmo> changeAmmo;
     private final ItemSet set;
 
     private AmmoType currentAmmoType;
-    private final DirectGunAmmoValues directValues;
-    private final IndirectGunAmmoValues indirectValues;
+    private final DirectGunAmmo directValues;
+    private final IndirectGunAmmo indirectValues;
 
-    public EditAmmoSystem(GuiComponent returnMenu, Consumer<GunAmmoValues> changeAmmo, ItemSet set, GunAmmoValues original) {
+    public EditAmmoSystem(GuiComponent returnMenu, Consumer<GunAmmo> changeAmmo, ItemSet set, GunAmmo original) {
         this.returnMenu = returnMenu;
         this.changeAmmo = changeAmmo;
         this.set = set;
 
-        this.currentAmmoType = original instanceof IndirectGunAmmoValues ? AmmoType.INDIRECT : AmmoType.DIRECT;
-        if (original instanceof DirectGunAmmoValues) {
-            directValues = ((DirectGunAmmoValues) original).copy(true);
+        this.currentAmmoType = original instanceof IndirectGunAmmo ? AmmoType.INDIRECT : AmmoType.DIRECT;
+        if (original instanceof DirectGunAmmo) {
+            directValues = ((DirectGunAmmo) original).copy(true);
         } else {
-            directValues = new DirectGunAmmoValues(true);
+            directValues = new DirectGunAmmo(true);
         }
-        if (original instanceof IndirectGunAmmoValues) {
-            indirectValues = ((IndirectGunAmmoValues) original).copy(true);
+        if (original instanceof IndirectGunAmmo) {
+            indirectValues = ((IndirectGunAmmo) original).copy(true);
         } else {
-            indirectValues = new IndirectGunAmmoValues(true);
+            indirectValues = new IndirectGunAmmo(true);
         }
     }
 
@@ -169,7 +169,7 @@ public class EditAmmoSystem extends GuiMenu {
             );
 
             addComponent(new CheckboxComponent(indirectValues.getStartReloadSound() != null, newValue -> {
-                if (newValue) indirectValues.setStartReloadSound(new SoundValues(false));
+                if (newValue) indirectValues.setStartReloadSound(new KciSound(false));
                 else indirectValues.setStartReloadSound(null);
             }), 0.37f, 0.31f, 0.39f, 0.33f);
             addComponent(new DynamicTextComponent("Start reload sound", EditProps.LABEL),
@@ -181,7 +181,7 @@ public class EditAmmoSystem extends GuiMenu {
             }, () -> indirectValues.getStartReloadSound() != null), 0.72f, 0.3f, 0.9f, 0.37f);
 
             addComponent(new CheckboxComponent(indirectValues.getEndReloadSound() != null, newValue -> {
-                if (newValue) indirectValues.setEndReloadSound(new SoundValues(false));
+                if (newValue) indirectValues.setEndReloadSound(new KciSound(false));
                 else indirectValues.setEndReloadSound(null);
             }), 0.37f, 0.21f, 0.39f, 0.23f);
             addComponent(new DynamicTextComponent("Finish reload sound", EditProps.LABEL),

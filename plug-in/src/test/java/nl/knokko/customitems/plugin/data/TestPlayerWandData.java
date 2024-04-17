@@ -4,51 +4,51 @@ import static nl.knokko.customitems.plugin.data.IOHelper.getResourceBitInput;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import nl.knokko.customitems.effect.ChancePotionEffectValues;
+import nl.knokko.customitems.effect.ChancePotionEffect;
 import nl.knokko.customitems.item.*;
-import nl.knokko.customitems.item.enchantment.EnchantmentType;
-import nl.knokko.customitems.item.enchantment.EnchantmentValues;
+import nl.knokko.customitems.item.enchantment.VEnchantmentType;
+import nl.knokko.customitems.item.enchantment.LeveledEnchantment;
 import nl.knokko.customitems.util.Chance;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import nl.knokko.customitems.effect.EffectType;
+import nl.knokko.customitems.effect.VEffectType;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.ByteArrayBitInput;
 import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
 
 public class TestPlayerWandData {
 
-	private static CustomWandValues createWith() {
-		CustomWandValues with = new CustomWandValues(true);
-		with.setItemType(CustomItemType.GOLD_HOE);
+	private static KciWand createWith() {
+		KciWand with = new KciWand(true);
+		with.setItemType(KciItemType.GOLD_HOE);
 		with.setItemDamage((short) 10);
 		with.setName("with_charges_one");
 		with.setDisplayName("With charges 1");
 		with.setLore(Lists.newArrayList("A wand that needs charges"));
 		with.setAttributeModifiers(Lists.newArrayList(
-				AttributeModifierValues.createQuick(
-						AttributeModifierValues.Attribute.ATTACK_SPEED,
-						AttributeModifierValues.Slot.OFFHAND,
-						AttributeModifierValues.Operation.ADD, 0.3
+				KciAttributeModifier.createQuick(
+						KciAttributeModifier.Attribute.ATTACK_SPEED,
+						KciAttributeModifier.Slot.OFFHAND,
+						KciAttributeModifier.Operation.ADD, 0.3
 				)
 		));
 		with.setDefaultEnchantments(Lists.newArrayList(
-				EnchantmentValues.createQuick(EnchantmentType.FIRE_ASPECT, 1)
+				LeveledEnchantment.createQuick(VEnchantmentType.FIRE_ASPECT, 1)
 		));
 		with.setPlayerEffects(Lists.newArrayList(
-				ChancePotionEffectValues.createQuick(EffectType.ABSORPTION, 15, 1, Chance.percentage(100))
+				ChancePotionEffect.createQuick(VEffectType.ABSORPTION, 15, 1, Chance.percentage(100))
 		));
 		with.setCooldown(5);
-		with.setCharges(WandChargeValues.createQuick(5, 20));
+		with.setCharges(WandCharges.createQuick(5, 20));
 		with.setAmountPerShot(2);
 		return with.copy(false);
 	}
 
-	private static CustomWandValues createWithout() {
-		CustomWandValues without = new CustomWandValues(true);
-		without.setItemType(CustomItemType.SHEARS);
+	private static KciWand createWithout() {
+		KciWand without = new KciWand(true);
+		without.setItemType(KciItemType.SHEARS);
 		without.setItemDamage((short) 3);
 		without.setName("without_charges_one");
 		without.setDisplayName("Without charges 1");
@@ -58,9 +58,9 @@ public class TestPlayerWandData {
 		return without.copy(false);
 	}
 
-	static final CustomWandValues WITH = createWith();
+	static final KciWand WITH = createWith();
 	
-	static final CustomWandValues WITHOUT = createWithout();
+	static final KciWand WITHOUT = createWithout();
 
 	private void checkLoadedData1(BitInput input) {
 		PlayerWandData.discard1(input);

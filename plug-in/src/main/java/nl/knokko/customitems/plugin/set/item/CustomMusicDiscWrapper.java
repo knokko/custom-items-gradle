@@ -1,11 +1,11 @@
 package nl.knokko.customitems.plugin.set.item;
 
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.KciItem;
 import org.bukkit.inventory.ItemStack;
 
 public class CustomMusicDiscWrapper extends CustomItemWrapper {
 
-    CustomMusicDiscWrapper(CustomItemValues item) {
+    CustomMusicDiscWrapper(KciItem item) {
         super(item);
     }
 

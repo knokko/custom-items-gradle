@@ -8,8 +8,8 @@ import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TreeGeneratorReference;
 import nl.knokko.customitems.util.Chance;
-import nl.knokko.customitems.worldgen.CITreeType;
-import nl.knokko.customitems.worldgen.TreeGeneratorValues;
+import nl.knokko.customitems.worldgen.VTreeType;
+import nl.knokko.customitems.worldgen.TreeGenerator;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -24,11 +24,11 @@ public class EditTreeGenerator extends GuiMenu {
     private final GuiComponent returnMenu;
     private final ItemSet itemSet;
 
-    private final TreeGeneratorValues currentValues;
+    private final TreeGenerator currentValues;
     private final TreeGeneratorReference toModify;
 
     public EditTreeGenerator(
-            GuiComponent returnMenu, ItemSet itemSet, TreeGeneratorValues oldValues, TreeGeneratorReference toModify
+            GuiComponent returnMenu, ItemSet itemSet, TreeGenerator oldValues, TreeGeneratorReference toModify
     ) {
         this.returnMenu = returnMenu;
         this.itemSet = itemSet;
@@ -56,7 +56,7 @@ public class EditTreeGenerator extends GuiMenu {
 
         addComponent(new DynamicTextComponent("Tree shape:", LABEL), 0.2f, 0.8f, 0.35f, 0.9f);
         addComponent(
-                EnumSelect.createSelectButton(CITreeType.class, currentValues::setTreeType, currentValues.getTreeType()),
+                EnumSelect.createSelectButton(VTreeType.class, currentValues::setTreeType, currentValues.getTreeType()),
                 0.36f, 0.8f, 0.5f, 0.9f
         );
         addComponent(new DynamicTextButton("Allowed biomes...", BUTTON, HOVER, () -> {

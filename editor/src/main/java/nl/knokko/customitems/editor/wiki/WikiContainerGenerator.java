@@ -1,17 +1,17 @@
 package nl.knokko.customitems.editor.wiki;
 
 import nl.knokko.customitems.NameHelper;
-import nl.knokko.customitems.container.ContainerRecipeValues;
+import nl.knokko.customitems.container.ContainerRecipe;
 import nl.knokko.customitems.container.ContainerStorageMode;
-import nl.knokko.customitems.container.CustomContainerValues;
-import nl.knokko.customitems.container.VanillaContainerType;
+import nl.knokko.customitems.container.KciContainer;
+import nl.knokko.customitems.container.VContainerType;
 import nl.knokko.customitems.container.energy.RecipeEnergyOperation;
-import nl.knokko.customitems.container.energy.RecipeEnergyValues;
+import nl.knokko.customitems.container.energy.RecipeEnergy;
 import nl.knokko.customitems.container.fuel.FuelMode;
 import nl.knokko.customitems.container.slot.*;
 import nl.knokko.customitems.container.slot.display.*;
-import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.item.CustomPocketContainerValues;
+import nl.knokko.customitems.item.KciItem;
+import nl.knokko.customitems.item.KciPocketContainer;
 import nl.knokko.customitems.item.WikiVisibility;
 import nl.knokko.customitems.itemset.ItemSet;
 
@@ -30,9 +30,9 @@ import static nl.knokko.customitems.util.ColorCodes.stripColorCodes;
 class WikiContainerGenerator {
 
     private final ItemSet itemSet;
-    private final CustomContainerValues container;
+    private final KciContainer container;
 
-    WikiContainerGenerator(ItemSet itemSet, CustomContainerValues container) {
+    WikiContainerGenerator(ItemSet itemSet, KciContainer container) {
         this.itemSet = itemSet;
         this.container = container;
     }
@@ -58,8 +58,8 @@ class WikiContainerGenerator {
             output.println("\t\t<h2>Basic information</h2>");
             output.println("\t\tInternal name: " + container.getName() + "<br>");
 
-            long numFuelSlots = CustomContainerValues.createSlotList(container.getSlots()).stream().filter(
-                    slot -> slot instanceof FuelSlotValues
+            long numFuelSlots = KciContainer.createSlotList(container.getSlots()).stream().filter(
+                    slot -> slot instanceof FuelSlot
             ).count();
             if (numFuelSlots == 1) {
                 output.println("\t\tThis container has 1 fuel slot. Recipes can only progress while this slot is burning.<br>");
@@ -97,7 +97,7 @@ class WikiContainerGenerator {
             }
             output.println("\t\t<h2>Opening this container</h2>");
 
-            if (container.getHost().getVanillaType() != null && container.getHost().getVanillaType() != VanillaContainerType.NONE) {
+            if (container.getHost().getVanillaType() != null && container.getHost().getVanillaType() != VContainerType.NONE) {
                 output.println("\t\tLeft-click (hit) a " + NameHelper.getNiceEnumName(container.getHost().getVanillaType().name()) +
                         " while sneaking in survival mode<br>");
             }
@@ -112,15 +112,15 @@ class WikiContainerGenerator {
                 output.println("\t\tRight-click a " + NameHelper.getNiceEnumName(container.getHost().getVanillaEntity().name()) + "<br>");
             }
 
-            Collection<CustomItemValues> pocketContainers = itemSet.items.stream().filter(
-                    item -> item instanceof CustomPocketContainerValues && ((CustomPocketContainerValues) item).getContainers().stream().anyMatch(
+            Collection<KciItem> pocketContainers = itemSet.items.stream().filter(
+                    item -> item instanceof KciPocketContainer && ((KciPocketContainer) item).getContainers().stream().anyMatch(
                             candidateContainer -> candidateContainer.getName().equals(container.getName())
                     ) && item.getWikiVisibility() == WikiVisibility.VISIBLE
             ).collect(Collectors.toList());
             if (!pocketContainers.isEmpty()) {
                 output.println("\t\tRight-click while holding 1 of these pocket containers in your hand:");
                 output.println("\t\t<ul class=\"pocket-containers\">");
-                for (CustomItemValues pocketContainer : pocketContainers) {
+                for (KciItem pocketContainer : pocketContainers) {
                     output.println("\t\t\t<li class=\"pocket-container\"><a href=\"../items/" + pocketContainer.getName()
                             + ".html\">" + stripColorCodes(pocketContainer.getDisplayName()) + "</a></li>");
                 }
@@ -130,16 +130,16 @@ class WikiContainerGenerator {
             output.println("\t\t<h2>Layout</h2>");
             generateLayout(output);
 
-            List<ContainerRecipeValues> recipes = container.getRecipes().stream().filter(
+            List<ContainerRecipe> recipes = container.getRecipes().stream().filter(
                     recipe -> !WikiProtector.isRecipeSecret(recipe)
             ).collect(Collectors.toList());
             if (!recipes.isEmpty()) {
                 output.println("\t\t<h2>Recipes</h2>");
                 output.println("\t\t<link rel=\"stylesheet\" href=\"../recipe.css\" />");
-                for (ContainerRecipeValues recipe : recipes) {
+                for (ContainerRecipe recipe : recipes) {
                     output.println("\t\tDuration: " + recipe.getDuration() + " ticks<br>");
                     output.println("\t\tExperience: " + recipe.getExperience() + "<br>");
-                    for (RecipeEnergyValues energy : recipe.getEnergy()) {
+                    for (RecipeEnergy energy : recipe.getEnergy()) {
                         String energyLink = "<a href=\"energy/" + energy.getEnergyType().getName()
                                 + ".html\">" + energy.getEnergyType().getName() + "</a>";
                         if (energy.getOperation() == RecipeEnergyOperation.REQUIRE_AT_LEAST) {
@@ -188,50 +188,50 @@ class WikiContainerGenerator {
         output.println("\t\t</table>");
     }
 
-    private void generateLayoutSlot(PrintWriter output, ContainerSlotValues slot) {
+    private void generateLayoutSlot(PrintWriter output, ContainerSlot slot) {
         output.print("\t\t\t\t\t<td class=\"layout-slot");
-        if (slot instanceof DecorationSlotValues) {
-            output.println(" layout-decoration-slot\">" + generateDisplay(((DecorationSlotValues) slot).getDisplay()) + "</td>");
-        } else if (slot instanceof EmptySlotValues) {
+        if (slot instanceof DecorationSlot) {
+            output.println(" layout-decoration-slot\">" + generateDisplay(((DecorationSlot) slot).getDisplay()) + "</td>");
+        } else if (slot instanceof EmptySlot) {
             output.println(" layout-empty-slot\"></td>");
-        } else if (slot instanceof FuelIndicatorSlotValues) {
-            output.println(" layout-fuel-indicator-slot\">" + generateDisplay(((FuelIndicatorSlotValues) slot).getDisplay()) + "</td>");
-        } else if (slot instanceof FuelSlotValues) {
-            output.println(" layout-fuel-slot\">" + generateDisplay(((FuelSlotValues) slot).getPlaceholder()) + "</td>");
-        } else if (slot instanceof InputSlotValues) {
-            output.println(" layout-input-slot\">" + generateDisplay(((InputSlotValues) slot).getPlaceholder()) + "</td>");
-        } else if (slot instanceof ManualOutputSlotValues) {
-            output.println(" layout-manual-output-slot\">" + generateDisplay(((ManualOutputSlotValues) slot).getPlaceholder()) + "</td>");
-        } else if (slot instanceof OutputSlotValues) {
-            output.println(" layout-output-slot\">" + generateDisplay(((OutputSlotValues) slot).getPlaceholder()) + "</td>");
-        } else if (slot instanceof ProgressIndicatorSlotValues) {
-            output.println(" layout-progress-indicator-slot\">" + generateDisplay(((ProgressIndicatorSlotValues) slot).getDisplay()) + "</td>");
-        } else if (slot instanceof StorageSlotValues) {
-            output.println(" layout-storage-slot\">" + generateDisplay(((StorageSlotValues) slot).getPlaceholder()) + "</td>");
-        } else if (slot instanceof ActionSlotValues) {
-            output.println(" layout-action-slot\">" + generateDisplay(((ActionSlotValues) slot).getDisplay()) + "</td>");
-        } else if (slot instanceof LinkSlotValues) {
-            output.println(" layout-link-slot\">" + generateDisplay(((LinkSlotValues) slot).getDisplay()) + "</td>");
+        } else if (slot instanceof FuelIndicatorSlot) {
+            output.println(" layout-fuel-indicator-slot\">" + generateDisplay(((FuelIndicatorSlot) slot).getDisplay()) + "</td>");
+        } else if (slot instanceof FuelSlot) {
+            output.println(" layout-fuel-slot\">" + generateDisplay(((FuelSlot) slot).getPlaceholder()) + "</td>");
+        } else if (slot instanceof InputSlot) {
+            output.println(" layout-input-slot\">" + generateDisplay(((InputSlot) slot).getPlaceholder()) + "</td>");
+        } else if (slot instanceof ManualOutputSlot) {
+            output.println(" layout-manual-output-slot\">" + generateDisplay(((ManualOutputSlot) slot).getPlaceholder()) + "</td>");
+        } else if (slot instanceof OutputSlot) {
+            output.println(" layout-output-slot\">" + generateDisplay(((OutputSlot) slot).getPlaceholder()) + "</td>");
+        } else if (slot instanceof ProgressIndicatorSlot) {
+            output.println(" layout-progress-indicator-slot\">" + generateDisplay(((ProgressIndicatorSlot) slot).getDisplay()) + "</td>");
+        } else if (slot instanceof StorageSlot) {
+            output.println(" layout-storage-slot\">" + generateDisplay(((StorageSlot) slot).getPlaceholder()) + "</td>");
+        } else if (slot instanceof ActionSlot) {
+            output.println(" layout-action-slot\">" + generateDisplay(((ActionSlot) slot).getDisplay()) + "</td>");
+        } else if (slot instanceof LinkSlot) {
+            output.println(" layout-link-slot\">" + generateDisplay(((LinkSlot) slot).getDisplay()) + "</td>");
         } else {
             output.println("\">Unknown slot type</td>");
         }
     }
 
-    private String generateDisplay(SlotDisplayValues display) {
+    private String generateDisplay(SlotDisplay display) {
         if (display == null) return "";
-        SlotDisplayItemValues item = display.getDisplayItem();
-        if (item instanceof CustomDisplayItemValues) {
-            CustomItemValues custom = ((CustomDisplayItemValues) item).getItem();
+        SlotDisplayItem item = display.getDisplayItem();
+        if (item instanceof CustomDisplayItem) {
+            KciItem custom = ((CustomDisplayItem) item).getItem();
             String result = "<img src=\"../textures/" + custom.getTexture().getName() +
                     ".png\" class=\"layout-image\" />";
             if (custom.getWikiVisibility() == WikiVisibility.VISIBLE) {
                 result = "<a href=\"../items/" + custom.getName() + ".html\">" + result + "</a>";
             }
             return result;
-        } else if (item instanceof SimpleVanillaDisplayItemValues) {
-            return "Decoration: " + NameHelper.getNiceEnumName(((SimpleVanillaDisplayItemValues) item).getMaterial().name());
-        } else if (item instanceof DataVanillaDisplayItemValues) {
-            return "Decoration: " + NameHelper.getNiceEnumName(((DataVanillaDisplayItemValues) item).getMaterial().name());
+        } else if (item instanceof SimpleVanillaDisplayItem) {
+            return "Decoration: " + NameHelper.getNiceEnumName(((SimpleVanillaDisplayItem) item).getMaterial().name());
+        } else if (item instanceof DataVanillaDisplayItem) {
+            return "Decoration: " + NameHelper.getNiceEnumName(((DataVanillaDisplayItem) item).getMaterial().name());
         } else {
             return "Unknown decoration";
         }

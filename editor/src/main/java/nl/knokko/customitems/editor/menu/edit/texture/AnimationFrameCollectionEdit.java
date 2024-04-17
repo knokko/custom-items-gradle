@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.texture;
 
 import nl.knokko.customitems.editor.menu.edit.collection.InlineCollectionEdit;
-import nl.knokko.customitems.texture.animated.AnimationFrameValues;
+import nl.knokko.customitems.texture.animated.AnimationFrame;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.EagerTextEditField;
@@ -14,11 +14,11 @@ import java.util.function.Consumer;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
-public class AnimationFrameCollectionEdit extends InlineCollectionEdit<AnimationFrameValues> {
+public class AnimationFrameCollectionEdit extends InlineCollectionEdit<AnimationFrame> {
 
     public AnimationFrameCollectionEdit(
-            Collection<AnimationFrameValues> currentCollection,
-            Consumer<List<AnimationFrameValues>> onApply,
+            Collection<AnimationFrame> currentCollection,
+            Consumer<List<AnimationFrame>> onApply,
             GuiComponent returnMenu
     ) {
         super(currentCollection, onApply, returnMenu);
@@ -26,7 +26,7 @@ public class AnimationFrameCollectionEdit extends InlineCollectionEdit<Animation
 
     @Override
     protected void addRowComponents(int itemIndex, float minY, float maxY) {
-        AnimationFrameValues frame = this.ownCollection.get(itemIndex);
+        AnimationFrame frame = this.ownCollection.get(itemIndex);
 
         addComponent(new DynamicTextButton("X", QUIT_BASE, QUIT_HOVER, () -> {
             this.removeItem(itemIndex);
@@ -45,8 +45,8 @@ public class AnimationFrameCollectionEdit extends InlineCollectionEdit<Animation
     }
 
     @Override
-    protected AnimationFrameValues addNew() {
-        return new AnimationFrameValues(true);
+    protected AnimationFrame addNew() {
+        return new AnimationFrame(true);
     }
 
     @Override

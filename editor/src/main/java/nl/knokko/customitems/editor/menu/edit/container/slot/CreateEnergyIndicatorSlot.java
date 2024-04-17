@@ -1,8 +1,8 @@
 package nl.knokko.customitems.editor.menu.edit.container.slot;
 
 import nl.knokko.customitems.container.IndicatorDomain;
-import nl.knokko.customitems.container.slot.ContainerSlotValues;
-import nl.knokko.customitems.container.slot.EnergyIndicatorSlotValues;
+import nl.knokko.customitems.container.slot.ContainerSlot;
+import nl.knokko.customitems.container.slot.EnergyIndicatorSlot;
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
@@ -22,17 +22,17 @@ public class CreateEnergyIndicatorSlot extends GuiMenu {
 
     private final GuiComponent returnMenu;
     private final ItemSet itemSet;
-    private final Consumer<ContainerSlotValues> submitSlot;
+    private final Consumer<ContainerSlot> submitSlot;
 
-    private final EnergyIndicatorSlotValues currentValues;
+    private final EnergyIndicatorSlot currentValues;
 
     public CreateEnergyIndicatorSlot(
-            GuiComponent returnMenu, ItemSet itemSet, Consumer<ContainerSlotValues> submitSlot
+            GuiComponent returnMenu, ItemSet itemSet, Consumer<ContainerSlot> submitSlot
     ) {
         this.returnMenu = returnMenu;
         this.itemSet = itemSet;
         this.submitSlot = submitSlot;
-        this.currentValues = new EnergyIndicatorSlotValues(true);
+        this.currentValues = new EnergyIndicatorSlot(true);
     }
 
     @Override

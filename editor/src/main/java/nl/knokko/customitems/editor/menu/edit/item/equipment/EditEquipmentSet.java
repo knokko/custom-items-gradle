@@ -2,8 +2,8 @@ package nl.knokko.customitems.editor.menu.edit.item.equipment;
 
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
-import nl.knokko.customitems.item.equipment.EquipmentBonusValues;
-import nl.knokko.customitems.item.equipment.EquipmentSetValues;
+import nl.knokko.customitems.item.equipment.EquipmentSetBonus;
+import nl.knokko.customitems.item.equipment.EquipmentSet;
 import nl.knokko.customitems.itemset.EquipmentSetReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.Mutability;
@@ -21,12 +21,12 @@ class EditEquipmentSet extends GuiMenu {
 
     private final GuiComponent returnMenu;
     private final ItemSet itemSet;
-    private final EquipmentSetValues currentValues;
+    private final EquipmentSet currentValues;
     private final EquipmentSetReference toModify;
 
     private EquipmentEntryList entryList;
 
-    EditEquipmentSet(GuiComponent returnMenu, ItemSet itemSet, EquipmentSetValues oldValues, EquipmentSetReference toModify) {
+    EditEquipmentSet(GuiComponent returnMenu, ItemSet itemSet, EquipmentSet oldValues, EquipmentSetReference toModify) {
         this.returnMenu = returnMenu;
         this.itemSet = itemSet;
         this.currentValues = oldValues.copy(true);
@@ -38,7 +38,7 @@ class EditEquipmentSet extends GuiMenu {
         DynamicTextComponent errorComponent = new DynamicTextComponent("", ERROR);
         addComponent(errorComponent, 0.05f, 0.9f, 1f, 1f);
 
-        List<EquipmentBonusValues> bonuses = Mutability.createDeepCopy(currentValues.getBonuses(), true);
+        List<EquipmentSetBonus> bonuses = Mutability.createDeepCopy(currentValues.getBonuses(), true);
 
         addComponent(new DynamicTextButton("Cancel", CANCEL_BASE, CANCEL_HOVER, () -> {
             state.getWindow().setMainComponent(returnMenu);

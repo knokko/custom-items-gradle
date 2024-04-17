@@ -7,7 +7,7 @@ import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.util.Chance;
-import nl.knokko.customitems.worldgen.BlockProducerValues;
+import nl.knokko.customitems.worldgen.BlockProducer;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
@@ -17,18 +17,18 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-public class EditBlockProducer extends SafeCollectionEdit<BlockProducerValues.Entry> {
+public class EditBlockProducer extends SafeCollectionEdit<BlockProducer.Entry> {
 
     private final ItemSet itemSet;
 
-    private final Consumer<BlockProducerValues> changeValues;
+    private final Consumer<BlockProducer> changeValues;
 
     private Chance previousNothingChance = null;
     private final DynamicTextComponent nothingChanceComponent;
 
     public EditBlockProducer(
             GuiComponent returnMenu, ItemSet itemSet,
-            BlockProducerValues oldValues, Consumer<BlockProducerValues> changeValues
+            BlockProducer oldValues, Consumer<BlockProducer> changeValues
     ) {
         super(returnMenu, Mutability.createDeepCopy(oldValues.getEntries(), true));
         this.itemSet = itemSet;
@@ -40,7 +40,7 @@ public class EditBlockProducer extends SafeCollectionEdit<BlockProducerValues.En
     public void update() {
         super.update();
 
-        Chance currentNothingChance = BlockProducerValues.createQuick(new ArrayList<>(currentCollection)).getNothingChance();
+        Chance currentNothingChance = BlockProducer.createQuick(new ArrayList<>(currentCollection)).getNothingChance();
         if (!Objects.equals(currentNothingChance, previousNothingChance)) {
             if (currentNothingChance != null) {
                 nothingChanceComponent.setText("Chance to get nothing: " + currentNothingChance);
@@ -67,46 +67,46 @@ public class EditBlockProducer extends SafeCollectionEdit<BlockProducerValues.En
     }
 
     @Override
-    protected String getItemLabel(BlockProducerValues.Entry item) {
+    protected String getItemLabel(BlockProducer.Entry item) {
         return item.getChance() + " " + item.getBlock();
     }
 
     @Override
-    protected BufferedImage getItemIcon(BlockProducerValues.Entry item) {
+    protected BufferedImage getItemIcon(BlockProducer.Entry item) {
         if (item.getBlock().isCustom()) return item.getBlock().getCustomBlock().get().getModel().getPrimaryTexture().get().getImage();
         else return null;
     }
 
     @Override
-    protected EditMode getEditMode(BlockProducerValues.Entry item) {
+    protected EditMode getEditMode(BlockProducer.Entry item) {
         // Entries are so simple that there is no need to edit them
         return EditMode.DISABLED;
     }
 
     @Override
-    protected GuiComponent createEditMenu(BlockProducerValues.Entry itemToEdit) {
+    protected GuiComponent createEditMenu(BlockProducer.Entry itemToEdit) {
         throw new UnsupportedOperationException("Editing is disabled");
     }
 
     @Override
-    protected String deleteItem(BlockProducerValues.Entry itemToDelete) {
+    protected String deleteItem(BlockProducer.Entry itemToDelete) {
         // Deleting entries is always allowed
         return null;
     }
 
     @Override
-    protected CopyMode getCopyMode(BlockProducerValues.Entry item) {
+    protected CopyMode getCopyMode(BlockProducer.Entry item) {
         // Copying entries doesn't really make sense
         return CopyMode.DISABLED;
     }
 
     @Override
-    protected BlockProducerValues.Entry copy(BlockProducerValues.Entry item) {
+    protected BlockProducer.Entry copy(BlockProducer.Entry item) {
         return item.copy(true);
     }
 
     @Override
-    protected GuiComponent createCopyMenu(BlockProducerValues.Entry itemToCopy) {
+    protected GuiComponent createCopyMenu(BlockProducer.Entry itemToCopy) {
         throw new UnsupportedOperationException("Copying is disabled");
     }
 
@@ -118,7 +118,7 @@ public class EditBlockProducer extends SafeCollectionEdit<BlockProducerValues.En
 
     @Override
     protected void onApply() {
-        BlockProducerValues producer = BlockProducerValues.createQuick(new ArrayList<>(currentCollection));
+        BlockProducer producer = BlockProducer.createQuick(new ArrayList<>(currentCollection));
         String error = Validation.toErrorString(() -> producer.validate(itemSet));
 
         if (error == null) {

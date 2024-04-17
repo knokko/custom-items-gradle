@@ -2,7 +2,7 @@ package nl.knokko.customitems.editor.menu.edit.drops;
 
 import java.util.function.Consumer;
 
-import nl.knokko.customitems.drops.DropValues;
+import nl.knokko.customitems.drops.KciDrop;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.block.EditRequiredItems;
 import nl.knokko.customitems.editor.menu.edit.container.recipe.EditOutputTable;
@@ -22,15 +22,15 @@ public class SelectDrop extends GuiMenu {
 	
 	private final ItemSet set;
 	private final GuiComponent returnMenu;
-	private final Consumer<DropValues> receiver;
-	private final DropValues currentValues;
+	private final Consumer<KciDrop> receiver;
+	private final KciDrop currentValues;
 	private final boolean showPreventNormalDrops;
 	
 	private final DynamicTextComponent errorComponent;
 	
 	public SelectDrop(
-			ItemSet set, GuiComponent returnMenu,
-			DropValues previous, Consumer<DropValues> receiver, boolean showPreventNormalDrops
+            ItemSet set, GuiComponent returnMenu,
+            KciDrop previous, Consumer<KciDrop> receiver, boolean showPreventNormalDrops
 	) {
 		this.set = set;
 		this.returnMenu = returnMenu;

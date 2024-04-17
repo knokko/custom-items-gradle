@@ -5,7 +5,7 @@ import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.ByteArrayBitInput;
 import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
 import nl.knokko.customitems.container.ContainerStorageMode;
-import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.container.KciContainer;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.data.container.*;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
@@ -27,7 +27,7 @@ class EntityContainerManager {
 
     static final double MAX_DISTANCE = 10.0;
 
-    private static String getStateNbtKey(UUID playerID, CustomContainerValues containerType) {
+    private static String getStateNbtKey(UUID playerID, KciContainer containerType) {
         String key = "KnokkosEntityContainer-" + containerType.getName();
         if (containerType.getStorageMode() == ContainerStorageMode.PER_LOCATION_PER_PLAYER) {
             key += "-" + playerID;
@@ -37,7 +37,7 @@ class EntityContainerManager {
         return key;
     }
 
-    private static String getEnergyNbtKey(UUID playerID, CustomContainerValues containerType) {
+    private static String getEnergyNbtKey(UUID playerID, KciContainer containerType) {
         String key = "KnokkosEntityContainerEnergy";
         ContainerStorageMode mode = containerType.getStorageMode();
         if (mode == ContainerStorageMode.PER_LOCATION_PER_PLAYER || mode == ContainerStorageMode.NOT_PERSISTENT) {
@@ -179,13 +179,13 @@ class EntityContainerManager {
         else return null;
     }
 
-    public void switchToLinked(Player player, CustomContainerValues newContainerType) {
+    public void switchToLinked(Player player, KciContainer newContainerType) {
         ContainerPair pair = getViewedContainerPair(player);
         if (pair == null) throw new Error("Attempted to switch player, but no container was open");
         open(player, pair.host, newContainerType);
     }
 
-    public void open(Player player, Entity host, CustomContainerValues containerType) {
+    public void open(Player player, Entity host, KciContainer containerType) {
         if (containerType.getStorageMode() == ContainerStorageMode.PER_LOCATION) {
             EntityContainerData existingContainers = containers.get(host);
             if (existingContainers != null) {

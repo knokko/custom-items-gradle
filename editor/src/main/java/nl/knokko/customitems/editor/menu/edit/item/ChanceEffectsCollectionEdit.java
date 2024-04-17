@@ -4,8 +4,8 @@ import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.menu.edit.collection.InlineCollectionEdit;
 import nl.knokko.customitems.editor.util.FixedPointEditField;
-import nl.knokko.customitems.effect.ChancePotionEffectValues;
-import nl.knokko.customitems.effect.EffectType;
+import nl.knokko.customitems.effect.ChancePotionEffect;
+import nl.knokko.customitems.effect.VEffectType;
 import nl.knokko.customitems.util.Chance;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.image.ImageButton;
@@ -17,15 +17,15 @@ import java.util.function.Consumer;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
-public class ChanceEffectsCollectionEdit extends InlineCollectionEdit<ChancePotionEffectValues> {
-    public ChanceEffectsCollectionEdit(GuiComponent returnMenu, Collection<ChancePotionEffectValues> currentCollection, Consumer<Collection<ChancePotionEffectValues>> onApply) {
+public class ChanceEffectsCollectionEdit extends InlineCollectionEdit<ChancePotionEffect> {
+    public ChanceEffectsCollectionEdit(GuiComponent returnMenu, Collection<ChancePotionEffect> currentCollection, Consumer<Collection<ChancePotionEffect>> onApply) {
         super(returnMenu, currentCollection, onApply);
     }
 
     @Override
     protected void addRowComponents(int itemIndex, float minY, float maxY) {
-        ChancePotionEffectValues effect = ownCollection.get(itemIndex);
-        GuiComponent effectButton = EnumSelect.createSelectButton(EffectType.class, effect::setType, effect.getType());
+        ChancePotionEffect effect = ownCollection.get(itemIndex);
+        GuiComponent effectButton = EnumSelect.createSelectButton(VEffectType.class, effect::setType, effect.getType());
 
         addComponent(new ImageButton(deleteBase, deleteHover, () -> {
             removeItem(itemIndex);
@@ -58,8 +58,8 @@ public class ChanceEffectsCollectionEdit extends InlineCollectionEdit<ChancePoti
     }
 
     @Override
-    protected ChancePotionEffectValues addNew() {
-        return new ChancePotionEffectValues(true);
+    protected ChancePotionEffect addNew() {
+        return new ChancePotionEffect(true);
     }
 
     @Override

@@ -10,24 +10,24 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import de.tr7zw.changeme.nbtapi.NBT;
-import nl.knokko.customitems.container.ContainerRecipeValues;
-import nl.knokko.customitems.container.CustomContainerValues;
-import nl.knokko.customitems.container.energy.EnergyTypeValues;
+import nl.knokko.customitems.container.ContainerRecipe;
+import nl.knokko.customitems.container.KciContainer;
+import nl.knokko.customitems.container.energy.EnergyType;
 import nl.knokko.customitems.container.energy.RecipeEnergyOperation;
-import nl.knokko.customitems.container.energy.RecipeEnergyValues;
-import nl.knokko.customitems.container.fuel.FuelEntryValues;
-import nl.knokko.customitems.container.slot.ContainerSlotValues;
-import nl.knokko.customitems.container.slot.StorageSlotValues;
+import nl.knokko.customitems.container.energy.RecipeEnergy;
+import nl.knokko.customitems.container.fuel.ContainerFuelEntry;
+import nl.knokko.customitems.container.slot.ContainerSlot;
+import nl.knokko.customitems.container.slot.StorageSlot;
 import nl.knokko.customitems.container.slot.display.*;
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.data.container.ContainerStorageKey;
 import nl.knokko.customitems.plugin.data.container.StoredEnergy;
 import nl.knokko.customitems.plugin.tasks.updater.ItemUpgrader;
 import nl.knokko.customitems.plugin.util.NbtHelper;
-import nl.knokko.customitems.recipe.OutputTableValues;
-import nl.knokko.customitems.recipe.ingredient.IngredientValues;
+import nl.knokko.customitems.recipe.OutputTable;
+import nl.knokko.customitems.recipe.ingredient.KciIngredient;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -44,7 +44,7 @@ import com.google.common.collect.Lists;
 
 import nl.knokko.customitems.container.IndicatorDomain;
 import nl.knokko.customitems.container.fuel.FuelMode;
-import nl.knokko.customitems.item.CIMaterial;
+import nl.knokko.customitems.item.VMaterial;
 import nl.knokko.customitems.plugin.container.ContainerInfo.DecorationProps;
 import nl.knokko.customitems.plugin.container.ContainerInfo.FuelProps;
 import nl.knokko.customitems.plugin.container.ContainerInfo.IndicatorProps;
@@ -68,25 +68,25 @@ public class ContainerInstance {
 	public static final String[] PLACEHOLDER_KEY = {"KnokkosItemFlags", "IsSlotDisplay"};
 	
 	@SuppressWarnings("deprecation")
-	public static ItemStack fromDisplay(SlotDisplayValues display) {
+	public static ItemStack fromDisplay(SlotDisplay display) {
 		ItemStack stack;
-		boolean isCustom = display.getDisplayItem() instanceof CustomDisplayItemValues;
+		boolean isCustom = display.getDisplayItem() instanceof CustomDisplayItem;
 		if (isCustom) {
-			CustomItemValues customItem = ((CustomDisplayItemValues) display.getDisplayItem()).getItem();
+			KciItem customItem = ((CustomDisplayItem) display.getDisplayItem()).getItem();
 			stack = wrap(customItem).create(display.getAmount());
 		} else {
-			CIMaterial material;
-			if (display.getDisplayItem() instanceof DataVanillaDisplayItemValues) {
-				material = ((DataVanillaDisplayItemValues) display.getDisplayItem()).getMaterial();
-			} else if (display.getDisplayItem() instanceof SimpleVanillaDisplayItemValues) {
-				material = ((SimpleVanillaDisplayItemValues) display.getDisplayItem()).getMaterial();
+			VMaterial material;
+			if (display.getDisplayItem() instanceof DataVanillaDisplayItem) {
+				material = ((DataVanillaDisplayItem) display.getDisplayItem()).getMaterial();
+			} else if (display.getDisplayItem() instanceof SimpleVanillaDisplayItem) {
+				material = ((SimpleVanillaDisplayItem) display.getDisplayItem()).getMaterial();
 			} else {
 				throw new Error("Unknown display type: " + display);
 			}
 			stack = KciNms.instance.items.createStack(material.name(), display.getAmount());
-			if (display.getDisplayItem() instanceof DataVanillaDisplayItemValues) {
+			if (display.getDisplayItem() instanceof DataVanillaDisplayItem) {
 				MaterialData data = stack.getData();
-				data.setData(((DataVanillaDisplayItemValues) display.getDisplayItem()).getDataValue());
+				data.setData(((DataVanillaDisplayItem) display.getDisplayItem()).getDataValue());
 				stack.setData(data);
 				stack.setDurability(data.getData());
 			}
@@ -117,7 +117,7 @@ public class ContainerInstance {
 	}
 	
 	private static Inventory createInventory(ContainerInfo typeInfo) {
-		CustomContainerValues container = typeInfo.getContainer();
+		KciContainer container = typeInfo.getContainer();
 
 		String displayName = container.getSelectionIcon().getDisplayName();
 		if (container.getOverlayTexture() != null) {
@@ -430,8 +430,8 @@ public class ContainerInstance {
 				continue;
 			}
 
-			ContainerSlotValues slot = typeInfo.getContainer().getSlot(x, y);
-			if (slot instanceof StorageSlotValues) {
+			ContainerSlot slot = typeInfo.getContainer().getSlot(x, y);
+			if (slot instanceof StorageSlot) {
 			    base.inventory.setItem(invIndex, storedStack);
 			} else {
 				// This can happen if the admin (re)moved the storage slot
@@ -448,8 +448,8 @@ public class ContainerInstance {
 			for (int y = 0; y < typeInfo.getContainer().getHeight(); y++) {
 				for (int x = 0; x < 9; x++) {
 					int invIndex = x + 9 * y;
-					ContainerSlotValues slot = typeInfo.getContainer().getSlot(x, y);
-					if (slot instanceof StorageSlotValues) {
+					ContainerSlot slot = typeInfo.getContainer().getSlot(x, y);
+					if (slot instanceof StorageSlot) {
 						ItemStack currentStack = base.inventory.getItem(invIndex);
 						if (ItemUtils.isEmpty(currentStack)) {
 							freeSlots.add(invIndex);
@@ -557,7 +557,7 @@ public class ContainerInstance {
 
 	private int remainingHotTime;
 	
-	private ContainerRecipeValues currentRecipe;
+	private ContainerRecipe currentRecipe;
 	
 	private int storedExperience;
 	
@@ -587,7 +587,7 @@ public class ContainerInstance {
 		if (owner.hasPermission("customitems.container.recipe.any")) {
 			relevantPermissions.add("customitems.container.recipe.any");
 		}
-		for (ContainerRecipeValues recipe : getType().getRecipes()) {
+		for (ContainerRecipe recipe : getType().getRecipes()) {
 			String permission = recipe.getRequiredPermission();
 			if (permission != null && owner.hasPermission(permission)) {
 				relevantPermissions.add(permission);
@@ -745,7 +745,7 @@ public class ContainerInstance {
 		}
 	}
 	
-	public CustomContainerValues getType() {
+	public KciContainer getType() {
 		return typeInfo.getContainer();
 	}
 	
@@ -904,7 +904,7 @@ public class ContainerInstance {
 	/**
 	 * NOTE: This might be out of date. Confirm with determineCurrentRecipe to be certain!
 	 */
-	ContainerRecipeValues getCurrentRecipe() {
+	ContainerRecipe getCurrentRecipe() {
 		return this.currentRecipe;
 	}
 	
@@ -940,7 +940,7 @@ public class ContainerInstance {
 						currentItem == null 
 						|| currentItem.getAmount() <= 0
 						|| KciNms.instance.items.getMaterialName(currentItem)
-						.equals(CIMaterial.AIR.name())
+						.equals(VMaterial.AIR.name())
 				) {
 					inventory.setItem(
 							props.getSlotIndex(), 
@@ -964,7 +964,7 @@ public class ContainerInstance {
 						currentItem == null
 								|| currentItem.getAmount() <= 0
 								|| KciNms.instance.items.getMaterialName(currentItem)
-								.equals(CIMaterial.AIR.name())
+								.equals(VMaterial.AIR.name())
 				) {
 					inventory.setItem(
 							props.getSlotIndex(),
@@ -975,7 +975,7 @@ public class ContainerInstance {
 		});
 	}
 
-	private boolean canPerformRecipe(ContainerRecipeValues candidate) {
+	private boolean canPerformRecipe(ContainerRecipe candidate) {
 
 		String permission = candidate.getRequiredPermission();
 		if (
@@ -985,7 +985,7 @@ public class ContainerInstance {
 			return false;
 		}
 
-		for (RecipeEnergyValues energyRequirement : candidate.getEnergy()) {
+		for (RecipeEnergy energyRequirement : candidate.getEnergy()) {
 
 			if (energyRequirement.getOperation() == RecipeEnergyOperation.REQUIRE_AT_LEAST) {
 				int actualAmount = storedEnergy.getEnergy(energyRequirement.getEnergyType(), storageKey);
@@ -1001,9 +1001,9 @@ public class ContainerInstance {
 		}
 
 		// Check that all inputs are present
-		for (Map.Entry<String, IngredientValues> input : candidate.getInputs().entrySet()) {
+		for (Map.Entry<String, KciIngredient> input : candidate.getInputs().entrySet()) {
 			ItemStack inSlot = getInput(input.getKey());
-			IngredientValues ingredient = input.getValue();
+			KciIngredient ingredient = input.getValue();
 			if (!shouldIngredientAcceptItemStack(ingredient, inSlot)) {
 				return false;
 			}
@@ -1012,7 +1012,7 @@ public class ContainerInstance {
 		// Check that all other inputs are empty
 		inputLoop:
 		for (Entry<String, ContainerInfo.PlaceholderProps> inputEntry : typeInfo.getInputSlots()) {
-			for (Map.Entry<String, IngredientValues> usedInput : candidate.getInputs().entrySet()) {
+			for (Map.Entry<String, KciIngredient> usedInput : candidate.getInputs().entrySet()) {
 
 				// If this input is used, we shouldn't check if its empty
 				if (usedInput.getKey().equals(inputEntry.getKey())) {
@@ -1037,16 +1037,16 @@ public class ContainerInstance {
 			}
 		}
 
-		for (Entry<String, OutputTableValues> output : candidate.getOutputs().entrySet()) {
+		for (Entry<String, OutputTable> output : candidate.getOutputs().entrySet()) {
 			ItemStack outSlot = getOutput(output.getKey());
-			OutputTableValues outputTable = output.getValue();
+			OutputTable outputTable = output.getValue();
 
 			// If the output slot is empty, nothing could go wrong
 			if (!ItemUtils.isEmpty(outSlot)) {
 
 				// All possible output entries must be able to stack on top of
 				// the current item stack in the output slot
-				for (OutputTableValues.Entry entry : outputTable.getEntries()) {
+				for (OutputTable.Entry entry : outputTable.getEntries()) {
 					ItemStack potentialResult = wrap(candidate, ingredients).convertResultToItemStack(entry.getResult());
 					if (!potentialResult.isSimilar(outSlot)) {
 						return false;
@@ -1063,7 +1063,7 @@ public class ContainerInstance {
 		return true;
 	}
 
-	ContainerRecipeValues determineCurrentRecipe(ContainerRecipeValues mostLikely) {
+	ContainerRecipe determineCurrentRecipe(ContainerRecipe mostLikely) {
 		// Ensure that the container recipe permissions are always up-to-date before determining the recipe
 		updateRelevantPermissions();
 
@@ -1074,7 +1074,7 @@ public class ContainerInstance {
 		}
 
 		// If the most likely candidate can't be performed, we will have to try all other recipes
-		for (ContainerRecipeValues candidate : typeInfo.getContainer().getRecipes()) {
+		for (ContainerRecipe candidate : typeInfo.getContainer().getRecipes()) {
 			if (canPerformRecipe(candidate)) {
 				return candidate;
 			}
@@ -1101,7 +1101,7 @@ public class ContainerInstance {
 
 			updateEnergyIndicators();
 
-			ContainerRecipeValues oldRecipe = currentRecipe;
+			ContainerRecipe oldRecipe = currentRecipe;
 			currentRecipe = null;
 
 			// Performance improvement: rather than always checking current recipe 20 times per second,
@@ -1145,7 +1145,7 @@ public class ContainerInstance {
 							this.consumeIngredientsAndEnergyOfCurrentRecipe();
 
 							// Add the results to the output slots
-							for (Map.Entry<String, OutputTableValues> output : currentRecipe.getOutputs().entrySet()) {
+							for (Map.Entry<String, OutputTable> output : currentRecipe.getOutputs().entrySet()) {
 
 								int invIndex = typeInfo.getOutputSlot(output.getKey()).getSlotIndex();
 								ItemStack outputItem = inventory.getItem(invIndex);
@@ -1216,7 +1216,7 @@ public class ContainerInstance {
 			ItemStack indicatingStack = fromDisplay(indicator.getSlotDisplay());
 			IndicatorDomain domain = indicator.getIndicatorDomain();
 
-			EnergyTypeValues energyType = indicator.getEnergyType().get();
+			EnergyType energyType = indicator.getEnergyType().get();
 			int currentAmount = storedEnergy.getEnergy(energyType, storageKey);
 
 			int indicatingStacksize = domain.getStacksize(currentAmount, energyType.getMinValue(), energyType.getMaxValue());
@@ -1256,7 +1256,7 @@ public class ContainerInstance {
 
 	void consumeIngredientsAndEnergyOfCurrentRecipe() {
 
-		for (RecipeEnergyValues energyAction : currentRecipe.getEnergy()) {
+		for (RecipeEnergy energyAction : currentRecipe.getEnergy()) {
 
 			if (energyAction.getOperation() == RecipeEnergyOperation.DECREASE) {
 				storedEnergy.decreaseEnergy(energyAction.getEnergyType(), storageKey, energyAction.getAmount());
@@ -1269,7 +1269,7 @@ public class ContainerInstance {
 			// There is no need to do anything with REQUIRE_AT_LEAST and REQUIRE_AT_MOST here
 		}
 
-		for (Map.Entry<String, IngredientValues> input : currentRecipe.getInputs().entrySet()) {
+		for (Map.Entry<String, KciIngredient> input : currentRecipe.getInputs().entrySet()) {
 
 			int invIndex = typeInfo.getInputSlot(input.getKey()).getSlotIndex();
 
@@ -1356,12 +1356,12 @@ public class ContainerInstance {
 		return getSuitableFuelEntry(fuelSlotName, slot, candidateFuel) != null;
 	}
 	
-	private FuelEntryValues getSuitableFuelEntry(String fuelSlotName, FuelBurnEntry slot, ItemStack fuel) {
+	private ContainerFuelEntry getSuitableFuelEntry(String fuelSlotName, FuelBurnEntry slot, ItemStack fuel) {
 		if (ItemUtils.isEmpty(fuel)) {
 			return null;
 		}
-		for (FuelEntryValues registryEntry : typeInfo.getFuelSlot(fuelSlotName).getRegistry().getEntries()) {
-			IngredientValues ingredient = registryEntry.getFuel();
+		for (ContainerFuelEntry registryEntry : typeInfo.getFuelSlot(fuelSlotName).getRegistry().getEntries()) {
+			KciIngredient ingredient = registryEntry.getFuel();
 			if (shouldIngredientAcceptItemStack(ingredient, fuel)) {
 				return registryEntry;
 			}
@@ -1423,12 +1423,12 @@ public class ContainerInstance {
 		if (fuel.remainingBurnTime == 0) {
 
 			ItemStack fuelStack = getFuel(fuelSlotName);
-			FuelEntryValues entryToBurn = getSuitableFuelEntry(fuelSlotName, fuel, fuelStack);
+			ContainerFuelEntry entryToBurn = getSuitableFuelEntry(fuelSlotName, fuel, fuelStack);
 			if (entryToBurn != null) {
 				fuel.remainingBurnTime = entryToBurn.getBurnTime();
 				fuel.maxBurnTime = fuel.remainingBurnTime;
 
-				IngredientValues fuelIngredient = entryToBurn.getFuel();
+				KciIngredient fuelIngredient = entryToBurn.getFuel();
 				if (fuelIngredient.getRemainingItem() == null) {
 					fuelStack.setAmount(fuelStack.getAmount() - fuelIngredient.getAmount());
 					setFuel(fuelSlotName, fuelStack);

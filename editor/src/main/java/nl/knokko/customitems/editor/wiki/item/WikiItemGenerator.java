@@ -1,12 +1,12 @@
 package nl.knokko.customitems.editor.wiki.item;
 
 import nl.knokko.customitems.editor.wiki.WikiDamageSourceGenerator;
-import nl.knokko.customitems.effect.ChancePotionEffectValues;
-import nl.knokko.customitems.effect.EquippedPotionEffectValues;
+import nl.knokko.customitems.effect.ChancePotionEffect;
+import nl.knokko.customitems.effect.EquippedPotionEffect;
 import nl.knokko.customitems.item.*;
-import nl.knokko.customitems.item.enchantment.EnchantmentValues;
-import nl.knokko.customitems.item.equipment.EquipmentEntry;
-import nl.knokko.customitems.item.equipment.EquipmentSetValues;
+import nl.knokko.customitems.item.enchantment.LeveledEnchantment;
+import nl.knokko.customitems.item.equipment.EquipmentSetEntry;
+import nl.knokko.customitems.item.equipment.EquipmentSet;
 import nl.knokko.customitems.itemset.ItemSet;
 
 import java.io.File;
@@ -21,10 +21,10 @@ import static nl.knokko.customitems.util.ColorCodes.stripColorCodes;
 public class WikiItemGenerator {
 
     private final ItemSet itemSet;
-    private final CustomItemValues item;
-    private final List<EquipmentSetValues> equipmentSets;
+    private final KciItem item;
+    private final List<EquipmentSet> equipmentSets;
 
-    public WikiItemGenerator(ItemSet itemSet, CustomItemValues item, List<EquipmentSetValues> equipmentSets) {
+    public WikiItemGenerator(ItemSet itemSet, KciItem item, List<EquipmentSet> equipmentSets) {
         this.itemSet = itemSet;
         this.item = item;
         this.equipmentSets = equipmentSets;
@@ -89,7 +89,7 @@ public class WikiItemGenerator {
             if (!item.getAttributeModifiers().isEmpty()) {
                 output.println("\t\tAttribute modifiers:");
                 output.println("\t\t<ul class=\"attribute-modifiers\">");
-                for (AttributeModifierValues attributeModifier : item.getAttributeModifiers()) {
+                for (KciAttributeModifier attributeModifier : item.getAttributeModifiers()) {
                     output.print("\t\t\t<li class=\"attribute-modifier\">" + attributeModifier.getOperation() + " "
                             + attributeModifier.getValue());
                     output.println(" " + attributeModifier.getAttribute() + " in " + attributeModifier.getSlot() + "</li>");
@@ -99,7 +99,7 @@ public class WikiItemGenerator {
             if (!item.getDefaultEnchantments().isEmpty()) {
                 output.println("\t\tDefault enchantments:");
                 output.println("\t\t<ul class=\"enchantments\">");
-                for (EnchantmentValues enchantment : item.getDefaultEnchantments()) {
+                for (LeveledEnchantment enchantment : item.getDefaultEnchantments()) {
                     output.println("\t\t\t<li class=\"enchantment\">" + enchantment.getType().getKey() + " " + enchantment.getLevel() + "</li>");
                 }
                 output.println("\t\t</ul>");
@@ -142,7 +142,7 @@ public class WikiItemGenerator {
             if (hasEquippedEffects) {
                 output.println("\t\tEquipped potion effects:");
                 output.println("\t\t<ul class=\"equipped-potion-effects\">");
-                for (EquippedPotionEffectValues effect : item.getEquippedEffects()) {
+                for (EquippedPotionEffect effect : item.getEquippedEffects()) {
                     output.println("\t\t\t<li class=\"equipped-potion-effect\">" + effect.getType() + " "
                             + effect.getLevel() + " when in " + effect.getSlot() + "</li>");
                 }
@@ -179,7 +179,7 @@ public class WikiItemGenerator {
 
             if (hasMultiBlockBreak) {
                 String areaString;
-                if (item.getMultiBlockBreak().getShape() == MultiBlockBreakValues.Shape.CUBE) {
+                if (item.getMultiBlockBreak().getShape() == MultiBlockBreak.Shape.CUBE) {
                     int length = 2 * item.getMultiBlockBreak().getSize() - 1;
                     areaString = "in a " + length + "x" + length + "x" + length + " cube, ";
                 } else {
@@ -209,8 +209,8 @@ public class WikiItemGenerator {
             output.println("\t\t<ul>");
 
             for (int index = 0; index < equipmentSets.size(); index++) {
-                EquipmentSetValues equipmentSet = equipmentSets.get(index);
-                for (EquipmentEntry equipmentEntry : equipmentSet.getEntries().keySet()) {
+                EquipmentSet equipmentSet = equipmentSets.get(index);
+                for (EquipmentSetEntry equipmentEntry : equipmentSet.getEntries().keySet()) {
                     if (equipmentEntry.item.get().getName().equals(item.getName())) {
                         output.println("\t\t\t<li><a href=\"equipment/set" + index + ".html\">in slot "
                                 + equipmentEntry.slot + "</a></li>");
@@ -222,9 +222,9 @@ public class WikiItemGenerator {
         }
     }
 
-    private void generatePotionEffects(PrintWriter output, Collection<ChancePotionEffectValues> effects) {
+    private void generatePotionEffects(PrintWriter output, Collection<ChancePotionEffect> effects) {
         output.println("<ul class=\"potion-effects\">");
-        for (ChancePotionEffectValues effect : effects) {
+        for (ChancePotionEffect effect : effects) {
             output.println("\t\t\t<li class=\"potion-effect\">" + effect.getChance() + " to get " + describePotionEffect(effect) + "</li>");
         }
         output.println("</ul>");

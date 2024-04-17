@@ -2,19 +2,19 @@ package nl.knokko.customitems.editor.menu.edit.drops.mob;
 
 import java.awt.image.BufferedImage;
 
-import nl.knokko.customitems.drops.MobDropValues;
+import nl.knokko.customitems.drops.MobDrop;
 import nl.knokko.customitems.editor.menu.edit.*;
 import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.StringLength;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.MobDropReference;
-import nl.knokko.customitems.recipe.OutputTableValues;
-import nl.knokko.customitems.recipe.result.CustomItemResultValues;
+import nl.knokko.customitems.recipe.OutputTable;
+import nl.knokko.customitems.recipe.result.CustomItemResult;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
-public class MobDropCollectionEdit extends DedicatedCollectionEdit<MobDropValues, MobDropReference> {
+public class MobDropCollectionEdit extends DedicatedCollectionEdit<MobDrop, MobDropReference> {
 	
 	private final EditMenu menu;
 
@@ -29,14 +29,14 @@ public class MobDropCollectionEdit extends DedicatedCollectionEdit<MobDropValues
 	protected void addComponents() {
 		super.addComponents();
 		addComponent(new DynamicTextButton("New mob drop", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new EditMobDrop(menu.getSet(), this, new MobDropValues(true), null));
+			state.getWindow().setMainComponent(new EditMobDrop(menu.getSet(), this, new MobDrop(true), null));
 		}), 0.025f, 0.2f, 0.2f, 0.3f);
 		
 		HelpButtons.addHelpLink(this, "edit menu/drops/mobs.html");
 	}
 
 	@Override
-	protected String getModelLabel(MobDropValues model) {
+	protected String getModelLabel(MobDrop model) {
 		String fullLabel;
 		if (model.getRequiredName() == null) fullLabel = model.getDrop() + " for " + model.getEntityType();
 		else fullLabel = model.getDrop() + " for " + model.getRequiredName();
@@ -44,13 +44,13 @@ public class MobDropCollectionEdit extends DedicatedCollectionEdit<MobDropValues
 	}
 
 	@Override
-	protected BufferedImage getModelIcon(MobDropValues model) {
+	protected BufferedImage getModelIcon(MobDrop model) {
 
 		// If we have any custom item drop, use that as icon!
-		OutputTableValues dropTable = model.getDrop().getOutputTable();
-		for (OutputTableValues.Entry entry : dropTable.getEntries()) {
-			if (entry.getResult() instanceof CustomItemResultValues) {
-				CustomItemResultValues customResult = (CustomItemResultValues) entry.getResult();
+		OutputTable dropTable = model.getDrop().getOutputTable();
+		for (OutputTable.Entry entry : dropTable.getEntries()) {
+			if (entry.getResult() instanceof CustomItemResult) {
+				CustomItemResult customResult = (CustomItemResult) entry.getResult();
 				return customResult.getItem().getTexture().getImage();
 			}
 		}
@@ -60,7 +60,7 @@ public class MobDropCollectionEdit extends DedicatedCollectionEdit<MobDropValues
 	}
 
 	@Override
-	protected boolean canEditModel(MobDropValues model) {
+	protected boolean canEditModel(MobDrop model) {
 		return true;
 	}
 

@@ -1,8 +1,8 @@
 package nl.knokko.customitems.plugin.recipe;
 
-import nl.knokko.customitems.recipe.ShapedRecipeValues;
-import nl.knokko.customitems.recipe.ingredient.IngredientValues;
-import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
+import nl.knokko.customitems.recipe.KciShapedRecipe;
+import nl.knokko.customitems.recipe.ingredient.KciIngredient;
+import nl.knokko.customitems.recipe.ingredient.NoIngredient;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -12,11 +12,11 @@ import static nl.knokko.customitems.plugin.recipe.RecipeHelper.shouldIngredientA
 
 public class ShapedCraftingRecipeWrapper extends CraftingRecipeWrapper {
 
-	private final ShapedRecipeValues recipe;
+	private final KciShapedRecipe recipe;
 	private final int recipeWidth, recipeHeight;
 	private final int recipeMinX, recipeMinY;
 
-    public ShapedCraftingRecipeWrapper(ShapedRecipeValues recipe){
+    public ShapedCraftingRecipeWrapper(KciShapedRecipe recipe){
     	super(recipe);
     	this.recipe = recipe;
 		this.recipeMinX = recipe.getEffectiveMinX();
@@ -34,8 +34,8 @@ public class ShapedCraftingRecipeWrapper extends CraftingRecipeWrapper {
 		}
 	}
 
-	private IngredientValues getIngredientPossiblyOutOfBounds(int x, int y) {
-		if (x < 0 || x >= 3 || y < 0 || y >= 3) return new NoIngredientValues();
+	private KciIngredient getIngredientPossiblyOutOfBounds(int x, int y) {
+		if (x < 0 || x >= 3 || y < 0 || y >= 3) return new NoIngredient();
 		return this.recipe.getIngredientAt(x, y);
 	}
 
@@ -52,10 +52,10 @@ public class ShapedCraftingRecipeWrapper extends CraftingRecipeWrapper {
 
 				int ingredientX = itemX + (recipe.shouldIgnoreDisplacement() ? recipeMinX : 0) - offsetX;
 				int ingredientY = itemY + (recipe.shouldIgnoreDisplacement() ? recipeMinY : 0) - offsetY;
-				IngredientValues expectedIngredient = getIngredientPossiblyOutOfBounds(ingredientX, ingredientY);
+				KciIngredient expectedIngredient = getIngredientPossiblyOutOfBounds(ingredientX, ingredientY);
 
 				if (shouldIngredientAcceptItemStack(expectedIngredient, actualIngredient)) {
-					if (!(expectedIngredient instanceof NoIngredientValues)) {
+					if (!(expectedIngredient instanceof NoIngredient)) {
 						result.add(new IngredientEntry(
 								expectedIngredient, ingredientX + 3 * ingredientY, itemIndex
 						));

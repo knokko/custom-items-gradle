@@ -2,8 +2,8 @@ package nl.knokko.customitems.editor.menu.edit.item.damage;
 
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.item.DamageResistanceValues;
-import nl.knokko.customitems.itemset.CustomDamageSourceReference;
+import nl.knokko.customitems.item.DamageResistance;
+import nl.knokko.customitems.itemset.DamageSourceReference;
 import nl.knokko.customitems.itemset.DamageSourceManager;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -18,18 +18,18 @@ public class EditCustomDamageResistances extends GuiMenu {
 
     private final DamageSourceManager allDamageSources;
     private final GuiComponent returnMenu;
-    private final DamageResistanceValues currentResistances;
+    private final DamageResistance currentResistances;
 
     public EditCustomDamageResistances(
-            DamageSourceManager allDamageSources, GuiComponent returnMenu, DamageResistanceValues currentResistances
+            DamageSourceManager allDamageSources, GuiComponent returnMenu, DamageResistance currentResistances
     ) {
         this.allDamageSources = allDamageSources;
         this.returnMenu = returnMenu;
         this.currentResistances = currentResistances;
     }
 
-    private CustomDamageSourceReference nextDamageSource() {
-        for (CustomDamageSourceReference candidate : allDamageSources.references()) {
+    private DamageSourceReference nextDamageSource() {
+        for (DamageSourceReference candidate : allDamageSources.references()) {
             if (currentResistances.getResistance(candidate) == 0) return candidate;
         }
         return null;
@@ -62,7 +62,7 @@ public class EditCustomDamageResistances extends GuiMenu {
         @Override
         protected void addComponents() {
             int index = 0;
-            for (CustomDamageSourceReference currentDamageSource : allDamageSources.references()) {
+            for (DamageSourceReference currentDamageSource : allDamageSources.references()) {
                 if (currentResistances.getResistance(currentDamageSource) != 0) {
                     float maxY = 1f - index * 0.11f;
                     float minY = maxY - 0.1f;

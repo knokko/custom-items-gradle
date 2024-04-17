@@ -2,8 +2,8 @@ package nl.knokko.customitems.editor.menu.edit.item.equipment;
 
 import nl.knokko.customitems.editor.menu.edit.item.AttributeCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.item.damage.EditDamageResistances;
-import nl.knokko.customitems.item.AttributeModifierValues;
-import nl.knokko.customitems.item.equipment.EquipmentBonusValues;
+import nl.knokko.customitems.item.KciAttributeModifier;
+import nl.knokko.customitems.item.equipment.EquipmentSetBonus;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -17,18 +17,18 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 class EquipmentBonusList extends GuiMenu {
 
-    private static final AttributeModifierValues EXAMPLE_ATTRIBUTE_MODIFIER = AttributeModifierValues.createQuick(
-            AttributeModifierValues.Attribute.ATTACK_DAMAGE,
-            AttributeModifierValues.Slot.MAINHAND,
-            AttributeModifierValues.Operation.ADD,
+    private static final KciAttributeModifier EXAMPLE_ATTRIBUTE_MODIFIER = KciAttributeModifier.createQuick(
+            KciAttributeModifier.Attribute.ATTACK_DAMAGE,
+            KciAttributeModifier.Slot.MAINHAND,
+            KciAttributeModifier.Operation.ADD,
             5.0
     );
 
     private final ItemSet itemSet;
     private final GuiComponent outerMenu;
-    private final List<EquipmentBonusValues> bonuses;
+    private final List<EquipmentSetBonus> bonuses;
 
-    EquipmentBonusList(ItemSet itemSet, GuiComponent outerMenu, List<EquipmentBonusValues> bonuses) {
+    EquipmentBonusList(ItemSet itemSet, GuiComponent outerMenu, List<EquipmentSetBonus> bonuses) {
         this.itemSet = itemSet;
         this.outerMenu = outerMenu;
         this.bonuses = bonuses;
@@ -37,7 +37,7 @@ class EquipmentBonusList extends GuiMenu {
     @Override
     protected void addComponents() {
         for (int index = 0; index < bonuses.size(); index++) {
-            EquipmentBonusValues bonus = bonuses.get(index);
+            EquipmentSetBonus bonus = bonuses.get(index);
             float minY = 0.925f - index * 0.1f;
             float maxY = 1f - index * 0.1f;
 
@@ -68,7 +68,7 @@ class EquipmentBonusList extends GuiMenu {
             }), 0.92f, minY, 1f, maxY);
         }
         addComponent(new DynamicTextButton("+", SAVE_BASE, SAVE_HOVER, () -> {
-            bonuses.add(new EquipmentBonusValues(true));
+            bonuses.add(new EquipmentSetBonus(true));
             refresh();
         }), 0.05f, 0.925f - bonuses.size() * 0.1f, 0.13f, 1f - bonuses.size() * 0.1f);
     }

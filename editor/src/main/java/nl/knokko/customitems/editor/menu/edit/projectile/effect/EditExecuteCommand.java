@@ -6,19 +6,19 @@ import java.util.function.Consumer;
 
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.projectile.effect.ExecuteCommandValues;
-import nl.knokko.customitems.projectile.effect.ProjectileEffectValues;
+import nl.knokko.customitems.projectile.effect.PEExecuteCommand;
+import nl.knokko.customitems.projectile.effect.ProjectileEffect;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerTextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
-public class EditExecuteCommand extends EditProjectileEffect<ExecuteCommandValues> {
+public class EditExecuteCommand extends EditProjectileEffect<PEExecuteCommand> {
 	
 	private static final float BUTTON_X = 0.4f;
 	private static final float LABEL_X = BUTTON_X - 0.01f;
 	
 	public EditExecuteCommand(
-			ExecuteCommandValues oldValues, Consumer<ProjectileEffectValues> applyChanges, GuiComponent returnMenu
+			PEExecuteCommand oldValues, Consumer<ProjectileEffect> applyChanges, GuiComponent returnMenu
 	) {
 		super(oldValues, applyChanges, returnMenu);
 	}
@@ -40,7 +40,7 @@ public class EditExecuteCommand extends EditProjectileEffect<ExecuteCommandValue
 				LABEL_X - 0.18f, 0.6f, LABEL_X, 0.7f
 		);
 		addComponent(
-				EnumSelect.createSelectButton(ExecuteCommandValues.Executor.class, currentValues::setExecutor, currentValues.getExecutor()),
+				EnumSelect.createSelectButton(PEExecuteCommand.Executor.class, currentValues::setExecutor, currentValues.getExecutor()),
 				BUTTON_X, 0.61f, BUTTON_X + 0.2f, 0.69f
 		);
 

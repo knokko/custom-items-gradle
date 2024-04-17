@@ -3,8 +3,8 @@ package nl.knokko.customitems.editor.menu.edit.projectile.effect;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.projectile.effect.ProjectileEffectValues;
-import nl.knokko.customitems.projectile.effect.ShowFireworkValues;
+import nl.knokko.customitems.projectile.effect.ProjectileEffect;
+import nl.knokko.customitems.projectile.effect.PEShowFireworks;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.image.CheckboxComponent;
@@ -18,10 +18,10 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class EditShowFirework extends EditProjectileEffect<ShowFireworkValues> {
+public class EditShowFirework extends EditProjectileEffect<PEShowFireworks> {
 
     public EditShowFirework(
-            ShowFireworkValues oldValues, Consumer<ProjectileEffectValues> changeValues, GuiComponent returnMenu
+            PEShowFireworks oldValues, Consumer<ProjectileEffect> changeValues, GuiComponent returnMenu
     ) {
         super(oldValues, changeValues, returnMenu);
     }
@@ -40,12 +40,12 @@ public class EditShowFirework extends EditProjectileEffect<ShowFireworkValues> {
 
     private static class EditEffects extends GuiMenu {
 
-        private final List<ShowFireworkValues.EffectValues> effects;
-        private final Consumer<List<ShowFireworkValues.EffectValues>> updateEffects;
+        private final List<PEShowFireworks.EffectValues> effects;
+        private final Consumer<List<PEShowFireworks.EffectValues>> updateEffects;
 
         EditEffects(
-                List<ShowFireworkValues.EffectValues> effects,
-                Consumer<List<ShowFireworkValues.EffectValues>> updateEffects
+                List<PEShowFireworks.EffectValues> effects,
+                Consumer<List<PEShowFireworks.EffectValues>> updateEffects
         ) {
             this.effects = effects;
             this.updateEffects = updateEffects;
@@ -54,7 +54,7 @@ public class EditShowFirework extends EditProjectileEffect<ShowFireworkValues> {
         @Override
         protected void addComponents() {
             for (int index = 0; index < effects.size(); index++) {
-                ShowFireworkValues.EffectValues effect = effects.get(index);
+                PEShowFireworks.EffectValues effect = effects.get(index);
                 addComponent(new EffectComponent(effect, () -> this.updateEffects.accept(this.effects)),
                         0f, 0.6f - 0.45f * index, 0.9f, 1f - 0.45f * index);
 
@@ -67,7 +67,7 @@ public class EditShowFirework extends EditProjectileEffect<ShowFireworkValues> {
             }
 
             addComponent(new DynamicTextButton("+", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-                this.effects.add(new ShowFireworkValues.EffectValues(true));
+                this.effects.add(new PEShowFireworks.EffectValues(true));
                 clearComponents();
                 addComponents();
                 this.updateEffects.accept(this.effects);
@@ -89,10 +89,10 @@ public class EditShowFirework extends EditProjectileEffect<ShowFireworkValues> {
             };
         }
 
-        private final ShowFireworkValues.EffectValues effect;
+        private final PEShowFireworks.EffectValues effect;
         private final Runnable updateEffects;
 
-        EffectComponent(ShowFireworkValues.EffectValues effect, Runnable updateEffects) {
+        EffectComponent(PEShowFireworks.EffectValues effect, Runnable updateEffects) {
             this.effect = effect;
             this.updateEffects = updateEffects;
         }
@@ -111,7 +111,7 @@ public class EditShowFirework extends EditProjectileEffect<ShowFireworkValues> {
             addComponent(new DynamicTextComponent("Type:", EditProps.LABEL),
                     0.2f, 0.8f, 0.4f, 0.9f);
             addComponent(EnumSelect.createSelectButton(
-                    ShowFireworkValues.EffectType.class, afterChange(effect::setType, updateEffects), effect.getType()
+                    PEShowFireworks.EffectType.class, afterChange(effect::setType, updateEffects), effect.getType()
             ), 0.5f, 0.8f, 0.8f, 0.9f);
 
             addComponent(new DynamicTextComponent("Colors:", EditProps.LABEL),

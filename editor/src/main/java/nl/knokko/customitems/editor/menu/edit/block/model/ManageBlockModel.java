@@ -4,7 +4,7 @@ import nl.knokko.customitems.block.model.BlockModel;
 import nl.knokko.customitems.block.model.SimpleBlockModel;
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.texture.BaseTextureValues;
+import nl.knokko.customitems.texture.KciTexture;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -46,7 +46,7 @@ public class ManageBlockModel extends GuiMenu {
         addComponent(new DynamicTextButton("model with the same texture on each side", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new CollectionSelect<>(itemSet.textures.references(), chosenTexture -> {
                 changeModel.accept(new SimpleBlockModel(chosenTexture));
-            }, candidateTexture -> candidateTexture.get().getClass() == BaseTextureValues.class,
+            }, candidateTexture -> candidateTexture.get().getClass() == KciTexture.class,
                     candidateTexture -> candidateTexture.get().getName(), returnMenu, false
             ));
         }), 0.55f, 0.55f, 0.95f, 0.65f);

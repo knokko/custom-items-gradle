@@ -19,12 +19,12 @@ public class CreateSlot extends GuiMenu {
 	
 	private final GuiComponent returnMenu;
 	private final ItemSet itemSet;
-	private final Collection<ContainerSlotValues> existingSlots;
-	private final Consumer<ContainerSlotValues> changeSlot;
+	private final Collection<ContainerSlot> existingSlots;
+	private final Consumer<ContainerSlot> changeSlot;
 
 	public CreateSlot(
-			GuiComponent returnMenu, ItemSet itemSet,
-			Collection<ContainerSlotValues> existingSlots, Consumer<ContainerSlotValues> changeSlot
+            GuiComponent returnMenu, ItemSet itemSet,
+            Collection<ContainerSlot> existingSlots, Consumer<ContainerSlot> changeSlot
 	) {
 		this.returnMenu = returnMenu;
 		this.itemSet = itemSet;
@@ -58,11 +58,11 @@ public class CreateSlot extends GuiMenu {
 		}), 0.6f, 0.675f, 0.8f, 0.725f);
 		addComponent(new DynamicTextButton("Decoration", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new CreateDisplay(returnMenu, itemSet, display -> {
-				changeSlot.accept(DecorationSlotValues.createQuick(display));
+				changeSlot.accept(DecorationSlot.createQuick(display));
 			}, true));
 		}), 0.6f, 0.6f, 0.8f, 0.65f);
 		addComponent(new DynamicTextButton("Empty", BUTTON, HOVER, () -> {
-			changeSlot.accept(new EmptySlotValues());
+			changeSlot.accept(new EmptySlot());
 			state.getWindow().setMainComponent(returnMenu);
 		}), 0.6f, 0.525f, 0.7f, 0.575f);
 		addComponent(new DynamicTextButton("Fuel", BUTTON, HOVER, () -> {

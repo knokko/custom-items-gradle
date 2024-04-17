@@ -22,15 +22,15 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.HOVER;
 
 public class EditIngredient extends GuiMenu {
 	
-	private final Consumer<IngredientValues> listener;
+	private final Consumer<KciIngredient> listener;
 	private final GuiComponent returnMenu;
 	private final ItemSet set;
 	private final boolean allowEmpty;
-	private final IngredientValues currentIngredient;
+	private final KciIngredient currentIngredient;
 
 	public EditIngredient(
-			GuiComponent returnMenu, Consumer<IngredientValues> listener,
-			IngredientValues oldIngredient, boolean allowEmpty, ItemSet set
+			GuiComponent returnMenu, Consumer<KciIngredient> listener,
+			KciIngredient oldIngredient, boolean allowEmpty, ItemSet set
 	) {
 		this.listener = listener;
 		this.returnMenu = returnMenu;
@@ -55,27 +55,27 @@ public class EditIngredient extends GuiMenu {
 
 		DynamicTextComponent remainingItemDescription = new DynamicTextComponent("", LABEL);
 		Runnable updateRemainingItemDescription = () -> {
-			if (currentIngredient instanceof NoIngredientValues) {
+			if (currentIngredient instanceof NoIngredient) {
 				remainingItemDescription.setText("");
 				return;
 			}
 
-			ResultValues remainingItem = currentIngredient.getRemainingItem();
+			KciResult remainingItem = currentIngredient.getRemainingItem();
 			if (remainingItem == null) {
 				remainingItemDescription.setText("Currently none");
-			} else if (remainingItem instanceof CopiedResultValues) {
+			} else if (remainingItem instanceof CopiedResult) {
 				remainingItemDescription.setText("Currently copied from server");
-			} else if (remainingItem instanceof CustomItemResultValues) {
-				remainingItemDescription.setText("Currently " + ((CustomItemResultValues) remainingItem).getItem());
-			} else if (remainingItem instanceof DataVanillaResultValues) {
-				DataVanillaResultValues dataRemaining = (DataVanillaResultValues) remainingItem;
+			} else if (remainingItem instanceof CustomItemResult) {
+				remainingItemDescription.setText("Currently " + ((CustomItemResult) remainingItem).getItem());
+			} else if (remainingItem instanceof DataVanillaResult) {
+				DataVanillaResult dataRemaining = (DataVanillaResult) remainingItem;
 				remainingItemDescription.setText("Currently " + dataRemaining.getMaterial() + " [" + dataRemaining.getDataValue() + "]");
-			} else if (remainingItem instanceof ItemBridgeResultValues) {
-				remainingItemDescription.setText("Currently ItemBridge(" + ((ItemBridgeResultValues) remainingItem).getItemId() + ")");
-			} else if (remainingItem instanceof MimicResultValues) {
-				remainingItemDescription.setText("Currently Mimic(" + ((MimicResultValues) remainingItem).getItemId() + ")");
-			} else if (remainingItem instanceof SimpleVanillaResultValues) {
-				remainingItemDescription.setText("Currently " + ((SimpleVanillaResultValues) remainingItem).getMaterial());
+			} else if (remainingItem instanceof ItemBridgeResult) {
+				remainingItemDescription.setText("Currently ItemBridge(" + ((ItemBridgeResult) remainingItem).getItemId() + ")");
+			} else if (remainingItem instanceof MimicResult) {
+				remainingItemDescription.setText("Currently Mimic(" + ((MimicResult) remainingItem).getItemId() + ")");
+			} else if (remainingItem instanceof SimpleVanillaResult) {
+				remainingItemDescription.setText("Currently " + ((SimpleVanillaResult) remainingItem).getMaterial());
 			} else {
 				remainingItemDescription.setText("Programming error: unknown remaining item");
 			}
@@ -83,7 +83,7 @@ public class EditIngredient extends GuiMenu {
 
 		addComponent(new ConditionalTextComponent(
 				"Remaining item:", EditProps.LABEL,
-						() -> !(currentIngredient instanceof NoIngredientValues)),
+						() -> !(currentIngredient instanceof NoIngredient)),
 				0.15f, 0.15f, 0.34f, 0.25f);
 		addComponent(new ConditionalTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new ChooseResult(
@@ -92,11 +92,11 @@ public class EditIngredient extends GuiMenu {
 						updateRemainingItemDescription.run();
 					}, set, true, currentIngredient.getRemainingItem(), null
 			));
-		}, () -> !(currentIngredient instanceof NoIngredientValues)
+		}, () -> !(currentIngredient instanceof NoIngredient)
 		), 0.35f, 0.15f, 0.45f, 0.25f);
 		addComponent(new ConditionalTextButton("Clear", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
 			currentIngredient.setRemainingItem(null);
-		}, () -> !(currentIngredient instanceof NoIngredientValues)), 0.475f, 0.15f, 0.575f, 0.25f);
+		}, () -> !(currentIngredient instanceof NoIngredient)), 0.475f, 0.15f, 0.575f, 0.25f);
 		addComponent(remainingItemDescription, 0.6f, 0.15f, 0.975f, 0.25f);
 		updateRemainingItemDescription.run();
 
@@ -104,7 +104,7 @@ public class EditIngredient extends GuiMenu {
 			state.getWindow().setMainComponent(new EditIngredientConstraints(
 					this, currentIngredient::setConstraints, currentIngredient.getConstraints()
 			));
-		}, () -> !(currentIngredient instanceof NoIngredientValues)), 0.2f, 0.025f, 0.4f, 0.125f);
+		}, () -> !(currentIngredient instanceof NoIngredient)), 0.2f, 0.025f, 0.4f, 0.125f);
 
 		String currentItemDescription = getCurrentItemDescription();
 		addComponent(new DynamicTextComponent(currentItemDescription, LABEL), 0.25f, 0.8f, 0.6f, 0.9f);
@@ -114,7 +114,7 @@ public class EditIngredient extends GuiMenu {
 		);
 		addComponent(new DynamicTextButton("from this plug-in", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new ChooseCustomResult(returnMenu, customResult -> {
-				listener.accept(CustomItemIngredientValues.createQuick(
+				listener.accept(CustomItemIngredient.createQuick(
 						customResult.getItemReference(), customResult.getAmount(),
 						currentIngredient.getRemainingItem(), currentIngredient.getConstraints()
 				));
@@ -123,7 +123,7 @@ public class EditIngredient extends GuiMenu {
 		}), 0.175f, 0.57f, 0.3f, 0.67f);
 		addComponent(new DynamicTextButton("from another plug-in with Mimic integration", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new ChooseMimicResult(returnMenu, mimicResult -> {
-				listener.accept(MimicIngredientValues.createQuick(
+				listener.accept(MimicIngredient.createQuick(
 						mimicResult.getItemId(), mimicResult.getAmount(),
 						currentIngredient.getRemainingItem(), currentIngredient.getConstraints()
 				));
@@ -132,7 +132,7 @@ public class EditIngredient extends GuiMenu {
 		}), 0.175f, 0.46f, 0.5f, 0.56f);
 		addComponent(new DynamicTextButton("from another plug-in with ItemBridge integration", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new ChooseItemBridgeResult(returnMenu, itemBridgeResult -> {
-				listener.accept(ItemBridgeIngredientValues.createQuick(
+				listener.accept(ItemBridgeIngredient.createQuick(
 						itemBridgeResult.getItemId(), itemBridgeResult.getAmount(),
 						currentIngredient.getRemainingItem(), currentIngredient.getConstraints()
 				));
@@ -143,7 +143,7 @@ public class EditIngredient extends GuiMenu {
 		addComponent(new DynamicTextComponent("Change to vanilla item...", LABEL), 0.55f, 0.7f, 0.75f, 0.8f);
 		addComponent(new DynamicTextButton("simple", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new ChooseSimpleVanillaResult(returnMenu, vanillaResult -> {
-				listener.accept(SimpleVanillaIngredientValues.createQuick(
+				listener.accept(SimpleVanillaIngredient.createQuick(
 						vanillaResult.getMaterial(), vanillaResult.getAmount(),
 						currentIngredient.getRemainingItem(), currentIngredient.getConstraints()
 				));
@@ -152,7 +152,7 @@ public class EditIngredient extends GuiMenu {
 		}), 0.55f, 0.57f, 0.65f, 0.67f);
 		addComponent(new DynamicTextButton("with data value (1.12)", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new ChooseDataVanillaResult(returnMenu, true, vanillaResult -> {
-				listener.accept(DataVanillaIngredientValues.createQuick(
+				listener.accept(DataVanillaIngredient.createQuick(
 						vanillaResult.getMaterial(), vanillaResult.getDataValue(), vanillaResult.getAmount(),
 						currentIngredient.getRemainingItem(), currentIngredient.getConstraints()
 				));
@@ -168,7 +168,7 @@ public class EditIngredient extends GuiMenu {
 
 		if (allowEmpty) {
 			addComponent(new DynamicTextButton("Set empty", EditProps.BUTTON, EditProps.HOVER, () -> {
-				listener.accept(new NoIngredientValues());
+				listener.accept(new NoIngredient());
 				state.getWindow().setMainComponent(returnMenu);
 			}), 0.775f, 0.7f, 0.975f, 0.8f);
 		}
@@ -178,20 +178,20 @@ public class EditIngredient extends GuiMenu {
 
 	private String getCurrentItemDescription() {
 		String currentItemDescription = "Currently ";
-		if (currentIngredient instanceof CustomItemIngredientValues) {
-			currentItemDescription += ((CustomItemIngredientValues) currentIngredient).getItem().getName();
-		} else if (currentIngredient instanceof DataVanillaIngredientValues) {
-			DataVanillaIngredientValues dataIngredient = (DataVanillaIngredientValues) currentIngredient;
+		if (currentIngredient instanceof CustomItemIngredient) {
+			currentItemDescription += ((CustomItemIngredient) currentIngredient).getItem().getName();
+		} else if (currentIngredient instanceof DataVanillaIngredient) {
+			DataVanillaIngredient dataIngredient = (DataVanillaIngredient) currentIngredient;
 			currentItemDescription += dataIngredient.getMaterial() + " [" + dataIngredient.getDataValue() + "]";
-		} else if (currentIngredient instanceof ItemBridgeIngredientValues) {
-			currentItemDescription += "ItemBridge(" + ((ItemBridgeIngredientValues) currentIngredient).getItemId() + ")";
-		} else if (currentIngredient instanceof MimicIngredientValues) {
-			currentItemDescription += "Mimic(" + ((MimicIngredientValues) currentIngredient).getItemId() + ")";
-		} else if (currentIngredient instanceof NoIngredientValues) {
+		} else if (currentIngredient instanceof ItemBridgeIngredient) {
+			currentItemDescription += "ItemBridge(" + ((ItemBridgeIngredient) currentIngredient).getItemId() + ")";
+		} else if (currentIngredient instanceof MimicIngredient) {
+			currentItemDescription += "Mimic(" + ((MimicIngredient) currentIngredient).getItemId() + ")";
+		} else if (currentIngredient instanceof NoIngredient) {
 			currentItemDescription += "empty";
-		} else if (currentIngredient instanceof SimpleVanillaIngredientValues) {
-			currentItemDescription += ((SimpleVanillaIngredientValues) currentIngredient).getMaterial();
-		} else if (currentIngredient instanceof CopiedIngredientValues) {
+		} else if (currentIngredient instanceof SimpleVanillaIngredient) {
+			currentItemDescription += ((SimpleVanillaIngredient) currentIngredient).getMaterial();
+		} else if (currentIngredient instanceof CopiedIngredient) {
 			currentItemDescription += "copied";
 		} else {
 			currentItemDescription += "Unknown ingredient type: programming error";

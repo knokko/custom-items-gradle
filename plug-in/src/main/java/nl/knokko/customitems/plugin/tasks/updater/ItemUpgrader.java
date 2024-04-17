@@ -6,9 +6,9 @@ import de.tr7zw.changeme.nbtapi.iface.ReadableNBT;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.ByteArrayBitInput;
 import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
-import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.item.CustomToolValues;
-import nl.knokko.customitems.item.enchantment.EnchantmentType;
+import nl.knokko.customitems.item.KciItem;
+import nl.knokko.customitems.item.KciTool;
+import nl.knokko.customitems.item.enchantment.VEnchantmentType;
 import nl.knokko.customitems.itemset.UpgradeReference;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.nms.RawAttribute;
@@ -19,8 +19,8 @@ import nl.knokko.customitems.plugin.set.item.CustomToolWrapper;
 import nl.knokko.customitems.plugin.util.AttributeMerger;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import nl.knokko.customitems.plugin.util.NbtHelper;
-import nl.knokko.customitems.recipe.result.UpgradeResultValues;
-import nl.knokko.customitems.recipe.upgrade.UpgradeValues;
+import nl.knokko.customitems.recipe.result.UpgradeResult;
+import nl.knokko.customitems.recipe.upgrade.Upgrade;
 import nl.knokko.customitems.util.StringEncoder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
@@ -89,7 +89,7 @@ public class ItemUpgrader {
         saveUUIDs(nbt, ATTRIBUTE_IDS_KEY, newIDs);
     }
 
-    static Map<EnchantmentType, Integer> getEnchantmentUpgrades(ReadableNBT nbt) {
+    static Map<VEnchantmentType, Integer> getEnchantmentUpgrades(ReadableNBT nbt) {
         String binaryString = NbtHelper.getNested(nbt, ENCHANTMENTS_KEY, null);
         if (binaryString == null) return new HashMap<>();
 
@@ -99,14 +99,14 @@ public class ItemUpgrader {
         byte encoding = input.readByte();
         if (encoding != 1) throw new IllegalArgumentException("Unknown encoding for upgrade enchantments: " + encoding);
         int size = input.readInt();
-        Map<EnchantmentType, Integer> enchantmentMap = new HashMap<>(size);
+        Map<VEnchantmentType, Integer> enchantmentMap = new HashMap<>(size);
         for (int counter = 0; counter < size; counter++) {
-            enchantmentMap.put(EnchantmentType.valueOf(input.readString()), input.readInt());
+            enchantmentMap.put(VEnchantmentType.valueOf(input.readString()), input.readInt());
         }
         return enchantmentMap;
     }
 
-    public static void setEnchantmentUpgrades(ReadWriteNBT nbt, Map<EnchantmentType, Integer> newEnchantmentUpgrades) {
+    public static void setEnchantmentUpgrades(ReadWriteNBT nbt, Map<VEnchantmentType, Integer> newEnchantmentUpgrades) {
         ByteArrayBitOutput output = new ByteArrayBitOutput();
         output.addByte((byte) 1);
         output.addInt(newEnchantmentUpgrades.size());
@@ -124,12 +124,12 @@ public class ItemUpgrader {
         return NbtHelper.getNested(nbt, ENCHANTMENTS_KEY, null) != null;
     }
 
-    public static List<UpgradeValues> getUpgrades(ItemStack stack, ItemSetWrapper itemSet) {
-        List<UpgradeValues> upgrades = new ArrayList<>();
+    public static List<Upgrade> getUpgrades(ItemStack stack, ItemSetWrapper itemSet) {
+        List<Upgrade> upgrades = new ArrayList<>();
         if (!ItemUtils.isEmpty(stack)) {
             NBT.get(stack, nbt -> {
                 for (UUID id : getExistingUpgradeIDs(nbt)) {
-                    Optional<UpgradeValues> upgrade = itemSet.get().upgrades.get(id);
+                    Optional<Upgrade> upgrade = itemSet.get().upgrades.get(id);
                     upgrade.ifPresent(upgrades::add);
                 }
             });
@@ -137,8 +137,8 @@ public class ItemUpgrader {
         return upgrades;
     }
 
-    public static ItemStack addUpgrade(ItemStack original, ItemSetWrapper itemSet, UpgradeResultValues result) {
-        CustomItemValues customItem = itemSet.getItem(original);
+    public static ItemStack addUpgrade(ItemStack original, ItemSetWrapper itemSet, UpgradeResult result) {
+        KciItem customItem = itemSet.getItem(original);
 
         ItemStack currentStack = original.clone();
         float originalDurabilityPercentage = RecipeHelper.getDurabilityPercentage(currentStack);
@@ -148,10 +148,10 @@ public class ItemUpgrader {
         class Result {
             ItemStack newStack;
 
-            Map<EnchantmentType, Integer> enchantmentAdjustments;
+            Map<VEnchantmentType, Integer> enchantmentAdjustments;
             List<RawAttribute> allNewAttributes;
             List<RawAttribute> nonKciAttributes;
-            Map<EnchantmentType, Integer> nonKciEnchantments;
+            Map<VEnchantmentType, Integer> nonKciEnchantments;
         }
 
         Result nbtModifyResult = NBT.modify(currentStack, nbt -> {
@@ -162,8 +162,8 @@ public class ItemUpgrader {
             if (result.shouldKeepOldUpgrades()) newUpgradeIDs.addAll(existingUpgradeIDs);
             for (UpgradeReference upgrade : result.getUpgrades()) newUpgradeIDs.add(upgrade.get().getId());
 
-            Map<EnchantmentType, Integer> oldKciEnchantments = getEnchantmentUpgrades(nbt);
-            Map<EnchantmentType, Integer> newKciEnchantments = new HashMap<>();
+            Map<VEnchantmentType, Integer> oldKciEnchantments = getEnchantmentUpgrades(nbt);
+            Map<VEnchantmentType, Integer> newKciEnchantments = new HashMap<>();
             if (customItem != null) ItemUpdater.addEnchantmentsToMap(newKciEnchantments, customItem.getDefaultEnchantments());
             for (UUID id : newUpgradeIDs) {
                 ItemUpdater.addEnchantmentsToMap(newKciEnchantments, itemSet.get().upgrades.get(id).get().getEnchantments());
@@ -178,7 +178,7 @@ public class ItemUpgrader {
                             || (!result.shouldKeepOldEnchantments() && result.getNewType() == null)
             ) {
                 nbtResult.nonKciEnchantments = new HashMap<>();
-                for (EnchantmentType enchantment : EnchantmentType.values()) {
+                for (VEnchantmentType enchantment : VEnchantmentType.values()) {
                     int totalLevel = BukkitEnchantments.getLevel(original, enchantment);
                     int nonKciLevel = totalLevel - oldKciEnchantments.getOrDefault(enchantment, 0);
                     if (nonKciLevel > 0) {
@@ -194,12 +194,12 @@ public class ItemUpgrader {
 
                 if (result.shouldKeepOldEnchantments()) {
                     assert nbtResult.nonKciEnchantments != null;
-                    for (Map.Entry<EnchantmentType, Integer> entry : nbtResult.nonKciEnchantments.entrySet()) {
+                    for (Map.Entry<VEnchantmentType, Integer> entry : nbtResult.nonKciEnchantments.entrySet()) {
                         newStack = BukkitEnchantments.add(newStack, entry.getKey(), entry.getValue());
                     }
                 }
 
-                UpgradeResultValues newResult = result.copy(true);
+                UpgradeResult newResult = result.copy(true);
                 newResult.setNewType(null);
                 newResult.setRepairPercentage(result.getRepairPercentage() + originalDurabilityPercentage - 100f);
                 newResult.setUpgrades(newUpgradeIDs.stream().map(
@@ -244,7 +244,7 @@ public class ItemUpgrader {
 
         if (!result.shouldKeepOldEnchantments()) {
             assert nbtModifyResult.nonKciEnchantments != null;
-            for (Map.Entry<EnchantmentType, Integer> entry : nbtModifyResult.nonKciEnchantments.entrySet()) {
+            for (Map.Entry<VEnchantmentType, Integer> entry : nbtModifyResult.nonKciEnchantments.entrySet()) {
                 int newLevel = BukkitEnchantments.getLevel(currentStack, entry.getKey()) - entry.getValue();
                 if (newLevel > 0) currentStack = BukkitEnchantments.add(currentStack, entry.getKey(), newLevel);
                 else currentStack = BukkitEnchantments.remove(currentStack, entry.getKey());
@@ -279,8 +279,8 @@ public class ItemUpgrader {
                             currentStack.setDurability((short) newDamage);
                         }
                     }
-                } else if (customItem instanceof CustomToolValues) {
-                    CustomToolValues customTool = (CustomToolValues) customItem;
+                } else if (customItem instanceof KciTool) {
+                    KciTool customTool = (KciTool) customItem;
                     CustomToolWrapper wrapper = wrap(customTool);
                     if (durabilityFractionToIncrease >= 0f) {
                         wrapper.increaseDurability(

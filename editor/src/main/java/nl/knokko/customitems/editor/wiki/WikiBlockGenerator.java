@@ -1,24 +1,24 @@
 package nl.knokko.customitems.editor.wiki;
 
 import nl.knokko.customitems.NameHelper;
-import nl.knokko.customitems.block.CustomBlockValues;
-import nl.knokko.customitems.block.drop.CustomBlockDropValues;
+import nl.knokko.customitems.block.KciBlock;
+import nl.knokko.customitems.block.drop.CustomBlockDrop;
 import nl.knokko.customitems.block.miningspeed.CustomMiningSpeedEntry;
 import nl.knokko.customitems.block.miningspeed.VanillaMiningSpeedEntry;
-import nl.knokko.customitems.drops.AllowedBiomesValues;
-import nl.knokko.customitems.drops.CIBiome;
+import nl.knokko.customitems.drops.AllowedBiomes;
+import nl.knokko.customitems.drops.VBiome;
 import nl.knokko.customitems.editor.wiki.item.ItemDropGenerator;
-import nl.knokko.customitems.item.CIMaterial;
-import nl.knokko.customitems.item.CustomBlockItemValues;
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.VMaterial;
+import nl.knokko.customitems.item.KciBlockItem;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.item.WikiVisibility;
 import nl.knokko.customitems.itemset.BlockReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.util.Chance;
-import nl.knokko.customitems.worldgen.BlockProducerValues;
-import nl.knokko.customitems.worldgen.CITreeType;
-import nl.knokko.customitems.worldgen.OreVeinGeneratorValues;
-import nl.knokko.customitems.worldgen.TreeGeneratorValues;
+import nl.knokko.customitems.worldgen.BlockProducer;
+import nl.knokko.customitems.worldgen.VTreeType;
+import nl.knokko.customitems.worldgen.OreGenerator;
+import nl.knokko.customitems.worldgen.TreeGenerator;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,9 +35,9 @@ import static nl.knokko.customitems.util.ColorCodes.stripColorCodes;
 class WikiBlockGenerator {
 
     private final ItemSet itemSet;
-    private final CustomBlockValues block;
+    private final KciBlock block;
 
-    WikiBlockGenerator(ItemSet itemSet, CustomBlockValues block) {
+    WikiBlockGenerator(ItemSet itemSet, KciBlock block) {
         this.itemSet = itemSet;
         this.block = block;
     }
@@ -47,16 +47,16 @@ class WikiBlockGenerator {
             output.println("\t\t<h1>" + block.getName() + "</h1>");
             output.println("\t\t<img src=\"../textures/" + block.getModel().getPrimaryTexture().get().getName() + ".png\" class=\"block-icon\" /><br>");
 
-            Collection<CustomItemValues> placingItems = itemSet.items.stream().filter(
-                    item -> item instanceof CustomBlockItemValues
-                            && ((CustomBlockItemValues) item).getBlock().getName().equals(block.getName())
+            Collection<KciItem> placingItems = itemSet.items.stream().filter(
+                    item -> item instanceof KciBlockItem
+                            && ((KciBlockItem) item).getBlock().getName().equals(block.getName())
                             && item.getWikiVisibility() == WikiVisibility.VISIBLE
             ).collect(Collectors.toList());
             if (!placingItems.isEmpty()) {
                 output.println("\t\t<h2>Placing this block</h2>");
                 output.println("\t\tYou can place this block by using 1 of these items:");
                 output.println("\t\t<ul class=\"block-items\">");
-                for (CustomItemValues placingItem : placingItems) {
+                for (KciItem placingItem : placingItems) {
                     output.println("\t\t\t<li class=\"block-item\"><a href=\"../items/" + placingItem.getName()
                             + ".html\"><img src=\"../textures/" +
                             placingItem.getTexture().getName() + ".png\" class=\"item-icon\" />" +
@@ -110,7 +110,7 @@ class WikiBlockGenerator {
                 output.println("\t\t</ul>");
             }
 
-            Collection<CustomBlockDropValues> drops = block.getDrops().stream().filter(
+            Collection<CustomBlockDrop> drops = block.getDrops().stream().filter(
                     drop -> drop.getDrop().getOutputTable().getEntries().stream().anyMatch(
                             entry -> !WikiProtector.isResultSecret(entry.getResult())
                     )
@@ -119,7 +119,7 @@ class WikiBlockGenerator {
             if (!drops.isEmpty()) {
                 output.println("\t\t<h2>Drops</h2>");
                 output.println("\t\t<ul class=\"custom-block-drops\">");
-                for (CustomBlockDropValues drop : drops) {
+                for (CustomBlockDrop drop : drops) {
                     output.println("\t\t\t<li class=\"custom-block-drop\">");
                     ItemDropGenerator.generateCustomBlockDropInfo(output, drop);
                     output.println("\t\t\t\tThe following items will be dropped:");
@@ -144,7 +144,7 @@ class WikiBlockGenerator {
                 if (isGeneratedInTrees) {
                     output.println("\t\t<h3>Trees</h3>");
                     output.println("\t\t<ul>");
-                    for (TreeGeneratorValues tree : itemSet.treeGenerators) {
+                    for (TreeGenerator tree : itemSet.treeGenerators) {
                         if (canProduceBlock(tree.getLogMaterial())) {
                             generateTreeGenerationInfo(output, tree, tree.getLogMaterial(), "log");
                         }
@@ -159,13 +159,13 @@ class WikiBlockGenerator {
                     output.println("\t\t<h3>Ore</h3>");
                     output.println("\t\t<ul>");
 
-                    for (OreVeinGeneratorValues generator : itemSet.oreGenerators) {
+                    for (OreGenerator generator : itemSet.oreGenerators) {
                         if (canProduceBlock(generator.getOreMaterial())) {
                             output.println("\t\t\t<li>");
                             output.println("\t\t\t\tThis block has " + getGenerationChance(generator.getOreMaterial())
                                     + " chance to be generated in ore veins that can replace the following blocks:");
                             output.println("\t\t\t\t<ul>");
-                            for (CIMaterial vanillaBlock : generator.getBlocksToReplace().getVanillaBlocks()) {
+                            for (VMaterial vanillaBlock : generator.getBlocksToReplace().getVanillaBlocks()) {
                                 output.println("\t\t\t\t\t<li>" + NameHelper.getNiceEnumName(vanillaBlock.name()) + "</li>");
                             }
                             for (BlockReference customBlock : generator.getBlocksToReplace().getCustomBlocks()) {
@@ -201,8 +201,8 @@ class WikiBlockGenerator {
     }
 
     private void generateTreeGenerationInfo(
-            PrintWriter output, TreeGeneratorValues tree,
-            BlockProducerValues producer, String description
+            PrintWriter output, TreeGenerator tree,
+            BlockProducer producer, String description
     ) {
         output.println("\t\t\t<li>");
         output.println("\t\t\t\tThis block has " + getGenerationChance(producer)
@@ -213,7 +213,7 @@ class WikiBlockGenerator {
     }
 
     private void generateAllowedBiomes(
-            PrintWriter output, String tabs, AllowedBiomesValues biomes, List<String> allowedWorlds
+            PrintWriter output, String tabs, AllowedBiomes biomes, List<String> allowedWorlds
     ) {
         if (biomes.getWhitelist().isEmpty()) {
             if (biomes.getBlacklist().isEmpty()) {
@@ -245,15 +245,15 @@ class WikiBlockGenerator {
         }
     }
 
-    private void generateBiomeList(PrintWriter output, String tabs, Collection<CIBiome> biomes) {
+    private void generateBiomeList(PrintWriter output, String tabs, Collection<VBiome> biomes) {
         output.println(tabs + "<ul>");
-        for (CIBiome forbiddenBiome : biomes) {
+        for (VBiome forbiddenBiome : biomes) {
             output.println(tabs + "\t<li>" + NameHelper.getNiceEnumName(forbiddenBiome.name()) + "</li>");
         }
         output.println(tabs + "</ul>");
     }
 
-    private String getNiceTreeName(CITreeType treeType) {
+    private String getNiceTreeName(VTreeType treeType) {
         if (treeType.name().contains("TREE")) {
             return NameHelper.getNiceEnumName(treeType.name()) + "s";
         } else {
@@ -261,8 +261,8 @@ class WikiBlockGenerator {
         }
     }
 
-    private Chance getGenerationChance(BlockProducerValues producer) {
-        for (BlockProducerValues.Entry entry : producer.getEntries()) {
+    private Chance getGenerationChance(BlockProducer producer) {
+        for (BlockProducer.Entry entry : producer.getEntries()) {
             if (entry.getBlock().isCustom() && entry.getBlock().getCustomBlock().get().getInternalID() == block.getInternalID()) {
                 return entry.getChance();
             }
@@ -270,7 +270,7 @@ class WikiBlockGenerator {
         return null;
     }
 
-    private boolean canProduceBlock(BlockProducerValues producer) {
+    private boolean canProduceBlock(BlockProducer producer) {
         return getGenerationChance(producer) != null;
     }
 }

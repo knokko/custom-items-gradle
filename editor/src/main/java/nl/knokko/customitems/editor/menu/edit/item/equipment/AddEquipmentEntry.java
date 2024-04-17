@@ -2,9 +2,9 @@ package nl.knokko.customitems.editor.menu.edit.item.equipment;
 
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
-import nl.knokko.customitems.item.AttributeModifierValues;
-import nl.knokko.customitems.item.equipment.EquipmentEntry;
-import nl.knokko.customitems.item.equipment.EquipmentSetValues;
+import nl.knokko.customitems.item.KciAttributeModifier;
+import nl.knokko.customitems.item.equipment.EquipmentSetEntry;
+import nl.knokko.customitems.item.equipment.EquipmentSet;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
@@ -20,10 +20,10 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 class AddEquipmentEntry extends GuiMenu {
 
     private final GuiComponent returnMenu;
-    private final EquipmentSetValues currentValues;
+    private final EquipmentSet currentValues;
     private final ItemSet itemSet;
 
-    AddEquipmentEntry(GuiComponent returnMenu, EquipmentSetValues currentValues, ItemSet itemSet) {
+    AddEquipmentEntry(GuiComponent returnMenu, EquipmentSet currentValues, ItemSet itemSet) {
         this.returnMenu = returnMenu;
         this.currentValues = currentValues;
         this.itemSet = itemSet;
@@ -35,7 +35,7 @@ class AddEquipmentEntry extends GuiMenu {
             state.getWindow().setMainComponent(returnMenu);
         }), 0.025f, 0.7f, 0.175f, 0.8f);
 
-        AttributeModifierValues.Slot[] pSlot = { null };
+        KciAttributeModifier.Slot[] pSlot = { null };
         ItemReference[] pItem = { null };
         IntEditField valueField = new IntEditField(1, -10_000, 10_000, EDIT_BASE, EDIT_ACTIVE);
 
@@ -48,7 +48,7 @@ class AddEquipmentEntry extends GuiMenu {
         ), 0.4f, 0.7f, 0.6f, 0.8f);
 
         addComponent(new DynamicTextComponent("Slot:", LABEL), 0.25f, 0.55f, 0.35f, 0.65f);
-        addComponent(EnumSelect.createSelectButton(AttributeModifierValues.Slot.class, newSlot -> pSlot[0] = newSlot, pSlot[0]
+        addComponent(EnumSelect.createSelectButton(KciAttributeModifier.Slot.class, newSlot -> pSlot[0] = newSlot, pSlot[0]
         ), 0.4f, 0.55f, 0.5f, 0.65f);
 
         addComponent(new DynamicTextComponent("Value:", LABEL), 0.25f, 0.4f, 0.35f, 0.5f);
@@ -66,7 +66,7 @@ class AddEquipmentEntry extends GuiMenu {
             if (!value.hasValue()) error = "The value must be an integer between -10,000 and 10,000";
 
             if (error == null) {
-                currentValues.setEntryValue(new EquipmentEntry(pSlot[0], pItem[0]), value.getValue());
+                currentValues.setEntryValue(new EquipmentSetEntry(pSlot[0], pItem[0]), value.getValue());
                 state.getWindow().setMainComponent(returnMenu);
             } else errorComponent.setText(error);
         }), 0.025f, 0.3f, 0.175f, 0.4f);

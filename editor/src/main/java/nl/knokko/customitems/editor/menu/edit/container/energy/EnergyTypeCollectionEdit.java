@@ -1,6 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.container.energy;
 
-import nl.knokko.customitems.container.energy.EnergyTypeValues;
+import nl.knokko.customitems.container.energy.EnergyType;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
@@ -12,7 +12,7 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
 import java.awt.image.BufferedImage;
 
-public class EnergyTypeCollectionEdit extends DedicatedCollectionEdit<EnergyTypeValues, EnergyTypeReference> {
+public class EnergyTypeCollectionEdit extends DedicatedCollectionEdit<EnergyType, EnergyTypeReference> {
 
     private final ItemSet itemSet;
 
@@ -26,7 +26,7 @@ public class EnergyTypeCollectionEdit extends DedicatedCollectionEdit<EnergyType
         super.addComponents();
         addComponent(new DynamicTextButton("Add new", EditProps.BUTTON, EditProps.HOVER, () -> {
             state.getWindow().setMainComponent(new EditEnergyType(
-                    this, itemSet, new EnergyTypeValues(true), null
+                    this, itemSet, new EnergyType(true), null
             ));
         }), 0.05f, 0.2f, 0.2f, 0.3f);
 
@@ -34,17 +34,17 @@ public class EnergyTypeCollectionEdit extends DedicatedCollectionEdit<EnergyType
     }
 
     @Override
-    protected String getModelLabel(EnergyTypeValues model) {
+    protected String getModelLabel(EnergyType model) {
         return model.getName();
     }
 
     @Override
-    protected BufferedImage getModelIcon(EnergyTypeValues model) {
+    protected BufferedImage getModelIcon(EnergyType model) {
         return null;
     }
 
     @Override
-    protected boolean canEditModel(EnergyTypeValues model) {
+    protected boolean canEditModel(EnergyType model) {
         return true;
     }
 

@@ -1,6 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.container.overlay;
 
-import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.container.KciContainer;
 import nl.knokko.customitems.editor.EditorFileManager;
 import nl.knokko.customitems.editor.util.FileDialog;
 import nl.knokko.customitems.editor.util.HelpButtons;
@@ -21,10 +21,10 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class EditContainerOverlayTexture extends GuiMenu {
 
-    private final CustomContainerValues container;
+    private final KciContainer container;
     private final GuiComponent returnMenu;
 
-    public EditContainerOverlayTexture(CustomContainerValues container, GuiComponent returnMenu) {
+    public EditContainerOverlayTexture(KciContainer container, GuiComponent returnMenu) {
         this.container = container;
         this.returnMenu = returnMenu;
     }

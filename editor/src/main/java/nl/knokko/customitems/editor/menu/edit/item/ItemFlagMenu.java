@@ -2,10 +2,10 @@ package nl.knokko.customitems.editor.menu.edit.item;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.item.CustomToolValues;
-import nl.knokko.customitems.item.ItemFlag;
-import nl.knokko.customitems.item.SimpleCustomItemValues;
+import nl.knokko.customitems.item.KciItem;
+import nl.knokko.customitems.item.KciTool;
+import nl.knokko.customitems.item.VItemFlag;
+import nl.knokko.customitems.item.KciSimpleItem;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.image.CheckboxComponent;
@@ -18,10 +18,10 @@ import java.util.List;
 public class ItemFlagMenu extends GuiMenu {
 
 	private final GuiComponent returnMenu;
-	private final CustomItemValues itemValues;
+	private final KciItem itemValues;
 	private final List<Boolean> currentFlags;
 
-	public ItemFlagMenu(GuiComponent returnMenu, CustomItemValues itemValues) {
+	public ItemFlagMenu(GuiComponent returnMenu, KciItem itemValues) {
 		this.returnMenu = returnMenu;
 		this.itemValues = itemValues;
 		this.currentFlags = itemValues.getItemFlags();
@@ -29,7 +29,7 @@ public class ItemFlagMenu extends GuiMenu {
 
 	@Override
 	protected void addComponents() {
-		ItemFlag[] allFlags = ItemFlag.values();
+		VItemFlag[] allFlags = VItemFlag.values();
 		for (int index = 0; index < allFlags.length; index++) {
 			int rememberIndex = index;
 			addComponent(
@@ -49,10 +49,10 @@ public class ItemFlagMenu extends GuiMenu {
 			state.getWindow().setMainComponent(returnMenu);
 		}), 0.1f, 0.13f, 0.25f, 0.2f);
 		
-		if (itemValues instanceof SimpleCustomItemValues) {
+		if (itemValues instanceof KciSimpleItem) {
 			addComponent(new DynamicTextComponent("Notice: it is recommended for simple custom items to keep the 'hide unbreakable' checked", EditProps.LABEL), 0.05f, 0.025f, 0.95f, 0.1f);
 		}
-		if (itemValues instanceof CustomToolValues && ((CustomToolValues) itemValues).getMaxDurabilityNew() != null) {
+		if (itemValues instanceof KciTool && ((KciTool) itemValues).getMaxDurabilityNew() != null) {
 			addComponent(new DynamicTextComponent("Notice: it is recommended for breakable custom tools to keep the 'hide unbreakable' checked", EditProps.LABEL), 0.05f, 0.025f, 0.95f, 0.1f);
 		}
 		

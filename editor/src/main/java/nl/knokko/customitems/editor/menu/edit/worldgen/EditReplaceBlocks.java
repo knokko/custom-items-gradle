@@ -4,10 +4,10 @@ import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
-import nl.knokko.customitems.item.CIMaterial;
+import nl.knokko.customitems.item.VMaterial;
 import nl.knokko.customitems.itemset.BlockReference;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.worldgen.ReplaceBlocksValues;
+import nl.knokko.customitems.worldgen.ReplaceBlocks;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -24,12 +24,12 @@ public class EditReplaceBlocks extends GuiMenu {
     private final GuiComponent returnMenu;
     private final ItemSet itemSet;
 
-    private final ReplaceBlocksValues currentValues;
-    private final Consumer<ReplaceBlocksValues> changeValues;
+    private final ReplaceBlocks currentValues;
+    private final Consumer<ReplaceBlocks> changeValues;
 
     public EditReplaceBlocks(
             GuiComponent returnMenu, ItemSet itemSet,
-            ReplaceBlocksValues oldValues, Consumer<ReplaceBlocksValues> changeValues
+            ReplaceBlocks oldValues, Consumer<ReplaceBlocks> changeValues
     ) {
         this.returnMenu = returnMenu;
         this.itemSet = itemSet;
@@ -60,8 +60,8 @@ public class EditReplaceBlocks extends GuiMenu {
         VanillaBlocks vanillaBlocks = new VanillaBlocks();
         addComponent(new DynamicTextButton("+", SAVE_BASE, SAVE_HOVER, () -> {
             state.getWindow().setMainComponent(new EnumSelect<>(
-                    CIMaterial.class, newBlock -> {
-                        Set<CIMaterial> newVanillaBlocks = currentValues.getVanillaBlocks();
+                    VMaterial.class, newBlock -> {
+                        Set<VMaterial> newVanillaBlocks = currentValues.getVanillaBlocks();
                         newVanillaBlocks.add(newBlock);
                         currentValues.setVanillaBlocks(newVanillaBlocks);
                         vanillaBlocks.refresh();
@@ -98,13 +98,13 @@ public class EditReplaceBlocks extends GuiMenu {
         @Override
         protected void addComponents() {
             int index = 0;
-            for (CIMaterial vanillaBlock : currentValues.getVanillaBlocks()) {
+            for (VMaterial vanillaBlock : currentValues.getVanillaBlocks()) {
                 float maxY = 1f - 0.125f * index;
                 float minY = maxY - 0.1f;
 
                 addComponent(new DynamicTextComponent(vanillaBlock.toString(), LABEL), 0.05f, minY, 0.7f, maxY);
                 addComponent(new DynamicTextButton("X", QUIT_BASE, QUIT_HOVER, () -> {
-                    Set<CIMaterial> newVanillaBlocks = currentValues.getVanillaBlocks();
+                    Set<VMaterial> newVanillaBlocks = currentValues.getVanillaBlocks();
                     newVanillaBlocks.remove(vanillaBlock);
                     currentValues.setVanillaBlocks(newVanillaBlocks);
                     refresh();

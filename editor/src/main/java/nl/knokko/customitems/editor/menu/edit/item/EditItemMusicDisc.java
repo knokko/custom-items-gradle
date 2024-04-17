@@ -3,35 +3,35 @@ package nl.knokko.customitems.editor.menu.edit.item;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.sound.EditSound;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.item.AttributeModifierValues;
-import nl.knokko.customitems.item.CustomItemType;
-import nl.knokko.customitems.item.CustomMusicDiscValues;
+import nl.knokko.customitems.item.KciAttributeModifier;
+import nl.knokko.customitems.item.KciItemType;
+import nl.knokko.customitems.item.KciMusicDisc;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
-public class EditItemMusicDisc extends EditItemBase<CustomMusicDiscValues> {
+public class EditItemMusicDisc extends EditItemBase<KciMusicDisc> {
 
-    private static final AttributeModifierValues EXAMPLE_MODIFIER = AttributeModifierValues.createQuick(
-            AttributeModifierValues.Attribute.MAX_HEALTH,
-            AttributeModifierValues.Slot.OFFHAND,
-            AttributeModifierValues.Operation.ADD,
+    private static final KciAttributeModifier EXAMPLE_MODIFIER = KciAttributeModifier.createQuick(
+            KciAttributeModifier.Attribute.MAX_HEALTH,
+            KciAttributeModifier.Slot.OFFHAND,
+            KciAttributeModifier.Operation.ADD,
             4.0
     );
 
-    public EditItemMusicDisc(EditMenu menu, CustomMusicDiscValues oldValues, ItemReference toModify) {
+    public EditItemMusicDisc(EditMenu menu, KciMusicDisc oldValues, ItemReference toModify) {
         super(menu, oldValues, toModify);
     }
 
     @Override
-    protected AttributeModifierValues getExampleAttributeModifier() {
+    protected KciAttributeModifier getExampleAttributeModifier() {
         return EXAMPLE_MODIFIER;
     }
 
     @Override
-    protected CustomItemType.Category getCategory() {
-        return CustomItemType.Category.MUSIC_DISC;
+    protected KciItemType.Category getCategory() {
+        return KciItemType.Category.MUSIC_DISC;
     }
 
     @Override

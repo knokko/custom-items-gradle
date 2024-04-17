@@ -3,8 +3,8 @@ package nl.knokko.customitems.editor.menu.edit.container.slot;
 import java.util.function.Consumer;
 
 import nl.knokko.customitems.container.IndicatorDomain;
-import nl.knokko.customitems.container.slot.ContainerSlotValues;
-import nl.knokko.customitems.container.slot.ProgressIndicatorSlotValues;
+import nl.knokko.customitems.container.slot.ContainerSlot;
+import nl.knokko.customitems.container.slot.ProgressIndicatorSlot;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
@@ -22,16 +22,16 @@ public class CreateCraftingIndicatorSlot extends GuiMenu {
 
 	private final GuiComponent returnMenu;
 	private final ItemSet itemSet;
-	private final ProgressIndicatorSlotValues currentValues;
-	private final Consumer<ContainerSlotValues> submitSlot;
+	private final ProgressIndicatorSlot currentValues;
+	private final Consumer<ContainerSlot> submitSlot;
 	private final DynamicTextComponent errorComponent;
 	
 	public CreateCraftingIndicatorSlot(
-            GuiComponent returnMenu, ItemSet itemSet, Consumer<ContainerSlotValues> submitSlot
+            GuiComponent returnMenu, ItemSet itemSet, Consumer<ContainerSlot> submitSlot
 	) {
 		this.returnMenu = returnMenu;
 		this.itemSet = itemSet;
-		this.currentValues = new ProgressIndicatorSlotValues(true);
+		this.currentValues = new ProgressIndicatorSlot(true);
 		this.submitSlot = submitSlot;
 		this.errorComponent = new DynamicTextComponent("", EditProps.ERROR);
 	}

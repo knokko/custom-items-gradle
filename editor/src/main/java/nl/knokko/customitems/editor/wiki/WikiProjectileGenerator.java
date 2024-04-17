@@ -1,12 +1,12 @@
 package nl.knokko.customitems.editor.wiki;
 
 import nl.knokko.customitems.NameHelper;
-import nl.knokko.customitems.effect.PotionEffectValues;
+import nl.knokko.customitems.effect.KciPotionEffect;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.projectile.CustomProjectileValues;
+import nl.knokko.customitems.projectile.KciProjectile;
 import nl.knokko.customitems.projectile.effect.*;
-import nl.knokko.customitems.sound.SoundValues;
+import nl.knokko.customitems.sound.KciSound;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,9 +20,9 @@ import static nl.knokko.customitems.util.ColorCodes.stripColorCodes;
 class WikiProjectileGenerator {
 
     private final ItemSet itemSet;
-    private final CustomProjectileValues projectile;
+    private final KciProjectile projectile;
 
-    WikiProjectileGenerator(ItemSet itemSet, CustomProjectileValues projectile) {
+    WikiProjectileGenerator(ItemSet itemSet, KciProjectile projectile) {
         this.itemSet = itemSet;
         this.projectile = projectile;
     }
@@ -53,11 +53,11 @@ class WikiProjectileGenerator {
             if (!projectile.getImpactPotionEffects().isEmpty() || !projectile.getImpactEffects().isEmpty()) {
                 output.println("\t\t<h2 id=\"impact-effects-header\">Impact effects</h2>");
                 output.println("\t\t<ul class=\"impact-effects\">");
-                for (PotionEffectValues potionEffect : projectile.getImpactPotionEffects()) {
+                for (KciPotionEffect potionEffect : projectile.getImpactPotionEffects()) {
                     output.println("\t\t\t<li class=\"impact-potion-effect\">Give "
                             + describePotionEffect(potionEffect) + "</li>");
                 }
-                for (ProjectileEffectValues effect : projectile.getImpactEffects()) {
+                for (ProjectileEffect effect : projectile.getImpactEffects()) {
                     generateProjectileEffect(output, "\t\t\t", effect);
                 }
                 output.println("\t\t</ul>");
@@ -72,12 +72,12 @@ class WikiProjectileGenerator {
             if (!projectile.getInFlightEffects().isEmpty()) {
                 output.println("\t\t<h2 id=\"in-flight-effects-header\">In-flight effects</h2>");
                 output.println("\t\t<ul class=\"in-flight-waves\">");
-                for (ProjectileEffectsValues effectWave : projectile.getInFlightEffects()) {
+                for (ProjectileEffects effectWave : projectile.getInFlightEffects()) {
                     output.println("\t\t\t<li class=\"in-flight-wave\">");
                     output.println("\t\t\t\tThe following effects will be executed once every " + effectWave.getPeriod() + " ticks.");
                     output.println("\t\t\t\tThe first time will be " + effectWave.getDelay() + " ticks after the projectile is launched.");
                     output.println("\t\t\t\t<ul class=\"in-flight-effects\">");
-                    for (ProjectileEffectValues effect : effectWave.getEffects()) {
+                    for (ProjectileEffect effect : effectWave.getEffects()) {
                         generateProjectileEffect(output, "\t\t\t\t\t", effect);
                     }
                     output.println("\t\t\t\t</ul>");
@@ -86,14 +86,14 @@ class WikiProjectileGenerator {
                 output.println("\t\t</ul>");
             }
 
-            Collection<CustomItemValues> sources = itemSet.items.stream().filter(candidateItem -> {
-                if (candidateItem instanceof CustomWandValues) {
-                    CustomProjectileValues wandProjectile = ((CustomWandValues) candidateItem).getProjectile();
+            Collection<KciItem> sources = itemSet.items.stream().filter(candidateItem -> {
+                if (candidateItem instanceof KciWand) {
+                    KciProjectile wandProjectile = ((KciWand) candidateItem).getProjectile();
                     return wandProjectile != null && wandProjectile.getName().equals(projectile.getName());
-                } else if (candidateItem instanceof CustomGunValues) {
-                    return ((CustomGunValues) candidateItem).getProjectile().getName().equals(projectile.getName());
-                } else if (candidateItem instanceof CustomThrowableValues) {
-                    return ((CustomThrowableValues) candidateItem).getProjectile().getName().equals(projectile.getName());
+                } else if (candidateItem instanceof KciGun) {
+                    return ((KciGun) candidateItem).getProjectile().getName().equals(projectile.getName());
+                } else if (candidateItem instanceof KciThrowable) {
+                    return ((KciThrowable) candidateItem).getProjectile().getName().equals(projectile.getName());
                 } else {
                     return false;
                 }
@@ -102,7 +102,7 @@ class WikiProjectileGenerator {
             if (!sources.isEmpty()) {
                 output.println("\t\t<h2 id=\"launch-items-header\">Items that can launch this projectile</h2>");
                 output.println("\t\t<ul class=\"launch-items\">");
-                for (CustomItemValues item : sources) {
+                for (KciItem item : sources) {
                     output.println("\t\t\t<li class=\"launch-item\"><a href=\"../items/" + item.getName() + ".html\">");
                     output.println("\t\t\t\t<img src=\"../textures/" + item.getTexture().getName() + ".png\" class=\"item-icon\" />");
                     output.println("\t\t\t\t" + stripColorCodes(item.getDisplayName()));
@@ -110,20 +110,20 @@ class WikiProjectileGenerator {
                 }
             }
 
-            Collection<CustomProjectileValues> parentProjectiles = itemSet.projectiles.stream().filter(candidateProjectile -> {
+            Collection<KciProjectile> parentProjectiles = itemSet.projectiles.stream().filter(candidateProjectile -> {
                return candidateProjectile.getInFlightEffects().stream().anyMatch(effectWaves -> {
                    return effectWaves.getEffects().stream().anyMatch(effect -> {
-                       return effect instanceof SubProjectilesValues && ((SubProjectilesValues) effect).getChild().getName().equals(projectile.getName());
+                       return effect instanceof PESubProjectiles && ((PESubProjectiles) effect).getChild().getName().equals(projectile.getName());
                    });
                }) || candidateProjectile.getImpactEffects().stream().anyMatch(effect -> {
-                   return effect instanceof SubProjectilesValues && ((SubProjectilesValues) effect).getChild().getName().equals(projectile.getName());
+                   return effect instanceof PESubProjectiles && ((PESubProjectiles) effect).getChild().getName().equals(projectile.getName());
                });
             }).collect(Collectors.toList());
 
             if (!parentProjectiles.isEmpty()) {
                 output.println("\t\t<h2 id=\"parent-projectiles-header\">Projectiles that can spawn this projectile</h2>");
                 output.println("\t\t<ul class=\"parent-projectiles\">");
-                for (CustomProjectileValues parentProjectile : parentProjectiles) {
+                for (KciProjectile parentProjectile : parentProjectiles) {
                     output.println("\t\t\t<li class=\"parent-projectile\"><a href=\"." + parentProjectile.getName() +
                             ".html\">" + parentProjectile.getName() + "</a></li>");
                 }
@@ -132,36 +132,36 @@ class WikiProjectileGenerator {
         });
     }
 
-    private void generateProjectileEffect(PrintWriter output, String tabs, ProjectileEffectValues effect) {
-        if (effect instanceof ColoredRedstoneValues) {
-            output.println(tabs + "<li class=\"projectile-effect\">Spawn " + ((ColoredRedstoneValues) effect).getAmount()
+    private void generateProjectileEffect(PrintWriter output, String tabs, ProjectileEffect effect) {
+        if (effect instanceof PEColoredRedstone) {
+            output.println(tabs + "<li class=\"projectile-effect\">Spawn " + ((PEColoredRedstone) effect).getAmount()
                     + " colored redstone particles</li>");
-        } else if (effect instanceof ExecuteCommandValues) {
+        } else if (effect instanceof PEExecuteCommand) {
             output.println(tabs + "<li class=\"projectile-effect\">Execute this command: " +
-                    ((ExecuteCommandValues) effect).getCommand() + "</li>");
-        } else if (effect instanceof ExplosionValues) {
-            ExplosionValues explosion = (ExplosionValues) effect;
+                    ((PEExecuteCommand) effect).getCommand() + "</li>");
+        } else if (effect instanceof PECreateExplosion) {
+            PECreateExplosion explosion = (PECreateExplosion) effect;
             output.println(tabs + "<li class=\"projectile-effect\">Create an explosion with power " + explosion.getPower() +
                     (explosion.setsFire() ? " that sets fire" : "") + "</li>");
-        } else if (effect instanceof PlaySoundValues) {
-            SoundValues sound = ((PlaySoundValues) effect).getSound();
+        } else if (effect instanceof PEPlaySound) {
+            KciSound sound = ((PEPlaySound) effect).getSound();
 
             String soundName;
             if (sound.getVanillaSound() != null) soundName = NameHelper.getNiceEnumName(sound.getVanillaSound().name());
             else soundName = sound.getCustomSound().getName();
 
             output.println(tabs + "<li class=\"projectile-effect\">Play the " + soundName + " sound</li>");
-        } else if (effect instanceof PotionAuraValues) {
-            PotionAuraValues aura = (PotionAuraValues) effect;
+        } else if (effect instanceof PEPotionAura) {
+            PEPotionAura aura = (PEPotionAura) effect;
             output.println(tabs + "<li class=\"projectile-effect\">");
             output.println(tabs + "\tGives the following potion effects to everyone within " + aura.getRadius() + " meters:");
             output.println(tabs + "\t<ul class=\"projectile-aura-effects\">");
-            for (PotionEffectValues auraEffect : aura.getEffects()) {
+            for (KciPotionEffect auraEffect : aura.getEffects()) {
                 output.println(tabs + "\t\t<li class=\"projectile-aura-effect\">" + describePotionEffect(auraEffect) + "</li>");
             }
             output.println(tabs + "\t</ul>");
-        } else if (effect instanceof PushOrPullValues) {
-            PushOrPullValues pushOrPull = (PushOrPullValues) effect;
+        } else if (effect instanceof PEPushOrPull) {
+            PEPushOrPull pushOrPull = (PEPushOrPull) effect;
             if (pushOrPull.getStrength() > 0f) {
                 output.println(tabs + "<li class=\"projectile-effect\">Pushes everyone within " + pushOrPull.getRadius() +
                         " meters away with strength " + pushOrPull.getStrength() + "</li>");
@@ -169,25 +169,25 @@ class WikiProjectileGenerator {
                 output.println(tabs + "<li class=\"projectile-effect\">Pulls everyone within " + pushOrPull.getRadius() +
                         " meters towards the projectile with strength " + (-pushOrPull.getStrength()) + "</li>");
             }
-        } else if (effect instanceof RandomAccelerationValues) {
-            RandomAccelerationValues acceleration = (RandomAccelerationValues) effect;
+        } else if (effect instanceof PERandomAcceleration) {
+            PERandomAcceleration acceleration = (PERandomAcceleration) effect;
             output.println(tabs + "<li class=\"projectile-effect\">Accelerates the projectile between "
                     + acceleration.getMinAcceleration() + " and " +
                     acceleration.getMaxAcceleration() + " meters / tick / tick towards a random direction</li>");
-        } else if (effect instanceof ShowFireworkValues) {
+        } else if (effect instanceof PEShowFireworks) {
             output.println(tabs + "<li class=\"projectile-effect\">Creates " +
-                    ((ShowFireworkValues) effect).getEffects().size() + " firework effects</li>");
-        } else if (effect instanceof SimpleParticleValues) {
-            SimpleParticleValues particles = (SimpleParticleValues) effect;
+                    ((PEShowFireworks) effect).getEffects().size() + " firework effects</li>");
+        } else if (effect instanceof PESimpleParticle) {
+            PESimpleParticle particles = (PESimpleParticle) effect;
             output.println(tabs + "<li class=\"projectile-effect\">Spawns " + particles.getAmount() + " " +
                     NameHelper.getNiceEnumName(particles.getParticle().name()) + " particles</li>");
-        } else if (effect instanceof StraightAccelerationValues) {
-            StraightAccelerationValues acceleration = (StraightAccelerationValues) effect;
+        } else if (effect instanceof PEStraightAcceleration) {
+            PEStraightAcceleration acceleration = (PEStraightAcceleration) effect;
             output.println(tabs + "<li class=\"projectile-effect\">Accelerates the projectile between "
                     + acceleration.getMinAcceleration() + " and " +
                     acceleration.getMaxAcceleration() + " meters / tick / tick forward</li>");
-        } else if (effect instanceof SubProjectilesValues) {
-            SubProjectilesValues subProjectiles = (SubProjectilesValues) effect;
+        } else if (effect instanceof PESubProjectiles) {
+            PESubProjectiles subProjectiles = (PESubProjectiles) effect;
             String childName = subProjectiles.getChild().getName();
             output.println(tabs + "<li class=\"projectile-effect\">Spawns " + subProjectiles.getMinAmount() + " to "
                     + subProjectiles.getMaxAmount() +

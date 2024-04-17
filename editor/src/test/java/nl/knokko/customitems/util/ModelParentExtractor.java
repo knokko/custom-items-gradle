@@ -1,7 +1,7 @@
 package nl.knokko.customitems.util;
 
 import nl.knokko.customitems.MCVersions;
-import nl.knokko.customitems.item.CIMaterial;
+import nl.knokko.customitems.item.VMaterial;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,7 +69,7 @@ public class ModelParentExtractor {
 
         for (String itemName : modelParentMap.keySet()) {
             try {
-                if (CIMaterial.valueOf(itemName).lastVersion >= MCVersions.VERSION1_14) {
+                if (VMaterial.valueOf(itemName).lastVersion >= MCVersions.VERSION1_14) {
                     System.out.println("    " + itemName + "(\"" + modelParentMap.get(itemName) + "\", " + modelTextureMap.get(itemName) + "),");
                 }
             } catch (IllegalArgumentException noSuchMaterial) {

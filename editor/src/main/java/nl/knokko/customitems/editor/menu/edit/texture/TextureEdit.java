@@ -14,7 +14,7 @@ import nl.knokko.customitems.editor.util.FileDialog;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
-import nl.knokko.customitems.texture.BaseTextureValues;
+import nl.knokko.customitems.texture.KciTexture;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -36,13 +36,13 @@ public class TextureEdit extends GuiMenu {
 	protected WrapperComponent<SimpleImageComponent> wrapper;
 
 	protected final TextureReference toModify;
-	protected final BaseTextureValues currentValues;
+	protected final KciTexture currentValues;
 	
-	public TextureEdit(EditMenu menu, TextureReference toModify, BaseTextureValues oldValues) {
+	public TextureEdit(EditMenu menu, TextureReference toModify, KciTexture oldValues) {
 		this(menu.getSet(), menu.getTextureOverview(), toModify, oldValues);
 	}
 
-	public TextureEdit(ItemSet set, GuiComponent returnMenu, TextureReference toModify, BaseTextureValues oldValues) {
+	public TextureEdit(ItemSet set, GuiComponent returnMenu, TextureReference toModify, KciTexture oldValues) {
 		this.itemSet = set;
 		this.returnMenu = returnMenu;
 
@@ -92,7 +92,7 @@ public class TextureEdit extends GuiMenu {
 		HelpButtons.addHelpLink(this, "edit menu/textures/edit.html");
 	}
 
-	public static BaseTextureValues loadBasicImage(File file) throws IllegalArgumentException {
+	public static KciTexture loadBasicImage(File file) throws IllegalArgumentException {
 		try {
 			BufferedImage loaded = ImageIO.read(file);
 			if(loaded != null) {
@@ -107,7 +107,7 @@ public class TextureEdit extends GuiMenu {
 							else
 								imageName = file.getName().substring(0, indexDot);
 
-							return BaseTextureValues.createQuick(imageName, loaded);
+							return KciTexture.createQuick(imageName, loaded);
 						} else
 							throw new IllegalArgumentException("The width and height (" + width + ") should be a power of 2");
 					} else
@@ -122,7 +122,7 @@ public class TextureEdit extends GuiMenu {
 	}
 	
 	public static DynamicTextButton createImageSelect(
-			Consumer<BaseTextureValues> listener, DynamicTextComponent errorComponent
+            Consumer<KciTexture> listener, DynamicTextComponent errorComponent
 	) {
 		return new DynamicTextButton("Edit...", EditProps.CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {
 			FileDialog.open("png", errorComponent::setText, errorComponent.getState().getWindow().getMainComponent(), chosenFile -> {
@@ -142,18 +142,18 @@ public class TextureEdit extends GuiMenu {
 		), errorComponent);
 	}
 	
-	public static class PartialTransparencyFilter implements Consumer<BaseTextureValues> {
+	public static class PartialTransparencyFilter implements Consumer<KciTexture> {
 
 		private final GuiComponent returnMenu;
-		private final Consumer<BaseTextureValues> chooseTexture;
+		private final Consumer<KciTexture> chooseTexture;
 		
-		public PartialTransparencyFilter(GuiComponent returnMenu, Consumer<BaseTextureValues> chooseTexture) {
+		public PartialTransparencyFilter(GuiComponent returnMenu, Consumer<KciTexture> chooseTexture) {
 			this.returnMenu = returnMenu;
 			this.chooseTexture = chooseTexture;
 		}
 
 		@Override
-		public void accept(BaseTextureValues chosenTexture) {
+		public void accept(KciTexture chosenTexture) {
 			boolean hasPartialTransparency = false;
 			alphaLoop:
 			for (int x = 0; x < chosenTexture.getImage().getWidth(); x++) {

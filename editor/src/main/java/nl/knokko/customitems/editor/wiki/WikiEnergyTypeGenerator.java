@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.wiki;
 
-import nl.knokko.customitems.container.CustomContainerValues;
-import nl.knokko.customitems.container.energy.EnergyTypeValues;
+import nl.knokko.customitems.container.KciContainer;
+import nl.knokko.customitems.container.energy.EnergyType;
 import nl.knokko.customitems.itemset.ItemSet;
 
 import java.io.File;
@@ -13,9 +13,9 @@ import static nl.knokko.customitems.editor.wiki.WikiHelper.getDisplayName;
 class WikiEnergyTypeGenerator {
 
     private final ItemSet itemSet;
-    private final EnergyTypeValues energyType;
+    private final EnergyType energyType;
 
-    WikiEnergyTypeGenerator(ItemSet itemSet, EnergyTypeValues energyType) {
+    WikiEnergyTypeGenerator(ItemSet itemSet, EnergyType energyType) {
         this.itemSet = itemSet;
         this.energyType = energyType;
     }
@@ -44,7 +44,7 @@ class WikiEnergyTypeGenerator {
             if (itemSet.containers.stream().anyMatch(this::usesThisEnergy)) {
                 output.println("\t\t<h2 id=\"containers-header\">Containers</h2>");
                 output.println("\t\t<ul>");
-                for (CustomContainerValues container : itemSet.containers) {
+                for (KciContainer container : itemSet.containers) {
                     if (usesThisEnergy(container)) {
                         output.println("\t\t\t<li><a href=\"../" + container.getName() + ".html\">" + getDisplayName(container) + "</a></li>");
                     }
@@ -54,7 +54,7 @@ class WikiEnergyTypeGenerator {
         });
     }
 
-    private boolean usesThisEnergy(CustomContainerValues container) {
+    private boolean usesThisEnergy(KciContainer container) {
         return container.getRecipes().stream().anyMatch(
             recipe -> recipe.getEnergy().stream().anyMatch(
                     energy -> energy.getEnergyType().getId().equals(energyType.getId())

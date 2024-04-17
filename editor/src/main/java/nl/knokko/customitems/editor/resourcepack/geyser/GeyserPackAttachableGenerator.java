@@ -1,8 +1,8 @@
 package nl.knokko.customitems.editor.resourcepack.geyser;
 
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.texture.BaseTextureValues;
-import nl.knokko.customitems.texture.BowTextureValues;
+import nl.knokko.customitems.texture.KciTexture;
+import nl.knokko.customitems.texture.BowTexture;
 
 import java.io.IOException;
 import java.util.zip.ZipOutputStream;
@@ -18,8 +18,8 @@ class GeyserPackAttachableGenerator {
     }
 
     void generateBows() throws IOException {
-        for (BaseTextureValues texture : itemSet.textures) {
-            if (texture instanceof BowTextureValues) {
+        for (KciTexture texture : itemSet.textures) {
+            if (texture instanceof BowTexture) {
                 IOHelper.propagate(
                         "bow_template.attachable.json", zipOutput,
                         "attachables/kci_" + texture.getName() + ".attachable.json",

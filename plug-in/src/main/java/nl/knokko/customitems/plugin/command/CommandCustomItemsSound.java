@@ -3,7 +3,7 @@ package nl.knokko.customitems.plugin.command;
 import nl.knokko.customitems.itemset.SoundTypeReference;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.util.SoundPlayer;
-import nl.knokko.customitems.sound.SoundValues;
+import nl.knokko.customitems.sound.KciSound;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -135,7 +135,7 @@ public class CommandCustomItemsSound {
             }
         }
 
-        SoundPlayer.playSound(new Location(world, x, y, z), SoundValues.createQuick(sound, volume, pitch));
+        SoundPlayer.playSound(new Location(world, x, y, z), KciSound.createQuick(sound, volume, pitch));
         if (enableOutput) sender.sendMessage(ChatColor.GREEN + "Playing sound...");
     }
 }

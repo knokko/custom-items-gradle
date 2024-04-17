@@ -2,7 +2,7 @@ package nl.knokko.customitems.itemset;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
-import nl.knokko.customitems.texture.ArmorTextureValues;
+import nl.knokko.customitems.texture.ArmorTexture;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.CollectionHelper;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -12,19 +12,19 @@ import nl.knokko.customitems.util.ValidationException;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-public class ArmorTextureManager extends ModelManager<ArmorTextureValues, ArmorTextureReference> {
+public class ArmorTextureManager extends ModelManager<ArmorTexture, ArmorTextureReference> {
 
     protected ArmorTextureManager(ItemSet itemSet) {
         super(itemSet);
     }
 
     @Override
-    protected void saveElement(ArmorTextureValues element, BitOutput output, ItemSet.Side targetSide) {
+    protected void saveElement(ArmorTexture element, BitOutput output, ItemSet.Side targetSide) {
         element.save(output);
     }
 
     @Override
-    ArmorTextureReference createReference(Model<ArmorTextureValues> element) {
+    ArmorTextureReference createReference(Model<ArmorTexture> element) {
         return new ArmorTextureReference(element);
     }
 
@@ -34,12 +34,12 @@ public class ArmorTextureManager extends ModelManager<ArmorTextureValues, ArmorT
     }
 
     @Override
-    protected ArmorTextureValues loadElement(BitInput input) throws UnknownEncodingException {
-        return ArmorTextureValues.load(input);
+    protected ArmorTexture loadElement(BitInput input) throws UnknownEncodingException {
+        return ArmorTexture.load(input);
     }
 
     @Override
-    protected void validateExportVersion(ArmorTextureValues texture, int mcVersion) throws ValidationException, ProgrammingValidationException {
+    protected void validateExportVersion(ArmorTexture texture, int mcVersion) throws ValidationException, ProgrammingValidationException {
         Validation.scope(
                 "Armor texture " + texture.getName(),
                 () -> texture.validateExportVersion(mcVersion)
@@ -53,12 +53,12 @@ public class ArmorTextureManager extends ModelManager<ArmorTextureValues, ArmorT
     }
 
     @Override
-    protected void validateCreation(ArmorTextureValues values) throws ValidationException, ProgrammingValidationException {
+    protected void validateCreation(ArmorTexture values) throws ValidationException, ProgrammingValidationException {
         values.validate(itemSet, null);
     }
 
     @Override
-    protected void validate(ArmorTextureValues texture) throws ValidationException, ProgrammingValidationException {
+    protected void validate(ArmorTexture texture) throws ValidationException, ProgrammingValidationException {
         Validation.scope(
                 "Armor texture " + texture.getName(),
                 () -> texture.validate(itemSet, texture.getName())
@@ -66,7 +66,7 @@ public class ArmorTextureManager extends ModelManager<ArmorTextureValues, ArmorT
     }
 
     @Override
-    protected void validateChange(ArmorTextureReference reference, ArmorTextureValues newValues) throws ValidationException, ProgrammingValidationException {
+    protected void validateChange(ArmorTextureReference reference, ArmorTexture newValues) throws ValidationException, ProgrammingValidationException {
         newValues.validate(itemSet, reference.get().getName());
     }
 
@@ -78,7 +78,7 @@ public class ArmorTextureManager extends ModelManager<ArmorTextureValues, ArmorT
         }
     }
 
-    public Optional<ArmorTextureValues> get(String name) {
+    public Optional<ArmorTexture> get(String name) {
         return CollectionHelper.find(elements, texture -> texture.getValues().getName(), name).map(Model::getValues);
     }
 }

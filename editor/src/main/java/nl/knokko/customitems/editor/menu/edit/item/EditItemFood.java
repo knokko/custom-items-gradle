@@ -4,10 +4,10 @@ import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.sound.EditSound;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.item.AttributeModifierValues;
-import nl.knokko.customitems.item.CIFoodType;
-import nl.knokko.customitems.item.CustomFoodValues;
-import nl.knokko.customitems.item.CustomItemType;
+import nl.knokko.customitems.item.KciAttributeModifier;
+import nl.knokko.customitems.item.VFoodType;
+import nl.knokko.customitems.item.KciFood;
+import nl.knokko.customitems.item.KciItemType;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
@@ -17,17 +17,17 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
-public class EditItemFood extends EditItemBase<CustomFoodValues> {
+public class EditItemFood extends EditItemBase<KciFood> {
 
-    private static final AttributeModifierValues EXAMPLE_ATTRIBUTE_MODIFIER = AttributeModifierValues.createQuick(
-            AttributeModifierValues.Attribute.ATTACK_DAMAGE,
-            AttributeModifierValues.Slot.MAINHAND,
-            AttributeModifierValues.Operation.ADD,
+    private static final KciAttributeModifier EXAMPLE_ATTRIBUTE_MODIFIER = KciAttributeModifier.createQuick(
+            KciAttributeModifier.Attribute.ATTACK_DAMAGE,
+            KciAttributeModifier.Slot.MAINHAND,
+            KciAttributeModifier.Operation.ADD,
             3.0
     );
 
     public EditItemFood(
-            EditMenu menu, CustomFoodValues oldValues, ItemReference toModify
+            EditMenu menu, KciFood oldValues, ItemReference toModify
     ) {
         super(menu, oldValues, toModify);
     }
@@ -36,9 +36,9 @@ public class EditItemFood extends EditItemBase<CustomFoodValues> {
         addComponent(new WrapperComponent<GuiComponent>(component) {
             @Override
             public boolean isActive() {
-                if (currentValues.getItemType() != CustomItemType.OTHER) return true;
+                if (currentValues.getItemType() != KciItemType.OTHER) return true;
 
-                for (CIFoodType food : CIFoodType.values()) {
+                for (VFoodType food : VFoodType.values()) {
                     if (food.name().equals(currentValues.getOtherMaterial().name())) return false;
                 }
 
@@ -96,12 +96,12 @@ public class EditItemFood extends EditItemBase<CustomFoodValues> {
     }
 
     @Override
-    protected AttributeModifierValues getExampleAttributeModifier() {
+    protected KciAttributeModifier getExampleAttributeModifier() {
         return EXAMPLE_ATTRIBUTE_MODIFIER;
     }
 
     @Override
-    protected CustomItemType.Category getCategory() {
-        return CustomItemType.Category.FOOD;
+    protected KciItemType.Category getCategory() {
+        return KciItemType.Category.FOOD;
     }
 }

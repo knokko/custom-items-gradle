@@ -6,9 +6,9 @@ import java.util.Collection;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.container.KciContainer;
 import nl.knokko.customitems.container.slot.*;
-import nl.knokko.customitems.container.slot.display.SlotDisplayValues;
+import nl.knokko.customitems.container.slot.display.SlotDisplay;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.StringLength;
 import nl.knokko.customitems.itemset.ItemSet;
@@ -24,10 +24,10 @@ public class SlotComponent implements GuiComponent {
 	
 	private final GuiComponent outerMenu;
 	private final ItemSet set;
-	private final CustomContainerValues container;
+	private final KciContainer container;
 	private final int x, y;
-	private final Supplier<ContainerSlotValues> getSlotToPaste;
-	private final Consumer<ContainerSlotValues> copySlot;
+	private final Supplier<ContainerSlot> getSlotToPaste;
+	private final Consumer<ContainerSlot> copySlot;
 	
 	private GuiTexture topTextTexture;
 	private GuiTexture bottomTextTexture;
@@ -35,8 +35,8 @@ public class SlotComponent implements GuiComponent {
 	private GuiComponentState state;
 	
 	public SlotComponent(
-            GuiComponent outerMenu, ItemSet set, CustomContainerValues container, int x, int y,
-            Supplier<ContainerSlotValues> getSlotToPaste, Consumer<ContainerSlotValues> copySlot) {
+			GuiComponent outerMenu, ItemSet set, KciContainer container, int x, int y,
+			Supplier<ContainerSlot> getSlotToPaste, Consumer<ContainerSlot> copySlot) {
 		this.outerMenu = outerMenu;
 		this.set = set;
 		this.container = container;
@@ -46,61 +46,61 @@ public class SlotComponent implements GuiComponent {
 		this.copySlot = copySlot;
 	}
 	
-	private void setSlot(ContainerSlotValues newSlot) {
+	private void setSlot(ContainerSlot newSlot) {
 		this.container.setSlot(this.x, this.y, newSlot);
 		String topText;
 		String bottomText;
-		if (newSlot instanceof EnergyIndicatorSlotValues) {
-			EnergyIndicatorSlotValues indicatorSlot = (EnergyIndicatorSlotValues) newSlot;
+		if (newSlot instanceof EnergyIndicatorSlot) {
+			EnergyIndicatorSlot indicatorSlot = (EnergyIndicatorSlot) newSlot;
 			topText = "energy ind. ";
 			bottomText = indicatorSlot.getEnergyType().getName();
-		} else if (newSlot instanceof DecorationSlotValues) {
-			DecorationSlotValues decorationSlot = (DecorationSlotValues) newSlot;
+		} else if (newSlot instanceof DecorationSlot) {
+			DecorationSlot decorationSlot = (DecorationSlot) newSlot;
 			topText = "decoration";
 			bottomText = decorationSlot.getDisplay().toString();
-		} else if (newSlot instanceof LinkSlotValues) {
-			LinkSlotValues linkSlot = (LinkSlotValues) newSlot;
+		} else if (newSlot instanceof LinkSlot) {
+			LinkSlot linkSlot = (LinkSlot) newSlot;
 			topText = "link";
 			bottomText = linkSlot.getLinkedContainer().getName();
-		} else if (newSlot instanceof ActionSlotValues) {
-			ActionSlotValues actionSlot = (ActionSlotValues) newSlot;
+		} else if (newSlot instanceof ActionSlot) {
+			ActionSlot actionSlot = (ActionSlot) newSlot;
 			topText = "script action";
 			bottomText = actionSlot.getActionID();
-		} else if (newSlot instanceof EmptySlotValues) {
+		} else if (newSlot instanceof EmptySlot) {
 			topText = "empty";
 			bottomText = "";
-		} else if (newSlot instanceof FuelSlotValues) {
-			FuelSlotValues fuelSlot = (FuelSlotValues) newSlot;
+		} else if (newSlot instanceof FuelSlot) {
+			FuelSlot fuelSlot = (FuelSlot) newSlot;
 			topText = "fuel " + fuelSlot.getName();
 			bottomText = fuelSlot.getFuelRegistry().getName();
-		} else if (newSlot instanceof FuelIndicatorSlotValues) {
-			FuelIndicatorSlotValues indicatorSlot = (FuelIndicatorSlotValues) newSlot;
+		} else if (newSlot instanceof FuelIndicatorSlot) {
+			FuelIndicatorSlot indicatorSlot = (FuelIndicatorSlot) newSlot;
 			topText = "fuel ind.";
 			bottomText = indicatorSlot.getFuelSlotName();
-		} else if (newSlot instanceof InputSlotValues) {
-			InputSlotValues inputSlot = (InputSlotValues) newSlot;
+		} else if (newSlot instanceof InputSlot) {
+			InputSlot inputSlot = (InputSlot) newSlot;
 			topText = "input";
 			bottomText = inputSlot.getName();
-		} else if (newSlot instanceof OutputSlotValues) {
-			OutputSlotValues outputSlot = (OutputSlotValues) newSlot;
+		} else if (newSlot instanceof OutputSlot) {
+			OutputSlot outputSlot = (OutputSlot) newSlot;
 			topText = "output";
 			bottomText = outputSlot.getName();
-		} else if (newSlot instanceof ProgressIndicatorSlotValues) {
-			ProgressIndicatorSlotValues indicatorSlot = (ProgressIndicatorSlotValues) newSlot;
+		} else if (newSlot instanceof ProgressIndicatorSlot) {
+			ProgressIndicatorSlot indicatorSlot = (ProgressIndicatorSlot) newSlot;
 			topText = "progress ind. " + indicatorSlot.getIndicatorDomain().getBegin() + "% to "
 					+ indicatorSlot.getIndicatorDomain().getEnd() + "%";
 			bottomText = indicatorSlot.getDisplay().toString();
-		} else if (newSlot instanceof StorageSlotValues) {
-			StorageSlotValues storageSlot = (StorageSlotValues)	newSlot;
+		} else if (newSlot instanceof StorageSlot) {
+			StorageSlot storageSlot = (StorageSlot)	newSlot;
 			topText = "storage";
-			SlotDisplayValues placeHolder = storageSlot.getPlaceholder();
+			SlotDisplay placeHolder = storageSlot.getPlaceholder();
 			if (placeHolder != null) {
 				bottomText = placeHolder.toString();
 			} else {
 				bottomText = "";
 			}
-		} else if (newSlot instanceof ManualOutputSlotValues) {
-			ManualOutputSlotValues outputSlot = (ManualOutputSlotValues) newSlot;
+		} else if (newSlot instanceof ManualOutputSlot) {
+			ManualOutputSlot outputSlot = (ManualOutputSlot) newSlot;
 			topText = "manual output";
 			bottomText = outputSlot.getName();
 		} else {
@@ -145,7 +145,7 @@ public class SlotComponent implements GuiComponent {
 
 	@Override
 	public void click(float clickX, float clickY, int button) {
-		Collection<ContainerSlotValues> otherSlots = new ArrayList<>(this.container.getWidth() * this.container.getHeight() - 1);
+		Collection<ContainerSlot> otherSlots = new ArrayList<>(this.container.getWidth() * this.container.getHeight() - 1);
 		for (int slotX = 0; slotX < this.container.getWidth(); slotX++) {
 			for (int slotY = 0; slotY < this.container.getHeight(); slotY++) {
 				if (slotX != this.x || slotY != this.y) {
@@ -172,7 +172,7 @@ public class SlotComponent implements GuiComponent {
 			if (keyCode == KeyCode.KEY_C) {
 				copySlot.accept(this.container.getSlot(this.x, this.y));
 			} else if (keyCode == KeyCode.KEY_P) {
-				ContainerSlotValues maybeNewSlot = getSlotToPaste.get();
+				ContainerSlot maybeNewSlot = getSlotToPaste.get();
 				if (maybeNewSlot != null) {
 					setSlot(maybeNewSlot);
 				}

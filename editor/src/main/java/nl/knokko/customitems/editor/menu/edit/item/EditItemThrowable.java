@@ -3,9 +3,9 @@ package nl.knokko.customitems.editor.menu.edit.item;
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.item.AttributeModifierValues;
-import nl.knokko.customitems.item.CustomItemType;
-import nl.knokko.customitems.item.CustomThrowableValues;
+import nl.knokko.customitems.item.KciAttributeModifier;
+import nl.knokko.customitems.item.KciItemType;
+import nl.knokko.customitems.item.KciThrowable;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.text.EagerIntEditField;
@@ -13,18 +13,18 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
-public class EditItemThrowable extends EditItemBase<CustomThrowableValues> {
+public class EditItemThrowable extends EditItemBase<KciThrowable> {
 
-    private static final AttributeModifierValues EXAMPLE = AttributeModifierValues.createQuick(
-            AttributeModifierValues.Attribute.ATTACK_DAMAGE,
-            AttributeModifierValues.Slot.MAINHAND,
-            AttributeModifierValues.Operation.ADD, 1.5
+    private static final KciAttributeModifier EXAMPLE = KciAttributeModifier.createQuick(
+            KciAttributeModifier.Attribute.ATTACK_DAMAGE,
+            KciAttributeModifier.Slot.MAINHAND,
+            KciAttributeModifier.Operation.ADD, 1.5
     );
 
     private static final float BUTTON_X2 = 0.75f;
     private static final float LABEL_X2 = BUTTON_X2 - 0.01f;
 
-    public EditItemThrowable(EditMenu menu, CustomThrowableValues oldValues, ItemReference toModify) {
+    public EditItemThrowable(EditMenu menu, KciThrowable oldValues, ItemReference toModify) {
         super(menu, oldValues, toModify);
     }
 
@@ -76,12 +76,12 @@ public class EditItemThrowable extends EditItemBase<CustomThrowableValues> {
     }
 
     @Override
-    protected AttributeModifierValues getExampleAttributeModifier() {
+    protected KciAttributeModifier getExampleAttributeModifier() {
         return EXAMPLE;
     }
 
     @Override
-    protected CustomItemType.Category getCategory() {
-        return CustomItemType.Category.THROWABLE;
+    protected KciItemType.Category getCategory() {
+        return KciItemType.Category.THROWABLE;
     }
 }

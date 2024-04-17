@@ -24,19 +24,19 @@ public class CreateFuelIndicatorSlot extends GuiMenu {
 
 	private final GuiComponent returnMenu;
 	private final ItemSet itemSet;
-	private final Collection<ContainerSlotValues> existingSlots;
-	private final FuelIndicatorSlotValues currentValues;
-	private final Consumer<ContainerSlotValues> submitSlot;
+	private final Collection<ContainerSlot> existingSlots;
+	private final FuelIndicatorSlot currentValues;
+	private final Consumer<ContainerSlot> submitSlot;
 	private final DynamicTextComponent errorComponent;
 	
 	public CreateFuelIndicatorSlot(
-            GuiComponent returnMenu, ItemSet itemSet, Collection<ContainerSlotValues> existingSlots,
-            Consumer<ContainerSlotValues> submitSlot
+            GuiComponent returnMenu, ItemSet itemSet, Collection<ContainerSlot> existingSlots,
+            Consumer<ContainerSlot> submitSlot
 	) {
 		this.returnMenu = returnMenu;
 		this.itemSet = itemSet;
 		this.existingSlots = existingSlots;
-		this.currentValues = new FuelIndicatorSlotValues(true);
+		this.currentValues = new FuelIndicatorSlot(true);
 		this.submitSlot = submitSlot;
 		this.errorComponent = new DynamicTextComponent("", EditProps.ERROR);
 	}
@@ -62,12 +62,12 @@ public class CreateFuelIndicatorSlot extends GuiMenu {
 		addComponent(
 				CollectionSelect.createButton(
 						existingSlots.stream().filter(
-								slot -> slot instanceof FuelSlotValues
+								slot -> slot instanceof FuelSlot
 						).map(
-								slot -> (FuelSlotValues) slot
+								slot -> (FuelSlot) slot
 						).collect(Collectors.toList()),
 						newSlot -> currentValues.setFuelSlotName(newSlot.getName()),
-						FuelSlotValues::getName, null, false
+						FuelSlot::getName, null, false
 				), 0.425f, 0.7f, 0.6f, 0.75f
 		);
 		

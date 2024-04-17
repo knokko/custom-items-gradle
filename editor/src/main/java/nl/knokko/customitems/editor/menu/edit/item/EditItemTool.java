@@ -5,7 +5,7 @@ import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.EditIngredient;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.*;
-import nl.knokko.customitems.item.CustomItemType.Category;
+import nl.knokko.customitems.item.KciItemType.Category;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.text.EagerIntEditField;
@@ -14,19 +14,19 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
-public class EditItemTool<V extends CustomToolValues> extends EditItemBase<V> {
+public class EditItemTool<V extends KciTool> extends EditItemBase<V> {
 
 	public EditItemTool(EditMenu menu, V oldValues, ItemReference toModify) {
 		super(menu, oldValues, toModify);
 	}
 	
 	@Override
-	protected AttributeModifierValues getExampleAttributeModifier() {
-		double attackDamage = CustomItemDamage.getDefaultAttackDamage(currentValues.getItemType());
-		return AttributeModifierValues.createQuick(
-				AttributeModifierValues.Attribute.ATTACK_DAMAGE,
-				AttributeModifierValues.Slot.MAINHAND,
-				AttributeModifierValues.Operation.ADD,
+	protected KciAttributeModifier getExampleAttributeModifier() {
+		double attackDamage = DefaultAttackDamage.get(currentValues.getItemType());
+		return KciAttributeModifier.createQuick(
+				KciAttributeModifier.Attribute.ATTACK_DAMAGE,
+				KciAttributeModifier.Slot.MAINHAND,
+				KciAttributeModifier.Operation.ADD,
 				attackDamage
 		);
 	}

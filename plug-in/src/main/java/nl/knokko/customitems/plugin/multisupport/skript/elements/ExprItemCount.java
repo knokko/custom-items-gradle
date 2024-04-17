@@ -6,7 +6,7 @@ import ch.njol.skript.lang.ExpressionType;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import org.bukkit.event.Event;
@@ -34,7 +34,7 @@ public class ExprItemCount extends SimpleExpression<Integer> {
         int amount = 0;
 
         for (ItemStack content : contents) {
-            CustomItemValues customItem = itemSet.getItem(content);
+            KciItem customItem = itemSet.getItem(content);
             if (customItem != null && customItem.getName().equals(itemName)) {
                 amount += content.getAmount();
             }

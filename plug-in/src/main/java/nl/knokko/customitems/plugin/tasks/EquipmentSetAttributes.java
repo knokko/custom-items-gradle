@@ -1,7 +1,7 @@
 package nl.knokko.customitems.plugin.tasks;
 
-import nl.knokko.customitems.item.AttributeModifierValues;
-import nl.knokko.customitems.item.equipment.EquipmentBonusValues;
+import nl.knokko.customitems.item.KciAttributeModifier;
+import nl.knokko.customitems.item.equipment.EquipmentSetBonus;
 import nl.knokko.customitems.plugin.util.EquipmentSetHelper;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import org.bukkit.Bukkit;
@@ -27,7 +27,7 @@ public class EquipmentSetAttributes {
                      EntityEquipment equipment = entity.getEquipment();
                      if (equipment != null) {
 
-                         Collection<EquipmentBonusValues> bonuses = EquipmentSetHelper.getEquipmentBonuses(equipment, itemSet);
+                         Collection<EquipmentSetBonus> bonuses = EquipmentSetHelper.getEquipmentBonuses(equipment, itemSet);
                          clearExistingAttributeBonuses(entity);
                          applyAttributeBonuses(entity, bonuses);
                      }
@@ -55,9 +55,9 @@ public class EquipmentSetAttributes {
         }
     }
 
-    private static void applyAttributeBonuses(LivingEntity entity, Collection<EquipmentBonusValues> bonuses) {
-        for (EquipmentBonusValues bonus : bonuses) {
-            for (AttributeModifierValues attributeModifier : bonus.getAttributeModifiers()) {
+    private static void applyAttributeBonuses(LivingEntity entity, Collection<EquipmentSetBonus> bonuses) {
+        for (EquipmentSetBonus bonus : bonuses) {
+            for (KciAttributeModifier attributeModifier : bonus.getAttributeModifiers()) {
 
                 // This is not exactly neat, but should work
                 String rawAttributeName = "GENERIC_" + attributeModifier.getAttribute().name();

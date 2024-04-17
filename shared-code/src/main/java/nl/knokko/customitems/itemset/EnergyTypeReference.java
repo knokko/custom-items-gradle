@@ -1,17 +1,17 @@
 package nl.knokko.customitems.itemset;
 
-import nl.knokko.customitems.container.energy.EnergyTypeValues;
+import nl.knokko.customitems.container.energy.EnergyType;
 
 import java.util.Collection;
 import java.util.UUID;
 
-public class EnergyTypeReference extends UUIDBasedReference<EnergyTypeValues> {
+public class EnergyTypeReference extends UUIDBasedReference<EnergyType> {
 
     EnergyTypeReference(UUID id, ItemSet itemSet) {
         super(id, itemSet);
     }
 
-    EnergyTypeReference(Model<EnergyTypeValues> model) {
+    EnergyTypeReference(Model<EnergyType> model) {
         super(model);
     }
 
@@ -21,12 +21,12 @@ public class EnergyTypeReference extends UUIDBasedReference<EnergyTypeValues> {
     }
 
     @Override
-    Collection<Model<EnergyTypeValues>> getCollection() {
+    Collection<Model<EnergyType>> getCollection() {
         return itemSet.energyTypes.elements;
     }
 
     @Override
-    UUID extractIdentity(EnergyTypeValues values) {
+    UUID extractIdentity(EnergyType values) {
         return values.getId();
     }
 }

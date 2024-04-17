@@ -17,7 +17,7 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.BUTTON;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.HOVER;
 
-public class ItemCollectionEdit extends DedicatedCollectionEdit<CustomItemValues, ItemReference> {
+public class ItemCollectionEdit extends DedicatedCollectionEdit<KciItem, ItemReference> {
 	
 	private final EditMenu menu;
 
@@ -47,46 +47,46 @@ public class ItemCollectionEdit extends DedicatedCollectionEdit<CustomItemValues
 
 	private GuiComponent createEditMenu(ItemReference itemReference, boolean copy) {
 		ItemReference toModify = copy ? null : itemReference;
-		CustomItemValues itemValues = itemReference.get();
+		KciItem itemValues = itemReference.get();
 
-		if (itemValues instanceof CustomBowValues)
-			return new EditItemBow(menu, (CustomBowValues) itemValues, toModify);
-		else if (itemValues instanceof CustomCrossbowValues)
-			return new EditItemCrossbow(menu, (CustomCrossbowValues) itemValues, toModify);
-		else if (itemValues instanceof CustomHelmet3dValues)
-			return new EditItemHelmet3D(menu, (CustomHelmet3dValues) itemValues, toModify);
-		else if (itemValues instanceof CustomElytraValues)
-			return new EditItemElytra(menu, (CustomElytraValues) itemValues, toModify);
-		else if (itemValues instanceof CustomArmorValues)
-			return new EditItemArmor<>(menu, (CustomArmorValues) itemValues, toModify);
-		else if (itemValues instanceof CustomShearsValues)
-			return new EditItemShears(menu, (CustomShearsValues) itemValues, toModify);
-		else if (itemValues instanceof CustomHoeValues)
-			return new EditItemHoe(menu, (CustomHoeValues) itemValues, toModify);
-		else if (itemValues instanceof CustomShieldValues)
-			return new EditItemShield(menu, (CustomShieldValues) itemValues, toModify);
-		else if (itemValues instanceof CustomTridentValues)
-			return new EditItemTrident(menu, (CustomTridentValues) itemValues, toModify);
-		else if (itemValues instanceof CustomToolValues)
-			return new EditItemTool<>(menu, (CustomToolValues) itemValues, toModify);
-		else if (itemValues instanceof CustomWandValues)
-			return new EditItemWand(menu, (CustomWandValues) itemValues, toModify);
-		else if (itemValues instanceof CustomGunValues)
-			return new EditItemGun(menu, (CustomGunValues) itemValues, toModify);
-		else if (itemValues instanceof CustomThrowableValues)
-			return new EditItemThrowable(menu, (CustomThrowableValues) itemValues, toModify);
-		else if (itemValues instanceof CustomPocketContainerValues)
-			return new EditItemPocketContainer(menu, (CustomPocketContainerValues) itemValues, toModify);
-		else if (itemValues instanceof SimpleCustomItemValues)
-			return new EditItemSimple(menu, (SimpleCustomItemValues) itemValues, toModify);
-		else if (itemValues instanceof CustomFoodValues)
-			return new EditItemFood(menu, (CustomFoodValues) itemValues, toModify);
-		else if (itemValues instanceof CustomArrowValues)
-			return new EditItemArrow(menu, (CustomArrowValues) itemValues, toModify);
-		else if (itemValues instanceof CustomBlockItemValues)
-			return new EditItemBlock(menu, (CustomBlockItemValues) itemValues, toModify);
-		else if (itemValues instanceof CustomMusicDiscValues)
-			return new EditItemMusicDisc(menu, (CustomMusicDiscValues) itemValues, toModify);
+		if (itemValues instanceof KciBow)
+			return new EditItemBow(menu, (KciBow) itemValues, toModify);
+		else if (itemValues instanceof KciCrossbow)
+			return new EditItemCrossbow(menu, (KciCrossbow) itemValues, toModify);
+		else if (itemValues instanceof Kci3dHelmet)
+			return new EditItemHelmet3D(menu, (Kci3dHelmet) itemValues, toModify);
+		else if (itemValues instanceof KciElytra)
+			return new EditItemElytra(menu, (KciElytra) itemValues, toModify);
+		else if (itemValues instanceof KciArmor)
+			return new EditItemArmor<>(menu, (KciArmor) itemValues, toModify);
+		else if (itemValues instanceof KciShears)
+			return new EditItemShears(menu, (KciShears) itemValues, toModify);
+		else if (itemValues instanceof KciHoe)
+			return new EditItemHoe(menu, (KciHoe) itemValues, toModify);
+		else if (itemValues instanceof KciShield)
+			return new EditItemShield(menu, (KciShield) itemValues, toModify);
+		else if (itemValues instanceof KciTrident)
+			return new EditItemTrident(menu, (KciTrident) itemValues, toModify);
+		else if (itemValues instanceof KciTool)
+			return new EditItemTool<>(menu, (KciTool) itemValues, toModify);
+		else if (itemValues instanceof KciWand)
+			return new EditItemWand(menu, (KciWand) itemValues, toModify);
+		else if (itemValues instanceof KciGun)
+			return new EditItemGun(menu, (KciGun) itemValues, toModify);
+		else if (itemValues instanceof KciThrowable)
+			return new EditItemThrowable(menu, (KciThrowable) itemValues, toModify);
+		else if (itemValues instanceof KciPocketContainer)
+			return new EditItemPocketContainer(menu, (KciPocketContainer) itemValues, toModify);
+		else if (itemValues instanceof KciSimpleItem)
+			return new EditItemSimple(menu, (KciSimpleItem) itemValues, toModify);
+		else if (itemValues instanceof KciFood)
+			return new EditItemFood(menu, (KciFood) itemValues, toModify);
+		else if (itemValues instanceof KciArrow)
+			return new EditItemArrow(menu, (KciArrow) itemValues, toModify);
+		else if (itemValues instanceof KciBlockItem)
+			return new EditItemBlock(menu, (KciBlockItem) itemValues, toModify);
+		else if (itemValues instanceof KciMusicDisc)
+			return new EditItemMusicDisc(menu, (KciMusicDisc) itemValues, toModify);
 		else
 			throw new IllegalArgumentException("Unsupported custom item class: " + itemValues.getClass());
 	}
@@ -117,17 +117,17 @@ public class ItemCollectionEdit extends DedicatedCollectionEdit<CustomItemValues
 	}
 
 	@Override
-	public String getModelLabel(CustomItemValues item) {
+	public String getModelLabel(KciItem item) {
 		return item.getName();
 	}
 
 	@Override
-	public BufferedImage getModelIcon(CustomItemValues item) {
+	public BufferedImage getModelIcon(KciItem item) {
 		return item.getTexture().getImage();
 	}
 
 	@Override
-	protected boolean canEditModel(CustomItemValues model) {
+	protected boolean canEditModel(KciItem model) {
 		return true;
 	}
 }

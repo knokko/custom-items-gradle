@@ -1,6 +1,6 @@
 package nl.knokko.customitems.plugin.command;
 
-import nl.knokko.customitems.block.CustomBlockValues;
+import nl.knokko.customitems.block.KciBlock;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
@@ -44,7 +44,7 @@ public class CommandCustomItemsSetBlock {
             return;
         }
 
-        Optional<CustomBlockValues> block = itemSet.get().blocks.get(args[1]);
+        Optional<KciBlock> block = itemSet.get().blocks.get(args[1]);
 
         if (!block.isPresent()) {
             if (enableOutput) {

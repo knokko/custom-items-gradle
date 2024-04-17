@@ -6,20 +6,20 @@ import java.util.function.Consumer;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.menu.edit.collection.InlineCollectionEdit;
-import nl.knokko.customitems.item.AttributeModifierValues;
+import nl.knokko.customitems.item.KciAttributeModifier;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.image.ImageButton;
 import nl.knokko.gui.component.text.EagerFloatEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
-public class AttributeCollectionEdit extends InlineCollectionEdit<AttributeModifierValues> {
+public class AttributeCollectionEdit extends InlineCollectionEdit<KciAttributeModifier> {
 
-	private final AttributeModifierValues exampleModifier;
+	private final KciAttributeModifier exampleModifier;
 	private final boolean showSlot;
 	
-	public AttributeCollectionEdit(Collection<AttributeModifierValues> currentCollection,
-			Consumer<Collection<AttributeModifierValues>> onApply,
-			GuiComponent returnMenu, AttributeModifierValues exampleModifier, boolean showSlot) {
+	public AttributeCollectionEdit(Collection<KciAttributeModifier> currentCollection,
+                                   Consumer<Collection<KciAttributeModifier>> onApply,
+                                   GuiComponent returnMenu, KciAttributeModifier exampleModifier, boolean showSlot) {
 		super(returnMenu, currentCollection, onApply);
 		this.exampleModifier = exampleModifier;
 		this.showSlot = showSlot;
@@ -27,14 +27,14 @@ public class AttributeCollectionEdit extends InlineCollectionEdit<AttributeModif
 
 	@Override
 	protected void addRowComponents(int itemIndex, float minY, float maxY) {
-		AttributeModifierValues original = ownCollection.get(itemIndex);
-		GuiComponent attributeButton = EnumSelect.createSelectButton(AttributeModifierValues.Attribute.class, newAttribute -> {
+		KciAttributeModifier original = ownCollection.get(itemIndex);
+		GuiComponent attributeButton = EnumSelect.createSelectButton(KciAttributeModifier.Attribute.class, newAttribute -> {
 			ownCollection.get(itemIndex).setAttribute(newAttribute);
 		}, original.getAttribute());
-		GuiComponent slotButton = EnumSelect.createSelectButton(AttributeModifierValues.Slot.class, newSlot -> {
+		GuiComponent slotButton = EnumSelect.createSelectButton(KciAttributeModifier.Slot.class, newSlot -> {
 			ownCollection.get(itemIndex).setSlot(newSlot);
 		}, original.getSlot());
-		GuiComponent operationButton = EnumSelect.createSelectButton(AttributeModifierValues.Operation.class, newOperation -> {
+		GuiComponent operationButton = EnumSelect.createSelectButton(KciAttributeModifier.Operation.class, newOperation -> {
 			ownCollection.get(itemIndex).setOperation(newOperation);
 		}, original.getOperation());
 		addComponent(new ImageButton(deleteBase, deleteHover, () -> {
@@ -51,7 +51,7 @@ public class AttributeCollectionEdit extends InlineCollectionEdit<AttributeModif
 	}
 
 	@Override
-	protected AttributeModifierValues addNew() {
+	protected KciAttributeModifier addNew() {
 		return exampleModifier.copy(true);
 	}
 

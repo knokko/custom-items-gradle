@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.resourcepack.geyser;
 
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.texture.BowTextureValues;
+import nl.knokko.customitems.texture.BowTexture;
 
 import java.io.IOException;
 import java.util.zip.ZipOutputStream;
@@ -17,7 +17,7 @@ class GeyserPackControllerGenerator {
     }
 
     void generateBow() throws IOException {
-        if (itemSet.textures.stream().anyMatch(texture -> texture instanceof BowTextureValues)) {
+        if (itemSet.textures.stream().anyMatch(texture -> texture instanceof BowTexture)) {
             IOHelper.propagate(
                     "kci_bow.render_controllers.json", zipOutput,
                     "render_controllers/kci_bow.render_controllers.json", null

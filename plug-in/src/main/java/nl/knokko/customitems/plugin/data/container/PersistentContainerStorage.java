@@ -1,7 +1,7 @@
 package nl.knokko.customitems.plugin.data.container;
 
 import nl.knokko.customitems.bithelper.BitOutput;
-import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.container.KciContainer;
 import nl.knokko.customitems.container.slot.*;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.container.ContainerInstance;
@@ -59,8 +59,8 @@ public class PersistentContainerStorage {
             for (int x = 0; x < 9; x++) {
                 for (int y = 0; y < instance.getType().getHeight(); y++) {
 
-                    ContainerSlotValues slot = instance.getType().getSlot(x, y);
-                    if (slot instanceof InputSlotValues || slot instanceof OutputSlotValues || slot instanceof FuelSlotValues || slot instanceof StorageSlotValues) {
+                    ContainerSlot slot = instance.getType().getSlot(x, y);
+                    if (slot instanceof InputSlot || slot instanceof OutputSlot || slot instanceof FuelSlot || slot instanceof StorageSlot) {
 
                         int invIndex = x + 9 * y;
                         if (!ItemUtils.isEmpty(instance.getInventory().getItem(invIndex))) {
@@ -86,7 +86,7 @@ public class PersistentContainerStorage {
     }
 
     public int destroyAtStringHost(
-            CustomContainerValues prototype, String stringHost, Location dropLocation
+            KciContainer prototype, String stringHost, Location dropLocation
     ) {
         int numDestroyedContainers = 0;
         ItemSetWrapper itemSet = CustomItemsPlugin.getInstance().getSet();

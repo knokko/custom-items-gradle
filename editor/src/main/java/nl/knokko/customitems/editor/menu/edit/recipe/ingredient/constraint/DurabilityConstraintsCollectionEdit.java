@@ -3,7 +3,7 @@ package nl.knokko.customitems.editor.menu.edit.recipe.ingredient.constraint;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.menu.edit.collection.InlineCollectionEdit;
 import nl.knokko.customitems.recipe.ingredient.constraint.ConstraintOperator;
-import nl.knokko.customitems.recipe.ingredient.constraint.DurabilityConstraintValues;
+import nl.knokko.customitems.recipe.ingredient.constraint.DurabilityConstraint;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerFloatEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
@@ -14,18 +14,18 @@ import java.util.function.Consumer;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
-public class DurabilityConstraintsCollectionEdit extends InlineCollectionEdit<DurabilityConstraintValues> {
+public class DurabilityConstraintsCollectionEdit extends InlineCollectionEdit<DurabilityConstraint> {
 
     public DurabilityConstraintsCollectionEdit(
-            GuiComponent returnMenu, Collection<DurabilityConstraintValues> currentCollection,
-            Consumer<Collection<DurabilityConstraintValues>> onApply
+            GuiComponent returnMenu, Collection<DurabilityConstraint> currentCollection,
+            Consumer<Collection<DurabilityConstraint>> onApply
     ) {
         super(returnMenu, currentCollection, onApply);
     }
 
     @Override
     protected void addRowComponents(int itemIndex, float minY, float maxY) {
-        DurabilityConstraintValues constraint = ownCollection.get(itemIndex);
+        DurabilityConstraint constraint = ownCollection.get(itemIndex);
 
         addComponent(new DynamicTextComponent("Durability", LABEL), 0.4f, minY, 0.55f, maxY);
 
@@ -45,8 +45,8 @@ public class DurabilityConstraintsCollectionEdit extends InlineCollectionEdit<Du
     }
 
     @Override
-    protected DurabilityConstraintValues addNew() {
-        return new DurabilityConstraintValues(true);
+    protected DurabilityConstraint addNew() {
+        return new DurabilityConstraint(true);
     }
 
     @Override

@@ -1,12 +1,12 @@
 package nl.knokko.customitems.editor.menu.edit.container;
 
-import nl.knokko.customitems.container.CustomContainerHost;
-import nl.knokko.customitems.container.VanillaContainerType;
-import nl.knokko.customitems.drops.CIEntityType;
+import nl.knokko.customitems.container.ContainerHost;
+import nl.knokko.customitems.container.VContainerType;
+import nl.knokko.customitems.drops.VEntityType;
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.item.CIMaterial;
+import nl.knokko.customitems.item.VMaterial;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -21,11 +21,11 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 public class ChooseContainerHost extends GuiMenu {
 
     private final GuiComponent returnMenu;
-    private final Consumer<CustomContainerHost> onSelect;
+    private final Consumer<ContainerHost> onSelect;
     private final ItemSet itemSet;
 
     public ChooseContainerHost(
-            GuiComponent returnMenu, Consumer<CustomContainerHost> onSelect, ItemSet itemSet
+            GuiComponent returnMenu, Consumer<ContainerHost> onSelect, ItemSet itemSet
     ) {
         this.returnMenu = returnMenu;
         this.onSelect = onSelect;
@@ -41,9 +41,9 @@ public class ChooseContainerHost extends GuiMenu {
 
         addComponent(new DynamicTextButton("Choose vanilla container", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new EnumSelect<>(
-                    VanillaContainerType.class,
-                    chosenType -> onSelect.accept(new CustomContainerHost(chosenType)),
-                    candidateType -> candidateType != VanillaContainerType.NONE,
+                    VContainerType.class,
+                    chosenType -> onSelect.accept(new ContainerHost(chosenType)),
+                    candidateType -> candidateType != VContainerType.NONE,
                     returnMenu
             ));
         }), 0.3f, 0.85f, 0.5f, 0.95f);
@@ -54,8 +54,8 @@ public class ChooseContainerHost extends GuiMenu {
 
         addComponent(new DynamicTextButton("Choose vanilla block", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new EnumSelect<>(
-                    CIMaterial.class,
-                    chosenMaterial -> onSelect.accept(new CustomContainerHost(chosenMaterial)),
+                    VMaterial.class,
+                    chosenMaterial -> onSelect.accept(new ContainerHost(chosenMaterial)),
                     candidateMaterial -> true,
                     returnMenu
             ));
@@ -67,8 +67,8 @@ public class ChooseContainerHost extends GuiMenu {
 
         addComponent(new DynamicTextButton("Choose vanilla entity [1.14+]", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new EnumSelect<>(
-                    CIEntityType.class,
-                    chosenEntity -> onSelect.accept(new CustomContainerHost(chosenEntity)),
+                    VEntityType.class,
+                    chosenEntity -> onSelect.accept(new ContainerHost(chosenEntity)),
                     candidateEntity -> true,
                     returnMenu
             ));
@@ -80,7 +80,7 @@ public class ChooseContainerHost extends GuiMenu {
         addComponent(new DynamicTextButton("Choose custom block", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new CollectionSelect<>(
                     itemSet.blocks.references(),
-                    chosenBlock -> onSelect.accept(new CustomContainerHost(chosenBlock)),
+                    chosenBlock -> onSelect.accept(new ContainerHost(chosenBlock)),
                     candidateBlock -> true,
                     candidateBlock -> candidateBlock.get().getName(),
                     returnMenu, false
@@ -92,7 +92,7 @@ public class ChooseContainerHost extends GuiMenu {
         );
 
         addComponent(new DynamicTextButton("Choose no host", BUTTON, HOVER, () -> {
-            onSelect.accept(new CustomContainerHost(VanillaContainerType.NONE));
+            onSelect.accept(new ContainerHost(VContainerType.NONE));
             state.getWindow().setMainComponent(returnMenu);
         }), 0.3f, 0.05f, 0.5f, 0.15f);
         addComponent(

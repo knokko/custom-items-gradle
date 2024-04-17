@@ -9,17 +9,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.item.CustomThrowableValues;
-import nl.knokko.customitems.item.CustomWandValues;
-import nl.knokko.customitems.item.SimpleCustomItemValues;
+import nl.knokko.customitems.item.KciItem;
+import nl.knokko.customitems.item.KciThrowable;
+import nl.knokko.customitems.item.KciWand;
+import nl.knokko.customitems.item.KciSimpleItem;
 import nl.knokko.customitems.item.command.ItemCommand;
 import nl.knokko.customitems.item.command.ItemCommandEvent;
 import nl.knokko.customitems.item.command.ItemCommandSystem;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
-import nl.knokko.customitems.projectile.CustomProjectileValues;
-import nl.knokko.customitems.texture.BaseTextureValues;
+import nl.knokko.customitems.projectile.KciProjectile;
+import nl.knokko.customitems.texture.KciTexture;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
@@ -35,11 +35,11 @@ public class TestPlayerData {
 
 	private ItemSetWrapper createDummyItemSet1() {
 		ItemSet rawSet = new ItemSet(ItemSet.Side.EDITOR);
-		CustomWandValues dummyWand = WITH.copy(true);
+		KciWand dummyWand = WITH.copy(true);
 		try {
-			rawSet.textures.add(BaseTextureValues.createQuick("test", new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB)));
+			rawSet.textures.add(KciTexture.createQuick("test", new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB)));
 
-			CustomProjectileValues dummyProjectile = new CustomProjectileValues(true);
+			KciProjectile dummyProjectile = new KciProjectile(true);
 			dummyProjectile.setName("test");
 			rawSet.projectiles.add(dummyProjectile);
 
@@ -61,7 +61,7 @@ public class TestPlayerData {
 		
 		// Create a dummy set
 		ItemSetWrapper wrappedSet = createDummyItemSet1();
-		CustomItemValues dummyWand = wrappedSet.getItem("with_charges_one");
+		KciItem dummyWand = wrappedSet.getItem("with_charges_one");
 
 		// This currently prints stupid messages in the console, but doesn't cause problems
 		Logger dummyLogger = Logger.getGlobal();
@@ -95,7 +95,7 @@ public class TestPlayerData {
 	private ItemSetWrapper createTestItemSet2() throws ValidationException, ProgrammingValidationException {
 		ItemSet dummyItemSet = new ItemSet(ItemSet.Side.EDITOR);
 
-		CustomProjectileValues dummyProjectile = new CustomProjectileValues(true);
+		KciProjectile dummyProjectile = new KciProjectile(true);
 		dummyProjectile.setName("dummy_projectile");
 		dummyItemSet.projectiles.add(dummyProjectile);
 
@@ -105,15 +105,15 @@ public class TestPlayerData {
 		ItemCommandSystem dummyCommandSystem = new ItemCommandSystem(true);
 		dummyCommandSystem.setCommandsFor(ItemCommandEvent.MELEE_ATTACK_ENTITY, dummyCommands);
 
-		dummyItemSet.textures.add(BaseTextureValues.createQuick("dummy_texture", new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB)));
+		dummyItemSet.textures.add(KciTexture.createQuick("dummy_texture", new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB)));
 
-		CustomWandValues dummyWand = new CustomWandValues(true);
+		KciWand dummyWand = new KciWand(true);
 		dummyWand.setName("dummy_wand");
 		dummyWand.setProjectile(dummyItemSet.projectiles.getReference(dummyProjectile.getName()));
 		dummyWand.setCommandSystem(dummyCommandSystem);
 		dummyWand.setTexture(dummyItemSet.textures.getReference("dummy_texture"));
 
-		CustomThrowableValues dummyThrowable = new CustomThrowableValues(true);
+		KciThrowable dummyThrowable = new KciThrowable(true);
 		dummyThrowable.setName("dummy_throwable");
 		dummyThrowable.setProjectile(dummyItemSet.projectiles.getReference(dummyProjectile.getName()));
 		dummyThrowable.setTexture(dummyItemSet.textures.getReference("dummy_texture"));
@@ -130,8 +130,8 @@ public class TestPlayerData {
 	@Test
 	public void testSaveLoad2() throws UnknownEncodingException, ValidationException, ProgrammingValidationException, IOException {
 		ItemSetWrapper wrappedSet = createTestItemSet2();
-		CustomItemValues dummyWand = wrappedSet.getItem("dummy_wand");
-		CustomItemValues dummyThrowable = wrappedSet.getItem("dummy_throwable");
+		KciItem dummyWand = wrappedSet.getItem("dummy_wand");
+		KciItem dummyThrowable = wrappedSet.getItem("dummy_throwable");
 
 		// This currently prints stupid messages in the console, but doesn't cause problems
 		Logger dummyLogger = Logger.getGlobal();
@@ -167,8 +167,8 @@ public class TestPlayerData {
 	@Test
 	public void testBackwardCompatibility3() throws UnknownEncodingException, ValidationException, ProgrammingValidationException {
 		ItemSetWrapper wrappedSet = createTestItemSet2();
-		CustomItemValues dummyWand = wrappedSet.getItem("dummy_wand");
-		CustomItemValues dummyThrowable = wrappedSet.getItem("dummy_throwable");
+		KciItem dummyWand = wrappedSet.getItem("dummy_wand");
+		KciItem dummyThrowable = wrappedSet.getItem("dummy_throwable");
 
 		BitInput input = IOHelper.getResourceBitInput("data/player/backward3.bin", 146);
 		PlayerData loadedPlayerData = PlayerData.load2(input, wrappedSet, Logger.getGlobal());
@@ -183,7 +183,7 @@ public class TestPlayerData {
 	@Test
 	public void testBackwardCompatibility2() throws UnknownEncodingException, ValidationException, ProgrammingValidationException{
 		ItemSetWrapper wrappedSet = createTestItemSet2();
-		CustomItemValues dummyWand = wrappedSet.getItem("dummy_wand");
+		KciItem dummyWand = wrappedSet.getItem("dummy_wand");
 
 		BitInput input = IOHelper.getResourceBitInput("data/player/backward2.bin", 120);
 		PlayerData loadedPlayerData = PlayerData.load2(input, wrappedSet, Logger.getGlobal());
@@ -197,7 +197,7 @@ public class TestPlayerData {
 	@Test
 	public void testBackwardCompatibility1() {
 		ItemSetWrapper wrappedSet = createDummyItemSet1();
-		CustomItemValues dummyWand = wrappedSet.getItem("with_charges_one");
+		KciItem dummyWand = wrappedSet.getItem("with_charges_one");
 
 		// This currently prints stupid messages in the console, but doesn't cause problems
 		Logger dummyLogger = Logger.getGlobal();
@@ -248,7 +248,7 @@ public class TestPlayerData {
 		assertTrue(data.clean(125));
 
 		// Check throwable cooldown
-		CustomThrowableValues throwable = new CustomThrowableValues(true);
+		KciThrowable throwable = new KciThrowable(true);
 		throwable.setName("test");
 		throwable.setCooldown(10);
 		assertTrue(data.shootIfAllowed(throwable, 130, false, new float[1]));
@@ -272,7 +272,7 @@ public class TestPlayerData {
 		ItemCommandSystem dummyCommandSystem = new ItemCommandSystem(true);
 		dummyCommandSystem.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_GENERAL, dummyCommands);
 
-		CustomItemValues dummyItem = new SimpleCustomItemValues(true);
+		KciItem dummyItem = new KciSimpleItem(true);
 		dummyItem.setName("dummy_item");
 		dummyItem.setCommandSystem(dummyCommandSystem);
 
@@ -286,7 +286,7 @@ public class TestPlayerData {
 	public void testManaHandling() {
 		// Create a dummy set
 		ItemSetWrapper wrappedSet = createDummyItemSet1();
-		CustomWandValues dummyWand = (CustomWandValues) wrappedSet.getItem("with_charges_one").copy(true);
+		KciWand dummyWand = (KciWand) wrappedSet.getItem("with_charges_one").copy(true);
 		dummyWand.setManaCost(5);
 
 		PlayerData data = new PlayerData();

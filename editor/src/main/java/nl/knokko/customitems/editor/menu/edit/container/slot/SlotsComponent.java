@@ -1,8 +1,8 @@
 package nl.knokko.customitems.editor.menu.edit.container.slot;
 
-import nl.knokko.customitems.container.CustomContainerValues;
-import nl.knokko.customitems.container.slot.ContainerSlotValues;
-import nl.knokko.customitems.container.slot.EmptySlotValues;
+import nl.knokko.customitems.container.KciContainer;
+import nl.knokko.customitems.container.slot.ContainerSlot;
+import nl.knokko.customitems.container.slot.EmptySlot;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
@@ -16,14 +16,14 @@ public class SlotsComponent extends GuiMenu {
 	
 	private final GuiComponent outerMenu;
 	private final ItemSet set;
-	private final CustomContainerValues container;
-	private ContainerSlotValues clipboardSlot;
+	private final KciContainer container;
+	private ContainerSlot clipboardSlot;
 	
-	public SlotsComponent(GuiComponent outerMenu, ItemSet set, CustomContainerValues container) {
+	public SlotsComponent(GuiComponent outerMenu, ItemSet set, KciContainer container) {
 		this.outerMenu = outerMenu;
 		this.set = set;
 		this.container = container;
-		this.clipboardSlot = new EmptySlotValues();
+		this.clipboardSlot = new EmptySlot();
 	}
 	
 	@Override
@@ -43,7 +43,7 @@ public class SlotsComponent extends GuiMenu {
 			if (y != 0) {
 				addComponent(new DynamicTextButton("/\\", BUTTON, HOVER, () -> {
 					for (int x = 0; x < 9; x++) {
-						ContainerSlotValues oldUpper = container.getSlot(x, fixedY - 1);
+						ContainerSlot oldUpper = container.getSlot(x, fixedY - 1);
 						container.setSlot(x, fixedY - 1, container.getSlot(x, fixedY));
 						container.setSlot(x, fixedY, oldUpper);
 					}
@@ -54,7 +54,7 @@ public class SlotsComponent extends GuiMenu {
 			if (y != container.getHeight() - 1) {
 				addComponent(new DynamicTextButton("\\/", BUTTON, HOVER, () -> {
 					for (int x = 0; x < 9; x++) {
-						ContainerSlotValues oldUpper = container.getSlot(x, fixedY);
+						ContainerSlot oldUpper = container.getSlot(x, fixedY);
 						container.setSlot(x, fixedY, container.getSlot(x, fixedY + 1));
 						container.setSlot(x, fixedY + 1, oldUpper);
 					}

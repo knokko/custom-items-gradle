@@ -2,16 +2,16 @@ package nl.knokko.customitems.plugin.data;
 
 import nl.knokko.customitems.bithelper.ByteArrayBitInput;
 import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
-import nl.knokko.customitems.item.CustomItemType;
-import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.item.CustomToolValues;
-import nl.knokko.customitems.item.SimpleCustomItemValues;
+import nl.knokko.customitems.item.KciItemType;
+import nl.knokko.customitems.item.KciItem;
+import nl.knokko.customitems.item.KciTool;
+import nl.knokko.customitems.item.KciSimpleItem;
 import nl.knokko.customitems.item.command.ItemCommand;
 import nl.knokko.customitems.item.command.ItemCommandEvent;
 import nl.knokko.customitems.item.command.ItemCommandSystem;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
-import nl.knokko.customitems.texture.BaseTextureValues;
+import nl.knokko.customitems.texture.KciTexture;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
@@ -26,12 +26,12 @@ import static org.junit.Assert.*;
 
 public class TestPlayerCommandCooldowns {
 
-    static ItemSetWrapper createSingleItemSet(CustomItemValues item) {
+    static ItemSetWrapper createSingleItemSet(KciItem item) {
         try {
             ItemSet itemSet = new ItemSet(ItemSet.Side.EDITOR);
 
             if (item.getTextureReference() == null) {
-                BaseTextureValues testTexture = new BaseTextureValues(true);
+                KciTexture testTexture = new KciTexture(true);
                 testTexture.setName("test_texture");
                 testTexture.setImage(new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB));
                 itemSet.textures.add(testTexture);
@@ -56,7 +56,7 @@ public class TestPlayerCommandCooldowns {
         return command;
     }
 
-    private CustomItemValues generateOriginalTestItem() {
+    private KciItem generateOriginalTestItem() {
         List<ItemCommand> blockBreakCommands = new ArrayList<>(4);
         blockBreakCommands.add(createTestCommand("summon sheep", 20));
         blockBreakCommands.add(createTestCommand("summon zombie", 30));
@@ -76,13 +76,13 @@ public class TestPlayerCommandCooldowns {
         commandSystem.setCommandsFor(ItemCommandEvent.LEFT_CLICK_GENERAL, leftClickCommands);
         commandSystem.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_GENERAL, rightClickCommands);
 
-        CustomItemValues testItem = new SimpleCustomItemValues(true);
+        KciItem testItem = new KciSimpleItem(true);
         testItem.setName("test_item");
         testItem.setCommandSystem(commandSystem);
         return testItem;
     }
 
-    private CustomItemValues generateNewTestItem() {
+    private KciItem generateNewTestItem() {
         List<ItemCommand> blockBreakCommands = new ArrayList<>(5);
         blockBreakCommands.add(createTestCommand("summon pig", 20));
         blockBreakCommands.add(createTestCommand("summon zombie", 30));
@@ -98,14 +98,14 @@ public class TestPlayerCommandCooldowns {
         commandSystem.setCommandsFor(ItemCommandEvent.BREAK_BLOCK, blockBreakCommands);
         commandSystem.setCommandsFor(ItemCommandEvent.LEFT_CLICK_GENERAL, leftClickCommands);
 
-        CustomItemValues testItem = new SimpleCustomItemValues(true);
+        KciItem testItem = new KciSimpleItem(true);
         testItem.setName("test_item");
         testItem.setCommandSystem(commandSystem);
         return testItem;
     }
 
     private void setTestCooldowns(PlayerCommandCooldowns cooldowns) {
-        CustomItemValues originalItem = generateOriginalTestItem();
+        KciItem originalItem = generateOriginalTestItem();
         long currentTime = 100;
 
         cooldowns.setOnCooldown(originalItem, ItemCommandEvent.BREAK_BLOCK, 0, currentTime);
@@ -122,7 +122,7 @@ public class TestPlayerCommandCooldowns {
     }
 
     private void testOriginalItemCooldowns(PlayerCommandCooldowns cooldowns) {
-        CustomItemValues originalItem = generateOriginalTestItem();
+        KciItem originalItem = generateOriginalTestItem();
 
         long[] tickTimes = { 100, 135, 200 };
         boolean[][] stillOnCooldown = {
@@ -179,7 +179,7 @@ public class TestPlayerCommandCooldowns {
     @Test
     public void testMigrationBehaviour() throws UnknownEncodingException, ValidationException, ProgrammingValidationException {
         ItemSetWrapper originalItemSet = createSingleItemSet(generateOriginalTestItem());
-        CustomItemValues extraItem = new SimpleCustomItemValues(true);
+        KciItem extraItem = new KciSimpleItem(true);
         extraItem.setName("extra_item");
         extraItem.setTexture(originalItemSet.get().textures.getReference("test_texture"));
 
@@ -200,7 +200,7 @@ public class TestPlayerCommandCooldowns {
         originalCooldowns.save(bitOutput, originalItemSet);
         bitOutput.addInt(1234); // This magic number is useful for testing the discard method
 
-        CustomItemValues newItem = generateNewTestItem();
+        KciItem newItem = generateNewTestItem();
         ItemSetWrapper newItemSet = createSingleItemSet(newItem);
         PlayerCommandCooldowns loadedCooldowns = new PlayerCommandCooldowns();
         ByteArrayBitInput bitInput = new ByteArrayBitInput(bitOutput.getBytes());
@@ -247,7 +247,7 @@ public class TestPlayerCommandCooldowns {
         commandSystem1.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_PLAYER, commands1);
         commandSystem1.setCommandsFor(ItemCommandEvent.MELEE_ATTACK_ENTITY, commands2);
 
-        CustomItemValues item1 = new SimpleCustomItemValues(true);
+        KciItem item1 = new KciSimpleItem(true);
         item1.setName("item1");
         item1.setCommandSystem(commandSystem1);
 
@@ -257,7 +257,7 @@ public class TestPlayerCommandCooldowns {
         ItemCommandSystem commandSystem2 = new ItemCommandSystem(true);
         commandSystem2.setCommandsFor(ItemCommandEvent.RIGHT_CLICK_ENTITY, commands3);
 
-        CustomItemValues item2 = new CustomToolValues(true, CustomItemType.DIAMOND_PICKAXE);
+        KciItem item2 = new KciTool(true, KciItemType.DIAMOND_PICKAXE);
         item2.setName("item2");
         item2.setCommandSystem(commandSystem2);
 

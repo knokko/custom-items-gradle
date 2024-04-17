@@ -2,9 +2,9 @@ package nl.knokko.customitems.plugin.recipe;
 
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.tasks.updater.ItemUpgrader;
-import nl.knokko.customitems.recipe.CraftingRecipeValues;
-import nl.knokko.customitems.recipe.result.ResultValues;
-import nl.knokko.customitems.recipe.result.UpgradeResultValues;
+import nl.knokko.customitems.recipe.KciCraftingRecipe;
+import nl.knokko.customitems.recipe.result.KciResult;
+import nl.knokko.customitems.recipe.result.UpgradeResult;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
@@ -13,9 +13,9 @@ import static nl.knokko.customitems.plugin.recipe.RecipeHelper.convertResultToIt
 
 public abstract class CraftingRecipeWrapper {
 
-    private final CraftingRecipeValues recipe;
+    private final KciCraftingRecipe recipe;
 
-    CraftingRecipeWrapper(CraftingRecipeValues recipe) {
+    CraftingRecipeWrapper(KciCraftingRecipe recipe) {
         this.recipe = recipe;
     }
     
@@ -23,9 +23,9 @@ public abstract class CraftingRecipeWrapper {
      * @return The result of this recipe
      */
     public ItemStack getResult(List<IngredientEntry> ingredientMapping, ItemStack[] ingredients) {
-        ResultValues result = recipe.getResult();
-        if (result instanceof UpgradeResultValues) {
-            UpgradeResultValues upgrade = (UpgradeResultValues) result;
+        KciResult result = recipe.getResult();
+        if (result instanceof UpgradeResult) {
+            UpgradeResult upgrade = (UpgradeResult) result;
             if (upgrade.getIngredientIndex() < 0) throw new IllegalArgumentException("Ingredient index can't be negative");
 
             IngredientEntry ingredientEntry = null;

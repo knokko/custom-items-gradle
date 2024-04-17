@@ -6,8 +6,8 @@ import java.util.function.Consumer;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.menu.edit.collection.InlineCollectionEdit;
-import nl.knokko.customitems.effect.EffectType;
-import nl.knokko.customitems.effect.PotionEffectValues;
+import nl.knokko.customitems.effect.VEffectType;
+import nl.knokko.customitems.effect.KciPotionEffect;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.image.ImageButton;
 import nl.knokko.gui.component.text.EagerIntEditField;
@@ -16,18 +16,18 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
 
-public class EffectsCollectionEdit extends InlineCollectionEdit<PotionEffectValues> {
+public class EffectsCollectionEdit extends InlineCollectionEdit<KciPotionEffect> {
 
 	public EffectsCollectionEdit(
-			Collection<PotionEffectValues> currentCollection, Consumer<Collection<PotionEffectValues>> onApply, GuiComponent returnMenu
+			Collection<KciPotionEffect> currentCollection, Consumer<Collection<KciPotionEffect>> onApply, GuiComponent returnMenu
 	) {
 		super(returnMenu, currentCollection, onApply);
 	}
 
 	@Override
 	protected void addRowComponents(int itemIndex, float minY, float maxY) {
-		PotionEffectValues effect = ownCollection.get(itemIndex);
-		GuiComponent effectButton = EnumSelect.createSelectButton(EffectType.class, effect::setType, effect.getType());
+		KciPotionEffect effect = ownCollection.get(itemIndex);
+		GuiComponent effectButton = EnumSelect.createSelectButton(VEffectType.class, effect::setType, effect.getType());
 		addComponent(new ImageButton(deleteBase, deleteHover, () -> {
 			removeItem(itemIndex);
 		}), 0.3f, minY, 0.35f, maxY);
@@ -48,8 +48,8 @@ public class EffectsCollectionEdit extends InlineCollectionEdit<PotionEffectValu
 	}
 
 	@Override
-	protected PotionEffectValues addNew() {
-		return PotionEffectValues.createQuick(EffectType.HEAL, 1, 1);
+	protected KciPotionEffect addNew() {
+		return KciPotionEffect.createQuick(VEffectType.HEAL, 1, 1);
 	}
 
 	@Override

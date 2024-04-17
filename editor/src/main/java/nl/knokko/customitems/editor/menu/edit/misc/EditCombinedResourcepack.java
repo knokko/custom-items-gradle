@@ -5,7 +5,7 @@ import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.CombinedResourcepackReference;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.misc.CombinedResourcepackValues;
+import nl.knokko.customitems.misc.CombinedResourcepack;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -24,11 +24,11 @@ public class EditCombinedResourcepack extends GuiMenu {
     private final ItemSet itemSet;
     private final GuiComponent returnMenu;
     private final CombinedResourcepackReference toModify;
-    private final CombinedResourcepackValues currentValues;
+    private final CombinedResourcepack currentValues;
 
     public EditCombinedResourcepack(
             ItemSet itemSet, GuiComponent returnMenu,
-            CombinedResourcepackReference toModify, CombinedResourcepackValues oldValues
+            CombinedResourcepackReference toModify, CombinedResourcepack oldValues
     ) {
         this.itemSet = itemSet;
         this.returnMenu = returnMenu;

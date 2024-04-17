@@ -1,13 +1,13 @@
 package nl.knokko.customitems.editor.menu.edit.container.recipe;
 
-import nl.knokko.customitems.container.ContainerRecipeValues;
+import nl.knokko.customitems.container.ContainerRecipe;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.EditIngredient;
 import nl.knokko.customitems.editor.util.StringLength;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.recipe.ingredient.IngredientValues;
-import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
-import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
+import nl.knokko.customitems.recipe.ingredient.KciIngredient;
+import nl.knokko.customitems.recipe.ingredient.NoIngredient;
+import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredient;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.color.SimpleGuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -25,16 +25,16 @@ public class InputSlotComponent implements GuiComponent {
 	private final String name;
 	private final GuiComponent outerMenu;
 	private final ItemSet set;
-	private final ContainerRecipeValues recipe;
-	private final IngredientValues[] pClipboardIngredient;
+	private final ContainerRecipe recipe;
+	private final KciIngredient[] pClipboardIngredient;
 	
 	private GuiComponentState state;
 	private GuiTexture topTextTexture;
 	private GuiTexture bottomTextTexture;
 
 	public InputSlotComponent(
-			String name, GuiComponent outerMenu, IngredientValues[] pClipboardIngredient,
-			ContainerRecipeValues recipe, ItemSet set
+            String name, GuiComponent outerMenu, KciIngredient[] pClipboardIngredient,
+            ContainerRecipe recipe, ItemSet set
 	) {
 		this.name = name;
 		this.outerMenu = outerMenu;
@@ -47,15 +47,15 @@ public class InputSlotComponent implements GuiComponent {
 		return name;
 	}
 	
-	private void setIngredient(IngredientValues newIngredient) {
+	private void setIngredient(KciIngredient newIngredient) {
 		
 		// Make sure only null indicates that there is no ingredient
-		if (newIngredient instanceof NoIngredientValues) {
+		if (newIngredient instanceof NoIngredient) {
 			newIngredient = null;
 		}
 		
 		// Update inputs collection
-		IngredientValues currentIngredient = recipe.getInput(name);
+		KciIngredient currentIngredient = recipe.getInput(name);
 		if (currentIngredient != null) {
 			recipe.clearInput(name);
 		}
@@ -103,8 +103,8 @@ public class InputSlotComponent implements GuiComponent {
 
 	@Override
 	public void click(float x, float y, int button) {
-		IngredientValues currentInput = recipe.getInput(name);
-		if (currentInput == null) currentInput = new SimpleVanillaIngredientValues(false);
+		KciIngredient currentInput = recipe.getInput(name);
+		if (currentInput == null) currentInput = new SimpleVanillaIngredient(false);
 		state.getWindow().setMainComponent(new EditIngredient(outerMenu,
 				this::setIngredient, currentInput, true, set
 		));

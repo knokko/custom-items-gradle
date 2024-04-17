@@ -1,7 +1,7 @@
 package nl.knokko.customitems.plugin.util;
 
 import de.tr7zw.changeme.nbtapi.NBT;
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.command.CommandCustomItemsGive;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import nl.knokko.customitems.item.CIMaterial;
+import nl.knokko.customitems.item.VMaterial;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.container.ContainerInstance;
 
@@ -22,7 +22,7 @@ public class ItemUtils {
 
 	public static boolean isEmpty(ItemStack stack) {
 		if(stack == null ||
-				KciNms.instance.items.getMaterialName(stack).equals(CIMaterial.AIR.name()) ||
+				KciNms.instance.items.getMaterialName(stack).equals(VMaterial.AIR.name()) ||
 				stack.getAmount() == 0) {
 			return true;
 		}
@@ -35,7 +35,7 @@ public class ItemUtils {
 	}
 	
 	public static int getMaxStacksize(ItemStack stack) {
-		CustomItemValues customItem = CustomItemsPlugin.getInstance().getSet().getItem(stack);
+		KciItem customItem = CustomItemsPlugin.getInstance().getSet().getItem(stack);
 		if (customItem != null) {
 			return customItem.getMaxStacksize();
 		}
@@ -49,7 +49,7 @@ public class ItemUtils {
 	public static Collection<ItemStack> giveItems(ItemSetWrapper itemSet, Inventory destination, Collection<ItemStack> items) {
 		Collection<ItemStack> didNotFit = new ArrayList<>();
 		for (ItemStack item : items) {
-			CustomItemValues customItem = itemSet.getItem(item);
+			KciItem customItem = itemSet.getItem(item);
 			if (customItem != null && wrap(customItem).needsStackingHelp()) {
 				if (!CommandCustomItemsGive.giveCustomItemToInventory(itemSet, destination, customItem, item.getAmount())) {
 					didNotFit.add(item);
@@ -62,7 +62,7 @@ public class ItemUtils {
 		return didNotFit;
 	}
 
-	public static void giveCustomItem(ItemSetWrapper itemSet, Player player, CustomItemValues item) {
+	public static void giveCustomItem(ItemSetWrapper itemSet, Player player, KciItem item) {
 		if (wrap(item).needsStackingHelp()) {
 			if (!CommandCustomItemsGive.giveCustomItemToInventory(itemSet, player.getInventory(), item, 1)) {
 				player.getWorld().dropItem(player.getLocation(), wrap(item).create(1));

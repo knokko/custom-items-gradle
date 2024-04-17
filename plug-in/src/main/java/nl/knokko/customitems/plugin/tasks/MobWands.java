@@ -1,12 +1,12 @@
 package nl.knokko.customitems.plugin.tasks;
 
-import nl.knokko.customitems.item.CustomGunValues;
-import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.item.CustomWandValues;
-import nl.knokko.customitems.item.WandChargeValues;
+import nl.knokko.customitems.item.KciGun;
+import nl.knokko.customitems.item.KciItem;
+import nl.knokko.customitems.item.KciWand;
+import nl.knokko.customitems.item.WandCharges;
 import nl.knokko.customitems.plugin.config.EnabledAreas;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
-import nl.knokko.customitems.projectile.CustomProjectileValues;
+import nl.knokko.customitems.projectile.KciProjectile;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
@@ -23,13 +23,13 @@ public class MobWands {
     private final ItemSetWrapper itemSet;
     private final Supplier<EnabledAreas> enabledAreas;
     private final Supplier<Long> getCurrentTick;
-    private final BiConsumer<LivingEntity, CustomProjectileValues> fireProjectile;
+    private final BiConsumer<LivingEntity, KciProjectile> fireProjectile;
     private final Collection<Monster> potentialEntities = new ArrayList<>();
     private final Map<UUID, MobCooldowns> cooldowns = new HashMap<>();
 
     public MobWands(
             ItemSetWrapper itemSet, Supplier<EnabledAreas> enabledAreas,
-            Supplier<Long> getCurrentTick, BiConsumer<LivingEntity, CustomProjectileValues> fireProjectile
+            Supplier<Long> getCurrentTick, BiConsumer<LivingEntity, KciProjectile> fireProjectile
     ) {
         this.itemSet = itemSet;
         this.enabledAreas = enabledAreas;
@@ -57,12 +57,12 @@ public class MobWands {
                     Monster monster = (Monster) entity;
                     if (monster.getTarget() == null) continue;
 
-                    CustomItemValues mainItem = this.itemSet.getItem(equipment.getItemInMainHand());
-                    if (mainItem instanceof CustomGunValues || mainItem instanceof CustomWandValues) {
+                    KciItem mainItem = this.itemSet.getItem(equipment.getItemInMainHand());
+                    if (mainItem instanceof KciGun || mainItem instanceof KciWand) {
                         this.potentialEntities.add(monster);
                     } else {
-                        CustomItemValues offItem = this.itemSet.getItem(equipment.getItemInOffHand());
-                        if (offItem instanceof CustomGunValues || offItem instanceof CustomWandValues) {
+                        KciItem offItem = this.itemSet.getItem(equipment.getItemInOffHand());
+                        if (offItem instanceof KciGun || offItem instanceof KciWand) {
                             this.potentialEntities.add(monster);
                         }
                     }
@@ -76,21 +76,21 @@ public class MobWands {
         this.cooldowns.values().removeIf(cooldowns -> cooldowns.canCleanUp(currentTick));
     }
 
-    private void attemptToShoot(Monster shooter, LivingEntity target, CustomItemValues weapon, MobCooldown cooldown) {
+    private void attemptToShoot(Monster shooter, LivingEntity target, KciItem weapon, MobCooldown cooldown) {
         long currentTick = getCurrentTick.get();
         if (
-                (weapon instanceof CustomWandValues || weapon instanceof CustomGunValues)
+                (weapon instanceof KciWand || weapon instanceof KciGun)
                         && cooldown.canShoot(currentTick) && shooter.hasLineOfSight(target)
         ) {
 
-            CustomProjectileValues projectile;
+            KciProjectile projectile;
             int amount;
-            if (weapon instanceof CustomWandValues) {
-                CustomWandValues wand = (CustomWandValues) weapon;
+            if (weapon instanceof KciWand) {
+                KciWand wand = (KciWand) weapon;
                 projectile = wand.getProjectile();
                 amount = wand.getAmountPerShot();
             } else {
-                CustomGunValues gun = (CustomGunValues) weapon;
+                KciGun gun = (KciGun) weapon;
                 projectile = gun.getProjectile();
                 amount = gun.getAmountPerShot();
             }
@@ -108,8 +108,8 @@ public class MobWands {
             EntityEquipment equipment = monster.getEquipment();
             if (target == null || equipment == null) continue;
 
-            CustomItemValues mainItem = this.itemSet.getItem(equipment.getItemInMainHand());
-            CustomItemValues offItem = this.itemSet.getItem(equipment.getItemInOffHand());
+            KciItem mainItem = this.itemSet.getItem(equipment.getItemInMainHand());
+            KciItem offItem = this.itemSet.getItem(equipment.getItemInOffHand());
 
             MobCooldowns mobCooldowns = this.cooldowns.computeIfAbsent(monster.getUniqueId(), (UUID id) -> new MobCooldowns());
             attemptToShoot(monster, target, mainItem, mobCooldowns.getMainHand(mainItem));
@@ -119,7 +119,7 @@ public class MobWands {
 
     static class MobCooldown {
 
-        public final CustomItemValues item;
+        public final KciItem item;
         private long lastShotTick;
         private long lastChargeTick;
 
@@ -129,18 +129,18 @@ public class MobWands {
         private int lastCharges;
         private final int rechargeTime;
 
-        public MobCooldown(CustomItemValues item) {
-            if (!(item instanceof CustomWandValues || item instanceof CustomGunValues)) {
+        public MobCooldown(KciItem item) {
+            if (!(item instanceof KciWand || item instanceof KciGun)) {
                 throw new IllegalArgumentException("Expected wand or gun, but got " + item);
             }
             this.item = item;
             this.lastShotTick = 0;
             this.lastChargeTick = 0;
 
-            if (item instanceof CustomWandValues) {
-                CustomWandValues wand = (CustomWandValues) item;
+            if (item instanceof KciWand) {
+                KciWand wand = (KciWand) item;
                 this.cooldown = wand.getCooldown();
-                WandChargeValues charges = wand.getCharges();
+                WandCharges charges = wand.getCharges();
                 if (charges != null) {
                     this.maxCharges = charges.getMaxCharges();
                     this.lastCharges = charges.getMaxCharges();
@@ -152,7 +152,7 @@ public class MobWands {
             } else {
                 this.maxCharges = 0;
                 this.rechargeTime = 0;
-                this.cooldown = ((CustomGunValues) item).getAmmo().getCooldown();
+                this.cooldown = ((KciGun) item).getAmmo().getCooldown();
             }
         }
 
@@ -192,18 +192,18 @@ public class MobWands {
         private MobCooldown mainHand;
         private MobCooldown offHand;
 
-        private MobCooldown get(MobCooldown cooldown, CustomItemValues item) {
-            if (!(item instanceof CustomWandValues || item instanceof CustomGunValues)) return null;
+        private MobCooldown get(MobCooldown cooldown, KciItem item) {
+            if (!(item instanceof KciWand || item instanceof KciGun)) return null;
             if (cooldown == null || !cooldown.item.getName().equals(item.getName())) return new MobCooldown(item);
             return cooldown;
         }
 
-        public MobCooldown getMainHand(CustomItemValues item) {
+        public MobCooldown getMainHand(KciItem item) {
             mainHand = get(mainHand, item);
             return mainHand;
         }
 
-        public MobCooldown getOffHand(CustomItemValues item) {
+        public MobCooldown getOffHand(KciItem item) {
             offHand = get(offHand, item);
             return offHand;
         }

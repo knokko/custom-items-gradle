@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.resourcepack;
 
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.sound.CustomSoundTypeValues;
+import nl.knokko.customitems.sound.KciSoundType;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -27,7 +27,7 @@ class ResourcepackSoundWriter {
         jsonWriter.println("{");
 
         boolean hasPrevious = false;
-        for (CustomSoundTypeValues soundType : itemSet.soundTypes) {
+        for (KciSoundType soundType : itemSet.soundTypes) {
 
             // All sound entries, except the first one, should start by adding a comma to separate it from the previous
             // sound entry
@@ -47,7 +47,7 @@ class ResourcepackSoundWriter {
     }
 
     void writeSoundFiles() throws IOException {
-        for (CustomSoundTypeValues soundType : itemSet.soundTypes) {
+        for (KciSoundType soundType : itemSet.soundTypes) {
             ZipEntry entry = new ZipEntry("assets/minecraft/sounds/kci/" + soundType.getName() + ".ogg");
             zipOutput.putNextEntry(entry);
             zipOutput.write(soundType.getOggData());

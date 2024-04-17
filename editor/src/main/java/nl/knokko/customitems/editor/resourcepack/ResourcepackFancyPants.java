@@ -1,8 +1,8 @@
 package nl.knokko.customitems.editor.resourcepack;
 
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.texture.FancyPantsArmorFrameValues;
-import nl.knokko.customitems.texture.FancyPantsArmorTextureValues;
+import nl.knokko.customitems.texture.FancyPantsFrame;
+import nl.knokko.customitems.texture.FancyPantsTexture;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -99,9 +99,9 @@ class ResourcepackFancyPants {
 
             int totalWidth = width;
             int maxNumFrames = 1;
-            for (FancyPantsArmorTextureValues fpTexture : itemSet.fancyPants) {
+            for (FancyPantsTexture fpTexture : itemSet.fancyPants) {
                 if (fpTexture.getFrames().size() > maxNumFrames) maxNumFrames = fpTexture.getFrames().size();
-                if (fpTexture.getEmissivity() == FancyPantsArmorTextureValues.Emissivity.PARTIAL) totalWidth += 2 * width;
+                if (fpTexture.getEmissivity() == FancyPantsTexture.Emissivity.PARTIAL) totalWidth += 2 * width;
                 else totalWidth += width;
             }
             int totalHeight = maxNumFrames * height;
@@ -116,13 +116,13 @@ class ResourcepackFancyPants {
             copyImage("ancientking/fancypants/template/leather_layer_2.png", graphics2);
 
             int currentX = width;
-            for (FancyPantsArmorTextureValues fpTexture : itemSet.fancyPants) {
+            for (FancyPantsTexture fpTexture : itemSet.fancyPants) {
 
                 int currentY = 0;
-                for (FancyPantsArmorFrameValues frame : fpTexture.getFrames()) {
+                for (FancyPantsFrame frame : fpTexture.getFrames()) {
                     graphics1.drawImage(frame.getLayer1(), currentX, currentY, null);
                     graphics2.drawImage(frame.getLayer2(), currentX, currentY, null);
-                    if (fpTexture.getEmissivity() == FancyPantsArmorTextureValues.Emissivity.PARTIAL) {
+                    if (fpTexture.getEmissivity() == FancyPantsTexture.Emissivity.PARTIAL) {
                         graphics1.drawImage(frame.getEmissivityLayer1(), currentX + width, currentY, null);
                         graphics2.drawImage(frame.getEmissivityLayer2(), currentX + width, currentY, null);
                     }
@@ -145,7 +145,7 @@ class ResourcepackFancyPants {
                     layer.setRGB(currentX + 2, 0, rgb3);
                 }
                 currentX += width;
-                if (fpTexture.getEmissivity() == FancyPantsArmorTextureValues.Emissivity.PARTIAL) currentX += width;
+                if (fpTexture.getEmissivity() == FancyPantsTexture.Emissivity.PARTIAL) currentX += width;
             }
             graphics1.dispose();
             graphics2.dispose();

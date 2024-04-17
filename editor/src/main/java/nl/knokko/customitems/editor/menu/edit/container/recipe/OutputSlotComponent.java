@@ -1,11 +1,11 @@
 package nl.knokko.customitems.editor.menu.edit.container.recipe;
 
-import nl.knokko.customitems.container.ContainerRecipeValues;
-import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.container.ContainerRecipe;
+import nl.knokko.customitems.container.KciContainer;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.StringLength;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.recipe.OutputTableValues;
+import nl.knokko.customitems.recipe.OutputTable;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.color.SimpleGuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -24,17 +24,17 @@ public class OutputSlotComponent implements GuiComponent {
 	private final String name;
 	private final GuiComponent outerMenu;
 	private final ItemSet set;
-	private final CustomContainerValues container;
-	private final ContainerRecipeValues recipe;
-	private final OutputTableValues[] pClipboardResult;
+	private final KciContainer container;
+	private final ContainerRecipe recipe;
+	private final OutputTable[] pClipboardResult;
 	
 	private GuiComponentState state;
 	private GuiTexture topTextTexture;
 	private GuiTexture bottomTextTexture;
 	
 	public OutputSlotComponent(
-			String name, GuiComponent outerMenu, OutputTableValues[] pClipboardResult,
-			CustomContainerValues container, ContainerRecipeValues recipe, ItemSet set
+			String name, GuiComponent outerMenu, OutputTable[] pClipboardResult,
+			KciContainer container, ContainerRecipe recipe, ItemSet set
 	) {
 		this.name = name;
 		this.outerMenu = outerMenu;
@@ -48,10 +48,10 @@ public class OutputSlotComponent implements GuiComponent {
 		return name;
 	}
 
-	private void setResultTable(OutputTableValues newResultTable) {
+	private void setResultTable(OutputTable newResultTable) {
 		
 		// Update outputs collection
-		OutputTableValues ownEntry = recipe.getOutput(name);
+		OutputTable ownEntry = recipe.getOutput(name);
 		if (ownEntry != null) {
 			recipe.clearOutput(name);
 		}
@@ -100,9 +100,9 @@ public class OutputSlotComponent implements GuiComponent {
 	@Override
 	public void click(float x, float y, int button) {
 		if (button == MouseCode.BUTTON_LEFT) {
-			OutputTableValues ownTable = recipe.getOutput(name);
+			OutputTable ownTable = recipe.getOutput(name);
 			state.getWindow().setMainComponent(new EditOutputTable(
-					outerMenu, ownTable == null ? new OutputTableValues(true) : ownTable, this::setResultTable, set,
+					outerMenu, ownTable == null ? new OutputTable(true) : ownTable, this::setResultTable, set,
 					(returnMenu, upgrade) -> new ChooseContainerIngredientForUpgrade(returnMenu, upgrade, container, recipe)
 			));
 		} else if (button == MouseCode.BUTTON_RIGHT) {

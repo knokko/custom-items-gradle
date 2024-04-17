@@ -1,7 +1,7 @@
 package nl.knokko.customitems.plugin.data.container;
 
-import nl.knokko.customitems.container.CustomContainerValues;
-import nl.knokko.customitems.container.energy.EnergyTypeValues;
+import nl.knokko.customitems.container.KciContainer;
+import nl.knokko.customitems.container.energy.EnergyType;
 
 public class LocalStoredEnergy extends StoredEnergy {
 
@@ -20,17 +20,17 @@ public class LocalStoredEnergy extends StoredEnergy {
         throw new UnsupportedOperationException("Energy should only be removed from the global energy storage");
     }
 
-    public void removeStoredEnergyAt(CustomContainerValues container, String host) {
+    public void removeStoredEnergyAt(KciContainer container, String host) {
         throw new UnsupportedOperationException("Energy should only be removed from the global energy storage");
     }
 
-    private boolean isLocal(EnergyTypeValues energyType, ContainerStorageKey containerStorageKey) {
+    private boolean isLocal(EnergyType energyType, ContainerStorageKey containerStorageKey) {
         boolean hasLocation = !energyType.shouldForceShareWithOtherLocations() && containerStorageKey.location != null;
         boolean hasStringHost = !energyType.shouldForceShareWithOtherStringHosts() && containerStorageKey.stringHost != null;
         return hasLocation || hasStringHost;
     }
 
-    public int getEnergy(EnergyTypeValues energyType, ContainerStorageKey containerStorageKey) {
+    public int getEnergy(EnergyType energyType, ContainerStorageKey containerStorageKey) {
         if (isLocal(energyType, containerStorageKey)) {
             return super.getEnergy(energyType, containerStorageKey);
         } else {
@@ -38,7 +38,7 @@ public class LocalStoredEnergy extends StoredEnergy {
         }
     }
 
-    public void increaseEnergy(EnergyTypeValues energyType, ContainerStorageKey containerStorageKey, int amount) {
+    public void increaseEnergy(EnergyType energyType, ContainerStorageKey containerStorageKey, int amount) {
         if (isLocal(energyType, containerStorageKey)) {
             super.increaseEnergy(energyType, containerStorageKey, amount);
         } else {

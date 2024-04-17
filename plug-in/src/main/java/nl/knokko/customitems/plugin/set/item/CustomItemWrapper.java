@@ -5,10 +5,10 @@ import de.tr7zw.changeme.nbtapi.NBT;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBTList;
 import de.tr7zw.changeme.nbtapi.iface.ReadableNBT;
-import nl.knokko.customitems.effect.ChancePotionEffectValues;
+import nl.knokko.customitems.effect.ChancePotionEffect;
 import nl.knokko.customitems.item.*;
-import nl.knokko.customitems.item.enchantment.EnchantmentType;
-import nl.knokko.customitems.item.enchantment.EnchantmentValues;
+import nl.knokko.customitems.item.enchantment.VEnchantmentType;
+import nl.knokko.customitems.item.enchantment.LeveledEnchantment;
 import nl.knokko.customitems.nms.*;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.tasks.updater.ItemUpgrader;
@@ -32,8 +32,8 @@ public abstract class CustomItemWrapper {
 
     public static final String NBT_KEY = "KnokkosCustomItems";
 
-    public static CIMaterial getMaterial(CustomItemType itemType, CIMaterial otherMaterial) {
-        if (itemType == CustomItemType.OTHER) return otherMaterial;
+    public static VMaterial getMaterial(KciItemType itemType, VMaterial otherMaterial) {
+        if (itemType == KciItemType.OTHER) return otherMaterial;
 
         String materialName = itemType.name();
 
@@ -45,27 +45,27 @@ public abstract class CustomItemWrapper {
             materialName = materialName.replace("SHOVEL", "SPADE");
         }
 
-        return CIMaterial.valueOf(materialName);
+        return VMaterial.valueOf(materialName);
     }
 
 
 
-    private static final Collection<Class<? extends CustomItemValues>> SIMPLE_WRAPPER_CLASSES = Lists.newArrayList(
-            CustomBlockItemValues.class, CustomFoodValues.class, CustomGunValues.class, CustomArrowValues.class,
-            CustomPocketContainerValues.class, CustomWandValues.class, CustomThrowableValues.class, SimpleCustomItemValues.class
+    private static final Collection<Class<? extends KciItem>> SIMPLE_WRAPPER_CLASSES = Lists.newArrayList(
+            KciBlockItem.class, KciFood.class, KciGun.class, KciArrow.class,
+            KciPocketContainer.class, KciWand.class, KciThrowable.class, KciSimpleItem.class
     );
 
-    public static CustomItemWrapper wrap(CustomItemValues item) {
-        if (item instanceof CustomToolValues) return CustomToolWrapper.wrap((CustomToolValues) item);
+    public static CustomItemWrapper wrap(KciItem item) {
+        if (item instanceof KciTool) return CustomToolWrapper.wrap((KciTool) item);
         if (SIMPLE_WRAPPER_CLASSES.contains(item.getClass())) return new SimpleCustomItemWrapper(item);
-        if (item.getClass() == CustomGunValues.class) return new CustomGunWrapper((CustomGunValues) item);
-        if (item.getClass() == CustomMusicDiscValues.class) return new CustomMusicDiscWrapper(item);
+        if (item.getClass() == KciGun.class) return new CustomGunWrapper((KciGun) item);
+        if (item.getClass() == KciMusicDisc.class) return new CustomMusicDiscWrapper(item);
         throw new IllegalArgumentException("Unknown item class " + item.getClass());
     }
 
-    protected final CustomItemValues item;
+    protected final KciItem item;
 
-    CustomItemWrapper(CustomItemValues item) {
+    CustomItemWrapper(KciItem item) {
         this.item = item;
     }
 
@@ -94,7 +94,7 @@ public abstract class CustomItemWrapper {
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(this.item.getDisplayName());
         meta.setLore(lore);
-        if (this.item.getItemType() != CustomItemType.OTHER && !showDurabilityBar()) meta.setUnbreakable(true);
+        if (this.item.getItemType() != KciItemType.OTHER && !showDurabilityBar()) meta.setUnbreakable(true);
 
         ItemFlag[] allFlags = ItemFlag.values();
         List<Boolean> ownItemFlags = this.item.getItemFlags();
@@ -133,8 +133,8 @@ public abstract class CustomItemWrapper {
         if (KciNms.mcVersion < VERSION1_14) {
             item.setDurability(this.item.getItemDamage());
         }
-        Map<EnchantmentType, Integer> defaultEnchantmentMap = new HashMap<>();
-        for (EnchantmentValues enchantment : this.item.getDefaultEnchantments()) {
+        Map<VEnchantmentType, Integer> defaultEnchantmentMap = new HashMap<>();
+        for (LeveledEnchantment enchantment : this.item.getDefaultEnchantments()) {
             item = BukkitEnchantments.add(item, enchantment.getType(), enchantment.getLevel());
             defaultEnchantmentMap.put(enchantment.getType(), enchantment.getLevel());
         }
@@ -182,7 +182,7 @@ public abstract class CustomItemWrapper {
     public abstract boolean forbidDefaultUse(ItemStack item);
 
     public boolean needsStackingHelp() {
-        if (item.getItemType() == CustomItemType.OTHER) {
+        if (item.getItemType() == KciItemType.OTHER) {
             return item.getMaxStacksize() != KciNms.instance.items.createStack(item.getOtherMaterial().name(), 1).getMaxStackSize();
         } else {
             return item.canStack();
@@ -205,7 +205,7 @@ public abstract class CustomItemWrapper {
 
         Collection<PotionEffect> pe = new ArrayList<>();
         Random rng = new Random();
-        for (ChancePotionEffectValues effect : this.item.getOnHitPlayerEffects()) {
+        for (ChancePotionEffect effect : this.item.getOnHitPlayerEffects()) {
             if (effect.getChance().apply(rng)) {
                 pe.add(new PotionEffect(
                         PotionEffectType.getByName(effect.getType().name()),
@@ -216,7 +216,7 @@ public abstract class CustomItemWrapper {
         }
 
         Collection<PotionEffect> te = new ArrayList<>();
-        for (ChancePotionEffectValues effect : this.item.getOnHitTargetEffects()) {
+        for (ChancePotionEffect effect : this.item.getOnHitTargetEffects()) {
             if (effect.getChance().apply(rng)) {
                 te.add(new PotionEffect(
                         PotionEffectType.getByName(effect.getType().name()),

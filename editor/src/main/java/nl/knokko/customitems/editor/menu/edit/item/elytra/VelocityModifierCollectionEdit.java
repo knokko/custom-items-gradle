@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.item.elytra;
 
 import nl.knokko.customitems.editor.menu.edit.collection.SelfDedicatedCollectionEdit;
-import nl.knokko.customitems.item.elytra.VelocityModifierValues;
+import nl.knokko.customitems.item.elytra.VelocityModifier;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
@@ -13,11 +13,11 @@ import java.util.function.Consumer;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.BUTTON;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.HOVER;
 
-public class VelocityModifierCollectionEdit extends SelfDedicatedCollectionEdit<VelocityModifierValues> {
+public class VelocityModifierCollectionEdit extends SelfDedicatedCollectionEdit<VelocityModifier> {
 
     public VelocityModifierCollectionEdit(
-            Collection<VelocityModifierValues> oldCollection,
-            Consumer<List<VelocityModifierValues>> changeCollection, GuiComponent returnMenu
+            Collection<VelocityModifier> oldCollection,
+            Consumer<List<VelocityModifier>> changeCollection, GuiComponent returnMenu
     ) {
         super(oldCollection, changeCollection, returnMenu);
     }
@@ -28,28 +28,28 @@ public class VelocityModifierCollectionEdit extends SelfDedicatedCollectionEdit<
 
         addComponent(new DynamicTextButton("Add new", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new EditVelocityModifier(
-                    new VelocityModifierValues(true), this::addModel, this
+                    new VelocityModifier(true), this::addModel, this
             ));
         }), 0.025f, 0.3f, 0.175f, 0.4f);
     }
 
     @Override
-    protected String getModelLabel(VelocityModifierValues model) {
+    protected String getModelLabel(VelocityModifier model) {
         return model.getAccelerations().size() + " accelerations";
     }
 
     @Override
-    protected BufferedImage getModelIcon(VelocityModifierValues model) {
+    protected BufferedImage getModelIcon(VelocityModifier model) {
         return null;
     }
 
     @Override
-    protected boolean canEditModel(VelocityModifierValues model) {
+    protected boolean canEditModel(VelocityModifier model) {
         return true;
     }
 
     @Override
-    protected GuiComponent createEditMenu(VelocityModifierValues oldModelValues, Consumer<VelocityModifierValues> changeModelValues) {
+    protected GuiComponent createEditMenu(VelocityModifier oldModelValues, Consumer<VelocityModifier> changeModelValues) {
         return new EditVelocityModifier(oldModelValues, changeModelValues, this);
     }
 
@@ -59,7 +59,7 @@ public class VelocityModifierCollectionEdit extends SelfDedicatedCollectionEdit<
     }
 
     @Override
-    protected CopyMode getCopyMode(VelocityModifierValues model) {
+    protected CopyMode getCopyMode(VelocityModifier model) {
         return CopyMode.INSTANT;
     }
 }

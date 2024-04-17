@@ -2,9 +2,9 @@ package nl.knokko.customitems.editor.menu.edit.recipe.ingredient.constraint;
 
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.menu.edit.collection.InlineCollectionEdit;
-import nl.knokko.customitems.item.enchantment.EnchantmentType;
+import nl.knokko.customitems.item.enchantment.VEnchantmentType;
 import nl.knokko.customitems.recipe.ingredient.constraint.ConstraintOperator;
-import nl.knokko.customitems.recipe.ingredient.constraint.EnchantmentConstraintValues;
+import nl.knokko.customitems.recipe.ingredient.constraint.EnchantmentConstraint;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
@@ -14,21 +14,21 @@ import java.util.function.Consumer;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
-public class EnchantmentConstraintCollectionEdit extends InlineCollectionEdit<EnchantmentConstraintValues> {
+public class EnchantmentConstraintCollectionEdit extends InlineCollectionEdit<EnchantmentConstraint> {
 
     public EnchantmentConstraintCollectionEdit(
-            GuiComponent returnMenu, Collection<EnchantmentConstraintValues> currentCollection,
-            Consumer<Collection<EnchantmentConstraintValues>> onApply
+            GuiComponent returnMenu, Collection<EnchantmentConstraint> currentCollection,
+            Consumer<Collection<EnchantmentConstraint>> onApply
     ) {
         super(returnMenu, currentCollection, onApply);
     }
 
     @Override
     protected void addRowComponents(int itemIndex, float minY, float maxY) {
-        EnchantmentConstraintValues constraint = ownCollection.get(itemIndex);
+        EnchantmentConstraint constraint = ownCollection.get(itemIndex);
 
         addComponent(EnumSelect.createSelectButton(
-                EnchantmentType.class, constraint::setEnchantment, constraint.getEnchantment()
+                VEnchantmentType.class, constraint::setEnchantment, constraint.getEnchantment()
         ), 0.3f, minY, 0.5f, maxY);
 
         float deltaY = maxY - minY;
@@ -45,8 +45,8 @@ public class EnchantmentConstraintCollectionEdit extends InlineCollectionEdit<En
     }
 
     @Override
-    protected EnchantmentConstraintValues addNew() {
-        return new EnchantmentConstraintValues(true);
+    protected EnchantmentConstraint addNew() {
+        return new EnchantmentConstraint(true);
     }
 
     @Override

@@ -1,20 +1,20 @@
 package nl.knokko.customitems.plugin.container;
 
 import de.tr7zw.changeme.nbtapi.NBT;
-import nl.knokko.customitems.block.CustomBlockValues;
-import nl.knokko.customitems.container.ContainerRecipeValues;
-import nl.knokko.customitems.container.CustomContainerHost;
-import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.block.KciBlock;
+import nl.knokko.customitems.container.ContainerRecipe;
+import nl.knokko.customitems.container.ContainerHost;
+import nl.knokko.customitems.container.KciContainer;
 import nl.knokko.customitems.container.slot.*;
-import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.item.CustomPocketContainerValues;
+import nl.knokko.customitems.item.KciItem;
+import nl.knokko.customitems.item.KciPocketContainer;
 import nl.knokko.customitems.itemset.BlockReference;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.events.CustomContainerActionEvent;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
 import nl.knokko.customitems.plugin.util.NbtHelper;
-import nl.knokko.customitems.recipe.result.CustomItemResultValues;
+import nl.knokko.customitems.recipe.result.CustomItemResult;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -38,8 +38,8 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import nl.knokko.customitems.container.VanillaContainerType;
-import nl.knokko.customitems.item.CIMaterial;
+import nl.knokko.customitems.container.VContainerType;
+import nl.knokko.customitems.item.VMaterial;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.data.PluginData;
 import nl.knokko.customitems.plugin.util.ItemUtils;
@@ -142,7 +142,7 @@ public class ContainerEventHandler implements Listener {
 			if (customContainer != null) {
 				for (int slotIndex : event.getRawSlots()) {
 					if (slotIndex >= 0 && slotIndex < 9 * customContainer.getType().getHeight()) {
-						ContainerSlotValues slot = customContainer.getType().getSlot(slotIndex % 9, slotIndex / 9);
+						ContainerSlot slot = customContainer.getType().getSlot(slotIndex % 9, slotIndex / 9);
 						if (!slot.canInsertItems()) {
 							event.setCancelled(true);
 							return;
@@ -163,21 +163,21 @@ public class ContainerEventHandler implements Listener {
 			if (customContainer != null) {
 				
 				int slotIndex = event.getRawSlot();
-				CustomContainerValues containerType = customContainer.getType();
+				KciContainer containerType = customContainer.getType();
 				
 				// Check if the player clicked inside the custom container
 				if (slotIndex >= 0 && slotIndex < 9 * containerType.getHeight()) {
-					ContainerSlotValues slot = customContainer.getType().getSlot(slotIndex % 9, slotIndex / 9);
+					ContainerSlot slot = customContainer.getType().getSlot(slotIndex % 9, slotIndex / 9);
 					
-					if (customContainer.getStoredExperience() > 0 && slot instanceof OutputSlotValues) {
+					if (customContainer.getStoredExperience() > 0 && slot instanceof OutputSlot) {
 						player.giveExp(customContainer.getStoredExperience());
 						customContainer.clearStoredExperience();
 					}
 
-					ContainerRecipeValues currentManualRecipe = null;
+					ContainerRecipe currentManualRecipe = null;
 					boolean stackManualResultOnCursor = false;
 
-					if (slot instanceof ManualOutputSlotValues) {
+					if (slot instanceof ManualOutputSlot) {
 						currentManualRecipe = customContainer.getCurrentRecipe();
 						if (currentManualRecipe != null && currentManualRecipe.getManualOutput() == null) {
 							currentManualRecipe = null;
@@ -189,7 +189,7 @@ public class ContainerEventHandler implements Listener {
 						}
 
 						if (currentManualRecipe != null && !ItemUtils.isEmpty(event.getCursor())) {
-							CustomItemValues customCursor = itemSet.getItem(event.getCursor());
+							KciItem customCursor = itemSet.getItem(event.getCursor());
 							if (customCursor == null) {
 								ItemStack manualOutputStack = wrap(
 										currentManualRecipe, customContainer.getCurrentIngredients()
@@ -198,9 +198,9 @@ public class ContainerEventHandler implements Listener {
 									currentManualRecipe = null;
 								}
 							} else {
-								if (currentManualRecipe.getManualOutput() instanceof CustomItemResultValues) {
+								if (currentManualRecipe.getManualOutput() instanceof CustomItemResult) {
 
-									CustomItemResultValues customResult = (CustomItemResultValues) currentManualRecipe.getManualOutput();
+									CustomItemResult customResult = (CustomItemResult) currentManualRecipe.getManualOutput();
 									if (customResult.getItem() != customCursor || customResult.getAmount() + event.getCursor().getAmount() > customCursor.getMaxStacksize()) {
 										currentManualRecipe = null;
 									}
@@ -213,15 +213,15 @@ public class ContainerEventHandler implements Listener {
 								stackManualResultOnCursor = true;
 							}
 						}
-					} else if (slot instanceof LinkSlotValues) {
+					} else if (slot instanceof LinkSlot) {
 						Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
 							pluginData().containerManager.attemptToSwitchToLinkedContainer(
-									player, ((LinkSlotValues) slot).getLinkedContainer()
+									player, ((LinkSlot) slot).getLinkedContainer()
 							);
 						});
-					} else if (slot instanceof ActionSlotValues) {
+					} else if (slot instanceof ActionSlot) {
 						Bukkit.getPluginManager().callEvent(new CustomContainerActionEvent(
-								((ActionSlotValues) slot).getActionID(), customContainer, event, itemSet
+								((ActionSlot) slot).getActionID(), customContainer, event, itemSet
 						));
 					}
 
@@ -267,7 +267,7 @@ public class ContainerEventHandler implements Listener {
 					    if (slot.canTakeItems()) {
 
 							ItemStack toTransfer = event.getCurrentItem();
-							CustomItemValues customTransfer = itemSet.getItem(toTransfer);
+							KciItem customTransfer = itemSet.getItem(toTransfer);
 
 							// If it is a stackable custom item, we can improve the action by attempting to merge
 							// the item stack with an existing item stack in the destination inventory
@@ -279,7 +279,7 @@ public class ContainerEventHandler implements Listener {
                                 Inventory bottomInv = event.getView().getBottomInventory();
                                 for (int bottomIndex = 0; bottomIndex < bottomInv.getSize(); bottomIndex++) {
                                 	ItemStack bottomStack = bottomInv.getItem(bottomIndex);
-                                	CustomItemValues customBottom = itemSet.getItem(bottomStack);
+                                	KciItem customBottom = itemSet.getItem(bottomStack);
                                 	if (customTransfer == customBottom) {
                                 		int remainingSpace = customBottom.getMaxStacksize() - bottomStack.getAmount();
                                 		if (remainingSpace > 0) {
@@ -331,8 +331,8 @@ public class ContainerEventHandler implements Listener {
 								ItemStack baseResultStack = wrap(
 										currentManualRecipe, originalIngredients
 								).getManualOutput();
-								CustomItemValues customResult = currentManualRecipe.getManualOutput() instanceof CustomItemResultValues ?
-										((CustomItemResultValues) currentManualRecipe.getManualOutput()).getItem() : null;
+								KciItem customResult = currentManualRecipe.getManualOutput() instanceof CustomItemResult ?
+										((CustomItemResult) currentManualRecipe.getManualOutput()).getItem() : null;
 								int maxStackSize = customResult != null ? customResult.getMaxStacksize() : baseResultStack.getMaxStackSize();
 
 								int finalNumRecipeExecutions = numRecipeExecutions;
@@ -347,7 +347,7 @@ public class ContainerEventHandler implements Listener {
 											break;
 										}
 
-										CustomItemValues customContent = itemSet.getItem(content);
+										KciItem customContent = itemSet.getItem(content);
 										boolean canMerge;
 										if (customResult == null) {
 											canMerge = customContent == null && baseResultStack.isSimilar(content);
@@ -404,7 +404,7 @@ public class ContainerEventHandler implements Listener {
 						if (currentManualRecipe.getExperience() > 0) {
 							player.giveExp(currentManualRecipe.getExperience());
 						}
-						ContainerRecipeValues finalManualRecipe = currentManualRecipe;
+						ContainerRecipe finalManualRecipe = currentManualRecipe;
 						boolean finalStackResultOnCursor = stackManualResultOnCursor;
 						Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
 							ItemStack cursor = wrap(finalManualRecipe, originalIngredients).getManualOutput();
@@ -418,7 +418,7 @@ public class ContainerEventHandler implements Listener {
 
 					// Prevent players from moving their opened pocket container
 					if (event.getSlot() == player.getInventory().getHeldItemSlot()) {
-						if (itemSet.getItem(event.getCurrentItem()) instanceof CustomPocketContainerValues) {
+						if (itemSet.getItem(event.getCurrentItem()) instanceof KciPocketContainer) {
 							event.setCancelled(true);
 							return;
 						}
@@ -433,18 +433,18 @@ public class ContainerEventHandler implements Listener {
 						event.setCancelled(true);
 
 						ItemStack toTransfer = event.getCurrentItem();
-						CustomItemValues customTransfer = itemSet.getItem(toTransfer);
+						KciItem customTransfer = itemSet.getItem(toTransfer);
 
 						// First try to find a slot that already contains the item
 						for (int y = 0; y < customContainer.getType().getHeight(); y++) {
 							for (int x = 0; x < 9; x++) {
-								ContainerSlotValues slot = customContainer.getType().getSlot(x, y);
+								ContainerSlot slot = customContainer.getType().getSlot(x, y);
 								if (slot.canInsertItems()) {
 									ItemStack existingItem = event.getInventory().getItem(x + 9 * y);
 									if (!ItemUtils.isEmpty(existingItem)) {
 										int transferredAmount = 0;
 										if (customTransfer != null) {
-											CustomItemValues customExisting = itemSet.getItem(existingItem);
+											KciItem customExisting = itemSet.getItem(existingItem);
 											if (customExisting == customTransfer) {
 												transferredAmount = Math.min(
 														customTransfer.getMaxStacksize() 
@@ -480,7 +480,7 @@ public class ContainerEventHandler implements Listener {
 						// Place the remainder in a suitable slot that is still empty
 						for (int y = 0; y < customContainer.getType().getHeight(); y++) {
 							for (int x = 0; x < 9; x++) {
-								ContainerSlotValues slot = customContainer.getType().getSlot(x, y);
+								ContainerSlot slot = customContainer.getType().getSlot(x, y);
 								if (slot.canInsertItems()) {
 									ItemStack existing = event.getInventory().getItem(x + 9 * y);
 									if (ItemUtils.isEmpty(existing)) {
@@ -497,7 +497,7 @@ public class ContainerEventHandler implements Listener {
 				}
 			}
 			
-			List<CustomContainerValues> containerSelection = pluginData().containerSelections.getShown(event.getWhoClicked());
+			List<KciContainer> containerSelection = pluginData().containerSelections.getShown(event.getWhoClicked());
 			if (containerSelection != null) {
 				// Block any inventory action during container selection
 				event.setCancelled(true);
@@ -510,7 +510,7 @@ public class ContainerEventHandler implements Listener {
 					);
 					event.getWhoClicked().closeInventory();
 				} else if (slotIndex <= containerSelection.size() && slotIndex >= 0) {
-					CustomContainerValues toOpen = containerSelection.get(slotIndex - 1);
+					KciContainer toOpen = containerSelection.get(slotIndex - 1);
 					Bukkit.getScheduler().scheduleSyncDelayedTask(
 							CustomItemsPlugin.getInstance(), 
 							() -> pluginData().containerManager.selectCustomContainer(
@@ -543,18 +543,18 @@ public class ContainerEventHandler implements Listener {
 		if (event.getAction() == Action.LEFT_CLICK_BLOCK && event.getPlayer().isSneaking()) {
 			
 			String blockName = KciNms.instance.items.getMaterialName(event.getClickedBlock());
-			CIMaterial blockType;
+			VMaterial blockType;
 			try {
-				blockType = CIMaterial.valueOf(blockName);
+				blockType = VMaterial.valueOf(blockName);
 			} catch (IllegalArgumentException unknownBlockTpe) {
 				blockType = null;
 			}
 
-			VanillaContainerType vanillaType = VanillaContainerType.fromMaterial(blockType);
+			VContainerType vanillaType = VContainerType.fromMaterial(blockType);
 			if (vanillaType != null) {
 				Inventory menu = pluginData().containerSelections.getBlockContainerMenu(
 						event.getClickedBlock().getLocation(),
-						event.getPlayer(), new CustomContainerHost(vanillaType)
+						event.getPlayer(), new ContainerHost(vanillaType)
 				);
 
 				if (menu != null) {
@@ -564,9 +564,9 @@ public class ContainerEventHandler implements Listener {
 		} else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && !event.getPlayer().isSneaking()) {
 			try {
 				String blockName = KciNms.instance.items.getMaterialName(event.getClickedBlock());
-				CIMaterial blockType = CIMaterial.valueOf(blockName);
+				VMaterial blockType = VMaterial.valueOf(blockName);
 				Inventory maybeMenu = pluginData().containerSelections.getBlockContainerMenu(
-						event.getClickedBlock().getLocation(), event.getPlayer(), new CustomContainerHost(blockType)
+						event.getClickedBlock().getLocation(), event.getPlayer(), new ContainerHost(blockType)
 				);
 
 				if (maybeMenu != null) {
@@ -576,11 +576,11 @@ public class ContainerEventHandler implements Listener {
 				// There is no need to do anything in this case
 			}
 
-			CustomBlockValues maybeCustomBlock = MushroomBlockHelper.getMushroomBlock(event.getClickedBlock());
+			KciBlock maybeCustomBlock = MushroomBlockHelper.getMushroomBlock(event.getClickedBlock());
 			if (maybeCustomBlock != null) {
 				BlockReference customBlockReference = itemSet.get().blocks.getReference(maybeCustomBlock.getInternalID());
 				Inventory maybeMenu = pluginData().containerSelections.getBlockContainerMenu(
-						event.getClickedBlock().getLocation(), event.getPlayer(), new CustomContainerHost(customBlockReference)
+						event.getClickedBlock().getLocation(), event.getPlayer(), new ContainerHost(customBlockReference)
 				);
 				if (maybeMenu != null) {
 					event.getPlayer().openInventory(maybeMenu);
@@ -603,21 +603,21 @@ public class ContainerEventHandler implements Listener {
 		if (event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 
 			PlayerInventory inv = event.getPlayer().getInventory();
-			CustomItemValues customMain = itemSet.getItem(inv.getItemInMainHand());
-			CustomItemValues customOff = itemSet.getItem(inv.getItemInOffHand());
+			KciItem customMain = itemSet.getItem(inv.getItemInMainHand());
+			KciItem customOff = itemSet.getItem(inv.getItemInOffHand());
 
 			// Prevent players from opening 2 pocket containers at the same time
 			if (
-					customMain instanceof CustomPocketContainerValues
-							&& customOff instanceof CustomPocketContainerValues
+					customMain instanceof KciPocketContainer
+							&& customOff instanceof KciPocketContainer
 							&& event.getHand() != EquipmentSlot.HAND
 			) {
 				return;
 			}
 
-			CustomItemValues customItem = itemSet.getItem(event.getItem());
-			if (customItem instanceof CustomPocketContainerValues) {
-				CustomPocketContainerValues pocketContainer = (CustomPocketContainerValues) customItem;
+			KciItem customItem = itemSet.getItem(event.getItem());
+			if (customItem instanceof KciPocketContainer) {
+				KciPocketContainer pocketContainer = (KciPocketContainer) customItem;
 				Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(),
 						() ->pluginData().containerSelections.openPocketContainerMenu(event.getPlayer(), pocketContainer)
 				);

@@ -2,7 +2,7 @@ package nl.knokko.customitems.editor.menu.edit.drops.block;
 
 import java.awt.image.BufferedImage;
 
-import nl.knokko.customitems.drops.BlockDropValues;
+import nl.knokko.customitems.drops.BlockDrop;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
@@ -10,12 +10,12 @@ import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.StringLength;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.BlockDropReference;
-import nl.knokko.customitems.recipe.OutputTableValues;
-import nl.knokko.customitems.recipe.result.CustomItemResultValues;
+import nl.knokko.customitems.recipe.OutputTable;
+import nl.knokko.customitems.recipe.result.CustomItemResult;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
-public class BlockDropCollectionEdit extends DedicatedCollectionEdit<BlockDropValues, BlockDropReference> {
+public class BlockDropCollectionEdit extends DedicatedCollectionEdit<BlockDrop, BlockDropReference> {
 	
 	private final EditMenu menu;
 
@@ -28,26 +28,26 @@ public class BlockDropCollectionEdit extends DedicatedCollectionEdit<BlockDropVa
 	protected void addComponents() {
 		super.addComponents();
 		addComponent(new DynamicTextButton("New block drop", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new EditBlockDrop(menu.getSet(), this, new BlockDropValues(true), null));
+			state.getWindow().setMainComponent(new EditBlockDrop(menu.getSet(), this, new BlockDrop(true), null));
 		}), 0.025f, 0.2f, 0.2f, 0.3f);
 		
 		HelpButtons.addHelpLink(this, "edit menu/drops/blocks.html");
 	}
 
 	@Override
-	protected String getModelLabel(BlockDropValues model) {
+	protected String getModelLabel(BlockDrop model) {
 		String fullLabel = model.getDrop().toString() + " for " + model.getBlockType();
 		return StringLength.fixLength(fullLabel, 50);
 	}
 
 	@Override
-	protected BufferedImage getModelIcon(BlockDropValues model) {
+	protected BufferedImage getModelIcon(BlockDrop model) {
 
 		// If we have any custom item drop, use that as icon!
-		OutputTableValues dropTable = model.getDrop().getOutputTable();
-		for (OutputTableValues.Entry entry : dropTable.getEntries()) {
-			if (entry.getResult() instanceof CustomItemResultValues) {
-				CustomItemResultValues customResult = (CustomItemResultValues) entry.getResult();
+		OutputTable dropTable = model.getDrop().getOutputTable();
+		for (OutputTable.Entry entry : dropTable.getEntries()) {
+			if (entry.getResult() instanceof CustomItemResult) {
+				CustomItemResult customResult = (CustomItemResult) entry.getResult();
 				return customResult.getItem().getTexture().getImage();
 			}
 		}
@@ -57,7 +57,7 @@ public class BlockDropCollectionEdit extends DedicatedCollectionEdit<BlockDropVa
 	}
 
 	@Override
-	protected boolean canEditModel(BlockDropValues model) {
+	protected boolean canEditModel(BlockDrop model) {
 		return true;
 	}
 

@@ -4,10 +4,10 @@ import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.util.Validation;
-import nl.knokko.customitems.item.CustomItemType;
-import nl.knokko.customitems.item.CustomItemType.Category;
+import nl.knokko.customitems.item.KciItemType;
+import nl.knokko.customitems.item.KciItemType.Category;
 import nl.knokko.customitems.itemset.ProjectileCoverReference;
-import nl.knokko.customitems.projectile.cover.ProjectileCoverValues;
+import nl.knokko.customitems.projectile.cover.ProjectileCover;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.EagerTextEditField;
@@ -17,7 +17,7 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
 
-public abstract class EditProjectileCover<V extends ProjectileCoverValues> extends GuiMenu {
+public abstract class EditProjectileCover<V extends ProjectileCover> extends GuiMenu {
 	
 	protected final EditMenu menu;
 	
@@ -59,7 +59,7 @@ public abstract class EditProjectileCover<V extends ProjectileCoverValues> exten
 				new DynamicTextComponent("Internal item type:", EditProps.LABEL),
 				0.25f, 0.7f, 0.59f, 0.8f
 		);
-		addComponent(EnumSelect.createSelectButton(CustomItemType.class, currentValues::setItemType, (CustomItemType option) -> {
+		addComponent(EnumSelect.createSelectButton(KciItemType.class, currentValues::setItemType, (KciItemType option) -> {
 			return option.canServe(Category.PROJECTILE_COVER);
 		}, currentValues.getItemType()), 0.6f, 0.71f, 0.8f, 0.79f);
 		

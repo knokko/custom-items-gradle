@@ -1,10 +1,10 @@
 package nl.knokko.customitems.editor.menu.edit.attack.effect;
 
-import nl.knokko.customitems.attack.effect.AttackEffectValues;
-import nl.knokko.customitems.attack.effect.AttackPotionEffectValues;
+import nl.knokko.customitems.attack.effect.AttackEffect;
+import nl.knokko.customitems.attack.effect.AttackEffectPotion;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.effect.EffectType;
+import nl.knokko.customitems.effect.VEffectType;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerIntEditField;
@@ -16,10 +16,10 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class EditAttackPotionEffect extends EditAttackEffect {
 
-    private final AttackPotionEffectValues currentValues;
+    private final AttackEffectPotion currentValues;
 
     public EditAttackPotionEffect(
-            AttackPotionEffectValues oldValues, Consumer<AttackEffectValues> changeValues,
+            AttackEffectPotion oldValues, Consumer<AttackEffect> changeValues,
             GuiComponent returnMenu, ItemSet itemSet
     ) {
         super(changeValues, returnMenu, itemSet);
@@ -31,7 +31,7 @@ public class EditAttackPotionEffect extends EditAttackEffect {
         super.addComponents();
         addComponent(new DynamicTextComponent("Potion effect:", LABEL), 0.4f, 0.7f, 0.55f, 0.8f);
         addComponent(EnumSelect.createSelectButton(
-                EffectType.class, currentValues::setPotionEffectType, currentValues.getPotionEffect().getType()
+                VEffectType.class, currentValues::setPotionEffectType, currentValues.getPotionEffect().getType()
         ), 0.6f, 0.7f, 0.8f, 0.8f);
 
         addComponent(new DynamicTextComponent("Duration:", LABEL), 0.4f, 0.55f, 0.5f, 0.65f);
@@ -48,7 +48,7 @@ public class EditAttackPotionEffect extends EditAttackEffect {
     }
 
     @Override
-    protected AttackEffectValues getCurrentValues() {
+    protected AttackEffect getCurrentValues() {
         return currentValues;
     }
 }

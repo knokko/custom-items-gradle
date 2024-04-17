@@ -5,7 +5,7 @@ import java.util.function.Consumer;
 
 import nl.knokko.customitems.editor.menu.edit.*;
 import nl.knokko.customitems.editor.menu.edit.collection.InlineCollectionEdit;
-import nl.knokko.customitems.item.ReplacementConditionValues;
+import nl.knokko.customitems.item.ReplacementConditionEntry;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.image.ImageButton;
@@ -15,22 +15,22 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
-public class ReplacementCollectionEdit extends InlineCollectionEdit<ReplacementConditionValues> {
+public class ReplacementCollectionEdit extends InlineCollectionEdit<ReplacementConditionEntry> {
 
-	private final ReplacementConditionValues exampleCondition;
+	private final ReplacementConditionEntry exampleCondition;
 	private final Iterable<ItemReference> backingItems;
-	private ReplacementConditionValues.ConditionOperation op;
-	private final Consumer<ReplacementConditionValues.ConditionOperation> changeOperation;
+	private ReplacementConditionEntry.ConditionOperation op;
+	private final Consumer<ReplacementConditionEntry.ConditionOperation> changeOperation;
 	private final int MAX_DEFAULT_SPACE = 2368; // 37 slots of 64 items at most
 	
 	public ReplacementCollectionEdit(
-			Collection<ReplacementConditionValues> currentCollection,
-			ReplacementConditionValues.ConditionOperation currentOp,
-			Consumer<Collection<ReplacementConditionValues>> onApply,
+			Collection<ReplacementConditionEntry> currentCollection,
+			ReplacementConditionEntry.ConditionOperation currentOp,
+			Consumer<Collection<ReplacementConditionEntry>> onApply,
 			GuiComponent returnMenu,
-			ReplacementConditionValues exampleCondition,
+			ReplacementConditionEntry exampleCondition,
 			Iterable<ItemReference> backingItems,
-			Consumer<ReplacementConditionValues.ConditionOperation> changeOperation) {
+			Consumer<ReplacementConditionEntry.ConditionOperation> changeOperation) {
 		super(returnMenu, currentCollection, onApply);
 		this.exampleCondition = exampleCondition;
 		this.backingItems = backingItems;
@@ -41,7 +41,7 @@ public class ReplacementCollectionEdit extends InlineCollectionEdit<ReplacementC
 	@Override
 	protected void addComponents() {
 		super.addComponents();
-		addComponent(EnumSelect.createSelectButton(ReplacementConditionValues.ConditionOperation.class, newCondition -> {
+		addComponent(EnumSelect.createSelectButton(ReplacementConditionEntry.ConditionOperation.class, newCondition -> {
 			this.op = newCondition;
 		}, op), 0.025f, 0.4f, 0.175f, 0.5f);
 		
@@ -50,9 +50,9 @@ public class ReplacementCollectionEdit extends InlineCollectionEdit<ReplacementC
 		
 		addComponent(new DynamicTextButton("Apply", SAVE_BASE, SAVE_HOVER, () -> {
 			//Sanity checking whether every item is replaced with the same item when using the AND or OR operators
-			if (op == ReplacementConditionValues.ConditionOperation.AND || op == ReplacementConditionValues.ConditionOperation.OR) {
+			if (op == ReplacementConditionEntry.ConditionOperation.AND || op == ReplacementConditionEntry.ConditionOperation.OR) {
 				String replacementItem = null;
-				for (ReplacementConditionValues cond: ownCollection) {
+				for (ReplacementConditionEntry cond: ownCollection) {
 					if (cond.getReplaceItemReference() == null) {
 						errorComponent.setText("You must choose a replace item");
 						return;
@@ -68,17 +68,17 @@ public class ReplacementCollectionEdit extends InlineCollectionEdit<ReplacementC
 			}
 
 			//Sanity checking conditions for always being true or false
-			for (ReplacementConditionValues cond: ownCollection) {
-				if (cond.getCondition() == ReplacementConditionValues.ReplacementCondition.HASITEM) {
-					if (cond.getOperation() == ReplacementConditionValues.ReplacementOperation.ATMOST && cond.getValue() >= MAX_DEFAULT_SPACE) {
+			for (ReplacementConditionEntry cond: ownCollection) {
+				if (cond.getCondition() == ReplacementConditionEntry.ReplacementCondition.HASITEM) {
+					if (cond.getOperation() == ReplacementConditionEntry.ReplacementOperation.ATMOST && cond.getValue() >= MAX_DEFAULT_SPACE) {
 						errorComponent.setText("One of your conditions will always be true, check the condition where " +
 								"you have as operation ATMOST with value " + cond.getValue());
 						return;
-					} else if (cond.getOperation() == ReplacementConditionValues.ReplacementOperation.ATLEAST && cond.getValue() >= MAX_DEFAULT_SPACE) {
+					} else if (cond.getOperation() == ReplacementConditionEntry.ReplacementOperation.ATLEAST && cond.getValue() >= MAX_DEFAULT_SPACE) {
 						errorComponent.setText("One of your conditions will always be false, check the condition where " +
 								"you have as operation ATLEAST with value " + cond.getValue());
 						return;
-					} else if (cond.getOperation() == ReplacementConditionValues.ReplacementOperation.EXACTLY && (cond.getValue() >= MAX_DEFAULT_SPACE ||
+					} else if (cond.getOperation() == ReplacementConditionEntry.ReplacementOperation.EXACTLY && (cond.getValue() >= MAX_DEFAULT_SPACE ||
 							cond.getValue() <= 0)) {
 						errorComponent.setText("One of your conditions will always be false, check the condition where " +
 								"you have as operation EXACTLY with value " + cond.getValue());
@@ -95,9 +95,9 @@ public class ReplacementCollectionEdit extends InlineCollectionEdit<ReplacementC
 
 	@Override
 	protected void addRowComponents(int itemIndex, float minY, float maxY) {
-		ReplacementConditionValues replaceCondition = ownCollection.get(itemIndex);
+		ReplacementConditionEntry replaceCondition = ownCollection.get(itemIndex);
 		GuiComponent conditionButton = EnumSelect.createSelectButton(
-				ReplacementConditionValues.ReplacementCondition.class, replaceCondition::setCondition, replaceCondition.getCondition()
+				ReplacementConditionEntry.ReplacementCondition.class, replaceCondition::setCondition, replaceCondition.getCondition()
 		);
 
 		GuiComponent itemButton = CollectionSelect.createButton(
@@ -105,7 +105,7 @@ public class ReplacementCollectionEdit extends InlineCollectionEdit<ReplacementC
 				replaceCondition.getItemReference(), false
 		);
 		GuiComponent operationButton = EnumSelect.createSelectButton(
-				ReplacementConditionValues.ReplacementOperation.class, replaceCondition::setOperation, replaceCondition.getOperation()
+				ReplacementConditionEntry.ReplacementOperation.class, replaceCondition::setOperation, replaceCondition.getOperation()
 		);
 		GuiComponent replacingItemButton = CollectionSelect.createButton(
 				backingItems, replaceCondition::setReplaceItem,
@@ -126,7 +126,7 @@ public class ReplacementCollectionEdit extends InlineCollectionEdit<ReplacementC
 	}
 
 	@Override
-	protected ReplacementConditionValues addNew() {
+	protected ReplacementConditionEntry addNew() {
 		return exampleCondition;
 	}
 

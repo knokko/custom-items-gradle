@@ -6,9 +6,9 @@ import java.util.function.Consumer;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.menu.edit.collection.InlineCollectionEdit;
-import nl.knokko.customitems.effect.EffectType;
-import nl.knokko.customitems.effect.EquippedPotionEffectValues;
-import nl.knokko.customitems.item.AttributeModifierValues;
+import nl.knokko.customitems.effect.VEffectType;
+import nl.knokko.customitems.effect.EquippedPotionEffect;
+import nl.knokko.customitems.item.KciAttributeModifier;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.image.ImageButton;
 import nl.knokko.gui.component.text.EagerIntEditField;
@@ -17,18 +17,18 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
 
-public class EquippedEffectsCollectionEdit extends InlineCollectionEdit<EquippedPotionEffectValues> {
+public class EquippedEffectsCollectionEdit extends InlineCollectionEdit<EquippedPotionEffect> {
 
-	public EquippedEffectsCollectionEdit(Collection<EquippedPotionEffectValues> currentCollection,
-			Consumer<Collection<EquippedPotionEffectValues>> onApply, GuiComponent returnMenu) {
+	public EquippedEffectsCollectionEdit(Collection<EquippedPotionEffect> currentCollection,
+										 Consumer<Collection<EquippedPotionEffect>> onApply, GuiComponent returnMenu) {
 		super(returnMenu, currentCollection, onApply);
 	}
 
 	@Override
 	protected void addRowComponents(int itemIndex, float minY, float maxY) {
-		EquippedPotionEffectValues equippedEffect = ownCollection.get(itemIndex);
+		EquippedPotionEffect equippedEffect = ownCollection.get(itemIndex);
 		GuiComponent effectButton = EnumSelect.createSelectButton(
-				EffectType.class, equippedEffect::setType, equippedEffect.getType()
+				VEffectType.class, equippedEffect::setType, equippedEffect.getType()
 		);
 		addComponent(new ImageButton(deleteBase, deleteHover, () -> {
 			removeItem(itemIndex);
@@ -36,7 +36,7 @@ public class EquippedEffectsCollectionEdit extends InlineCollectionEdit<Equipped
 		addComponent(effectButton, 0.375f, minY, 0.5f, maxY);
 		
 		GuiComponent slotButton = EnumSelect.createSelectButton(
-				AttributeModifierValues.Slot.class, equippedEffect::setSlot, equippedEffect.getSlot()
+				KciAttributeModifier.Slot.class, equippedEffect::setSlot, equippedEffect.getSlot()
 		);
 		addComponent(new DynamicTextComponent("Slot:", EditProps.LABEL), 0.525f, minY, 0.6f, maxY);
 		addComponent(slotButton, 0.625f, minY, 0.725f, maxY);
@@ -47,9 +47,9 @@ public class EquippedEffectsCollectionEdit extends InlineCollectionEdit<Equipped
 	}
 
 	@Override
-	protected EquippedPotionEffectValues addNew() {
-		return EquippedPotionEffectValues.createQuick(
-				EffectType.REGENERATION, 1, AttributeModifierValues.Slot.MAINHAND
+	protected EquippedPotionEffect addNew() {
+		return EquippedPotionEffect.createQuick(
+				VEffectType.REGENERATION, 1, KciAttributeModifier.Slot.MAINHAND
 		);
 	}
 

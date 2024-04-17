@@ -1,6 +1,6 @@
 package nl.knokko.customitems.plugin.set.item;
 
-import nl.knokko.customitems.item.CustomArmorValues;
+import nl.knokko.customitems.item.KciArmor;
 import org.bukkit.Color;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -10,7 +10,7 @@ import java.util.List;
 
 public class CustomArmorWrapper extends CustomToolWrapper {
 
-    public static void colorItemMeta(CustomArmorValues armor, ItemMeta meta) {
+    public static void colorItemMeta(KciArmor armor, ItemMeta meta) {
         if (armor.getItemType().isLeatherArmor()) {
             if (armor.getFancyPantsTexture() == null) {
                 ((LeatherArmorMeta) meta).setColor(Color.fromRGB(armor.getRed(), armor.getGreen(), armor.getBlue()));
@@ -20,9 +20,9 @@ public class CustomArmorWrapper extends CustomToolWrapper {
         }
     }
 
-    private final CustomArmorValues armor;
+    private final KciArmor armor;
 
-    CustomArmorWrapper(CustomArmorValues item) {
+    CustomArmorWrapper(KciArmor item) {
         super(item);
         this.armor = item;
     }

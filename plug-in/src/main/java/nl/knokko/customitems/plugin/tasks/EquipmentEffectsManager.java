@@ -1,7 +1,7 @@
 package nl.knokko.customitems.plugin.tasks;
 
-import nl.knokko.customitems.effect.EquippedPotionEffectValues;
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.effect.EquippedPotionEffect;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import org.bukkit.Bukkit;
@@ -11,7 +11,7 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import nl.knokko.customitems.item.AttributeModifierValues.Slot;
+import nl.knokko.customitems.item.KciAttributeModifier.Slot;
 
 public class EquipmentEffectsManager {
 
@@ -23,13 +23,13 @@ public class EquipmentEffectsManager {
 					EntityEquipment equipment = living.getEquipment();
 					if (equipment != null) {
 
-						CustomItemValues mainHand = set.getItem(equipment.getItemInMainHand());
-						CustomItemValues offHand = set.getItem(equipment.getItemInOffHand());
+						KciItem mainHand = set.getItem(equipment.getItemInMainHand());
+						KciItem offHand = set.getItem(equipment.getItemInOffHand());
 
-						CustomItemValues helmet = set.getItem(equipment.getHelmet());
-						CustomItemValues chestplate = set.getItem(equipment.getChestplate());
-						CustomItemValues leggings = set.getItem(equipment.getLeggings());
-						CustomItemValues boots = set.getItem(equipment.getBoots());
+						KciItem helmet = set.getItem(equipment.getHelmet());
+						KciItem chestplate = set.getItem(equipment.getChestplate());
+						KciItem leggings = set.getItem(equipment.getLeggings());
+						KciItem boots = set.getItem(equipment.getBoots());
 
 						giveEffects(living, Slot.MAINHAND, mainHand);
 						giveEffects(living, Slot.OFFHAND, offHand);
@@ -44,9 +44,9 @@ public class EquipmentEffectsManager {
 		}, 50, 30);
 	}
 
-	private static void giveEffects(LivingEntity living, Slot slot, CustomItemValues item) {
+	private static void giveEffects(LivingEntity living, Slot slot, KciItem item) {
 		if (item != null) {
-			for (EquippedPotionEffectValues effect : item.getEquippedEffects()) {
+			for (EquippedPotionEffect effect : item.getEquippedEffects()) {
 				if (effect.getSlot() == slot) {
 					PotionEffectType effectType = PotionEffectType.getByName(effect.getType().name());
 					boolean periodicEffect = effectType.equals(PotionEffectType.REGENERATION)

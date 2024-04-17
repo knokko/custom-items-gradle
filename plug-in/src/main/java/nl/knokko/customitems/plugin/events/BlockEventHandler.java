@@ -1,14 +1,14 @@
 package nl.knokko.customitems.plugin.events;
 
-import nl.knokko.customitems.block.CustomBlockValues;
+import nl.knokko.customitems.block.KciBlock;
 import nl.knokko.customitems.block.MushroomBlockMapping;
-import nl.knokko.customitems.block.drop.CustomBlockDropValues;
-import nl.knokko.customitems.block.drop.RequiredItemValues;
+import nl.knokko.customitems.block.drop.CustomBlockDrop;
+import nl.knokko.customitems.block.drop.RequiredItems;
 import nl.knokko.customitems.block.drop.SilkTouchRequirement;
-import nl.knokko.customitems.drops.CIBiome;
-import nl.knokko.customitems.item.CIMaterial;
-import nl.knokko.customitems.item.CustomBlockItemValues;
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.drops.VBiome;
+import nl.knokko.customitems.item.VMaterial;
+import nl.knokko.customitems.item.KciBlockItem;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
@@ -17,7 +17,7 @@ import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
 import nl.knokko.customitems.plugin.tasks.miningspeed.MiningSpeedManager;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import nl.knokko.customitems.plugin.util.SoundPlayer;
-import nl.knokko.customitems.sound.SoundValues;
+import nl.knokko.customitems.sound.KciSound;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -125,7 +125,7 @@ public class BlockEventHandler implements Listener {
     @EventHandler
     public void preventVanillaCustomBlockPlacements(BlockPlaceEvent event) {
         if (!isPlacingCustomBlock) {
-            if (itemSet.getItem(event.getItemInHand()) instanceof CustomBlockItemValues) {
+            if (itemSet.getItem(event.getItemInHand()) instanceof KciBlockItem) {
                 event.setCancelled(true);
             }
         }
@@ -135,10 +135,10 @@ public class BlockEventHandler implements Listener {
     public void handleCustomBlockPlacements(PlayerInteractEvent event) {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
 
-            CustomItemValues usedItem = itemSet.getItem(event.getItem());
-            if (usedItem instanceof CustomBlockItemValues) {
-                CustomBlockItemValues blockItem = (CustomBlockItemValues) usedItem;
-                CustomBlockValues block = blockItem.getBlock();
+            KciItem usedItem = itemSet.getItem(event.getItem());
+            if (usedItem instanceof KciBlockItem) {
+                KciBlockItem blockItem = (KciBlockItem) usedItem;
+                KciBlock block = blockItem.getBlock();
 
                 Block destination = event.getClickedBlock().getRelative(event.getBlockFace());
                 Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
@@ -179,9 +179,9 @@ public class BlockEventHandler implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void playCustomBlockSounds(BlockBreakEvent event) {
         if (KciNms.instance.blocks.areEnabled()) {
-            CustomBlockValues customBlock = MushroomBlockHelper.getMushroomBlock(event.getBlock());
+            KciBlock customBlock = MushroomBlockHelper.getMushroomBlock(event.getBlock());
             if (customBlock != null) {
-                SoundValues breakSound = customBlock.getSounds().getBreakSound();
+                KciSound breakSound = customBlock.getSounds().getBreakSound();
                 if (breakSound != null) SoundPlayer.playSound(event.getBlock().getLocation(), breakSound);
             }
         }
@@ -191,9 +191,9 @@ public class BlockEventHandler implements Listener {
     public void playCustomBlockSounds(PlayerInteractEvent event) {
         if ((event.getAction() == Action.LEFT_CLICK_BLOCK || event.getAction() == Action.RIGHT_CLICK_BLOCK)
                 && KciNms.instance.blocks.areEnabled()) {
-            CustomBlockValues customBlock = MushroomBlockHelper.getMushroomBlock(event.getClickedBlock());
+            KciBlock customBlock = MushroomBlockHelper.getMushroomBlock(event.getClickedBlock());
             if (customBlock != null) {
-                SoundValues sound;
+                KciSound sound;
                 if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
                     sound = customBlock.getSounds().getLeftClickSound();
                 } else {
@@ -211,9 +211,9 @@ public class BlockEventHandler implements Listener {
             if (event.getTo() != null) {
                 Block to = event.getTo().getBlock().getRelative(BlockFace.DOWN);
                 if (from.getX() != to.getX() || from.getY() != to.getY() || from.getZ() != to.getZ()) {
-                    CustomBlockValues customTo = MushroomBlockHelper.getMushroomBlock(to);
+                    KciBlock customTo = MushroomBlockHelper.getMushroomBlock(to);
                     if (customTo != null && customTo.getSounds().getStepSound() != null) {
-                        CustomBlockValues customFrom = MushroomBlockHelper.getMushroomBlock(from);
+                        KciBlock customFrom = MushroomBlockHelper.getMushroomBlock(from);
                         if (customFrom == null || customFrom.getInternalID() != customTo.getInternalID()) {
                             SoundPlayer.playSound(event.getTo(), customTo.getSounds().getStepSound());
                         }
@@ -226,7 +226,7 @@ public class BlockEventHandler implements Listener {
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void handleCustomBlockDrops(BlockBreakEvent event) {
         if (KciNms.instance.blocks.areEnabled()) {
-            CustomBlockValues customBlock = MushroomBlockHelper.getMushroomBlock(event.getBlock());
+            KciBlock customBlock = MushroomBlockHelper.getMushroomBlock(event.getBlock());
             if (customBlock != null) {
                 event.setDropItems(false);
 
@@ -255,7 +255,7 @@ public class BlockEventHandler implements Listener {
         if (KciNms.instance.blocks.areEnabled()) {
             Random rng = new Random();
             for (Block block : blockList) {
-                CustomBlockValues customBlock = MushroomBlockHelper.getMushroomBlock(block);
+                KciBlock customBlock = MushroomBlockHelper.getMushroomBlock(block);
                 if (customBlock != null) {
 
                     // This will cause the block to be 'removed' before the explosion starts, which will
@@ -273,18 +273,18 @@ public class BlockEventHandler implements Listener {
         }
     }
 
-    public static boolean shouldRequiredItemsAccept(RequiredItemValues ri, ItemStack item, ItemSetWrapper itemSet) {
-        if (item == null) return shouldRequiredItemsAccept(ri, CIMaterial.AIR, null);
-        return shouldRequiredItemsAccept(ri, CIMaterial.valueOf(item.getType().name()), itemSet.getItem(item));
+    public static boolean shouldRequiredItemsAccept(RequiredItems ri, ItemStack item, ItemSetWrapper itemSet) {
+        if (item == null) return shouldRequiredItemsAccept(ri, VMaterial.AIR, null);
+        return shouldRequiredItemsAccept(ri, VMaterial.valueOf(item.getType().name()), itemSet.getItem(item));
     }
 
     public static boolean shouldRequiredItemsAccept(
-            RequiredItemValues ri, CIMaterial usedMaterial, CustomItemValues usedCustomItem
+            RequiredItems ri, VMaterial usedMaterial, KciItem usedCustomItem
     ) {
         if (ri.isEnabled()) {
 
             boolean matchesVanillaItem = false;
-            for (RequiredItemValues.VanillaEntry vanillaEntry : ri.getVanillaItems()) {
+            for (RequiredItems.VanillaEntry vanillaEntry : ri.getVanillaItems()) {
                 if (vanillaEntry.getMaterial() == usedMaterial) {
                     if (vanillaEntry.shouldAllowCustomItems() || usedCustomItem == null) {
                         matchesVanillaItem = true;
@@ -306,10 +306,10 @@ public class BlockEventHandler implements Listener {
         } else return true;
     }
 
-    private void dropCustomBlockDrops(CustomBlockValues block, Location location, ItemStack usedTool) {
+    private void dropCustomBlockDrops(KciBlock block, Location location, ItemStack usedTool) {
         Random rng = new Random();
 
-        for (CustomBlockDropValues blockDrop : block.getDrops()) {
+        for (CustomBlockDrop blockDrop : block.getDrops()) {
 
             boolean usedSilkTouch = false;
             int fortuneLevel = 0;
@@ -331,7 +331,7 @@ public class BlockEventHandler implements Listener {
 
             if (!shouldRequiredItemsAccept(blockDrop.getDrop().getRequiredHeldItems(), usedTool, itemSet)) continue;
 
-            if (!blockDrop.getDrop().getAllowedBiomes().isAllowed(CIBiome.valueOf(location.getBlock().getBiome().name()))) continue;
+            if (!blockDrop.getDrop().getAllowedBiomes().isAllowed(VBiome.valueOf(location.getBlock().getBiome().name()))) continue;
 
             ItemStack itemToDrop = convertResultToItemStack(blockDrop.getDrop().getOutputTable().pickResult(rng));
             if (itemToDrop != null) {
@@ -345,18 +345,18 @@ public class BlockEventHandler implements Listener {
         if (event.getPlayer().getGameMode() == GameMode.CREATIVE) return;
         if (event.getAction() == Action.LEFT_CLICK_BLOCK && KciNms.instance.blocks.areEnabled()) {
 
-            CustomBlockValues customBlock = MushroomBlockHelper.getMushroomBlock(event.getClickedBlock());
+            KciBlock customBlock = MushroomBlockHelper.getMushroomBlock(event.getClickedBlock());
             MiningSpeedManager miningSpeedManager = CustomItemsPlugin.getInstance().getMiningSpeedManager();
             if (customBlock != null) {
-                CIMaterial material;
-                CustomItemValues customItem;
+                VMaterial material;
+                KciItem customItem;
 
                 ItemStack item = event.getItem();
                 if (ItemUtils.isEmpty(item)) {
-                    material = CIMaterial.AIR;
+                    material = VMaterial.AIR;
                     customItem = null;
                 } else {
-                    material = CIMaterial.valueOf(KciNms.instance.items.getMaterialName(item));
+                    material = VMaterial.valueOf(KciNms.instance.items.getMaterialName(item));
                     customItem = itemSet.getItem(item);
                 }
 

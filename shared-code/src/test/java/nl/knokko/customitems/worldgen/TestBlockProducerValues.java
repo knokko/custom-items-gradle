@@ -1,6 +1,6 @@
 package nl.knokko.customitems.worldgen;
 
-import nl.knokko.customitems.item.CIMaterial;
+import nl.knokko.customitems.item.VMaterial;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.util.Chance;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -11,26 +11,26 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TestBlockProducerValues {
 
-    private static final ProducedBlock SIMPLE_BLOCK = new ProducedBlock(CIMaterial.STONE);
+    private static final ProducedBlock SIMPLE_BLOCK = new ProducedBlock(VMaterial.STONE);
 
     @Test
     public void testNothingChance() {
-        assertEquals(Chance.percentage(100), BlockProducerValues.createQuick().getNothingChance());
+        assertEquals(Chance.percentage(100), BlockProducer.createQuick().getNothingChance());
 
-        BlockProducerValues partialTable = BlockProducerValues.createQuick(
-                BlockProducerValues.Entry.createQuick(SIMPLE_BLOCK, Chance.percentage(60))
+        BlockProducer partialTable = BlockProducer.createQuick(
+                BlockProducer.Entry.createQuick(SIMPLE_BLOCK, Chance.percentage(60))
         );
         assertEquals(Chance.percentage(40), partialTable.getNothingChance());
 
-        BlockProducerValues fullTable = BlockProducerValues.createQuick(
-                BlockProducerValues.Entry.createQuick(SIMPLE_BLOCK, Chance.percentage(30)),
-                BlockProducerValues.Entry.createQuick(SIMPLE_BLOCK, Chance.percentage(70))
+        BlockProducer fullTable = BlockProducer.createQuick(
+                BlockProducer.Entry.createQuick(SIMPLE_BLOCK, Chance.percentage(30)),
+                BlockProducer.Entry.createQuick(SIMPLE_BLOCK, Chance.percentage(70))
         );
         assertEquals(Chance.percentage(0), fullTable.getNothingChance());
 
-        BlockProducerValues overTable = BlockProducerValues.createQuick(
-                BlockProducerValues.Entry.createQuick(SIMPLE_BLOCK, Chance.percentage(80)),
-                BlockProducerValues.Entry.createQuick(SIMPLE_BLOCK, Chance.percentage(40))
+        BlockProducer overTable = BlockProducer.createQuick(
+                BlockProducer.Entry.createQuick(SIMPLE_BLOCK, Chance.percentage(80)),
+                BlockProducer.Entry.createQuick(SIMPLE_BLOCK, Chance.percentage(40))
         );
         assertNull(overTable.getNothingChance());
     }
@@ -38,36 +38,36 @@ public class TestBlockProducerValues {
     @Test
     public void testValidateTooBigTotalChance() {
         assertThrows(ValidationException.class, () -> {
-            BlockProducerValues.createQuick(
-                    BlockProducerValues.Entry.createQuick(SIMPLE_BLOCK, Chance.percentage(80)),
-                    BlockProducerValues.Entry.createQuick(SIMPLE_BLOCK, Chance.percentage(40))
+            BlockProducer.createQuick(
+                    BlockProducer.Entry.createQuick(SIMPLE_BLOCK, Chance.percentage(80)),
+                    BlockProducer.Entry.createQuick(SIMPLE_BLOCK, Chance.percentage(40))
             ).validate(new ItemSet(ItemSet.Side.EDITOR));
         });
     }
 
     @Test
     public void testValidateNotFull() throws ValidationException, ProgrammingValidationException {
-        BlockProducerValues.createQuick(
-                BlockProducerValues.Entry.createQuick(SIMPLE_BLOCK, Chance.percentage(60))
+        BlockProducer.createQuick(
+                BlockProducer.Entry.createQuick(SIMPLE_BLOCK, Chance.percentage(60))
         ).validate(new ItemSet(ItemSet.Side.EDITOR));
     }
 
     @Test
     public void testValidateFull() throws ValidationException, ProgrammingValidationException {
-        BlockProducerValues.createQuick(
-                BlockProducerValues.Entry.createQuick(SIMPLE_BLOCK, Chance.percentage(30)),
-                BlockProducerValues.Entry.createQuick(SIMPLE_BLOCK, Chance.percentage(70))
+        BlockProducer.createQuick(
+                BlockProducer.Entry.createQuick(SIMPLE_BLOCK, Chance.percentage(30)),
+                BlockProducer.Entry.createQuick(SIMPLE_BLOCK, Chance.percentage(70))
         ).validate(new ItemSet(ItemSet.Side.EDITOR));
     }
 
     @Test
     public void testProduce() {
-        ProducedBlock result1 = new ProducedBlock(CIMaterial.GLASS);
-        ProducedBlock result2 = new ProducedBlock(CIMaterial.WOOL);
+        ProducedBlock result1 = new ProducedBlock(VMaterial.GLASS);
+        ProducedBlock result2 = new ProducedBlock(VMaterial.WOOL);
 
-        BlockProducerValues mixedTable = BlockProducerValues.createQuick(
-                BlockProducerValues.Entry.createQuick(result1, Chance.percentage(30)),
-                BlockProducerValues.Entry.createQuick(result2, Chance.percentage(60))
+        BlockProducer mixedTable = BlockProducer.createQuick(
+                BlockProducer.Entry.createQuick(result1, Chance.percentage(30)),
+                BlockProducer.Entry.createQuick(result2, Chance.percentage(60))
         );
 
         assertEquals(result1, mixedTable.produce(Chance.percentage(0)));
@@ -79,8 +79,8 @@ public class TestBlockProducerValues {
         assertNull(mixedTable.produce(Chance.percentage(90)));
         assertNull(mixedTable.produce(Chance.percentage(99)));
 
-        BlockProducerValues singletonTable = BlockProducerValues.createQuick(
-                BlockProducerValues.Entry.createQuick(result1, Chance.percentage(100))
+        BlockProducer singletonTable = BlockProducer.createQuick(
+                BlockProducer.Entry.createQuick(result1, Chance.percentage(100))
         );
         assertEquals(result1, singletonTable.produce(Chance.percentage(0)));
         assertEquals(result1, singletonTable.produce(Chance.percentage(99)));

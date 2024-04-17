@@ -2,8 +2,8 @@ package nl.knokko.customitems.editor.menu.edit.recipe.result;
 
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.util.Validation;
-import nl.knokko.customitems.item.CIMaterial;
-import nl.knokko.customitems.recipe.result.DataVanillaResultValues;
+import nl.knokko.customitems.item.VMaterial;
+import nl.knokko.customitems.recipe.result.DataVanillaResult;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -19,15 +19,15 @@ public class ChooseDataVanillaResult extends GuiMenu {
 
     private final GuiComponent returnMenu;
     private final boolean chooseAmount;
-    private final Consumer<DataVanillaResultValues> onSelect;
+    private final Consumer<DataVanillaResult> onSelect;
 
-    private final DataVanillaResultValues result;
+    private final DataVanillaResult result;
 
-    public ChooseDataVanillaResult(GuiComponent returnMenu, boolean chooseAmount, Consumer<DataVanillaResultValues> onSelect) {
+    public ChooseDataVanillaResult(GuiComponent returnMenu, boolean chooseAmount, Consumer<DataVanillaResult> onSelect) {
         this.returnMenu = returnMenu;
         this.chooseAmount = chooseAmount;
         this.onSelect = onSelect;
-        this.result = new DataVanillaResultValues(true);
+        this.result = new DataVanillaResult(true);
     }
 
     @Override
@@ -41,7 +41,7 @@ public class ChooseDataVanillaResult extends GuiMenu {
 
         addComponent(new DynamicTextComponent("Item:", LABEL), 0.3f, 0.6f, 0.4f, 0.7f);
         addComponent(
-                EnumSelect.createSelectButton(CIMaterial.class, result::setMaterial, result.getMaterial()),
+                EnumSelect.createSelectButton(VMaterial.class, result::setMaterial, result.getMaterial()),
                 0.45f, 0.6f, 0.65f, 0.7f
         );
         addComponent(new DynamicTextComponent("Data value:", LABEL), 0.25f, 0.5f, 0.4f, 0.6f);

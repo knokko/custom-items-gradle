@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.upgrade;
 
 import nl.knokko.customitems.editor.menu.edit.collection.InlineCollectionEdit;
-import nl.knokko.customitems.recipe.upgrade.VariableUpgradeValues;
+import nl.knokko.customitems.recipe.upgrade.VariableUpgrade;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.image.ImageButton;
 import nl.knokko.gui.component.text.EagerIntEditField;
@@ -14,15 +14,15 @@ import java.util.function.Consumer;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
-public class VariableUpgradeCollectionEdit extends InlineCollectionEdit<VariableUpgradeValues> {
+public class VariableUpgradeCollectionEdit extends InlineCollectionEdit<VariableUpgrade> {
 
-    public VariableUpgradeCollectionEdit(Collection<VariableUpgradeValues> currentCollection, Consumer<List<VariableUpgradeValues>> onApply, GuiComponent returnMenu) {
+    public VariableUpgradeCollectionEdit(Collection<VariableUpgrade> currentCollection, Consumer<List<VariableUpgrade>> onApply, GuiComponent returnMenu) {
         super(currentCollection, onApply, returnMenu);
     }
 
     @Override
     protected void addRowComponents(int itemIndex, float minY, float maxY) {
-        VariableUpgradeValues variable = ownCollection.get(itemIndex);
+        VariableUpgrade variable = ownCollection.get(itemIndex);
         addComponent(new ImageButton(deleteBase, deleteHover, () -> {
             removeItem(itemIndex);
         }), 0.25f, minY, 0.35f, maxY);
@@ -37,8 +37,8 @@ public class VariableUpgradeCollectionEdit extends InlineCollectionEdit<Variable
     }
 
     @Override
-    protected VariableUpgradeValues addNew() {
-        return new VariableUpgradeValues(true);
+    protected VariableUpgrade addNew() {
+        return new VariableUpgrade(true);
     }
 
     @Override

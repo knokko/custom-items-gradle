@@ -13,13 +13,13 @@ import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.function.Consumer;
 
-public class AttackEffectCollectionEdit extends SelfDedicatedCollectionEdit<AttackEffectValues> {
+public class AttackEffectCollectionEdit extends SelfDedicatedCollectionEdit<AttackEffect> {
 
     private final ItemSet itemSet;
 
     public AttackEffectCollectionEdit(
-            Collection<AttackEffectValues> oldCollection,
-            Consumer<Collection<AttackEffectValues>> changeCollection,
+            Collection<AttackEffect> oldCollection,
+            Consumer<Collection<AttackEffect>> changeCollection,
             GuiComponent returnMenu, ItemSet itemSet
     ) {
         super(oldCollection, changeCollection::accept, returnMenu);
@@ -32,8 +32,8 @@ public class AttackEffectCollectionEdit extends SelfDedicatedCollectionEdit<Atta
         addComponent(new DynamicTextButton("Add effect", EditProps.BUTTON, EditProps.HOVER, () -> {
             state.getWindow().setMainComponent(new CreateAttackEffect(
                     this::addModel, this, itemSet,
-                    liveCollection.stream().noneMatch(effect -> effect instanceof AttackIgniteValues),
-                    liveCollection.stream().noneMatch(effect -> effect instanceof AttackDropWeaponValues)
+                    liveCollection.stream().noneMatch(effect -> effect instanceof AttackEffectIgnite),
+                    liveCollection.stream().noneMatch(effect -> effect instanceof AttackEffectDropWeapon)
             ));
         }), 0.025f, 0.2f, 0.2f, 0.3f);
 
@@ -41,33 +41,33 @@ public class AttackEffectCollectionEdit extends SelfDedicatedCollectionEdit<Atta
     }
 
     @Override
-    protected String getModelLabel(AttackEffectValues model) {
+    protected String getModelLabel(AttackEffect model) {
         return model.toString();
     }
 
     @Override
-    protected BufferedImage getModelIcon(AttackEffectValues model) {
+    protected BufferedImage getModelIcon(AttackEffect model) {
         return null;
     }
 
     @Override
-    protected boolean canEditModel(AttackEffectValues model) {
-        return !(model instanceof AttackDropWeaponValues);
+    protected boolean canEditModel(AttackEffect model) {
+        return !(model instanceof AttackEffectDropWeapon);
     }
 
     @Override
-    protected GuiComponent createEditMenu(AttackEffectValues oldModelValues, Consumer<AttackEffectValues> changeModelValues) {
-        if (oldModelValues instanceof AttackPotionEffectValues) {
-            return new EditAttackPotionEffect((AttackPotionEffectValues) oldModelValues, changeModelValues, this, itemSet);
-        } else if (oldModelValues instanceof AttackIgniteValues) {
-            return new EditAttackIgnite((AttackIgniteValues) oldModelValues, changeModelValues, this, itemSet);
-        } else if (oldModelValues instanceof AttackLaunchValues) {
-            return new EditAttackLaunch((AttackLaunchValues) oldModelValues, changeModelValues, this, itemSet);
-        } else if (oldModelValues instanceof AttackDealDamageValues) {
-            return new EditAttackDealDamage((AttackDealDamageValues) oldModelValues, changeModelValues, this, itemSet);
-        } else if (oldModelValues instanceof AttackPlaySoundValues) {
-            return new EditSound(((AttackPlaySoundValues) oldModelValues).getSound(), newSound -> {
-                changeModelValues.accept(AttackPlaySoundValues.createQuick(newSound));
+    protected GuiComponent createEditMenu(AttackEffect oldModelValues, Consumer<AttackEffect> changeModelValues) {
+        if (oldModelValues instanceof AttackEffectPotion) {
+            return new EditAttackPotionEffect((AttackEffectPotion) oldModelValues, changeModelValues, this, itemSet);
+        } else if (oldModelValues instanceof AttackEffectIgnite) {
+            return new EditAttackIgnite((AttackEffectIgnite) oldModelValues, changeModelValues, this, itemSet);
+        } else if (oldModelValues instanceof AttackEffectLaunchProjectile) {
+            return new EditAttackLaunch((AttackEffectLaunchProjectile) oldModelValues, changeModelValues, this, itemSet);
+        } else if (oldModelValues instanceof AttackEffectDelayedDamage) {
+            return new EditAttackDealDamage((AttackEffectDelayedDamage) oldModelValues, changeModelValues, this, itemSet);
+        } else if (oldModelValues instanceof AttackEffectPlaySound) {
+            return new EditSound(((AttackEffectPlaySound) oldModelValues).getSound(), newSound -> {
+                changeModelValues.accept(AttackEffectPlaySound.createQuick(newSound));
             }, this, itemSet);
         } else {
             throw new Error("Unknown AttackEffectValues sublcass: " + oldModelValues.getClass());
@@ -80,8 +80,8 @@ public class AttackEffectCollectionEdit extends SelfDedicatedCollectionEdit<Atta
     }
 
     @Override
-    protected CopyMode getCopyMode(AttackEffectValues model) {
-        if (model instanceof AttackDropWeaponValues || model instanceof AttackIgniteValues) {
+    protected CopyMode getCopyMode(AttackEffect model) {
+        if (model instanceof AttackEffectDropWeapon || model instanceof AttackEffectIgnite) {
             return CopyMode.DISABLED;
         } else {
             return CopyMode.INSTANT;

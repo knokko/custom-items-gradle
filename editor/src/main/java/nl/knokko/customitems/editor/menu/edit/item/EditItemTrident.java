@@ -4,9 +4,8 @@ import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.item.model.EditItemModel;
-import nl.knokko.customitems.editor.resourcepack.DefaultItemModels;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.item.CustomTridentValues;
+import nl.knokko.customitems.item.KciTrident;
 import nl.knokko.customitems.item.model.DefaultModelType;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.gui.component.text.EagerFloatEditField;
@@ -14,13 +13,11 @@ import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
-import java.util.Collection;
-
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
-public class EditItemTrident extends EditItemTool<CustomTridentValues> {
+public class EditItemTrident extends EditItemTool<KciTrident> {
 	
-	public EditItemTrident(EditMenu menu, CustomTridentValues oldValues, ItemReference toModify) {
+	public EditItemTrident(EditMenu menu, KciTrident oldValues, ItemReference toModify) {
 		super(menu, oldValues, toModify);
 	}
 	
