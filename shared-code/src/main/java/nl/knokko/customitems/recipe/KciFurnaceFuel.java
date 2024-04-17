@@ -4,35 +4,35 @@ import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
-import nl.knokko.customitems.recipe.ingredient.IngredientValues;
-import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
+import nl.knokko.customitems.recipe.ingredient.KciIngredient;
+import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredient;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.Validation;
 import nl.knokko.customitems.util.ValidationException;
 
-public class FurnaceFuelValues extends ModelValues {
+public class KciFurnaceFuel extends ModelValues {
 
-    public static FurnaceFuelValues load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+    public static KciFurnaceFuel load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
         if (encoding != 1) throw new UnknownEncodingException("FurnaceFuel", encoding);
 
-        FurnaceFuelValues fuel = new FurnaceFuelValues(false);
-        fuel.item = IngredientValues.load(input, itemSet);
+        KciFurnaceFuel fuel = new KciFurnaceFuel(false);
+        fuel.item = KciIngredient.load(input, itemSet);
         fuel.burnTime = input.readInt();
         return fuel;
     }
 
-    private IngredientValues item;
+    private KciIngredient item;
     private int burnTime;
 
-    public FurnaceFuelValues(boolean mutable) {
+    public KciFurnaceFuel(boolean mutable) {
         super(mutable);
-        this.item = new SimpleVanillaIngredientValues(false);
+        this.item = new SimpleVanillaIngredient(false);
         this.burnTime = 100;
     }
 
-    public FurnaceFuelValues(FurnaceFuelValues toCopy, boolean mutable) {
+    public KciFurnaceFuel(KciFurnaceFuel toCopy, boolean mutable) {
         super(mutable);
         this.item = toCopy.getItem();
         this.burnTime = toCopy.getBurnTime();
@@ -52,18 +52,18 @@ public class FurnaceFuelValues extends ModelValues {
 
     @Override
     public boolean equals(Object other) {
-        if (other instanceof FurnaceFuelValues) {
-            FurnaceFuelValues fuel = (FurnaceFuelValues) other;
+        if (other instanceof KciFurnaceFuel) {
+            KciFurnaceFuel fuel = (KciFurnaceFuel) other;
             return this.item.equals(fuel.item) && this.burnTime == fuel.burnTime;
         } else return false;
     }
 
     @Override
-    public FurnaceFuelValues copy(boolean mutable) {
-        return new FurnaceFuelValues(this, mutable);
+    public KciFurnaceFuel copy(boolean mutable) {
+        return new KciFurnaceFuel(this, mutable);
     }
 
-    public IngredientValues getItem() {
+    public KciIngredient getItem() {
         return item;
     }
 
@@ -71,7 +71,7 @@ public class FurnaceFuelValues extends ModelValues {
         return burnTime;
     }
 
-    public void setItem(IngredientValues item) {
+    public void setItem(KciIngredient item) {
         assertMutable();
         this.item = item.copy(false);
     }
