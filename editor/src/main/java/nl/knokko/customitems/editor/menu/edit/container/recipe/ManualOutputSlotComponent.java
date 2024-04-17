@@ -1,12 +1,12 @@
 package nl.knokko.customitems.editor.menu.edit.container.recipe;
 
-import nl.knokko.customitems.container.ContainerRecipeValues;
-import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.container.ContainerRecipe;
+import nl.knokko.customitems.container.KciContainer;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.recipe.result.ChooseResult;
 import nl.knokko.customitems.editor.util.StringLength;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.recipe.result.ResultValues;
+import nl.knokko.customitems.recipe.result.KciResult;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.color.SimpleGuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -24,8 +24,8 @@ public class ManualOutputSlotComponent implements GuiComponent {
     private final String name;
     private final GuiComponent outerMenu;
     private final ItemSet set;
-    private final CustomContainerValues container;
-    private final ContainerRecipeValues recipe;
+    private final KciContainer container;
+    private final ContainerRecipe recipe;
 
     private GuiComponentState state;
     private GuiTexture topTextTexture;
@@ -33,8 +33,8 @@ public class ManualOutputSlotComponent implements GuiComponent {
     private String currentBottomText;
 
     public ManualOutputSlotComponent(
-            String name, GuiComponent outerMenu, CustomContainerValues container,
-            ContainerRecipeValues recipe, ItemSet set
+            String name, GuiComponent outerMenu, KciContainer container,
+            ContainerRecipe recipe, ItemSet set
     ) {
         this.name = name;
         this.outerMenu = outerMenu;
@@ -43,7 +43,7 @@ public class ManualOutputSlotComponent implements GuiComponent {
         this.set = set;
     }
 
-    private void setResult(ResultValues newResult) {
+    private void setResult(KciResult newResult) {
 
         if (newResult != null) {
             recipe.setManualOutput(this.name, newResult);
@@ -93,7 +93,7 @@ public class ManualOutputSlotComponent implements GuiComponent {
         );
         renderer.renderTexture(topTextTexture, 0.1f, 0.6f, 0.9f, 0.9f);
 
-        ResultValues ownResult = this.name.equals(recipe.getManualOutputSlotName()) ? recipe.getManualOutput() : null;
+        KciResult ownResult = this.name.equals(recipe.getManualOutputSlotName()) ? recipe.getManualOutput() : null;
         String expectedBottomText = ownResult == null ? "" : StringLength.fixLength(ownResult.toString(), 12);
         if (!expectedBottomText.equals(this.currentBottomText)) {
             this.currentBottomText = expectedBottomText;

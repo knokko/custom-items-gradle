@@ -2,7 +2,7 @@ package nl.knokko.customitems.itemset;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
-import nl.knokko.customitems.sound.CustomSoundTypeValues;
+import nl.knokko.customitems.sound.KciSoundType;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.CollectionHelper;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -13,30 +13,30 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
-public class SoundTypeManager extends ModelManager<CustomSoundTypeValues, SoundTypeReference> {
+public class SoundTypeManager extends ModelManager<KciSoundType, SoundTypeReference> {
 
     protected SoundTypeManager(ItemSet itemSet) {
         super(itemSet);
     }
 
     @Override
-    protected void saveElement(CustomSoundTypeValues soundType, BitOutput output, ItemSet.Side targetSide) {
+    protected void saveElement(KciSoundType soundType, BitOutput output, ItemSet.Side targetSide) {
         soundType.save(output, targetSide);
     }
 
     @Override
-    SoundTypeReference createReference(Model<CustomSoundTypeValues> element) {
+    SoundTypeReference createReference(Model<KciSoundType> element) {
         return new SoundTypeReference(element);
     }
 
     @Override
-    protected CustomSoundTypeValues loadElement(BitInput input) throws UnknownEncodingException {
-        return CustomSoundTypeValues.load(input, itemSet);
+    protected KciSoundType loadElement(BitInput input) throws UnknownEncodingException {
+        return KciSoundType.load(input, itemSet);
     }
 
     @Override
     protected void validateExportVersion(
-            CustomSoundTypeValues element, int mcVersion
+            KciSoundType element, int mcVersion
     ) throws ValidationException, ProgrammingValidationException {}
 
     @Override
@@ -47,12 +47,12 @@ public class SoundTypeManager extends ModelManager<CustomSoundTypeValues, SoundT
     }
 
     @Override
-    protected void validateCreation(CustomSoundTypeValues values) throws ValidationException, ProgrammingValidationException {
+    protected void validateCreation(KciSoundType values) throws ValidationException, ProgrammingValidationException {
         values.validate(itemSet, null);
     }
 
     @Override
-    protected void validate(CustomSoundTypeValues soundType) throws ValidationException, ProgrammingValidationException {
+    protected void validate(KciSoundType soundType) throws ValidationException, ProgrammingValidationException {
         Validation.scope(
                 "Sound type " + soundType.getName(),
                 () -> soundType.validate(itemSet, soundType.getId())
@@ -60,7 +60,7 @@ public class SoundTypeManager extends ModelManager<CustomSoundTypeValues, SoundT
     }
 
     @Override
-    protected void validateChange(SoundTypeReference reference, CustomSoundTypeValues newValues) throws ValidationException, ProgrammingValidationException {
+    protected void validateChange(SoundTypeReference reference, KciSoundType newValues) throws ValidationException, ProgrammingValidationException {
         newValues.validate(itemSet, reference.get().getId());
     }
 
@@ -72,7 +72,7 @@ public class SoundTypeManager extends ModelManager<CustomSoundTypeValues, SoundT
         }
     }
 
-    public Optional<CustomSoundTypeValues> get(UUID id) {
+    public Optional<KciSoundType> get(UUID id) {
         return CollectionHelper.find(elements, soundType -> soundType.getValues().getId(), id).map(Model::getValues);
     }
 }

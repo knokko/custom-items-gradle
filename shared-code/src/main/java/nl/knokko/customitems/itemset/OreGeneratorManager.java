@@ -6,36 +6,36 @@ import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.Validation;
 import nl.knokko.customitems.util.ValidationException;
-import nl.knokko.customitems.worldgen.OreVeinGeneratorValues;
+import nl.knokko.customitems.worldgen.OreGenerator;
 
-public class OreGeneratorManager extends ModelManager<OreVeinGeneratorValues, OreVeinGeneratorReference> {
+public class OreGeneratorManager extends ModelManager<OreGenerator, OreGeneratorReference> {
 
     protected OreGeneratorManager(ItemSet itemSet) {
         super(itemSet);
     }
 
     @Override
-    protected void saveElement(OreVeinGeneratorValues oreGenerator, BitOutput output, ItemSet.Side targetSide) {
+    protected void saveElement(OreGenerator oreGenerator, BitOutput output, ItemSet.Side targetSide) {
         oreGenerator.save(output);
     }
 
     @Override
-    OreVeinGeneratorReference createReference(Model<OreVeinGeneratorValues> element) {
-        return new OreVeinGeneratorReference(element);
+    OreGeneratorReference createReference(Model<OreGenerator> element) {
+        return new OreGeneratorReference(element);
     }
 
     @Override
-    protected OreVeinGeneratorValues loadElement(BitInput input) throws UnknownEncodingException {
-        return OreVeinGeneratorValues.load(input, itemSet);
+    protected OreGenerator loadElement(BitInput input) throws UnknownEncodingException {
+        return OreGenerator.load(input, itemSet);
     }
 
     @Override
-    protected void validateExportVersion(OreVeinGeneratorValues oreVein, int mcVersion) throws ValidationException, ProgrammingValidationException {
+    protected void validateExportVersion(OreGenerator oreVein, int mcVersion) throws ValidationException, ProgrammingValidationException {
         Validation.scope("Ore vein generator " + oreVein, oreVein::validateExportVersion, mcVersion);
     }
 
     @Override
-    protected void validate(OreVeinGeneratorValues oreVeinGenerator) throws ValidationException, ProgrammingValidationException {
+    protected void validate(OreGenerator oreVeinGenerator) throws ValidationException, ProgrammingValidationException {
         Validation.scope(
                 "Ore vein generator " + oreVeinGenerator,
                 () -> oreVeinGenerator.validate(itemSet)
@@ -43,12 +43,12 @@ public class OreGeneratorManager extends ModelManager<OreVeinGeneratorValues, Or
     }
 
     @Override
-    protected void validateCreation(OreVeinGeneratorValues values) throws ValidationException, ProgrammingValidationException {
+    protected void validateCreation(OreGenerator values) throws ValidationException, ProgrammingValidationException {
         values.validate(itemSet);
     }
 
     @Override
-    protected void validateChange(OreVeinGeneratorReference reference, OreVeinGeneratorValues newValues) throws ValidationException, ProgrammingValidationException {
+    protected void validateChange(OreGeneratorReference reference, OreGenerator newValues) throws ValidationException, ProgrammingValidationException {
         newValues.validate(itemSet);
     }
 }

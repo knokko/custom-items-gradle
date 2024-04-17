@@ -1,15 +1,15 @@
 package nl.knokko.customitems.serialization;
 
-import nl.knokko.customitems.item.CIMaterial;
-import nl.knokko.customitems.item.CustomItemType;
-import nl.knokko.customitems.item.SimpleCustomItemValues;
+import nl.knokko.customitems.item.VMaterial;
+import nl.knokko.customitems.item.KciItemType;
+import nl.knokko.customitems.item.KciSimpleItem;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.recipe.ShapedRecipeValues;
-import nl.knokko.customitems.recipe.ShapelessRecipeValues;
+import nl.knokko.customitems.recipe.KciShapedRecipe;
+import nl.knokko.customitems.recipe.KciShapelessRecipe;
 import nl.knokko.customitems.recipe.ingredient.*;
-import nl.knokko.customitems.recipe.result.CustomItemResultValues;
-import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
+import nl.knokko.customitems.recipe.result.CustomItemResult;
+import nl.knokko.customitems.recipe.result.SimpleVanillaResult;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -43,8 +43,8 @@ public class TestBackward1 {
     static void testItems1(ItemSet itemSet, int numItems) {
         assertEquals(numItems, itemSet.items.size());
 
-        SimpleCustomItemValues simple1 = (SimpleCustomItemValues) itemSet.items.get("simple1").get();
-        assertEquals(CustomItemType.DIAMOND_HOE, simple1.getItemType());
+        KciSimpleItem simple1 = (KciSimpleItem) itemSet.items.get("simple1").get();
+        assertEquals(KciItemType.DIAMOND_HOE, simple1.getItemType());
         // Internal item damage is no longer relevant
         assertEquals("Simple 1", simple1.getDisplayName());
         assertEquals(listOf("line1", "Second line"), simple1.getLore());
@@ -61,27 +61,27 @@ public class TestBackward1 {
         assertTrue(set.craftingRecipes.stream().anyMatch(candidate -> candidate.equals(getShapelessRecipe1(set))));
     }
 
-    static ShapedRecipeValues getShapedRecipe1(ItemSet itemSet) {
+    static KciShapedRecipe getShapedRecipe1(ItemSet itemSet) {
         ItemReference simple1 = itemSet.items.getReference("simple1");
-        IngredientValues[] ingredients = {
-                new NoIngredientValues(), new NoIngredientValues(), new NoIngredientValues(),
+        KciIngredient[] ingredients = {
+                new NoIngredient(), new NoIngredient(), new NoIngredient(),
 
-                SimpleVanillaIngredientValues.createQuick(CIMaterial.IRON_INGOT, 1),
-                CustomItemIngredientValues.createQuick(simple1, 1),
-                DataVanillaIngredientValues.createQuick(CIMaterial.WOOL, 5, 1),
+                SimpleVanillaIngredient.createQuick(VMaterial.IRON_INGOT, 1),
+                CustomItemIngredient.createQuick(simple1, 1),
+                DataVanillaIngredient.createQuick(VMaterial.WOOL, 5, 1),
 
-                new NoIngredientValues(), new NoIngredientValues(), new NoIngredientValues()
+                new NoIngredient(), new NoIngredient(), new NoIngredient()
         };
-        return ShapedRecipeValues.createQuick(ingredients, CustomItemResultValues.createQuick(simple1, (byte) 1), false);
+        return KciShapedRecipe.createQuick(ingredients, CustomItemResult.createQuick(simple1, (byte) 1), false);
     }
 
-    static ShapelessRecipeValues getShapelessRecipe1(ItemSet itemSet) {
+    static KciShapelessRecipe getShapelessRecipe1(ItemSet itemSet) {
         ItemReference simple1 = itemSet.items.getReference("simple1");
-        List<IngredientValues> ingredients = listOf(
-                CustomItemIngredientValues.createQuick(simple1, 1),
-                SimpleVanillaIngredientValues.createQuick(CIMaterial.APPLE, 1),
-                DataVanillaIngredientValues.createQuick(CIMaterial.CARPET, 8, 1)
+        List<KciIngredient> ingredients = listOf(
+                CustomItemIngredient.createQuick(simple1, 1),
+                SimpleVanillaIngredient.createQuick(VMaterial.APPLE, 1),
+                DataVanillaIngredient.createQuick(VMaterial.CARPET, 8, 1)
         );
-        return ShapelessRecipeValues.createQuick(ingredients, SimpleVanillaResultValues.createQuick(CIMaterial.DIAMOND, 1));
+        return KciShapelessRecipe.createQuick(ingredients, SimpleVanillaResult.createQuick(VMaterial.DIAMOND, 1));
     }
 }

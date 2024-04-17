@@ -2,7 +2,7 @@ package nl.knokko.customitems.plugin.data;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
-import nl.knokko.customitems.item.CustomThrowableValues;
+import nl.knokko.customitems.item.KciThrowable;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 
 import java.util.HashMap;
@@ -32,12 +32,12 @@ public class PlayerThrowableCooldowns {
         });
     }
 
-    public boolean isOnCooldown(CustomThrowableValues throwable, long currentTick) {
+    public boolean isOnCooldown(KciThrowable throwable, long currentTick) {
         Long cooldownExpiresAt = cooldownExpireTimes.get(throwable.getName());
         return cooldownExpiresAt != null && cooldownExpiresAt > currentTick;
     }
 
-    public void setOnCooldown(CustomThrowableValues throwable, long currentTick) {
+    public void setOnCooldown(KciThrowable throwable, long currentTick) {
         cooldownExpireTimes.put(throwable.getName(), currentTick + throwable.getCooldown());
     }
 

@@ -1,10 +1,10 @@
 package nl.knokko.customitems.itemset;
 
-import nl.knokko.customitems.recipe.CraftingRecipeValues;
+import nl.knokko.customitems.recipe.KciCraftingRecipe;
 
-public class CraftingRecipeReference extends UnstableReference<CraftingRecipeValues> {
+public class CraftingRecipeReference extends UnstableReference<KciCraftingRecipe> {
 
-    CraftingRecipeReference(Model<CraftingRecipeValues> model) {
+    CraftingRecipeReference(Model<KciCraftingRecipe> model) {
         super(model);
     }
 }

@@ -1,6 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.attack.effect;
 
-import nl.knokko.customitems.attack.effect.AttackEffectGroupValues;
+import nl.knokko.customitems.attack.effect.AttackEffectGroup;
 import nl.knokko.customitems.editor.util.FixedPointEditField;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.itemset.ItemSet;
@@ -19,14 +19,14 @@ import static nl.knokko.customitems.editor.util.Validation.toErrorString;
 
 public class EditAttackEffectGroup extends GuiMenu {
 
-    private final AttackEffectGroupValues currentValues;
-    private final Consumer<AttackEffectGroupValues> changeValues;
+    private final AttackEffectGroup currentValues;
+    private final Consumer<AttackEffectGroup> changeValues;
     private final boolean isForBlocking;
     private final GuiComponent returnMenu;
     private final ItemSet itemSet;
 
     public EditAttackEffectGroup(
-            AttackEffectGroupValues oldValues, Consumer<AttackEffectGroupValues> changeValues,
+            AttackEffectGroup oldValues, Consumer<AttackEffectGroup> changeValues,
             boolean isForBlocking, GuiComponent returnMenu, ItemSet itemSet
     ) {
         this.currentValues = oldValues.copy(true);

@@ -1,6 +1,6 @@
 package nl.knokko.customitems.plugin.events;
 
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.nms.RaytraceResult;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
@@ -41,7 +41,7 @@ public class AttackRangeEventHandler implements Listener {
     }
 
     private float getAttackRange(ItemStack item) {
-        CustomItemValues customItem = itemSet.getItem(item);
+        KciItem customItem = itemSet.getItem(item);
         if (customItem == null) return 1f;
         return customItem.getAttackRange();
     }

@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.container.slot;
 
-import nl.knokko.customitems.container.slot.ContainerSlotValues;
-import nl.knokko.customitems.container.slot.LinkSlotValues;
+import nl.knokko.customitems.container.slot.ContainerSlot;
+import nl.knokko.customitems.container.slot.LinkSlot;
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
@@ -20,17 +20,17 @@ public class CreateLinkSlot extends GuiMenu {
 
     private final GuiComponent returnMenu;
     private final ItemSet itemSet;
-    private final Consumer<ContainerSlotValues> submitSlot;
+    private final Consumer<ContainerSlot> submitSlot;
 
-    private final LinkSlotValues currentValues;
+    private final LinkSlot currentValues;
 
     public CreateLinkSlot(
-            GuiComponent returnMenu, ItemSet itemSet, Consumer<ContainerSlotValues> submitSlot
+            GuiComponent returnMenu, ItemSet itemSet, Consumer<ContainerSlot> submitSlot
     ) {
         this.returnMenu = returnMenu;
         this.itemSet = itemSet;
         this.submitSlot = submitSlot;
-        this.currentValues = new LinkSlotValues(true);
+        this.currentValues = new LinkSlot(true);
     }
 
     @Override

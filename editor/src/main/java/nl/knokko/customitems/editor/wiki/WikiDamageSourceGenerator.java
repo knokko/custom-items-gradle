@@ -1,9 +1,9 @@
 package nl.knokko.customitems.editor.wiki;
 
 import nl.knokko.customitems.item.*;
-import nl.knokko.customitems.itemset.CustomDamageSourceReference;
+import nl.knokko.customitems.itemset.DamageSourceReference;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.projectile.CustomProjectileValues;
+import nl.knokko.customitems.projectile.KciProjectile;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,15 +18,15 @@ import static nl.knokko.customitems.util.ColorCodes.stripColorCodes;
 
 public class WikiDamageSourceGenerator {
 
-    public static String createLink(CustomDamageSourceReference damageSource, String pathToRoot) {
+    public static String createLink(DamageSourceReference damageSource, String pathToRoot) {
         return "<a href=\"" + pathToRoot + "damage-sources/" + damageSource.get().getId() + ".html\">"
                 + damageSource.get().getName() + "</a>";
     }
 
-    private final CustomDamageSourceReference damageSource;
+    private final DamageSourceReference damageSource;
     private final ItemSet itemSet;
 
-    WikiDamageSourceGenerator(CustomDamageSourceReference damageSource, ItemSet itemSet) {
+    WikiDamageSourceGenerator(DamageSourceReference damageSource, ItemSet itemSet) {
         this.damageSource = damageSource;
         this.itemSet = itemSet;
     }
@@ -37,23 +37,23 @@ public class WikiDamageSourceGenerator {
             output.println("\t\t<h2>Inflicted by</h2>");
             output.println("\t\t<ul>");
 
-            for (CustomItemValues item : itemSet.items) {
+            for (KciItem item : itemSet.items) {
                 List<String> ways = new ArrayList<>();
                 if (damageSource.equals(item.getCustomMeleeDamageSourceReference())) ways.add("melee attack with");
 
-                if (item instanceof CustomArrowValues && damageSource.equals(((CustomArrowValues) item).getCustomShootDamageSourceReference())) {
+                if (item instanceof KciArrow && damageSource.equals(((KciArrow) item).getCustomShootDamageSourceReference())) {
                     ways.add("struck by");
                 }
 
-                if (item instanceof CustomBowValues && damageSource.equals(((CustomBowValues) item).getCustomShootDamageSourceReference())) {
+                if (item instanceof KciBow && damageSource.equals(((KciBow) item).getCustomShootDamageSourceReference())) {
                     ways.add("shot with");
                 }
 
-                if (item instanceof CustomCrossbowValues && damageSource.equals(((CustomCrossbowValues) item).getCustomShootDamageSourceReference())) {
+                if (item instanceof KciCrossbow && damageSource.equals(((KciCrossbow) item).getCustomShootDamageSourceReference())) {
                     ways.add("shot with");
                 }
 
-                if (item instanceof CustomTridentValues && damageSource.equals(((CustomTridentValues) item).getCustomThrowDamageSourceReference())) {
+                if (item instanceof KciTrident && damageSource.equals(((KciTrident) item).getCustomThrowDamageSourceReference())) {
                     ways.add("struck by");
                 }
 
@@ -65,7 +65,7 @@ public class WikiDamageSourceGenerator {
                 }
             }
 
-            for (CustomProjectileValues projectile : itemSet.projectiles) {
+            for (KciProjectile projectile : itemSet.projectiles) {
                 if (damageSource.equals(projectile.getCustomDamageSourceReference())) {
                     output.println("\t\t\t<li class=\"projectile-source\">struck by <a href=\"../projectiles/" +
                             projectile.getName() + ".html\">" + projectile.getName() + "</a></li>");
@@ -74,14 +74,14 @@ public class WikiDamageSourceGenerator {
 
             output.println("\t\t</ul>");
 
-            Collection<CustomItemValues> resistingItems = itemSet.items.stream().filter(item ->
-                    item instanceof CustomArmorValues
-                            && ((CustomArmorValues) item).getDamageResistances().getResistance(damageSource) > 0
+            Collection<KciItem> resistingItems = itemSet.items.stream().filter(item ->
+                    item instanceof KciArmor
+                            && ((KciArmor) item).getDamageResistances().getResistance(damageSource) > 0
                             && item.getWikiVisibility() == WikiVisibility.VISIBLE
             ).collect(Collectors.toList());
-            Collection<CustomItemValues> vulnerableItems = itemSet.items.stream().filter(item ->
-                    item instanceof CustomArmorValues
-                            && ((CustomArmorValues) item).getDamageResistances().getResistance(damageSource) < 0
+            Collection<KciItem> vulnerableItems = itemSet.items.stream().filter(item ->
+                    item instanceof KciArmor
+                            && ((KciArmor) item).getDamageResistances().getResistance(damageSource) < 0
                             && item.getWikiVisibility() == WikiVisibility.VISIBLE
             ).collect(Collectors.toList());
 
@@ -115,10 +115,10 @@ public class WikiDamageSourceGenerator {
     }
 
     private void generateList(
-            PrintWriter output, Collection<CustomItemValues> items, long numUpgrades, long numEquipmentSets
+            PrintWriter output, Collection<KciItem> items, long numUpgrades, long numEquipmentSets
     ) {
         output.println("\t\t<ul>");
-        for (CustomItemValues item : items) {
+        for (KciItem item : items) {
             String link = "../items/" + item.getName() + ".html";
             output.print("\t\t\t<li><a href=\"" + link + "\"><img src=\"../textures/" + item.getTexture().getName());
             output.println(".png\" class=\"item-icon\" />" + stripColorCodes(item.getDisplayName()) + "</a></li>");

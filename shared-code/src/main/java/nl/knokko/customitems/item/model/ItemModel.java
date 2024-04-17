@@ -2,11 +2,9 @@ package nl.knokko.customitems.item.model;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
-import nl.knokko.customitems.item.CustomItemValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.zip.ZipOutputStream;
 
 public interface ItemModel {

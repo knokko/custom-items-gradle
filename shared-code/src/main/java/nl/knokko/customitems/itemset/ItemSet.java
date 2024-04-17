@@ -8,8 +8,8 @@ import nl.knokko.customitems.item.durability.ItemDurabilityClaim;
 import nl.knokko.customitems.item.model.DefaultItemModel;
 import nl.knokko.customitems.item.model.DefaultModelType;
 import nl.knokko.customitems.item.model.ItemModel;
-import nl.knokko.customitems.projectile.cover.ProjectileCoverValues;
-import nl.knokko.customitems.settings.ExportSettingsValues;
+import nl.knokko.customitems.projectile.cover.ProjectileCover;
+import nl.knokko.customitems.settings.ExportSettings;
 import nl.knokko.customitems.texture.*;
 import nl.knokko.customitems.trouble.IntegrityException;
 import nl.knokko.customitems.trouble.OutdatedItemSetException;
@@ -100,7 +100,7 @@ public class ItemSet {
 
     private long exportTime;
 
-    private ExportSettingsValues exportSettings = new ExportSettingsValues(false);
+    private ExportSettings exportSettings = new ExportSettings(false);
     public final CombinedResourcepackManager combinedResourcepacks = new CombinedResourcepackManager(this);
     public final TextureManager textures = new TextureManager(this);
     public final ArmorTextureManager armorTextures = new ArmorTextureManager(this);
@@ -108,7 +108,7 @@ public class ItemSet {
     public final ItemManager items = new ItemManager(this);
     public final EquipmentSetManager equipmentSets = new EquipmentSetManager(this);
     public final DamageSourceManager damageSources = new DamageSourceManager(this);
-    public final RecipeManager craftingRecipes = new RecipeManager(this);
+    public final CraftingRecipeManager craftingRecipes = new CraftingRecipeManager(this);
     public final FurnaceRecipeManager furnaceRecipes = new FurnaceRecipeManager(this);
     public final FurnaceFuelManager furnaceFuel = new FurnaceFuelManager(this);
     public final UpgradeManager upgrades = new UpgradeManager(this);
@@ -169,21 +169,21 @@ public class ItemSet {
         }
     }
 
-    public Map<CustomItemType, ItemDurabilityAssignments> assignInternalItemDamages() throws ValidationException {
-        Map<CustomItemType, ItemDurabilityAssignments> assignmentMap = new EnumMap<>(CustomItemType.class);
+    public Map<KciItemType, ItemDurabilityAssignments> assignInternalItemDamages() throws ValidationException {
+        Map<KciItemType, ItemDurabilityAssignments> assignmentMap = new EnumMap<>(KciItemType.class);
 
-        Map<CustomItemType, Set<Short>> lockedDamageAssignments = new EnumMap<>(CustomItemType.class);
-        for (CustomItemValues item : items) {
+        Map<KciItemType, Set<Short>> lockedDamageAssignments = new EnumMap<>(KciItemType.class);
+        for (KciItem item : items) {
             if (!item.shouldUpdateAutomatically() && item.getItemDamage() > 0) {
                 Set<Short> lockedAssignments = lockedDamageAssignments.computeIfAbsent(item.getItemType(), k -> new HashSet<>());
                 if (!lockedAssignments.contains(item.getItemDamage())) {
                     ItemDurabilityAssignments assignments = assignmentMap.computeIfAbsent(item.getItemType(), k -> new ItemDurabilityAssignments());
 
                     List<BowTextureEntry> pullTextures = null;
-                    if (item.getTexture() instanceof BowTextureValues) {
-                        pullTextures = ((BowTextureValues) item.getTexture()).getPullTextures();
-                    } else if (item.getTexture() instanceof CrossbowTextureValues) {
-                        pullTextures = ((CrossbowTextureValues) item.getTexture()).getPullTextures();
+                    if (item.getTexture() instanceof BowTexture) {
+                        pullTextures = ((BowTexture) item.getTexture()).getPullTextures();
+                    } else if (item.getTexture() instanceof CrossbowTexture) {
+                        pullTextures = ((CrossbowTexture) item.getTexture()).getPullTextures();
                     }
 
                     ItemDurabilityClaim lockedClaim = new ItemDurabilityClaim(
@@ -195,10 +195,10 @@ public class ItemSet {
             }
         }
 
-        for (CustomItemValues originalItem : items) {
-            CustomItemValues item = originalItem.copy(true);
+        for (KciItem originalItem : items) {
+            KciItem item = originalItem.copy(true);
             if (item.shouldUpdateAutomatically() || item.getItemDamage() <= 0) {
-                CustomItemType itemType = item.getItemType();
+                KciItemType itemType = item.getItemType();
                 ItemDurabilityAssignments assignments = assignmentMap.get(itemType);
                 if (assignments == null) {
                     assignments = new ItemDurabilityAssignments();
@@ -238,10 +238,10 @@ public class ItemSet {
                     String resourcePath = "customitems/" + item.getName();
 
                     List<BowTextureEntry> pullTextures = null;
-                    if (itemType == CustomItemType.BOW) {
-                        pullTextures = ((BowTextureValues) item.getTexture()).getPullTextures();
-                    } else if (itemType == CustomItemType.CROSSBOW) {
-                        pullTextures = ((CrossbowTextureValues) item.getTexture()).getPullTextures();
+                    if (itemType == KciItemType.BOW) {
+                        pullTextures = ((BowTexture) item.getTexture()).getPullTextures();
+                    } else if (itemType == KciItemType.CROSSBOW) {
+                        pullTextures = ((CrossbowTexture) item.getTexture()).getPullTextures();
                     }
 
                     assignments.claimList.add(new ItemDurabilityClaim(resourcePath, nextItemDamage, pullTextures));
@@ -255,9 +255,9 @@ public class ItemSet {
             }
         }
 
-        for (ProjectileCoverValues originalCover : projectileCovers) {
-            ProjectileCoverValues cover = originalCover.copy(true);
-            CustomItemType itemType = cover.getItemType();
+        for (ProjectileCover originalCover : projectileCovers) {
+            ProjectileCover cover = originalCover.copy(true);
+            KciItemType itemType = cover.getItemType();
 
             ItemDurabilityAssignments assignments = assignmentMap.get(itemType);
             if (assignments == null) {
@@ -544,7 +544,7 @@ public class ItemSet {
     }
 
     private void loadContent11(BitInput input) throws UnknownEncodingException {
-        this.exportSettings = ExportSettingsValues.load(input);
+        this.exportSettings = ExportSettings.load(input);
         loadExportTime(input);
         combinedResourcepacks.load(input);
         textures.load(input, true, true);
@@ -592,7 +592,7 @@ public class ItemSet {
         return side;
     }
 
-    public ExportSettingsValues getExportSettings() {
+    public ExportSettings getExportSettings() {
         return exportSettings;
     }
 
@@ -615,11 +615,11 @@ public class ItemSet {
         for (ModelManager<?, ?> manager : getAllManagers()) manager.validateExportVersion(version);
     }
 
-    private void validate() throws ValidationException, ProgrammingValidationException {
+    void validate() throws ValidationException, ProgrammingValidationException {
         for (ModelManager<?, ?> manager : getAllManagers()) manager.validate();
     }
 
-    public void setExportSettings(ExportSettingsValues newExportSettings) throws ValidationException, ProgrammingValidationException {
+    public void setExportSettings(ExportSettings newExportSettings) throws ValidationException, ProgrammingValidationException {
         newExportSettings.validate();
         this.exportSettings = newExportSettings;
         maybeCreateBackup();

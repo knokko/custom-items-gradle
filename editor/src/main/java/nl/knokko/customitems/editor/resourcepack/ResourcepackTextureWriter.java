@@ -1,14 +1,14 @@
 package nl.knokko.customitems.editor.resourcepack;
 
-import nl.knokko.customitems.container.CustomContainerValues;
-import nl.knokko.customitems.item.CustomArmorValues;
-import nl.knokko.customitems.item.CustomElytraValues;
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.container.KciContainer;
+import nl.knokko.customitems.item.KciArmor;
+import nl.knokko.customitems.item.KciElytra;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.texture.*;
-import nl.knokko.customitems.texture.animated.AnimatedTextureValues;
-import nl.knokko.customitems.texture.animated.AnimationFrameValues;
-import nl.knokko.customitems.texture.animated.AnimationImageValues;
+import nl.knokko.customitems.texture.animated.AnimatedTexture;
+import nl.knokko.customitems.texture.animated.AnimationFrame;
+import nl.knokko.customitems.texture.animated.AnimationImage;
 
 import javax.imageio.ImageIO;
 import javax.imageio.stream.MemoryCacheImageOutputStream;
@@ -66,17 +66,17 @@ class ResourcepackTextureWriter {
         ExecutorService threadPool = Executors.newFixedThreadPool(20);
         List<ScheduledResource> resources = new ArrayList<>(itemSet.textures.size());
 
-        for (BaseTextureValues texture : itemSet.textures) {
+        for (KciTexture texture : itemSet.textures) {
 
             String baseTextureName = texture.getName();
-            if (texture instanceof BowTextureValues || texture instanceof CrossbowTextureValues) {
+            if (texture instanceof BowTexture || texture instanceof CrossbowTexture) {
                 baseTextureName += "_standby";
 
                 List<BowTextureEntry> pullTextures;
-                if (texture instanceof BowTextureValues) {
-                    pullTextures = ((BowTextureValues) texture).getPullTextures();
+                if (texture instanceof BowTexture) {
+                    pullTextures = ((BowTexture) texture).getPullTextures();
                 } else {
-                    pullTextures = ((CrossbowTextureValues) texture).getPullTextures();
+                    pullTextures = ((CrossbowTexture) texture).getPullTextures();
                 }
 
                 for (int pullIndex = 0; pullIndex < pullTextures.size(); pullIndex++) {
@@ -86,8 +86,8 @@ class ResourcepackTextureWriter {
                     resources.add(new ScheduledResource(entry, futureImage(threadPool, image)));
                 }
 
-                if (texture instanceof CrossbowTextureValues) {
-                    CrossbowTextureValues cbt = (CrossbowTextureValues)  texture;
+                if (texture instanceof CrossbowTexture) {
+                    CrossbowTexture cbt = (CrossbowTexture)  texture;
 
                     ZipEntry arrowEntry = new ZipEntry("assets/minecraft/textures/customitems/" + cbt.getName()
                             + "_arrow.png");
@@ -100,9 +100,9 @@ class ResourcepackTextureWriter {
             }
 
             BufferedImage imageToExport;
-            if (texture instanceof AnimatedTextureValues) {
+            if (texture instanceof AnimatedTexture) {
 
-                List<AnimationImageValues> images = ((AnimatedTextureValues) texture).copyImages(false);
+                List<AnimationImage> images = ((AnimatedTexture) texture).copyImages(false);
 
                 // Note that validation checks ensure that all images in the same animation have the same size
                 int baseWidth = images.get(0).getImageReference().getWidth();
@@ -130,9 +130,9 @@ class ResourcepackTextureWriter {
                     metaWriter.println("{");
                     metaWriter.println("    \"animation\": {");
                     metaWriter.println("        \"frames\": [");
-                    List<AnimationFrameValues> frames = ((AnimatedTextureValues) texture).getFrames();
+                    List<AnimationFrame> frames = ((AnimatedTexture) texture).getFrames();
                     for (int index = 0; index < frames.size(); index++) {
-                        AnimationFrameValues frame = frames.get(index);
+                        AnimationFrame frame = frames.get(index);
                         metaWriter.print("            { \"index\": " + imageIndices.get(frame.getImageLabel()) + ", \"time\": " + frame.getDuration() + "}");
                         if (index != frames.size() - 1) {
                             metaWriter.print(",");
@@ -174,7 +174,7 @@ class ResourcepackTextureWriter {
             citPrefix = "assets/minecraft/optifine/cit/";
         }
 
-        for (ArmorTextureValues armorTexture : itemSet.armorTextures) {
+        for (ArmorTexture armorTexture : itemSet.armorTextures) {
             String prefix = citPrefix + "customarmor/" + armorTexture.getName() + "/";
             ZipEntry firstLayerEntry = new ZipEntry(prefix + "layer_1.png");
             zipOutput.putNextEntry(firstLayerEntry);
@@ -196,13 +196,13 @@ class ResourcepackTextureWriter {
         }
 
         // Link the custom armor to their textures
-        for (CustomItemValues item : itemSet.items) {
-            if (item instanceof CustomArmorValues) {
+        for (KciItem item : itemSet.items) {
+            if (item instanceof KciArmor) {
 
-                CustomArmorValues armor = (CustomArmorValues) item;
+                KciArmor armor = (KciArmor) item;
                 if (armor.getArmorTexture() != null) {
 
-                    ArmorTextureValues wornTexture = armor.getArmorTexture();
+                    ArmorTexture wornTexture = armor.getArmorTexture();
                     String prefix = citPrefix + "customarmor/" + wornTexture.getName() + "/";
                     ZipEntry armorEntry = new ZipEntry(prefix + armor.getName() + ".properties");
                     zipOutput.putNextEntry(armorEntry);
@@ -232,9 +232,9 @@ class ResourcepackTextureWriter {
             citPrefix = "assets/minecraft/optifine/cit/";
         }
 
-        for (CustomItemValues item : itemSet.items) {
-            if (item instanceof CustomElytraValues) {
-                CustomElytraValues elytra = (CustomElytraValues) item;
+        for (KciItem item : itemSet.items) {
+            if (item instanceof KciElytra) {
+                KciElytra elytra = (KciElytra) item;
                 if (elytra.getWornElytraTexture() != null) {
                     String prefix = citPrefix + "customelytra/" + elytra.getName() + "/";
 
@@ -257,7 +257,7 @@ class ResourcepackTextureWriter {
     }
 
     void writeContainerOverlayTextures() throws IOException {
-        for (CustomContainerValues container : itemSet.containers) {
+        for (KciContainer container : itemSet.containers) {
             if (container.getOverlayTexture() != null) {
 
                 ZipEntry overlayTextureEntry = new ZipEntry("assets/minecraft/textures/customcontainers/overlay/" + container.getName() + ".png");

@@ -1,7 +1,7 @@
 package nl.knokko.customitems.serialization;
 
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.texture.BaseTextureValues;
+import nl.knokko.customitems.texture.KciTexture;
 import nl.knokko.customitems.bithelper.BitInputStream;
 import nl.knokko.customitems.util.StringEncoder;
 
@@ -132,7 +132,7 @@ public class BackwardHelper {
     }
 
     public static void checkTexture(ItemSet itemSet, String expectedName) {
-        BaseTextureValues texture = itemSet.textures.get(expectedName).get();
+        KciTexture texture = itemSet.textures.get(expectedName).get();
         BufferedImage expectedImage = loadImage(texture.getName());
         BufferedImage actualImage = texture.getImage();
 

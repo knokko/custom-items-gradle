@@ -1,7 +1,7 @@
 package nl.knokko.customitems.plugin.command;
 
-import nl.knokko.customitems.block.CustomBlockValues;
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.block.KciBlock;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -22,7 +22,7 @@ class CommandCustomItemsList {
 
         if (!itemSet.get().items.isEmpty()) {
             sender.sendMessage(ChatColor.AQUA + "All custom items:");
-            for (CustomItemValues item : itemSet.get().items) {
+            for (KciItem item : itemSet.get().items) {
                 if (item.getAlias().isEmpty()) {
                     sender.sendMessage(item.getName());
                 } else {
@@ -35,7 +35,7 @@ class CommandCustomItemsList {
 
         if (!itemSet.get().blocks.isEmpty()) {
             sender.sendMessage(ChatColor.AQUA + "All custom blocks:");
-            for (CustomBlockValues block : itemSet.get().blocks) {
+            for (KciBlock block : itemSet.get().blocks) {
                 sender.sendMessage(block.getName());
             }
         } else {

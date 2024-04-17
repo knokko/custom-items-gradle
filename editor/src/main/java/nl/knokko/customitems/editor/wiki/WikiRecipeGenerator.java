@@ -1,26 +1,26 @@
 package nl.knokko.customitems.editor.wiki;
 
-import nl.knokko.customitems.container.ContainerRecipeValues;
-import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.container.ContainerRecipe;
+import nl.knokko.customitems.container.KciContainer;
 import nl.knokko.customitems.container.slot.*;
-import nl.knokko.customitems.damage.DamageSource;
-import nl.knokko.customitems.item.AttributeModifierValues;
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.damage.VDamageSource;
+import nl.knokko.customitems.item.KciAttributeModifier;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.item.WikiVisibility;
-import nl.knokko.customitems.item.enchantment.EnchantmentValues;
-import nl.knokko.customitems.itemset.CustomDamageSourceReference;
+import nl.knokko.customitems.item.enchantment.LeveledEnchantment;
+import nl.knokko.customitems.itemset.DamageSourceReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.UpgradeReference;
-import nl.knokko.customitems.recipe.OutputTableValues;
-import nl.knokko.customitems.recipe.ShapedRecipeValues;
-import nl.knokko.customitems.recipe.ShapelessRecipeValues;
+import nl.knokko.customitems.recipe.OutputTable;
+import nl.knokko.customitems.recipe.KciShapedRecipe;
+import nl.knokko.customitems.recipe.KciShapelessRecipe;
 import nl.knokko.customitems.recipe.ingredient.*;
-import nl.knokko.customitems.recipe.ingredient.constraint.DurabilityConstraintValues;
-import nl.knokko.customitems.recipe.ingredient.constraint.EnchantmentConstraintValues;
-import nl.knokko.customitems.recipe.ingredient.constraint.IngredientConstraintsValues;
-import nl.knokko.customitems.recipe.ingredient.constraint.VariableConstraintValues;
+import nl.knokko.customitems.recipe.ingredient.constraint.DurabilityConstraint;
+import nl.knokko.customitems.recipe.ingredient.constraint.EnchantmentConstraint;
+import nl.knokko.customitems.recipe.ingredient.constraint.IngredientConstraints;
+import nl.knokko.customitems.recipe.ingredient.constraint.VariableConstraint;
 import nl.knokko.customitems.recipe.result.*;
-import nl.knokko.customitems.recipe.upgrade.VariableUpgradeValues;
+import nl.knokko.customitems.recipe.upgrade.VariableUpgrade;
 import nl.knokko.customitems.util.Chance;
 
 import java.io.PrintWriter;
@@ -32,8 +32,8 @@ import static nl.knokko.customitems.NameHelper.getNiceEnumName;
 public class WikiRecipeGenerator {
 
     public static void generateContainerRecipe(
-            PrintWriter output, String tabs, CustomContainerValues container,
-            ContainerRecipeValues recipe, String pathToRoot, ItemSet itemSet
+            PrintWriter output, String tabs, KciContainer container,
+            ContainerRecipe recipe, String pathToRoot, ItemSet itemSet
     ) {
         output.println(tabs + "<table class=\"recipe-table\">");
         output.println(tabs + "\t<tbody>");
@@ -66,16 +66,16 @@ public class WikiRecipeGenerator {
     }
 
     public static void generateShapelessRecipe(
-            PrintWriter output, String tabs, ShapelessRecipeValues recipe, String pathToRoot, ItemSet itemSet
+            PrintWriter output, String tabs, KciShapelessRecipe recipe, String pathToRoot, ItemSet itemSet
     ) {
         output.println(tabs + "<table class=\"recipe-table\">");
         output.println(tabs + "\t<tbody>");
         output.println(tabs + "\t\t<tr>");
 
         // Ingredients
-        for (IngredientValues ingredient : recipe.getIngredients()) {
-            boolean isUpgraded = recipe.getResult() instanceof UpgradeResultValues
-                    && ingredient == recipe.getIngredients().get(((UpgradeResultValues) recipe.getResult()).getIngredientIndex());
+        for (KciIngredient ingredient : recipe.getIngredients()) {
+            boolean isUpgraded = recipe.getResult() instanceof UpgradeResult
+                    && ingredient == recipe.getIngredients().get(((UpgradeResult) recipe.getResult()).getIngredientIndex());
             generateIngredient(output, tabs + "\t\t\t", ingredient, pathToRoot, isUpgraded);
         }
 
@@ -84,7 +84,7 @@ public class WikiRecipeGenerator {
         generateRecipeArrow(output, pathToRoot);
 
         // Remaining items
-        for (IngredientValues ingredient : recipe.getIngredients()) {
+        for (KciIngredient ingredient : recipe.getIngredients()) {
             if (ingredient.getRemainingItem() != null) {
                 generateResult(output, tabs + "\t\t\t", ingredient.getRemainingItem(), pathToRoot, itemSet);
             }
@@ -99,7 +99,7 @@ public class WikiRecipeGenerator {
     }
 
     public static void generateShapedRecipe(
-            PrintWriter output, String tabs, ShapedRecipeValues recipe, String pathToRoot, ItemSet itemSet
+            PrintWriter output, String tabs, KciShapedRecipe recipe, String pathToRoot, ItemSet itemSet
     ) {
         output.println(tabs + "<table class=\"recipe-table\">");
         output.println(tabs + "\t<tbody>");
@@ -108,8 +108,8 @@ public class WikiRecipeGenerator {
 
             // Ingredients
             for (int column = 0; column < 3; column++) {
-                boolean isUpgraded = recipe.getResult() instanceof UpgradeResultValues
-                        && ((UpgradeResultValues) recipe.getResult()).getIngredientIndex() == column + 3 * row;
+                boolean isUpgraded = recipe.getResult() instanceof UpgradeResult
+                        && ((UpgradeResult) recipe.getResult()).getIngredientIndex() == column + 3 * row;
                 generateIngredient(
                         output, tabs + "\t\t\t", recipe.getIngredientAt(column, row),
                         pathToRoot, isUpgraded
@@ -150,7 +150,7 @@ public class WikiRecipeGenerator {
     }
 
     private static void generateIngredient(
-            PrintWriter output, String tabs, IngredientValues ingredient, String pathToRoot, boolean isUpgraded
+            PrintWriter output, String tabs, KciIngredient ingredient, String pathToRoot, boolean isUpgraded
     ) {
         String slotClassName = "ingredient-slot";
         boolean hasConstraints = false;
@@ -181,8 +181,8 @@ public class WikiRecipeGenerator {
             output.println(tabs + "\t<div class=\"ingredient-" + ingredientId + "\">");
         }
 
-        if (ingredient instanceof CustomItemIngredientValues) {
-            CustomItemIngredientValues customIngredient = (CustomItemIngredientValues) ingredient;
+        if (ingredient instanceof CustomItemIngredient) {
+            CustomItemIngredient customIngredient = (CustomItemIngredient) ingredient;
 
             if (customIngredient.getItem().getWikiVisibility() != WikiVisibility.DECORATION) {
                 output.println(tabs + "\t<a href=\"" + pathToRoot + "items/" + customIngredient.getItem().getName() + ".html\" >");
@@ -194,29 +194,29 @@ public class WikiRecipeGenerator {
             }
         }
 
-        if (ingredient instanceof SimpleVanillaIngredientValues) {
-            output.println(tabs + "\t" + getNiceEnumName(((SimpleVanillaIngredientValues) ingredient).getMaterial().name()));
+        if (ingredient instanceof SimpleVanillaIngredient) {
+            output.println(tabs + "\t" + getNiceEnumName(((SimpleVanillaIngredient) ingredient).getMaterial().name()));
         }
 
-        if (ingredient instanceof DataVanillaIngredientValues) {
-            DataVanillaIngredientValues dataIngredient = (DataVanillaIngredientValues) ingredient;
+        if (ingredient instanceof DataVanillaIngredient) {
+            DataVanillaIngredient dataIngredient = (DataVanillaIngredient) ingredient;
 
             output.println(tabs + "\t" + getNiceEnumName(dataIngredient.getMaterial().name()) + " with data value " + dataIngredient.getDataValue());
         }
 
-        if (ingredient instanceof MimicIngredientValues) {
-            output.println(tabs + "\tMimic: " + ((MimicIngredientValues) ingredient).getItemId());
+        if (ingredient instanceof MimicIngredient) {
+            output.println(tabs + "\tMimic: " + ((MimicIngredient) ingredient).getItemId());
         }
 
-        if (ingredient instanceof ItemBridgeIngredientValues) {
-            output.print(tabs + "\tItemBridge: " + ((ItemBridgeIngredientValues) ingredient).getItemId());
+        if (ingredient instanceof ItemBridgeIngredient) {
+            output.print(tabs + "\tItemBridge: " + ((ItemBridgeIngredient) ingredient).getItemId());
         }
 
-        if (ingredient instanceof CopiedIngredientValues) {
+        if (ingredient instanceof CopiedIngredient) {
             output.print(tabs + "\tCopied");
         }
 
-        int amount = (ingredient == null || ingredient instanceof NoIngredientValues) ? 0 : ingredient.getAmount();
+        int amount = (ingredient == null || ingredient instanceof NoIngredient) ? 0 : ingredient.getAmount();
         if (amount > 1) {
             output.println(tabs + "<div class=\"recipe-amount\">" + amount + "</div>");
         }
@@ -233,15 +233,15 @@ public class WikiRecipeGenerator {
     }
 
     private static void generateOutputTable(
-            PrintWriter output, String tabs, OutputTableValues results, String pathToRoot, ItemSet itemSet
+            PrintWriter output, String tabs, OutputTable results, String pathToRoot, ItemSet itemSet
     ) {
         if (results == null) {
             generateResult(output, tabs, null, pathToRoot, itemSet);
             return;
         }
 
-        OutputTableValues.Entry mostLikely = null;
-        for (OutputTableValues.Entry candidateEntry : results.getEntries()) {
+        OutputTable.Entry mostLikely = null;
+        for (OutputTable.Entry candidateEntry : results.getEntries()) {
             if (mostLikely == null || candidateEntry.getChance().getRawValue() > mostLikely.getChance().getRawValue()) {
                 mostLikely = candidateEntry;
             }
@@ -281,18 +281,18 @@ public class WikiRecipeGenerator {
         output.println(tabs + "</td>");
     }
 
-    private static void generateConstraints(PrintWriter output, String prefix, IngredientConstraintsValues constraints) {
+    private static void generateConstraints(PrintWriter output, String prefix, IngredientConstraints constraints) {
         output.println(prefix + "Constraints:");
         output.println(prefix + "<ul>");
-        for (DurabilityConstraintValues durabilityConstraint : constraints.getDurabilityConstraints()) {
+        for (DurabilityConstraint durabilityConstraint : constraints.getDurabilityConstraints()) {
             output.println(prefix + "\t<li>Durability " + durabilityConstraint.getOperator() +
                     " " + durabilityConstraint.getPercentage() + "%</li>");
         }
-        for (EnchantmentConstraintValues enchantmentConstraint : constraints.getEnchantmentConstraints()) {
+        for (EnchantmentConstraint enchantmentConstraint : constraints.getEnchantmentConstraints()) {
             output.println(prefix + "\t<li>" + enchantmentConstraint.getEnchantment().getKey() + " "
                     + enchantmentConstraint.getOperator() + " " + enchantmentConstraint.getLevel() + "</li>");
         }
-        for (VariableConstraintValues variableConstraint : constraints.getVariableConstraints()) {
+        for (VariableConstraint variableConstraint : constraints.getVariableConstraints()) {
             output.println(prefix + "\t<li>Variable " + variableConstraint.getVariable() + " "
                     + variableConstraint.getOperator() + " " + variableConstraint.getValue() + "</li>");
         }
@@ -300,7 +300,7 @@ public class WikiRecipeGenerator {
     }
 
     private static void generateUpgradeList(
-            PrintWriter output, String prefix, UpgradeResultValues upgradeResult, Chance chance, ItemSet itemSet
+            PrintWriter output, String prefix, UpgradeResult upgradeResult, Chance chance, ItemSet itemSet
     ) {
         if (chance == null) output.println(prefix + "Upgrades an ingredient:");
         else output.println(prefix + chance + " to upgrade an ingredient:");
@@ -331,16 +331,16 @@ public class WikiRecipeGenerator {
         }
 
         for (UpgradeReference upgrade : upgradeResult.getUpgrades()) {
-            for (AttributeModifierValues attribute : upgrade.get().getAttributeModifiers()) {
+            for (KciAttributeModifier attribute : upgrade.get().getAttributeModifiers()) {
                 output.print(prefix + "\t<li class=\"attribute-modifier\">" + attribute.getOperation() + " "
                         + attribute.getValue());
                 output.println(" " + attribute.getAttribute() + " in " + attribute.getSlot() + "</li>");
             }
-            for (EnchantmentValues enchantment : upgrade.get().getEnchantments()) {
+            for (LeveledEnchantment enchantment : upgrade.get().getEnchantments()) {
                 output.println(prefix + "\t<li class=\"enchantment\">" + enchantment.getType().getKey()
                         + " level is increased by " + enchantment.getLevel() + "</li>");
             }
-            for (DamageSource vanillaSource : DamageSource.values()) {
+            for (VDamageSource vanillaSource : VDamageSource.values()) {
                 short resistance = upgrade.get().getDamageResistances().getResistance(vanillaSource);
                 if (resistance > 0) {
                     output.println(prefix + "\t<li>Increases " + vanillaSource
@@ -350,7 +350,7 @@ public class WikiRecipeGenerator {
                             + " resistance by " + (-resistance) + "%</li>");
                 }
             }
-            for (CustomDamageSourceReference customSource : itemSet.damageSources.references()) {
+            for (DamageSourceReference customSource : itemSet.damageSources.references()) {
                 short resistance = upgrade.get().getDamageResistances().getResistance(customSource);
                 if (resistance > 0) {
                     output.println(prefix + "\t<li>Increases " + customSource.get().getName()
@@ -360,7 +360,7 @@ public class WikiRecipeGenerator {
                             + " resistance by " + (-resistance) + "%</li>");
                 }
             }
-            for (VariableUpgradeValues variable : upgrade.get().getVariables()) {
+            for (VariableUpgrade variable : upgrade.get().getVariables()) {
                 output.println(prefix + "\t<li>Increases variable " + variable.getName()
                         + " by " + variable.getValue() + "</li>");
             }
@@ -369,19 +369,19 @@ public class WikiRecipeGenerator {
         output.println(prefix + "</ul>");
     }
 
-    public static void generateOutputTable(PrintWriter output, String prefix, String suffix, OutputTableValues outputTable, ItemSet itemSet) {
-        for (OutputTableValues.Entry outputEntry : outputTable.getEntries()) {
+    public static void generateOutputTable(PrintWriter output, String prefix, String suffix, OutputTable outputTable, ItemSet itemSet) {
+        for (OutputTable.Entry outputEntry : outputTable.getEntries()) {
             if (!WikiProtector.isResultSecret(outputEntry.getResult())) {
-                if (outputEntry.getResult() instanceof UpgradeResultValues) {
+                if (outputEntry.getResult() instanceof UpgradeResult) {
                     generateUpgradeList(
-                            output, prefix, (UpgradeResultValues) outputEntry.getResult(),
+                            output, prefix, (UpgradeResult) outputEntry.getResult(),
                             outputEntry.getChance(), itemSet
                     );
                 } else {
                     output.print(prefix + outputEntry.getChance() + " chance to get ");
                     int amount;
-                    if (outputEntry.getResult() instanceof CustomItemResultValues) {
-                        CustomItemResultValues customResult = (CustomItemResultValues) outputEntry.getResult();
+                    if (outputEntry.getResult() instanceof CustomItemResult) {
+                        CustomItemResult customResult = (CustomItemResult) outputEntry.getResult();
                         if (customResult.getItem().getWikiVisibility() != WikiVisibility.DECORATION) {
                             output.print("<a href=\"../items/" + customResult.getItem().getName() + ".html\">");
                         }
@@ -401,12 +401,12 @@ public class WikiRecipeGenerator {
     }
 
     private static int generateInnerResult(
-            PrintWriter output, String tabs, ResultValues result, String pathToRoot
+            PrintWriter output, String tabs, KciResult result, String pathToRoot
     ) {
         int amount = 0;
 
-        if (result instanceof UpgradeResultValues) {
-            UpgradeResultValues upgradeResult = (UpgradeResultValues) result;
+        if (result instanceof UpgradeResult) {
+            UpgradeResult upgradeResult = (UpgradeResult) result;
             if (upgradeResult.getNewType() != null) {
                 return generateInnerResult(output, tabs, upgradeResult.getNewType(), pathToRoot);
             } else {
@@ -415,10 +415,10 @@ public class WikiRecipeGenerator {
             }
         }
 
-        if (result instanceof CustomItemResultValues) {
-            CustomItemResultValues customResult = (CustomItemResultValues) result;
+        if (result instanceof CustomItemResult) {
+            CustomItemResult customResult = (CustomItemResult) result;
 
-            CustomItemValues customItem = customResult.getItem();
+            KciItem customItem = customResult.getItem();
 
             if (customItem.getWikiVisibility() != WikiVisibility.DECORATION) {
                 output.println(tabs + "<a href=\"" + pathToRoot + "items/" + customItem.getName() + ".html\" >");
@@ -432,35 +432,35 @@ public class WikiRecipeGenerator {
             amount = customResult.getAmount();
         }
 
-        if (result instanceof SimpleVanillaResultValues) {
-            SimpleVanillaResultValues simpleResult = (SimpleVanillaResultValues) result;
+        if (result instanceof SimpleVanillaResult) {
+            SimpleVanillaResult simpleResult = (SimpleVanillaResult) result;
 
             output.print(tabs + getNiceEnumName(simpleResult.getMaterial().name()));
             amount = simpleResult.getAmount();
         }
 
-        if (result instanceof DataVanillaResultValues) {
-            DataVanillaResultValues dataResult = (DataVanillaResultValues) result;
+        if (result instanceof DataVanillaResult) {
+            DataVanillaResult dataResult = (DataVanillaResult) result;
 
             output.println(tabs + getNiceEnumName(dataResult.getMaterial().name()) + " with data value " + dataResult.getDataValue());
             amount = dataResult.getAmount();
         }
 
-        if (result instanceof MimicResultValues) {
-            MimicResultValues mimicResult = (MimicResultValues) result;
+        if (result instanceof MimicResult) {
+            MimicResult mimicResult = (MimicResult) result;
 
             output.println(tabs + "Mimic: " + mimicResult.getItemId());
             amount = mimicResult.getAmount();
         }
 
-        if (result instanceof ItemBridgeResultValues) {
-            ItemBridgeResultValues itemBridgeResult = (ItemBridgeResultValues) result;
+        if (result instanceof ItemBridgeResult) {
+            ItemBridgeResult itemBridgeResult = (ItemBridgeResult) result;
 
             output.println(tabs + "ItemBridge: " + itemBridgeResult.getItemId());
             amount = itemBridgeResult.getAmount();
         }
 
-        if (result instanceof CopiedResultValues) {
+        if (result instanceof CopiedResult) {
             output.println(tabs + "Copied");
         }
 
@@ -468,13 +468,13 @@ public class WikiRecipeGenerator {
     }
 
     private static void generateResult(
-            PrintWriter output, String tabs, ResultValues result,
+            PrintWriter output, String tabs, KciResult result,
             String pathToRoot, ItemSet itemSet
     ) {
         output.println(tabs + "<td class=\"recipe-cell recipe-slot result-slot\">");
 
         UUID upgradeID = null;
-        if (result instanceof UpgradeResultValues) {
+        if (result instanceof UpgradeResult) {
             upgradeID = UUID.randomUUID();
             output.println(tabs + "\t<style>");
             output.println(tabs + "\t\t.hover-recipe-list-" + upgradeID + " {");
@@ -499,7 +499,7 @@ public class WikiRecipeGenerator {
             output.println(tabs + "\t</div>");
 
             output.println(tabs + "\t<div class=\"hover-recipe-list hover-recipe-list-" + upgradeID + " \">");
-            generateUpgradeList(output, tabs + "\t\t", (UpgradeResultValues) result, null, itemSet);
+            generateUpgradeList(output, tabs + "\t\t", (UpgradeResult) result, null, itemSet);
             output.println(tabs + "\t</div>");
         }
 
@@ -507,22 +507,22 @@ public class WikiRecipeGenerator {
     }
 
     private static void generatePreContainerSlot(
-            PrintWriter output, String tabs, ContainerSlotValues slot,
-            ContainerRecipeValues recipe, String pathToRoot, ItemSet itemSet
+            PrintWriter output, String tabs, ContainerSlot slot,
+            ContainerRecipe recipe, String pathToRoot, ItemSet itemSet
     ) {
-        if (slot instanceof InputSlotValues) {
+        if (slot instanceof InputSlot) {
             boolean isUpgraded = recipe.getOutputs().values().stream().anyMatch(outputTable -> outputTable.getEntries().stream().anyMatch(outputEntry ->
-                    outputEntry.getResult() instanceof UpgradeResultValues
-                            && ((UpgradeResultValues) outputEntry.getResult()).getInputSlotName().equals(((InputSlotValues) slot).getName())
+                    outputEntry.getResult() instanceof UpgradeResult
+                            && ((UpgradeResult) outputEntry.getResult()).getInputSlotName().equals(((InputSlot) slot).getName())
             ));
-            if (recipe.getManualOutput() instanceof UpgradeResultValues
-                    && ((UpgradeResultValues) recipe.getManualOutput()).getInputSlotName().equals(((InputSlotValues) slot).getName())) {
+            if (recipe.getManualOutput() instanceof UpgradeResult
+                    && ((UpgradeResult) recipe.getManualOutput()).getInputSlotName().equals(((InputSlot) slot).getName())) {
                 isUpgraded = true;
             }
-            generateIngredient(output, tabs, recipe.getInput(((InputSlotValues) slot).getName()), pathToRoot, isUpgraded);
-        } else if (slot instanceof OutputSlotValues) {
+            generateIngredient(output, tabs, recipe.getInput(((InputSlot) slot).getName()), pathToRoot, isUpgraded);
+        } else if (slot instanceof OutputSlot) {
             generateResult(output, tabs, null, pathToRoot, itemSet);
-        } else if (slot instanceof ManualOutputSlotValues) {
+        } else if (slot instanceof ManualOutputSlot) {
             generateResult(output, tabs, null, pathToRoot, itemSet);
         } else {
             generateUnusedContainerSlot(output, tabs);
@@ -530,16 +530,16 @@ public class WikiRecipeGenerator {
     }
 
     private static void generatePostContainerSlot(
-            PrintWriter output, String tabs, ContainerSlotValues slot,
-            ContainerRecipeValues recipe, String pathToRoot, ItemSet itemSet
+            PrintWriter output, String tabs, ContainerSlot slot,
+            ContainerRecipe recipe, String pathToRoot, ItemSet itemSet
     ) {
-        if (slot instanceof InputSlotValues) {
-            IngredientValues ingredient = recipe.getInput(((InputSlotValues) slot).getName());
+        if (slot instanceof InputSlot) {
+            KciIngredient ingredient = recipe.getInput(((InputSlot) slot).getName());
             generateResult(output, tabs, ingredient != null ? ingredient.getRemainingItem() : null, pathToRoot, itemSet);
-        } else if (slot instanceof OutputSlotValues) {
-            generateOutputTable(output, tabs, recipe.getOutput(((OutputSlotValues) slot).getName()), pathToRoot, itemSet);
-        } else if (slot instanceof ManualOutputSlotValues) {
-            if (((ManualOutputSlotValues) slot).getName().equals(recipe.getManualOutputSlotName())) {
+        } else if (slot instanceof OutputSlot) {
+            generateOutputTable(output, tabs, recipe.getOutput(((OutputSlot) slot).getName()), pathToRoot, itemSet);
+        } else if (slot instanceof ManualOutputSlot) {
+            if (((ManualOutputSlot) slot).getName().equals(recipe.getManualOutputSlotName())) {
                 generateResult(output, tabs, recipe.getManualOutput(), pathToRoot, itemSet);
             } else {
                 generateResult(output, tabs, null, pathToRoot, itemSet);

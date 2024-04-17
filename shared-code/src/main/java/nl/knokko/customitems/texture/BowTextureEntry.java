@@ -10,7 +10,7 @@ import nl.knokko.customitems.bithelper.BitOutput;
 
 import java.awt.image.BufferedImage;
 
-import static nl.knokko.customitems.texture.BaseTextureValues.areImagesEqual;
+import static nl.knokko.customitems.texture.KciTexture.areImagesEqual;
 import static nl.knokko.customitems.util.Checks.isClose;
 
 public class BowTextureEntry extends ModelValues {
@@ -18,7 +18,7 @@ public class BowTextureEntry extends ModelValues {
     public static BowTextureEntry load1(BitInput input, boolean expectCompressed, boolean mutable) {
         BowTextureEntry result = new BowTextureEntry(mutable);
         result.pull = input.readDouble();
-        result.image = BaseTextureValues.loadImage(input, expectCompressed);
+        result.image = KciTexture.loadImage(input, expectCompressed);
         return result;
     }
 
@@ -63,7 +63,7 @@ public class BowTextureEntry extends ModelValues {
 
     public void save(BitOutput output) {
         output.addDouble(pull);
-        BaseTextureValues.saveImage(output, image);
+        KciTexture.saveImage(output, image);
     }
 
     public BufferedImage getImage() {
@@ -89,6 +89,6 @@ public class BowTextureEntry extends ModelValues {
     public void validate() throws ValidationException, ProgrammingValidationException {
         if (pull < 0.0) throw new ValidationException("Pull can't be negative");
         if (pull > 1.0) throw new ValidationException("Pull can be at most 1.0");
-        Validation.scope("Image", () -> BaseTextureValues.validateImage(image));
+        Validation.scope("Image", () -> KciTexture.validateImage(image));
     }
 }

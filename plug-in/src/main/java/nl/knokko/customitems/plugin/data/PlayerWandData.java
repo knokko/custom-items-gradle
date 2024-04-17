@@ -1,12 +1,12 @@
 package nl.knokko.customitems.plugin.data;
 
-import nl.knokko.customitems.item.CustomWandValues;
+import nl.knokko.customitems.item.KciWand;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 
 class PlayerWandData {
 
-	static PlayerWandData load1(BitInput input, CustomWandValues wand) {
+	static PlayerWandData load1(BitInput input, KciWand wand) {
 		long cooldownExpireTick = -1;
 		if (input.readBoolean())
 			cooldownExpireTick = input.readLong();
@@ -66,7 +66,7 @@ class PlayerWandData {
 		chargeRestoreTick = chargeRestore;
 	}
 	
-	public PlayerWandData(CustomWandValues wand) {
+	public PlayerWandData(KciWand wand) {
 		cooldownExpireTick = -1;
 		if (wand.getCharges() != null) {
 			currentCharges = wand.getCharges().getMaxCharges();
@@ -80,7 +80,7 @@ class PlayerWandData {
 				", chargeRestoreTick=" + chargeRestoreTick + ")";
 	}
 	
-	public void save1(BitOutput output, CustomWandValues wand, long currentTick) {
+	public void save1(BitOutput output, KciWand wand, long currentTick) {
 		boolean onCooldown = isOnCooldown(currentTick);
 		output.addBoolean(onCooldown);
 		if (onCooldown)
@@ -105,7 +105,7 @@ class PlayerWandData {
 		}
 	}
 	
-	private void updateCharges(CustomWandValues wand, long currentTick) {
+	private void updateCharges(KciWand wand, long currentTick) {
 		if (isMissingChargesDirect(wand)) {
 			while (currentTick >= chargeRestoreTick && currentCharges < wand.getCharges().getMaxCharges()) {
 				currentCharges++;
@@ -114,7 +114,7 @@ class PlayerWandData {
 		}
 	}
 
-	public long getTimeUntilNextRecharge(CustomWandValues wand, long currentTick) {
+	public long getTimeUntilNextRecharge(KciWand wand, long currentTick) {
 		updateCharges(wand, currentTick);
 		if (isMissingChargesDirect(wand)) {
 			return chargeRestoreTick - currentTick;
@@ -123,16 +123,16 @@ class PlayerWandData {
 		}
 	}
 	
-	private boolean isMissingChargesDirect(CustomWandValues wand) {
+	private boolean isMissingChargesDirect(KciWand wand) {
 		return wand.getCharges() != null && currentCharges < wand.getCharges().getMaxCharges();
 	}
 	
-	public boolean isMissingCharges(CustomWandValues wand, long currentTick) {
+	public boolean isMissingCharges(KciWand wand, long currentTick) {
 		updateCharges(wand, currentTick);
 		return isMissingChargesDirect(wand);
 	}
 
-	public int getCurrentCharges(CustomWandValues wand, long currentTick) {
+	public int getCurrentCharges(KciWand wand, long currentTick) {
 		updateCharges(wand, currentTick);
 		if (wand.getCharges() != null) {
 			return currentCharges;
@@ -141,12 +141,12 @@ class PlayerWandData {
 		}
 	}
 
-	public boolean canShootNow(CustomWandValues wand, long currentTick) {
+	public boolean canShootNow(KciWand wand, long currentTick) {
 		updateCharges(wand, currentTick);
 		return !isOnCooldown(currentTick) && (wand.getCharges() == null || currentCharges > 0);
 	}
 	
-	public void onShoot(CustomWandValues wand, long currentTick) {
+	public void onShoot(KciWand wand, long currentTick) {
 		cooldownExpireTick = currentTick + wand.getCooldown();
 		if (wand.getCharges() != null) {
 			if (currentCharges == wand.getCharges().getMaxCharges())

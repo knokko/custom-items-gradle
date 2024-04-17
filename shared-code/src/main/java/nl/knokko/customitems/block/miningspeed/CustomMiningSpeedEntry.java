@@ -2,7 +2,7 @@ package nl.knokko.customitems.block.miningspeed;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
@@ -13,7 +13,7 @@ import nl.knokko.customitems.util.ValidationException;
 
 import java.util.Objects;
 
-import static nl.knokko.customitems.block.miningspeed.MiningSpeedValues.validateValue;
+import static nl.knokko.customitems.block.miningspeed.MiningSpeed.validateValue;
 
 public class CustomMiningSpeedEntry extends ModelValues {
 
@@ -74,7 +74,7 @@ public class CustomMiningSpeedEntry extends ModelValues {
         return item;
     }
 
-    public CustomItemValues getItem() {
+    public KciItem getItem() {
         return item != null ? item.get() : null;
     }
 

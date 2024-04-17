@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.attack.effect;
 
-import nl.knokko.customitems.attack.effect.AttackDealDamageValues;
-import nl.knokko.customitems.attack.effect.AttackEffectValues;
+import nl.knokko.customitems.attack.effect.AttackEffectDelayedDamage;
+import nl.knokko.customitems.attack.effect.AttackEffect;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.component.GuiComponent;
@@ -15,10 +15,10 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class EditAttackDealDamage extends EditAttackEffect {
 
-    private final AttackDealDamageValues currentValues;
+    private final AttackEffectDelayedDamage currentValues;
 
     public EditAttackDealDamage(
-            AttackDealDamageValues oldValues, Consumer<AttackEffectValues> changeValues,
+            AttackEffectDelayedDamage oldValues, Consumer<AttackEffect> changeValues,
             GuiComponent returnMenu, ItemSet itemSet
     ) {
         super(changeValues, returnMenu, itemSet);
@@ -43,7 +43,7 @@ public class EditAttackDealDamage extends EditAttackEffect {
     }
 
     @Override
-    protected AttackEffectValues getCurrentValues() {
+    protected AttackEffect getCurrentValues() {
         return currentValues;
     }
 }

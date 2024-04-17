@@ -1,6 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.block;
 
-import nl.knokko.customitems.block.CustomBlockValues;
+import nl.knokko.customitems.block.KciBlock;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
@@ -15,7 +15,7 @@ import java.awt.image.BufferedImage;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.QUIT_BASE;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.QUIT_HOVER;
 
-public class BlockCollectionEdit extends DedicatedCollectionEdit<CustomBlockValues, BlockReference> {
+public class BlockCollectionEdit extends DedicatedCollectionEdit<KciBlock, BlockReference> {
 
     private final EditMenu menu;
     private final boolean allowDeletions;
@@ -31,7 +31,7 @@ public class BlockCollectionEdit extends DedicatedCollectionEdit<CustomBlockValu
         super.addComponents();
         addComponent(new DynamicTextButton("Create block", EditProps.BUTTON, EditProps.HOVER, () -> {
             state.getWindow().setMainComponent(new EditBlock(
-                    null, new CustomBlockValues(true), this, menu.getSet()
+                    null, new KciBlock(true), this, menu.getSet()
             ));
         }), 0.025f, 0.35f, 0.225f, 0.45f);
 
@@ -45,17 +45,17 @@ public class BlockCollectionEdit extends DedicatedCollectionEdit<CustomBlockValu
     }
 
     @Override
-    protected String getModelLabel(CustomBlockValues model) {
+    protected String getModelLabel(KciBlock model) {
         return model.getName() + " (" + model.getInternalID() + ")";
     }
 
     @Override
-    protected BufferedImage getModelIcon(CustomBlockValues block) {
+    protected BufferedImage getModelIcon(KciBlock block) {
         return block.getModel().getPrimaryTexture().get().getImage();
     }
 
     @Override
-    protected boolean canEditModel(CustomBlockValues model) {
+    protected boolean canEditModel(KciBlock model) {
         return true;
     }
 

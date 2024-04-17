@@ -1,11 +1,11 @@
 package nl.knokko.customitems.editor.menu.edit.item.damage;
 
-import nl.knokko.customitems.damage.CustomDamageSourceValues;
+import nl.knokko.customitems.damage.KciDamageSource;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
-import nl.knokko.customitems.itemset.CustomDamageSourceReference;
+import nl.knokko.customitems.itemset.DamageSourceReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
@@ -14,7 +14,7 @@ import java.awt.image.BufferedImage;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.BUTTON;
 
-public class DamageSourceCollectionEdit extends DedicatedCollectionEdit<CustomDamageSourceValues, CustomDamageSourceReference> {
+public class DamageSourceCollectionEdit extends DedicatedCollectionEdit<KciDamageSource, DamageSourceReference> {
 
     private final ItemSet itemSet;
 
@@ -28,7 +28,7 @@ public class DamageSourceCollectionEdit extends DedicatedCollectionEdit<CustomDa
         super.addComponents();
         addComponent(new DynamicTextButton("Create damage source", BUTTON, EditProps.HOVER, () -> {
             state.getWindow().setMainComponent(new EditCustomDamageSource(
-                    itemSet, this, new CustomDamageSourceValues(true), null
+                    itemSet, this, new KciDamageSource(true), null
             ));
         }), 0.025f, 0.385f, 0.275f, 0.485f);
 
@@ -36,27 +36,27 @@ public class DamageSourceCollectionEdit extends DedicatedCollectionEdit<CustomDa
     }
 
     @Override
-    protected String getModelLabel(CustomDamageSourceValues model) {
+    protected String getModelLabel(KciDamageSource model) {
         return model.getName();
     }
 
     @Override
-    protected BufferedImage getModelIcon(CustomDamageSourceValues model) {
+    protected BufferedImage getModelIcon(KciDamageSource model) {
         return null;
     }
 
     @Override
-    protected boolean canEditModel(CustomDamageSourceValues model) {
+    protected boolean canEditModel(KciDamageSource model) {
         return true;
     }
 
     @Override
-    protected GuiComponent createEditMenu(CustomDamageSourceReference modelReference) {
+    protected GuiComponent createEditMenu(DamageSourceReference modelReference) {
         return new EditCustomDamageSource(itemSet, returnMenu, modelReference.get(), modelReference);
     }
 
     @Override
-    protected String deleteModel(CustomDamageSourceReference modelReference) {
+    protected String deleteModel(DamageSourceReference modelReference) {
         return Validation.toErrorString(() -> itemSet.damageSources.remove(modelReference));
     }
 
@@ -66,12 +66,12 @@ public class DamageSourceCollectionEdit extends DedicatedCollectionEdit<CustomDa
     }
 
     @Override
-    protected CopyMode getCopyMode(CustomDamageSourceReference modelReference) {
+    protected CopyMode getCopyMode(DamageSourceReference modelReference) {
         return CopyMode.DISABLED;
     }
 
     @Override
-    protected GuiComponent createCopyMenu(CustomDamageSourceReference modelReference) {
+    protected GuiComponent createCopyMenu(DamageSourceReference modelReference) {
         throw new UnsupportedOperationException("No copying");
     }
 }

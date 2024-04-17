@@ -4,32 +4,31 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
-import nl.knokko.customitems.container.fuel.FuelEntryValues;
+import nl.knokko.customitems.container.fuel.ContainerFuelEntry;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.collection.InlineCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.EditIngredient;
-import nl.knokko.customitems.item.CIMaterial;
+import nl.knokko.customitems.item.VMaterial;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
-import nl.knokko.customitems.recipe.ingredient.constraint.IngredientConstraintsValues;
+import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredient;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
-public class FuelEntryCollectionEdit extends InlineCollectionEdit<FuelEntryValues> {
+public class FuelEntryCollectionEdit extends InlineCollectionEdit<ContainerFuelEntry> {
 	
 	private final ItemSet set;
 
 	public FuelEntryCollectionEdit(
-			Collection<FuelEntryValues> originalCollection, Consumer<List<FuelEntryValues>> changeCollection,
-			GuiComponent returnMenu, ItemSet set) {
+            Collection<ContainerFuelEntry> originalCollection, Consumer<List<ContainerFuelEntry>> changeCollection,
+            GuiComponent returnMenu, ItemSet set) {
 		super(originalCollection, changeCollection, returnMenu);
 		this.set = set;
 	}
 
 	@Override
 	protected void addRowComponents(int itemIndex, float minY, float maxY) {
-		FuelEntryValues entry = ownCollection.get(itemIndex);
+		ContainerFuelEntry entry = ownCollection.get(itemIndex);
 
 		DynamicTextButton[] pFuelButton = new DynamicTextButton[1];
 		pFuelButton[0] = new DynamicTextButton(entry.getFuel().toString(), 
@@ -52,8 +51,8 @@ public class FuelEntryCollectionEdit extends InlineCollectionEdit<FuelEntryValue
 	}
 
 	@Override
-	protected FuelEntryValues addNew() {
-		return FuelEntryValues.createQuick(SimpleVanillaIngredientValues.createQuick(CIMaterial.COAL, 1), 100);
+	protected ContainerFuelEntry addNew() {
+		return ContainerFuelEntry.createQuick(SimpleVanillaIngredient.createQuick(VMaterial.COAL, 1), 100);
 	}
 
 	@Override

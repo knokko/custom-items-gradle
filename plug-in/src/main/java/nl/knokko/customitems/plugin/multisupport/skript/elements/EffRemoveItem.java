@@ -5,7 +5,7 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import org.bukkit.event.Event;
@@ -33,7 +33,7 @@ public class EffRemoveItem extends Effect {
 
         while (remainingAmount > 0 && itemIndex < contents.length) {
             ItemStack item = contents[itemIndex];
-            CustomItemValues customItem = itemSet.getItem(item);
+            KciItem customItem = itemSet.getItem(item);
             if (customItem != null && customItem.getName().equals(itemName)) {
                 if (remainingAmount >= item.getAmount()) {
                     remainingAmount -= item.getAmount();

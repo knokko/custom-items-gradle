@@ -1,6 +1,6 @@
 package nl.knokko.customitems.plugin.recipe;
 
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import nl.knokko.customrecipes.collector.ResultCollectorEvent;
@@ -26,7 +26,7 @@ public class CustomStackingResultCollector implements Consumer<ResultCollectorEv
 
     @Override
     public void accept(ResultCollectorEvent event) {
-        CustomItemValues customResult = itemSet.getItem(event.result);
+        KciItem customResult = itemSet.getItem(event.result);
         if (customResult == null || !wrap(customResult).needsStackingHelp()) return;
 
         /*

@@ -8,9 +8,9 @@ import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.CraftingRecipeReference;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.recipe.ShapelessRecipeValues;
-import nl.knokko.customitems.recipe.ingredient.IngredientValues;
-import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
+import nl.knokko.customitems.recipe.KciShapelessRecipe;
+import nl.knokko.customitems.recipe.ingredient.KciIngredient;
+import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredient;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -26,14 +26,14 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class ShapelessRecipeEdit extends GuiMenu {
 
-    private final ShapelessRecipeValues currentValues;
+    private final KciShapelessRecipe currentValues;
     private final CraftingRecipeReference toModify;
 
     private final ItemSet itemSet;
     private final GuiComponent returnMenu;
 
     public ShapelessRecipeEdit(
-            ShapelessRecipeValues oldValues, CraftingRecipeReference toModify,
+            KciShapelessRecipe oldValues, CraftingRecipeReference toModify,
             ItemSet itemSet, GuiComponent returnMenu
     ) {
         super();
@@ -53,11 +53,11 @@ public class ShapelessRecipeEdit extends GuiMenu {
         }), 0.025f, 0.7f, 0.175f, 0.8f);
         addComponent(new ConditionalTextButton("Add ingredient", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new EditIngredient(this, newIngredient -> {
-                List<IngredientValues> ingredients = currentValues.getIngredients();
+                List<KciIngredient> ingredients = currentValues.getIngredients();
                 ingredients.add(newIngredient);
                 currentValues.setIngredients(ingredients);
                 ingredientList.refresh();
-            }, new SimpleVanillaIngredientValues(false), false, itemSet));
+            }, new SimpleVanillaIngredient(false), false, itemSet));
         }, () -> {
             return currentValues.getIngredients().size() < 9;
         }), 0.025f, 0.55f, 0.19f, 0.65f);
@@ -105,8 +105,8 @@ public class ShapelessRecipeEdit extends GuiMenu {
         protected void addComponents() {
 
             int index = 0;
-            List<IngredientValues> ingredients = new ArrayList<>(currentValues.getIngredients());
-            for (IngredientValues ingredient : ingredients) {
+            List<KciIngredient> ingredients = new ArrayList<>(currentValues.getIngredients());
+            for (KciIngredient ingredient : ingredients) {
                 final int rememberIndex = index;
                 float maxY = 1f - index * 0.11f;
                 float minY = maxY - 0.11f;

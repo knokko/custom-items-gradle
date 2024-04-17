@@ -6,10 +6,10 @@ import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.ByteArrayBitInput;
 import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
 import nl.knokko.customitems.container.ContainerStorageMode;
-import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.container.KciContainer;
 import nl.knokko.customitems.encoding.ContainerEncoding;
-import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.item.CustomPocketContainerValues;
+import nl.knokko.customitems.item.KciItem;
+import nl.knokko.customitems.item.KciPocketContainer;
 import nl.knokko.customitems.plugin.data.PlayerData;
 import nl.knokko.customitems.plugin.data.container.ContainerStorageKey;
 import nl.knokko.customitems.plugin.data.container.LocalStoredEnergy;
@@ -37,7 +37,7 @@ class PocketContainerManager {
             new UUID(1, 2), 3, 4, 5
     );
 
-    private static String[] getPocketContainerEnergyNbtKey(CustomContainerValues containerType, Player player) {
+    private static String[] getPocketContainerEnergyNbtKey(KciContainer containerType, Player player) {
         ContainerStorageMode mode = containerType.getStorageMode();
         if (mode == ContainerStorageMode.PER_LOCATION) {
             return new String[] {"KnokkosPocketContainer", "StoredEnergy" };
@@ -48,7 +48,7 @@ class PocketContainerManager {
         }
     }
 
-    private static String[] getPocketContainerNbtKey(CustomContainerValues containerType, Player player) {
+    private static String[] getPocketContainerNbtKey(KciContainer containerType, Player player) {
         if (containerType.getStorageMode() == ContainerStorageMode.PER_LOCATION) {
             return new String[] {"KnokkosPocketContainer", "State", containerType.getName()};
         } else if (containerType.getStorageMode() == ContainerStorageMode.PER_LOCATION_PER_PLAYER) {
@@ -105,7 +105,7 @@ class PocketContainerManager {
 
         if (pd.pocketContainerInMainHand) {
             ItemStack mainItem = inv.getItemInMainHand();
-            if (!(itemSet.getItem(mainItem) instanceof CustomPocketContainerValues)) {
+            if (!(itemSet.getItem(mainItem) instanceof KciPocketContainer)) {
                 closeContainerInv = true;
             } else if (!pd.openPocketContainer.getInventory().getViewers().contains(player) || force) {
                 closeContainerInv = true;
@@ -114,7 +114,7 @@ class PocketContainerManager {
             }
         } else {
             ItemStack offItem = inv.getItemInOffHand();
-            if (!(itemSet.getItem(offItem) instanceof CustomPocketContainerValues)) {
+            if (!(itemSet.getItem(offItem) instanceof KciPocketContainer)) {
                 closeContainerInv = true;
             } else if (!pd.openPocketContainer.getInventory().getViewers().contains(player) || force) {
                 closeContainerInv = true;
@@ -134,9 +134,9 @@ class PocketContainerManager {
 
             if (closeDestination != null) {
 
-                CustomPocketContainerValues pocketContainer = (CustomPocketContainerValues) itemSet.getItem(closeDestination);
+                KciPocketContainer pocketContainer = (KciPocketContainer) itemSet.getItem(closeDestination);
                 boolean acceptsCurrentContainer = false;
-                for (CustomContainerValues candidate : pocketContainer.getContainers()) {
+                for (KciContainer candidate : pocketContainer.getContainers()) {
                     if (candidate == pd.openPocketContainer.getType()) {
                         acceptsCurrentContainer = true;
                         break;
@@ -205,22 +205,22 @@ class PocketContainerManager {
         }
     }
 
-    ToOpen tryOpen(Player player, CustomContainerValues selected) {
+    ToOpen tryOpen(Player player, KciContainer selected) {
         PlayerInventory inv = player.getInventory();
         ItemStack mainItem = inv.getItemInMainHand();
         ItemStack offItem = inv.getItemInOffHand();
-        CustomItemValues customMain = itemSet.getItem(mainItem);
-        CustomItemValues customOff = itemSet.getItem(offItem);
+        KciItem customMain = itemSet.getItem(mainItem);
+        KciItem customOff = itemSet.getItem(offItem);
 
-        CustomPocketContainerValues pocketContainer = null;
+        KciPocketContainer pocketContainer = null;
         ItemStack pocketContainerStack = null;
         boolean isMainHand = false;
-        if (customMain instanceof CustomPocketContainerValues) {
-            pocketContainer = (CustomPocketContainerValues) customMain;
+        if (customMain instanceof KciPocketContainer) {
+            pocketContainer = (KciPocketContainer) customMain;
             pocketContainerStack = mainItem;
             isMainHand = true;
-        } else if (customOff instanceof CustomPocketContainerValues) {
-            pocketContainer = (CustomPocketContainerValues) customOff;
+        } else if (customOff instanceof KciPocketContainer) {
+            pocketContainer = (KciPocketContainer) customOff;
             pocketContainerStack = offItem;
         }
 
@@ -235,7 +235,7 @@ class PocketContainerManager {
         return new ToOpen(pocketContainerStack, pocketContainer, isMainHand);
     }
 
-    StoredEnergy loadEnergy(ReadWriteItemNBT nbt, Player player, CustomContainerValues containerType) {
+    StoredEnergy loadEnergy(ReadWriteItemNBT nbt, Player player, KciContainer containerType) {
         String[] nbtKey = getPocketContainerEnergyNbtKey(containerType, player);
         String stringStoredEnergy = NbtHelper.getNested(nbt, nbtKey, null);
 
@@ -255,7 +255,7 @@ class PocketContainerManager {
     }
 
     ContainerInstance tryOpenInstance(
-            Player player, CustomContainerValues selected,
+            Player player, KciContainer selected,
             ReadWriteItemNBT nbt, StoredEnergy pocketStoredEnergy
     ) {
 
@@ -326,10 +326,10 @@ class PocketContainerManager {
     static class ToOpen {
 
         final ItemStack itemStack;
-        final CustomPocketContainerValues container;
+        final KciPocketContainer container;
         final boolean isMainHand;
 
-        ToOpen(ItemStack itemStack, CustomPocketContainerValues container, boolean isMainHand) {
+        ToOpen(ItemStack itemStack, KciPocketContainer container, boolean isMainHand) {
             this.itemStack = itemStack;
             this.container = container;
             this.isMainHand = isMainHand;

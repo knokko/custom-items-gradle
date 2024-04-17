@@ -1,6 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.block;
 
-import nl.knokko.customitems.block.drop.CustomBlockDropValues;
+import nl.knokko.customitems.block.drop.CustomBlockDrop;
 import nl.knokko.customitems.block.drop.SilkTouchRequirement;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
@@ -25,14 +25,14 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.LABEL;
 
 public class EditCustomBlockDrop extends GuiMenu  {
 
-    private final CustomBlockDropValues currentDrop;
+    private final CustomBlockDrop currentDrop;
 
     private final ItemSet set;
     private final GuiComponent returnMenu;
-    private final Consumer<CustomBlockDropValues> onDone;
+    private final Consumer<CustomBlockDrop> onDone;
 
     public EditCustomBlockDrop(
-            CustomBlockDropValues startValues, ItemSet set, GuiComponent returnMenu, Consumer<CustomBlockDropValues> onDone
+            CustomBlockDrop startValues, ItemSet set, GuiComponent returnMenu, Consumer<CustomBlockDrop> onDone
     ) {
         Checks.nonNull(startValues, set, returnMenu);
         this.currentDrop = startValues.copy(true);

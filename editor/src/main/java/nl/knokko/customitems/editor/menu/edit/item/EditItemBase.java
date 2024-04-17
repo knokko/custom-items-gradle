@@ -17,8 +17,8 @@ import nl.knokko.customitems.editor.util.VanillaModelProperties;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.TextureReference;
-import nl.knokko.customitems.texture.BaseTextureValues;
-import nl.knokko.customitems.texture.animated.AnimatedTextureValues;
+import nl.knokko.customitems.texture.KciTexture;
+import nl.knokko.customitems.texture.animated.AnimatedTexture;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
@@ -32,7 +32,7 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
-public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
+public abstract class EditItemBase<V extends KciItem> extends GuiMenu {
 
 	protected static final float LABEL_X = 0.2f;
 	protected static final float BUTTON_X = 0.4f;
@@ -212,10 +212,10 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 			);
 		}
 		DynamicTextButton otherMaterialButton = EnumSelect.createSelectButton(
-				CIMaterial.class, currentValues::setOtherMaterial, candidateType -> {
+				VMaterial.class, currentValues::setOtherMaterial, candidateType -> {
 					// Choosing AIR is not really an option
-					if (candidateType == CIMaterial.AIR) return false;
-					if (getCategory() == CustomItemType.Category.ARROW && candidateType != CIMaterial.ARROW) return false;
+					if (candidateType == VMaterial.AIR) return false;
+					if (getCategory() == KciItemType.Category.ARROW && candidateType != VMaterial.ARROW) return false;
 					try {
 						VanillaModelProperties.valueOf(candidateType.name());
 						return true;
@@ -225,13 +225,13 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 				}, currentValues.getOtherMaterial()
 		);
 		addComponent(EnumSelect.createSelectButton(
-				CustomItemType.class, 
+				KciItemType.class,
 				newItemType -> {
 					currentValues.setItemType(newItemType);
-					if (newItemType == CustomItemType.OTHER) {
+					if (newItemType == KciItemType.OTHER) {
 						otherMaterialButton.setText(currentValues.getOtherMaterial().toString());
 					}
-				}, (CustomItemType maybe) -> {
+				}, (KciItemType maybe) -> {
 			return maybe.canServe(getCategory());
 		}, currentValues.getItemType()), BUTTON_X, 0.74f, BUTTON_X + 0.1f, 0.79f);
 		addComponent(new WrapperComponent<DynamicTextButton>(
@@ -239,7 +239,7 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 		) {
 			@Override
 			public boolean isActive() {
-				return currentValues.getItemType() == CustomItemType.OTHER;
+				return currentValues.getItemType() == KciItemType.OTHER;
 			}
 		}, BUTTON_X + 0.11f, 0.74f, BUTTON_X + 0.2f, 0.79f);
 		addComponent(
@@ -296,8 +296,8 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 		}), BUTTON_X, -0.04f, BUTTON_X + 0.1f, 0.01f);
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			boolean hasDurability;
-			if (currentValues instanceof CustomToolValues) {
-				hasDurability = ((CustomToolValues) currentValues).getMaxDurabilityNew() != null;
+			if (currentValues instanceof KciTool) {
+				hasDurability = ((KciTool) currentValues).getMaxDurabilityNew() != null;
 			} else {
 				hasDurability = false;
 			}
@@ -355,7 +355,7 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 	}
 
 	protected GuiComponent createLoadTextureMenu() {
-		return new TextureEdit(menu.getSet(), this, null, new BaseTextureValues(true));
+		return new TextureEdit(menu.getSet(), this, null, new KciTexture(true));
 	}
 
 	protected boolean canHaveCustomModel() {
@@ -372,7 +372,7 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 		}), BUTTON_X, 0.56f, BUTTON_X + 0.1f, 0.61f);
 	}
 
-	protected abstract AttributeModifierValues getExampleAttributeModifier();
+	protected abstract KciAttributeModifier getExampleAttributeModifier();
 
 	private void addAttributesComponent() {
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
@@ -412,11 +412,11 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 		}), BUTTON_X, 0.08f, BUTTON_X + 0.1f, 0.13f);
 	}
 	
-	protected ReplacementConditionValues getExampleReplaceCondition() {
-		return ReplacementConditionValues.createQuick(
-				ReplacementConditionValues.ReplacementCondition.HASITEM,
+	protected ReplacementConditionEntry getExampleReplaceCondition() {
+		return ReplacementConditionEntry.createQuick(
+				ReplacementConditionEntry.ReplacementCondition.HASITEM,
 				null,
-				ReplacementConditionValues.ReplacementOperation.NONE,
+				ReplacementConditionEntry.ReplacementOperation.NONE,
 				0,
 				null
 		);
@@ -439,11 +439,11 @@ public abstract class EditItemBase<V extends CustomItemValues> extends GuiMenu {
 		}), BUTTON_X, 0.02f, BUTTON_X + 0.1f, 0.07f);
 	}
 
-	protected abstract CustomItemType.Category getCategory();
+	protected abstract KciItemType.Category getCategory();
 
 	protected boolean allowTexture(TextureReference texture) {
 		
 		// No subclasses such as bow textures
-		return texture.get().getClass() == BaseTextureValues.class || texture.get().getClass() == AnimatedTextureValues.class;
+		return texture.get().getClass() == KciTexture.class || texture.get().getClass() == AnimatedTexture.class;
 	}
 }

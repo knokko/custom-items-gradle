@@ -5,9 +5,9 @@ import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.attack.effect.AttackEffectGroupCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.item.AttributeModifierValues;
-import nl.knokko.customitems.item.CustomArrowValues;
-import nl.knokko.customitems.item.CustomItemType;
+import nl.knokko.customitems.item.KciAttributeModifier;
+import nl.knokko.customitems.item.KciArrow;
+import nl.knokko.customitems.item.KciItemType;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.text.EagerFloatEditField;
@@ -17,27 +17,27 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
-public class EditItemArrow extends EditItemBase<CustomArrowValues> {
+public class EditItemArrow extends EditItemBase<KciArrow> {
 
-    private static final AttributeModifierValues EXAMPLE_MODIFIER = AttributeModifierValues.createQuick(
-            AttributeModifierValues.Attribute.MOVEMENT_SPEED,
-            AttributeModifierValues.Slot.OFFHAND,
-            AttributeModifierValues.Operation.ADD,
+    private static final KciAttributeModifier EXAMPLE_MODIFIER = KciAttributeModifier.createQuick(
+            KciAttributeModifier.Attribute.MOVEMENT_SPEED,
+            KciAttributeModifier.Slot.OFFHAND,
+            KciAttributeModifier.Operation.ADD,
             0.1
     );
 
-    public EditItemArrow(EditMenu menu, CustomArrowValues oldValues, ItemReference toModify) {
+    public EditItemArrow(EditMenu menu, KciArrow oldValues, ItemReference toModify) {
         super(menu, oldValues, toModify);
     }
 
     @Override
-    protected AttributeModifierValues getExampleAttributeModifier() {
+    protected KciAttributeModifier getExampleAttributeModifier() {
         return EXAMPLE_MODIFIER;
     }
 
     @Override
-    protected CustomItemType.Category getCategory() {
-        return CustomItemType.Category.ARROW;
+    protected KciItemType.Category getCategory() {
+        return KciItemType.Category.ARROW;
     }
 
     @Override

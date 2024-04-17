@@ -4,10 +4,10 @@ import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.util.FileDialog;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
-import nl.knokko.customitems.itemset.FancyPantsArmorTextureReference;
+import nl.knokko.customitems.itemset.FancyPantsReference;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.texture.FancyPantsArmorFrameValues;
-import nl.knokko.customitems.texture.FancyPantsArmorTextureValues;
+import nl.knokko.customitems.texture.FancyPantsFrame;
+import nl.knokko.customitems.texture.FancyPantsTexture;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
@@ -35,12 +35,12 @@ public class FancyPantsArmorEdit extends GuiMenu {
 
     private final ItemSet itemSet;
     private final GuiComponent returnMenu;
-    private final FancyPantsArmorTextureValues currentValues;
-    private final FancyPantsArmorTextureReference toModify;
+    private final FancyPantsTexture currentValues;
+    private final FancyPantsReference toModify;
 
     public FancyPantsArmorEdit(
-            ItemSet itemSet, GuiComponent returnMenu, FancyPantsArmorTextureValues oldValues,
-            FancyPantsArmorTextureReference toModify
+            ItemSet itemSet, GuiComponent returnMenu, FancyPantsTexture oldValues,
+            FancyPantsReference toModify
     ) {
         this.itemSet = itemSet;
         this.returnMenu = returnMenu;
@@ -85,7 +85,7 @@ public class FancyPantsArmorEdit extends GuiMenu {
 
         addComponent(new DynamicTextComponent("Emissivity:", LABEL), 0.2f, 0.46f, 0.35f, 0.56f);
         addComponent(EnumSelect.createSelectButton(
-                FancyPantsArmorTextureValues.Emissivity.class, currentValues::setEmissivity, currentValues.getEmissivity()
+                FancyPantsTexture.Emissivity.class, currentValues::setEmissivity, currentValues.getEmissivity()
         ), 0.37f, 0.46f, 0.5f, 0.56f);
 
         addComponent(new CheckboxComponent(
@@ -103,8 +103,8 @@ public class FancyPantsArmorEdit extends GuiMenu {
         FrameList frameList = new FrameList(errorComponent);
         addComponent(new DynamicTextComponent("Frames:", LABEL), 0.65f, 0.7f, 0.8f, 0.8f);
         addComponent(new DynamicTextButton("+", SAVE_BASE, SAVE_HOVER, () -> {
-            List<FancyPantsArmorFrameValues> newFrames = new ArrayList<>(currentValues.getFrames());
-            newFrames.add(new FancyPantsArmorFrameValues(true));
+            List<FancyPantsFrame> newFrames = new ArrayList<>(currentValues.getFrames());
+            newFrames.add(new FancyPantsFrame(true));
             currentValues.setFrames(newFrames);
             frameList.refresh();
         }), 0.82f, 0.7f, 0.9f, 0.8f);
@@ -160,7 +160,7 @@ public class FancyPantsArmorEdit extends GuiMenu {
             this.errorComponent = errorComponent;
             this.refresh = refresh;
 
-            FancyPantsArmorFrameValues frame = currentValues.getFrames().get(frameIndex);
+            FancyPantsFrame frame = currentValues.getFrames().get(frameIndex);
             this.layer1Component = layerComponent(frame.getLayer1());
             this.layer2Component = layerComponent(frame.getLayer2());
             this.emissivity1Component = emissivityLayerComponent(frame.getEmissivityLayer1());
@@ -176,13 +176,13 @@ public class FancyPantsArmorEdit extends GuiMenu {
         private ConditionalImageComponent emissivityLayerComponent(BufferedImage currentImage) {
             return new ConditionalImageComponent(
                     FancyPantsArmorEdit.this.state.getWindow().getTextureLoader().loadTexture(currentImage),
-                    () -> currentValues.getEmissivity() == FancyPantsArmorTextureValues.Emissivity.PARTIAL
+                    () -> currentValues.getEmissivity() == FancyPantsTexture.Emissivity.PARTIAL
             );
         }
 
-        private void updateFrame(Consumer<FancyPantsArmorFrameValues> updateFunction) {
-            List<FancyPantsArmorFrameValues> newFrames = new ArrayList<>(currentValues.getFrames());
-            FancyPantsArmorFrameValues newFrame = newFrames.get(frameIndex).copy(true);
+        private void updateFrame(Consumer<FancyPantsFrame> updateFunction) {
+            List<FancyPantsFrame> newFrames = new ArrayList<>(currentValues.getFrames());
+            FancyPantsFrame newFrame = newFrames.get(frameIndex).copy(true);
             updateFunction.accept(newFrame);
             newFrames.set(frameIndex, newFrame);
             currentValues.setFrames(newFrames);
@@ -213,7 +213,7 @@ public class FancyPantsArmorEdit extends GuiMenu {
                         errorComponent.setText("Failed to load image");
                     }
                 });
-            }, () -> currentValues.getEmissivity() == FancyPantsArmorTextureValues.Emissivity.PARTIAL
+            }, () -> currentValues.getEmissivity() == FancyPantsTexture.Emissivity.PARTIAL
             ), 0.43f, 0.8f, 0.84f, 0.99f);
             addComponent(emissivity1Component, 0.43f, 0.51f, 0.84f, 0.78f);
 
@@ -240,12 +240,12 @@ public class FancyPantsArmorEdit extends GuiMenu {
                         errorComponent.setText("Failed to load image");
                     }
                 });
-            }, () -> currentValues.getEmissivity() == FancyPantsArmorTextureValues.Emissivity.PARTIAL
+            }, () -> currentValues.getEmissivity() == FancyPantsTexture.Emissivity.PARTIAL
             ), 0.43f, 0.3f, 0.84f, 0.49f);
             addComponent(emissivity2Component, 0.43f, 0.01f, 0.84f, 0.28f);
 
             addComponent(new DynamicTextButton("X", QUIT_BASE, QUIT_HOVER, () -> {
-                List<FancyPantsArmorFrameValues> newFrames = new ArrayList<>(currentValues.getFrames());
+                List<FancyPantsFrame> newFrames = new ArrayList<>(currentValues.getFrames());
                 newFrames.remove(frameIndex);
                 currentValues.setFrames(newFrames);
                 refresh.run();

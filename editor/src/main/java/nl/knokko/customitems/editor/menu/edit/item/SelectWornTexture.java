@@ -7,7 +7,7 @@ import nl.knokko.customitems.editor.menu.edit.texture.ArmorTexturesEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.itemset.ArmorTextureReference;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.texture.ArmorTextureValues;
+import nl.knokko.customitems.texture.ArmorTexture;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -54,7 +54,7 @@ public class SelectWornTexture extends GuiMenu {
 		addComponent(new DynamicTextButton("Create new", 
 				EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(
-					new ArmorTexturesEdit(this, set, null, new ArmorTextureValues(true))
+					new ArmorTexturesEdit(this, set, null, new ArmorTexture(true))
 			);
 		}), 0.025f, 0.2f, 0.2f, 0.3f);
 		addComponent(new DynamicTextComponent(

@@ -3,7 +3,7 @@ package nl.knokko.customitems.editor.menu.edit.recipe.ingredient.constraint;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.menu.edit.collection.InlineCollectionEdit;
 import nl.knokko.customitems.recipe.ingredient.constraint.ConstraintOperator;
-import nl.knokko.customitems.recipe.ingredient.constraint.VariableConstraintValues;
+import nl.knokko.customitems.recipe.ingredient.constraint.VariableConstraint;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.EagerTextEditField;
@@ -14,15 +14,15 @@ import java.util.function.Consumer;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
-public class VariableConstraintsCollectionEdit extends InlineCollectionEdit<VariableConstraintValues> {
+public class VariableConstraintsCollectionEdit extends InlineCollectionEdit<VariableConstraint> {
 
-    public VariableConstraintsCollectionEdit(GuiComponent returnMenu, Collection<VariableConstraintValues> currentCollection, Consumer<Collection<VariableConstraintValues>> onApply) {
+    public VariableConstraintsCollectionEdit(GuiComponent returnMenu, Collection<VariableConstraint> currentCollection, Consumer<Collection<VariableConstraint>> onApply) {
         super(returnMenu, currentCollection, onApply);
     }
 
     @Override
     protected void addRowComponents(int itemIndex, float minY, float maxY) {
-        VariableConstraintValues constraint = ownCollection.get(itemIndex);
+        VariableConstraint constraint = ownCollection.get(itemIndex);
 
         addComponent(new EagerTextEditField(
                 constraint.getVariable(), EDIT_BASE, EDIT_ACTIVE, constraint::setVariable
@@ -42,8 +42,8 @@ public class VariableConstraintsCollectionEdit extends InlineCollectionEdit<Vari
     }
 
     @Override
-    protected VariableConstraintValues addNew() {
-        return new VariableConstraintValues(true);
+    protected VariableConstraint addNew() {
+        return new VariableConstraint(true);
     }
 
     @Override

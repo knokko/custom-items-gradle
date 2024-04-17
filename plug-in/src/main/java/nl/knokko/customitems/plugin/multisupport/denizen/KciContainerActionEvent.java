@@ -13,7 +13,7 @@ import com.denizenscript.denizencore.objects.core.MapTag;
 import com.denizenscript.denizencore.scripts.ScriptEntryData;
 import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.utilities.text.StringHolder;
-import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.container.KciContainer;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.events.CustomContainerActionEvent;
 import org.bukkit.event.EventHandler;
@@ -219,7 +219,7 @@ class KciContainerActionEvent extends BukkitScriptEvent implements Listener {
                 }
 
                 if (key.equals("switch_container")) {
-                    Optional<CustomContainerValues> newContainer = event.itemSet.get().containers.get(value.asString());
+                    Optional<KciContainer> newContainer = event.itemSet.get().containers.get(value.asString());
                     if (newContainer.isPresent()) {
                         CustomItemsPlugin.getInstance().getData().containerManager.attemptToSwitchToLinkedContainer(
                                 event.getPlayer(), newContainer.get()

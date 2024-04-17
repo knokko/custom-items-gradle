@@ -5,7 +5,7 @@ import com.github.cliftonlabs.json_simple.Jsoner;
 import nl.knokko.customitems.bithelper.BitInputStream;
 import nl.knokko.customitems.editor.resourcepack.ResourcepackGenerator;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.settings.ExportSettingsValues;
+import nl.knokko.customitems.settings.ExportSettings;
 import org.junit.jupiter.api.Test;
 
 import javax.imageio.ImageIO;
@@ -32,9 +32,9 @@ public class TestResourcepackGenerator {
             ItemSet itemSet = new ItemSet(new BitInputStream(setInput), ItemSet.Side.EDITOR, false);
             setInput.close();
 
-            ExportSettingsValues exportSettings = itemSet.getExportSettings().copy(true);
+            ExportSettings exportSettings = itemSet.getExportSettings().copy(true);
             exportSettings.setMcVersion(mcVersion);
-            exportSettings.setMode(ExportSettingsValues.Mode.MANUAL);
+            exportSettings.setMode(ExportSettings.Mode.MANUAL);
             itemSet.setExportSettings(exportSettings);
 
             ByteArrayOutputStream rememberOutput = new ByteArrayOutputStream();

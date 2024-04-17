@@ -15,8 +15,8 @@ import de.tr7zw.changeme.nbtapi.NBTType;
 import de.tr7zw.changeme.nbtapi.iface.ReadWriteNBT;
 import de.tr7zw.changeme.nbtapi.iface.ReadableNBT;
 import nl.knokko.customitems.item.*;
-import nl.knokko.customitems.item.enchantment.EnchantmentType;
-import nl.knokko.customitems.item.enchantment.EnchantmentValues;
+import nl.knokko.customitems.item.enchantment.VEnchantmentType;
+import nl.knokko.customitems.item.enchantment.LeveledEnchantment;
 import nl.knokko.customitems.nms.BooleanRepresentation;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.nms.RawAttribute;
@@ -26,7 +26,7 @@ import nl.knokko.customitems.plugin.set.item.*;
 import nl.knokko.customitems.plugin.util.AttributeMerger;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import nl.knokko.customitems.plugin.util.NbtHelper;
-import nl.knokko.customitems.recipe.upgrade.UpgradeValues;
+import nl.knokko.customitems.recipe.upgrade.Upgrade;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -125,8 +125,8 @@ public class ItemUpdater {
 			return Long.parseLong(NbtHelper.getNested(nbt, LAST_VANILLA_UPGRADE_KEY, "0"));
 		});
 
-		CustomItemValues[] pOldItem = {null};
-		CustomItemValues[] pNewItem = {null};
+		KciItem[] pOldItem = {null};
+		KciItem[] pNewItem = {null};
 		UpdateAction[] pAction = {null};
 
 		NBT.get(originalStack, nbt -> {
@@ -153,7 +153,7 @@ public class ItemUpdater {
 					 * an item stack, it will replace it by a proper item stack
 					 * representation of the desired custom item.
 					 */
-					CustomItemValues currentItem = this.itemSet.getItem(itemName);
+					KciItem currentItem = this.itemSet.getItem(itemName);
 					if (currentItem != null) {
 						pNewItem[0] = currentItem;
 						pAction[0] = UpdateAction.INITIALIZE;
@@ -171,7 +171,7 @@ public class ItemUpdater {
 					 */
 					pAction[0] = UpdateAction.DO_NOTHING;
 				} else {
-					CustomItemValues currentItem = this.itemSet.getItem(itemName);
+					KciItem currentItem = this.itemSet.getItem(itemName);
 					if (currentItem != null) {
 
 						if (currentItem.shouldUpdateAutomatically()) {
@@ -207,7 +207,7 @@ public class ItemUpdater {
 								 * instance erase the enchantments and durability).
 								 */
 								try {
-									CustomItemValues oldItem = CustomItemValues.loadFromBooleanRepresentation(oldBoolRepresentation.getAsBytes());
+									KciItem oldItem = KciItem.loadFromBooleanRepresentation(oldBoolRepresentation.getAsBytes());
 									pOldItem[0] = oldItem;
 									pNewItem[0] = currentItem;
 									pAction[0] = UpdateAction.UPGRADE;
@@ -303,12 +303,12 @@ public class ItemUpdater {
 			return upgradeVanillaItem(originalStack);
 		} else {
 			
-			CustomItemValues newItem = pNewItem[0];
+			KciItem newItem = pNewItem[0];
 			if (action == UpdateAction.INITIALIZE) {
 				return wrap(newItem).create(originalStack.getAmount());
 			} else if (action == UpdateAction.UPGRADE) {
 				
-				CustomItemValues oldItem = pOldItem[0];
+				KciItem oldItem = pOldItem[0];
 				return upgradeCustomItem(originalStack, oldItem, newItem);
 			} else {
 				throw new Error("Unknown update action: " + action);
@@ -327,7 +327,7 @@ public class ItemUpdater {
 		return newStack;
 	}
 	
-	private ItemStack upgradeCustomItem(ItemStack oldStack, CustomItemValues oldItem, CustomItemValues newItem) {
+	private ItemStack upgradeCustomItem(ItemStack oldStack, KciItem oldItem, KciItem newItem) {
 		
 		ItemStack newStack = upgradeAttributeModifiers(oldStack, oldItem, newItem);
 
@@ -345,9 +345,9 @@ public class ItemUpdater {
 
 			pOldDurability[0] = currentDurability;
 			if (currentDurability != null) {
-				if (newItem instanceof CustomToolValues && ((CustomToolValues) newItem).getMaxDurabilityNew() != null) {
-					CustomToolValues oldTool = (CustomToolValues) oldItem;
-					CustomToolValues newTool = (CustomToolValues) newItem;
+				if (newItem instanceof KciTool && ((KciTool) newItem).getMaxDurabilityNew() != null) {
+					KciTool oldTool = (KciTool) oldItem;
+					KciTool newTool = (KciTool) newItem;
 					/*
 					 * There was durability, and there still is. We will do the
 					 * following: if the new maximum durability became bigger,
@@ -386,10 +386,10 @@ public class ItemUpdater {
 					pNewDurability[0] = null;
 				}
 			} else {
-				if (newItem instanceof CustomToolValues && ((CustomToolValues) newItem).getMaxDurabilityNew() != null) {
+				if (newItem instanceof KciTool && ((KciTool) newItem).getMaxDurabilityNew() != null) {
 					// There was no durability, but now there is.
 					// Let's just start with full durability
-					pNewDurability[0] = ((CustomToolValues) newItem).getMaxDurabilityNew();
+					pNewDurability[0] = ((KciTool) newItem).getMaxDurabilityNew();
 				} else {
 					// There was no durability, and there shouldn't be durability
 					pNewDurability[0] = null;
@@ -424,8 +424,8 @@ public class ItemUpdater {
 		upgradeDisplayName(newStack, meta, oldItem, newItem);
 		upgradeLore1(meta, oldItem, newItem, pOldDurability[0], pNewDurability[0]);
 		upgradeItemFlags(meta, oldItem, newItem);
-		if (newItem instanceof CustomArmorValues) {
-			CustomArmorWrapper.colorItemMeta((CustomArmorValues) newItem, meta);
+		if (newItem instanceof KciArmor) {
+			CustomArmorWrapper.colorItemMeta((KciArmor) newItem, meta);
 		}
 
 		meta.setUnbreakable(KciNms.mcVersion < VERSION1_14 || !wrap(newItem).showDurabilityBar());
@@ -459,7 +459,7 @@ public class ItemUpdater {
 	
 	private void upgradeDisplayName(
 			ItemStack stackToUpgrade, ItemMeta toUpgrade,
-			CustomItemValues oldItem, CustomItemValues newItem
+			KciItem oldItem, KciItem newItem
 	) {
 		if (newItem.getTranslations().isEmpty()) {
 			/*
@@ -490,7 +490,7 @@ public class ItemUpdater {
 	
 	private void upgradeLore1(
 			ItemMeta toUpgrade,
-			CustomItemValues oldItem, CustomItemValues newItem,
+			KciItem oldItem, KciItem newItem,
 			Long oldDurability, Long newDurability
 	) {
 		int oldTranslateLoreSize = 0;
@@ -504,8 +504,8 @@ public class ItemUpdater {
 
 		if (oldTranslateLoreSize == 0 && newTranslateLoreSize == 0) {
 			if (!Objects.equals(oldDurability, newDurability)) {
-				Long oldMaxDurability = oldItem instanceof CustomToolValues ? ((CustomToolValues) oldItem).getMaxDurabilityNew() : null;
-				Long newMaxDurability = newItem instanceof CustomToolValues ? ((CustomToolValues) newItem).getMaxDurabilityNew() : null;
+				Long oldMaxDurability = oldItem instanceof KciTool ? ((KciTool) oldItem).getMaxDurabilityNew() : null;
+				Long newMaxDurability = newItem instanceof KciTool ? ((KciTool) newItem).getMaxDurabilityNew() : null;
 				if (LoreUpdater.updateDurability(
 						toUpgrade, oldDurability, newDurability, oldMaxDurability, newMaxDurability, CustomToolWrapper.prefix()
 				)) {
@@ -527,7 +527,7 @@ public class ItemUpdater {
 	}
 
 	private void upgradeLore2(
-			ItemStack stackToUpgrade, CustomItemValues oldItem, CustomItemValues newItem
+			ItemStack stackToUpgrade, KciItem oldItem, KciItem newItem
 	) {
 		int oldTranslateLoreSize = 0;
 		int newTranslateLoreSize = 0;
@@ -545,7 +545,7 @@ public class ItemUpdater {
 		}
 	}
 	
-	private void upgradeItemFlags(ItemMeta toUpgrade, CustomItemValues oldItem, CustomItemValues newItem) {
+	private void upgradeItemFlags(ItemMeta toUpgrade, KciItem oldItem, KciItem newItem) {
 		/*
 		 * We will only update the item flags that changed for optimal preservation
 		 * of the custom values of the item stack being upgraded.
@@ -554,14 +554,14 @@ public class ItemUpdater {
 		List<Boolean> newFlags = newItem.getItemFlags();
 		boolean hadAttributes = !oldItem.getAttributeModifiers().isEmpty();
 		boolean hasAttributes = !newItem.getAttributeModifiers().isEmpty();
-		ItemFlag[] allFlags = ItemFlag.values();
+		VItemFlag[] allFlags = VItemFlag.values();
 		for (int flagIndex = 0; flagIndex < allFlags.length; flagIndex++) {
 			boolean oldHasFlag = flagIndex < oldFlags.size() && oldFlags.get(flagIndex);
 			boolean newHasFlag = flagIndex < newFlags.size() && newFlags.get(flagIndex);
-			ItemFlag currentFlag = allFlags[flagIndex];
+			VItemFlag currentFlag = allFlags[flagIndex];
 			
 			// Yeah... there is a special and nasty edge case for the HIDE_ATTRIBUTES flag
-			if (currentFlag == ItemFlag.HIDE_ATTRIBUTES) {
+			if (currentFlag == VItemFlag.HIDE_ATTRIBUTES) {
 				if (!hadAttributes && hasAttributes) {
 					toUpgrade.removeItemFlags(
 							org.bukkit.inventory.ItemFlag.valueOf(currentFlag.name())
@@ -573,7 +573,7 @@ public class ItemUpdater {
 					);
 				}
 			}
-			if ((currentFlag != ItemFlag.HIDE_ATTRIBUTES || hadAttributes == hasAttributes) && oldHasFlag != newHasFlag) {
+			if ((currentFlag != VItemFlag.HIDE_ATTRIBUTES || hadAttributes == hasAttributes) && oldHasFlag != newHasFlag) {
 				if (newHasFlag) {
 					toUpgrade.addItemFlags(
 							org.bukkit.inventory.ItemFlag.valueOf(currentFlag.name())
@@ -588,7 +588,7 @@ public class ItemUpdater {
 	}
 	
 	private ItemStack upgradeAttributeModifiers(
-			ItemStack oldStack, CustomItemValues oldItem, CustomItemValues newItem
+			ItemStack oldStack, KciItem oldItem, KciItem newItem
 	) {
 		RawAttribute[] oldStackAttributes = KciNms.instance.items.getAttributes(oldStack);
 		Collection<RawAttribute> newStackAttributes = new ArrayList<>(oldStackAttributes.length);
@@ -618,7 +618,7 @@ public class ItemUpdater {
 				if (hasStoredExistingAttributes) {
 					if (attributesToRemove.contains(oldStackAttribute.id)) continue;
 				} else {
-					for (AttributeModifierValues rawOldAttribute : oldItem.getAttributeModifiers()) {
+					for (KciAttributeModifier rawOldAttribute : oldItem.getAttributeModifiers()) {
 						RawAttribute oldItemAttribute = convertAttributeModifier(rawOldAttribute, null);
 						if (oldStackAttribute.equalsIgnoreId(oldItemAttribute)) {
 							continue oldStackLoop;
@@ -647,10 +647,10 @@ public class ItemUpdater {
 	}
 
 	static void addEnchantmentsToMap(
-			Map<EnchantmentType, Integer> enchantmentMap,
-			Collection<EnchantmentValues> enchantments
+			Map<VEnchantmentType, Integer> enchantmentMap,
+			Collection<LeveledEnchantment> enchantments
 	) {
-		for (EnchantmentValues enchantment : enchantments) {
+		for (LeveledEnchantment enchantment : enchantments) {
 			enchantmentMap.put(
 					enchantment.getType(),
 					enchantmentMap.getOrDefault(enchantment.getType(), 0) + enchantment.getLevel()
@@ -658,11 +658,11 @@ public class ItemUpdater {
 		}
 	}
 
-	static Map<EnchantmentType, Integer> determineEnchantmentAdjustments(
-			Map<EnchantmentType, Integer> oldKciEnchantments,
-			Map<EnchantmentType, Integer> newKciEnchantments
+	static Map<VEnchantmentType, Integer> determineEnchantmentAdjustments(
+			Map<VEnchantmentType, Integer> oldKciEnchantments,
+			Map<VEnchantmentType, Integer> newKciEnchantments
 	) {
-		Map<EnchantmentType, Integer> adjustments = new HashMap<>();
+		Map<VEnchantmentType, Integer> adjustments = new HashMap<>();
 		oldKciEnchantments.forEach((enchantment, level) ->
 				adjustments.put(enchantment, adjustments.getOrDefault(enchantment, 0) - level)
 		);
@@ -672,9 +672,9 @@ public class ItemUpdater {
 		return adjustments;
 	}
 
-	static ItemStack applyEnchantmentAdjustments(ItemStack itemStack, Map<EnchantmentType, Integer> adjustments) {
-		for (Map.Entry<EnchantmentType, Integer> enchantmentEntry : adjustments.entrySet()) {
-			EnchantmentType enchantment = enchantmentEntry.getKey();
+	static ItemStack applyEnchantmentAdjustments(ItemStack itemStack, Map<VEnchantmentType, Integer> adjustments) {
+		for (Map.Entry<VEnchantmentType, Integer> enchantmentEntry : adjustments.entrySet()) {
+			VEnchantmentType enchantment = enchantmentEntry.getKey();
 			int level = enchantmentEntry.getValue();
 
 			if (level != 0) {
@@ -687,7 +687,7 @@ public class ItemUpdater {
 		return itemStack;
 	}
 	
-	private ItemStack upgradeEnchantments(ItemStack toUpgrade, CustomItemValues oldItem, CustomItemValues newItem) {
+	private ItemStack upgradeEnchantments(ItemStack toUpgrade, KciItem oldItem, KciItem newItem) {
 
 		/*
 		 * To update an item, we need to replace all old enchantments given by this plug-in with new enchantments
@@ -703,8 +703,8 @@ public class ItemUpdater {
 		 */
 		ItemStack rememberToUpgrade = toUpgrade;
 		class Result {
-			Map<EnchantmentType, Integer> oldKciEnchantments;
-			Map<EnchantmentType, Integer> newKciEnchantments;
+			Map<VEnchantmentType, Integer> oldKciEnchantments;
+			Map<VEnchantmentType, Integer> newKciEnchantments;
 		}
 
 		Result modifyResult = NBT.modify(toUpgrade, nbt -> {
@@ -718,14 +718,14 @@ public class ItemUpdater {
 
 			result.newKciEnchantments = new HashMap<>();
 			if (newItem != null) addEnchantmentsToMap(result.newKciEnchantments, newItem.getDefaultEnchantments());
-			for (UpgradeValues upgrade : ItemUpgrader.getUpgrades(rememberToUpgrade, itemSet)) {
+			for (Upgrade upgrade : ItemUpgrader.getUpgrades(rememberToUpgrade, itemSet)) {
 				addEnchantmentsToMap(result.newKciEnchantments, upgrade.getEnchantments());
 			}
 			ItemUpgrader.setEnchantmentUpgrades(nbt, result.newKciEnchantments);
 			return result;
 		});
 
-		Map<EnchantmentType, Integer> adjustments = determineEnchantmentAdjustments(
+		Map<VEnchantmentType, Integer> adjustments = determineEnchantmentAdjustments(
 				modifyResult.oldKciEnchantments, modifyResult.newKciEnchantments
 		);
 		toUpgrade = applyEnchantmentAdjustments(toUpgrade, adjustments);

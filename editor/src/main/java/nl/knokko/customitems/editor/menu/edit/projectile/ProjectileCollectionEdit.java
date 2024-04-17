@@ -8,11 +8,11 @@ import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ProjectileReference;
-import nl.knokko.customitems.projectile.CustomProjectileValues;
+import nl.knokko.customitems.projectile.KciProjectile;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
-public class ProjectileCollectionEdit extends DedicatedCollectionEdit<CustomProjectileValues, ProjectileReference> {
+public class ProjectileCollectionEdit extends DedicatedCollectionEdit<KciProjectile, ProjectileReference> {
 	
 	private final EditMenu menu;
 
@@ -26,7 +26,7 @@ public class ProjectileCollectionEdit extends DedicatedCollectionEdit<CustomProj
 		super.addComponents();
 		addComponent(new DynamicTextButton("Create", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(
-					new EditProjectile(menu, new CustomProjectileValues(true), null)
+					new EditProjectile(menu, new KciProjectile(true), null)
 			);
 		}), 0.025f, 0.2f, 0.2f, 0.3f);
 		
@@ -34,17 +34,17 @@ public class ProjectileCollectionEdit extends DedicatedCollectionEdit<CustomProj
 	}
 
 	@Override
-	protected String getModelLabel(CustomProjectileValues model) {
+	protected String getModelLabel(KciProjectile model) {
 		return model.getName();
 	}
 
 	@Override
-	protected BufferedImage getModelIcon(CustomProjectileValues model) {
+	protected BufferedImage getModelIcon(KciProjectile model) {
 		return null;
 	}
 
 	@Override
-	protected boolean canEditModel(CustomProjectileValues model) {
+	protected boolean canEditModel(KciProjectile model) {
 		return true;
 	}
 

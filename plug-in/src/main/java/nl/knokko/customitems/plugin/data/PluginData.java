@@ -14,8 +14,8 @@ import com.elmakers.mine.bukkit.api.spell.MageSpell;
 import com.elmakers.mine.bukkit.api.spell.SpellTemplate;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.command.ItemCommandEvent;
-import nl.knokko.customitems.item.gun.DirectGunAmmoValues;
-import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
+import nl.knokko.customitems.item.gun.DirectGunAmmo;
+import nl.knokko.customitems.item.gun.IndirectGunAmmo;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.plugin.container.ContainerManager;
 import nl.knokko.customitems.plugin.container.ContainerSelectionManager;
@@ -27,8 +27,8 @@ import nl.knokko.customitems.plugin.multisupport.magic.MagicSupport;
 import nl.knokko.customitems.plugin.util.SoundPlayer;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.item.CustomGunWrapper;
-import nl.knokko.customitems.recipe.ingredient.IngredientValues;
-import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
+import nl.knokko.customitems.recipe.ingredient.KciIngredient;
+import nl.knokko.customitems.recipe.ingredient.NoIngredient;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -239,8 +239,8 @@ public class PluginData {
 			Player current = iterator.next();
 			PlayerData data = PlayerData.get(current, playerData);
 			if (data.isShooting(currentTick)) {
-				CustomItemValues mainItem = itemSet.getItem(current.getInventory().getItemInMainHand());
-				CustomItemValues offItem = itemSet.getItem(current.getInventory().getItemInOffHand());
+				KciItem mainItem = itemSet.getItem(current.getInventory().getItemInMainHand());
+				KciItem offItem = itemSet.getItem(current.getInventory().getItemInOffHand());
 
 				float[] pMana = { 0f };
 				Mage mage = MagicSupport.MAGIC != null ? MagicSupport.MAGIC.getController().getMage(current) : null;
@@ -260,7 +260,7 @@ public class PluginData {
 
 	public static void consumeCustomFood(
 			Player player, ItemStack oldStack,
-			CustomFoodValues food, Consumer<ItemStack> updateStack
+			KciFood food, Consumer<ItemStack> updateStack
 	) {
 		CustomFoodEatEvent event = new CustomFoodEatEvent(player, oldStack, food, CustomItemsPlugin.getInstance().getSet());
 		Bukkit.getPluginManager().callEvent(event);
@@ -290,12 +290,12 @@ public class PluginData {
 
 				ItemStack mainItemStack = player.getInventory().getItemInMainHand();
 				ItemStack offItemStack = player.getInventory().getItemInOffHand();
-				CustomItemValues mainItem = itemSet.getItem(mainItemStack);
-				CustomItemValues offItem = itemSet.getItem(offItemStack);
+				KciItem mainItem = itemSet.getItem(mainItemStack);
+				KciItem offItem = itemSet.getItem(offItemStack);
 
-				if (mainItem instanceof CustomFoodValues) {
+				if (mainItem instanceof KciFood) {
 
-					CustomFoodValues mainFood = (CustomFoodValues) mainItem;
+					KciFood mainFood = (KciFood) mainItem;
 					if (mainFood != pd.mainhandFood) {
 						if (!mainFood.getEatEffects().isEmpty() || player.getFoodLevel() < 20 || mainFood.getFoodValue() < 0) {
 							pd.mainhandFood = mainFood;
@@ -323,9 +323,9 @@ public class PluginData {
 					pd.startMainhandEatTime = -1;
 				}
 
-				if (offItem instanceof CustomFoodValues) {
+				if (offItem instanceof KciFood) {
 
-					CustomFoodValues offFood = (CustomFoodValues) offItem;
+					KciFood offFood = (KciFood) offItem;
 					if (pd.offhandFood != offFood) {
 						if (!offFood.getEatEffects().isEmpty() || player.getFoodLevel() < 20 || offFood.getFoodValue() < 0) {
 							pd.offhandFood = offFood;
@@ -368,16 +368,16 @@ public class PluginData {
 			// Check if we need to reload the gun in the main hand
 			if (data.mainhandGunToReload != null && currentTick >= data.finishMainhandGunReloadTick) {
 
-				CustomGunValues gun = data.mainhandGunToReload;
+				KciGun gun = data.mainhandGunToReload;
 				Player player = Bukkit.getPlayer(playerId);
 				if (player != null) {
 
 					ItemStack currentItem = player.getInventory().getItemInMainHand();
-					CustomItemValues currentCustomItem = itemSet.getItem(currentItem);
+					KciItem currentCustomItem = itemSet.getItem(currentItem);
 					if (currentCustomItem == gun) {
-						if (gun.getAmmo() instanceof IndirectGunAmmoValues) {
+						if (gun.getAmmo() instanceof IndirectGunAmmo) {
 
-							IndirectGunAmmoValues indirectAmmo = (IndirectGunAmmoValues) gun.getAmmo();
+							IndirectGunAmmo indirectAmmo = (IndirectGunAmmo) gun.getAmmo();
 							if (checkAmmo(player.getInventory(), indirectAmmo.getReloadItem(), true)) {
 								new CustomGunWrapper(gun).reload(currentItem);
 								player.getInventory().setItemInMainHand(currentItem);
@@ -398,16 +398,16 @@ public class PluginData {
 			// Check if we need to reload the gun in the off hand
 			if (data.offhandGunToReload != null && currentTick >= data.finishOffhandGunReloadTick) {
 
-				CustomGunValues gun = data.offhandGunToReload;
+				KciGun gun = data.offhandGunToReload;
 				Player player = Bukkit.getPlayer(playerId);
 				if (player != null) {
 
 					ItemStack currentItem = player.getInventory().getItemInOffHand();
-					CustomItemValues currentCustomItem = itemSet.getItem(currentItem);
+					KciItem currentCustomItem = itemSet.getItem(currentItem);
 					if (currentCustomItem == gun) {
-						if (gun.getAmmo() instanceof IndirectGunAmmoValues) {
+						if (gun.getAmmo() instanceof IndirectGunAmmo) {
 
-							IndirectGunAmmoValues indirectAmmo = (IndirectGunAmmoValues) gun.getAmmo();
+							IndirectGunAmmo indirectAmmo = (IndirectGunAmmo) gun.getAmmo();
 							if (checkAmmo(player.getInventory(), indirectAmmo.getReloadItem(), true)) {
 								new CustomGunWrapper(gun).reload(currentItem);
                                 player.getInventory().setItemInOffHand(currentItem);
@@ -428,7 +428,7 @@ public class PluginData {
 		});
 	}
 
-	public PlayerWandInfo getWandInfo(Player player, CustomWandValues wand) {
+	public PlayerWandInfo getWandInfo(Player player, KciWand wand) {
 		int currentMana = 0;
 		int maxMana = 0;
 		if (MagicSupport.MAGIC != null) {
@@ -451,7 +451,7 @@ public class PluginData {
 		}
 
 		if (currentMana < maxMana) {
-			WandChargeValues charges = wand.getCharges();
+			WandCharges charges = wand.getCharges();
 			int maxCharges = charges != null ? charges.getMaxCharges() : 1;
 			return new PlayerWandInfo(0, maxCharges, 0, currentMana, maxMana);
 		}
@@ -459,10 +459,10 @@ public class PluginData {
 		return null;
 	}
 
-	public PlayerGunInfo getGunInfo(Player player, CustomGunValues gun, ItemStack gunStack, boolean isMainhand) {
+	public PlayerGunInfo getGunInfo(Player player, KciGun gun, ItemStack gunStack, boolean isMainhand) {
 		PlayerData targetPlayerData = playerData.get(player.getUniqueId());
 
-		if (gun.getAmmo() instanceof DirectGunAmmoValues) {
+		if (gun.getAmmo() instanceof DirectGunAmmo) {
 
 			if (targetPlayerData != null) {
 				if (isMainhand) {
@@ -481,7 +481,7 @@ public class PluginData {
 			} else {
 				return null;
 			}
-		} else if (gun.getAmmo() instanceof IndirectGunAmmoValues) {
+		} else if (gun.getAmmo() instanceof IndirectGunAmmo) {
 
 			if (targetPlayerData != null) {
 				if (isMainhand) {
@@ -515,12 +515,12 @@ public class PluginData {
 		}
 	}
 
-	public boolean isOnCooldown(Player player, CustomItemValues customItem, ItemCommandEvent event, int commandIndex) {
+	public boolean isOnCooldown(Player player, KciItem customItem, ItemCommandEvent event, int commandIndex) {
 		PlayerData pd = playerData.get(player.getUniqueId());
 		return pd != null && pd.commandCooldowns.isOnCooldown(customItem, event, commandIndex, currentTick);
 	}
 
-	public void setOnCooldown(Player player, CustomItemValues customItem, ItemCommandEvent event, int commandIndex) {
+	public void setOnCooldown(Player player, KciItem customItem, ItemCommandEvent event, int commandIndex) {
 		PlayerData.get(player, playerData).commandCooldowns.setOnCooldown(customItem, event, commandIndex, currentTick);
 	}
 
@@ -534,9 +534,9 @@ public class PluginData {
 		containerSelections.clean();
 	}
 	
-	private void fire(Player player, PlayerData data, CustomItemValues weapon, ItemStack weaponStack, boolean isMainhand) {
-		if (weapon instanceof CustomWandValues) {
-			CustomWandValues wand = (CustomWandValues) weapon;
+	private void fire(Player player, PlayerData data, KciItem weapon, ItemStack weaponStack, boolean isMainhand) {
+		if (weapon instanceof KciWand) {
+			KciWand wand = (KciWand) weapon;
 
 			if (wand.getProjectile() != null) {
 				for (int counter = 0; counter < wand.getAmountPerShot(); counter++)
@@ -571,20 +571,20 @@ public class PluginData {
 
 				mage.setCostFree(wasCostFree);
 			}
-		} else if (weapon instanceof CustomGunValues) {
+		} else if (weapon instanceof KciGun) {
 
-			CustomGunValues gun = (CustomGunValues) weapon;
+			KciGun gun = (KciGun) weapon;
 
 			boolean fireGun = false;
-			if (gun.getAmmo() instanceof DirectGunAmmoValues) {
+			if (gun.getAmmo() instanceof DirectGunAmmo) {
 
-				DirectGunAmmoValues directAmmo = (DirectGunAmmoValues) gun.getAmmo();
+				DirectGunAmmo directAmmo = (DirectGunAmmo) gun.getAmmo();
 				if (checkAmmo(player.getInventory(), directAmmo.getAmmoItem(), true)) {
 					fireGun = true;
 				}
-			} else if (gun.getAmmo() instanceof IndirectGunAmmoValues) {
+			} else if (gun.getAmmo() instanceof IndirectGunAmmo) {
 
-				IndirectGunAmmoValues indirectAmmo = (IndirectGunAmmoValues) gun.getAmmo();
+				IndirectGunAmmo indirectAmmo = (IndirectGunAmmo) gun.getAmmo();
 				ItemStack newWeaponStack = new CustomGunWrapper(gun).decrementAmmo(weaponStack);
 				if (newWeaponStack != null) {
 
@@ -628,8 +628,8 @@ public class PluginData {
 					data.nextOffhandGunShootTick = -1;
 				}
 			}
-		} else if (weapon instanceof CustomThrowableValues) {
-			CustomThrowableValues throwable = (CustomThrowableValues) weapon;
+		} else if (weapon instanceof KciThrowable) {
+			KciThrowable throwable = (KciThrowable) weapon;
 			for (int counter = 0; counter < throwable.getAmountPerShot(); counter++) {
 				CustomItemsPlugin.getInstance().getProjectileManager().fireProjectile(player, throwable.getProjectile());
 			}
@@ -638,9 +638,9 @@ public class PluginData {
 		}
 	}
 
-	private boolean checkAmmo(Inventory inv, IngredientValues ammo, boolean consume) {
+	private boolean checkAmmo(Inventory inv, KciIngredient ammo, boolean consume) {
 
-		if (ammo instanceof NoIngredientValues) {
+		if (ammo instanceof NoIngredient) {
 			return true;
 		}
 
@@ -705,14 +705,14 @@ public class PluginData {
 		containerManager.closeAllNonStorage();
 	}
 
-	public boolean hasPermissionToShoot(Player player, CustomItemValues item) {
+	public boolean hasPermissionToShoot(Player player, KciItem item) {
 		boolean needsPermission;
-		if (item instanceof CustomWandValues) {
-			needsPermission = ((CustomWandValues) item).requiresPermission();
-		} else if (item instanceof CustomGunValues) {
-			needsPermission = ((CustomGunValues) item).requiresPermission();
-		} else if (item instanceof CustomThrowableValues) {
-			needsPermission = ((CustomThrowableValues) item).shouldRequirePermission();
+		if (item instanceof KciWand) {
+			needsPermission = ((KciWand) item).requiresPermission();
+		} else if (item instanceof KciGun) {
+			needsPermission = ((KciGun) item).requiresPermission();
+		} else if (item instanceof KciThrowable) {
+			needsPermission = ((KciThrowable) item).shouldRequirePermission();
 		} else {
 			return false;
 		}

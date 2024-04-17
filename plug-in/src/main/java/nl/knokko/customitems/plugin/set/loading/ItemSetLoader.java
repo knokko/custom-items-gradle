@@ -9,7 +9,7 @@ import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.data.PluginData;
 import nl.knokko.customitems.plugin.multisupport.geyser.GeyserSupport;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
-import nl.knokko.customitems.settings.ExportSettingsValues;
+import nl.knokko.customitems.settings.ExportSettings;
 import nl.knokko.customitems.trouble.IntegrityException;
 import nl.knokko.customitems.trouble.OutdatedItemSetException;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -92,7 +92,7 @@ public class ItemSetLoader implements Listener {
         // Geyser automatically rejects Java resourcepacks and has its own resourcepack system
         if (GeyserSupport.isBedrock(event.getPlayer())) return;
 
-        ExportSettingsValues settings = itemSet.get().getExportSettings();
+        ExportSettings settings = itemSet.get().getExportSettings();
 
         if (event.getStatus() == PlayerResourcePackStatusEvent.Status.DECLINED) {
             if (settings.shouldKickUponReject()) {
@@ -192,7 +192,7 @@ public class ItemSetLoader implements Listener {
         lostResourcePack = false;
         File resourcePackFile = getResourcePackFile();
 
-        if (!resourcePackFile.exists() || itemSet.get().getExportSettings().getMode() == ExportSettingsValues.Mode.MANUAL) {
+        if (!resourcePackFile.exists() || itemSet.get().getExportSettings().getMode() == ExportSettings.Mode.MANUAL) {
             if (currentHashes != null) {
                 Bukkit.broadcastMessage(itemSet.get().getExportSettings().getReloadMessage());
                 currentHashes = null;

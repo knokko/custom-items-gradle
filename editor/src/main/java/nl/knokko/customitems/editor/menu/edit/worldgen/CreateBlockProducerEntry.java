@@ -4,10 +4,10 @@ import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.util.FixedPointEditField;
 import nl.knokko.customitems.editor.util.Validation;
-import nl.knokko.customitems.item.CIMaterial;
+import nl.knokko.customitems.item.VMaterial;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.util.Chance;
-import nl.knokko.customitems.worldgen.BlockProducerValues;
+import nl.knokko.customitems.worldgen.BlockProducer;
 import nl.knokko.customitems.worldgen.ProducedBlock;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -24,13 +24,13 @@ public class CreateBlockProducerEntry extends GuiMenu {
     private final GuiComponent returnMenu;
     private final ItemSet itemSet;
 
-    private final BlockProducerValues.Entry currentValues;
-    private final Consumer<BlockProducerValues.Entry> onSelect;
+    private final BlockProducer.Entry currentValues;
+    private final Consumer<BlockProducer.Entry> onSelect;
 
-    public CreateBlockProducerEntry(GuiComponent returnMenu, ItemSet itemSet, Consumer<BlockProducerValues.Entry> onSelect) {
+    public CreateBlockProducerEntry(GuiComponent returnMenu, ItemSet itemSet, Consumer<BlockProducer.Entry> onSelect) {
         this.returnMenu = returnMenu;
         this.itemSet = itemSet;
-        this.currentValues = new BlockProducerValues.Entry(true);
+        this.currentValues = new BlockProducer.Entry(true);
         this.onSelect = onSelect;
     }
 
@@ -64,7 +64,7 @@ public class CreateBlockProducerEntry extends GuiMenu {
 
         addComponent(new DynamicTextButton("Vanilla...", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new EnumSelect<>(
-                    CIMaterial.class, block -> {
+                    VMaterial.class, block -> {
                         currentValues.setBlock(new ProducedBlock(block));
                         selectedBlockLabel.setText("Block: " + block);
                     }, candidateBlock -> true, this

@@ -5,8 +5,8 @@ import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.sound.SoundValues;
-import nl.knokko.customitems.sound.VanillaSoundType;
+import nl.knokko.customitems.sound.KciSound;
+import nl.knokko.customitems.sound.VSoundType;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -20,13 +20,13 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class EditSound extends GuiMenu {
 
-    private final SoundValues currentValues;
-    private final Consumer<SoundValues> changeValues;
+    private final KciSound currentValues;
+    private final Consumer<KciSound> changeValues;
 
     private final GuiComponent returnMenu;
     private final ItemSet itemSet;
 
-    public EditSound(SoundValues oldValues, Consumer<SoundValues> changeValues, GuiComponent returnMenu, ItemSet itemSet) {
+    public EditSound(KciSound oldValues, Consumer<KciSound> changeValues, GuiComponent returnMenu, ItemSet itemSet) {
         this.currentValues = oldValues.copy(true);
         this.changeValues = changeValues;
         this.returnMenu = returnMenu;
@@ -66,7 +66,7 @@ public class EditSound extends GuiMenu {
 
         addComponent(new DynamicTextButton("Vanilla...", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new EnumSelect<>(
-                    VanillaSoundType.class, newSound -> {
+                    VSoundType.class, newSound -> {
                         currentValues.setVanillaSound(newSound);
                         currentValues.setCustomSound(null);
                         currentSoundComponent.setText(currentSoundString());

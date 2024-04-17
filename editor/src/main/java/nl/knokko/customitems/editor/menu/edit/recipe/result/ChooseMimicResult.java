@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.recipe.result;
 
 import nl.knokko.customitems.editor.util.Validation;
-import nl.knokko.customitems.recipe.result.MimicResultValues;
+import nl.knokko.customitems.recipe.result.MimicResult;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -18,14 +18,14 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.SAVE_HOVER;
 public class ChooseMimicResult extends GuiMenu {
 
     private final GuiComponent returnMenu;
-    private final Consumer<MimicResultValues> onSelect;
+    private final Consumer<MimicResult> onSelect;
 
-    private final MimicResultValues result;
+    private final MimicResult result;
 
-    public ChooseMimicResult(GuiComponent returnMenu, Consumer<MimicResultValues> onSelect) {
+    public ChooseMimicResult(GuiComponent returnMenu, Consumer<MimicResult> onSelect) {
         this.returnMenu = returnMenu;
         this.onSelect = onSelect;
-        this.result = new MimicResultValues(true);
+        this.result = new MimicResult(true);
     }
 
     @Override

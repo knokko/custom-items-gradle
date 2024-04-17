@@ -24,7 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-import static nl.knokko.customitems.item.CustomItemValues.UNBREAKABLE_TOOL_DURABILITY;
+import static nl.knokko.customitems.item.KciItem.UNBREAKABLE_TOOL_DURABILITY;
 
 public class CustomToolWrapper extends CustomItemWrapper {
 
@@ -37,22 +37,22 @@ public class CustomToolWrapper extends CustomItemWrapper {
     }
 
     private static final Collection<Class<?>> BASIC_TOOL_WRAPPERS = Lists.newArrayList(
-            CustomBowValues.class, CustomCrossbowValues.class, CustomHoeValues.class,
-            CustomShieldValues.class, CustomToolValues.class, CustomTridentValues.class,
-            CustomElytraValues.class
+            KciBow.class, KciCrossbow.class, KciHoe.class,
+            KciShield.class, KciTool.class, KciTrident.class,
+            KciElytra.class
     );
 
-    public static CustomToolWrapper wrap(CustomToolValues tool) {
-        if (tool.getClass() == CustomArmorValues.class) return new CustomArmorWrapper((CustomArmorValues) tool);
-        if (tool.getClass() == CustomHelmet3dValues.class) return new CustomHelmet3dWrapper((CustomArmorValues) tool);
-        if (tool.getClass() == CustomShearsValues.class) return new CustomShearsWrapper(tool);
+    public static CustomToolWrapper wrap(KciTool tool) {
+        if (tool.getClass() == KciArmor.class) return new CustomArmorWrapper((KciArmor) tool);
+        if (tool.getClass() == Kci3dHelmet.class) return new CustomHelmet3dWrapper((KciArmor) tool);
+        if (tool.getClass() == KciShears.class) return new CustomShearsWrapper(tool);
         if (BASIC_TOOL_WRAPPERS.contains(tool.getClass())) return new CustomToolWrapper(tool);
         throw new IllegalArgumentException("Unknown custom tool class " + tool.getClass());
     }
 
-    protected final CustomToolValues tool;
+    protected final KciTool tool;
 
-    CustomToolWrapper(CustomToolValues item) {
+    CustomToolWrapper(KciTool item) {
         super(item);
         this.tool = item;
     }
@@ -118,7 +118,7 @@ public class CustomToolWrapper extends CustomItemWrapper {
             } else {
                 // Armor can lose more durability per hit than weapons and tools
                 int minBarValue;
-                if (this.tool instanceof CustomArmorValues) {
+                if (this.tool instanceof KciArmor) {
                     minBarValue = 10;
                 } else minBarValue = 3;
 
@@ -142,8 +142,8 @@ public class CustomToolWrapper extends CustomItemWrapper {
             int durabilityFactor = this.tool.getMultiBlockBreak().shouldStackDurabilityCost() ? numBrokenBlocks : 1;
             boolean broke = decreaseDurability(tool, this.tool.getBlockBreakDurabilityLoss() * durabilityFactor);
             if (broke) {
-                for (ReplacementConditionValues cond : this.tool.getReplacementConditions()) {
-                    if (cond.getCondition() == ReplacementConditionValues.ReplacementCondition.ISBROKEN) {
+                for (ReplacementConditionEntry cond : this.tool.getReplacementConditions()) {
+                    if (cond.getCondition() == ReplacementConditionEntry.ReplacementCondition.ISBROKEN) {
                         ItemStack replace = wrap(cond.getReplaceItem()).create(1);
                         player.getInventory().addItem(replace);
                     }

@@ -12,28 +12,28 @@ import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.Mutability;
-import nl.knokko.customitems.recipe.OutputTableValues;
-import nl.knokko.customitems.recipe.result.CustomItemResultValues;
-import nl.knokko.customitems.recipe.result.ResultValues;
-import nl.knokko.customitems.recipe.result.UpgradeResultValues;
+import nl.knokko.customitems.recipe.OutputTable;
+import nl.knokko.customitems.recipe.result.CustomItemResult;
+import nl.knokko.customitems.recipe.result.KciResult;
+import nl.knokko.customitems.recipe.result.UpgradeResult;
 import nl.knokko.customitems.util.Chance;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
-public class EditOutputTable extends SafeCollectionEdit<OutputTableValues.Entry> {
+public class EditOutputTable extends SafeCollectionEdit<OutputTable.Entry> {
 	
-	private final Consumer<OutputTableValues> onApply;
+	private final Consumer<OutputTable> onApply;
 	private final boolean isCreatingNew;
 	private final ItemSet set;
-	private final BiFunction<GuiComponent, UpgradeResultValues, GuiComponent> createUpgradeIngredientMenu;
+	private final BiFunction<GuiComponent, UpgradeResult, GuiComponent> createUpgradeIngredientMenu;
 
 	private Chance previousNothingChance = null;
 	private final DynamicTextComponent nothingChanceComponent;
 
 	public EditOutputTable(
-			GuiComponent returnMenu, OutputTableValues original, Consumer<OutputTableValues> onApply, ItemSet set,
-			BiFunction<GuiComponent, UpgradeResultValues, GuiComponent> createUpgradeIngredientMenu
+			GuiComponent returnMenu, OutputTable original, Consumer<OutputTable> onApply, ItemSet set,
+			BiFunction<GuiComponent, UpgradeResult, GuiComponent> createUpgradeIngredientMenu
 	) {
 		super(returnMenu, original == null ? new ArrayList<>() : Mutability.createDeepCopy(original.getEntries(), true));
 		this.onApply = onApply;
@@ -48,7 +48,7 @@ public class EditOutputTable extends SafeCollectionEdit<OutputTableValues.Entry>
 	public void update() {
 		super.update();
 		
-		Chance currentNothingChance = OutputTableValues.createQuick(currentCollection).getNothingChance();
+		Chance currentNothingChance = OutputTable.createQuick(currentCollection).getNothingChance();
 		if (!Objects.equals(currentNothingChance, previousNothingChance)) {
 			if (currentNothingChance != null) {
 				nothingChanceComponent.setText("Chance to get nothing: " + currentNothingChance);
@@ -64,8 +64,8 @@ public class EditOutputTable extends SafeCollectionEdit<OutputTableValues.Entry>
 		super.addComponents();
 		
 		addComponent(new DynamicTextButton("Add entry", EditProps.BUTTON, EditProps.HOVER, () -> {
-			ResultValues oldResult = null;
-			for (OutputTableValues.Entry entry : currentCollection) {
+			KciResult oldResult = null;
+			for (OutputTable.Entry entry : currentCollection) {
 				oldResult = entry.getResult();
 				break;
 			}
@@ -80,51 +80,51 @@ public class EditOutputTable extends SafeCollectionEdit<OutputTableValues.Entry>
 	}
 
 	@Override
-	protected String getItemLabel(OutputTableValues.Entry item) {
+	protected String getItemLabel(OutputTable.Entry item) {
 		return item.getChance() + " " + item.getResult();
 	}
 
 	@Override
-	protected BufferedImage getItemIcon(OutputTableValues.Entry item) {
-		if (item.getResult() instanceof CustomItemResultValues) {
-			return ((CustomItemResultValues) item.getResult()).getItem().getTexture().getImage();
+	protected BufferedImage getItemIcon(OutputTable.Entry item) {
+		if (item.getResult() instanceof CustomItemResult) {
+			return ((CustomItemResult) item.getResult()).getItem().getTexture().getImage();
 		} else {
 			return null;
 		}
 	}
 
 	@Override
-	protected EditMode getEditMode(OutputTableValues.Entry item) {
+	protected EditMode getEditMode(OutputTable.Entry item) {
 		// Entries are so simple that I don't even bother editing
 		return EditMode.DISABLED;
 	}
 
 	@Override
-	protected GuiComponent createEditMenu(OutputTableValues.Entry itemToEdit) {
+	protected GuiComponent createEditMenu(OutputTable.Entry itemToEdit) {
 		// Entries are so simple that I don't even bother editing
 		return null;
 	}
 
 	@Override
-	protected String deleteItem(OutputTableValues.Entry itemToDelete) {
+	protected String deleteItem(OutputTable.Entry itemToDelete) {
 		// Deleting entries is always allowed
 		return null;
 	}
 
 	@Override
-	protected CopyMode getCopyMode(OutputTableValues.Entry item) {
+	protected CopyMode getCopyMode(OutputTable.Entry item) {
 		// Entries are so simple that I don't even bother copying
 		return CopyMode.DISABLED;
 	}
 
 	@Override
-	protected OutputTableValues.Entry copy(OutputTableValues.Entry item) {
+	protected OutputTable.Entry copy(OutputTable.Entry item) {
 		// Entries are immutable, so no need for a real copy
 		return item;
 	}
 
 	@Override
-	protected GuiComponent createCopyMenu(OutputTableValues.Entry itemToCopy) {
+	protected GuiComponent createCopyMenu(OutputTable.Entry itemToCopy) {
 		// Entries are so simple that I don't even bother copying
 		return null;
 	}
@@ -136,7 +136,7 @@ public class EditOutputTable extends SafeCollectionEdit<OutputTableValues.Entry>
 
 	@Override
 	protected void onApply() {
-		OutputTableValues outputTable = OutputTableValues.createQuick(currentCollection);
+		OutputTable outputTable = OutputTable.createQuick(currentCollection);
 		String error = Validation.toErrorString(() -> outputTable.validate(set));
 		
 		if (error == null) {

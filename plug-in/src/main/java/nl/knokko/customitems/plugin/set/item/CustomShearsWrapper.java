@@ -1,13 +1,13 @@
 package nl.knokko.customitems.plugin.set.item;
 
-import nl.knokko.customitems.item.CustomToolValues;
+import nl.knokko.customitems.item.KciTool;
 import nl.knokko.customitems.plugin.util.SoundPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 public class CustomShearsWrapper extends CustomToolWrapper {
 
-    CustomShearsWrapper(CustomToolValues item) {
+    CustomShearsWrapper(KciTool item) {
         super(item);
     }
 

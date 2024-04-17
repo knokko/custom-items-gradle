@@ -4,7 +4,7 @@ import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.TextureReference;
-import nl.knokko.customitems.texture.animated.AnimatedTextureValues;
+import nl.knokko.customitems.texture.animated.AnimatedTexture;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.EagerTextEditField;
@@ -18,9 +18,9 @@ public class AnimatedTextureEdit extends GuiMenu {
     private final EditMenu menu;
     private final TextureReference toModify;
 
-    private final AnimatedTextureValues currentValues;
+    private final AnimatedTexture currentValues;
 
-    public AnimatedTextureEdit(EditMenu menu, TextureReference toModify, AnimatedTextureValues oldValues) {
+    public AnimatedTextureEdit(EditMenu menu, TextureReference toModify, AnimatedTexture oldValues) {
         this.menu = menu;
         this.toModify = toModify;
         this.currentValues = oldValues.copy(true);

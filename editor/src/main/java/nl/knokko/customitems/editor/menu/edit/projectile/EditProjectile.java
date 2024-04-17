@@ -10,7 +10,7 @@ import nl.knokko.customitems.editor.menu.edit.projectile.effect.ProjectileEffect
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ProjectileReference;
-import nl.knokko.customitems.projectile.CustomProjectileValues;
+import nl.knokko.customitems.projectile.KciProjectile;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -27,13 +27,13 @@ public class EditProjectile extends GuiMenu {
 	private static final float LABEL_X2 = BUTTON_X2 - 0.01f;
 	
 	private final EditMenu menu;
-	private final CustomProjectileValues currentValues;
+	private final KciProjectile currentValues;
 	private final ProjectileReference toModify;
 
 	private final DynamicTextComponent errorComponent;
 
 	public EditProjectile(
-			EditMenu menu, CustomProjectileValues oldValues, ProjectileReference toModify
+            EditMenu menu, KciProjectile oldValues, ProjectileReference toModify
 	) {
 		this.menu = menu;
 		this.currentValues = oldValues.copy(true);

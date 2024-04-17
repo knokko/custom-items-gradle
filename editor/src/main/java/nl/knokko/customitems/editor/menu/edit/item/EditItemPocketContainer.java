@@ -3,9 +3,9 @@ package nl.knokko.customitems.editor.menu.edit.item;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.item.AttributeModifierValues;
-import nl.knokko.customitems.item.CustomItemType;
-import nl.knokko.customitems.item.CustomPocketContainerValues;
+import nl.knokko.customitems.item.KciAttributeModifier;
+import nl.knokko.customitems.item.KciItemType;
+import nl.knokko.customitems.item.KciPocketContainer;
 import nl.knokko.customitems.itemset.ContainerReference;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.gui.color.GuiColor;
@@ -23,21 +23,21 @@ import java.util.function.Consumer;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
-public class EditItemPocketContainer extends EditItemBase<CustomPocketContainerValues> {
+public class EditItemPocketContainer extends EditItemBase<KciPocketContainer> {
 
-    private static final AttributeModifierValues EXAMPLE_MODIFIER = AttributeModifierValues.createQuick(
-            AttributeModifierValues.Attribute.ATTACK_DAMAGE,
-            AttributeModifierValues.Slot.MAINHAND,
-            AttributeModifierValues.Operation.ADD,
+    private static final KciAttributeModifier EXAMPLE_MODIFIER = KciAttributeModifier.createQuick(
+            KciAttributeModifier.Attribute.ATTACK_DAMAGE,
+            KciAttributeModifier.Slot.MAINHAND,
+            KciAttributeModifier.Operation.ADD,
             5.0
     );
 
-    public EditItemPocketContainer(EditMenu menu, CustomPocketContainerValues oldValues, ItemReference toModify) {
+    public EditItemPocketContainer(EditMenu menu, KciPocketContainer oldValues, ItemReference toModify) {
         super(menu, oldValues, toModify);
     }
 
     @Override
-    protected AttributeModifierValues getExampleAttributeModifier() {
+    protected KciAttributeModifier getExampleAttributeModifier() {
         return EXAMPLE_MODIFIER;
     }
 
@@ -58,8 +58,8 @@ public class EditItemPocketContainer extends EditItemBase<CustomPocketContainerV
     }
 
     @Override
-    protected CustomItemType.Category getCategory() {
-        return CustomItemType.Category.DEFAULT;
+    protected KciItemType.Category getCategory() {
+        return KciItemType.Category.DEFAULT;
     }
 
     private static class SelectContainers extends GuiMenu {

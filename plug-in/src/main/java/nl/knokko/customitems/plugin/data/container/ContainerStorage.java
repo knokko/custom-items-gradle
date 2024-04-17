@@ -2,7 +2,7 @@ package nl.knokko.customitems.plugin.data.container;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
-import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.container.KciContainer;
 import nl.knokko.customitems.plugin.container.ContainerInfo;
 import nl.knokko.customitems.plugin.container.ContainerInstance;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
@@ -162,7 +162,7 @@ public class ContainerStorage {
     }
 
     public int destroyAtStringHost(
-            CustomContainerValues prototype, String stringHost, Location dropLocation
+            KciContainer prototype, String stringHost, Location dropLocation
     ) {
         int numDestroyedContainers = persistent.destroyAtStringHost(prototype, stringHost, dropLocation);
         storedEnergy.removeStoredEnergyAt(prototype, stringHost);

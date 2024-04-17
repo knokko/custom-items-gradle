@@ -1,17 +1,17 @@
 package nl.knokko.customitems.plugin.events;
 
-import nl.knokko.customitems.damage.DamageSource;
-import nl.knokko.customitems.damage.SpecialMeleeDamageValues;
+import nl.knokko.customitems.damage.VDamageSource;
+import nl.knokko.customitems.damage.SpecialMeleeDamage;
 import nl.knokko.customitems.item.*;
-import nl.knokko.customitems.item.equipment.EquipmentBonusValues;
-import nl.knokko.customitems.itemset.CustomDamageSourceReference;
+import nl.knokko.customitems.item.equipment.EquipmentSetBonus;
+import nl.knokko.customitems.itemset.DamageSourceReference;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.tasks.updater.ItemUpgrader;
 import nl.knokko.customitems.plugin.util.EquipmentSetHelper;
-import nl.knokko.customitems.projectile.CustomProjectileValues;
-import nl.knokko.customitems.recipe.upgrade.UpgradeValues;
+import nl.knokko.customitems.projectile.KciProjectile;
+import nl.knokko.customitems.recipe.upgrade.Upgrade;
 import org.bukkit.Bukkit;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.EntityType;
@@ -63,9 +63,9 @@ public class CustomDamageEventHandler implements Listener {
             EntityEquipment equipment = damager.getEquipment();
             if (equipment != null) {
 
-                CustomItemValues customWeapon = itemSet.getItem(equipment.getItemInMainHand());
+                KciItem customWeapon = itemSet.getItem(equipment.getItemInMainHand());
                 if (customWeapon != null && customWeapon.getSpecialMeleeDamage() != null) {
-                    SpecialMeleeDamageValues specialDamage = customWeapon.getSpecialMeleeDamage();
+                    SpecialMeleeDamage specialDamage = customWeapon.getSpecialMeleeDamage();
                     if (!isPerformingCustomDamage) {
                         event.setCancelled(true);
 
@@ -95,28 +95,28 @@ public class CustomDamageEventHandler implements Listener {
         }
     }
 
-    private CustomItemValues getCustomItem(List<MetadataValue> meta) {
+    private KciItem getCustomItem(List<MetadataValue> meta) {
         for (MetadataValue value : meta) {
             if (value.getOwningPlugin() == CustomItemsPlugin.getInstance()) {
-                CustomItemValues customItem = itemSet.getItem(value.asString());
+                KciItem customItem = itemSet.getItem(value.asString());
                 if (customItem != null) return customItem;
             }
         }
         return null;
     }
 
-    private CustomProjectileValues getCustomProjectile(List<MetadataValue> meta) {
+    private KciProjectile getCustomProjectile(List<MetadataValue> meta) {
         for (MetadataValue value : meta) {
             if (value.getOwningPlugin() == CustomItemsPlugin.getInstance()) {
-                Optional<CustomProjectileValues> customProjectile = itemSet.get().projectiles.get(value.asString());
+                Optional<KciProjectile> customProjectile = itemSet.get().projectiles.get(value.asString());
                 if (customProjectile.isPresent()) return customProjectile.get();
             }
         }
         return null;
     }
 
-    private CustomDamageSourceReference updateDamageSource(
-            CustomDamageSourceReference current, CustomDamageSourceReference candidate
+    private DamageSourceReference updateDamageSource(
+            DamageSourceReference current, DamageSourceReference candidate
     ) {
         if (candidate != null) return candidate;
         else return current;
@@ -126,7 +126,7 @@ public class CustomDamageEventHandler implements Listener {
     public void applyCustomDamageReductions(EntityDamageByEntityEvent event) {
         if (event.getEntity() instanceof LivingEntity) {
             try {
-                DamageSource damageSource = DamageSource.valueOf(event.getCause().name());
+                VDamageSource damageSource = VDamageSource.valueOf(event.getCause().name());
 
                 LivingEntity livingEntity = (LivingEntity) event.getEntity();
 
@@ -134,46 +134,46 @@ public class CustomDamageEventHandler implements Listener {
                 int[] individualDamageResistances = new int[4];
                 int totalDamageResistance = 0;
 
-                CustomDamageSourceReference customDamageSource = null;
+                DamageSourceReference customDamageSource = null;
 
-                if ((damageSource == DamageSource.ENTITY_ATTACK || damageSource == DamageSource.ENTITY_SWEEP_ATTACK)
+                if ((damageSource == VDamageSource.ENTITY_ATTACK || damageSource == VDamageSource.ENTITY_SWEEP_ATTACK)
                         && event.getDamager() instanceof LivingEntity
                 ) {
                     EntityEquipment attackerEquipment = ((LivingEntity) event.getDamager()).getEquipment();
                     if (attackerEquipment != null) {
-                        CustomItemValues weapon = itemSet.getItem(attackerEquipment.getItemInMainHand());
+                        KciItem weapon = itemSet.getItem(attackerEquipment.getItemInMainHand());
                         if (weapon != null) customDamageSource = weapon.getCustomMeleeDamageSourceReference();
                     }
                 }
                 if (event.getDamager() instanceof Projectile) {
-                    CustomItemValues customBowOrCrossbow = getCustomItem(
+                    KciItem customBowOrCrossbow = getCustomItem(
                             event.getDamager().getMetadata("CustomBowOrCrossbowName")
                     );
-                    if (customBowOrCrossbow instanceof CustomBowValues) {
+                    if (customBowOrCrossbow instanceof KciBow) {
                         customDamageSource = updateDamageSource(
-                                customDamageSource, ((CustomBowValues) customBowOrCrossbow).getCustomShootDamageSourceReference()
+                                customDamageSource, ((KciBow) customBowOrCrossbow).getCustomShootDamageSourceReference()
                         );
-                    } else if (customBowOrCrossbow instanceof CustomCrossbowValues) {
+                    } else if (customBowOrCrossbow instanceof KciCrossbow) {
                         customDamageSource = updateDamageSource(
-                                customDamageSource, ((CustomCrossbowValues) customBowOrCrossbow).getCustomShootDamageSourceReference()
-                        );
-                    }
-
-                    CustomItemValues customArrow = getCustomItem(event.getDamager().getMetadata("CustomArrowName"));
-                    if (customArrow instanceof CustomArrowValues) {
-                        customDamageSource = updateDamageSource(
-                                customDamageSource, ((CustomArrowValues) customArrow).getCustomShootDamageSourceReference()
+                                customDamageSource, ((KciCrossbow) customBowOrCrossbow).getCustomShootDamageSourceReference()
                         );
                     }
 
-                    CustomItemValues customTrident = getCustomItem(event.getDamager().getMetadata("CustomTridentName"));
-                    if (customTrident instanceof CustomTridentValues) {
+                    KciItem customArrow = getCustomItem(event.getDamager().getMetadata("CustomArrowName"));
+                    if (customArrow instanceof KciArrow) {
                         customDamageSource = updateDamageSource(
-                                customDamageSource, ((CustomTridentValues) customTrident).getCustomThrowDamageSourceReference()
+                                customDamageSource, ((KciArrow) customArrow).getCustomShootDamageSourceReference()
                         );
                     }
 
-                    CustomProjectileValues customProjectile = getCustomProjectile(event.getEntity().getMetadata("HitByCustomProjectile"));
+                    KciItem customTrident = getCustomItem(event.getDamager().getMetadata("CustomTridentName"));
+                    if (customTrident instanceof KciTrident) {
+                        customDamageSource = updateDamageSource(
+                                customDamageSource, ((KciTrident) customTrident).getCustomThrowDamageSourceReference()
+                        );
+                    }
+
+                    KciProjectile customProjectile = getCustomProjectile(event.getEntity().getMetadata("HitByCustomProjectile"));
                     if (customProjectile != null) {
                         customDamageSource = updateDamageSource(
                                 customDamageSource, customProjectile.getCustomDamageSourceReference()
@@ -199,7 +199,7 @@ public class CustomDamageEventHandler implements Listener {
                             individualDamageResistances, 3
                     );
 
-                    for (EquipmentBonusValues equipmentBonus : EquipmentSetHelper.getEquipmentBonuses(e, itemSet)) {
+                    for (EquipmentSetBonus equipmentBonus : EquipmentSetHelper.getEquipmentBonuses(e, itemSet)) {
                         totalDamageResistance += equipmentBonus.getDamageResistances().getResistance(damageSource);
                         totalDamageResistance += equipmentBonus.getDamageResistances().getResistance(customDamageSource);
                     }
@@ -235,18 +235,18 @@ public class CustomDamageEventHandler implements Listener {
     }
 
     private void applyCustomArmorDamageReduction(
-            ItemStack armorPiece, DamageSource source, CustomDamageSourceReference customSource,
+            ItemStack armorPiece, VDamageSource source, DamageSourceReference customSource,
             int[] damageResistances, int resistanceIndex
     ) {
         if (source == null) return;
 
-        CustomItemValues custom = itemSet.getItem(armorPiece);
-        for (UpgradeValues upgrade : ItemUpgrader.getUpgrades(armorPiece, itemSet)) {
+        KciItem custom = itemSet.getItem(armorPiece);
+        for (Upgrade upgrade : ItemUpgrader.getUpgrades(armorPiece, itemSet)) {
             damageResistances[resistanceIndex] += upgrade.getDamageResistances().getResistance(source);
             damageResistances[resistanceIndex] += upgrade.getDamageResistances().getResistance(customSource);
         }
-        if (custom instanceof CustomArmorValues) {
-            CustomArmorValues armor = (CustomArmorValues) custom;
+        if (custom instanceof KciArmor) {
+            KciArmor armor = (KciArmor) custom;
             damageResistances[resistanceIndex] += armor.getDamageResistances().getResistance(source);
             damageResistances[resistanceIndex] += armor.getDamageResistances().getResistance(customSource);
         }

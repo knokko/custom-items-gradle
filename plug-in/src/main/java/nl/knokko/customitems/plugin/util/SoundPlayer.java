@@ -1,6 +1,6 @@
 package nl.knokko.customitems.plugin.util;
 
-import nl.knokko.customitems.sound.SoundValues;
+import nl.knokko.customitems.sound.KciSound;
 import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.SoundCategory;
@@ -11,12 +11,12 @@ import java.util.Objects;
 
 public class SoundPlayer {
 
-    private static String determineSoundName(SoundValues sound) {
+    private static String determineSoundName(KciSound sound) {
         if (sound.getVanillaSound() != null) return sound.getVanillaSound().name().toLowerCase(Locale.ROOT);
         else return "kci_" + sound.getCustomSound().getName();
     }
 
-    private static SoundCategory determineSoundCategory(SoundValues sound) {
+    private static SoundCategory determineSoundCategory(KciSound sound) {
         if (sound.getCustomSound() != null) return SoundCategory.valueOf(sound.getCustomSound().getSoundCategory().name());
 
         // Vanilla sounds will respect the sound category by default, so I can use just the playSound methods
@@ -24,7 +24,7 @@ public class SoundPlayer {
         else return null;
     }
 
-    public static void playSound(Location location, SoundValues sound) {
+    public static void playSound(Location location, KciSound sound) {
         Objects.requireNonNull(location.getWorld());
         if (sound.getVanillaSound() != null) {
             location.getWorld().playSound(
@@ -39,7 +39,7 @@ public class SoundPlayer {
         }
     }
 
-    public static void playSound(Player player, SoundValues sound) {
+    public static void playSound(Player player, KciSound sound) {
         if (sound.getVanillaSound() != null) {
             player.playSound(
                     player.getLocation(), Sound.valueOf(sound.getVanillaSound().name()), sound.getVolume(), sound.getPitch()
@@ -55,7 +55,7 @@ public class SoundPlayer {
 
     private static final int JUKEBOX_RANGE = 16;
 
-    public static void stopSound(Location location, SoundValues sound, boolean forceRecordCategory) {
+    public static void stopSound(Location location, KciSound sound, boolean forceRecordCategory) {
         SoundCategory category = determineSoundCategory(sound);
 
         for (Player player : Objects.requireNonNull(location.getWorld()).getPlayers()) {

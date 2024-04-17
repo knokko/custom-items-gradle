@@ -1,9 +1,9 @@
 package nl.knokko.customitems.editor.menu.edit.drops.block;
 
 import nl.knokko.customitems.block.drop.SilkTouchRequirement;
-import nl.knokko.customitems.drops.BlockDropValues;
-import nl.knokko.customitems.drops.BlockType;
-import nl.knokko.customitems.drops.DropValues;
+import nl.knokko.customitems.drops.BlockDrop;
+import nl.knokko.customitems.drops.VBlockType;
+import nl.knokko.customitems.drops.KciDrop;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.menu.edit.drops.SelectDrop;
@@ -27,12 +27,12 @@ public class EditBlockDrop extends GuiMenu {
 	
 	private final ItemSet set;
 	private final GuiComponent returnMenu;
-	private final BlockDropValues currentValues;
+	private final BlockDrop currentValues;
 	private final BlockDropReference toModify;
 	
 	private final DynamicTextComponent errorComponent;
 	
-	public EditBlockDrop(ItemSet set, GuiComponent returnMenu, BlockDropValues oldValues, BlockDropReference toModify) {
+	public EditBlockDrop(ItemSet set, GuiComponent returnMenu, BlockDrop oldValues, BlockDropReference toModify) {
 		this.set = set;
 		this.returnMenu = returnMenu;
 		this.currentValues = oldValues.copy(true);
@@ -59,7 +59,7 @@ public class EditBlockDrop extends GuiMenu {
 				0.3f, 0.7f, 0.45f, 0.8f
 		);
 		addComponent(
-				EnumSelect.createSelectButton(BlockType.class, currentValues::setBlockType, currentValues.getBlockType()),
+				EnumSelect.createSelectButton(VBlockType.class, currentValues::setBlockType, currentValues.getBlockType()),
 				0.5f, 0.7f, 0.8f, 0.8f
 		);
 		
@@ -68,7 +68,7 @@ public class EditBlockDrop extends GuiMenu {
 				0.3f, 0.55f, 0.45f, 0.65f
 		);
 		DynamicTextButton[] pSelectDrop = {null};
-		SelectDrop dropSelect = new SelectDrop(set, this, currentValues.getDrop(), (DropValues newDrop) -> {
+		SelectDrop dropSelect = new SelectDrop(set, this, currentValues.getDrop(), (KciDrop newDrop) -> {
 			currentValues.setDrop(newDrop);
 			pSelectDrop[0].setText(newDrop.toString());
 		}, true);

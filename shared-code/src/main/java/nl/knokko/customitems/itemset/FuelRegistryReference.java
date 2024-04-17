@@ -1,16 +1,16 @@
 package nl.knokko.customitems.itemset;
 
-import nl.knokko.customitems.container.fuel.FuelRegistryValues;
+import nl.knokko.customitems.container.fuel.ContainerFuelRegistry;
 
 import java.util.Collection;
 
-public class FuelRegistryReference extends StringBasedReference<FuelRegistryValues> {
+public class FuelRegistryReference extends StringBasedReference<ContainerFuelRegistry> {
 
     FuelRegistryReference(String name, ItemSet itemSet) {
         super(name, itemSet);
     }
 
-    FuelRegistryReference(Model<FuelRegistryValues> model) {
+    FuelRegistryReference(Model<ContainerFuelRegistry> model) {
         super(model);
     }
 
@@ -20,12 +20,12 @@ public class FuelRegistryReference extends StringBasedReference<FuelRegistryValu
     }
 
     @Override
-    Collection<Model<FuelRegistryValues>> getCollection() {
+    Collection<Model<ContainerFuelRegistry>> getCollection() {
         return itemSet.fuelRegistries.elements;
     }
 
     @Override
-    String extractIdentity(FuelRegistryValues values) {
+    String extractIdentity(ContainerFuelRegistry values) {
         return values.getName();
     }
 }

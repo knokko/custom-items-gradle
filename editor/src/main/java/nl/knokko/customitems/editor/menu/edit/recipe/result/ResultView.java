@@ -2,7 +2,7 @@ package nl.knokko.customitems.editor.menu.edit.recipe.result;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.recipe.result.UpgradeResultValues;
+import nl.knokko.customitems.recipe.result.UpgradeResult;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -16,11 +16,11 @@ public class ResultView extends GuiMenu {
 	
 	private final ResultComponent component;
 	private final ItemSet set;
-	private final BiFunction<GuiComponent, UpgradeResultValues, GuiComponent> chooseUpgradeIngredient;
+	private final BiFunction<GuiComponent, UpgradeResult, GuiComponent> chooseUpgradeIngredient;
 
 	public ResultView(
 			ResultComponent component, ItemSet set,
-			BiFunction<GuiComponent, UpgradeResultValues, GuiComponent> chooseUpgradeIngredient
+			BiFunction<GuiComponent, UpgradeResult, GuiComponent> chooseUpgradeIngredient
 	) {
 		this.component = component;
 		this.set = set;

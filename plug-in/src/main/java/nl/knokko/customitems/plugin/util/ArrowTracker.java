@@ -1,7 +1,7 @@
 package nl.knokko.customitems.plugin.util;
 
-import nl.knokko.customitems.item.CustomArrowValues;
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.KciArrow;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
@@ -26,13 +26,13 @@ public class ArrowTracker {
         return arrows;
     }
 
-    public static CustomArrowValues[] getArrowTypes(Inventory inventory, ItemSetWrapper itemSet) {
+    public static KciArrow[] getArrowTypes(Inventory inventory, ItemSetWrapper itemSet) {
         ItemStack[] contents = inventory.getContents();
-        CustomArrowValues[] arrows = new CustomArrowValues[contents.length];
+        KciArrow[] arrows = new KciArrow[contents.length];
 
         for (int index = 0; index < contents.length; index++) {
-            CustomItemValues customItem = itemSet.getItem(contents[index]);
-            if (customItem instanceof CustomArrowValues) arrows[index] = (CustomArrowValues) customItem;
+            KciItem customItem = itemSet.getItem(contents[index]);
+            if (customItem instanceof KciArrow) arrows[index] = (KciArrow) customItem;
         }
 
         return arrows;
@@ -58,8 +58,8 @@ public class ArrowTracker {
         return arrowIndex;
     }
 
-    public static CustomArrowValues determineUsedArrowType(
-            int[] oldArrowCounts, CustomArrowValues[] oldArrowTypes, PlayerInventory newInventory
+    public static KciArrow determineUsedArrowType(
+            int[] oldArrowCounts, KciArrow[] oldArrowTypes, PlayerInventory newInventory
     ) {
         int[] newArrowCounts = countArrows(newInventory);
         int arrowIndex = determineUsedArrowIndexByCounts(oldArrowCounts, newArrowCounts);

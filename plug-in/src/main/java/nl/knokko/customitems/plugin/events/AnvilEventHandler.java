@@ -1,14 +1,14 @@
 package nl.knokko.customitems.plugin.events;
 
-import nl.knokko.customitems.item.CIMaterial;
-import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.item.CustomToolValues;
+import nl.knokko.customitems.item.VMaterial;
+import nl.knokko.customitems.item.KciItem;
+import nl.knokko.customitems.item.KciTool;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.util.ItemUtils;
-import nl.knokko.customitems.recipe.ingredient.IngredientValues;
-import nl.knokko.customitems.recipe.result.ResultValues;
+import nl.knokko.customitems.recipe.ingredient.KciIngredient;
+import nl.knokko.customitems.recipe.result.KciResult;
 import org.bukkit.Bukkit;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -40,13 +40,13 @@ public class AnvilEventHandler implements Listener {
     public void prepareAnvil(PrepareAnvilEvent event) {
 
         ItemStack[] contents = event.getInventory().getStorageContents();
-        CustomItemValues custom1 = itemSet.getItem(contents[0]);
-        CustomItemValues custom2 = itemSet.getItem(contents[1]);
+        KciItem custom1 = itemSet.getItem(contents[0]);
+        KciItem custom2 = itemSet.getItem(contents[1]);
 
         if (custom1 != null) {
             if (custom1.allowAnvilActions()) {
-                if (custom1 instanceof CustomToolValues) {
-                    CustomToolValues tool = (CustomToolValues) custom1;
+                if (custom1 instanceof KciTool) {
+                    KciTool tool = (KciTool) custom1;
                     String renameText = event.getInventory().getRenameText();
                     String oldName = KciNms.instance.items.getStackName(contents[0]);
                     boolean isRenaming = !renameText.isEmpty() && !renameText.equals(oldName);
@@ -120,8 +120,8 @@ public class AnvilEventHandler implements Listener {
                         } else {
                             event.setResult(null);
                         }
-                    } else if (contents[1] != null && !KciNms.instance.items.getMaterialName(contents[1]).equals(CIMaterial.AIR.name())) {
-                        if (KciNms.instance.items.getMaterialName(contents[1]).equals(CIMaterial.ENCHANTED_BOOK.name())) {
+                    } else if (contents[1] != null && !KciNms.instance.items.getMaterialName(contents[1]).equals(VMaterial.AIR.name())) {
+                        if (KciNms.instance.items.getMaterialName(contents[1]).equals(VMaterial.ENCHANTED_BOOK.name())) {
                             // This case is handled by minecraft automagically
                         } else if (shouldIngredientAcceptAmountless(tool.getRepairItem(), contents[1])) {
                             // We use AcceptAmountless because we need to handle remaining items differently
@@ -134,7 +134,7 @@ public class AnvilEventHandler implements Listener {
                             }
 
                             if (neededDurability > 0) {
-                                IngredientValues repairItem = tool.getRepairItem();
+                                KciIngredient repairItem = tool.getRepairItem();
                                 long durability = wrap(tool).getDurability(contents[0]);
                                 int neededAmount = (int) Math.ceil(neededDurability * 4.0 / tool.getMaxDurabilityNew()) * repairItem.getAmount();
 
@@ -237,7 +237,7 @@ public class AnvilEventHandler implements Listener {
                 ItemStack cursor = event.getCursor();
                 ItemStack current = event.getCurrentItem();
 
-                CustomItemValues customCurrent = itemSet.getItem(current);
+                KciItem customCurrent = itemSet.getItem(current);
                 if (ItemUtils.isEmpty(current)) {
                     event.setCancelled(true);
                     Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
@@ -249,9 +249,9 @@ public class AnvilEventHandler implements Listener {
                     });
                 } else if (ItemUtils.isEmpty(cursor) && customCurrent != null) {
                     AnvilInventory ai = (AnvilInventory) event.getInventory();
-                    CustomItemValues custom = customCurrent;
+                    KciItem custom = customCurrent;
                     ItemStack first = event.getInventory().getItem(0);
-                    CustomItemValues customFirst = itemSet.getItem(first);
+                    KciItem customFirst = itemSet.getItem(first);
                     if (customFirst != null && !customFirst.allowAnvilActions()) {
                         event.setCancelled(true);
                         Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
@@ -267,9 +267,9 @@ public class AnvilEventHandler implements Listener {
                             player.setItemOnCursor(current);
                             player.setLevel(player.getLevel() - repairCost);
                             ItemStack[] contents = ai.getContents();
-                            if (custom instanceof CustomToolValues && contents[1] != null
-                                    && !KciNms.instance.items.getMaterialName(contents[1]).equals(CIMaterial.AIR.name())) {
-                                CustomToolValues tool = (CustomToolValues) custom;
+                            if (custom instanceof KciTool && contents[1] != null
+                                    && !KciNms.instance.items.getMaterialName(contents[1]).equals(VMaterial.AIR.name())) {
+                                KciTool tool = (KciTool) custom;
 
                                 // Use AcceptAmountless because we need to handle remaining item differently
                                 if (shouldIngredientAcceptAmountless(tool.getRepairItem(), contents[1]) && tool.getMaxDurabilityNew() != null) {
@@ -282,12 +282,12 @@ public class AnvilEventHandler implements Listener {
                                     int usedAmount = repairValue * tool.getRepairItem().getAmount();
 
                                     // If there is a remaining item, we can only proceed if the entire repair item stack is consumed
-                                    IngredientValues repairItem = tool.getRepairItem();
+                                    KciIngredient repairItem = tool.getRepairItem();
                                     if (repairValue > 0 && (repairItem.getRemainingItem() == null || repairValue * repairItem.getAmount() == contents[1].getAmount())) {
                                         if (usedAmount < contents[1].getAmount()) {
                                             contents[1].setAmount(contents[1].getAmount() - usedAmount);
                                         } else {
-                                            ResultValues remainingResult = tool.getRepairItem().getRemainingItem();
+                                            KciResult remainingResult = tool.getRepairItem().getRemainingItem();
                                             contents[1] = convertResultToItemStack(remainingResult);
                                             if (tool.getRepairItem().getRemainingItem() != null) {
                                                 contents[1].setAmount(contents[1].getAmount() * repairValue);

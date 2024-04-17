@@ -1,6 +1,6 @@
 package nl.knokko.customitems.plugin.set.block;
 
-import nl.knokko.customitems.block.CustomBlockValues;
+import nl.knokko.customitems.block.KciBlock;
 import nl.knokko.customitems.block.MushroomBlockMapping;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
@@ -19,7 +19,7 @@ public class MushroomBlockHelper {
         return getType(KciNms.instance.items.getMaterialName(block)) != null;
     }
 
-    public static void place(Block destination, CustomBlockValues customBlock) {
+    public static void place(Block destination, KciBlock customBlock) {
         KciNms.instance.blocks.place(
                 destination,
                 MushroomBlockMapping.getDirections(customBlock.getInternalID()),
@@ -27,7 +27,7 @@ public class MushroomBlockHelper {
         );
     }
 
-    public static CustomBlockValues getMushroomBlock(Block location) {
+    public static KciBlock getMushroomBlock(Block location) {
         MushroomBlockMapping.Type mushroomType = getType(KciNms.instance.items.getMaterialName(location));
         if (mushroomType != null) {
 
@@ -35,7 +35,7 @@ public class MushroomBlockHelper {
             for (int id = MIN_BLOCK_ID; id <= MAX_BLOCK_ID; id++) {
                 if (getType(id) == mushroomType && Arrays.equals(directions, getDirections(id))) {
 
-                    for (CustomBlockValues candidate : CustomItemsPlugin.getInstance().getSet().get().blocks) {
+                    for (KciBlock candidate : CustomItemsPlugin.getInstance().getSet().get().blocks) {
                         if (candidate.getInternalID() == id) {
                             return candidate;
                         }

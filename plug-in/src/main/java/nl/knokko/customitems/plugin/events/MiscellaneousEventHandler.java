@@ -31,12 +31,12 @@ public class MiscellaneousEventHandler implements Listener {
 
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void cancelEnchanting(PrepareItemEnchantEvent event) {
-		CustomItemValues custom = itemSet.getItem(event.getItem());
+		KciItem custom = itemSet.getItem(event.getItem());
 		if (custom != null && !custom.allowEnchanting()) event.setCancelled(true);
 	}
 
 	private boolean fixCustomItemPickup(final ItemStack stack, ItemStack[] contents) {
-		CustomItemValues customItem = itemSet.getItem(stack);
+		KciItem customItem = itemSet.getItem(stack);
 		if (customItem != null) {
 			int remainingAmount = stack.getAmount();
 			for (ItemStack content : contents) {
@@ -128,7 +128,7 @@ public class MiscellaneousEventHandler implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
 	public void fixHopperTransport(InventoryMoveItemEvent event) {
 		ItemStack stack = event.getItem();
-		CustomItemValues customStack = itemSet.getItem(stack);
+		KciItem customStack = itemSet.getItem(stack);
 		if (fixCustomItemPickup(stack, event.getDestination().getContents())) {
 			event.setCancelled(true);
 			Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
@@ -177,7 +177,7 @@ public class MiscellaneousEventHandler implements Listener {
 	public void enforceIndestructibleDroppedCustomItems(EntityDamageEvent event) {
 		if (event.getCause() != EntityDamageEvent.DamageCause.VOID && event.getEntity() instanceof Item) {
 			Item droppedItem = (Item) event.getEntity();
-			CustomItemValues customItem = itemSet.getItem(droppedItem.getItemStack());
+			KciItem customItem = itemSet.getItem(droppedItem.getItemStack());
 
 			if (customItem != null && customItem.isIndestructible()) {
 				event.setCancelled(true);

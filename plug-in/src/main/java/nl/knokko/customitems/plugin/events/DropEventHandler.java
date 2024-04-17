@@ -1,13 +1,13 @@
 package nl.knokko.customitems.plugin.events;
 
-import nl.knokko.customitems.drops.CIBiome;
-import nl.knokko.customitems.drops.DropValues;
-import nl.knokko.customitems.drops.MobDropValues;
+import nl.knokko.customitems.drops.VBiome;
+import nl.knokko.customitems.drops.KciDrop;
+import nl.knokko.customitems.drops.MobDrop;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.tasks.updater.ItemUpdater;
-import nl.knokko.customitems.recipe.result.ResultValues;
+import nl.knokko.customitems.recipe.result.KciResult;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -35,14 +35,14 @@ public class DropEventHandler implements Listener {
     }
 
     static boolean collectDrops(
-            Collection<ItemStack> stacksToDrop, DropValues drop, Location location, Random random,
+            Collection<ItemStack> stacksToDrop, KciDrop drop, Location location, Random random,
             ItemSetWrapper itemSet, ItemStack mainItem
     ) {
 
         // Make sure the required held items of drops are really required
         boolean shouldDrop = BlockEventHandler.shouldRequiredItemsAccept(drop.getRequiredHeldItems(), mainItem, itemSet);
 
-        if (!drop.getAllowedBiomes().isAllowed(CIBiome.valueOf(location.getBlock().getBiome().name()))) {
+        if (!drop.getAllowedBiomes().isAllowed(VBiome.valueOf(location.getBlock().getBiome().name()))) {
             shouldDrop = false;
         }
 
@@ -50,7 +50,7 @@ public class DropEventHandler implements Listener {
             return false;
         }
 
-        ResultValues resultToDrop = drop.getOutputTable().pickResult(random);
+        KciResult resultToDrop = drop.getOutputTable().pickResult(random);
         ItemStack stackToDrop = convertResultToItemStack(resultToDrop);
         boolean cancelDefaultDrops = false;
 
@@ -63,7 +63,7 @@ public class DropEventHandler implements Listener {
                 cancelDefaultDrops = true;
             }
 
-            CustomItemValues itemToDrop = itemSet.getItem(stackToDrop);
+            KciItem itemToDrop = itemSet.getItem(stackToDrop);
             for (ItemStack potentialMerge : stacksToDrop) {
                 if (stackToDrop.isSimilar(potentialMerge)) {
 
@@ -128,12 +128,12 @@ public class DropEventHandler implements Listener {
 
     private boolean isProjectileSource(ItemStack stack) {
         if (stack == null) return false;
-        CIMaterial material = CIMaterial.valueOf(stack.getType().name());
+        VMaterial material = VMaterial.valueOf(stack.getType().name());
 
-        CustomItemValues customItem = itemSet.getItem(stack);
-        return material == CIMaterial.BOW || material == CIMaterial.CROSSBOW || material == CIMaterial.TRIDENT ||
-                customItem instanceof CustomWandValues || customItem instanceof CustomGunValues ||
-                customItem instanceof CustomThrowableValues;
+        KciItem customItem = itemSet.getItem(stack);
+        return material == VMaterial.BOW || material == VMaterial.CROSSBOW || material == VMaterial.TRIDENT ||
+                customItem instanceof KciWand || customItem instanceof KciGun ||
+                customItem instanceof KciThrowable;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -143,7 +143,7 @@ public class DropEventHandler implements Listener {
             return;
         }
 
-        Iterable<MobDropValues> drops = itemSet.getMobDrops(event.getEntity());
+        Iterable<MobDrop> drops = itemSet.getMobDrops(event.getEntity());
         Random random = new Random();
 
         ItemStack usedItem = null;
@@ -168,7 +168,7 @@ public class DropEventHandler implements Listener {
 
         boolean cancelDefaultDrops = false;
         Collection<ItemStack> stacksToDrop = new ArrayList<>();
-        for (MobDropValues mobDrop : drops) {
+        for (MobDrop mobDrop : drops) {
             if (collectDrops(stacksToDrop, mobDrop.getDrop(), event.getEntity().getLocation(), random, itemSet, usedItem)) {
                 cancelDefaultDrops = true;
             }
@@ -178,7 +178,7 @@ public class DropEventHandler implements Listener {
             Player player = (Player) event.getEntity();
             Collection<ItemStack> stacksToKeep = new ArrayList<>();
             event.getDrops().removeIf(droppedItem -> {
-                CustomItemValues droppedCustomItem = itemSet.getItem(droppedItem);
+                KciItem droppedCustomItem = itemSet.getItem(droppedItem);
                 if (droppedCustomItem != null && droppedCustomItem.shouldKeepOnDeath()) {
                     stacksToKeep.add(droppedItem);
                     return true;

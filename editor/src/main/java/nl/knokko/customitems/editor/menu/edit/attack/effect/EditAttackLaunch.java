@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.attack.effect;
 
-import nl.knokko.customitems.attack.effect.AttackEffectValues;
-import nl.knokko.customitems.attack.effect.AttackLaunchValues;
+import nl.knokko.customitems.attack.effect.AttackEffect;
+import nl.knokko.customitems.attack.effect.AttackEffectLaunchProjectile;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.itemset.ItemSet;
@@ -15,10 +15,10 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class EditAttackLaunch extends EditAttackEffect {
 
-    private final AttackLaunchValues currentValues;
+    private final AttackEffectLaunchProjectile currentValues;
 
     public EditAttackLaunch(
-            AttackLaunchValues oldValues, Consumer<AttackEffectValues> changeValues,
+            AttackEffectLaunchProjectile oldValues, Consumer<AttackEffect> changeValues,
             GuiComponent returnMenu, ItemSet itemSet
     ) {
         super(changeValues, returnMenu, itemSet);
@@ -31,7 +31,7 @@ public class EditAttackLaunch extends EditAttackEffect {
 
         addComponent(new DynamicTextComponent("Direction:", LABEL), 0.4f, 0.7f, 0.55f, 0.8f);
         addComponent(EnumSelect.createSelectButton(
-                AttackLaunchValues.LaunchDirection.class, currentValues::setDirection, currentValues.getDirection()
+                AttackEffectLaunchProjectile.LaunchDirection.class, currentValues::setDirection, currentValues.getDirection()
         ), 0.6f, 0.7f, 0.8f, 0.8f);
 
         addComponent(new DynamicTextComponent("Speed:", LABEL), 0.4f, 0.5f, 0.5f, 0.6f);
@@ -43,7 +43,7 @@ public class EditAttackLaunch extends EditAttackEffect {
     }
 
     @Override
-    protected AttackEffectValues getCurrentValues() {
+    protected AttackEffect getCurrentValues() {
         return currentValues;
     }
 }

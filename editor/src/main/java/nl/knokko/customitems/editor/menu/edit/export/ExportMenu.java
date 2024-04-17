@@ -5,7 +5,7 @@ import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.settings.ExportSettingsValues;
+import nl.knokko.customitems.settings.ExportSettings;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
@@ -35,7 +35,7 @@ public class ExportMenu extends GuiMenu {
     private final ItemSet itemSet;
     private final GuiComponent returnMenu;
     private final String fileName;
-    private final ExportSettingsValues exportSettings;
+    private final ExportSettings exportSettings;
 
     public ExportMenu(ItemSet itemSet, GuiComponent returnMenu, String fileName) {
         this.itemSet = itemSet;
@@ -61,7 +61,7 @@ public class ExportMenu extends GuiMenu {
 
         addComponent(new DynamicTextComponent("Export mode:", LABEL), 0.525f, 0.8f, 0.655f, 0.9f);
         addComponent(EnumSelect.createSelectButton(
-                ExportSettingsValues.Mode.class, exportSettings::setMode, exportSettings.getMode()
+                ExportSettings.Mode.class, exportSettings::setMode, exportSettings.getMode()
         ), 0.675f, 0.8f, 0.775f, 0.9f);
 
         addComponent(new DynamicTextButton("Continue", SAVE_BASE, SAVE_HOVER, () -> {
@@ -77,8 +77,8 @@ public class ExportMenu extends GuiMenu {
         addComponent(new WrapperComponent<GuiMenu>(new AutomaticSettings()) {
             @Override
             public boolean isActive() {
-                return exportSettings.getMode() == ExportSettingsValues.Mode.AUTOMATIC
-                        || exportSettings.getMode() == ExportSettingsValues.Mode.MIXED;
+                return exportSettings.getMode() == ExportSettings.Mode.AUTOMATIC
+                        || exportSettings.getMode() == ExportSettings.Mode.MIXED;
             }
         }, 0f, 0f, 1f, 0.8f);
 

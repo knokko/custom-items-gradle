@@ -1,6 +1,6 @@
 package nl.knokko.customitems.plugin.tasks;
 
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import org.bukkit.Bukkit;
@@ -22,14 +22,14 @@ public class TwoHandedEnforcer implements Listener {
             for (Player player : Bukkit.getOnlinePlayers()) {
 
                 ItemStack offItem = player.getInventory().getItemInOffHand();
-                CustomItemValues customOffItem = itemSet.getItem(offItem);
+                KciItem customOffItem = itemSet.getItem(offItem);
                 boolean dropOffItem = false;
                 if (customOffItem != null && customOffItem.isTwoHanded()) {
                     // It is forbidden to equip a two-handed item in the offhand
                     dropOffItem = true;
                 } else {
                     ItemStack mainItem = player.getInventory().getItemInMainHand();
-                    CustomItemValues customMainItem = itemSet.getItem(mainItem);
+                    KciItem customMainItem = itemSet.getItem(mainItem);
                     if (customMainItem != null && customMainItem.isTwoHanded() && !ItemUtils.isEmpty(offItem)) {
                         // It is forbidden to carry any item in the offhand while holding a two-handed weapon in the main hand
                         dropOffItem = true;
@@ -53,11 +53,11 @@ public class TwoHandedEnforcer implements Listener {
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void enforceTwoHandedRestrictionsWithInventoryClick(InventoryClickEvent event) {
         if (event.getSlotType() == InventoryType.SlotType.QUICKBAR && event.getSlot() == 40) {
-            CustomItemValues customItem = itemSet.getItem(event.getCursor());
+            KciItem customItem = itemSet.getItem(event.getCursor());
             if (customItem != null && customItem.isTwoHanded()) {
                 event.setCancelled(true);
             } else {
-                CustomItemValues customMain = itemSet.getItem(event.getWhoClicked().getInventory().getItemInMainHand());
+                KciItem customMain = itemSet.getItem(event.getWhoClicked().getInventory().getItemInMainHand());
                 if (customMain != null && customMain.isTwoHanded()) {
                     event.setCancelled(true);
                 }
@@ -65,7 +65,7 @@ public class TwoHandedEnforcer implements Listener {
         }
 
         if (event.getSlotType() == InventoryType.SlotType.QUICKBAR && event.getSlot() == event.getWhoClicked().getInventory().getHeldItemSlot()) {
-            CustomItemValues customCursor = itemSet.getItem(event.getCursor());
+            KciItem customCursor = itemSet.getItem(event.getCursor());
             if (customCursor != null && customCursor.isTwoHanded() && !ItemUtils.isEmpty(event.getWhoClicked().getInventory().getItemInOffHand())) {
                 event.setCancelled(true);
             }
@@ -74,7 +74,7 @@ public class TwoHandedEnforcer implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void enforceTwoHandedRestrictionsWithSwap(PlayerSwapHandItemsEvent event) {
-        CustomItemValues customMain = itemSet.getItem(event.getOffHandItem());
+        KciItem customMain = itemSet.getItem(event.getOffHandItem());
         if (customMain != null && customMain.isTwoHanded()) {
             event.setCancelled(true);
         }
@@ -82,7 +82,7 @@ public class TwoHandedEnforcer implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOW)
     public void enforceTwoHandedRestrictionsWithHotBar(PlayerItemHeldEvent event) {
-        CustomItemValues newMainItem = itemSet.getItem(event.getPlayer().getInventory().getItem(event.getNewSlot()));
+        KciItem newMainItem = itemSet.getItem(event.getPlayer().getInventory().getItem(event.getNewSlot()));
         if (newMainItem != null && newMainItem.isTwoHanded() && !ItemUtils.isEmpty(event.getPlayer().getInventory().getItemInOffHand())) {
             event.setCancelled(true);
         }

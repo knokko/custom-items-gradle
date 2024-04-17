@@ -1,6 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.attack.effect;
 
-import nl.knokko.customitems.attack.effect.AttackEffectGroupValues;
+import nl.knokko.customitems.attack.effect.AttackEffectGroup;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.collection.SelfDedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
@@ -12,14 +12,14 @@ import java.awt.image.BufferedImage;
 import java.util.Collection;
 import java.util.function.Consumer;
 
-public class AttackEffectGroupCollectionEdit extends SelfDedicatedCollectionEdit<AttackEffectGroupValues> {
+public class AttackEffectGroupCollectionEdit extends SelfDedicatedCollectionEdit<AttackEffectGroup> {
 
     private final boolean isForBlocking;
     private final ItemSet itemSet;
 
     public AttackEffectGroupCollectionEdit(
-            Collection<AttackEffectGroupValues> oldCollection,
-            Consumer<Collection<AttackEffectGroupValues>> changeCollection,
+            Collection<AttackEffectGroup> oldCollection,
+            Consumer<Collection<AttackEffectGroup>> changeCollection,
             boolean isForBlocking, GuiComponent returnMenu, ItemSet itemSet
     ) {
         super(oldCollection, changeCollection::accept, returnMenu);
@@ -32,7 +32,7 @@ public class AttackEffectGroupCollectionEdit extends SelfDedicatedCollectionEdit
         super.addComponents();
         addComponent(new DynamicTextButton("Add effects", EditProps.BUTTON, EditProps.HOVER, () -> {
             state.getWindow().setMainComponent(new EditAttackEffectGroup(
-                    new AttackEffectGroupValues(true), this::addModel, isForBlocking, this, itemSet
+                    new AttackEffectGroup(true), this::addModel, isForBlocking, this, itemSet
             ));
         }), 0.025f, 0.2f, 0.2f, 0.3f);
 
@@ -40,23 +40,23 @@ public class AttackEffectGroupCollectionEdit extends SelfDedicatedCollectionEdit
     }
 
     @Override
-    protected String getModelLabel(AttackEffectGroupValues model) {
+    protected String getModelLabel(AttackEffectGroup model) {
         return model.getChance() + " for " + model.getAttackerEffects().size() + " attacker effects and "
                 + model.getVictimEffects().size() + " victim effects";
     }
 
     @Override
-    protected BufferedImage getModelIcon(AttackEffectGroupValues model) {
+    protected BufferedImage getModelIcon(AttackEffectGroup model) {
         return null;
     }
 
     @Override
-    protected boolean canEditModel(AttackEffectGroupValues model) {
+    protected boolean canEditModel(AttackEffectGroup model) {
         return true;
     }
 
     @Override
-    protected GuiComponent createEditMenu(AttackEffectGroupValues oldModelValues, Consumer<AttackEffectGroupValues> changeModelValues) {
+    protected GuiComponent createEditMenu(AttackEffectGroup oldModelValues, Consumer<AttackEffectGroup> changeModelValues) {
         return new EditAttackEffectGroup(oldModelValues, changeModelValues, isForBlocking, this, itemSet);
     }
 
@@ -66,7 +66,7 @@ public class AttackEffectGroupCollectionEdit extends SelfDedicatedCollectionEdit
     }
 
     @Override
-    protected CopyMode getCopyMode(AttackEffectGroupValues model) {
+    protected CopyMode getCopyMode(AttackEffectGroup model) {
         return CopyMode.INSTANT;
     }
 }

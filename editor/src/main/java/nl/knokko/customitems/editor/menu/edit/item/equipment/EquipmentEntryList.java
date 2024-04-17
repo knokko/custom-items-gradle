@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.item.equipment;
 
-import nl.knokko.customitems.item.equipment.EquipmentEntry;
-import nl.knokko.customitems.item.equipment.EquipmentSetValues;
+import nl.knokko.customitems.item.equipment.EquipmentSetEntry;
+import nl.knokko.customitems.item.equipment.EquipmentSet;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -16,10 +16,10 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 class EquipmentEntryList extends GuiMenu {
 
     private final GuiComponent outerMenu;
-    private final EquipmentSetValues currentValues;
+    private final EquipmentSet currentValues;
     private final ItemSet itemSet;
 
-    EquipmentEntryList(GuiComponent outerMenu, EquipmentSetValues currentValues, ItemSet itemSet) {
+    EquipmentEntryList(GuiComponent outerMenu, EquipmentSet currentValues, ItemSet itemSet) {
         this.outerMenu = outerMenu;
         this.currentValues = currentValues;
         this.itemSet = itemSet;
@@ -28,7 +28,7 @@ class EquipmentEntryList extends GuiMenu {
     @Override
     protected void addComponents() {
         int index = 0;
-        for (Map.Entry<EquipmentEntry, Integer> entry : currentValues.getEntries().entrySet()) {
+        for (Map.Entry<EquipmentSetEntry, Integer> entry : currentValues.getEntries().entrySet()) {
             addComponent(new DynamicTextComponent(
                     entry.getKey().item.get().getName() + " in " + entry.getKey().slot.getSlot() + ": " + entry.getValue(), LABEL
             ), 0.05f, 0.9f - index * 0.125f, 0.8f, 1f - index * 0.125f);

@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.menu.commandhelp;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -17,7 +17,7 @@ public class HelpSummon extends GuiMenu {
 	private final ItemSet set;
 	private final GuiComponent returnMenu;
 
-	private CustomItemValues selectedMainHand, selectedOffHand, selectedHelmet, selectedChestplate, selectedLeggings,
+	private KciItem selectedMainHand, selectedOffHand, selectedHelmet, selectedChestplate, selectedLeggings,
 			selectedBoots;
 
 	public HelpSummon(ItemSet set, GuiComponent returnMenu) {
@@ -98,7 +98,7 @@ public class HelpSummon extends GuiMenu {
 		}), 0.2f, 0.05f, 0.35f, 0.15f);
 	}
 
-	static String getEquipmentTag(CustomItemValues item) {
+	static String getEquipmentTag(KciItem item) {
 		return item == null ? "{}" : "{id:stick,Count:1,tag:{KnokkosCustomItems:{Name:" + item.getName() + "}}}";
 	}
 }

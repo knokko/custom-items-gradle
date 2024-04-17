@@ -6,7 +6,7 @@ import nl.knokko.customitems.editor.resourcepack.ResourcepackGenerator;
 import nl.knokko.customitems.editor.resourcepack.geyser.GeyserPackGenerator;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.settings.ExportSettingsValues;
+import nl.knokko.customitems.settings.ExportSettings;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ResourcePackHost;
 import nl.knokko.customitems.util.StringEncoder;
@@ -21,7 +21,7 @@ import static nl.knokko.customitems.editor.menu.edit.export.ExportProgress.*;
 public class Exporter {
 
     public static void attemptToExport(
-            ItemSet itemSet, String fileName, ExportSettingsValues exportSettings,
+            ItemSet itemSet, String fileName, ExportSettings exportSettings,
             GuiComponent returnMenu, ExportProgress progress
     ) {
         String[] pResourcePackHash = { null };
@@ -31,7 +31,7 @@ public class Exporter {
                 itemSet.setExportSettings(exportSettings);
                 itemSet.validateExportVersion(exportSettings.getMcVersion());
 
-                if (exportSettings.getMode() == ExportSettingsValues.Mode.AUTOMATIC) {
+                if (exportSettings.getMode() == ExportSettings.Mode.AUTOMATIC) {
                     pResourcePackHash[0] = uploadResourcePackToMyHost(itemSet, progress);
                 } else {
                     EditorFileManager.exportFiles(itemSet, progress);
@@ -55,13 +55,13 @@ public class Exporter {
             return;
         }
 
-        if (exportSettings.getMode() == ExportSettingsValues.Mode.AUTOMATIC) {
+        if (exportSettings.getMode() == ExportSettings.Mode.AUTOMATIC) {
             progress.nextMenu = new AfterExportMenuAutomatic(
                     returnMenu, pResourcePackHash[0], exportSettings.getHostAddress()
             );
-        } else if (exportSettings.getMode() == ExportSettingsValues.Mode.MIXED) {
+        } else if (exportSettings.getMode() == ExportSettings.Mode.MIXED) {
             progress.nextMenu = new AfterExportMenuMixed(returnMenu);
-        } else if (exportSettings.getMode() == ExportSettingsValues.Mode.MANUAL) {
+        } else if (exportSettings.getMode() == ExportSettings.Mode.MANUAL) {
             progress.nextMenu = new AfterExportMenuManual(returnMenu);
         } else {
             progress.error = "Unknown export mode";

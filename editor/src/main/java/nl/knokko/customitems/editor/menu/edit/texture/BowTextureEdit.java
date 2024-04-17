@@ -12,7 +12,7 @@ import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.texture.BowTextureEntry;
-import nl.knokko.customitems.texture.BowTextureValues;
+import nl.knokko.customitems.texture.BowTexture;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
@@ -36,13 +36,13 @@ public class BowTextureEdit extends GuiMenu {
 	protected final DynamicTextComponent errorComponent;
 
 	private final TextureReference toModify;
-	private final BowTextureValues currentValues;
+	private final BowTexture currentValues;
 
-	public BowTextureEdit(EditMenu menu, TextureReference toModify, BowTextureValues oldValues) {
+	public BowTextureEdit(EditMenu menu, TextureReference toModify, BowTexture oldValues) {
 		this(menu.getSet(), menu.getTextureOverview(), toModify, oldValues);
 	}
 
-	public BowTextureEdit(ItemSet set, GuiComponent returnMenu, TextureReference toModify, BowTextureValues oldValues) {
+	public BowTextureEdit(ItemSet set, GuiComponent returnMenu, TextureReference toModify, BowTexture oldValues) {
 		this.set = set;
 		this.returnMenu = returnMenu;
 

@@ -4,7 +4,7 @@ import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.itemset.ProjectileCoverReference;
-import nl.knokko.customitems.projectile.cover.SphereProjectileCoverValues;
+import nl.knokko.customitems.projectile.cover.SphereProjectileCover;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.gui.component.text.EagerFloatEditField;
 import nl.knokko.gui.component.text.EagerIntEditField;
@@ -13,9 +13,9 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
 
-public class EditSphereProjectileCover extends EditProjectileCover<SphereProjectileCoverValues> {
+public class EditSphereProjectileCover extends EditProjectileCover<SphereProjectileCover> {
 	
-	public EditSphereProjectileCover(EditMenu menu, SphereProjectileCoverValues oldValues, ProjectileCoverReference toModify) {
+	public EditSphereProjectileCover(EditMenu menu, SphereProjectileCover oldValues, ProjectileCoverReference toModify) {
 		super(menu, oldValues, toModify);
 	}
 	

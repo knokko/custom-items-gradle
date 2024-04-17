@@ -4,23 +4,23 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 import java.util.function.Consumer;
 
-import nl.knokko.customitems.projectile.effect.ProjectileEffectValues;
+import nl.knokko.customitems.projectile.effect.ProjectileEffect;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
-public abstract class EditProjectileEffect<V extends ProjectileEffectValues> extends GuiMenu {
+public abstract class EditProjectileEffect<V extends ProjectileEffect> extends GuiMenu {
 
 	protected final V currentValues;
-	private final Consumer<ProjectileEffectValues> applyChanges;
+	private final Consumer<ProjectileEffect> applyChanges;
 	private final GuiComponent returnMenu;
 
 	protected final DynamicTextComponent errorComponent;
 
 	@SuppressWarnings("unchecked")
-	public EditProjectileEffect(V oldValues, Consumer<ProjectileEffectValues> applyChanges, GuiComponent returnMenu) {
+	public EditProjectileEffect(V oldValues, Consumer<ProjectileEffect> applyChanges, GuiComponent returnMenu) {
 		this.currentValues = (V) oldValues.copy(true);
 		this.applyChanges = applyChanges;
 		this.returnMenu = returnMenu;

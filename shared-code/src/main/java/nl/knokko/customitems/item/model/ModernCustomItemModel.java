@@ -16,7 +16,7 @@ import java.util.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static nl.knokko.customitems.texture.BaseTextureValues.*;
+import static nl.knokko.customitems.texture.KciTexture.*;
 
 public class ModernCustomItemModel implements ItemModel {
 

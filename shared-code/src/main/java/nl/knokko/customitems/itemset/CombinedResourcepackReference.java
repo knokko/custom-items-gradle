@@ -1,9 +1,9 @@
 package nl.knokko.customitems.itemset;
 
-import nl.knokko.customitems.misc.CombinedResourcepackValues;
+import nl.knokko.customitems.misc.CombinedResourcepack;
 
-public class CombinedResourcepackReference extends UnstableReference<CombinedResourcepackValues> {
-    CombinedResourcepackReference(Model<CombinedResourcepackValues> model) {
+public class CombinedResourcepackReference extends UnstableReference<CombinedResourcepack> {
+    CombinedResourcepackReference(Model<CombinedResourcepack> model) {
         super(model);
     }
 }

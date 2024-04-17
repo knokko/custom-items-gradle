@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.resourcepack;
 
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.misc.CombinedResourcepackValues;
+import nl.knokko.customitems.misc.CombinedResourcepack;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -21,7 +21,7 @@ public class ResourcepackCombiner {
         this.zipOutput = zipOutput;
     }
 
-    private void write(Stream<CombinedResourcepackValues> packs) throws IOException {
+    private void write(Stream<CombinedResourcepack> packs) throws IOException {
         try {
             packs.forEachOrdered(pack -> {
                 try {
@@ -55,17 +55,17 @@ public class ResourcepackCombiner {
     }
 
     public void writeLate() throws IOException {
-        Stream<CombinedResourcepackValues> latePacks = itemSet.combinedResourcepacks.stream().filter(
+        Stream<CombinedResourcepack> latePacks = itemSet.combinedResourcepacks.stream().filter(
                 pack -> pack.getPriority() < 0
-        ).sorted(Comparator.comparingInt(CombinedResourcepackValues::getPriority).reversed());
+        ).sorted(Comparator.comparingInt(CombinedResourcepack::getPriority).reversed());
 
         write(latePacks);
     }
 
     public void writeEarly() throws IOException {
-        Stream<CombinedResourcepackValues> earlyPacks = itemSet.combinedResourcepacks.stream().filter(
+        Stream<CombinedResourcepack> earlyPacks = itemSet.combinedResourcepacks.stream().filter(
                 pack -> pack.getPriority() > 0
-        ).sorted(Comparator.comparingInt(CombinedResourcepackValues::getPriority).reversed());
+        ).sorted(Comparator.comparingInt(CombinedResourcepack::getPriority).reversed());
 
         write(earlyPacks);
     }

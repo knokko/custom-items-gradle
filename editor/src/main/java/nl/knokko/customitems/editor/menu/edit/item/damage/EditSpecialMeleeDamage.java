@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.item.damage;
 
-import nl.knokko.customitems.damage.RawDamageSource;
-import nl.knokko.customitems.damage.SpecialMeleeDamageValues;
+import nl.knokko.customitems.damage.VRawDamageSource;
+import nl.knokko.customitems.damage.SpecialMeleeDamage;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.gui.color.GuiColor;
@@ -19,17 +19,17 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 public class EditSpecialMeleeDamage extends GuiMenu {
 
     private final GuiComponent returnMenu;
-    private final Consumer<SpecialMeleeDamageValues> applyChanges;
+    private final Consumer<SpecialMeleeDamage> applyChanges;
 
-    private final SpecialMeleeDamageValues currentValues;
+    private final SpecialMeleeDamage currentValues;
     private final CheckboxComponent enabledCheckbox;
 
     public EditSpecialMeleeDamage(
-            GuiComponent returnMenu, SpecialMeleeDamageValues oldValues,
-            Consumer<SpecialMeleeDamageValues> applyChanges
+            GuiComponent returnMenu, SpecialMeleeDamage oldValues,
+            Consumer<SpecialMeleeDamage> applyChanges
     ) {
         this.returnMenu = returnMenu;
-        this.currentValues = oldValues != null ? oldValues.copy(true) : new SpecialMeleeDamageValues(true);
+        this.currentValues = oldValues != null ? oldValues.copy(true) : new SpecialMeleeDamage(true);
         this.applyChanges = applyChanges;
         this.enabledCheckbox = new CheckboxComponent(oldValues != null);
     }
@@ -75,7 +75,7 @@ public class EditSpecialMeleeDamage extends GuiMenu {
         @Override
         protected void addComponents() {
             DynamicTextComponent damageSourceButton = EnumSelect.createSelectButton(
-                    RawDamageSource.class, currentValues::setDamageSource, currentValues.getDamageSource()
+                    VRawDamageSource.class, currentValues::setDamageSource, currentValues.getDamageSource()
             );
             addComponent(
                     new WrapperComponent<DynamicTextButton>(new DynamicTextButton("x", QUIT_BASE, QUIT_HOVER, () -> {

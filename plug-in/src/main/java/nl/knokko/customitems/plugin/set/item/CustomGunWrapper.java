@@ -1,8 +1,8 @@
 package nl.knokko.customitems.plugin.set.item;
 
 import de.tr7zw.changeme.nbtapi.NBT;
-import nl.knokko.customitems.item.CustomGunValues;
-import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
+import nl.knokko.customitems.item.KciGun;
+import nl.knokko.customitems.item.gun.IndirectGunAmmo;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.util.NbtHelper;
 import org.bukkit.inventory.ItemStack;
@@ -18,9 +18,9 @@ public class CustomGunWrapper extends CustomItemWrapper {
         return CustomItemsPlugin.getInstance().getLanguageFile().getIndirectStoredAmmo();
     }
 
-    private final CustomGunValues gun;
+    private final KciGun gun;
 
-    public CustomGunWrapper(CustomGunValues item) {
+    public CustomGunWrapper(KciGun item) {
         super(item);
         this.gun = item;
     }
@@ -32,19 +32,19 @@ public class CustomGunWrapper extends CustomItemWrapper {
 
     @Override
     public ItemStack create(int amount) {
-        if (gun.getAmmo() instanceof IndirectGunAmmoValues) {
-            return createWithAmmo(((IndirectGunAmmoValues) gun.getAmmo()).getStoredAmmo());
+        if (gun.getAmmo() instanceof IndirectGunAmmo) {
+            return createWithAmmo(((IndirectGunAmmo) gun.getAmmo()).getStoredAmmo());
         } else {
             return super.create(amount);
         }
     }
 
     public ItemStack createWithAmmo(int remainingAmmo) {
-        if (!(gun.getAmmo() instanceof IndirectGunAmmoValues)) {
+        if (!(gun.getAmmo() instanceof IndirectGunAmmo)) {
             throw new UnsupportedOperationException("Only guns with indirect ammo store remaining ammo in NBT");
         }
 
-        IndirectGunAmmoValues indirectAmmo = (IndirectGunAmmoValues) gun.getAmmo();
+        IndirectGunAmmo indirectAmmo = (IndirectGunAmmo) gun.getAmmo();
 
         ItemStack result = super.create(1, createLore(indirectAmmo, remainingAmmo));
         NBT.modify(result, nbt -> {
@@ -54,7 +54,7 @@ public class CustomGunWrapper extends CustomItemWrapper {
         return result;
     }
 
-    private List<String> createLore(IndirectGunAmmoValues indirectAmmo, int remainingAmmo) {
+    private List<String> createLore(IndirectGunAmmo indirectAmmo, int remainingAmmo) {
         List<String> lore = super.createLore();
         lore.add(ammoPrefix() + " " + remainingAmmo + " / " + indirectAmmo.getStoredAmmo());
         return lore;
@@ -67,9 +67,9 @@ public class CustomGunWrapper extends CustomItemWrapper {
      * @return The item stack with 1 less ammo, or null if original is out of ammo
      */
     public ItemStack decrementAmmo(ItemStack gunStack) {
-        if (gun.getAmmo() instanceof IndirectGunAmmoValues) {
+        if (gun.getAmmo() instanceof IndirectGunAmmo) {
 
-            IndirectGunAmmoValues indirectAmmo = (IndirectGunAmmoValues) gun.getAmmo();
+            IndirectGunAmmo indirectAmmo = (IndirectGunAmmo) gun.getAmmo();
             int newAmmo = NBT.modify(gunStack, nbt -> {
                 int currentAmmo = NbtHelper.getNested(nbt, KEY_INDIRECT_AMMO, 0);
                 if (currentAmmo <= 0) {
@@ -96,7 +96,7 @@ public class CustomGunWrapper extends CustomItemWrapper {
     }
 
     public int getCurrentAmmo(ItemStack gunStack) {
-        if (gun.getAmmo() instanceof IndirectGunAmmoValues) {
+        if (gun.getAmmo() instanceof IndirectGunAmmo) {
             return NBT.get(gunStack, nbt -> { return NbtHelper.getNested(nbt, KEY_INDIRECT_AMMO, 0); } );
         } else {
             throw new UnsupportedOperationException("Only guns with indirect ammo can have internal ammo");
@@ -104,9 +104,9 @@ public class CustomGunWrapper extends CustomItemWrapper {
     }
 
     public void reload(ItemStack gunStack) {
-        if (gun.getAmmo() instanceof IndirectGunAmmoValues) {
+        if (gun.getAmmo() instanceof IndirectGunAmmo) {
 
-            IndirectGunAmmoValues indirectAmmo = (IndirectGunAmmoValues) gun.getAmmo();
+            IndirectGunAmmo indirectAmmo = (IndirectGunAmmo) gun.getAmmo();
 
             NBT.modify(gunStack, nbt -> {
                NbtHelper.setNested(nbt, KEY_INDIRECT_AMMO, indirectAmmo.getStoredAmmo());

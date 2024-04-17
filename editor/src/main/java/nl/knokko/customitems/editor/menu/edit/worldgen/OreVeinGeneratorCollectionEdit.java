@@ -4,9 +4,9 @@ import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.itemset.OreVeinGeneratorReference;
-import nl.knokko.customitems.worldgen.BlockProducerValues;
-import nl.knokko.customitems.worldgen.OreVeinGeneratorValues;
+import nl.knokko.customitems.itemset.OreGeneratorReference;
+import nl.knokko.customitems.worldgen.BlockProducer;
+import nl.knokko.customitems.worldgen.OreGenerator;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
@@ -17,7 +17,7 @@ import java.util.List;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.BUTTON;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.HOVER;
 
-public class OreVeinGeneratorCollectionEdit extends DedicatedCollectionEdit<OreVeinGeneratorValues, OreVeinGeneratorReference> {
+public class OreVeinGeneratorCollectionEdit extends DedicatedCollectionEdit<OreGenerator, OreGeneratorReference> {
 
     private final ItemSet itemSet;
 
@@ -35,7 +35,7 @@ public class OreVeinGeneratorCollectionEdit extends DedicatedCollectionEdit<OreV
 
         addComponent(new DynamicTextButton("Add...", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new EditOreVeinGenerator(
-                    this, itemSet, new OreVeinGeneratorValues(true), null
+                    this, itemSet, new OreGenerator(true), null
             ));
         }), 0.025f, 0.2f, 0.175f, 0.3f);
 
@@ -43,17 +43,17 @@ public class OreVeinGeneratorCollectionEdit extends DedicatedCollectionEdit<OreV
     }
 
     @Override
-    protected String getModelLabel(OreVeinGeneratorValues model) {
+    protected String getModelLabel(OreGenerator model) {
         return model.toString();
     }
 
     @Override
-    protected BufferedImage getModelIcon(OreVeinGeneratorValues model) {
-        List<BlockProducerValues.Entry> entries = model.getOreMaterial().getEntries();
+    protected BufferedImage getModelIcon(OreGenerator model) {
+        List<BlockProducer.Entry> entries = model.getOreMaterial().getEntries();
         entries.sort(Comparator.comparingInt(entry -> entry.getChance().getRawValue()));
 
         BufferedImage icon = null;
-        for (BlockProducerValues.Entry entry : entries) {
+        for (BlockProducer.Entry entry : entries) {
             if (entry.getBlock().isCustom()) {
                 icon = entry.getBlock().getCustomBlock().get().getModel().getPrimaryTexture().get().getImage();
             }
@@ -63,17 +63,17 @@ public class OreVeinGeneratorCollectionEdit extends DedicatedCollectionEdit<OreV
     }
 
     @Override
-    protected boolean canEditModel(OreVeinGeneratorValues model) {
+    protected boolean canEditModel(OreGenerator model) {
         return true;
     }
 
     @Override
-    protected GuiComponent createEditMenu(OreVeinGeneratorReference modelReference) {
+    protected GuiComponent createEditMenu(OreGeneratorReference modelReference) {
         return new EditOreVeinGenerator(this, itemSet, modelReference.get(), modelReference);
     }
 
     @Override
-    protected String deleteModel(OreVeinGeneratorReference modelReference) {
+    protected String deleteModel(OreGeneratorReference modelReference) {
         return Validation.toErrorString(() -> itemSet.oreGenerators.remove(modelReference));
     }
 
@@ -83,12 +83,12 @@ public class OreVeinGeneratorCollectionEdit extends DedicatedCollectionEdit<OreV
     }
 
     @Override
-    protected CopyMode getCopyMode(OreVeinGeneratorReference modelReference) {
+    protected CopyMode getCopyMode(OreGeneratorReference modelReference) {
         return CopyMode.INSTANT;
     }
 
     @Override
-    protected GuiComponent createCopyMenu(OreVeinGeneratorReference modelReference) {
+    protected GuiComponent createCopyMenu(OreGeneratorReference modelReference) {
         throw new UnsupportedOperationException("Copying should be INSTANT");
     }
 }

@@ -1,8 +1,8 @@
 package nl.knokko.customitems.editor.menu.edit.recipe.ingredient;
 
-import nl.knokko.customitems.recipe.ShapelessRecipeValues;
-import nl.knokko.customitems.recipe.ingredient.IngredientValues;
-import nl.knokko.customitems.recipe.result.UpgradeResultValues;
+import nl.knokko.customitems.recipe.KciShapelessRecipe;
+import nl.knokko.customitems.recipe.ingredient.KciIngredient;
+import nl.knokko.customitems.recipe.result.UpgradeResult;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -13,11 +13,11 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 public class ChooseShapelessIngredientForUpgrade extends GuiMenu {
 
     private final GuiComponent returnMenu;
-    private final UpgradeResultValues upgrade;
-    private final ShapelessRecipeValues recipe;
+    private final UpgradeResult upgrade;
+    private final KciShapelessRecipe recipe;
 
     public ChooseShapelessIngredientForUpgrade(
-            GuiComponent returnMenu, UpgradeResultValues upgrade, ShapelessRecipeValues recipe
+            GuiComponent returnMenu, UpgradeResult upgrade, KciShapelessRecipe recipe
     ) {
         this.returnMenu = returnMenu;
         this.upgrade = upgrade;
@@ -31,7 +31,7 @@ public class ChooseShapelessIngredientForUpgrade extends GuiMenu {
         }), 0.025f, 0.8f, 0.175f, 0.9f);
 
         int index = 0;
-        for (IngredientValues currentIngredient : recipe.getIngredients()) {
+        for (KciIngredient currentIngredient : recipe.getIngredients()) {
             int rememberIndex = index;
             float minY = 0.9f - index * 0.125f;
             addComponent(new DynamicTextButton(currentIngredient.toString(), CHOOSE_BASE, CHOOSE_HOVER, () -> {

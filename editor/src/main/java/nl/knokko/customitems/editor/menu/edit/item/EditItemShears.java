@@ -3,11 +3,11 @@ package nl.knokko.customitems.editor.menu.edit.item;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.item.AttributeModifierValues.Attribute;
-import nl.knokko.customitems.item.AttributeModifierValues.Operation;
-import nl.knokko.customitems.item.AttributeModifierValues.Slot;
-import nl.knokko.customitems.item.AttributeModifierValues;
-import nl.knokko.customitems.item.CustomShearsValues;
+import nl.knokko.customitems.item.KciAttributeModifier.Attribute;
+import nl.knokko.customitems.item.KciAttributeModifier.Operation;
+import nl.knokko.customitems.item.KciAttributeModifier.Slot;
+import nl.knokko.customitems.item.KciAttributeModifier;
+import nl.knokko.customitems.item.KciShears;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
@@ -15,21 +15,21 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
 
-public class EditItemShears extends EditItemTool<CustomShearsValues> {
+public class EditItemShears extends EditItemTool<KciShears> {
 	
-	private static final AttributeModifierValues EXAMPLE_ATTRIBUTE_MODIFIER = AttributeModifierValues.createQuick(
+	private static final KciAttributeModifier EXAMPLE_ATTRIBUTE_MODIFIER = KciAttributeModifier.createQuick(
 			Attribute.MOVEMENT_SPEED, Slot.OFFHAND, Operation.ADD_FACTOR, 1.5
 	);
 
-	private final CustomShearsValues currentValues;
+	private final KciShears currentValues;
 
-	public EditItemShears(EditMenu menu, CustomShearsValues oldValues, ItemReference toModify) {
+	public EditItemShears(EditMenu menu, KciShears oldValues, ItemReference toModify) {
 		super(menu, oldValues, toModify);
 		this.currentValues = oldValues.copy(true);
 	}
 	
 	@Override
-	protected AttributeModifierValues getExampleAttributeModifier() {
+	protected KciAttributeModifier getExampleAttributeModifier() {
 		return EXAMPLE_ATTRIBUTE_MODIFIER;
 	}
 	

@@ -1,41 +1,41 @@
 package nl.knokko.customitems.serialization;
 
 import nl.knokko.customitems.attack.effect.*;
-import nl.knokko.customitems.container.ContainerRecipeValues;
-import nl.knokko.customitems.container.CustomContainerHost;
-import nl.knokko.customitems.container.CustomContainerValues;
-import nl.knokko.customitems.container.slot.ManualOutputSlotValues;
-import nl.knokko.customitems.container.slot.display.SimpleVanillaDisplayItemValues;
-import nl.knokko.customitems.container.slot.display.SlotDisplayValues;
-import nl.knokko.customitems.damage.RawDamageSource;
-import nl.knokko.customitems.damage.SpecialMeleeDamageValues;
-import nl.knokko.customitems.drops.BlockDropValues;
-import nl.knokko.customitems.drops.CIBiome;
-import nl.knokko.customitems.drops.DropValues;
-import nl.knokko.customitems.drops.MobDropValues;
-import nl.knokko.customitems.effect.ChancePotionEffectValues;
-import nl.knokko.customitems.effect.EffectType;
-import nl.knokko.customitems.effect.PotionEffectValues;
+import nl.knokko.customitems.container.ContainerRecipe;
+import nl.knokko.customitems.container.ContainerHost;
+import nl.knokko.customitems.container.KciContainer;
+import nl.knokko.customitems.container.slot.ManualOutputSlot;
+import nl.knokko.customitems.container.slot.display.SimpleVanillaDisplayItem;
+import nl.knokko.customitems.container.slot.display.SlotDisplay;
+import nl.knokko.customitems.damage.VRawDamageSource;
+import nl.knokko.customitems.damage.SpecialMeleeDamage;
+import nl.knokko.customitems.drops.BlockDrop;
+import nl.knokko.customitems.drops.VBiome;
+import nl.knokko.customitems.drops.KciDrop;
+import nl.knokko.customitems.drops.MobDrop;
+import nl.knokko.customitems.effect.ChancePotionEffect;
+import nl.knokko.customitems.effect.VEffectType;
+import nl.knokko.customitems.effect.KciPotionEffect;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.command.ItemCommand;
 import nl.knokko.customitems.item.command.ItemCommandEvent;
 import nl.knokko.customitems.item.command.ItemCommandSystem;
 import nl.knokko.customitems.item.model.LegacyCustomItemModel;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.recipe.ShapedRecipeValues;
-import nl.knokko.customitems.recipe.ShapelessRecipeValues;
-import nl.knokko.customitems.recipe.ingredient.ItemBridgeIngredientValues;
-import nl.knokko.customitems.recipe.ingredient.MimicIngredientValues;
-import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
-import nl.knokko.customitems.recipe.ingredient.constraint.IngredientConstraintsValues;
-import nl.knokko.customitems.recipe.result.ItemBridgeResultValues;
-import nl.knokko.customitems.recipe.result.MimicResultValues;
-import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
-import nl.knokko.customitems.sound.SoundValues;
-import nl.knokko.customitems.sound.VanillaSoundType;
-import nl.knokko.customitems.texture.animated.AnimatedTextureValues;
-import nl.knokko.customitems.texture.animated.AnimationFrameValues;
-import nl.knokko.customitems.texture.animated.AnimationImageValues;
+import nl.knokko.customitems.recipe.KciShapedRecipe;
+import nl.knokko.customitems.recipe.KciShapelessRecipe;
+import nl.knokko.customitems.recipe.ingredient.ItemBridgeIngredient;
+import nl.knokko.customitems.recipe.ingredient.MimicIngredient;
+import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredient;
+import nl.knokko.customitems.recipe.ingredient.constraint.IngredientConstraints;
+import nl.knokko.customitems.recipe.result.ItemBridgeResult;
+import nl.knokko.customitems.recipe.result.MimicResult;
+import nl.knokko.customitems.recipe.result.SimpleVanillaResult;
+import nl.knokko.customitems.sound.KciSound;
+import nl.knokko.customitems.sound.VSoundType;
+import nl.knokko.customitems.texture.animated.AnimatedTexture;
+import nl.knokko.customitems.texture.animated.AnimationFrame;
+import nl.knokko.customitems.texture.animated.AnimationImage;
 import nl.knokko.customitems.util.Chance;
 import org.junit.jupiter.api.Test;
 
@@ -86,11 +86,11 @@ public class TestBackward10 {
 
         if (set.getSide() == ItemSet.Side.PLUGIN) return;
 
-        AnimatedTextureValues animated = (AnimatedTextureValues) set.textures.get("animated_texture").get();
+        AnimatedTexture animated = (AnimatedTexture) set.textures.get("animated_texture").get();
         assertEquals("animated_texture", animated.getName());
         assertImageEqual(loadImage("random3"), animated.getImage());
 
-        Collection<AnimationImageValues> images = animated.getImageReferences();
+        Collection<AnimationImage> images = animated.getImageReferences();
         assertTrue(images.stream().anyMatch(candidateImage -> {
             if (candidateImage.getLabel().equals("autotest3")) {
                 assertImageEqual(loadImage("random3"), candidateImage.getImageReference());
@@ -110,43 +110,43 @@ public class TestBackward10 {
         assertEquals(2, images.size());
 
         assertEquals(listOf(
-                AnimationFrameValues.createQuick("autotest3", 1),
-                AnimationFrameValues.createQuick("autotest5", 2),
-                AnimationFrameValues.createQuick("autotest3", 3),
-                AnimationFrameValues.createQuick("autotest5", 5)
+                AnimationFrame.createQuick("autotest3", 1),
+                AnimationFrame.createQuick("autotest5", 2),
+                AnimationFrame.createQuick("autotest3", 3),
+                AnimationFrame.createQuick("autotest5", 5)
         ), animated.getFrames());
     }
 
     static void testItemsOld10(ItemSet set, int numItems) {
         testItemsOld9(set, numItems);
 
-        testGunDefault10((CustomGunValues) set.items.get("gun1").get());
-        testPocketContainerDefault10((CustomPocketContainerValues) set.items.get("pocket_container1").get());
-        testFoodDefault10((CustomFoodValues) set.items.get("food1").get());
+        testGunDefault10((KciGun) set.items.get("gun1").get());
+        testPocketContainerDefault10((KciPocketContainer) set.items.get("pocket_container1").get());
+        testFoodDefault10((KciFood) set.items.get("food1").get());
 
-        testWand3((CustomWandValues) set.items.get("wand3").get());
-        testGun2((CustomGunValues) set.items.get("gun2").get(), set.getSide());
-        testPocketContainer2((CustomPocketContainerValues) set.items.get("pocket_container2").get(), set.getSide());
-        testFood2((CustomFoodValues) set.items.get("food2").get());
-        testSimple5((SimpleCustomItemValues) set.items.get("simple5").get());
-        testSword2((CustomToolValues) set.items.get("sword2").get());
-        testHoe4((CustomHoeValues) set.items.get("hoe4").get());
-        testShears4((CustomShearsValues) set.items.get("shears4").get());
-        test3dHelmet2((CustomHelmet3dValues) set.items.get("3dhelmet2").get(), set.getSide());
-        testBow4((CustomBowValues) set.items.get("bow4").get());
-        testLeggings2((CustomArmorValues) set.items.get("leggings2").get());
-        testShield3((CustomShieldValues) set.items.get("shield3").get());
+        testWand3((KciWand) set.items.get("wand3").get());
+        testGun2((KciGun) set.items.get("gun2").get(), set.getSide());
+        testPocketContainer2((KciPocketContainer) set.items.get("pocket_container2").get(), set.getSide());
+        testFood2((KciFood) set.items.get("food2").get());
+        testSimple5((KciSimpleItem) set.items.get("simple5").get());
+        testSword2((KciTool) set.items.get("sword2").get());
+        testHoe4((KciHoe) set.items.get("hoe4").get());
+        testShears4((KciShears) set.items.get("shears4").get());
+        test3dHelmet2((Kci3dHelmet) set.items.get("3dhelmet2").get(), set.getSide());
+        testBow4((KciBow) set.items.get("bow4").get());
+        testLeggings2((KciArmor) set.items.get("leggings2").get());
+        testShield3((KciShield) set.items.get("shield3").get());
     }
 
     static void testItemsNew10(ItemSet set, int numItems) {
         testItemsNew9(set, numItems);
 
-        testCrossbowDefault10((CustomCrossbowValues) set.items.get("crossbow1").get());
-        testBlockItemDefault10((CustomBlockItemValues) set.items.get("block_item1").get());
+        testCrossbowDefault10((KciCrossbow) set.items.get("crossbow1").get());
+        testBlockItemDefault10((KciBlockItem) set.items.get("block_item1").get());
 
-        testTrident3((CustomTridentValues) set.items.get("trident3").get());
-        testCrossbow2((CustomCrossbowValues) set.items.get("crossbow2").get());
-        testBlockItem2((CustomBlockItemValues) set.items.get("block_item2").get());
+        testTrident3((KciTrident) set.items.get("trident3").get());
+        testCrossbow2((KciCrossbow) set.items.get("crossbow2").get());
+        testBlockItem2((KciBlockItem) set.items.get("block_item2").get());
     }
 
     static void testRecipesOld10(ItemSet set, int numRecipes) {
@@ -168,80 +168,80 @@ public class TestBackward10 {
     static void testBlockDropsOld10(ItemSet set, int numBlockDrops) {
         testBlockDropsOld8(set, numBlockDrops);
 
-        Iterator<BlockDropValues> blockDropIterator = set.blockDrops.iterator();
+        Iterator<BlockDrop> blockDropIterator = set.blockDrops.iterator();
         blockDropIterator.next();
         testDefaultBlockDrop10(blockDropIterator.next());
 
-        BlockDropValues biomeDrop = blockDropIterator.next();
+        BlockDrop biomeDrop = blockDropIterator.next();
         assertEquals(1, biomeDrop.getDrop().getAllowedBiomes().getWhitelist().size());
-        assertTrue(biomeDrop.getDrop().getAllowedBiomes().getWhitelist().contains(CIBiome.FOREST));
+        assertTrue(biomeDrop.getDrop().getAllowedBiomes().getWhitelist().contains(VBiome.FOREST));
         assertEquals(0, biomeDrop.getDrop().getAllowedBiomes().getBlacklist().size());
     }
 
     static void testMobDropsOld10(ItemSet set, int numMobDrops) {
         testMobDropsOld8(set, numMobDrops);
 
-        Iterator<MobDropValues> mobDropIterator = set.mobDrops.iterator();
+        Iterator<MobDrop> mobDropIterator = set.mobDrops.iterator();
         mobDropIterator.next();
         testDefaultMobDrop10(mobDropIterator.next());
 
-        MobDropValues biomeDrop = mobDropIterator.next();
+        MobDrop biomeDrop = mobDropIterator.next();
         assertEquals(1, biomeDrop.getDrop().getAllowedBiomes().getBlacklist().size());
-        assertTrue(biomeDrop.getDrop().getAllowedBiomes().getBlacklist().contains(CIBiome.HELL));
+        assertTrue(biomeDrop.getDrop().getAllowedBiomes().getBlacklist().contains(VBiome.HELL));
         assertEquals(0, biomeDrop.getDrop().getAllowedBiomes().getWhitelist().size());
     }
 
     static void testContainersNew10(ItemSet itemSet, int numContainers) {
         assertEquals(numContainers, itemSet.containers.size());
 
-        CustomContainerValues container2 = itemSet.containers.get("container2").get();
-        assertEquals(new CustomContainerHost(itemSet.blocks.getReference(1)), container2.getHost());
-        assertEquals(ManualOutputSlotValues.createQuick("the_output", SlotDisplayValues.createQuick(
-                SimpleVanillaDisplayItemValues.createQuick(CIMaterial.COBBLESTONE), "", listOf(), 1
+        KciContainer container2 = itemSet.containers.get("container2").get();
+        assertEquals(new ContainerHost(itemSet.blocks.getReference(1)), container2.getHost());
+        assertEquals(ManualOutputSlot.createQuick("the_output", SlotDisplay.createQuick(
+                SimpleVanillaDisplayItem.createQuick(VMaterial.COBBLESTONE), "", listOf(), 1
         )), container2.getSlot(0, 0));
     }
 
     static void testContainersOld10(ItemSet set, int numContainers) {
         testContainersOld9(set, numContainers);
 
-        CustomContainerValues container4 = set.containers.get("container4").get();
+        KciContainer container4 = set.containers.get("container4").get();
 
-        assertEquals(new CustomContainerHost(CIMaterial.GRASS), container4.getHost());
+        assertEquals(new ContainerHost(VMaterial.GRASS), container4.getHost());
 
-        assertEquals(ManualOutputSlotValues.createQuick("the_output", null), container4.getSlot(2, 0));
+        assertEquals(ManualOutputSlot.createQuick("the_output", null), container4.getSlot(2, 0));
 
-        ContainerRecipeValues theRecipe = new ContainerRecipeValues(true);
+        ContainerRecipe theRecipe = new ContainerRecipe(true);
         theRecipe.setDuration(0);
         theRecipe.setExperience(5);
-        theRecipe.setInput("the_input", SimpleVanillaIngredientValues.createQuick(CIMaterial.GRAVEL, 2));
-        theRecipe.setManualOutput("the_output", SimpleVanillaResultValues.createQuick(CIMaterial.FLINT, 1));
+        theRecipe.setInput("the_input", SimpleVanillaIngredient.createQuick(VMaterial.GRAVEL, 2));
+        theRecipe.setManualOutput("the_output", SimpleVanillaResult.createQuick(VMaterial.FLINT, 1));
 
         assertEquals(listOf(theRecipe), container4.getRecipes());
     }
 
-    static ShapedRecipeValues createShapedRecipe4() {
-        ShapedRecipeValues recipe = new ShapedRecipeValues(true);
+    static KciShapedRecipe createShapedRecipe4() {
+        KciShapedRecipe recipe = new KciShapedRecipe(true);
         recipe.setIgnoreDisplacement(false);
-        recipe.setIngredientAt(0, 0, MimicIngredientValues.createQuick("dummy:item1", 1));
-        recipe.setIngredientAt(1, 0, MimicIngredientValues.createQuick(
-                "dummy:item2", 2, MimicResultValues.createQuick("dummy:item3", 3),
-                new IngredientConstraintsValues(true)
+        recipe.setIngredientAt(0, 0, MimicIngredient.createQuick("dummy:item1", 1));
+        recipe.setIngredientAt(1, 0, MimicIngredient.createQuick(
+                "dummy:item2", 2, MimicResult.createQuick("dummy:item3", 3),
+                new IngredientConstraints(true)
         ));
-        recipe.setResult(MimicResultValues.createQuick("dummy:item4", 4));
+        recipe.setResult(MimicResult.createQuick("dummy:item4", 4));
         return recipe;
     }
 
-    static ShapelessRecipeValues createShapelessRecipe3() {
-        ShapelessRecipeValues recipe = new ShapelessRecipeValues(true);
-        recipe.setIngredients(listOf(ItemBridgeIngredientValues.createQuick(
-                "dummy:item7", 7, ItemBridgeResultValues.createQuick("dummy:item6", 6),
-                new IngredientConstraintsValues(true)
+    static KciShapelessRecipe createShapelessRecipe3() {
+        KciShapelessRecipe recipe = new KciShapelessRecipe(true);
+        recipe.setIngredients(listOf(ItemBridgeIngredient.createQuick(
+                "dummy:item7", 7, ItemBridgeResult.createQuick("dummy:item6", 6),
+                new IngredientConstraints(true)
         )));
-        recipe.setResult(ItemBridgeResultValues.createQuick("dummy:item8", 8));
+        recipe.setResult(ItemBridgeResult.createQuick("dummy:item8", 8));
         return recipe;
     }
 
-    static void testTrident3(CustomTridentValues item) {
+    static void testTrident3(KciTrident item) {
         assertEquals("trident3", item.getName());
         assertEquals(ItemCommandSystem.createQuick(ItemCommandEvent.RIGHT_CLICK_PLAYER, listOf(
                 ItemCommand.createQuick(
@@ -249,28 +249,28 @@ public class TestBackward10 {
                         Chance.percentage(100), 0, true
                 )
         )), item.getCommandSystem());
-        assertEquals(listOf(AttackEffectGroupValues.createQuick(
-                listOf(), listOf(new AttackDropWeaponValues(true)),
+        assertEquals(listOf(AttackEffectGroup.createQuick(
+                listOf(), listOf(new AttackEffectDropWeapon(true)),
                 Chance.percentage(35), 15f, 0f
         )), item.getAttackEffects());
-        assertEquals(MultiBlockBreakValues.createQuick(
-                MultiBlockBreakValues.Shape.CUBE, 3,true
+        assertEquals(MultiBlockBreak.createQuick(
+                MultiBlockBreak.Shape.CUBE, 3,true
         ), item.getMultiBlockBreak());
         assertFalse(item.shouldKeepOnDeath());
         assertTrue(item.shouldUpdateAutomatically());
         assertEquals(
-                SpecialMeleeDamageValues.createQuick(RawDamageSource.WITHER, true, false),
+                SpecialMeleeDamage.createQuick(VRawDamageSource.WITHER, true, false),
                 item.getSpecialMeleeDamage()
         );
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.DOLPHINS_GRACE, 200, 1, Chance.percentage(100))
+                ChancePotionEffect.createQuick(VEffectType.DOLPHINS_GRACE, 200, 1, Chance.percentage(100))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.WEAKNESS, 100, 2, Chance.percentage(20))
+                ChancePotionEffect.createQuick(VEffectType.WEAKNESS, 100, 2, Chance.percentage(20))
         ), item.getOnHitTargetEffects());
     }
 
-    static void testCrossbow2(CustomCrossbowValues item) {
+    static void testCrossbow2(KciCrossbow item) {
         assertEquals("crossbow2", item.getName());
         assertEquals(ItemCommandSystem.createQuick(ItemCommandEvent.MELEE_ATTACK_PLAYER, listOf(
                 ItemCommand.createQuick(
@@ -278,54 +278,54 @@ public class TestBackward10 {
                         Chance.percentage(100), 50, false
                 )
         )), item.getCommandSystem());
-        assertEquals(listOf(AttackEffectGroupValues.createQuick(
-                listOf(AttackLaunchValues.createQuick(AttackLaunchValues.LaunchDirection.ATTACK_SIDE, 1f)),
-                listOf(AttackLaunchValues.createQuick(AttackLaunchValues.LaunchDirection.ATTACK, 0.5f)),
+        assertEquals(listOf(AttackEffectGroup.createQuick(
+                listOf(AttackEffectLaunchProjectile.createQuick(AttackEffectLaunchProjectile.LaunchDirection.ATTACK_SIDE, 1f)),
+                listOf(AttackEffectLaunchProjectile.createQuick(AttackEffectLaunchProjectile.LaunchDirection.ATTACK, 0.5f)),
                 Chance.percentage(100), 0f, 0f
         )), item.getAttackEffects());
-        assertEquals(MultiBlockBreakValues.createQuick(
-                MultiBlockBreakValues.Shape.MANHATTAN, 2,false
+        assertEquals(MultiBlockBreak.createQuick(
+                MultiBlockBreak.Shape.MANHATTAN, 2,false
         ), item.getMultiBlockBreak());
         assertTrue(item.shouldKeepOnDeath());
         assertTrue(item.shouldUpdateAutomatically());
         assertNull(item.getSpecialMeleeDamage());
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.SPEED, 100, 1, Chance.percentage(100))
+                ChancePotionEffect.createQuick(VEffectType.SPEED, 100, 1, Chance.percentage(100))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.SLOW, 120, 2, Chance.percentage(50))
+                ChancePotionEffect.createQuick(VEffectType.SLOW, 120, 2, Chance.percentage(50))
         ), item.getOnHitTargetEffects());
     }
 
-    static void testBlockItem2(CustomBlockItemValues item) {
+    static void testBlockItem2(KciBlockItem item) {
         assertEquals("block_item2", item.getName());
-        assertEquals(CustomItemType.OTHER, item.getItemType());
-        assertEquals(CIMaterial.STICK, item.getOtherMaterial());
+        assertEquals(KciItemType.OTHER, item.getItemType());
+        assertEquals(VMaterial.STICK, item.getOtherMaterial());
         assertEquals(ItemCommandSystem.createQuick(ItemCommandEvent.LEFT_CLICK_BLOCK, listOf(
                 ItemCommand.createQuick(
                         "setblock %block_x% %block_y% %block_z% air", ItemCommand.Executor.CONSOLE,
                         Chance.percentage(100), 100, false
                 )
         )), item.getCommandSystem());
-        assertEquals(listOf(AttackEffectGroupValues.createQuick(
-                listOf(), listOf(AttackIgniteValues.createQuick(400)),
+        assertEquals(listOf(AttackEffectGroup.createQuick(
+                listOf(), listOf(AttackEffectIgnite.createQuick(400)),
                 Chance.percentage(10), 0f, 0f
         )), item.getAttackEffects());
-        assertEquals(MultiBlockBreakValues.createQuick(
-                MultiBlockBreakValues.Shape.MANHATTAN, 1,true
+        assertEquals(MultiBlockBreak.createQuick(
+                MultiBlockBreak.Shape.MANHATTAN, 1,true
         ), item.getMultiBlockBreak());
         assertFalse(item.shouldKeepOnDeath());
         assertFalse(item.shouldUpdateAutomatically());
         assertNull(item.getSpecialMeleeDamage());
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.FAST_DIGGING, 70, 1, Chance.percentage(70))
+                ChancePotionEffect.createQuick(VEffectType.FAST_DIGGING, 70, 1, Chance.percentage(70))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.SLOW_DIGGING, 50, 3, Chance.percentage(50))
+                ChancePotionEffect.createQuick(VEffectType.SLOW_DIGGING, 50, 3, Chance.percentage(50))
         ), item.getOnHitTargetEffects());
     }
 
-    static void testWand3(CustomWandValues item) {
+    static void testWand3(KciWand item) {
         assertEquals("wand3", item.getName());
         assertEquals("Wand3", item.getDisplayName());
         assertEquals(ItemCommandSystem.createQuick(ItemCommandEvent.LEFT_CLICK_BLOCK, listOf(
@@ -334,29 +334,29 @@ public class TestBackward10 {
                         Chance.nonIntegerPercentage(75.3), 3, true
                 )
         )), item.getCommandSystem());
-        assertEquals(listOf(AttackEffectGroupValues.createQuick(
-                listOf(AttackIgniteValues.createQuick(90)),
-                listOf(new AttackDropWeaponValues(true)),
+        assertEquals(listOf(AttackEffectGroup.createQuick(
+                listOf(AttackEffectIgnite.createQuick(90)),
+                listOf(new AttackEffectDropWeapon(true)),
                 Chance.percentage(80), 0.5f, 1.5f
         )), item.getAttackEffects());
-        assertEquals(MultiBlockBreakValues.createQuick(
-                MultiBlockBreakValues.Shape.CUBE, 2, false
+        assertEquals(MultiBlockBreak.createQuick(
+                MultiBlockBreak.Shape.CUBE, 2, false
         ), item.getMultiBlockBreak());
         assertFalse(item.shouldKeepOnDeath());
         assertFalse(item.shouldUpdateAutomatically());
         assertEquals(
-                SpecialMeleeDamageValues.createQuick(RawDamageSource.EXPLOSION, true, false),
+                SpecialMeleeDamage.createQuick(VRawDamageSource.EXPLOSION, true, false),
                 item.getSpecialMeleeDamage()
         );
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.SPEED, 200, 1, Chance.nonIntegerPercentage(0.1))
+                ChancePotionEffect.createQuick(VEffectType.SPEED, 200, 1, Chance.nonIntegerPercentage(0.1))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.CONFUSION, 100, 3, Chance.percentage(30))
+                ChancePotionEffect.createQuick(VEffectType.CONFUSION, 100, 3, Chance.percentage(30))
         ), item.getOnHitTargetEffects());
     }
 
-    static void testGun2(CustomGunValues item, ItemSet.Side side) {
+    static void testGun2(KciGun item, ItemSet.Side side) {
         assertEquals("gun2", item.getName());
 
         if (side == ItemSet.Side.EDITOR) {
@@ -368,25 +368,25 @@ public class TestBackward10 {
                         Chance.percentage(23), 1, false
                 )
         )), item.getCommandSystem());
-        assertEquals(listOf(AttackEffectGroupValues.createQuick(
-                listOf(), listOf(AttackLaunchValues.createQuick(AttackLaunchValues.LaunchDirection.UP, 0.25f)),
+        assertEquals(listOf(AttackEffectGroup.createQuick(
+                listOf(), listOf(AttackEffectLaunchProjectile.createQuick(AttackEffectLaunchProjectile.LaunchDirection.UP, 0.25f)),
                 Chance.percentage(100), 0f, 0f
         )), item.getAttackEffects());
-        assertEquals(MultiBlockBreakValues.createQuick(
-                MultiBlockBreakValues.Shape.MANHATTAN, 3, true
+        assertEquals(MultiBlockBreak.createQuick(
+                MultiBlockBreak.Shape.MANHATTAN, 3, true
         ), item.getMultiBlockBreak());
         assertTrue(item.shouldKeepOnDeath());
         assertTrue(item.shouldUpdateAutomatically());
         assertNull(item.getSpecialMeleeDamage());
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.JUMP, 40, 3, Chance.nonIntegerPercentage(12.5))
+                ChancePotionEffect.createQuick(VEffectType.JUMP, 40, 3, Chance.nonIntegerPercentage(12.5))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.INCREASE_DAMAGE, 150, 2, Chance.percentage(100))
+                ChancePotionEffect.createQuick(VEffectType.INCREASE_DAMAGE, 150, 2, Chance.percentage(100))
         ), item.getOnHitTargetEffects());
     }
 
-    static void testPocketContainer2(CustomPocketContainerValues item, ItemSet.Side side) {
+    static void testPocketContainer2(KciPocketContainer item, ItemSet.Side side) {
         assertEquals("pocket_container2", item.getName());
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("animated_texture", item.getTexture().getName());
@@ -397,30 +397,30 @@ public class TestBackward10 {
                         Chance.nonIntegerPercentage(75.3), 0, false
                 )
         )), item.getCommandSystem());
-        assertEquals(listOf(AttackEffectGroupValues.createQuick(
-                listOf(AttackPotionEffectValues.createQuick(
-                        PotionEffectValues.createQuick(EffectType.INVISIBILITY, 200, 1)
+        assertEquals(listOf(AttackEffectGroup.createQuick(
+                listOf(AttackEffectPotion.createQuick(
+                        KciPotionEffect.createQuick(VEffectType.INVISIBILITY, 200, 1)
                 )), listOf(),
                 Chance.percentage(50), 10f, 0f
         )), item.getAttackEffects());
-        assertEquals(MultiBlockBreakValues.createQuick(
-                MultiBlockBreakValues.Shape.CUBE, 1, false
+        assertEquals(MultiBlockBreak.createQuick(
+                MultiBlockBreak.Shape.CUBE, 1, false
         ), item.getMultiBlockBreak());
         assertFalse(item.shouldKeepOnDeath());
         assertTrue(item.shouldUpdateAutomatically());
         assertEquals(
-                SpecialMeleeDamageValues.createQuick(RawDamageSource.LAVA, false, true),
+                SpecialMeleeDamage.createQuick(VRawDamageSource.LAVA, false, true),
                 item.getSpecialMeleeDamage()
         );
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.WATER_BREATHING, 200, 1, Chance.percentage(70))
+                ChancePotionEffect.createQuick(VEffectType.WATER_BREATHING, 200, 1, Chance.percentage(70))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.BLINDNESS, 100, 1, Chance.percentage(100))
+                ChancePotionEffect.createQuick(VEffectType.BLINDNESS, 100, 1, Chance.percentage(100))
         ), item.getOnHitTargetEffects());
     }
 
-    static void testFood2(CustomFoodValues item) {
+    static void testFood2(KciFood item) {
         assertEquals("food2", item.getName());
         assertEquals(ItemCommandSystem.createQuick(ItemCommandEvent.RIGHT_CLICK_GENERAL, listOf(
                 ItemCommand.createQuick(
@@ -428,25 +428,25 @@ public class TestBackward10 {
                         Chance.nonIntegerPercentage(34.5), 300, false
                 )
         )), item.getCommandSystem());
-        assertEquals(listOf(AttackEffectGroupValues.createQuick(
-                listOf(AttackDealDamageValues.createQuick(7, 3)), listOf(),
+        assertEquals(listOf(AttackEffectGroup.createQuick(
+                listOf(AttackEffectDelayedDamage.createQuick(7, 3)), listOf(),
                 Chance.percentage(100), 0f, 5f
         )), item.getAttackEffects());
-        assertEquals(MultiBlockBreakValues.createQuick(
-                MultiBlockBreakValues.Shape.MANHATTAN, 2, true
+        assertEquals(MultiBlockBreak.createQuick(
+                MultiBlockBreak.Shape.MANHATTAN, 2, true
         ), item.getMultiBlockBreak());
         assertTrue(item.shouldKeepOnDeath());
         assertFalse(item.shouldUpdateAutomatically());
         assertNull(item.getSpecialMeleeDamage());
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.SLOW_DIGGING, 200, 2, Chance.percentage(23))
+                ChancePotionEffect.createQuick(VEffectType.SLOW_DIGGING, 200, 2, Chance.percentage(23))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.HUNGER, 100, 4, Chance.nonIntegerPercentage(4.5))
+                ChancePotionEffect.createQuick(VEffectType.HUNGER, 100, 4, Chance.nonIntegerPercentage(4.5))
         ), item.getOnHitTargetEffects());
     }
 
-    static void testSimple5(SimpleCustomItemValues item) {
+    static void testSimple5(KciSimpleItem item) {
         assertEquals("simple5", item.getName());
         assertEquals(ItemCommandSystem.createQuick(ItemCommandEvent.LEFT_CLICK_GENERAL, listOf(
                 ItemCommand.createQuick(
@@ -454,26 +454,26 @@ public class TestBackward10 {
                         Chance.nonIntegerPercentage(100), 0, true
                 )
         )), item.getCommandSystem());
-        assertEquals(listOf(AttackEffectGroupValues.createQuick(
-                listOf(), listOf(AttackPlaySoundValues.createQuick(SoundValues.createQuick(VanillaSoundType.ENTITY_GHAST_SCREAM, 1.5f, 0.5f))),
+        assertEquals(listOf(AttackEffectGroup.createQuick(
+                listOf(), listOf(AttackEffectPlaySound.createQuick(KciSound.createQuick(VSoundType.ENTITY_GHAST_SCREAM, 1.5f, 0.5f))),
                 Chance.nonIntegerPercentage(1.25), 0f, 0f
         )), item.getAttackEffects());
-        assertEquals(MultiBlockBreakValues.createQuick(
-                MultiBlockBreakValues.Shape.CUBE, 1, true
+        assertEquals(MultiBlockBreak.createQuick(
+                MultiBlockBreak.Shape.CUBE, 1, true
         ), item.getMultiBlockBreak());
         assertTrue(item.shouldKeepOnDeath());
         assertTrue(item.shouldUpdateAutomatically());
         assertEquals(
-                SpecialMeleeDamageValues.createQuick(RawDamageSource.CACTUS, true, true),
+                SpecialMeleeDamage.createQuick(VRawDamageSource.CACTUS, true, true),
                 item.getSpecialMeleeDamage()
         );
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.FIRE_RESISTANCE, 200, 1, Chance.percentage(100))
+                ChancePotionEffect.createQuick(VEffectType.FIRE_RESISTANCE, 200, 1, Chance.percentage(100))
         ), item.getOnHitTargetEffects());
     }
 
-    static void testSword2(CustomToolValues item) {
+    static void testSword2(KciTool item) {
         assertEquals("sword2", item.getName());
         assertEquals(ItemCommandSystem.createQuick(ItemCommandEvent.RIGHT_CLICK_ENTITY, listOf(
                 ItemCommand.createQuick(
@@ -481,26 +481,26 @@ public class TestBackward10 {
                         Chance.percentage(50), 50, false
                 )
         )), item.getCommandSystem());
-        assertEquals(listOf(AttackEffectGroupValues.createQuick(
-                listOf(AttackLaunchValues.createQuick(AttackLaunchValues.LaunchDirection.ATTACK, -0.5f)), listOf(),
+        assertEquals(listOf(AttackEffectGroup.createQuick(
+                listOf(AttackEffectLaunchProjectile.createQuick(AttackEffectLaunchProjectile.LaunchDirection.ATTACK, -0.5f)), listOf(),
                 Chance.percentage(100), 10f, 0f
         )), item.getAttackEffects());
-        assertEquals(MultiBlockBreakValues.createQuick(
-                MultiBlockBreakValues.Shape.MANHATTAN, 1, false
+        assertEquals(MultiBlockBreak.createQuick(
+                MultiBlockBreak.Shape.MANHATTAN, 1, false
         ), item.getMultiBlockBreak());
         assertFalse(item.shouldKeepOnDeath());
         assertTrue(item.shouldUpdateAutomatically());
         assertEquals(
-                SpecialMeleeDamageValues.createQuick(RawDamageSource.HOT_FLOOR, false, false),
+                SpecialMeleeDamage.createQuick(VRawDamageSource.HOT_FLOOR, false, false),
                 item.getSpecialMeleeDamage()
         );
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.LEVITATION, 40, 1, Chance.percentage(40))
+                ChancePotionEffect.createQuick(VEffectType.LEVITATION, 40, 1, Chance.percentage(40))
         ), item.getOnHitPlayerEffects());
         assertEquals(0, item.getOnHitTargetEffects().size());
     }
 
-    static void testHoe4(CustomHoeValues item) {
+    static void testHoe4(KciHoe item) {
         assertEquals("hoe4", item.getName());
         assertEquals(ItemCommandSystem.createQuick(ItemCommandEvent.LEFT_CLICK_BLOCK, listOf(
                 ItemCommand.createQuick(
@@ -508,23 +508,23 @@ public class TestBackward10 {
                         Chance.percentage(100), 100, true
                 )
         )), item.getCommandSystem());
-        assertEquals(listOf(AttackEffectGroupValues.createQuick(
-                listOf(), listOf(AttackLaunchValues.createQuick(AttackLaunchValues.LaunchDirection.ATTACK_SIDE, 0.75f)),
+        assertEquals(listOf(AttackEffectGroup.createQuick(
+                listOf(), listOf(AttackEffectLaunchProjectile.createQuick(AttackEffectLaunchProjectile.LaunchDirection.ATTACK_SIDE, 0.75f)),
                 Chance.nonIntegerPercentage(55.5), 0f, 5.5f
         )), item.getAttackEffects());
-        assertEquals(MultiBlockBreakValues.createQuick(
-                MultiBlockBreakValues.Shape.CUBE, 3, false
+        assertEquals(MultiBlockBreak.createQuick(
+                MultiBlockBreak.Shape.CUBE, 3, false
         ), item.getMultiBlockBreak());
         assertTrue(item.shouldKeepOnDeath());
         assertFalse(item.shouldUpdateAutomatically());
         assertNull(item.getSpecialMeleeDamage());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.BLINDNESS, 100, 1, Chance.percentage(10))
+                ChancePotionEffect.createQuick(VEffectType.BLINDNESS, 100, 1, Chance.percentage(10))
         ), item.getOnHitTargetEffects());
     }
 
-    static void testShears4(CustomShearsValues item) {
+    static void testShears4(KciShears item) {
         assertEquals("shears4", item.getName());
         assertEquals(ItemCommandSystem.createQuick(ItemCommandEvent.MELEE_ATTACK_ENTITY, listOf(
                 ItemCommand.createQuick(
@@ -532,27 +532,27 @@ public class TestBackward10 {
                         Chance.percentage(100), 0, true
                 )
         )), item.getCommandSystem());
-        assertEquals(listOf(AttackEffectGroupValues.createQuick(
-                listOf(), listOf(AttackPotionEffectValues.createQuick(PotionEffectValues.createQuick(
-                        EffectType.WATER_BREATHING, 90, 1
+        assertEquals(listOf(AttackEffectGroup.createQuick(
+                listOf(), listOf(AttackEffectPotion.createQuick(KciPotionEffect.createQuick(
+                        VEffectType.WATER_BREATHING, 90, 1
                 ))),
                 Chance.percentage(100), 6f, 3f
         )), item.getAttackEffects());
-        assertEquals(MultiBlockBreakValues.createQuick(
-                MultiBlockBreakValues.Shape.MANHATTAN, 1, false
+        assertEquals(MultiBlockBreak.createQuick(
+                MultiBlockBreak.Shape.MANHATTAN, 1, false
         ), item.getMultiBlockBreak());
         assertTrue(item.shouldKeepOnDeath());
         assertTrue(item.shouldUpdateAutomatically());
         assertNull(item.getSpecialMeleeDamage());
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.NIGHT_VISION, 250, 1, Chance.percentage(100))
+                ChancePotionEffect.createQuick(VEffectType.NIGHT_VISION, 250, 1, Chance.percentage(100))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.FAST_DIGGING, 100, 3, Chance.percentage(30))
+                ChancePotionEffect.createQuick(VEffectType.FAST_DIGGING, 100, 3, Chance.percentage(30))
         ), item.getOnHitTargetEffects());
     }
 
-    static void test3dHelmet2(CustomHelmet3dValues item, ItemSet.Side side) {
+    static void test3dHelmet2(Kci3dHelmet item, ItemSet.Side side) {
         assertEquals("3dhelmet2", item.getName());
         if (side == ItemSet.Side.EDITOR) {
             assertStringResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", ((LegacyCustomItemModel) item.getModel()).getRawModel());
@@ -563,27 +563,27 @@ public class TestBackward10 {
                         Chance.percentage(50), 50, false
                 )
         )), item.getCommandSystem());
-        assertEquals(listOf(AttackEffectGroupValues.createQuick(
-                listOf(AttackPotionEffectValues.createQuick(PotionEffectValues.createQuick(
-                        EffectType.DAMAGE_RESISTANCE, 400, 2
+        assertEquals(listOf(AttackEffectGroup.createQuick(
+                listOf(AttackEffectPotion.createQuick(KciPotionEffect.createQuick(
+                        VEffectType.DAMAGE_RESISTANCE, 400, 2
                 ))), listOf(),
                 Chance.percentage(70), 7f, 0f
         )), item.getAttackEffects());
-        assertEquals(MultiBlockBreakValues.createQuick(
-                MultiBlockBreakValues.Shape.CUBE, 1, true
+        assertEquals(MultiBlockBreak.createQuick(
+                MultiBlockBreak.Shape.CUBE, 1, true
         ), item.getMultiBlockBreak());
         assertFalse(item.shouldKeepOnDeath());
         assertTrue(item.shouldUpdateAutomatically());
         assertNull(item.getSpecialMeleeDamage());
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.SLOW, 100, 3, Chance.percentage(100))
+                ChancePotionEffect.createQuick(VEffectType.SLOW, 100, 3, Chance.percentage(100))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.SLOW_DIGGING, 100, 2, Chance.percentage(20))
+                ChancePotionEffect.createQuick(VEffectType.SLOW_DIGGING, 100, 2, Chance.percentage(20))
         ), item.getOnHitTargetEffects());
     }
 
-    static void testBow4(CustomBowValues item) {
+    static void testBow4(KciBow item) {
         assertEquals("bow4", item.getName());
         assertEquals(ItemCommandSystem.createQuick(ItemCommandEvent.RIGHT_CLICK_PLAYER, listOf(
                 ItemCommand.createQuick(
@@ -591,28 +591,28 @@ public class TestBackward10 {
                         Chance.nonIntegerPercentage(14.5), 6, false
                 )
         )), item.getCommandSystem());
-        assertEquals(listOf(AttackEffectGroupValues.createQuick(
-                listOf(AttackLaunchValues.createQuick(AttackLaunchValues.LaunchDirection.UP, 0.5f)),
+        assertEquals(listOf(AttackEffectGroup.createQuick(
+                listOf(AttackEffectLaunchProjectile.createQuick(AttackEffectLaunchProjectile.LaunchDirection.UP, 0.5f)),
                 listOf(), Chance.percentage(100), 0f, 5.5f
         )), item.getAttackEffects());
-        assertEquals(MultiBlockBreakValues.createQuick(
-                MultiBlockBreakValues.Shape.CUBE, 2, true
+        assertEquals(MultiBlockBreak.createQuick(
+                MultiBlockBreak.Shape.CUBE, 2, true
         ), item.getMultiBlockBreak());
         assertTrue(item.shouldKeepOnDeath());
         assertFalse(item.shouldUpdateAutomatically());
         assertEquals(
-                SpecialMeleeDamageValues.createQuick(RawDamageSource.HOT_FLOOR, true, false),
+                SpecialMeleeDamage.createQuick(VRawDamageSource.HOT_FLOOR, true, false),
                 item.getSpecialMeleeDamage()
         );
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.DAMAGE_RESISTANCE, 40, 2, Chance.percentage(50))
+                ChancePotionEffect.createQuick(VEffectType.DAMAGE_RESISTANCE, 40, 2, Chance.percentage(50))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.INCREASE_DAMAGE, 280, 4, Chance.nonIntegerPercentage(12.5))
+                ChancePotionEffect.createQuick(VEffectType.INCREASE_DAMAGE, 280, 4, Chance.nonIntegerPercentage(12.5))
         ), item.getOnHitTargetEffects());
     }
 
-    static void testLeggings2(CustomArmorValues item) {
+    static void testLeggings2(KciArmor item) {
         assertEquals("leggings2", item.getName());
         assertEquals(ItemCommandSystem.createQuick(ItemCommandEvent.BREAK_BLOCK, listOf(
                 ItemCommand.createQuick(
@@ -620,28 +620,28 @@ public class TestBackward10 {
                         Chance.percentage(100), 0, true
                 )
         )), item.getCommandSystem());
-        assertEquals(listOf(AttackEffectGroupValues.createQuick(
-                listOf(new AttackDropWeaponValues(true)), listOf(),
+        assertEquals(listOf(AttackEffectGroup.createQuick(
+                listOf(new AttackEffectDropWeapon(true)), listOf(),
                 Chance.percentage(25), 0f, 4f
         )), item.getAttackEffects());
-        assertEquals(MultiBlockBreakValues.createQuick(
-                MultiBlockBreakValues.Shape.MANHATTAN, 4, false
+        assertEquals(MultiBlockBreak.createQuick(
+                MultiBlockBreak.Shape.MANHATTAN, 4, false
         ), item.getMultiBlockBreak());
         assertFalse(item.shouldKeepOnDeath());
         assertTrue(item.shouldUpdateAutomatically());
         assertEquals(
-                SpecialMeleeDamageValues.createQuick(RawDamageSource.CACTUS, false, true),
+                SpecialMeleeDamage.createQuick(VRawDamageSource.CACTUS, false, true),
                 item.getSpecialMeleeDamage()
         );
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.CONFUSION, 80, 1, Chance.nonIntegerPercentage(25.25))
+                ChancePotionEffect.createQuick(VEffectType.CONFUSION, 80, 1, Chance.nonIntegerPercentage(25.25))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.REGENERATION, 200, 2, Chance.percentage(100))
+                ChancePotionEffect.createQuick(VEffectType.REGENERATION, 200, 2, Chance.percentage(100))
         ), item.getOnHitTargetEffects());
     }
 
-    static void testShield3(CustomShieldValues item) {
+    static void testShield3(KciShield item) {
         assertEquals("shield3", item.getName());
 
         assertEquals(ItemCommandSystem.createQuick(ItemCommandEvent.RIGHT_CLICK_GENERAL, listOf(
@@ -651,129 +651,129 @@ public class TestBackward10 {
                 )
         )), item.getCommandSystem());
         assertEquals(
-                listOf(AttackEffectGroupValues.createQuick(
-                        listOf(AttackLaunchValues.createQuick(AttackLaunchValues.LaunchDirection.UP, 1.5f)),
-                        listOf(AttackLaunchValues.createQuick(AttackLaunchValues.LaunchDirection.ATTACK, -1.0f)),
+                listOf(AttackEffectGroup.createQuick(
+                        listOf(AttackEffectLaunchProjectile.createQuick(AttackEffectLaunchProjectile.LaunchDirection.UP, 1.5f)),
+                        listOf(AttackEffectLaunchProjectile.createQuick(AttackEffectLaunchProjectile.LaunchDirection.ATTACK, -1.0f)),
                         Chance.percentage(50), 10f, 0f
                 )), item.getBlockingEffects()
         );
-        assertEquals(listOf(AttackEffectGroupValues.createQuick(
-                listOf(AttackIgniteValues.createQuick(100)),
-                listOf(new AttackDropWeaponValues(true)),
+        assertEquals(listOf(AttackEffectGroup.createQuick(
+                listOf(AttackEffectIgnite.createQuick(100)),
+                listOf(new AttackEffectDropWeapon(true)),
                 Chance.percentage(10), 0f, 0f
         )), item.getAttackEffects());
-        assertEquals(MultiBlockBreakValues.createQuick(
-                MultiBlockBreakValues.Shape.MANHATTAN, 1, false
+        assertEquals(MultiBlockBreak.createQuick(
+                MultiBlockBreak.Shape.MANHATTAN, 1, false
         ), item.getMultiBlockBreak());
         assertFalse(item.shouldKeepOnDeath());
         assertFalse(item.shouldUpdateAutomatically());
         assertNull(item.getSpecialMeleeDamage());
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.DAMAGE_RESISTANCE, 200, 1, Chance.percentage(40))
+                ChancePotionEffect.createQuick(VEffectType.DAMAGE_RESISTANCE, 200, 1, Chance.percentage(40))
         ), item.getOnHitPlayerEffects());
         assertEquals(listOf(
-                ChancePotionEffectValues.createQuick(EffectType.DAMAGE_RESISTANCE, 100, 2, Chance.percentage(30))
+                ChancePotionEffect.createQuick(VEffectType.DAMAGE_RESISTANCE, 100, 2, Chance.percentage(30))
         ), item.getOnHitTargetEffects());
     }
 
-    static void testBaseDefault10(CustomItemValues item) {
+    static void testBaseDefault10(KciItem item) {
         // I can't assume the command system to be empty because it took over the old command system
         assertEquals(new ArrayList<>(), item.getAttackEffects());
-        assertEquals(new MultiBlockBreakValues(true), item.getMultiBlockBreak());
+        assertEquals(new MultiBlockBreak(true), item.getMultiBlockBreak());
         assertFalse(item.shouldKeepOnDeath());
         assertTrue(item.shouldUpdateAutomatically());
         assertNull(item.getSpecialMeleeDamage());
         testBaseDefault11(item);
     }
 
-    static void testSimpleDefault10(SimpleCustomItemValues item) {
+    static void testSimpleDefault10(KciSimpleItem item) {
         testBaseDefault10(item);
         testSimpleDefault11(item);
     }
 
-    static void testToolDefault10(CustomToolValues item) {
+    static void testToolDefault10(KciTool item) {
         testBaseDefault10(item);
         testToolDefault11(item);
     }
 
-    static void testArmorDefault10(CustomArmorValues item) {
+    static void testArmorDefault10(KciArmor item) {
         testToolDefault10(item);
         testArmorDefault11(item);
     }
 
-    static void testHoeDefault10(CustomHoeValues item) {
+    static void testHoeDefault10(KciHoe item) {
         testToolDefault10(item);
         testHoeDefault11(item);
     }
 
-    static void testShearsDefault10(CustomShearsValues item) {
+    static void testShearsDefault10(KciShears item) {
         testToolDefault10(item);
         testShearsDefault11(item);
     }
 
-    static void testBowDefault10(CustomBowValues item) {
+    static void testBowDefault10(KciBow item) {
         testToolDefault10(item);
         testBowDefault11(item);
     }
 
-    static void testShieldDefault10(CustomShieldValues item) {
+    static void testShieldDefault10(KciShield item) {
         testToolDefault10(item);
         assertEquals(new ArrayList<>(), item.getBlockingEffects());
         testShieldDefault11(item);
     }
 
-    static void testWandDefault10(CustomWandValues item) {
+    static void testWandDefault10(KciWand item) {
         testBaseDefault10(item);
         testWandDefault11(item);
     }
 
-    static void testGunDefault10(CustomGunValues item) {
+    static void testGunDefault10(KciGun item) {
         testBaseDefault10(item);
         testGunDefault11(item);
     }
 
-    static void testFoodDefault10(CustomFoodValues item) {
+    static void testFoodDefault10(KciFood item) {
         testBaseDefault10(item);
         testFoodDefault11(item);
     }
 
-    static void testPocketContainerDefault10(CustomPocketContainerValues item) {
+    static void testPocketContainerDefault10(KciPocketContainer item) {
         testBaseDefault10(item);
         testPocketContainerDefault11(item);
     }
 
-    static void test3dHelmetDefault10(CustomHelmet3dValues item) {
+    static void test3dHelmetDefault10(Kci3dHelmet item) {
         testArmorDefault10(item);
         test3dHelmetDefault11(item);
     }
 
-    static void testTridentDefault10(CustomTridentValues item) {
+    static void testTridentDefault10(KciTrident item) {
         testToolDefault10(item);
         testTridentDefault11(item);
     }
 
-    static void testCrossbowDefault10(CustomCrossbowValues item) {
+    static void testCrossbowDefault10(KciCrossbow item) {
         testToolDefault10(item);
         testCrossbowDefault11(item);
     }
 
-    static void testBlockItemDefault10(CustomBlockItemValues item) {
+    static void testBlockItemDefault10(KciBlockItem item) {
         testBaseDefault10(item);
         testBlockItemDefault11(item);
     }
 
-    static void testDefaultDrop10(DropValues drop) {
+    static void testDefaultDrop10(KciDrop drop) {
         assertEquals(0, drop.getAllowedBiomes().getWhitelist().size());
         assertEquals(0, drop.getAllowedBiomes().getBlacklist().size());
         // TODO Call testDefaultDrop13
     }
 
-    static void testDefaultBlockDrop10(BlockDropValues blockDrop) {
+    static void testDefaultBlockDrop10(BlockDrop blockDrop) {
         testDefaultDrop10(blockDrop.getDrop());
         testDefaultBlockDrop12(blockDrop);
     }
 
-    static void testDefaultMobDrop10(MobDropValues mobDrop) {
+    static void testDefaultMobDrop10(MobDrop mobDrop) {
         testDefaultDrop10(mobDrop.getDrop());
         // TODO Call testDefaultMobDrop13
     }

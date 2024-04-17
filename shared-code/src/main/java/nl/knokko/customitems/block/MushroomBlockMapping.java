@@ -1,6 +1,6 @@
 package nl.knokko.customitems.block;
 
-import nl.knokko.customitems.item.CIMaterial;
+import nl.knokko.customitems.item.VMaterial;
 
 import java.util.Arrays;
 
@@ -194,13 +194,13 @@ public class MushroomBlockMapping {
     }
 
     public static Type getType(String materialName) {
-        if (materialName.equals(CIMaterial.BROWN_MUSHROOM_BLOCK.name())) {
+        if (materialName.equals(VMaterial.BROWN_MUSHROOM_BLOCK.name())) {
             return Type.BROWN;
         }
-        if (materialName.equals(CIMaterial.RED_MUSHROOM_BLOCK.name())) {
+        if (materialName.equals(VMaterial.RED_MUSHROOM_BLOCK.name())) {
             return Type.RED;
         }
-        if (materialName.equals(CIMaterial.MUSHROOM_STEM.name())) {
+        if (materialName.equals(VMaterial.MUSHROOM_STEM.name())) {
             return Type.STEM;
         }
 
@@ -214,13 +214,13 @@ public class MushroomBlockMapping {
     }
 
     public enum Type {
-        STEM(CIMaterial.MUSHROOM_STEM),
-        RED(CIMaterial.RED_MUSHROOM_BLOCK),
-        BROWN(CIMaterial.BROWN_MUSHROOM_BLOCK);
+        STEM(VMaterial.MUSHROOM_STEM),
+        RED(VMaterial.RED_MUSHROOM_BLOCK),
+        BROWN(VMaterial.BROWN_MUSHROOM_BLOCK);
 
-        public final CIMaterial material;
+        public final VMaterial material;
 
-        Type(CIMaterial material) {
+        Type(VMaterial material) {
             this.material = material;
         }
 

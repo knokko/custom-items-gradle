@@ -1,16 +1,16 @@
 package nl.knokko.customitems.itemset;
 
-import nl.knokko.customitems.texture.BaseTextureValues;
+import nl.knokko.customitems.texture.KciTexture;
 
 import java.util.Collection;
 
-public class TextureReference extends StringBasedReference<BaseTextureValues> {
+public class TextureReference extends StringBasedReference<KciTexture> {
 
     TextureReference(String name, ItemSet itemSet) {
         super(name, itemSet);
     }
 
-    TextureReference(Model<BaseTextureValues> model) {
+    TextureReference(Model<KciTexture> model) {
         super(model);
     }
 
@@ -20,12 +20,12 @@ public class TextureReference extends StringBasedReference<BaseTextureValues> {
     }
 
     @Override
-    Collection<Model<BaseTextureValues>> getCollection() {
+    Collection<Model<KciTexture>> getCollection() {
         return itemSet.textures.elements;
     }
 
     @Override
-    String extractIdentity(BaseTextureValues values) {
+    String extractIdentity(KciTexture values) {
         return values.getName();
     }
 }

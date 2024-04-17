@@ -1,9 +1,9 @@
 package nl.knokko.customitems.editor.menu.edit.item.damage;
 
-import nl.knokko.customitems.damage.CustomDamageSourceValues;
+import nl.knokko.customitems.damage.KciDamageSource;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
-import nl.knokko.customitems.itemset.CustomDamageSourceReference;
+import nl.knokko.customitems.itemset.DamageSourceReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -18,12 +18,12 @@ public class EditCustomDamageSource extends GuiMenu {
 
     private final ItemSet itemSet;
     private final GuiComponent returnMenu;
-    private final CustomDamageSourceValues currentValues;
-    private final CustomDamageSourceReference toModify;
+    private final KciDamageSource currentValues;
+    private final DamageSourceReference toModify;
 
     public EditCustomDamageSource(
-            ItemSet itemSet, GuiComponent returnMenu, CustomDamageSourceValues oldValues,
-            CustomDamageSourceReference toModify
+            ItemSet itemSet, GuiComponent returnMenu, KciDamageSource oldValues,
+            DamageSourceReference toModify
     ) {
         this.itemSet = itemSet;
         this.returnMenu = returnMenu;

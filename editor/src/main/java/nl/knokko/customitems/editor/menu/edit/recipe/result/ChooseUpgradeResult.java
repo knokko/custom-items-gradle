@@ -4,8 +4,8 @@ import nl.knokko.customitems.editor.menu.edit.MultiCollectionSelect;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.recipe.result.ResultValues;
-import nl.knokko.customitems.recipe.result.UpgradeResultValues;
+import nl.knokko.customitems.recipe.result.KciResult;
+import nl.knokko.customitems.recipe.result.UpgradeResult;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.image.CheckboxComponent;
@@ -23,13 +23,13 @@ public class ChooseUpgradeResult extends GuiMenu {
 
     private final GuiComponent returnMenu;
     private final ItemSet itemSet;
-    private final Consumer<ResultValues> confirmResult;
-    private final BiFunction<GuiComponent, UpgradeResultValues, GuiComponent> createIngredientSelectionMenu;
-    private final UpgradeResultValues currentValues;
+    private final Consumer<KciResult> confirmResult;
+    private final BiFunction<GuiComponent, UpgradeResult, GuiComponent> createIngredientSelectionMenu;
+    private final UpgradeResult currentValues;
 
     public ChooseUpgradeResult(
-            GuiComponent returnMenu, ItemSet itemSet, Consumer<ResultValues> confirmResult, UpgradeResultValues oldValues,
-            BiFunction<GuiComponent, UpgradeResultValues, GuiComponent> createIngredientSelectionMenu
+            GuiComponent returnMenu, ItemSet itemSet, Consumer<KciResult> confirmResult, UpgradeResult oldValues,
+            BiFunction<GuiComponent, UpgradeResult, GuiComponent> createIngredientSelectionMenu
     ) {
         this.returnMenu = returnMenu;
         this.itemSet = itemSet;

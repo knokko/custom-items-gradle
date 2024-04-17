@@ -2,7 +2,7 @@ package nl.knokko.customitems.editor.menu.edit.block.miningspeed;
 
 import nl.knokko.customitems.block.miningspeed.VanillaMiningSpeedEntry;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
-import nl.knokko.customitems.item.CIMaterial;
+import nl.knokko.customitems.item.VMaterial;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -31,7 +31,7 @@ class EditVanillaEntries extends GuiMenu {
             float minY = maxY - 0.1f;
 
             addComponent(
-                    EnumSelect.createSelectButton(CIMaterial.class, entry::setMaterial, entry.getMaterial()),
+                    EnumSelect.createSelectButton(VMaterial.class, entry::setMaterial, entry.getMaterial()),
                     0.01f, minY, 0.4f, maxY
             );
             addComponent(new EagerIntEditField(

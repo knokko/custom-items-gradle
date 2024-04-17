@@ -4,9 +4,9 @@ import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.item.AttributeModifierValues;
-import nl.knokko.customitems.item.CustomBlockItemValues;
-import nl.knokko.customitems.item.CustomItemType;
+import nl.knokko.customitems.item.KciAttributeModifier;
+import nl.knokko.customitems.item.KciBlockItem;
+import nl.knokko.customitems.item.KciItemType;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
@@ -14,16 +14,16 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
 
-public class EditItemBlock extends EditItemBase<CustomBlockItemValues> {
+public class EditItemBlock extends EditItemBase<KciBlockItem> {
 
-    private static final AttributeModifierValues EXAMPLE_MODIFIER = AttributeModifierValues.createQuick(
-            AttributeModifierValues.Attribute.ATTACK_DAMAGE,
-            AttributeModifierValues.Slot.MAINHAND,
-            AttributeModifierValues.Operation.ADD,
+    private static final KciAttributeModifier EXAMPLE_MODIFIER = KciAttributeModifier.createQuick(
+            KciAttributeModifier.Attribute.ATTACK_DAMAGE,
+            KciAttributeModifier.Slot.MAINHAND,
+            KciAttributeModifier.Operation.ADD,
             5.0
     );
 
-    public EditItemBlock(EditMenu menu, CustomBlockItemValues oldValues, ItemReference toModify) {
+    public EditItemBlock(EditMenu menu, KciBlockItem oldValues, ItemReference toModify) {
         super(menu, oldValues, toModify);
     }
 
@@ -33,7 +33,7 @@ public class EditItemBlock extends EditItemBase<CustomBlockItemValues> {
     }
 
     @Override
-    protected AttributeModifierValues getExampleAttributeModifier() {
+    protected KciAttributeModifier getExampleAttributeModifier() {
         return EXAMPLE_MODIFIER;
     }
 
@@ -61,7 +61,7 @@ public class EditItemBlock extends EditItemBase<CustomBlockItemValues> {
     }
 
     @Override
-    protected CustomItemType.Category getCategory() {
-        return CustomItemType.Category.BLOCK;
+    protected KciItemType.Category getCategory() {
+        return KciItemType.Category.BLOCK;
     }
 }

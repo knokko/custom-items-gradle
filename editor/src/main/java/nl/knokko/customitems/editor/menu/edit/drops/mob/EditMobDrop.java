@@ -1,8 +1,8 @@
 package nl.knokko.customitems.editor.menu.edit.drops.mob;
 
-import nl.knokko.customitems.drops.CIEntityType;
-import nl.knokko.customitems.drops.DropValues;
-import nl.knokko.customitems.drops.MobDropValues;
+import nl.knokko.customitems.drops.VEntityType;
+import nl.knokko.customitems.drops.KciDrop;
+import nl.knokko.customitems.drops.MobDrop;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.menu.edit.drops.SelectDrop;
@@ -27,11 +27,11 @@ public class EditMobDrop extends GuiMenu {
 	private final ItemSet set;
 	private final GuiComponent returnMenu;
 	private final MobDropReference toModify;
-	private final MobDropValues currentValues;
+	private final MobDrop currentValues;
 	
 	private final DynamicTextComponent errorComponent;
 
-	public EditMobDrop(ItemSet set, GuiComponent returnMenu, MobDropValues oldValues, MobDropReference toModify) {
+	public EditMobDrop(ItemSet set, GuiComponent returnMenu, MobDrop oldValues, MobDropReference toModify) {
 		this.set = set;
 		this.returnMenu = returnMenu;
 		this.toModify = toModify;
@@ -59,7 +59,7 @@ public class EditMobDrop extends GuiMenu {
 				new DynamicTextComponent("Drop:", EditProps.LABEL),
 				0.3f, 0.7f, 0.45f, 0.8f
 		);
-		SelectDrop selectDrop = new SelectDrop(set, this, currentValues.getDrop(), (DropValues newDrop) -> {
+		SelectDrop selectDrop = new SelectDrop(set, this, currentValues.getDrop(), (KciDrop newDrop) -> {
 			currentValues.setDrop(newDrop);
 			pChangeButton[0].setText(newDrop.toString());
 		}, true);
@@ -73,7 +73,7 @@ public class EditMobDrop extends GuiMenu {
 				0.28f, 0.5f, 0.45f, 0.6f
 		);
 		addComponent(
-				EnumSelect.createSelectButton(CIEntityType.class, currentValues::setEntityType, currentValues.getEntityType()),
+				EnumSelect.createSelectButton(VEntityType.class, currentValues::setEntityType, currentValues.getEntityType()),
 				0.5f, 0.5f, 0.7f, 0.6f
 		);
 

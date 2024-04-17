@@ -14,13 +14,13 @@ import nl.knokko.customitems.projectile.effect.*;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
-public class ProjectileEffectCollectionEdit extends SelfDedicatedCollectionEdit<ProjectileEffectValues> {
+public class ProjectileEffectCollectionEdit extends SelfDedicatedCollectionEdit<ProjectileEffect> {
 	
 	private final ItemSet set;
 
 	public ProjectileEffectCollectionEdit(
-            ItemSet set, Collection<ProjectileEffectValues> oldCollection,
-            Consumer<List<ProjectileEffectValues>> changeCollection, GuiComponent returnMenu
+			ItemSet set, Collection<ProjectileEffect> oldCollection,
+			Consumer<List<ProjectileEffect>> changeCollection, GuiComponent returnMenu
 	) {
 		super(oldCollection, changeCollection, returnMenu);
 		this.set = set;
@@ -38,46 +38,46 @@ public class ProjectileEffectCollectionEdit extends SelfDedicatedCollectionEdit<
 	}
 
 	@Override
-	public BufferedImage getModelIcon(ProjectileEffectValues item) {
+	public BufferedImage getModelIcon(ProjectileEffect item) {
 													   return null;
 																   }
 
 	@Override
-	protected boolean canEditModel(ProjectileEffectValues model) {
+	protected boolean canEditModel(ProjectileEffect model) {
 		return true;
 	}
 
 	@Override
-	public String getModelLabel(ProjectileEffectValues item) {
+	public String getModelLabel(ProjectileEffect item) {
 												return item.toString();
 																	   }
 
 	@Override
-	public GuiComponent createEditMenu(ProjectileEffectValues oldValues, Consumer<ProjectileEffectValues> changeValues) {
-		if (oldValues instanceof ColoredRedstoneValues) {
-			return new EditColoredRedstone((ColoredRedstoneValues) oldValues, changeValues, this);
-		} else if (oldValues instanceof ExecuteCommandValues) {
-			return new EditExecuteCommand((ExecuteCommandValues) oldValues, changeValues, this);
-		} else if (oldValues instanceof ExplosionValues) {
-			return new EditExplosion((ExplosionValues) oldValues, changeValues, this);
-		} else if (oldValues instanceof RandomAccelerationValues) {
-			return new EditRandomAccelleration((RandomAccelerationValues) oldValues, changeValues, this);
-		} else if (oldValues instanceof SimpleParticleValues) {
-			return new EditSimpleParticles((SimpleParticleValues) oldValues, changeValues, this);
-		} else if (oldValues instanceof StraightAccelerationValues) {
-			return new EditStraightAccelleration((StraightAccelerationValues) oldValues, changeValues, this);
-		} else if (oldValues instanceof SubProjectilesValues) {
-			return new EditSubProjectiles((SubProjectilesValues) oldValues, changeValues, this, set);
-		} else if (oldValues instanceof PlaySoundValues) {
-			return new EditSound(((PlaySoundValues) oldValues).getSound(), newSound -> {
-				changeValues.accept(PlaySoundValues.createQuick(newSound));
+	public GuiComponent createEditMenu(ProjectileEffect oldValues, Consumer<ProjectileEffect> changeValues) {
+		if (oldValues instanceof PEColoredRedstone) {
+			return new EditColoredRedstone((PEColoredRedstone) oldValues, changeValues, this);
+		} else if (oldValues instanceof PEExecuteCommand) {
+			return new EditExecuteCommand((PEExecuteCommand) oldValues, changeValues, this);
+		} else if (oldValues instanceof PECreateExplosion) {
+			return new EditExplosion((PECreateExplosion) oldValues, changeValues, this);
+		} else if (oldValues instanceof PERandomAcceleration) {
+			return new EditRandomAccelleration((PERandomAcceleration) oldValues, changeValues, this);
+		} else if (oldValues instanceof PESimpleParticle) {
+			return new EditSimpleParticles((PESimpleParticle) oldValues, changeValues, this);
+		} else if (oldValues instanceof PEStraightAcceleration) {
+			return new EditStraightAccelleration((PEStraightAcceleration) oldValues, changeValues, this);
+		} else if (oldValues instanceof PESubProjectiles) {
+			return new EditSubProjectiles((PESubProjectiles) oldValues, changeValues, this, set);
+		} else if (oldValues instanceof PEPlaySound) {
+			return new EditSound(((PEPlaySound) oldValues).getSound(), newSound -> {
+				changeValues.accept(PEPlaySound.createQuick(newSound));
 			}, this, set);
-		} else if (oldValues instanceof PotionAuraValues) {
-			return new EditPotionAura((PotionAuraValues) oldValues, changeValues, this);
-		} else if (oldValues instanceof PushOrPullValues) {
-			return new EditPushOrPull((PushOrPullValues) oldValues, changeValues, this);
-		} else if (oldValues instanceof ShowFireworkValues) {
-			return new EditShowFirework((ShowFireworkValues) oldValues, changeValues, this);
+		} else if (oldValues instanceof PEPotionAura) {
+			return new EditPotionAura((PEPotionAura) oldValues, changeValues, this);
+		} else if (oldValues instanceof PEPushOrPull) {
+			return new EditPushOrPull((PEPushOrPull) oldValues, changeValues, this);
+		} else if (oldValues instanceof PEShowFireworks) {
+			return new EditShowFirework((PEShowFireworks) oldValues, changeValues, this);
 		} else {
 			throw new Error("Unknown projectile effect class: " + oldValues.getClass());
 		}
@@ -89,7 +89,7 @@ public class ProjectileEffectCollectionEdit extends SelfDedicatedCollectionEdit<
 	}
 
 	@Override
-	protected CopyMode getCopyMode(ProjectileEffectValues model) {
+	protected CopyMode getCopyMode(ProjectileEffect model) {
 		return CopyMode.INSTANT;
 	}
 }

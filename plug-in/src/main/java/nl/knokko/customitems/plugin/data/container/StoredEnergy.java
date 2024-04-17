@@ -2,8 +2,8 @@ package nl.knokko.customitems.plugin.data.container;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
-import nl.knokko.customitems.container.CustomContainerValues;
-import nl.knokko.customitems.container.energy.EnergyTypeValues;
+import nl.knokko.customitems.container.KciContainer;
+import nl.knokko.customitems.container.energy.EnergyType;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 
 import java.util.HashMap;
@@ -43,14 +43,14 @@ public class StoredEnergy {
         this.energyMap.entrySet().removeIf(entry -> location.equals(entry.getKey().containerKey.location));
     }
 
-    public void removeStoredEnergyAt(CustomContainerValues container, String host) {
+    public void removeStoredEnergyAt(KciContainer container, String host) {
         this.energyMap.entrySet().removeIf(entry -> {
             ContainerStorageKey storageKey = entry.getKey().containerKey;
             return container.getName().equals(storageKey.containerName) && host.equals(storageKey.stringHost);
         });
     }
 
-    private EnergyStorageKey createKey(EnergyTypeValues energyType, ContainerStorageKey containerStorageKey) {
+    private EnergyStorageKey createKey(EnergyType energyType, ContainerStorageKey containerStorageKey) {
         String containerName = energyType.shouldForceShareWithOtherContainerTypes() ? null : containerStorageKey.containerName;
         PassiveLocation location = energyType.shouldForceShareWithOtherLocations() ? null : containerStorageKey.location;
         String stringHost = energyType.shouldForceShareWithOtherStringHosts() ? null : containerStorageKey.stringHost;
@@ -61,13 +61,13 @@ public class StoredEnergy {
         ));
     }
 
-    public int getEnergy(EnergyTypeValues energyType, ContainerStorageKey containerStorageKey) {
+    public int getEnergy(EnergyType energyType, ContainerStorageKey containerStorageKey) {
         EnergyStorageKey energyStorageKey = createKey(energyType, containerStorageKey);
         Integer storedValue = this.energyMap.get(energyStorageKey);
         return storedValue == null ? energyType.getInitialValue() : storedValue;
     }
 
-    public void increaseEnergy(EnergyTypeValues energyType, ContainerStorageKey containerStorageKey, int amount) {
+    public void increaseEnergy(EnergyType energyType, ContainerStorageKey containerStorageKey, int amount) {
         EnergyStorageKey energyStorageKey = createKey(energyType, containerStorageKey);
         Integer storedValue = this.energyMap.get(energyStorageKey);
         int currentValue = storedValue == null ? energyType.getInitialValue() : storedValue;
@@ -82,7 +82,7 @@ public class StoredEnergy {
         }
     }
 
-    public void decreaseEnergy(EnergyTypeValues energyType, ContainerStorageKey containerStorageKey, int amount) {
+    public void decreaseEnergy(EnergyType energyType, ContainerStorageKey containerStorageKey, int amount) {
         increaseEnergy(energyType, containerStorageKey, -amount);
     }
 

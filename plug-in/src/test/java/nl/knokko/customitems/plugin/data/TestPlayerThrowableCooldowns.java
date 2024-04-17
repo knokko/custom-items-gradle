@@ -3,7 +3,7 @@ package nl.knokko.customitems.plugin.data;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.ByteArrayBitInput;
 import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
-import nl.knokko.customitems.item.CustomThrowableValues;
+import nl.knokko.customitems.item.KciThrowable;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import org.junit.jupiter.api.Test;
 
@@ -11,8 +11,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class TestPlayerThrowableCooldowns {
 
-    private final CustomThrowableValues rock = new CustomThrowableValues(true);
-    private final CustomThrowableValues spear = new CustomThrowableValues(true);
+    private final KciThrowable rock = new KciThrowable(true);
+    private final KciThrowable spear = new KciThrowable(true);
 
     public TestPlayerThrowableCooldowns() {
         rock.setName("rock");

@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.block.miningspeed;
 
 import nl.knokko.customitems.block.miningspeed.CustomMiningSpeedEntry;
-import nl.knokko.customitems.block.miningspeed.MiningSpeedValues;
+import nl.knokko.customitems.block.miningspeed.MiningSpeed;
 import nl.knokko.customitems.block.miningspeed.VanillaMiningSpeedEntry;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
@@ -23,12 +23,12 @@ public class EditMiningSpeed extends GuiMenu {
 
     private final GuiComponent returnMenu;
     private final ItemSet itemSet;
-    private final MiningSpeedValues currentValues;
-    private final Consumer<MiningSpeedValues> updateValues;
+    private final MiningSpeed currentValues;
+    private final Consumer<MiningSpeed> updateValues;
 
     public EditMiningSpeed(
             GuiComponent returnMenu, ItemSet itemSet,
-            MiningSpeedValues oldValues, Consumer<MiningSpeedValues> updateValues
+            MiningSpeed oldValues, Consumer<MiningSpeed> updateValues
     ) {
         this.returnMenu = returnMenu;
         this.itemSet = itemSet;

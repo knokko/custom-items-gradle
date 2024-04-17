@@ -5,13 +5,13 @@ import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.item.model.EditItemModel;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.itemset.ProjectileCoverReference;
-import nl.knokko.customitems.projectile.cover.CustomProjectileCoverValues;
+import nl.knokko.customitems.projectile.cover.CustomProjectileCover;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
-public class EditCustomProjectileCover extends EditProjectileCover<CustomProjectileCoverValues> {
+public class EditCustomProjectileCover extends EditProjectileCover<CustomProjectileCover> {
 	
-	public EditCustomProjectileCover(EditMenu menu, CustomProjectileCoverValues oldValues, ProjectileCoverReference toModify) {
+	public EditCustomProjectileCover(EditMenu menu, CustomProjectileCover oldValues, ProjectileCoverReference toModify) {
 		super(menu, oldValues, toModify);
 	}
 

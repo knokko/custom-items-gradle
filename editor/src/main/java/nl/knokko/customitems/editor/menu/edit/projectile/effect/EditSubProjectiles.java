@@ -6,15 +6,15 @@ import java.util.function.Consumer;
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.projectile.effect.ProjectileEffectValues;
-import nl.knokko.customitems.projectile.effect.SubProjectilesValues;
+import nl.knokko.customitems.projectile.effect.ProjectileEffect;
+import nl.knokko.customitems.projectile.effect.PESubProjectiles;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.text.EagerFloatEditField;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
-public class EditSubProjectiles extends EditProjectileEffect<SubProjectilesValues> {
+public class EditSubProjectiles extends EditProjectileEffect<PESubProjectiles> {
 	
 	private static final float BUTTON_X = 0.5f;
 	private static final float LABEL_X = BUTTON_X - 0.01f;
@@ -22,7 +22,7 @@ public class EditSubProjectiles extends EditProjectileEffect<SubProjectilesValue
 	private final ItemSet itemSet;
 	
 	public EditSubProjectiles(
-			SubProjectilesValues oldValues, Consumer<ProjectileEffectValues> changeValues,
+			PESubProjectiles oldValues, Consumer<ProjectileEffect> changeValues,
 			GuiComponent returnMenu, ItemSet itemSet
 	) {
 		super(oldValues, changeValues, returnMenu);

@@ -1,6 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.block;
 
-import nl.knokko.customitems.block.drop.RequiredItemValues;
+import nl.knokko.customitems.block.drop.RequiredItems;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.drops.ChooseRequiredHeldItems;
 import nl.knokko.customitems.editor.util.HelpButtons;
@@ -18,14 +18,14 @@ import java.util.function.Consumer;
 
 public class EditRequiredItems extends GuiMenu  {
 
-    private final RequiredItemValues requiredItems;
+    private final RequiredItems requiredItems;
 
-    private final Consumer<RequiredItemValues> changeRequiredItems;
+    private final Consumer<RequiredItems> changeRequiredItems;
     private final ItemSet set;
     private final GuiComponent returnMenu;
 
     public EditRequiredItems(
-            RequiredItemValues oldItems, Consumer<RequiredItemValues> changeRequiredItems,
+            RequiredItems oldItems, Consumer<RequiredItems> changeRequiredItems,
             ItemSet set, GuiComponent returnMenu
     ) {
         this.requiredItems = oldItems.copy(true);

@@ -5,10 +5,10 @@ import nl.knokko.customitems.editor.menu.edit.item.damage.EditDamageResistances;
 import nl.knokko.customitems.editor.menu.edit.item.EnchantmentCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
-import nl.knokko.customitems.item.AttributeModifierValues;
+import nl.knokko.customitems.item.KciAttributeModifier;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.UpgradeReference;
-import nl.knokko.customitems.recipe.upgrade.UpgradeValues;
+import nl.knokko.customitems.recipe.upgrade.Upgrade;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -23,9 +23,9 @@ public class EditUpgrade extends GuiMenu {
     private final GuiComponent returnMenu;
     private final ItemSet itemSet;
     private final UpgradeReference toModify;
-    private final UpgradeValues currentValues;
+    private final Upgrade currentValues;
 
-    public EditUpgrade(GuiComponent returnMenu, ItemSet itemSet, UpgradeReference toModify, UpgradeValues oldValues) {
+    public EditUpgrade(GuiComponent returnMenu, ItemSet itemSet, UpgradeReference toModify, Upgrade oldValues) {
         this.returnMenu = returnMenu;
         this.itemSet = itemSet;
         this.toModify = toModify;
@@ -64,9 +64,9 @@ public class EditUpgrade extends GuiMenu {
         addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new AttributeCollectionEdit(
                     currentValues.getAttributeModifiers(), currentValues::setAttributeModifiers, this,
-                    AttributeModifierValues.createQuick(
-                            AttributeModifierValues.Attribute.ATTACK_DAMAGE, AttributeModifierValues.Slot.MAINHAND,
-                            AttributeModifierValues.Operation.ADD, 1.0
+                    KciAttributeModifier.createQuick(
+                            KciAttributeModifier.Attribute.ATTACK_DAMAGE, KciAttributeModifier.Slot.MAINHAND,
+                            KciAttributeModifier.Operation.ADD, 1.0
                     ), true
             ));
         }), 0.55f, 0.5f, 0.65f, 0.6f);

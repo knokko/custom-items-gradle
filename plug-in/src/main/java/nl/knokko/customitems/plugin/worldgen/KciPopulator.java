@@ -1,15 +1,15 @@
 package nl.knokko.customitems.plugin.worldgen;
 
-import nl.knokko.customitems.block.CustomBlockValues;
-import nl.knokko.customitems.drops.CIBiome;
-import nl.knokko.customitems.item.CIMaterial;
+import nl.knokko.customitems.block.KciBlock;
+import nl.knokko.customitems.drops.VBiome;
+import nl.knokko.customitems.item.VMaterial;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
-import nl.knokko.customitems.worldgen.OreVeinGeneratorValues;
+import nl.knokko.customitems.worldgen.OreGenerator;
 import nl.knokko.customitems.worldgen.ProducedBlock;
-import nl.knokko.customitems.worldgen.ReplaceBlocksValues;
-import nl.knokko.customitems.worldgen.TreeGeneratorValues;
+import nl.knokko.customitems.worldgen.ReplaceBlocks;
+import nl.knokko.customitems.worldgen.TreeGenerator;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -31,20 +31,20 @@ public class KciPopulator extends BlockPopulator {
 
     @Override
     public void populate(World world, Random random, Chunk source) {
-        for (TreeGeneratorValues generator : itemSet.get().treeGenerators) {
+        for (TreeGenerator generator : itemSet.get().treeGenerators) {
             if (generator.getAllowedWorlds().isEmpty() || generator.getAllowedWorlds().contains(world.getName())) {
                 applyTreeGenerator(generator, world, random, source);
             }
         }
 
-        for (OreVeinGeneratorValues generator : itemSet.get().oreGenerators) {
+        for (OreGenerator generator : itemSet.get().oreGenerators) {
             if (generator.getAllowedWorlds().isEmpty() || generator.getAllowedWorlds().contains(world.getName())) {
                 applyOreVein(generator, world, random, source);
             }
         }
     }
 
-    private void applyTreeGenerator(TreeGeneratorValues generator, World world, Random random, Chunk source) {
+    private void applyTreeGenerator(TreeGenerator generator, World world, Random random, Chunk source) {
         if (generator.getChance().apply(random)) {
             int numGeneratedTrees = 0;
             int desiredNumTrees = generator.getMinNumTrees() + random.nextInt(1 + generator.getMaxNumTrees() - generator.getMinNumTrees());
@@ -64,13 +64,13 @@ public class KciPopulator extends BlockPopulator {
                 if (y >= KciNms.instance.blocks.getMinHeight(world)) {
                     Block block = source.getBlock(x, y, z);
 
-                    if (!generator.getAllowedBiomes().isAllowed(CIBiome.valueOf(block.getBiome().name()))) continue;
+                    if (!generator.getAllowedBiomes().isAllowed(VBiome.valueOf(block.getBiome().name()))) continue;
                     
                     int minDepth = generator.getMinimumDepth();
                     int maxDepth = generator.getMaximumDepth();
 
                     int randomWaterDepth = -1;
-                    if (maxDepth > 0 && generator.getAllowedTerrain().contains(CIMaterial.WATER)) {
+                    if (maxDepth > 0 && generator.getAllowedTerrain().contains(VMaterial.WATER)) {
                         randomWaterDepth = minDepth + random.nextInt(1 + maxDepth - minDepth);
                     }
 
@@ -104,10 +104,10 @@ public class KciPopulator extends BlockPopulator {
         }
     }
 
-    private boolean shouldAcceptBlock(Block block, ReplaceBlocksValues blocksToReplace) {
-        CustomBlockValues existingCustomBlock = MushroomBlockHelper.getMushroomBlock(block);
+    private boolean shouldAcceptBlock(Block block, ReplaceBlocks blocksToReplace) {
+        KciBlock existingCustomBlock = MushroomBlockHelper.getMushroomBlock(block);
         boolean matchesCustomBlock = existingCustomBlock != null && blocksToReplace.contains(existingCustomBlock, itemSet.get());
-        boolean matchesVanillaBlock = blocksToReplace.contains(CIMaterial.valueOf(KciNms.instance.items.getMaterialName(block)));
+        boolean matchesVanillaBlock = blocksToReplace.contains(VMaterial.valueOf(KciNms.instance.items.getMaterialName(block)));
         return matchesCustomBlock || matchesVanillaBlock;
     }
 
@@ -121,7 +121,7 @@ public class KciPopulator extends BlockPopulator {
         }
     }
 
-    private void applyOreVein(OreVeinGeneratorValues generator, World world, Random random, Chunk source) {
+    private void applyOreVein(OreGenerator generator, World world, Random random, Chunk source) {
         if (generator.getChance().apply(random)) {
             int numGeneratedVeins = 0;
             int desiredNumVeins = generator.getMinNumVeins() + random.nextInt(1 + generator.getMaxNumVeins() - generator.getMinNumVeins());
@@ -163,7 +163,7 @@ public class KciPopulator extends BlockPopulator {
 
                 Block initialBlock = source.getBlock(relativeX, y, relativeZ);
 
-                if (generator.getAllowedBiomes().isAllowed(CIBiome.valueOf(initialBlock.getBiome().name()))) {
+                if (generator.getAllowedBiomes().isAllowed(VBiome.valueOf(initialBlock.getBiome().name()))) {
                     Location initialLocation = initialBlock.getLocation();
                     int x = initialLocation.getBlockX();
                     int z = initialLocation.getBlockZ();
@@ -238,7 +238,7 @@ public class KciPopulator extends BlockPopulator {
                         Block nextBlock = world.getBlockAt(nextX, nextY, nextZ);
 
                         // Don't generate the ore in forbidden biomes
-                        if (!generator.getAllowedBiomes().isAllowed(CIBiome.valueOf(nextBlock.getBiome().name()))) {
+                        if (!generator.getAllowedBiomes().isAllowed(VBiome.valueOf(nextBlock.getBiome().name()))) {
                             continue;
                         }
 

@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
-import nl.knokko.customitems.texture.BaseTextureValues;
+import nl.knokko.customitems.texture.KciTexture;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -17,10 +17,10 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 public class TransparencyFixMenu extends GuiMenu {
 
 	private final GuiComponent returnMenu;
-	private final Consumer<BaseTextureValues> confirmImage;
-	private final BaseTextureValues chosenImage;
+	private final Consumer<KciTexture> confirmImage;
+	private final KciTexture chosenImage;
 
-	public TransparencyFixMenu(GuiComponent returnMenu, Consumer<BaseTextureValues> confirmImage, BaseTextureValues chosenImage) {
+	public TransparencyFixMenu(GuiComponent returnMenu, Consumer<KciTexture> confirmImage, KciTexture chosenImage) {
 		this.returnMenu = returnMenu;
 		this.confirmImage = confirmImage;
 		this.chosenImage = chosenImage;
@@ -62,7 +62,7 @@ public class TransparencyFixMenu extends GuiMenu {
 					}
 				}
 			}
-			confirmImage.accept(BaseTextureValues.createQuick(chosenImage.getName(), image));
+			confirmImage.accept(KciTexture.createQuick(chosenImage.getName(), image));
 			state.getWindow().setMainComponent(returnMenu);
 		}), 0.3f, 0.1f, 0.4f, 0.2f);
 		

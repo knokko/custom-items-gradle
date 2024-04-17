@@ -10,17 +10,17 @@ import nl.knokko.customitems.editor.menu.edit.upgrade.UpgradeCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.CraftingRecipeReference;
-import nl.knokko.customitems.recipe.CraftingRecipeValues;
-import nl.knokko.customitems.recipe.ShapedRecipeValues;
-import nl.knokko.customitems.recipe.ShapelessRecipeValues;
-import nl.knokko.customitems.recipe.result.CustomItemResultValues;
+import nl.knokko.customitems.recipe.KciCraftingRecipe;
+import nl.knokko.customitems.recipe.KciShapedRecipe;
+import nl.knokko.customitems.recipe.KciShapelessRecipe;
+import nl.knokko.customitems.recipe.result.CustomItemResult;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.BUTTON;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.HOVER;
 
-public class RecipeCollectionEdit extends DedicatedCollectionEdit<CraftingRecipeValues, CraftingRecipeReference> {
+public class RecipeCollectionEdit extends DedicatedCollectionEdit<KciCraftingRecipe, CraftingRecipeReference> {
 	
 	private final EditMenu menu;
 
@@ -36,10 +36,10 @@ public class RecipeCollectionEdit extends DedicatedCollectionEdit<CraftingRecipe
 			state.getWindow().setMainComponent(new ChooseTemplateRecipeType(this, menu.getSet()));
 		}), 0.025f, 0.38f, 0.29f, 0.48f);
 		addComponent(new DynamicTextButton("Create shaped recipe", BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new ShapedRecipeEdit(menu, new ShapedRecipeValues(true), null));
+			state.getWindow().setMainComponent(new ShapedRecipeEdit(menu, new KciShapedRecipe(true), null));
 		}), 0.025f, 0.26f, 0.27f, 0.36f);
 		addComponent(new DynamicTextButton("Create shapeless recipe", BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new ShapelessRecipeEdit(new ShapelessRecipeValues(true), null, menu.getSet(), this));
+			state.getWindow().setMainComponent(new ShapelessRecipeEdit(new KciShapelessRecipe(true), null, menu.getSet(), this));
 		}), 0.025f, 0.14f, 0.29f, 0.24f);
 		addComponent(new DynamicTextButton("Upgrades...", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new UpgradeCollectionEdit(this, menu.getSet()));
@@ -49,21 +49,21 @@ public class RecipeCollectionEdit extends DedicatedCollectionEdit<CraftingRecipe
 	}
 
 	@Override
-	protected String getModelLabel(CraftingRecipeValues model) {
+	protected String getModelLabel(KciCraftingRecipe model) {
 		return model.getResult().toString();
 	}
 
 	@Override
-	protected BufferedImage getModelIcon(CraftingRecipeValues model) {
-		if (model.getResult() instanceof CustomItemResultValues) {
-			return ((CustomItemResultValues) model.getResult()).getItem().getTexture().getImage();
+	protected BufferedImage getModelIcon(KciCraftingRecipe model) {
+		if (model.getResult() instanceof CustomItemResult) {
+			return ((CustomItemResult) model.getResult()).getItem().getTexture().getImage();
 		} else {
 			return null;
 		}
 	}
 
 	@Override
-	protected boolean canEditModel(CraftingRecipeValues model) {
+	protected boolean canEditModel(KciCraftingRecipe model) {
 		return true;
 	}
 
@@ -73,12 +73,12 @@ public class RecipeCollectionEdit extends DedicatedCollectionEdit<CraftingRecipe
 	}
 
 	private GuiComponent createEditMenu(CraftingRecipeReference modelReference, boolean copy) {
-		CraftingRecipeValues oldRecipe = modelReference.get();
+		KciCraftingRecipe oldRecipe = modelReference.get();
 		CraftingRecipeReference toModify = copy ? null : modelReference;
-		if (oldRecipe instanceof ShapedRecipeValues) {
-			return new ShapedRecipeEdit(menu, (ShapedRecipeValues) oldRecipe, toModify);
-		} else if (oldRecipe instanceof ShapelessRecipeValues) {
-			return new ShapelessRecipeEdit((ShapelessRecipeValues) oldRecipe, toModify, menu.getSet(), this);
+		if (oldRecipe instanceof KciShapedRecipe) {
+			return new ShapedRecipeEdit(menu, (KciShapedRecipe) oldRecipe, toModify);
+		} else if (oldRecipe instanceof KciShapelessRecipe) {
+			return new ShapelessRecipeEdit((KciShapelessRecipe) oldRecipe, toModify, menu.getSet(), this);
 		} else {
 			throw new Error("Unknown recipe class: " + oldRecipe.getClass());
 		}

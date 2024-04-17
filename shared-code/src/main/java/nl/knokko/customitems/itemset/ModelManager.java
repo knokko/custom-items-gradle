@@ -128,7 +128,7 @@ public abstract class ModelManager<V extends ModelValues, R extends ModelReferen
 
         if (!elements.remove(model)) throw new ProgrammingValidationException("Model no longer exists");
         try {
-            this.validate();
+            itemSet.validate();
         } catch (ValidationException | ProgrammingValidationException validation) {
             errorMessage = validation.getMessage();
         }

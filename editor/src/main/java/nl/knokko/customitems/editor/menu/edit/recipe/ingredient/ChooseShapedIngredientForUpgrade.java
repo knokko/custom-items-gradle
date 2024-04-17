@@ -1,9 +1,9 @@
 package nl.knokko.customitems.editor.menu.edit.recipe.ingredient;
 
-import nl.knokko.customitems.recipe.ShapedRecipeValues;
-import nl.knokko.customitems.recipe.ingredient.IngredientValues;
-import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
-import nl.knokko.customitems.recipe.result.UpgradeResultValues;
+import nl.knokko.customitems.recipe.KciShapedRecipe;
+import nl.knokko.customitems.recipe.ingredient.KciIngredient;
+import nl.knokko.customitems.recipe.ingredient.NoIngredient;
+import nl.knokko.customitems.recipe.result.UpgradeResult;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -14,11 +14,11 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 public class ChooseShapedIngredientForUpgrade extends GuiMenu {
 
     private final GuiComponent returnMenu;
-    private final UpgradeResultValues upgrade;
-    private final ShapedRecipeValues recipe;
+    private final UpgradeResult upgrade;
+    private final KciShapedRecipe recipe;
 
     public ChooseShapedIngredientForUpgrade(
-            GuiComponent returnMenu, UpgradeResultValues upgrade, ShapedRecipeValues recipe
+            GuiComponent returnMenu, UpgradeResult upgrade, KciShapedRecipe recipe
     ) {
         this.returnMenu = returnMenu;
         this.upgrade = upgrade;
@@ -37,8 +37,8 @@ public class ChooseShapedIngredientForUpgrade extends GuiMenu {
             for (int y = 0; y < 3; y++) {
                 int rememberY = y;
                 float minY = 0.2f + 0.15f * (2 - y);
-                IngredientValues ingredient = recipe.getIngredientAt(x, y);
-                if (ingredient != null && !(ingredient instanceof NoIngredientValues)) {
+                KciIngredient ingredient = recipe.getIngredientAt(x, y);
+                if (ingredient != null && !(ingredient instanceof NoIngredient)) {
                     addComponent(new DynamicTextButton(ingredient.toString(), BUTTON, HOVER, () -> {
                         upgrade.setIngredientIndex(rememberX + 3 * rememberY);
                         state.getWindow().setMainComponent(returnMenu);

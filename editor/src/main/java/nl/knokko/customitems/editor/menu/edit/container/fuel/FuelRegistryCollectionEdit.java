@@ -2,7 +2,7 @@ package nl.knokko.customitems.editor.menu.edit.container.fuel;
 
 import java.awt.image.BufferedImage;
 
-import nl.knokko.customitems.container.fuel.FuelRegistryValues;
+import nl.knokko.customitems.container.fuel.ContainerFuelRegistry;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
@@ -13,7 +13,7 @@ import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
-public class FuelRegistryCollectionEdit extends DedicatedCollectionEdit<FuelRegistryValues, FuelRegistryReference> {
+public class FuelRegistryCollectionEdit extends DedicatedCollectionEdit<ContainerFuelRegistry, FuelRegistryReference> {
 	
 	private final ItemSet set;
 
@@ -27,7 +27,7 @@ public class FuelRegistryCollectionEdit extends DedicatedCollectionEdit<FuelRegi
 		super.addComponents();
 		addComponent(new DynamicTextButton("Add new", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new EditFuelRegistry(
-					this, set, new FuelRegistryValues(true), null
+					this, set, new ContainerFuelRegistry(true), null
 			));
 		}), 0.05f, 0.2f, 0.2f, 0.3f);
 		HelpButtons.addHelpLink(this, "edit menu/containers/fuel registries/overview.html");
@@ -39,17 +39,17 @@ public class FuelRegistryCollectionEdit extends DedicatedCollectionEdit<FuelRegi
 	}
 
 	@Override
-	protected String getModelLabel(FuelRegistryValues model) {
+	protected String getModelLabel(ContainerFuelRegistry model) {
 		return model.getName();
 	}
 
 	@Override
-	protected BufferedImage getModelIcon(FuelRegistryValues model) {
+	protected BufferedImage getModelIcon(ContainerFuelRegistry model) {
 		return null;
 	}
 
 	@Override
-	protected boolean canEditModel(FuelRegistryValues model) {
+	protected boolean canEditModel(ContainerFuelRegistry model) {
 		return true;
 	}
 

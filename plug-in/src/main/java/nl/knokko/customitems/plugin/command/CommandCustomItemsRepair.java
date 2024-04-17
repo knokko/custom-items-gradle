@@ -1,7 +1,7 @@
 package nl.knokko.customitems.plugin.command;
 
-import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.item.CustomToolValues;
+import nl.knokko.customitems.item.KciItem;
+import nl.knokko.customitems.item.KciTool;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import org.bukkit.ChatColor;
@@ -83,7 +83,7 @@ class CommandCustomItemsRepair {
             return;
         }
 
-        CustomItemValues customItem = itemSet.getItem(item);
+        KciItem customItem = itemSet.getItem(item);
         if (customItem == null) {
             if (enableOutput) {
                 sender.sendMessage(ChatColor.RED + "The item in the main hand of " + target.getName() + " should be a custom item");
@@ -91,14 +91,14 @@ class CommandCustomItemsRepair {
             return;
         }
 
-        if (!(customItem instanceof CustomToolValues)) {
+        if (!(customItem instanceof KciTool)) {
             if (enableOutput) {
                 sender.sendMessage(ChatColor.RED + "The item in the main hand of " + target.getName() + " should be a custom tool");
             }
             return;
         }
 
-        CustomToolValues customTool = (CustomToolValues) customItem;
+        KciTool customTool = (KciTool) customItem;
         if (customTool.getMaxDurabilityNew() == null) {
             if (enableOutput) {
                 sender.sendMessage(ChatColor.RED + "The tool in the main hand of " + target.getName() + " is unbreakable");

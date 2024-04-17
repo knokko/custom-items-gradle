@@ -1,19 +1,19 @@
 package nl.knokko.customitems.editor.wiki.item;
 
 import nl.knokko.customitems.NameHelper;
-import nl.knokko.customitems.block.CustomBlockValues;
-import nl.knokko.customitems.block.drop.CustomBlockDropValues;
-import nl.knokko.customitems.block.drop.RequiredItemValues;
-import nl.knokko.customitems.drops.AllowedBiomesValues;
-import nl.knokko.customitems.drops.BlockDropValues;
-import nl.knokko.customitems.drops.CIBiome;
-import nl.knokko.customitems.drops.MobDropValues;
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.block.KciBlock;
+import nl.knokko.customitems.block.drop.CustomBlockDrop;
+import nl.knokko.customitems.block.drop.RequiredItems;
+import nl.knokko.customitems.drops.AllowedBiomes;
+import nl.knokko.customitems.drops.BlockDrop;
+import nl.knokko.customitems.drops.VBiome;
+import nl.knokko.customitems.drops.MobDrop;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.item.WikiVisibility;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.recipe.OutputTableValues;
-import nl.knokko.customitems.recipe.result.CustomItemResultValues;
+import nl.knokko.customitems.recipe.OutputTable;
+import nl.knokko.customitems.recipe.result.CustomItemResult;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -27,13 +27,13 @@ import static nl.knokko.customitems.util.ColorCodes.stripColorCodes;
 
 public class ItemDropGenerator {
 
-    private final CustomItemValues item;
+    private final KciItem item;
 
-    private final Collection<BlockDropValues> blockDrops;
-    private final Collection<MobDropValues> mobDrops;
-    private final Collection<CustomBlockValues> blocks;
+    private final Collection<BlockDrop> blockDrops;
+    private final Collection<MobDrop> mobDrops;
+    private final Collection<KciBlock> blocks;
 
-    ItemDropGenerator(ItemSet itemSet, CustomItemValues item) {
+    ItemDropGenerator(ItemSet itemSet, KciItem item) {
         this.item = item;
 
         this.blockDrops = itemSet.blockDrops.stream().filter(
@@ -60,7 +60,7 @@ public class ItemDropGenerator {
             output.println("\t\t<h3>Dropped by blocks</h3>");
             output.println("\t\tThis item can be obtained by breaking one of the following blocks:");
 
-            for (BlockDropValues blockDrop : blockDrops) {
+            for (BlockDrop blockDrop : blockDrops) {
                 output.println("\t\t<h4>" + NameHelper.getNiceEnumName(blockDrop.getBlockType().name()) + "</h4>");
 
                 generateAllowedBiomes(output, "\t\t", blockDrop.getDrop().getAllowedBiomes());
@@ -69,11 +69,11 @@ public class ItemDropGenerator {
                 generateRelevantDrops(output, "\t\t", blockDrop.getDrop().getOutputTable());
             }
 
-            for (CustomBlockValues block : blocks) {
+            for (KciBlock block : blocks) {
                 output.println("\t\t<h4><a href=\"../blocks/" + block.getName() + ".html\">" + block.getName() + "</a></h4>");
                 output.println("\t\t<ul class=\"block-drop-list\">");
 
-                for (CustomBlockDropValues blockDrop : block.getDrops()) {
+                for (CustomBlockDrop blockDrop : block.getDrops()) {
                     if (hasItem(item, blockDrop.getDrop().getOutputTable())) {
                         output.println("\t\t\t<li class=\"block-drop-entry\">");
                         generateCustomBlockDropInfo(output, blockDrop);
@@ -90,7 +90,7 @@ public class ItemDropGenerator {
             output.println("\t\t<h3>Dropped by mobs</h3>");
             output.println("\t\tThis item can be obtained by killing one of the following mobs:");
 
-            for (MobDropValues mobDrop : mobDrops) {
+            for (MobDrop mobDrop : mobDrops) {
                 output.println("\t\t<h4>" + NameHelper.getNiceEnumName(mobDrop.getEntityType().name()) + "</h4>");
                 if (mobDrop.getRequiredName() != null) {
                     output.println("\t\tRequires a specific custom name");
@@ -103,7 +103,7 @@ public class ItemDropGenerator {
         }
     }
 
-    public static void generateRequiredItemsInfo(PrintWriter output, String tabs, RequiredItemValues requiredItems) {
+    public static void generateRequiredItemsInfo(PrintWriter output, String tabs, RequiredItems requiredItems) {
         if (requiredItems.isEnabled()) {
             if (requiredItems.isInverted()) {
                 output.println(tabs + "You can use any item, <b>except</b> the following items:");
@@ -111,7 +111,7 @@ public class ItemDropGenerator {
                 output.println(tabs + "You must use one of the following items:");
             }
             output.println(tabs + "<ul class=\"required-drop-items\">");
-            for (RequiredItemValues.VanillaEntry vanilla : requiredItems.getVanillaItems()) {
+            for (RequiredItems.VanillaEntry vanilla : requiredItems.getVanillaItems()) {
                 output.print(tabs + "\t<li class=\"required-vanilla-item\">" + NameHelper.getNiceEnumName(vanilla.getMaterial().name()));
                 if (vanilla.shouldAllowCustomItems()) {
                     output.print(" or a custom item of this type");
@@ -129,7 +129,7 @@ public class ItemDropGenerator {
         }
     }
 
-    public static void generateCustomBlockDropInfo(PrintWriter output, CustomBlockDropValues blockDrop) {
+    public static void generateCustomBlockDropInfo(PrintWriter output, CustomBlockDrop blockDrop) {
         output.println("\t\t\t\tSilk touch is " + blockDrop.getSilkTouchRequirement().name().toLowerCase(Locale.ROOT) + "<br>");
         generateRequiredItemsInfo(output, "\t\t\t\t", blockDrop.getDrop().getRequiredHeldItems());
         generateRequiredFortuneLevel(
@@ -138,7 +138,7 @@ public class ItemDropGenerator {
         );
     }
 
-    private void generateAllowedBiomes(PrintWriter output, String tabs, AllowedBiomesValues allowedBiomes) {
+    private void generateAllowedBiomes(PrintWriter output, String tabs, AllowedBiomes allowedBiomes) {
         if (allowedBiomes.getWhitelist().isEmpty()) {
             if (!allowedBiomes.getBlacklist().isEmpty()) {
                 output.println(tabs + "When the block is broken in any biome, <b><i>except</i></b> 1 of the following:");
@@ -146,15 +146,15 @@ public class ItemDropGenerator {
             }
         } else {
             output.println(tabs + "When the block is broken in one of the following biomes:");
-            Collection<CIBiome> biomes = new ArrayList<>(allowedBiomes.getWhitelist());
+            Collection<VBiome> biomes = new ArrayList<>(allowedBiomes.getWhitelist());
             biomes.removeAll(allowedBiomes.getBlacklist());
             generateBiomeList(output, tabs, biomes);
         }
     }
 
-    private void generateBiomeList(PrintWriter output, String tabs, Collection<CIBiome> biomes) {
+    private void generateBiomeList(PrintWriter output, String tabs, Collection<VBiome> biomes) {
         output.println(tabs + "<ul class=\"drop-biomes\">");
-        for (CIBiome biome : biomes) {
+        for (VBiome biome : biomes) {
             output.println(tabs + "\t<li class=\"drop-biome\">" + biome + "</li>");
         }
         output.println(tabs + "</ul>");
@@ -171,12 +171,12 @@ public class ItemDropGenerator {
         }
     }
 
-    private void generateRelevantDrops(PrintWriter output, String tabs, OutputTableValues allDrops) {
+    private void generateRelevantDrops(PrintWriter output, String tabs, OutputTable allDrops) {
         output.println(tabs + "Chances:");
         output.println(tabs + "<ul class=\"drop-chances\">");
-        for (OutputTableValues.Entry candidateEntry : allDrops.getEntries()) {
+        for (OutputTable.Entry candidateEntry : allDrops.getEntries()) {
             if (isItem(item, candidateEntry.getResult())) {
-                int amount = ((CustomItemResultValues) candidateEntry.getResult()).getAmount();
+                int amount = ((CustomItemResult) candidateEntry.getResult()).getAmount();
                 output.println(tabs + "\t<li class=\"drop-chance\">" + candidateEntry.getChance() + " to get " + amount + "</li>");
             }
         }

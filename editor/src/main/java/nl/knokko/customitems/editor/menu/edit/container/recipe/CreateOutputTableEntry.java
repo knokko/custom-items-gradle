@@ -9,9 +9,9 @@ import nl.knokko.customitems.editor.util.FixedPointEditField;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.recipe.OutputTableValues;
-import nl.knokko.customitems.recipe.result.ResultValues;
-import nl.knokko.customitems.recipe.result.UpgradeResultValues;
+import nl.knokko.customitems.recipe.OutputTable;
+import nl.knokko.customitems.recipe.result.KciResult;
+import nl.knokko.customitems.recipe.result.UpgradeResult;
 import nl.knokko.customitems.util.Chance;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -22,14 +22,14 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 public class CreateOutputTableEntry extends GuiMenu {
 	
 	private final GuiComponent returnMenu;
-	private final Consumer<OutputTableValues.Entry> onCreate;
+	private final Consumer<OutputTable.Entry> onCreate;
 	private final ItemSet set;
-	private final ResultValues oldResult;
-	private final BiFunction<GuiComponent, UpgradeResultValues, GuiComponent> createUpgradeIngredientMenu;
+	private final KciResult oldResult;
+	private final BiFunction<GuiComponent, UpgradeResult, GuiComponent> createUpgradeIngredientMenu;
 	
 	public CreateOutputTableEntry(
-			GuiComponent returnMenu, Consumer<OutputTableValues.Entry> onCreate, ItemSet set, ResultValues oldResult,
-			BiFunction<GuiComponent, UpgradeResultValues, GuiComponent> createUpgradeIngredientMenu
+			GuiComponent returnMenu, Consumer<OutputTable.Entry> onCreate, ItemSet set, KciResult oldResult,
+			BiFunction<GuiComponent, UpgradeResult, GuiComponent> createUpgradeIngredientMenu
 	) {
 		this.returnMenu = returnMenu;
 		this.onCreate = onCreate;
@@ -60,7 +60,7 @@ public class CreateOutputTableEntry extends GuiMenu {
 		addComponent(new DynamicTextComponent("%", EditProps.LABEL), 0.4f, 0.6f, 0.42f, 0.7f);
 		
 		addComponent(new DynamicTextComponent("Item: ", EditProps.LABEL), 0.2f, 0.4f, 0.3f, 0.5f);
-		ResultValues[] pResult = {null};
+		KciResult[] pResult = {null};
 		addComponent(new DynamicTextButton("Choose...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new ChooseResult(
 					this, newResult -> pResult[0] = newResult, set,
@@ -79,7 +79,7 @@ public class CreateOutputTableEntry extends GuiMenu {
 				return;
 			}
 
-			OutputTableValues.Entry entry = OutputTableValues.Entry.createQuick(pResult[0], pChance[0]);
+			OutputTable.Entry entry = OutputTable.Entry.createQuick(pResult[0], pChance[0]);
 			String error = Validation.toErrorString(() -> entry.validate(set));
 			if (error == null) {
 				onCreate.accept(entry);

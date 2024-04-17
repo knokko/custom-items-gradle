@@ -9,17 +9,17 @@ import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.collection.SelfDedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.projectile.effect.ProjectileEffectsValues;
+import nl.knokko.customitems.projectile.effect.ProjectileEffects;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
-public class ProjectileEffectsCollectionEdit extends SelfDedicatedCollectionEdit<ProjectileEffectsValues> {
+public class ProjectileEffectsCollectionEdit extends SelfDedicatedCollectionEdit<ProjectileEffects> {
 	
 	private final ItemSet set;
 
 	public ProjectileEffectsCollectionEdit(
-            ItemSet set, Collection<ProjectileEffectsValues> oldCollection,
-            Consumer<List<ProjectileEffectsValues>> changeCollection, GuiComponent returnMenu
+            ItemSet set, Collection<ProjectileEffects> oldCollection,
+            Consumer<List<ProjectileEffects>> changeCollection, GuiComponent returnMenu
 	){
 		super(oldCollection, changeCollection, returnMenu);
 		this.set = set;
@@ -30,7 +30,7 @@ public class ProjectileEffectsCollectionEdit extends SelfDedicatedCollectionEdit
 		super.addComponents();
 		addComponent(new DynamicTextButton("Add effects", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new EditProjectileEffects(
-					set, this, new ProjectileEffectsValues(true), this::addModel
+					set, this, new ProjectileEffects(true), this::addModel
 			));
 		}), 0.025f, 0.2f, 0.2f, 0.3f);
 		
@@ -38,22 +38,22 @@ public class ProjectileEffectsCollectionEdit extends SelfDedicatedCollectionEdit
 	}
 
 	@Override
-	protected String getModelLabel(ProjectileEffectsValues model) {
+	protected String getModelLabel(ProjectileEffects model) {
 		return model.toString();
 	}
 
 	@Override
-	protected BufferedImage getModelIcon(ProjectileEffectsValues model) {
+	protected BufferedImage getModelIcon(ProjectileEffects model) {
 		return null;
 	}
 
 	@Override
-	protected boolean canEditModel(ProjectileEffectsValues model) {
+	protected boolean canEditModel(ProjectileEffects model) {
 		return true;
 	}
 
 	@Override
-	protected GuiComponent createEditMenu(ProjectileEffectsValues oldModelValues, Consumer<ProjectileEffectsValues> changeModelValues) {
+	protected GuiComponent createEditMenu(ProjectileEffects oldModelValues, Consumer<ProjectileEffects> changeModelValues) {
 		return new EditProjectileEffects(set, this, oldModelValues, changeModelValues);
 	}
 
@@ -63,7 +63,7 @@ public class ProjectileEffectsCollectionEdit extends SelfDedicatedCollectionEdit
 	}
 
 	@Override
-	protected CopyMode getCopyMode(ProjectileEffectsValues model) {
+	protected CopyMode getCopyMode(ProjectileEffects model) {
 		return CopyMode.INSTANT;
 	}
 }

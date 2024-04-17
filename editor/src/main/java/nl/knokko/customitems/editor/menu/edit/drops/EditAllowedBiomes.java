@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.drops;
 
-import nl.knokko.customitems.drops.AllowedBiomesValues;
-import nl.knokko.customitems.drops.CIBiome;
+import nl.knokko.customitems.drops.AllowedBiomes;
+import nl.knokko.customitems.drops.VBiome;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
@@ -18,13 +18,13 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class EditAllowedBiomes extends GuiMenu {
 
-    private final Consumer<AllowedBiomesValues> changeValues;
+    private final Consumer<AllowedBiomes> changeValues;
     private final GuiComponent returnMenu;
 
-    private final AllowedBiomesValues currentValues;
+    private final AllowedBiomes currentValues;
 
     public EditAllowedBiomes(
-            AllowedBiomesValues oldValues, Consumer<AllowedBiomesValues> changeValues, GuiComponent returnMenu
+            AllowedBiomes oldValues, Consumer<AllowedBiomes> changeValues, GuiComponent returnMenu
     ) {
         this.changeValues = changeValues;
         this.returnMenu = returnMenu;
@@ -63,10 +63,10 @@ public class EditAllowedBiomes extends GuiMenu {
 
     private class BiomeList extends GuiMenu {
 
-        Collection<CIBiome> currentBiomes;
-        final Consumer<Collection<CIBiome>> updateBiomes;
+        Collection<VBiome> currentBiomes;
+        final Consumer<Collection<VBiome>> updateBiomes;
 
-        BiomeList(Collection<CIBiome> currentBiomes, Consumer<Collection<CIBiome>> updateBiomes) {
+        BiomeList(Collection<VBiome> currentBiomes, Consumer<Collection<VBiome>> updateBiomes) {
             this.currentBiomes = currentBiomes;
             this.updateBiomes = updateBiomes;
         }
@@ -74,7 +74,7 @@ public class EditAllowedBiomes extends GuiMenu {
         @Override
         protected void addComponents() {
             float maxY = 0.9f;
-            for (CIBiome biome : currentBiomes) {
+            for (VBiome biome : currentBiomes) {
                 addComponent(new DynamicTextComponent(biome.toString(), LABEL), 0.1f, maxY - 0.1f, 0.7f, maxY);
                 addComponent(new DynamicTextButton("X", QUIT_BASE, QUIT_HOVER, () -> {
                     currentBiomes.remove(biome);
@@ -87,7 +87,7 @@ public class EditAllowedBiomes extends GuiMenu {
 
             addComponent(new DynamicTextButton("+", SAVE_BASE, SAVE_HOVER, () -> {
                 state.getWindow().setMainComponent(
-                        new EnumSelect<>(CIBiome.class, newBiome -> {
+                        new EnumSelect<>(VBiome.class, newBiome -> {
                             currentBiomes.add(newBiome);
                             updateBiomes.accept(currentBiomes);
                             clearComponents();

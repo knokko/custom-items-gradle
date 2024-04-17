@@ -1,43 +1,43 @@
 package nl.knokko.customitems.serialization;
 
-import nl.knokko.customitems.block.BlockSoundsValues;
-import nl.knokko.customitems.block.CustomBlockValues;
-import nl.knokko.customitems.block.drop.CustomBlockDropValues;
+import nl.knokko.customitems.block.BlockSounds;
+import nl.knokko.customitems.block.KciBlock;
+import nl.knokko.customitems.block.drop.CustomBlockDrop;
 import nl.knokko.customitems.block.drop.SilkTouchRequirement;
-import nl.knokko.customitems.container.ContainerRecipeValues;
-import nl.knokko.customitems.container.CustomContainerValues;
-import nl.knokko.customitems.container.slot.ActionSlotValues;
-import nl.knokko.customitems.container.slot.ContainerSlotValues;
-import nl.knokko.customitems.container.slot.LinkSlotValues;
-import nl.knokko.customitems.container.slot.display.CustomDisplayItemValues;
-import nl.knokko.customitems.container.slot.display.SimpleVanillaDisplayItemValues;
-import nl.knokko.customitems.container.slot.display.SlotDisplayValues;
-import nl.knokko.customitems.damage.CustomDamageSourceValues;
-import nl.knokko.customitems.damage.DamageSource;
-import nl.knokko.customitems.drops.BlockDropValues;
-import nl.knokko.customitems.drops.BlockType;
-import nl.knokko.customitems.drops.DropValues;
+import nl.knokko.customitems.container.ContainerRecipe;
+import nl.knokko.customitems.container.KciContainer;
+import nl.knokko.customitems.container.slot.ActionSlot;
+import nl.knokko.customitems.container.slot.ContainerSlot;
+import nl.knokko.customitems.container.slot.LinkSlot;
+import nl.knokko.customitems.container.slot.display.CustomDisplayItem;
+import nl.knokko.customitems.container.slot.display.SimpleVanillaDisplayItem;
+import nl.knokko.customitems.container.slot.display.SlotDisplay;
+import nl.knokko.customitems.damage.KciDamageSource;
+import nl.knokko.customitems.damage.VDamageSource;
+import nl.knokko.customitems.drops.BlockDrop;
+import nl.knokko.customitems.drops.VBlockType;
+import nl.knokko.customitems.drops.KciDrop;
 import nl.knokko.customitems.item.*;
-import nl.knokko.customitems.item.enchantment.EnchantmentType;
-import nl.knokko.customitems.item.equipment.EquipmentEntry;
-import nl.knokko.customitems.itemset.CustomDamageSourceReference;
+import nl.knokko.customitems.item.enchantment.VEnchantmentType;
+import nl.knokko.customitems.item.equipment.EquipmentSetEntry;
+import nl.knokko.customitems.itemset.DamageSourceReference;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.misc.CombinedResourcepackValues;
-import nl.knokko.customitems.projectile.CustomProjectileValues;
-import nl.knokko.customitems.recipe.OutputTableValues;
-import nl.knokko.customitems.recipe.ShapedRecipeValues;
-import nl.knokko.customitems.recipe.ShapelessRecipeValues;
-import nl.knokko.customitems.recipe.ingredient.CustomItemIngredientValues;
-import nl.knokko.customitems.recipe.ingredient.IngredientValues;
-import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredientValues;
+import nl.knokko.customitems.misc.CombinedResourcepack;
+import nl.knokko.customitems.projectile.KciProjectile;
+import nl.knokko.customitems.recipe.OutputTable;
+import nl.knokko.customitems.recipe.KciShapedRecipe;
+import nl.knokko.customitems.recipe.KciShapelessRecipe;
+import nl.knokko.customitems.recipe.ingredient.CustomItemIngredient;
+import nl.knokko.customitems.recipe.ingredient.KciIngredient;
+import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredient;
 import nl.knokko.customitems.recipe.ingredient.constraint.*;
-import nl.knokko.customitems.recipe.result.CustomItemResultValues;
-import nl.knokko.customitems.recipe.result.SimpleVanillaResultValues;
-import nl.knokko.customitems.recipe.result.UpgradeResultValues;
-import nl.knokko.customitems.recipe.upgrade.UpgradeValues;
-import nl.knokko.customitems.sound.VanillaSoundType;
-import nl.knokko.customitems.texture.FancyPantsArmorFrameValues;
-import nl.knokko.customitems.texture.FancyPantsArmorTextureValues;
+import nl.knokko.customitems.recipe.result.CustomItemResult;
+import nl.knokko.customitems.recipe.result.SimpleVanillaResult;
+import nl.knokko.customitems.recipe.result.UpgradeResult;
+import nl.knokko.customitems.recipe.upgrade.Upgrade;
+import nl.knokko.customitems.sound.VSoundType;
+import nl.knokko.customitems.texture.FancyPantsFrame;
+import nl.knokko.customitems.texture.FancyPantsTexture;
 import nl.knokko.customitems.util.Chance;
 import org.junit.jupiter.api.Test;
 
@@ -105,38 +105,38 @@ public class TestBackward12 {
     static void testItemsFancy12(ItemSet itemSet, int numItems) {
         assertEquals(numItems, itemSet.items.size());
 
-        testSimpleHelmet((CustomArmorValues) itemSet.items.get("simple_helmet").get());
-        testShinyBoots((CustomArmorValues) itemSet.items.get("shiny_boots").get());
+        testSimpleHelmet((KciArmor) itemSet.items.get("simple_helmet").get());
+        testShinyBoots((KciArmor) itemSet.items.get("shiny_boots").get());
     }
 
-    static void testSimpleHelmet(CustomArmorValues helmet) {
+    static void testSimpleHelmet(KciArmor helmet) {
         assertEquals("Simple Helmet", helmet.getDisplayName());
         assertEquals("simple", helmet.getFancyPantsTexture().getName());
-        assertEquals(CustomItemType.LEATHER_HELMET, helmet.getItemType());
+        assertEquals(KciItemType.LEATHER_HELMET, helmet.getItemType());
     }
 
-    static void testShinyBoots(CustomArmorValues boots) {
+    static void testShinyBoots(KciArmor boots) {
         assertEquals("Shiny Boots", boots.getDisplayName());
         assertEquals("shiny", boots.getFancyPantsTexture().getName());
-        assertEquals(CustomItemType.LEATHER_BOOTS, boots.getItemType());
+        assertEquals(KciItemType.LEATHER_BOOTS, boots.getItemType());
     }
 
     static void testFancyPantsTextures12(ItemSet itemSet, int numTextures) {
         assertEquals(numTextures, itemSet.fancyPants.size());
 
-        FancyPantsArmorTextureValues shiny = itemSet.fancyPants.stream().filter(fpTexture ->
+        FancyPantsTexture shiny = itemSet.fancyPants.stream().filter(fpTexture ->
                 fpTexture.getName().equals("shiny")
         ).findFirst().get();
         assertEquals(5, shiny.getRgb());
-        assertEquals(FancyPantsArmorTextureValues.Emissivity.PARTIAL, shiny.getEmissivity());
+        assertEquals(FancyPantsTexture.Emissivity.PARTIAL, shiny.getEmissivity());
         assertTrue(shiny.usesLeatherTint());
         assertEquals(20, shiny.getAnimationSpeed());
         assertTrue(shiny.shouldInterpolateAnimations());
 
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals(2, shiny.getFrames().size());
-            FancyPantsArmorFrameValues frame1 = shiny.getFrames().get(0);
-            FancyPantsArmorFrameValues frame2 = shiny.getFrames().get(1);
+            FancyPantsFrame frame1 = shiny.getFrames().get(0);
+            FancyPantsFrame frame2 = shiny.getFrames().get(1);
             try {
                 assertImageEqual(ImageIO.read(Objects.requireNonNull(TestBackward12.class.getClassLoader().getResourceAsStream(
                         "nl/knokko/customitems/serialization/texture/blue_gold_layer_1.png"
@@ -162,15 +162,15 @@ public class TestBackward12 {
             }
         }
 
-        FancyPantsArmorTextureValues simple = itemSet.fancyPants.stream().filter(texture ->
+        FancyPantsTexture simple = itemSet.fancyPants.stream().filter(texture ->
                 texture.getName().equals("simple")
         ).findFirst().get();
         assertEquals(0, simple.getRgb());
-        assertEquals(FancyPantsArmorTextureValues.Emissivity.NONE, simple.getEmissivity());
+        assertEquals(FancyPantsTexture.Emissivity.NONE, simple.getEmissivity());
         assertFalse(simple.usesLeatherTint());
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals(1, simple.getFrames().size());
-            FancyPantsArmorFrameValues frame = simple.getFrames().get(0);
+            FancyPantsFrame frame = simple.getFrames().get(0);
             try {
                 assertImageEqual(ImageIO.read(Objects.requireNonNull(TestBackward12.class.getClassLoader().getResourceAsStream(
                         "nl/knokko/customitems/serialization/texture/armor1layer1.png"
@@ -203,15 +203,15 @@ public class TestBackward12 {
     static void testBlocksNew12(ItemSet itemSet, int numBlocks) {
         testBlocksNew11(itemSet, numBlocks);
 
-        CustomBlockValues musicBlock = itemSet.blocks.get("music_block").get();
-        BlockSoundsValues sounds = musicBlock.getSounds();
-        assertEquals(VanillaSoundType.BLOCK_ANVIL_FALL, sounds.getLeftClickSound().getVanillaSound());
+        KciBlock musicBlock = itemSet.blocks.get("music_block").get();
+        BlockSounds sounds = musicBlock.getSounds();
+        assertEquals(VSoundType.BLOCK_ANVIL_FALL, sounds.getLeftClickSound().getVanillaSound());
         assertNull(sounds.getRightClickSound());
         assertEquals("test5sec", sounds.getBreakSound().getCustomSound().getName());
-        assertEquals(VanillaSoundType.ENTITY_GHAST_SCREAM, sounds.getStepSound().getVanillaSound());
+        assertEquals(VSoundType.ENTITY_GHAST_SCREAM, sounds.getStepSound().getVanillaSound());
 
         assertEquals(1, musicBlock.getDrops().size());
-        CustomBlockDropValues blockDrop = musicBlock.getDrops().iterator().next();
+        CustomBlockDrop blockDrop = musicBlock.getDrops().iterator().next();
         assertEquals(2, blockDrop.getMinFortuneLevel());
         assertEquals(3, (int) blockDrop.getMaxFortuneLevel());
         assertEquals(SilkTouchRequirement.FORBIDDEN, blockDrop.getSilkTouchRequirement());
@@ -220,23 +220,23 @@ public class TestBackward12 {
     static void testItemsOld12(ItemSet set, int numItems) {
         testItemsOld11(set, numItems);
 
-        testElytraDefault12((CustomElytraValues) set.items.get("elytra1").get());
-        testWandDefault12((CustomWandValues) set.items.get("wand4").get());
-        testGunDefault12((CustomGunValues) set.items.get("gun3").get());
-        testFoodDefault12((CustomFoodValues) set.items.get("food3").get());
+        testElytraDefault12((KciElytra) set.items.get("elytra1").get());
+        testWandDefault12((KciWand) set.items.get("wand4").get());
+        testGunDefault12((KciGun) set.items.get("gun3").get());
+        testFoodDefault12((KciFood) set.items.get("food3").get());
 
-        testBoots2((CustomArmorValues) set.items.get("boots2").get(), set.getSide());
+        testBoots2((KciArmor) set.items.get("boots2").get(), set.getSide());
     }
 
     static void testItemsNew12(ItemSet itemSet, int numItems) {
         testItemsNew11(itemSet, numItems);
 
-        testMusicDiscDefault12((CustomMusicDiscValues) itemSet.items.get("music_disc1").get());
+        testMusicDiscDefault12((KciMusicDisc) itemSet.items.get("music_disc1").get());
 
-        testArrow1((CustomArrowValues) itemSet.items.get("arrow1").get());
+        testArrow1((KciArrow) itemSet.items.get("arrow1").get());
     }
 
-    static void testBoots2(CustomArmorValues boots, ItemSet.Side side) {
+    static void testBoots2(KciArmor boots, ItemSet.Side side) {
         assertEquals("boots2", boots.getName());
         assertEquals("Boots 2", boots.getDisplayName());
         assertTrue(boots.isIndestructible());
@@ -247,7 +247,7 @@ public class TestBackward12 {
         }
     }
 
-    static void testArrow1(CustomArrowValues arrow) {
+    static void testArrow1(KciArrow arrow) {
         assertEquals("arrow1", arrow.getName());
         assertEquals("Arrow 1", arrow.getDisplayName());
         assertEquals(61, arrow.getMaxStacksize());
@@ -263,20 +263,20 @@ public class TestBackward12 {
     static void testEquipmentSetsOld12(ItemSet itemSet, int numEquipmentSets) {
         testEquipmentSetsOld11(itemSet, numEquipmentSets);
 
-        CustomDamageSourceValues shock = itemSet.damageSources.stream().filter(
+        KciDamageSource shock = itemSet.damageSources.stream().filter(
                 source -> source.getName().equals("shock")
         ).findFirst().get();
-        CustomDamageSourceValues frost = itemSet.damageSources.stream().filter(
+        KciDamageSource frost = itemSet.damageSources.stream().filter(
                 source -> source.getName().equals("frost")
         ).findFirst().get();
 
-        DamageResistanceValues customResistances = new DamageResistanceValues(true);
+        DamageResistance customResistances = new DamageResistance(true);
         customResistances.setResistance(itemSet.damageSources.getReference(shock.getId()), (short) 50);
         customResistances.setResistance(itemSet.damageSources.getReference(frost.getId()), (short) -100);
 
         assertTrue(itemSet.equipmentSets.stream().anyMatch(equipmentSet ->
-                equipmentSet.getEntries().size() == 1 && equipmentSet.getEntryValue(new EquipmentEntry(
-                        AttributeModifierValues.Slot.MAINHAND, itemSet.items.getReference("sword1")
+                equipmentSet.getEntries().size() == 1 && equipmentSet.getEntryValue(new EquipmentSetEntry(
+                        KciAttributeModifier.Slot.MAINHAND, itemSet.items.getReference("sword1")
                 )) == 1 && equipmentSet.getBonuses().size() == 1
                         && equipmentSet.getBonuses().iterator().next().getDamageResistances().equals(customResistances)
         ));
@@ -292,22 +292,22 @@ public class TestBackward12 {
     static void testUpgradesOld12(ItemSet itemSet, int numUpgrades) {
         assertEquals(numUpgrades, itemSet.upgrades.size());
 
-        CustomDamageSourceReference shock = itemSet.damageSources.getReference(itemSet.damageSources.stream().filter(
+        DamageSourceReference shock = itemSet.damageSources.getReference(itemSet.damageSources.stream().filter(
                 candidate -> candidate.getName().equals("shock")
         ).findFirst().get().getId());
 
-        UpgradeValues upgrade = itemSet.upgrades.stream().filter(
+        Upgrade upgrade = itemSet.upgrades.stream().filter(
                 candidate -> candidate.getName().equals("shock")
         ).findFirst().get();
 
         assertEquals(1, upgrade.getEnchantments().size());
-        assertEquals(EnchantmentType.DAMAGE_UNDEAD, upgrade.getEnchantments().iterator().next().getType());
+        assertEquals(VEnchantmentType.DAMAGE_UNDEAD, upgrade.getEnchantments().iterator().next().getType());
         assertEquals(2, upgrade.getEnchantments().iterator().next().getLevel());
 
         assertEquals(1, upgrade.getAttributeModifiers().size());
-        assertEquals(AttributeModifierValues.Attribute.MOVEMENT_SPEED, upgrade.getAttributeModifiers().iterator().next().getAttribute());
+        assertEquals(KciAttributeModifier.Attribute.MOVEMENT_SPEED, upgrade.getAttributeModifiers().iterator().next().getAttribute());
 
-        assertEquals(20, upgrade.getDamageResistances().getResistance(DamageSource.LAVA));
+        assertEquals(20, upgrade.getDamageResistances().getResistance(VDamageSource.LAVA));
         assertEquals(50, upgrade.getDamageResistances().getResistance(shock));
 
         assertEquals(1, upgrade.getVariables().size());
@@ -318,30 +318,30 @@ public class TestBackward12 {
     static void testRecipesOld12(ItemSet itemSet, int numRecipes) {
         testRecipesOld11(itemSet, numRecipes);
 
-        UpgradeValues upgrade = itemSet.upgrades.stream().filter(
+        Upgrade upgrade = itemSet.upgrades.stream().filter(
                 candidate -> candidate.getName().equals("shock")
         ).findFirst().get();
 
-        IngredientValues ironIngot = SimpleVanillaIngredientValues.createQuick(CIMaterial.IRON_INGOT, 1);
+        KciIngredient ironIngot = SimpleVanillaIngredient.createQuick(VMaterial.IRON_INGOT, 1);
 
-        IngredientConstraintsValues constraints = new IngredientConstraintsValues(true);
-        constraints.setDurabilityConstraints(listOf(DurabilityConstraintValues.createQuick(ConstraintOperator.AT_LEAST, 95f)));
-        constraints.setEnchantmentConstraints(listOf(EnchantmentConstraintValues.createQuick(
-                EnchantmentType.MENDING, ConstraintOperator.EQUAL, 0
+        IngredientConstraints constraints = new IngredientConstraints(true);
+        constraints.setDurabilityConstraints(listOf(DurabilityConstraint.createQuick(ConstraintOperator.AT_LEAST, 95f)));
+        constraints.setEnchantmentConstraints(listOf(EnchantmentConstraint.createQuick(
+                VEnchantmentType.MENDING, ConstraintOperator.EQUAL, 0
         )));
 
-        IngredientValues upgradeIngredient = CustomItemIngredientValues.createQuick(itemSet.items.getReference("pickaxe1"), 1);
+        KciIngredient upgradeIngredient = CustomItemIngredient.createQuick(itemSet.items.getReference("pickaxe1"), 1);
         upgradeIngredient.setConstraints(constraints);
 
-        UpgradeResultValues upgradeResult = new UpgradeResultValues(true);
-        upgradeResult.setNewType(SimpleVanillaResultValues.createQuick(CIMaterial.IRON_PICKAXE, 1));
+        UpgradeResult upgradeResult = new UpgradeResult(true);
+        upgradeResult.setNewType(SimpleVanillaResult.createQuick(VMaterial.IRON_PICKAXE, 1));
         upgradeResult.setIngredientIndex(4);
         upgradeResult.setRepairPercentage(10f);
         upgradeResult.setUpgrades(listOf(itemSet.upgrades.getReference(upgrade.getId())));
         upgradeResult.setKeepOldUpgrades(true);
         upgradeResult.setKeepOldEnchantments(false);
 
-        ShapedRecipeValues shapedUpgrade = new ShapedRecipeValues(true);
+        KciShapedRecipe shapedUpgrade = new KciShapedRecipe(true);
         shapedUpgrade.setIgnoreDisplacement(true);
         shapedUpgrade.setIngredientAt(1, 0, ironIngot);
         shapedUpgrade.setIngredientAt(0, 1, ironIngot);
@@ -352,7 +352,7 @@ public class TestBackward12 {
 
         assertTrue(itemSet.craftingRecipes.stream().anyMatch(recipe -> recipe.equals(shapedUpgrade)));
 
-        ShapelessRecipeValues shapelessUpgrade = new ShapelessRecipeValues(true);
+        KciShapelessRecipe shapelessUpgrade = new KciShapelessRecipe(true);
         shapelessUpgrade.setIngredients(listOf(upgradeIngredient, ironIngot, ironIngot, ironIngot));
         upgradeResult.setIngredientIndex(0);
         shapelessUpgrade.setResult(upgradeResult);
@@ -363,16 +363,16 @@ public class TestBackward12 {
     static void testBlockDropsOld12(ItemSet itemSet, int numBlockDrops) {
         testBlockDropsOld10(itemSet, numBlockDrops);
 
-        OutputTableValues dropTable = new OutputTableValues(true);
-        dropTable.setEntries(listOf(OutputTableValues.Entry.createQuick(
-                CustomItemResultValues.createQuick(itemSet.items.getReference("simple1"), 1), Chance.percentage(50)
+        OutputTable dropTable = new OutputTable(true);
+        dropTable.setEntries(listOf(OutputTable.Entry.createQuick(
+                CustomItemResult.createQuick(itemSet.items.getReference("simple1"), 1), Chance.percentage(50)
         )));
 
-        DropValues drop = new DropValues(true);
+        KciDrop drop = new KciDrop(true);
         drop.setOutputTable(dropTable);
 
-        BlockDropValues blockDrop = new BlockDropValues(true);
-        blockDrop.setBlockType(BlockType.GRAVEL);
+        BlockDrop blockDrop = new BlockDrop(true);
+        blockDrop.setBlockType(VBlockType.GRAVEL);
         blockDrop.setDrop(drop);
         blockDrop.setSilkTouchRequirement(SilkTouchRequirement.FORBIDDEN);
         blockDrop.setMinFortuneLevel(1);
@@ -384,42 +384,42 @@ public class TestBackward12 {
     static void testProjectilesOld12(ItemSet itemSet, int numProjectiles) {
         testProjectilesOld11(itemSet, numProjectiles);
 
-        CustomProjectileValues shocking = itemSet.projectiles.get("shocking").get();
+        KciProjectile shocking = itemSet.projectiles.get("shocking").get();
         assertEquals("shock", shocking.getCustomDamageSourceReference().get().getName());
     }
 
     static void testContainersOld12(ItemSet itemSet, int numContainers) {
         testContainersOld11(itemSet, numContainers);
 
-        ContainerSlotValues boringActionSlot = ActionSlotValues.createQuick("testBoring", null);
-        ContainerSlotValues fancyActionSlot = ActionSlotValues.createQuick("testFancy", SlotDisplayValues.createQuick(
-                SimpleVanillaDisplayItemValues.createQuick(CIMaterial.SAND), "", new ArrayList<>(), 1
+        ContainerSlot boringActionSlot = ActionSlot.createQuick("testBoring", null);
+        ContainerSlot fancyActionSlot = ActionSlot.createQuick("testFancy", SlotDisplay.createQuick(
+                SimpleVanillaDisplayItem.createQuick(VMaterial.SAND), "", new ArrayList<>(), 1
         ));
 
-        LinkSlotValues linkSlot1 = LinkSlotValues.createQuick(
+        LinkSlot linkSlot1 = LinkSlot.createQuick(
                 itemSet.containers.getReference("container1"),
-                SlotDisplayValues.createQuick(
-                        CustomDisplayItemValues.createQuick(itemSet.items.getReference("simple1")),
+                SlotDisplay.createQuick(
+                        CustomDisplayItem.createQuick(itemSet.items.getReference("simple1")),
                         "", new ArrayList<>(), 1
                 )
         );
-        LinkSlotValues linkSlot2 = LinkSlotValues.createQuick(itemSet.containers.getReference("container2"), null);
+        LinkSlot linkSlot2 = LinkSlot.createQuick(itemSet.containers.getReference("container2"), null);
 
-        CustomContainerValues linkActions = itemSet.containers.get("linkActions").get();
+        KciContainer linkActions = itemSet.containers.get("linkActions").get();
         assertEquals(2, linkActions.getHeight());
         assertEquals(boringActionSlot, linkActions.getSlot(0, 0));
         assertEquals(fancyActionSlot, linkActions.getSlot(1, 0));
         assertEquals(linkSlot1, linkActions.getSlot(7, 1));
         assertEquals(linkSlot2, linkActions.getSlot(8, 1));
 
-        ContainerRecipeValues autoRecipe = linkActions.getRecipes().get(0);
-        IngredientValues autoSwordIngredient = autoRecipe.getInput("sword");
+        ContainerRecipe autoRecipe = linkActions.getRecipes().get(0);
+        KciIngredient autoSwordIngredient = autoRecipe.getInput("sword");
         assertEquals(1, autoSwordIngredient.getConstraints().getEnchantmentConstraints().size());
         assertEquals(
-                EnchantmentType.DAMAGE_ALL,
+                VEnchantmentType.DAMAGE_ALL,
                 autoSwordIngredient.getConstraints().getEnchantmentConstraints().iterator().next().getEnchantment()
         );
-        UpgradeResultValues autoSwordResult = (UpgradeResultValues) autoRecipe.getOutput(
+        UpgradeResult autoSwordResult = (UpgradeResult) autoRecipe.getOutput(
                 "auto"
         ).getEntries().iterator().next().getResult();
         assertEquals(1, autoSwordResult.getUpgrades().size());
@@ -429,15 +429,15 @@ public class TestBackward12 {
         assertTrue(autoSwordResult.shouldKeepOldEnchantments());
         assertEquals("sword", autoSwordResult.getInputSlotName());
 
-        ContainerRecipeValues manualRecipe = linkActions.getRecipes().get(1);
-        IngredientValues manualSwordIngredient = manualRecipe.getInput("sword");
+        ContainerRecipe manualRecipe = linkActions.getRecipes().get(1);
+        KciIngredient manualSwordIngredient = manualRecipe.getInput("sword");
         assertEquals(1, manualSwordIngredient.getConstraints().getVariableConstraints().size());
-        VariableConstraintValues variableConstraint = manualSwordIngredient.getConstraints().getVariableConstraints().iterator().next();
+        VariableConstraint variableConstraint = manualSwordIngredient.getConstraints().getVariableConstraints().iterator().next();
         assertEquals("woohoo", variableConstraint.getVariable());
         assertEquals(5, variableConstraint.getValue());
         assertEquals(ConstraintOperator.EQUAL, variableConstraint.getOperator());
 
-        UpgradeResultValues manualSwordResult = (UpgradeResultValues) manualRecipe.getManualOutput();
+        UpgradeResult manualSwordResult = (UpgradeResult) manualRecipe.getManualOutput();
         assertEquals(0, manualSwordResult.getUpgrades().size());
         assertEquals(100f, manualSwordResult.getRepairPercentage(), 0.001f);
         assertNull(manualSwordResult.getNewType());
@@ -449,7 +449,7 @@ public class TestBackward12 {
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals(numPacks, itemSet.combinedResourcepacks.size());
 
-            CombinedResourcepackValues staff = itemSet.combinedResourcepacks.get("staff").get();
+            CombinedResourcepack staff = itemSet.combinedResourcepacks.get("staff").get();
             assertEquals(3, staff.getPriority());
             try {
                 ZipInputStream zipInput = new ZipInputStream(new ByteArrayInputStream(staff.getContent()));
@@ -483,7 +483,7 @@ public class TestBackward12 {
         }
     }
 
-    static void testBaseDefault12(CustomItemValues item) {
+    static void testBaseDefault12(KciItem item) {
         assertNull(item.getCustomMeleeDamageSourceReference());
         assertFalse(item.isIndestructible());
         assertFalse(item.isTwoHanded());
@@ -491,96 +491,96 @@ public class TestBackward12 {
         // TODO Call testBaseDefault13
     }
 
-    static void testSimpleDefault12(SimpleCustomItemValues item) {
+    static void testSimpleDefault12(KciSimpleItem item) {
         testBaseDefault12(item);
         // TODO Call testSimpleDefault13
     }
 
-    static void testToolDefault12(CustomToolValues item) {
+    static void testToolDefault12(KciTool item) {
         testBaseDefault12(item);
         // TODO Call testToolDefault13
     }
 
-    static void testArmorDefault12(CustomArmorValues item) {
+    static void testArmorDefault12(KciArmor item) {
         testToolDefault12(item);
         assertNull(item.getFancyPantsTextureReference());
         // TODO Call testArmorDefault13
     }
 
-    static void testHoeDefault12(CustomHoeValues item) {
+    static void testHoeDefault12(KciHoe item) {
         testToolDefault12(item);
         // TODO Call testHoeDefault13
     }
 
-    static void testShearsDefault12(CustomShearsValues item) {
+    static void testShearsDefault12(KciShears item) {
         testToolDefault12(item);
         // TODO Call testShearsDefault13
     }
 
-    static void testBowDefault12(CustomBowValues item) {
+    static void testBowDefault12(KciBow item) {
         testToolDefault12(item);
         assertNull(item.getCustomShootDamageSourceReference());
         // TODO Call testBowDefault13
     }
 
-    static void testShieldDefault12(CustomShieldValues item) {
+    static void testShieldDefault12(KciShield item) {
         testToolDefault12(item);
         // TODO Call testShieldDefault13
     }
 
-    static void testWandDefault12(CustomWandValues item) {
+    static void testWandDefault12(KciWand item) {
         testBaseDefault12(item);
         // TODO Call testWandDefault13
     }
 
-    static void testGunDefault12(CustomGunValues item) {
+    static void testGunDefault12(KciGun item) {
         testBaseDefault12(item);
         // TODO Call testGunDefault13
     }
 
-    static void testFoodDefault12(CustomFoodValues item) {
+    static void testFoodDefault12(KciFood item) {
         testBaseDefault12(item);
         // TODO Call testFoodDefault13
     }
 
-    static void testPocketContainerDefault12(CustomPocketContainerValues item) {
+    static void testPocketContainerDefault12(KciPocketContainer item) {
         testBaseDefault12(item);
         // TODO Call testPocketContainerDefault13
     }
 
-    static void test3dHelmetDefault12(CustomHelmet3dValues item) {
+    static void test3dHelmetDefault12(Kci3dHelmet item) {
         testArmorDefault12(item);
         // TODO Call test3dHelmetDefault13
     }
 
-    static void testTridentDefault12(CustomTridentValues item) {
+    static void testTridentDefault12(KciTrident item) {
         testToolDefault12(item);
         assertNull(item.getCustomThrowDamageSourceReference());
         // TODO Call testTridentDefault13
     }
 
-    static void testCrossbowDefault12(CustomCrossbowValues item) {
+    static void testCrossbowDefault12(KciCrossbow item) {
         testToolDefault12(item);
         assertNull(item.getCustomShootDamageSourceReference());
         // TODO Call testCrossbowDefault13
     }
 
-    static void testBlockItemDefault12(CustomBlockItemValues item) {
+    static void testBlockItemDefault12(KciBlockItem item) {
         testBaseDefault12(item);
         // TODO Call testBlockItemDefault13
     }
 
-    static void testElytraDefault12(CustomElytraValues item) {
+    static void testElytraDefault12(KciElytra item) {
         testArmorDefault12(item);
         // TODO Call testElytraDefault13
     }
 
-    static void testMusicDiscDefault12(CustomMusicDiscValues item) {
+    static void testMusicDiscDefault12(KciMusicDisc item) {
         testBaseDefault12(item);
         // TODO Call testMusicDiscDefault13
     }
 
-    static void testDefaultBlockDrop12(BlockDropValues blockDrop) {
+    static void testDefaultBlockDrop12(BlockDrop blockDrop) {
         assertEquals(0, blockDrop.getMinFortuneLevel());
         assertNull(blockDrop.getMaxFortuneLevel());
     }

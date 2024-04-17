@@ -1,13 +1,13 @@
 package nl.knokko.customitems.plugin;
 
-import nl.knokko.customitems.block.CustomBlockValues;
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.block.KciBlock;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.plugin.container.ContainerInfo;
 import nl.knokko.customitems.plugin.container.ContainerInstance;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
-import nl.knokko.customitems.projectile.CustomProjectileValues;
+import nl.knokko.customitems.projectile.KciProjectile;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -27,7 +27,7 @@ public class CustomItemsApi {
         ItemSet itemSet = CustomItemsPlugin.getInstance().getSet().get();
 
         Collection<String> itemNames = new ArrayList<>(itemSet.items.size());
-        for (CustomItemValues item : itemSet.items) {
+        for (KciItem item : itemSet.items) {
             itemNames.add(item.getName());
         }
 
@@ -37,13 +37,13 @@ public class CustomItemsApi {
     public static ItemStack createItemStack(String itemName, int amount) {
         ItemSetWrapper wrapper = CustomItemsPlugin.getInstance().getSet();
 
-        CustomItemValues item = wrapper.getItem(itemName);
+        KciItem item = wrapper.getItem(itemName);
         if (item != null) return wrap(item).create(amount);
         else return null;
     }
 
     public static String getItemName(ItemStack itemStack) {
-        CustomItemValues item = CustomItemsPlugin.getInstance().getSet().getItem(itemStack);
+        KciItem item = CustomItemsPlugin.getInstance().getSet().getItem(itemStack);
 
         if (item != null) return item.getName();
         else return null;
@@ -57,7 +57,7 @@ public class CustomItemsApi {
         ItemSet itemSet = CustomItemsPlugin.getInstance().getSet().get();
 
         Collection<String> blockNames = new ArrayList<>(itemSet.blocks.size());
-        for (CustomItemValues item : itemSet.items) {
+        for (KciItem item : itemSet.items) {
             blockNames.add(item.getName());
         }
 
@@ -65,7 +65,7 @@ public class CustomItemsApi {
     }
 
     public static void placeBlock(Block destination, String customBlockName) {
-        Optional<CustomBlockValues> customBlock = CustomItemsPlugin.getInstance().getSet().get().blocks.get(customBlockName);
+        Optional<KciBlock> customBlock = CustomItemsPlugin.getInstance().getSet().get().blocks.get(customBlockName);
         if (customBlock.isPresent()) {
             MushroomBlockHelper.place(destination, customBlock.get());
         } else {
@@ -74,7 +74,7 @@ public class CustomItemsApi {
     }
 
     public static String getBlockName(Block block) {
-        CustomBlockValues customBlock = MushroomBlockHelper.getMushroomBlock(block);
+        KciBlock customBlock = MushroomBlockHelper.getMushroomBlock(block);
         if (customBlock != null) return customBlock.getName();
         else return null;
     }
@@ -89,7 +89,7 @@ public class CustomItemsApi {
 
     public static void launchProjectile(LivingEntity shooter, String projectileName) {
         CustomItemsPlugin plugin = CustomItemsPlugin.getInstance();
-        Optional<CustomProjectileValues> maybeProjectile = plugin.getSet().get().projectiles.get(projectileName);
+        Optional<KciProjectile> maybeProjectile = plugin.getSet().get().projectiles.get(projectileName);
         maybeProjectile.ifPresent(projectile -> plugin.getProjectileManager().fireProjectile(shooter, projectile));
     }
 

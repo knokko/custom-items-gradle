@@ -1,14 +1,12 @@
 package nl.knokko.customitems.editor.wiki;
 
 import nl.knokko.customitems.NameHelper;
-import nl.knokko.customitems.container.CustomContainerValues;
-import nl.knokko.customitems.effect.ChancePotionEffectValues;
-import nl.knokko.customitems.effect.PotionEffectValues;
-import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.item.CustomMusicDiscValues;
+import nl.knokko.customitems.container.KciContainer;
+import nl.knokko.customitems.effect.ChancePotionEffect;
+import nl.knokko.customitems.effect.KciPotionEffect;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.recipe.ingredient.*;
-import nl.knokko.customitems.sound.CustomSoundTypeValues;
-import nl.knokko.customitems.sound.SoundValues;
+import nl.knokko.customitems.sound.KciSound;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -67,42 +65,42 @@ public class WikiHelper {
         void generate(PrintWriter output) throws IOException;
     }
 
-    public static String createTextBasedIngredientHtml(IngredientValues ingredient, String pathRoToot) {
-        if (ingredient instanceof CustomItemIngredientValues) {
-            CustomItemValues item = ((CustomItemIngredientValues) ingredient).getItem();
+    public static String createTextBasedIngredientHtml(KciIngredient ingredient, String pathRoToot) {
+        if (ingredient instanceof CustomItemIngredient) {
+            KciItem item = ((CustomItemIngredient) ingredient).getItem();
             return "<a href=\"" + pathRoToot + "/items/" + item.getName() + ".html\">" + stripColorCodes(item.getDisplayName()) +
                     "</a> x " + ingredient.getAmount();
-        } else if (ingredient instanceof SimpleVanillaIngredientValues) {
-            return ((SimpleVanillaIngredientValues) ingredient).getMaterial() + " x " + ingredient.getAmount();
-        } else if (ingredient instanceof DataVanillaIngredientValues) {
-            DataVanillaIngredientValues dataIngredient = (DataVanillaIngredientValues) ingredient;
+        } else if (ingredient instanceof SimpleVanillaIngredient) {
+            return ((SimpleVanillaIngredient) ingredient).getMaterial() + " x " + ingredient.getAmount();
+        } else if (ingredient instanceof DataVanillaIngredient) {
+            DataVanillaIngredient dataIngredient = (DataVanillaIngredient) ingredient;
             return dataIngredient.getMaterial() + " with datavalue " + dataIngredient.getDataValue() + " x " + ingredient.getAmount();
-        } else if (ingredient instanceof MimicIngredientValues) {
-            return ((MimicIngredientValues) ingredient).getItemId() + " x " + ingredient.getAmount();
-        } else if (ingredient instanceof ItemBridgeIngredientValues) {
-            return ((ItemBridgeIngredientValues) ingredient).getItemId() + " x " + ingredient.getAmount();
-        } else if (ingredient instanceof NoIngredientValues) {
+        } else if (ingredient instanceof MimicIngredient) {
+            return ((MimicIngredient) ingredient).getItemId() + " x " + ingredient.getAmount();
+        } else if (ingredient instanceof ItemBridgeIngredient) {
+            return ((ItemBridgeIngredient) ingredient).getItemId() + " x " + ingredient.getAmount();
+        } else if (ingredient instanceof NoIngredient) {
             return "nothing";
         } else {
             throw new IllegalArgumentException("Unknown ingredient class: " + ingredient.getClass());
         }
     }
 
-    public static String describePotionEffect(PotionEffectValues effect) {
+    public static String describePotionEffect(KciPotionEffect effect) {
         return NameHelper.getNiceEnumName(effect.getType().name()) + " " + effect.getLevel() + " for " + effect.getDuration() + " ticks";
     }
 
-    public static String describePotionEffect(ChancePotionEffectValues effect) {
-        return describePotionEffect(PotionEffectValues.createQuick(effect.getType(), effect.getDuration(), effect.getLevel()));
+    public static String describePotionEffect(ChancePotionEffect effect) {
+        return describePotionEffect(KciPotionEffect.createQuick(effect.getType(), effect.getDuration(), effect.getLevel()));
     }
 
-    public static String getDisplayName(CustomContainerValues container) {
+    public static String getDisplayName(KciContainer container) {
         String niceDisplayName = stripColorCodes(container.getSelectionIcon().getDisplayName());
         if (niceDisplayName.isEmpty()) return container.getName();
         else return niceDisplayName;
     }
 
-    public static void generateAudio(PrintWriter output, String tabs, String pathToRoot, SoundValues sound) {
+    public static void generateAudio(PrintWriter output, String tabs, String pathToRoot, KciSound sound) {
         if (sound.getCustomSound() != null) {
             output.println(tabs + "<audio controls>");
             output.println(tabs + "\t<source src=\"" + pathToRoot + "sounds/" + sound.getCustomSound().getName()

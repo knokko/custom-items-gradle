@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.block;
 
 import nl.knokko.customitems.block.BlockConstants;
-import nl.knokko.customitems.block.CustomBlockValues;
+import nl.knokko.customitems.block.KciBlock;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.block.miningspeed.EditMiningSpeed;
 import nl.knokko.customitems.editor.menu.edit.block.model.ManageBlockModel;
@@ -22,12 +22,12 @@ import static nl.knokko.customitems.editor.util.HelpButtons.openWebpage;
 public class EditBlock extends GuiMenu  {
 
     private final BlockReference toModify;
-    private final CustomBlockValues currentValues;
+    private final KciBlock currentValues;
 
     private final GuiComponent returnMenu;
     private final ItemSet set;
 
-    public EditBlock(BlockReference blockToModify, CustomBlockValues oldValues, GuiComponent returnMenu, ItemSet set) {
+    public EditBlock(BlockReference blockToModify, KciBlock oldValues, GuiComponent returnMenu, ItemSet set) {
         this.toModify = blockToModify;
         this.currentValues = oldValues.copy(true);
         this.returnMenu = returnMenu;

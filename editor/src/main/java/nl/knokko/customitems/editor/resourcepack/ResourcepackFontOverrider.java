@@ -1,6 +1,6 @@
 package nl.knokko.customitems.editor.resourcepack;
 
-import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.container.KciContainer;
 import nl.knokko.customitems.itemset.ItemSet;
 
 import java.io.IOException;
@@ -29,7 +29,7 @@ class ResourcepackFontOverrider {
 
             int nextOverlayChar = 0xE000;
 
-            for (CustomContainerValues container : itemSet.containers) {
+            for (KciContainer container : itemSet.containers) {
                 if (container.getOverlayTexture() != null) {
                     nextOverlayChar += 1;
                     container.setOverlayChar((char) nextOverlayChar);

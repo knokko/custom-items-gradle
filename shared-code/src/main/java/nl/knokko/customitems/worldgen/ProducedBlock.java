@@ -3,7 +3,7 @@ package nl.knokko.customitems.worldgen;
 import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
-import nl.knokko.customitems.item.CIMaterial;
+import nl.knokko.customitems.item.VMaterial;
 import nl.knokko.customitems.itemset.BlockReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -19,18 +19,18 @@ public final class ProducedBlock {
         if (encoding != 1) throw new UnknownEncodingException("ProducedBlock", encoding);
 
         if (input.readBoolean()) return new ProducedBlock(itemSet.blocks.getReference(input.readInt()));
-        else return new ProducedBlock(CIMaterial.valueOf(input.readString()));
+        else return new ProducedBlock(VMaterial.valueOf(input.readString()));
     }
 
     private final BlockReference customBlock;
-    private final CIMaterial vanillaBlock;
+    private final VMaterial vanillaBlock;
 
     public ProducedBlock(BlockReference customBlock) {
         this.customBlock = Objects.requireNonNull(customBlock);
         this.vanillaBlock = null;
     }
 
-    public ProducedBlock(CIMaterial vanillaBlock) {
+    public ProducedBlock(VMaterial vanillaBlock) {
         this.customBlock = null;
         this.vanillaBlock = Objects.requireNonNull(vanillaBlock);
     }
@@ -74,7 +74,7 @@ public final class ProducedBlock {
         return customBlock;
     }
 
-    public CIMaterial getVanillaBlock() {
+    public VMaterial getVanillaBlock() {
         if (isCustom()) throw new UnsupportedOperationException("This is a custom block");
         return vanillaBlock;
     }

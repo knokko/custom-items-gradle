@@ -2,14 +2,14 @@ package nl.knokko.customitems.editor.menu.edit.projectile.effect;
 
 import java.util.function.Consumer;
 
-import nl.knokko.customitems.projectile.effect.ProjectileEffectValues;
-import nl.knokko.customitems.projectile.effect.RandomAccelerationValues;
+import nl.knokko.customitems.projectile.effect.ProjectileEffect;
+import nl.knokko.customitems.projectile.effect.PERandomAcceleration;
 import nl.knokko.gui.component.GuiComponent;
 
-public class EditRandomAccelleration extends EditAcceleration<RandomAccelerationValues> {
+public class EditRandomAccelleration extends EditAcceleration<PERandomAcceleration> {
 
 	public EditRandomAccelleration(
-			RandomAccelerationValues oldValues, Consumer<ProjectileEffectValues> changeValues, GuiComponent returnMenu
+			PERandomAcceleration oldValues, Consumer<ProjectileEffect> changeValues, GuiComponent returnMenu
 	) {
 		super(oldValues, changeValues, returnMenu);
 	}

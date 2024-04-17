@@ -6,7 +6,7 @@ import java.util.*;
 
 import nl.knokko.customitems.plugin.util.SoundPlayer;
 import nl.knokko.customitems.plugin.util.ParticleHelper;
-import nl.knokko.customitems.projectile.CustomProjectileValues;
+import nl.knokko.customitems.projectile.KciProjectile;
 import nl.knokko.customitems.projectile.effect.*;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
@@ -25,7 +25,7 @@ class FlyingProjectile {
 	
 	static final String KEY_COVER_ITEM = "KnokkosCustomItemsProjectileCover";
 	
-	final CustomProjectileValues prototype;
+	final KciProjectile prototype;
 	
 	/** 
 	 * <p>If this projectile was shot by a living entity, this field will refer to that entity.</p>
@@ -61,7 +61,7 @@ class FlyingProjectile {
 	
 	private UpdateProjectileTask updateTask;
 
-	public FlyingProjectile(CustomProjectileValues prototype, LivingEntity directShooter, LivingEntity responsibleShooter,
+	public FlyingProjectile(KciProjectile prototype, LivingEntity directShooter, LivingEntity responsibleShooter,
 							Vector startPosition, Vector startVelocity, int remainingLifetime) {
 		this.prototype = prototype;
 		this.directShooter = directShooter;
@@ -86,7 +86,7 @@ class FlyingProjectile {
 		taskIDs[0] = Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, this::destroy, supposedLifetime);
 
 		int taskIndex = 2;
-		for (ProjectileEffectsValues effects : prototype.getInFlightEffects()) {
+		for (ProjectileEffects effects : prototype.getInFlightEffects()) {
 			taskIDs[taskIndex++] = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, 
 					() -> {
 						applyEffects(effects.getEffects());
@@ -97,12 +97,12 @@ class FlyingProjectile {
 		taskIDs[1] = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, updateTask, 0, 1);
 	}
 	
-	void applyEffects(Collection<ProjectileEffectValues> effects) {
-		for (ProjectileEffectValues effect : effects) {
+	void applyEffects(Collection<ProjectileEffect> effects) {
+		for (ProjectileEffect effect : effects) {
 			
-			if (effect instanceof ColoredRedstoneValues) {
+			if (effect instanceof PEColoredRedstone) {
 				
-				ColoredRedstoneValues cr = (ColoredRedstoneValues) effect;
+				PEColoredRedstone cr = (PEColoredRedstone) effect;
 				Location center = currentPosition.toLocation(world);
 				Location next = center.clone();
 				Random random = new Random();
@@ -127,9 +127,9 @@ class FlyingProjectile {
 					next.setY(center.getY());
 					next.setZ(center.getZ());
 				}
-			} else if (effect instanceof ExecuteCommandValues) {
+			} else if (effect instanceof PEExecuteCommand) {
 				
-				ExecuteCommandValues command = (ExecuteCommandValues) effect;
+				PEExecuteCommand command = (PEExecuteCommand) effect;
 				CommandSender sender = null;
 				switch (command.getExecutor()) {
 				case CONSOLE: sender = Bukkit.getConsoleSender(); break;
@@ -143,9 +143,9 @@ class FlyingProjectile {
 							"%caster%", responsibleShooter.getName());
 					Bukkit.dispatchCommand(sender, finalCommand);
 				}
-			} else if (effect instanceof ExplosionValues) {
+			} else if (effect instanceof PECreateExplosion) {
 				
-				ExplosionValues explosion = (ExplosionValues) effect;
+				PECreateExplosion explosion = (PECreateExplosion) effect;
 				Location loc = currentPosition.toLocation(world);
 
 				try {
@@ -164,18 +164,18 @@ class FlyingProjectile {
 					world.createExplosion(loc.getX(), loc.getY(), loc.getZ(), explosion.getPower(),
 							explosion.setsFire(), explosion.destroysBlocks());
 				}
-			} else if (effect instanceof RandomAccelerationValues) {
+			} else if (effect instanceof PERandomAcceleration) {
 				
-				RandomAccelerationValues ra = (RandomAccelerationValues) effect;
+				PERandomAcceleration ra = (PERandomAcceleration) effect;
 				double acceleration = ra.getMinAcceleration() + random() * (ra.getMaxAcceleration() - ra.getMinAcceleration());
 				Location direction = new Location(world, 0, 0, 0);
 				addRandomDirection(new Random(), direction, acceleration);
 				
 				currentVelocity.add(direction.toVector());
 				updateTask.fixItemMotion();
-			} else if (effect instanceof SimpleParticleValues) {
+			} else if (effect instanceof PESimpleParticle) {
 				
-				SimpleParticleValues sp = (SimpleParticleValues) effect;
+				PESimpleParticle sp = (PESimpleParticle) effect;
 				Random random = new Random();
 				Location loc = currentPosition.toLocation(world);
 				Location next = loc.clone();
@@ -197,9 +197,9 @@ class FlyingProjectile {
 					next.setY(loc.getY());
 					next.setZ(loc.getZ());
 				}
-			} else if (effect instanceof StraightAccelerationValues) {
+			} else if (effect instanceof PEStraightAcceleration) {
 				
-				StraightAccelerationValues sa = (StraightAccelerationValues) effect;
+				PEStraightAcceleration sa = (PEStraightAcceleration) effect;
 				
 				// Obtain the current velocity and the direction
 				Vector velocity = currentVelocity;
@@ -209,9 +209,9 @@ class FlyingProjectile {
 				double accelleration = sa.getMinAcceleration() + random() * (sa.getMaxAcceleration()- sa.getMinAcceleration());
 				velocity.add(direction.multiply(accelleration));
 				updateTask.fixItemMotion();
-			} else if (effect instanceof SubProjectilesValues) {
+			} else if (effect instanceof PESubProjectiles) {
 				
-				SubProjectilesValues sub = (SubProjectilesValues) effect;
+				PESubProjectiles sub = (PESubProjectiles) effect;
 				
 				int amount = sub.getMinAmount() + new Random().nextInt(sub.getMaxAmount() - sub.getMinAmount() + 1);
 				CustomItemsPlugin plugin = CustomItemsPlugin.getInstance();
@@ -231,8 +231,8 @@ class FlyingProjectile {
 				} else if (remaining < 0) {
 					Bukkit.getLogger().warning("Custom projectile " + prototype.getName()+ " outlived its lifetime");
 				}
-			} else if (effect instanceof PushOrPullValues) {
-				PushOrPullValues pushOrPull = (PushOrPullValues) effect;
+			} else if (effect instanceof PEPushOrPull) {
+				PEPushOrPull pushOrPull = (PEPushOrPull) effect;
 				float r = pushOrPull.getRadius();
 
 				for (Entity entity : world.getNearbyEntities(currentPosition.toLocation(world), r, r, r)) {
@@ -243,14 +243,14 @@ class FlyingProjectile {
 						entity.setVelocity(entity.getVelocity().add(direction.multiply(pushOrPull.getStrength())));
 					}
 				}
-			} else if (effect instanceof PlaySoundValues) {
-				SoundPlayer.playSound(currentPosition.toLocation(world), ((PlaySoundValues) effect).getSound());
-			} else if (effect instanceof ShowFireworkValues) {
-				ShowFireworkValues showFirework = (ShowFireworkValues) effect;
+			} else if (effect instanceof PEPlaySound) {
+				SoundPlayer.playSound(currentPosition.toLocation(world), ((PEPlaySound) effect).getSound());
+			} else if (effect instanceof PEShowFireworks) {
+				PEShowFireworks showFirework = (PEShowFireworks) effect;
 				world.spawn(currentPosition.toLocation(world), Firework.class, firework -> {
 
 					FireworkMeta meta = firework.getFireworkMeta();
-					for (ShowFireworkValues.EffectValues fireworkEffect : showFirework.getEffects()) {
+					for (PEShowFireworks.EffectValues fireworkEffect : showFirework.getEffects()) {
 
 						Color[] colors = new Color[fireworkEffect.getColors().size()];
 						for (int index = 0; index < fireworkEffect.getColors().size(); index++) {
@@ -276,8 +276,8 @@ class FlyingProjectile {
 					firework.setFireworkMeta(meta);
 					firework.detonate();
 				});
-			} else if (effect instanceof PotionAuraValues) {
-				PotionAuraValues aura = (PotionAuraValues) effect;
+			} else if (effect instanceof PEPotionAura) {
+				PEPotionAura aura = (PEPotionAura) effect;
 				float r = aura.getRadius();
 				for (Entity entity : world.getNearbyEntities(currentPosition.toLocation(world), r, r, r)) {
 					if (entity instanceof LivingEntity) {

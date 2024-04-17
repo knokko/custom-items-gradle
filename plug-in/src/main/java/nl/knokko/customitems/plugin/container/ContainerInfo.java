@@ -6,11 +6,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import nl.knokko.customitems.container.CustomContainerValues;
+import nl.knokko.customitems.container.KciContainer;
 import nl.knokko.customitems.container.IndicatorDomain;
-import nl.knokko.customitems.container.fuel.FuelRegistryValues;
+import nl.knokko.customitems.container.fuel.ContainerFuelRegistry;
 import nl.knokko.customitems.container.slot.*;
-import nl.knokko.customitems.container.slot.display.SlotDisplayValues;
+import nl.knokko.customitems.container.slot.display.SlotDisplay;
 import nl.knokko.customitems.itemset.EnergyTypeReference;
 
 /**
@@ -19,7 +19,7 @@ import nl.knokko.customitems.itemset.EnergyTypeReference;
  */
 public class ContainerInfo {
 
-	private final CustomContainerValues container;
+	private final KciContainer container;
 	
 	private final Map<String, PlaceholderProps> inputSlots;
 	private final Map<String, PlaceholderProps> outputSlots;
@@ -32,7 +32,7 @@ public class ContainerInfo {
 	
 	private final Collection<DecorationProps> decorations;
 
-	public ContainerInfo(CustomContainerValues container) {
+	public ContainerInfo(KciContainer container) {
 		this.container = container;
 		
 		this.inputSlots = new HashMap<>();
@@ -51,15 +51,15 @@ public class ContainerInfo {
 		for (int y = 0; y < container.getHeight(); y++) {
 			for (int x = 0; x < 9; x++) {
 				
-				ContainerSlotValues slot = container.getSlot(x, y);
-				if (slot instanceof FuelSlotValues) {
-					FuelSlotValues fuelSlot = (FuelSlotValues) slot;
+				ContainerSlot slot = container.getSlot(x, y);
+				if (slot instanceof FuelSlot) {
+					FuelSlot fuelSlot = (FuelSlot) slot;
 					fuelSlots.put(fuelSlot.getName(), new FuelProps(invIndex, fuelSlot));
 					if (!fuelIndicators.containsKey(fuelSlot.getName())) {
 						fuelIndicators.put(fuelSlot.getName(), new ArrayList<>());
 					}
-				} else if (slot instanceof FuelIndicatorSlotValues) {
-					FuelIndicatorSlotValues indicatorSlot = (FuelIndicatorSlotValues) slot;
+				} else if (slot instanceof FuelIndicatorSlot) {
+					FuelIndicatorSlot indicatorSlot = (FuelIndicatorSlot) slot;
 					Collection<IndicatorProps> indicators = fuelIndicators.computeIfAbsent(
 							indicatorSlot.getFuelSlotName(), k -> new ArrayList<>(1)
 					);
@@ -67,46 +67,46 @@ public class ContainerInfo {
 							indicatorSlot.getDisplay(), indicatorSlot.getPlaceholder(), 
 							indicatorSlot.getIndicatorDomain()
 					));
-				} else if (slot instanceof InputSlotValues) {
+				} else if (slot instanceof InputSlot) {
 					
-					InputSlotValues inputSlot = (InputSlotValues) slot;
+					InputSlot inputSlot = (InputSlot) slot;
 					inputSlots.put(
 							inputSlot.getName(), 
 							new PlaceholderProps(invIndex, inputSlot.getPlaceholder())
 					);
-				} else if (slot instanceof OutputSlotValues) {
+				} else if (slot instanceof OutputSlot) {
 					
-					OutputSlotValues outputSlot = (OutputSlotValues) slot;
+					OutputSlot outputSlot = (OutputSlot) slot;
 					outputSlots.put(
 							outputSlot.getName(), 
 							new PlaceholderProps(invIndex, outputSlot.getPlaceholder())
 					);
-				} else if (slot instanceof ManualOutputSlotValues) {
-					ManualOutputSlotValues outputSlot = (ManualOutputSlotValues) slot;
+				} else if (slot instanceof ManualOutputSlot) {
+					ManualOutputSlot outputSlot = (ManualOutputSlot) slot;
 					manualOutputSlots.put(
 							outputSlot.getName(),
 							new PlaceholderProps(invIndex, outputSlot.getPlaceholder())
 					);
-				} else if (slot instanceof ProgressIndicatorSlotValues) {
+				} else if (slot instanceof ProgressIndicatorSlot) {
 					
-					ProgressIndicatorSlotValues indicatorSlot = (ProgressIndicatorSlotValues) slot;
+					ProgressIndicatorSlot indicatorSlot = (ProgressIndicatorSlot) slot;
 					craftingIndicators.add(new IndicatorProps(invIndex, 
 							indicatorSlot.getDisplay(), indicatorSlot.getPlaceholder(),
 							indicatorSlot.getIndicatorDomain()
 					));
-				} else if (slot instanceof DecorationSlotValues) {
-					decorations.add(new DecorationProps(invIndex, ((DecorationSlotValues) slot).getDisplay()));
-				} else if (slot instanceof LinkSlotValues) {
-					LinkSlotValues linkSlot = (LinkSlotValues) slot;
+				} else if (slot instanceof DecorationSlot) {
+					decorations.add(new DecorationProps(invIndex, ((DecorationSlot) slot).getDisplay()));
+				} else if (slot instanceof LinkSlot) {
+					LinkSlot linkSlot = (LinkSlot) slot;
 					if (linkSlot.getDisplay() != null) decorations.add(new DecorationProps(invIndex, linkSlot.getDisplay()));
-				} else if (slot instanceof ActionSlotValues) {
-					ActionSlotValues actionSlot = (ActionSlotValues) slot;
+				} else if (slot instanceof ActionSlot) {
+					ActionSlot actionSlot = (ActionSlot) slot;
 					if (actionSlot.getDisplay() != null) decorations.add(new DecorationProps(invIndex, actionSlot.getDisplay()));
-				} else if (slot instanceof StorageSlotValues) {
-					StorageSlotValues storageSlot = (StorageSlotValues) slot;
+				} else if (slot instanceof StorageSlot) {
+					StorageSlot storageSlot = (StorageSlot) slot;
 					storageSlots.add(new PlaceholderProps(invIndex, storageSlot.getPlaceholder()));
-				} else if (slot instanceof EnergyIndicatorSlotValues) {
-					EnergyIndicatorSlotValues energySlot = (EnergyIndicatorSlotValues) slot;
+				} else if (slot instanceof EnergyIndicatorSlot) {
+					EnergyIndicatorSlot energySlot = (EnergyIndicatorSlot) slot;
 					energyIndicators.add(new EnergyIndicatorProps(
 							invIndex, energySlot.getEnergyTypeReference(),
 							energySlot.getDisplay(), energySlot.getPlaceholder(), energySlot.getIndicatorDomain()
@@ -122,7 +122,7 @@ public class ContainerInfo {
 		});
 	}
 	
-	public CustomContainerValues getContainer() {
+	public KciContainer getContainer() {
 		return container;
 	}
 	
@@ -178,12 +178,12 @@ public class ContainerInfo {
 		
 		private final int invIndex;
 		
-		private final SlotDisplayValues display;
-		private final SlotDisplayValues placeholder;
+		private final SlotDisplay display;
+		private final SlotDisplay placeholder;
 		private final IndicatorDomain domain;
 		
-		private IndicatorProps(int invIndex, SlotDisplayValues display,
-				SlotDisplayValues placeholder, IndicatorDomain domain) {
+		private IndicatorProps(int invIndex, SlotDisplay display,
+							   SlotDisplay placeholder, IndicatorDomain domain) {
 			this.invIndex = invIndex;
 			this.display = display;
 			this.placeholder = placeholder;
@@ -194,11 +194,11 @@ public class ContainerInfo {
 			return invIndex;
 		}
 		
-		public SlotDisplayValues getSlotDisplay() {
+		public SlotDisplay getSlotDisplay() {
 			return display;
 		}
 		
-		public SlotDisplayValues getPlaceholder() {
+		public SlotDisplay getPlaceholder() {
 			return placeholder;
 		}
 		
@@ -213,7 +213,7 @@ public class ContainerInfo {
 
 		private EnergyIndicatorProps(
 				int invIndex, EnergyTypeReference energyType,
-				SlotDisplayValues display, SlotDisplayValues placeholder, IndicatorDomain domain
+				SlotDisplay display, SlotDisplay placeholder, IndicatorDomain domain
 		) {
 			super(invIndex, display, placeholder, domain);
 			this.energyType = energyType;
@@ -228,9 +228,9 @@ public class ContainerInfo {
 		
 		private final int invIndex;
 		
-		private final SlotDisplayValues display;
+		private final SlotDisplay display;
 		
-		private DecorationProps(int invIndex, SlotDisplayValues display) {
+		private DecorationProps(int invIndex, SlotDisplay display) {
 			this.invIndex = invIndex;
 			this.display = display;
 		}
@@ -239,7 +239,7 @@ public class ContainerInfo {
 			return invIndex;
 		}
 		
-		public SlotDisplayValues getSlotDisplay() {
+		public SlotDisplay getSlotDisplay() {
 			return display;
 		}
 	}
@@ -248,21 +248,21 @@ public class ContainerInfo {
 		
 		private final int slotIndex;
 		private final Collection<IndicatorProps> indicators;
-		private final FuelRegistryValues registry;
-		private final SlotDisplayValues placeholder;
+		private final ContainerFuelRegistry registry;
+		private final SlotDisplay placeholder;
 		
 		private FuelProps(
 				int slotIndex,
 				Collection<IndicatorProps> indicators, 
-				FuelRegistryValues registry,
-				SlotDisplayValues placeholder) {
+				ContainerFuelRegistry registry,
+				SlotDisplay placeholder) {
 			this.slotIndex = slotIndex;
 			this.indicators = indicators;
 			this.registry = registry;
 			this.placeholder = placeholder;
 		}
 		
-		private FuelProps(int slotIndex, FuelSlotValues slot) {
+		private FuelProps(int slotIndex, FuelSlot slot) {
 			this(slotIndex, new ArrayList<>(), slot.getFuelRegistry(), slot.getPlaceholder());
 		}
 		
@@ -274,11 +274,11 @@ public class ContainerInfo {
 			return indicators;
 		}
 		
-		public FuelRegistryValues getRegistry() {
+		public ContainerFuelRegistry getRegistry() {
 			return registry;
 		}
 		
-		public SlotDisplayValues getPlaceholder() {
+		public SlotDisplay getPlaceholder() {
 			return placeholder;
 		}
 	}
@@ -286,9 +286,9 @@ public class ContainerInfo {
 	public static class PlaceholderProps {
 		
 		private final int slotIndex;
-		private final SlotDisplayValues placeholder;
+		private final SlotDisplay placeholder;
 		
-		public PlaceholderProps(int slotIndex, SlotDisplayValues placeholder) {
+		public PlaceholderProps(int slotIndex, SlotDisplay placeholder) {
 			this.slotIndex = slotIndex;
 			this.placeholder = placeholder;
 		}
@@ -297,7 +297,7 @@ public class ContainerInfo {
 			return slotIndex;
 		}
 		
-		public SlotDisplayValues getPlaceholder() {
+		public SlotDisplay getPlaceholder() {
 			return placeholder;
 		}
 	}

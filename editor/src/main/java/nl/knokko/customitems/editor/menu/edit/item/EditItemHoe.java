@@ -3,11 +3,11 @@ package nl.knokko.customitems.editor.menu.edit.item;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.item.AttributeModifierValues.Attribute;
-import nl.knokko.customitems.item.AttributeModifierValues.Operation;
-import nl.knokko.customitems.item.AttributeModifierValues.Slot;
-import nl.knokko.customitems.item.AttributeModifierValues;
-import nl.knokko.customitems.item.CustomHoeValues;
+import nl.knokko.customitems.item.KciAttributeModifier.Attribute;
+import nl.knokko.customitems.item.KciAttributeModifier.Operation;
+import nl.knokko.customitems.item.KciAttributeModifier.Slot;
+import nl.knokko.customitems.item.KciAttributeModifier;
+import nl.knokko.customitems.item.KciHoe;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
@@ -15,18 +15,18 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
 
-public class EditItemHoe extends EditItemTool<CustomHoeValues> {
+public class EditItemHoe extends EditItemTool<KciHoe> {
 	
-	private static final AttributeModifierValues EXAMPLE_ATTRIBUTE_MODIFIER = AttributeModifierValues.createQuick(
+	private static final KciAttributeModifier EXAMPLE_ATTRIBUTE_MODIFIER = KciAttributeModifier.createQuick(
 			Attribute.MOVEMENT_SPEED, Slot.OFFHAND, Operation.ADD_FACTOR, 1.5
 	);
 
-	public EditItemHoe(EditMenu menu, CustomHoeValues oldValues, ItemReference toModify) {
+	public EditItemHoe(EditMenu menu, KciHoe oldValues, ItemReference toModify) {
 		super(menu, oldValues, toModify);
 	}
 	
 	@Override
-	protected AttributeModifierValues getExampleAttributeModifier() {
+	protected KciAttributeModifier getExampleAttributeModifier() {
 		return EXAMPLE_ATTRIBUTE_MODIFIER;
 	}
 	

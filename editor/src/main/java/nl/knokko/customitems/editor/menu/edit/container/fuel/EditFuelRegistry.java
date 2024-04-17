@@ -1,6 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.container.fuel;
 
-import nl.knokko.customitems.container.fuel.FuelRegistryValues;
+import nl.knokko.customitems.container.fuel.ContainerFuelRegistry;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
@@ -21,12 +21,12 @@ public class EditFuelRegistry extends GuiMenu {
 	private final ItemSet set;
 	
 	private final FuelRegistryReference toModify;
-	private final FuelRegistryValues currentValues;
+	private final ContainerFuelRegistry currentValues;
 	
 	private final DynamicTextComponent errorComponent;
 	
 	public EditFuelRegistry(GuiComponent returnMenu, ItemSet set,
-							FuelRegistryValues oldValues, FuelRegistryReference toModify) {
+                            ContainerFuelRegistry oldValues, FuelRegistryReference toModify) {
 		this.returnMenu = returnMenu;
 		this.set = set;
 		this.toModify = toModify;

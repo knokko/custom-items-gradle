@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import org.bukkit.Bukkit;
@@ -42,7 +42,7 @@ public class CustomItemPickups {
 						// That have at least 1 custom item that is not fully stacked
 						for (ItemStack stack : inv.getContents()) {
 								
-							CustomItemValues custom = set.getItem(stack);
+							KciItem custom = set.getItem(stack);
 							if (custom != null) {
 								if (wrap(custom).needsStackingHelp() && stack.getAmount() < custom.getMaxStacksize()) {
 									interestingPlayers.add(player);
@@ -82,7 +82,7 @@ public class CustomItemPickups {
 							for (int index = 0; index < inv.length; index++) {
 								ItemStack stack = inv[index];
 									
-								CustomItemValues custom = set.getItem(stack);
+								KciItem custom = set.getItem(stack);
 								if (custom != null && wrap(custom).needsStackingHelp() && stack.getAmount() < custom.getMaxStacksize()) {
 									customSlots.add(index);
 								}
@@ -97,7 +97,7 @@ public class CustomItemPickups {
 								ItemStack droppedStack = item.getItemStack();
 								
 								// Shouldn't be null
-								CustomItemValues customDropped = set.getItem(droppedStack);
+								KciItem customDropped = set.getItem(droppedStack);
 								
 								// Check if there is a suitable slot
 								Iterator<Integer> slotIt = customSlots.iterator();
@@ -107,7 +107,7 @@ public class CustomItemPickups {
 									ItemStack slotStack = inv[slot];
 									
 									// Shouldn't be null now
-									CustomItemValues customSlot = set.getItem(slotStack);
+									KciItem customSlot = set.getItem(slotStack);
 									
 									if (customSlot == customDropped) {
 										

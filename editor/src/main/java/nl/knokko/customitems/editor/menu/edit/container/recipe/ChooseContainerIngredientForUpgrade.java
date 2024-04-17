@@ -1,12 +1,12 @@
 package nl.knokko.customitems.editor.menu.edit.container.recipe;
 
-import nl.knokko.customitems.container.ContainerRecipeValues;
-import nl.knokko.customitems.container.CustomContainerValues;
-import nl.knokko.customitems.container.slot.ContainerSlotValues;
-import nl.knokko.customitems.container.slot.InputSlotValues;
-import nl.knokko.customitems.recipe.ingredient.IngredientValues;
-import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
-import nl.knokko.customitems.recipe.result.UpgradeResultValues;
+import nl.knokko.customitems.container.ContainerRecipe;
+import nl.knokko.customitems.container.KciContainer;
+import nl.knokko.customitems.container.slot.ContainerSlot;
+import nl.knokko.customitems.container.slot.InputSlot;
+import nl.knokko.customitems.recipe.ingredient.KciIngredient;
+import nl.knokko.customitems.recipe.ingredient.NoIngredient;
+import nl.knokko.customitems.recipe.result.UpgradeResult;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -17,13 +17,13 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 public class ChooseContainerIngredientForUpgrade extends GuiMenu {
 
     private final GuiComponent returnMenu;
-    private final UpgradeResultValues upgrade;
-    private final CustomContainerValues container;
-    private final ContainerRecipeValues recipe;
+    private final UpgradeResult upgrade;
+    private final KciContainer container;
+    private final ContainerRecipe recipe;
 
     public ChooseContainerIngredientForUpgrade(
-            GuiComponent returnMenu, UpgradeResultValues upgrade,
-            CustomContainerValues container, ContainerRecipeValues recipe
+            GuiComponent returnMenu, UpgradeResult upgrade,
+            KciContainer container, ContainerRecipe recipe
     ) {
         this.returnMenu = returnMenu;
         this.upgrade = upgrade;
@@ -39,11 +39,11 @@ public class ChooseContainerIngredientForUpgrade extends GuiMenu {
 
         for (int x = 0; x < container.getWidth(); x++) {
             for (int y = 0; y < container.getHeight(); y++) {
-                ContainerSlotValues slot = container.getSlot(x, y);
-                if (slot instanceof InputSlotValues) {
-                    String slotName = ((InputSlotValues) slot).getName();
-                    IngredientValues ingredient = recipe.getInput(slotName);
-                    if (ingredient != null && !(ingredient instanceof NoIngredientValues)) {
+                ContainerSlot slot = container.getSlot(x, y);
+                if (slot instanceof InputSlot) {
+                    String slotName = ((InputSlot) slot).getName();
+                    KciIngredient ingredient = recipe.getInput(slotName);
+                    if (ingredient != null && !(ingredient instanceof NoIngredient)) {
                         float minX = 0.2f + 0.08f * x;
                         float minY = 0.1f + 0.08f * (container.getHeight() - y - 1);
                         addComponent(new DynamicTextButton(slotName, CHOOSE_BASE, CHOOSE_HOVER, () -> {

@@ -2,7 +2,7 @@ package nl.knokko.customitems.editor.menu.edit.recipe.template;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.recipe.ingredient.IngredientValues;
+import nl.knokko.customitems.recipe.ingredient.KciIngredient;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -27,57 +27,57 @@ public class ChooseTemplateRecipeType extends GuiMenu {
             state.getWindow().setMainComponent(returnMenu);
         }), 0.025f, 0.7f, 0.15f, 0.8f);
 
-        addToolTemplateButton("Sword", 0, (stick, gem) -> new IngredientValues[]{
+        addToolTemplateButton("Sword", 0, (stick, gem) -> new KciIngredient[]{
                 null, gem, null,
                 null, gem, null,
                 null, stick, null
         });
-        addToolTemplateButton("Pickaxe", 1, (stick, gem) -> new IngredientValues[]{
+        addToolTemplateButton("Pickaxe", 1, (stick, gem) -> new KciIngredient[]{
                 gem, gem, gem,
                 null, stick, null,
                 null, stick, null
         });
-        addToolTemplateButton("Axe", 2, (stick, gem) -> new IngredientValues[]{
+        addToolTemplateButton("Axe", 2, (stick, gem) -> new KciIngredient[]{
                 gem, gem, null,
                 gem, stick, null,
                 null, stick, null
         });
-        addToolTemplateButton("Shovel", 3, (stick, gem) -> new IngredientValues[]{
+        addToolTemplateButton("Shovel", 3, (stick, gem) -> new KciIngredient[]{
                 null, gem, null,
                 null, stick, null,
                 null, stick, null
         });
-        addToolTemplateButton("Hoe", 4, (stick, gem) -> new IngredientValues[]{
+        addToolTemplateButton("Hoe", 4, (stick, gem) -> new KciIngredient[]{
                 gem, gem, null,
                 null, stick, null,
                 null, stick, null
         });
 
-        addArmorTemplateButton("Helmet", 0, gem -> new IngredientValues[]{
+        addArmorTemplateButton("Helmet", 0, gem -> new KciIngredient[]{
                 gem, gem, gem,
                 gem, null, gem,
                 null, null, null
         });
-        addArmorTemplateButton("Chestplate", 1, gem -> new IngredientValues[]{
+        addArmorTemplateButton("Chestplate", 1, gem -> new KciIngredient[]{
                 gem, null, gem,
                 gem, gem, gem,
                 gem, gem, gem
         });
-        addArmorTemplateButton("Leggings", 2, gem -> new IngredientValues[]{
+        addArmorTemplateButton("Leggings", 2, gem -> new KciIngredient[]{
                 gem, gem, gem,
                 gem, null, gem,
                 gem, null, gem
         });
-        addArmorTemplateButton("Boots", 3, gem -> new IngredientValues[]{
+        addArmorTemplateButton("Boots", 3, gem -> new KciIngredient[]{
                 null, null, null,
                 gem, null, gem,
                 gem, null, gem
         });
 
         addTemplateButton("Bow", 0, 2, arrayOf("Stick", "String"), chosenIngredients -> {
-            IngredientValues stick = chosenIngredients.get(0);
-            IngredientValues string = chosenIngredients.get(1);
-            return new IngredientValues[] {
+            KciIngredient stick = chosenIngredients.get(0);
+            KciIngredient string = chosenIngredients.get(1);
+            return new KciIngredient[] {
                     string, stick, null,
                     string, null, stick,
                     string, stick, null
@@ -85,8 +85,8 @@ public class ChooseTemplateRecipeType extends GuiMenu {
         });
 
         addTemplateButton("Block", 1, 2, arrayOf("Material"), chosenIngredients -> {
-            IngredientValues material = chosenIngredients.get(0);
-            return new IngredientValues[] {
+            KciIngredient material = chosenIngredients.get(0);
+            return new KciIngredient[] {
                     material, material, material,
                     material, material, material,
                     material, material, material
@@ -100,7 +100,7 @@ public class ChooseTemplateRecipeType extends GuiMenu {
 
     @FunctionalInterface
     private interface ToolTemplateConsumer {
-        IngredientValues[] shape(IngredientValues stick, IngredientValues gem);
+        KciIngredient[] shape(KciIngredient stick, KciIngredient gem);
     }
 
     private void addToolTemplateButton(String name, int rowIndex, ToolTemplateConsumer template) {
@@ -108,14 +108,14 @@ public class ChooseTemplateRecipeType extends GuiMenu {
                 chosenIngredients -> template.shape(chosenIngredients.get(0), chosenIngredients.get(1)));
     }
 
-    private void addArmorTemplateButton(String name, int rowIndex, Function<IngredientValues, IngredientValues[]> template) {
+    private void addArmorTemplateButton(String name, int rowIndex, Function<KciIngredient, KciIngredient[]> template) {
         addTemplateButton(name, rowIndex, 1, arrayOf("Gem"),
                 chosenIngredients -> template.apply(chosenIngredients.get(0)));
     }
 
     private void addTemplateButton(
             String name, int rowIndex, int columnIndex, String[] materialNames,
-            Function<List<IngredientValues>, IngredientValues[]> shapeIngredients
+            Function<List<KciIngredient>, KciIngredient[]> shapeIngredients
     ) {
         addComponent(new DynamicTextButton(name, EditProps.BUTTON, EditProps.HOVER,
                         () -> state.getWindow().setMainComponent(

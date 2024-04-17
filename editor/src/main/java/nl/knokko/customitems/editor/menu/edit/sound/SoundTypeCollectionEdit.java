@@ -5,7 +5,7 @@ import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.SoundTypeReference;
-import nl.knokko.customitems.sound.CustomSoundTypeValues;
+import nl.knokko.customitems.sound.KciSoundType;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
@@ -14,7 +14,7 @@ import java.awt.image.BufferedImage;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.BUTTON;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.HOVER;
 
-public class SoundTypeCollectionEdit extends DedicatedCollectionEdit<CustomSoundTypeValues, SoundTypeReference> {
+public class SoundTypeCollectionEdit extends DedicatedCollectionEdit<KciSoundType, SoundTypeReference> {
 
     private final ItemSet itemSet;
 
@@ -29,7 +29,7 @@ public class SoundTypeCollectionEdit extends DedicatedCollectionEdit<CustomSound
 
         addComponent(new DynamicTextButton("Add sound", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new EditSoundType(
-                    new CustomSoundTypeValues(true), null, this, itemSet
+                    new KciSoundType(true), null, this, itemSet
             ));
         }), 0.025f, 0.3f, 0.2f, 0.4f);
 
@@ -37,17 +37,17 @@ public class SoundTypeCollectionEdit extends DedicatedCollectionEdit<CustomSound
     }
 
     @Override
-    protected String getModelLabel(CustomSoundTypeValues model) {
+    protected String getModelLabel(KciSoundType model) {
         return model.getName();
     }
 
     @Override
-    protected BufferedImage getModelIcon(CustomSoundTypeValues model) {
+    protected BufferedImage getModelIcon(KciSoundType model) {
         return null;
     }
 
     @Override
-    protected boolean canEditModel(CustomSoundTypeValues model) {
+    protected boolean canEditModel(KciSoundType model) {
         return true;
     }
 

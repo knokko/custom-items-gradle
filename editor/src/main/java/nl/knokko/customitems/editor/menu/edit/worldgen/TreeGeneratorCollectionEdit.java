@@ -5,8 +5,8 @@ import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TreeGeneratorReference;
-import nl.knokko.customitems.worldgen.BlockProducerValues;
-import nl.knokko.customitems.worldgen.TreeGeneratorValues;
+import nl.knokko.customitems.worldgen.BlockProducer;
+import nl.knokko.customitems.worldgen.TreeGenerator;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
@@ -17,7 +17,7 @@ import java.util.List;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.BUTTON;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.HOVER;
 
-public class TreeGeneratorCollectionEdit extends DedicatedCollectionEdit<TreeGeneratorValues, TreeGeneratorReference> {
+public class TreeGeneratorCollectionEdit extends DedicatedCollectionEdit<TreeGenerator, TreeGeneratorReference> {
 
     private final ItemSet itemSet;
 
@@ -35,7 +35,7 @@ public class TreeGeneratorCollectionEdit extends DedicatedCollectionEdit<TreeGen
 
         addComponent(new DynamicTextButton("Add...", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new EditTreeGenerator(
-                    this, itemSet, new TreeGeneratorValues(true), null
+                    this, itemSet, new TreeGenerator(true), null
             ));
         }), 0.025f, 0.2f, 0.175f, 0.3f);
 
@@ -43,17 +43,17 @@ public class TreeGeneratorCollectionEdit extends DedicatedCollectionEdit<TreeGen
     }
 
     @Override
-    protected String getModelLabel(TreeGeneratorValues model) {
+    protected String getModelLabel(TreeGenerator model) {
         return model.toString();
     }
 
     @Override
-    protected BufferedImage getModelIcon(TreeGeneratorValues model) {
-        List<BlockProducerValues.Entry> entries = model.getLogMaterial().getEntries();
+    protected BufferedImage getModelIcon(TreeGenerator model) {
+        List<BlockProducer.Entry> entries = model.getLogMaterial().getEntries();
         entries.sort(Comparator.comparingInt(entry -> entry.getChance().getRawValue()));
 
         BufferedImage icon = null;
-        for (BlockProducerValues.Entry entry : entries) {
+        for (BlockProducer.Entry entry : entries) {
             if (entry.getBlock().isCustom()) {
                 icon = entry.getBlock().getCustomBlock().get().getModel().getPrimaryTexture().get().getImage();
             }
@@ -63,7 +63,7 @@ public class TreeGeneratorCollectionEdit extends DedicatedCollectionEdit<TreeGen
     }
 
     @Override
-    protected boolean canEditModel(TreeGeneratorValues model) {
+    protected boolean canEditModel(TreeGenerator model) {
         return true;
     }
 

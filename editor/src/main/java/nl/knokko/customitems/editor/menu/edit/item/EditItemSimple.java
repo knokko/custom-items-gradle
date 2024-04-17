@@ -3,9 +3,9 @@ package nl.knokko.customitems.editor.menu.edit.item;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.item.AttributeModifierValues;
-import nl.knokko.customitems.item.CustomItemType.Category;
-import nl.knokko.customitems.item.SimpleCustomItemValues;
+import nl.knokko.customitems.item.KciAttributeModifier;
+import nl.knokko.customitems.item.KciItemType.Category;
+import nl.knokko.customitems.item.KciSimpleItem;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
@@ -13,21 +13,21 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
 
-public class EditItemSimple extends EditItemBase<SimpleCustomItemValues> {
+public class EditItemSimple extends EditItemBase<KciSimpleItem> {
 	
-	private static final AttributeModifierValues EXAMPLE_MODIFIER = AttributeModifierValues.createQuick(
-			AttributeModifierValues.Attribute.ATTACK_DAMAGE,
-			AttributeModifierValues.Slot.MAINHAND,
-			AttributeModifierValues.Operation.ADD,
+	private static final KciAttributeModifier EXAMPLE_MODIFIER = KciAttributeModifier.createQuick(
+			KciAttributeModifier.Attribute.ATTACK_DAMAGE,
+			KciAttributeModifier.Slot.MAINHAND,
+			KciAttributeModifier.Operation.ADD,
 			5.0
 	);
 
-	public EditItemSimple(EditMenu menu, SimpleCustomItemValues oldValues, ItemReference toModify) {
+	public EditItemSimple(EditMenu menu, KciSimpleItem oldValues, ItemReference toModify) {
 		super(menu, oldValues, toModify);
 	}
 	
 	@Override
-	protected AttributeModifierValues getExampleAttributeModifier() {
+	protected KciAttributeModifier getExampleAttributeModifier() {
 		return EXAMPLE_MODIFIER;
 	}
 	

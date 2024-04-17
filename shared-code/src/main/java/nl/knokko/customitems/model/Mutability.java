@@ -6,10 +6,6 @@ import java.util.List;
 
 public class Mutability {
 
-    public static <T extends ModelValues> List<T> createShallowCopy(Collection<T> original) {
-        return new ArrayList<>(original);
-    }
-
     public static <T extends ModelValues> List<T> createDeepCopy(Collection<T> original, boolean mutable) {
         List<T> result = new ArrayList<>(original.size());
 

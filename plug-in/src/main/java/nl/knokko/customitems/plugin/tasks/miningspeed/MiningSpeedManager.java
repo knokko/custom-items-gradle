@@ -1,10 +1,10 @@
 package nl.knokko.customitems.plugin.tasks.miningspeed;
 
-import nl.knokko.customitems.block.CustomBlockValues;
+import nl.knokko.customitems.block.KciBlock;
 import nl.knokko.customitems.block.miningspeed.CustomMiningSpeedEntry;
 import nl.knokko.customitems.block.miningspeed.VanillaMiningSpeedEntry;
-import nl.knokko.customitems.item.CIMaterial;
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.VMaterial;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.block.MushroomBlockHelper;
 import org.bukkit.Bukkit;
@@ -23,27 +23,27 @@ public class MiningSpeedManager {
     static final int UPDATE_PERIOD = 20;
     static final int EFFECT_DURATION = 2 * UPDATE_PERIOD;
 
-    private final Map<UUID, MiningSpeedEntry> entries = new HashMap<>();
+    private final Map<UUID, nl.knokko.customitems.plugin.tasks.miningspeed.MiningSpeedEntry> entries = new HashMap<>();
 
     public void startBreakingCustomBlock(
-            Player player, Block block, CustomBlockValues customBlock,
-            CIMaterial vanillaItem, CustomItemValues customItem
+            Player player, Block block, KciBlock customBlock,
+            VMaterial vanillaItem, KciItem customItem
     ) {
         stopBreakingCustomBlockEffect(player);
 
         int speed = customBlock.getMiningSpeed().getSpeedFor(vanillaItem, customItem);
 
         if (speed != 0) {
-            this.entries.put(player.getUniqueId(), new MiningSpeedEntry(player, block, speed));
+            this.entries.put(player.getUniqueId(), new nl.knokko.customitems.plugin.tasks.miningspeed.MiningSpeedEntry(player, block, speed));
         }
     }
 
     public void maybeCancelCustomBlockBreak(BlockBreakEvent event, ItemSetWrapper itemSet) {
-        CustomBlockValues customBlock = MushroomBlockHelper.getMushroomBlock(event.getBlock());
+        KciBlock customBlock = MushroomBlockHelper.getMushroomBlock(event.getBlock());
 
         if (customBlock != null) {
             ItemStack tool = event.getPlayer().getInventory().getItemInMainHand();
-            CustomItemValues customTool = itemSet.getItem(tool);
+            KciItem customTool = itemSet.getItem(tool);
 
             if (customBlock.getMiningSpeed().getDefaultValue() < 0) {
 
@@ -64,14 +64,14 @@ public class MiningSpeedManager {
             }
 
             // If the mining speed is below -4, the block should be unbreakable
-            if (customBlock.getMiningSpeed().getSpeedFor(CIMaterial.valueOf(tool.getType().name()), customTool) < -4) {
+            if (customBlock.getMiningSpeed().getSpeedFor(VMaterial.valueOf(tool.getType().name()), customTool) < -4) {
                 event.setCancelled(true);
             }
         }
     }
 
     public void stopBreakingCustomBlockEffect(Player player) {
-        MiningSpeedEntry oldEntry = this.entries.remove(player.getUniqueId());
+        nl.knokko.customitems.plugin.tasks.miningspeed.MiningSpeedEntry oldEntry = this.entries.remove(player.getUniqueId());
         if (oldEntry != null) oldEntry.stopEffect();
     }
 

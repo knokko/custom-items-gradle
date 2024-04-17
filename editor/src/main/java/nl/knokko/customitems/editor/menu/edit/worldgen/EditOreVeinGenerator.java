@@ -5,9 +5,9 @@ import nl.knokko.customitems.editor.util.FixedPointEditField;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.itemset.OreVeinGeneratorReference;
+import nl.knokko.customitems.itemset.OreGeneratorReference;
 import nl.knokko.customitems.util.Chance;
-import nl.knokko.customitems.worldgen.OreVeinGeneratorValues;
+import nl.knokko.customitems.worldgen.OreGenerator;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -22,11 +22,11 @@ public class EditOreVeinGenerator extends GuiMenu {
     private final GuiComponent returnMenu;
     private final ItemSet itemSet;
 
-    private final OreVeinGeneratorValues currentValues;
-    private final OreVeinGeneratorReference toModify;
+    private final OreGenerator currentValues;
+    private final OreGeneratorReference toModify;
 
     public EditOreVeinGenerator(
-            GuiComponent returnMenu, ItemSet itemSet, OreVeinGeneratorValues oldValues, OreVeinGeneratorReference toModify
+            GuiComponent returnMenu, ItemSet itemSet, OreGenerator oldValues, OreGeneratorReference toModify
     ) {
         this.returnMenu = returnMenu;
         this.itemSet = itemSet;

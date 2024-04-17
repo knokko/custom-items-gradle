@@ -1,7 +1,7 @@
 package nl.knokko.customitems.plugin.events;
 
-import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.item.CustomToolValues;
+import nl.knokko.customitems.item.KciItem;
+import nl.knokko.customitems.item.KciTool;
 import nl.knokko.customitems.item.command.CommandSubstitution;
 import nl.knokko.customitems.item.command.ItemCommand;
 import nl.knokko.customitems.item.command.ItemCommandEvent;
@@ -90,7 +90,7 @@ public class CommandEventHandler implements Listener {
     }
 
     private void executeItemCommands(
-            ItemCommandEvent event, Player player, CustomItemValues item,
+            ItemCommandEvent event, Player player, KciItem item,
             Map<CommandSubstitution, String> substitutionMap
     ) {
         Random rng = new Random();
@@ -121,7 +121,7 @@ public class CommandEventHandler implements Listener {
     @EventHandler
     public void handleCommands(PlayerInteractEvent event) {
         ItemStack item = event.getItem();
-        CustomItemValues custom = itemSet.getItem(item);
+        KciItem custom = itemSet.getItem(item);
         if (custom != null) {
             if (event.getAction() == Action.LEFT_CLICK_AIR || event.getAction() == Action.LEFT_CLICK_BLOCK) {
                 executeItemCommands(
@@ -153,7 +153,7 @@ public class CommandEventHandler implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void handleCommands(PlayerInteractEntityEvent event) {
         ItemStack item = event.getPlayer().getInventory().getItemInMainHand();
-        CustomItemValues custom = itemSet.getItem(item);
+        KciItem custom = itemSet.getItem(item);
         if (event.getHand() == EquipmentSlot.HAND && custom != null) {
             executeItemCommands(
                     ItemCommandEvent.RIGHT_CLICK_ENTITY, event.getPlayer(), custom,
@@ -173,7 +173,7 @@ public class CommandEventHandler implements Listener {
         if (event.getDamager() instanceof Player) {
             Player player = (Player) event.getDamager();
             ItemStack item = player.getInventory().getItemInMainHand();
-            CustomItemValues custom = itemSet.getItem(item);
+            KciItem custom = itemSet.getItem(item);
             if (custom != null) {
                 executeItemCommands(
                         ItemCommandEvent.MELEE_ATTACK_ENTITY, player, custom,
@@ -192,7 +192,7 @@ public class CommandEventHandler implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void handleCommands(BlockBreakEvent event) {
         ItemStack item = event.getPlayer().getInventory().getItemInMainHand();
-        CustomItemValues custom = itemSet.getItem(item);
+        KciItem custom = itemSet.getItem(item);
         if (custom != null) {
             executeItemCommands(
                     ItemCommandEvent.BREAK_BLOCK, event.getPlayer(), custom,
@@ -217,11 +217,11 @@ public class CommandEventHandler implements Listener {
                 }
             } else if (event.getPlayer().hasPermission("essentials.repair")) {
                 ItemStack mainItem = event.getPlayer().getInventory().getItemInMainHand();
-                CustomItemValues customMainItem = itemSet.getItem(mainItem);
+                KciItem customMainItem = itemSet.getItem(mainItem);
                 if (customMainItem != null) {
                     event.setCancelled(true);
-                    if (customMainItem instanceof CustomToolValues) {
-                        CustomToolValues toRepair = (CustomToolValues) customMainItem;
+                    if (customMainItem instanceof KciTool) {
+                        KciTool toRepair = (KciTool) customMainItem;
                         Long maxDurability = toRepair.getMaxDurabilityNew();
                         if (maxDurability != null) {
                             wrap(toRepair).increaseDurability(mainItem, maxDurability);

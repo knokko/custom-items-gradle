@@ -22,18 +22,18 @@ public class TestBackward2 {
     static void testItems2(ItemSet set, int numItems) {
         testItems1(set, numItems);
 
-        testSimpleDefault2((SimpleCustomItemValues) set.items.get("simple1").get());
+        testSimpleDefault2((KciSimpleItem) set.items.get("simple1").get());
 
         testSimpleItem2(set.items.get("simple2").get(), set.getSide());
-        testSword1((CustomToolValues) set.items.get("sword1").get(), set.getSide());
-        testPickaxe1((CustomToolValues) set.items.get("pickaxe1").get(), set.getSide());
-        testAxe1((CustomToolValues) set.items.get("axe1").get(), set.getSide());
-        testShovel1((CustomToolValues) set.items.get("shovel1").get(), set.getSide());
+        testSword1((KciTool) set.items.get("sword1").get(), set.getSide());
+        testPickaxe1((KciTool) set.items.get("pickaxe1").get(), set.getSide());
+        testAxe1((KciTool) set.items.get("axe1").get(), set.getSide());
+        testShovel1((KciTool) set.items.get("shovel1").get(), set.getSide());
     }
 
-    private static void testSimpleItem2(CustomItemValues item, ItemSet.Side side) {
+    private static void testSimpleItem2(KciItem item, ItemSet.Side side) {
         assertEquals("simple2", item.getName());
-        assertEquals(CustomItemType.DIAMOND_HOE, item.getItemType());
+        assertEquals(KciItemType.DIAMOND_HOE, item.getItemType());
         // Internal item damage is no longer relevant
         assertEquals("SimpleAttributes2", item.getDisplayName());
         assertEquals(listOf(
@@ -41,10 +41,10 @@ public class TestBackward2 {
                 "But, with attribute modifiers!"
         ), item.getLore());
         assertEquals(listOf(
-                AttributeModifierValues.createQuick(
-                        AttributeModifierValues.Attribute.MOVEMENT_SPEED,
-                        AttributeModifierValues.Slot.MAINHAND,
-                        AttributeModifierValues.Operation.ADD,
+                KciAttributeModifier.createQuick(
+                        KciAttributeModifier.Attribute.MOVEMENT_SPEED,
+                        KciAttributeModifier.Slot.MAINHAND,
+                        KciAttributeModifier.Operation.ADD,
                         1.0
                 )
         ), item.getAttributeModifiers());
@@ -55,19 +55,19 @@ public class TestBackward2 {
         }
     }
 
-    private static void testSword1(CustomToolValues item, ItemSet.Side side) {
+    private static void testSword1(KciTool item, ItemSet.Side side) {
         assertEquals("sword1", item.getName());
-        assertEquals(CustomItemType.STONE_SWORD, item.getItemType());
+        assertEquals(KciItemType.STONE_SWORD, item.getItemType());
         // Internal item damage is no longer relevant
         assertEquals("The Stone Sword", item.getDisplayName());
         assertEquals(listOf(
                 "The sword in the stone"
         ), item.getLore());
         assertEquals(listOf(
-                AttributeModifierValues.createQuick(
-                        AttributeModifierValues.Attribute.ATTACK_DAMAGE,
-                        AttributeModifierValues.Slot.OFFHAND,
-                        AttributeModifierValues.Operation.MULTIPLY,
+                KciAttributeModifier.createQuick(
+                        KciAttributeModifier.Attribute.ATTACK_DAMAGE,
+                        KciAttributeModifier.Slot.OFFHAND,
+                        KciAttributeModifier.Operation.MULTIPLY,
                         3.0
                 )
         ), item.getAttributeModifiers());
@@ -80,7 +80,7 @@ public class TestBackward2 {
         assertEquals(53L, (long) item.getMaxDurabilityNew());
     }
 
-    private static void testPickaxe1(CustomToolValues item, ItemSet.Side side) {
+    private static void testPickaxe1(KciTool item, ItemSet.Side side) {
         assertEquals("pickaxe1", item.getName());
         // It looks like a bug in Editor 2.0 somehow turned the type from GOLD to IRON conditionally...
         //assertEquals(CustomItemType.IRON_PICKAXE, item.getItemType());
@@ -98,16 +98,16 @@ public class TestBackward2 {
         assertNull(item.getMaxDurabilityNew());
     }
 
-    private static void testAxe1(CustomToolValues item, ItemSet.Side side) {
+    private static void testAxe1(KciTool item, ItemSet.Side side) {
         assertEquals("axe1", item.getName());
-        assertEquals(CustomItemType.IRON_AXE, item.getItemType());
+        assertEquals(KciItemType.IRON_AXE, item.getItemType());
         assertEquals("Sharp Iron Axe", item.getDisplayName());
         assertEquals(0, item.getLore().size());
         assertEquals(listOf(
-                AttributeModifierValues.createQuick(
-                        AttributeModifierValues.Attribute.ATTACK_DAMAGE,
-                        AttributeModifierValues.Slot.MAINHAND,
-                        AttributeModifierValues.Operation.ADD,
+                KciAttributeModifier.createQuick(
+                        KciAttributeModifier.Attribute.ATTACK_DAMAGE,
+                        KciAttributeModifier.Slot.MAINHAND,
+                        KciAttributeModifier.Operation.ADD,
                         7.0
                 )
         ), item.getAttributeModifiers());
@@ -120,9 +120,9 @@ public class TestBackward2 {
         assertEquals(500, (long) item.getMaxDurabilityNew());
     }
 
-    private static void testShovel1(CustomToolValues item, ItemSet.Side side) {
+    private static void testShovel1(KciTool item, ItemSet.Side side) {
         assertEquals("shovel1", item.getName());
-        assertEquals(CustomItemType.DIAMOND_SHOVEL, item.getItemType());
+        assertEquals(KciItemType.DIAMOND_SHOVEL, item.getItemType());
         assertEquals("Crystal Shovel", item.getDisplayName());
         assertEquals(0, item.getLore().size());
         assertEquals(0, item.getAttributeModifiers().size());
@@ -135,12 +135,12 @@ public class TestBackward2 {
         assertEquals(5000, (long) item.getMaxDurabilityNew());
     }
 
-    static void testBaseDefault2(CustomItemValues item) {
+    static void testBaseDefault2(KciItem item) {
         assertEquals(0, item.getAttributeModifiers().size());
         TestBackward3.testBaseDefault3(item);
     }
 
-    static void testSimpleDefault2(SimpleCustomItemValues item) {
+    static void testSimpleDefault2(KciSimpleItem item) {
         testBaseDefault2(item);
         TestBackward3.testSimpleDefault3(item);
     }

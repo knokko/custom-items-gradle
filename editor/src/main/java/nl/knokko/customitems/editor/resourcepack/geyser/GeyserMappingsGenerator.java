@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.resourcepack.geyser;
 
-import nl.knokko.customitems.item.CustomItemType;
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.KciItemType;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.itemset.ItemSet;
 
 import java.io.IOException;
@@ -22,15 +22,15 @@ public class GeyserMappingsGenerator {
         this.zipOutput = zipOutput;
     }
 
-    private String getVanillaName(CustomItemValues item) {
-        if (item.getItemType() == CustomItemType.OTHER) {
+    private String getVanillaName(KciItem item) {
+        if (item.getItemType() == KciItemType.OTHER) {
             return "minecraft:" + item.getOtherMaterial().name().toLowerCase(Locale.ROOT);
         } else return "minecraft:" + item.getItemType().getModelName14();
     }
 
     public void writeItemMappings() throws IOException {
         Set<String> vanillaItems = new HashSet<>();
-        for (CustomItemValues item : itemSet.items) {
+        for (KciItem item : itemSet.items) {
             vanillaItems.add(getVanillaName(item));
         }
 
@@ -47,7 +47,7 @@ public class GeyserMappingsGenerator {
 
             boolean isFirst = true;
             // TODO Maybe call itemSet.assignInternalItemDamages()
-            for (CustomItemValues item : itemSet.items) {
+            for (KciItem item : itemSet.items) {
                 if (getVanillaName(item).equals(vanillaItem)) {
                     if (!isFirst) jsonWriter.println(',');
                     isFirst = false;

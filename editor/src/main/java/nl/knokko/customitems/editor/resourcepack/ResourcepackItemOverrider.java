@@ -2,9 +2,9 @@ package nl.knokko.customitems.editor.resourcepack;
 
 import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.editor.util.VanillaModelProperties;
-import nl.knokko.customitems.item.CIMaterial;
-import nl.knokko.customitems.item.CustomItemType;
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.VMaterial;
+import nl.knokko.customitems.item.KciItemType;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.item.durability.ItemDurabilityAssignments;
 import nl.knokko.customitems.item.durability.ItemDurabilityClaim;
 import nl.knokko.customitems.itemset.ItemSet;
@@ -34,15 +34,15 @@ class ResourcepackItemOverrider {
 
     void overrideItems() throws IOException, ValidationException {
 
-        Map<CustomItemType, ItemDurabilityAssignments> allDamageAssignments = itemSet.assignInternalItemDamages();
-        for (Map.Entry<CustomItemType, ItemDurabilityAssignments> typeEntry : allDamageAssignments.entrySet()) {
+        Map<KciItemType, ItemDurabilityAssignments> allDamageAssignments = itemSet.assignInternalItemDamages();
+        for (Map.Entry<KciItemType, ItemDurabilityAssignments> typeEntry : allDamageAssignments.entrySet()) {
 
-            CustomItemType itemType = typeEntry.getKey();
+            KciItemType itemType = typeEntry.getKey();
             ItemDurabilityAssignments damageAssignments = typeEntry.getValue();
 
             if (!damageAssignments.claimList.isEmpty()) {
 
-                if (itemType == CustomItemType.OTHER) {
+                if (itemType == KciItemType.OTHER) {
                     overrideOtherItems(zipOutput, damageAssignments);
                 } else {
 
@@ -60,13 +60,13 @@ class ResourcepackItemOverrider {
                     zipOutput.putNextEntry(zipEntry);
                     final PrintWriter jsonWriter = new PrintWriter(zipOutput);
 
-                    if (itemType == CustomItemType.BOW) {
+                    if (itemType == KciItemType.BOW) {
                         overrideBow(jsonWriter, damageAssignments);
-                    } else if (itemType == CustomItemType.CROSSBOW) {
+                    } else if (itemType == KciItemType.CROSSBOW) {
                         overrideCrossBow(jsonWriter, damageAssignments);
-                    } else if (itemType == CustomItemType.SHIELD) {
+                    } else if (itemType == KciItemType.SHIELD) {
                         overrideShield(jsonWriter, damageAssignments);
-                    } else if (itemType == CustomItemType.ELYTRA) {
+                    } else if (itemType == KciItemType.ELYTRA) {
                         overrideElytra(jsonWriter, damageAssignments);
                     } else {
                         overrideItem(jsonWriter, damageAssignments, itemType, modelName, textureName);
@@ -74,7 +74,7 @@ class ResourcepackItemOverrider {
                     jsonWriter.flush();
 
                     // The trident base model is not special, but it does need a special in-hand model
-                    if (itemType == CustomItemType.TRIDENT) {
+                    if (itemType == KciItemType.TRIDENT) {
                         overrideTridentInHand(jsonWriter, damageAssignments);
                     }
 
@@ -87,15 +87,15 @@ class ResourcepackItemOverrider {
     private void overrideOtherItems(
             ZipOutputStream zipOutput, ItemDurabilityAssignments dataAssignments
     ) throws IOException {
-        Set<CIMaterial> usedOtherMaterials = EnumSet.noneOf(CIMaterial.class);
+        Set<VMaterial> usedOtherMaterials = EnumSet.noneOf(VMaterial.class);
 
-        for (CustomItemValues item : itemSet.items) {
-            if (item.getItemType() == CustomItemType.OTHER) {
+        for (KciItem item : itemSet.items) {
+            if (item.getItemType() == KciItemType.OTHER) {
                 usedOtherMaterials.add(item.getOtherMaterial());
             }
         }
 
-        for (CIMaterial currentOtherMaterial : usedOtherMaterials) {
+        for (VMaterial currentOtherMaterial : usedOtherMaterials) {
             String modelName = currentOtherMaterial.name().toLowerCase(Locale.ROOT);
             String textureName;
             String parent;
@@ -125,20 +125,20 @@ class ResourcepackItemOverrider {
 
             // Some bookkeeping
             int maxItemDamage = 0;
-            for (CustomItemValues item : itemSet.items) {
-                if (item.getItemType() == CustomItemType.OTHER && item.getOtherMaterial() == currentOtherMaterial && item.getItemDamage() > maxItemDamage) {
+            for (KciItem item : itemSet.items) {
+                if (item.getItemType() == KciItemType.OTHER && item.getOtherMaterial() == currentOtherMaterial && item.getItemDamage() > maxItemDamage) {
                     maxItemDamage = item.getItemDamage();
                 }
             }
 
             // The interesting part...
-            List<CustomItemValues> currentItems = itemSet.items.stream().sorted(
-                    Comparator.comparingInt(CustomItemValues::getItemDamage)
+            List<KciItem> currentItems = itemSet.items.stream().sorted(
+                    Comparator.comparingInt(KciItem::getItemDamage)
             ).filter(
-                    item -> item.getItemType() == CustomItemType.OTHER && item.getOtherMaterial() == currentOtherMaterial
+                    item -> item.getItemType() == KciItemType.OTHER && item.getOtherMaterial() == currentOtherMaterial
             ).collect(Collectors.toList());
             for (int index = 0; index < currentItems.size(); index++) {
-                CustomItemValues item = currentItems.get(index);
+                KciItem item = currentItems.get(index);
 
                 // Find the corresponding claim
                 ItemDurabilityClaim claim = null;
@@ -228,7 +228,7 @@ class ResourcepackItemOverrider {
             }
         } else {
             for (ItemDurabilityClaim claim : damageAssignments.claimList) {
-                double damage = (double) claim.itemDamage / CustomItemType.BOW.getMaxDurability(itemSet.getExportSettings().getMcVersion());
+                double damage = (double) claim.itemDamage / KciItemType.BOW.getMaxDurability(itemSet.getExportSettings().getMcVersion());
                 jsonWriter.println("        { \"predicate\": {\"damaged\": 0, \"damage\": " + damage + "}, \"model\": \"" + claim.resourcePath + "\"},");
                 List<BowTextureEntry> pullTextures = claim.pullTextures;
 
@@ -383,7 +383,7 @@ class ResourcepackItemOverrider {
             }
         } else {
             for (ItemDurabilityClaim claim : damageAssignments.claimList) {
-                double damage = (double) claim.itemDamage / CustomItemType.SHIELD.getMaxDurability(itemSet.getExportSettings().getMcVersion());
+                double damage = (double) claim.itemDamage / KciItemType.SHIELD.getMaxDurability(itemSet.getExportSettings().getMcVersion());
                 jsonWriter.println("        { \"predicate\": { \"blocking\": 0, \"damaged\": 0, \"damage\": "
                         + damage + " }, \"model\": \"" + claim.resourcePath + "\" },");
                 jsonWriter.println("        { \"predicate\": { \"blocking\": 1, \"damaged\": 0, \"damage\": "
@@ -427,7 +427,7 @@ class ResourcepackItemOverrider {
             }
         } else {
             for (ItemDurabilityClaim claim : damageAssignments.claimList) {
-                double damage = (double) claim.itemDamage / CustomItemType.ELYTRA.getMaxDurability(itemSet.getExportSettings().getMcVersion());
+                double damage = (double) claim.itemDamage / KciItemType.ELYTRA.getMaxDurability(itemSet.getExportSettings().getMcVersion());
                 jsonWriter.println("        { \"predicate\": { \"broken\": 0, \"damaged\": 0, \"damage\": "
                         + damage + " }, \"model\": \"" + claim.resourcePath + "\" },");
             }
@@ -445,11 +445,11 @@ class ResourcepackItemOverrider {
 
     private void overrideItem(
             PrintWriter jsonWriter, ItemDurabilityAssignments damageAssignments,
-            CustomItemType itemType, String modelName, String textureName
+            KciItemType itemType, String modelName, String textureName
     ) {
 
         String parentModelName = "item/handheld";
-        if (itemType == CustomItemType.CARROT_STICK) parentModelName = "item/handheld_rod";
+        if (itemType == KciItemType.CARROT_STICK) parentModelName = "item/handheld_rod";
 
         // Begin of the json file
         jsonWriter.println("{");
@@ -523,7 +523,7 @@ class ResourcepackItemOverrider {
             }
         } else {
             for (ItemDurabilityClaim claim : damageAssignments.claimList) {
-                double damage = (double) claim.itemDamage / CustomItemType.TRIDENT.getMaxDurability(itemSet.getExportSettings().getMcVersion());
+                double damage = (double) claim.itemDamage / KciItemType.TRIDENT.getMaxDurability(itemSet.getExportSettings().getMcVersion());
                 jsonWriter.println("        { \"predicate\": { \"throwing\": 0, \"damaged\": 0, \"damage\": "
                         + damage + " }, \"model\": \"" + claim.resourcePath + "_in_hand\" },");
                 jsonWriter.println("        { \"predicate\": { \"throwing\": 1, \"damaged\": 0, \"damage\": "

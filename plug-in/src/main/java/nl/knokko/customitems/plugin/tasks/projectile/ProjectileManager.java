@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 
 import de.tr7zw.changeme.nbtapi.NBT;
-import nl.knokko.customitems.projectile.CustomProjectileValues;
+import nl.knokko.customitems.projectile.KciProjectile;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
@@ -45,13 +45,13 @@ public class ProjectileManager implements Listener {
 	 * <p>This method will make sure that all (special) effects of the projectile will be applied and it will
 	 * make sure that the projectile will be cleaned up when it despawns or the server stops.</p>
 	 */
-	public void fireProjectile(LivingEntity shooter, CustomProjectileValues projectile) {
+	public void fireProjectile(LivingEntity shooter, KciProjectile projectile) {
 		fireProjectile(shooter, shooter, shooter.getEyeLocation(), shooter.getLocation().getDirection(), projectile,
 				projectile.getMaxLifetime(), 0.0);
 	}
 	
 	void fireProjectile(LivingEntity directShooter, LivingEntity responsibleShooter, Location launchPosition, Vector look,
-			CustomProjectileValues projectile, int lifetime, double baseAngle) {
+                        KciProjectile projectile, int lifetime, double baseAngle) {
 		
 		if (flyingProjectiles.size() >= CustomItemsPlugin.getInstance().getMaxFlyingProjectiles()) {
 			Bukkit.getLogger().warning("Reached maximum number of flying projectiles");

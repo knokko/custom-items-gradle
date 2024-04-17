@@ -4,7 +4,7 @@ import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.config.LanguageFile;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.set.loading.ItemSetLoader;
-import nl.knokko.customitems.settings.ExportSettingsValues;
+import nl.knokko.customitems.settings.ExportSettings;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -69,7 +69,7 @@ class CommandCustomItemsDebug {
         sender.sendMessage("There are " + itemSet.get().containers.size() + " custom containers");
         sender.sendMessage("There are " + itemSet.get().blocks.size() + " custom blocks");
 
-        if (itemSet.get().getExportSettings().getMode() == ExportSettingsValues.Mode.MANUAL) {
+        if (itemSet.get().getExportSettings().getMode() == ExportSettings.Mode.MANUAL) {
             sender.sendMessage(ChatColor.YELLOW + "Since you did a Manual export, YOU are responsible for the resource pack.");
             return;
         }

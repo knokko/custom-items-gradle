@@ -1,11 +1,11 @@
 package nl.knokko.customitems.plugin.recipe;
 
 import nl.knokko.customitems.nms.KciNms;
-import nl.knokko.customitems.recipe.ShapelessRecipeValues;
-import nl.knokko.customitems.recipe.ingredient.IngredientValues;
+import nl.knokko.customitems.recipe.KciShapelessRecipe;
+import nl.knokko.customitems.recipe.ingredient.KciIngredient;
 import org.bukkit.inventory.ItemStack;
 
-import nl.knokko.customitems.item.CIMaterial;
+import nl.knokko.customitems.item.VMaterial;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,9 +14,9 @@ import static nl.knokko.customitems.plugin.recipe.RecipeHelper.shouldIngredientA
 
 public class ShapelessCraftingRecipeWrapper extends CraftingRecipeWrapper {
 
-	private final ShapelessRecipeValues recipe;
+	private final KciShapelessRecipe recipe;
 
-	public ShapelessCraftingRecipeWrapper(ShapelessRecipeValues recipe) {
+	public ShapelessCraftingRecipeWrapper(KciShapelessRecipe recipe) {
 		super(recipe);
 		this.recipe = recipe;
 	}
@@ -33,14 +33,14 @@ public class ShapelessCraftingRecipeWrapper extends CraftingRecipeWrapper {
 	@Override
 	public List<IngredientEntry> shouldAccept(ItemStack[] ingredients) {
 
-		List<IngredientValues> recipeIngredients = new ArrayList<>(this.recipe.getIngredients());
+		List<KciIngredient> recipeIngredients = new ArrayList<>(this.recipe.getIngredients());
 		boolean[] has = new boolean[recipeIngredients.size()];
 		List<IngredientEntry> result = new ArrayList<>(recipeIngredients.size());
 
 		outerLoop:
 		for (int itemIndex = 0; itemIndex < ingredients.length; itemIndex++) {
 		    ItemStack ingredient = ingredients[itemIndex];
-			if (!KciNms.instance.items.getMaterialName(ingredient).equals(CIMaterial.AIR.name())) {
+			if (!KciNms.instance.items.getMaterialName(ingredient).equals(VMaterial.AIR.name())) {
 				for (int ingredientIndex = 0; ingredientIndex < has.length; ingredientIndex++) {
 					if (!has[ingredientIndex]
 							&& shouldIngredientAcceptItemStack(recipeIngredients.get(ingredientIndex), ingredient)

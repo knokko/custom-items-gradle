@@ -29,12 +29,12 @@ public class PlayerData {
 	
 	public static PlayerData load1(BitInput input, ItemSetWrapper set, Logger logger) {
 		int numWandsData = input.readInt();
-		Map<CustomWandValues, PlayerWandData> wandsData = new HashMap<>(numWandsData);
+		Map<KciWand, PlayerWandData> wandsData = new HashMap<>(numWandsData);
 		for (int counter = 0; counter < numWandsData; counter++) {
 			String itemName = input.readString();
-			CustomItemValues item = set.getItem(itemName);
-			if (item instanceof CustomWandValues) {
-				CustomWandValues wand = (CustomWandValues) item;
+			KciItem item = set.getItem(itemName);
+			if (item instanceof KciWand) {
+				KciWand wand = (KciWand) item;
 				wandsData.put(wand, PlayerWandData.load1(input, wand));
 			} else {
 				PlayerWandData.discard1(input);
@@ -72,7 +72,7 @@ public class PlayerData {
 	 * If an entry for a given wand is missing, it indicates that the wand is currently not on
 	 * cooldown and has all charges available (if the wand uses charges).
 	 */
-	final Map<CustomWandValues, PlayerWandData> wandsData;
+	final Map<KciWand, PlayerWandData> wandsData;
 	final PlayerCommandCooldowns commandCooldowns;
 	final PlayerThrowableCooldowns throwableCooldowns;
 	
@@ -91,15 +91,15 @@ public class PlayerData {
 	long nextOffhandGunShootTick;
 
     long finishMainhandGunReloadTick;
-    CustomGunValues mainhandGunToReload;
+    KciGun mainhandGunToReload;
     long finishOffhandGunReloadTick;
-    CustomGunValues offhandGunToReload;
+    KciGun offhandGunToReload;
 
     long startMainhandEatTime;
-    CustomFoodValues mainhandFood;
+    KciFood mainhandFood;
 
     long startOffhandEatTime;
-    CustomFoodValues offhandFood;
+    KciFood offhandFood;
 	
 	public PlayerData() {
 		wandsData = new HashMap<>();
@@ -110,7 +110,7 @@ public class PlayerData {
 	}
 	
 	private PlayerData(
-			Map<CustomWandValues, PlayerWandData> wandsData,
+			Map<KciWand, PlayerWandData> wandsData,
 			PlayerThrowableCooldowns throwableCooldowns,
 			PlayerCommandCooldowns commandCooldowns
 	){
@@ -136,7 +136,7 @@ public class PlayerData {
 	
 	public void save1(BitOutput output, long currentTick) {
 		output.addInt(wandsData.size());
-		for (Entry<CustomWandValues, PlayerWandData> entry : wandsData.entrySet()) {
+		for (Entry<KciWand, PlayerWandData> entry : wandsData.entrySet()) {
 			output.addString(entry.getKey().getName());
 			entry.getValue().save1(output, entry.getKey(), currentTick);
 		}
@@ -173,9 +173,9 @@ public class PlayerData {
 	 * @return true if the player was allowed to fire projectiles and the cooldown has been set, false
 	 * if the player wasn't allowed to fire projectiles
 	 */
-	public boolean shootIfAllowed(CustomItemValues weapon, long currentTick, boolean isMainhand, float[] pMana) {
-		if (weapon instanceof CustomWandValues) {
-			CustomWandValues wand = (CustomWandValues) weapon;
+	public boolean shootIfAllowed(KciItem weapon, long currentTick, boolean isMainhand, float[] pMana) {
+		if (weapon instanceof KciWand) {
+			KciWand wand = (KciWand) weapon;
 			PlayerWandData data = wandsData.get(wand);
 
 			if (pMana[0] < wand.getManaCost()) return false;
@@ -195,9 +195,9 @@ public class PlayerData {
 				pMana[0] -= wand.getManaCost();
 				return true;
 			}
-		} else if (weapon instanceof CustomGunValues) {
+		} else if (weapon instanceof KciGun) {
 
-			CustomGunValues gun = (CustomGunValues) weapon;
+			KciGun gun = (KciGun) weapon;
 			if (isMainhand) {
 				if ((nextMainhandGunShootTick == -1 || currentTick >= nextMainhandGunShootTick) && !isReloadingMainhand(currentTick)) {
 					nextMainhandGunShootTick = currentTick + gun.getAmmo().getCooldown();
@@ -213,8 +213,8 @@ public class PlayerData {
 					return false;
 				}
 			}
-		} else if (weapon instanceof CustomThrowableValues) {
-			CustomThrowableValues throwable = (CustomThrowableValues) weapon;
+		} else if (weapon instanceof KciThrowable) {
+			KciThrowable throwable = (KciThrowable) weapon;
 			if (!throwableCooldowns.isOnCooldown(throwable, currentTick)) {
 				throwableCooldowns.setOnCooldown(throwable, currentTick);
 				return true;
@@ -264,9 +264,9 @@ public class PlayerData {
 	public boolean clean(long currentTick) {
 		
 		// Clean the wands data
-		Iterator<Entry<CustomWandValues, PlayerWandData>> iterator = wandsData.entrySet().iterator();
+		Iterator<Entry<KciWand, PlayerWandData>> iterator = wandsData.entrySet().iterator();
 		while (iterator.hasNext()) {
-			Entry<CustomWandValues, PlayerWandData> next = iterator.next();
+			Entry<KciWand, PlayerWandData> next = iterator.next();
 			PlayerWandData data = next.getValue();
 			
 			/*

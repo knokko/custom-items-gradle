@@ -3,7 +3,7 @@ package nl.knokko.customitems.editor.menu.edit.recipe.result;
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.recipe.result.CustomItemResultValues;
+import nl.knokko.customitems.recipe.result.CustomItemResult;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -18,18 +18,18 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 public class ChooseCustomResult extends GuiMenu {
 
     private final GuiComponent returnMenu;
-    private final Consumer<CustomItemResultValues> onSelect;
+    private final Consumer<CustomItemResult> onSelect;
     private final ItemSet itemSet;
 
-    private final CustomItemResultValues result;
+    private final CustomItemResult result;
 
     public ChooseCustomResult(
-            GuiComponent returnMenu, Consumer<CustomItemResultValues> onSelect, ItemSet itemSet
+            GuiComponent returnMenu, Consumer<CustomItemResult> onSelect, ItemSet itemSet
     ) {
         this.returnMenu = returnMenu;
         this.onSelect = onSelect;
         this.itemSet = itemSet;
-        this.result = new CustomItemResultValues(true);
+        this.result = new CustomItemResult(true);
     }
 
     @Override

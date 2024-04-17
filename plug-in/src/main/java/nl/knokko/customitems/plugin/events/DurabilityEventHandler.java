@@ -86,22 +86,22 @@ public class DurabilityEventHandler implements Listener {
     }
 
     static UsedShield determineUsedShield(ItemSetWrapper itemSet, Player player) {
-        CustomShieldValues shield = null;
+        KciShield shield = null;
         boolean offhand = true;
 
         ItemStack offStack = player.getInventory().getItemInOffHand();
         ItemStack mainStack = player.getInventory().getItemInMainHand();
 
-        CustomItemValues customOff = itemSet.getItem(offStack);
-        if (customOff instanceof CustomShieldValues) {
-            shield = (CustomShieldValues) customOff;
+        KciItem customOff = itemSet.getItem(offStack);
+        if (customOff instanceof KciShield) {
+            shield = (KciShield) customOff;
         }
 
-        CustomItemValues customMain = itemSet.getItem(mainStack);
-        if (customMain instanceof CustomShieldValues) {
-            shield = (CustomShieldValues) customMain;
+        KciItem customMain = itemSet.getItem(mainStack);
+        if (customMain instanceof KciShield) {
+            shield = (KciShield) customMain;
             offhand = false;
-        } else if (KciNms.instance.items.getMaterialName(mainStack).equals(CIMaterial.SHIELD.name())) {
+        } else if (KciNms.instance.items.getMaterialName(mainStack).equals(VMaterial.SHIELD.name())) {
             shield = null;
             offhand = false;
         }
@@ -113,9 +113,9 @@ public class DurabilityEventHandler implements Listener {
 
         final boolean inOffhand;
         final ItemStack itemStack;
-        final CustomShieldValues customShield;
+        final KciShield customShield;
 
-        UsedShield(boolean inOffHand, ItemStack itemStack, CustomShieldValues customShield) {
+        UsedShield(boolean inOffHand, ItemStack itemStack, KciShield customShield) {
             this.inOffhand = inOffHand;
             this.itemStack = itemStack;
             this.customShield = customShield;
@@ -135,9 +135,9 @@ public class DurabilityEventHandler implements Listener {
     }
 
     private boolean decreaseCustomArmorDurability(ItemStack piece, int damage) {
-        CustomItemValues custom = itemSet.getItem(piece);
-        if (custom instanceof CustomArmorValues) {
-            return wrap((CustomArmorValues) custom).decreaseDurability(piece, damage);
+        KciItem custom = itemSet.getItem(piece);
+        if (custom instanceof KciArmor) {
+            return wrap((KciArmor) custom).decreaseDurability(piece, damage);
         }
         return false;
     }
@@ -167,9 +167,9 @@ public class DurabilityEventHandler implements Listener {
         long durAmount = event.getAmount() * 2L;
 
         for (ItemStack item : allEquipment) {
-            CustomItemValues custom = itemSet.getItem(item);
-            if (custom instanceof CustomToolValues && item.containsEnchantment(Enchantment.MENDING)) {
-                CustomToolValues tool = (CustomToolValues) custom;
+            KciItem custom = itemSet.getItem(item);
+            if (custom instanceof KciTool && item.containsEnchantment(Enchantment.MENDING)) {
+                KciTool tool = (KciTool) custom;
 
                 durAmount -= wrap(tool).increaseDurability(item, durAmount);
 

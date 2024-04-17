@@ -3,9 +3,9 @@ package nl.knokko.customitems.editor.menu.edit.item.elytra;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
-import nl.knokko.customitems.item.elytra.GlideAccelerationValues;
+import nl.knokko.customitems.item.elytra.GlideAcceleration;
 import nl.knokko.customitems.item.elytra.GlideAxis;
-import nl.knokko.customitems.item.elytra.VelocityModifierValues;
+import nl.knokko.customitems.item.elytra.VelocityModifier;
 import nl.knokko.customitems.model.Mutability;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -21,12 +21,12 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class EditVelocityModifier extends GuiMenu {
 
-    private final VelocityModifierValues currentValues;
-    private final Consumer<VelocityModifierValues> onApply;
+    private final VelocityModifier currentValues;
+    private final Consumer<VelocityModifier> onApply;
     private final GuiComponent returnMenu;
 
     public EditVelocityModifier(
-            VelocityModifierValues oldValues, Consumer<VelocityModifierValues> onApply, GuiComponent returnMenu
+            VelocityModifier oldValues, Consumer<VelocityModifier> onApply, GuiComponent returnMenu
     ) {
         this.currentValues = oldValues.copy(true);
         this.onApply = onApply;
@@ -115,7 +115,7 @@ public class EditVelocityModifier extends GuiMenu {
 
     private class AccelerationList extends GuiMenu {
 
-        private List<GlideAccelerationValues> accelerations;
+        private List<GlideAcceleration> accelerations;
 
         @Override
         protected void addComponents() {
@@ -125,7 +125,7 @@ public class EditVelocityModifier extends GuiMenu {
                 float maxY = 1f - index * 0.125f;
                 float deltaY = 0.1f;
                 float minY = maxY - deltaY;
-                GlideAccelerationValues acceleration = accelerations.get(index);
+                GlideAcceleration acceleration = accelerations.get(index);
                 int rememberIndex = index;
 
                 addComponent(
@@ -161,7 +161,7 @@ public class EditVelocityModifier extends GuiMenu {
             }
 
             addComponent(new DynamicTextButton("+", SAVE_BASE, SAVE_HOVER, () -> {
-                accelerations.add(new GlideAccelerationValues(true));
+                accelerations.add(new GlideAcceleration(true));
                 currentValues.setAccelerations(accelerations);
                 refresh();
             }), 0.1f, 0.9f - 0.125f * accelerations.size(), 0.2f, 1f - 0.125f * accelerations.size());

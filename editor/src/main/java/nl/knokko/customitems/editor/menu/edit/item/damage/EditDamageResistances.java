@@ -1,9 +1,9 @@
 package nl.knokko.customitems.editor.menu.edit.item.damage;
 
-import nl.knokko.customitems.damage.DamageSource;
+import nl.knokko.customitems.damage.VDamageSource;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.item.DamageResistanceValues;
+import nl.knokko.customitems.item.DamageResistance;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -19,15 +19,15 @@ public class EditDamageResistances extends GuiMenu {
 	
 	private final Runnable onCancel;
 	private final ItemSet itemSet;
-	private final Consumer<DamageResistanceValues> onApply;
+	private final Consumer<DamageResistance> onApply;
 	
-	private final DamageResistanceValues resistances;
+	private final DamageResistance resistances;
 	
 	private final DynamicTextComponent errorComponent;
 	
 	public EditDamageResistances(
-			ItemSet itemSet, DamageResistanceValues oldResistances, Runnable onCancel,
-			Consumer<DamageResistanceValues> onApply
+            ItemSet itemSet, DamageResistance oldResistances, Runnable onCancel,
+            Consumer<DamageResistance> onApply
 	) {
 		this.itemSet = itemSet;
 		this.resistances = oldResistances.copy(true);
@@ -49,7 +49,7 @@ public class EditDamageResistances extends GuiMenu {
 		addComponent(new DynamicTextButton("Custom...", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new EditCustomDamageResistances(itemSet.damageSources, this, resistances));
 		}), 0.025f, 0.5f, 0.175f, 0.6f);
-		DamageSource[] damageSources = DamageSource.values();
+		VDamageSource[] damageSources = VDamageSource.values();
 		addComponent(new DynamicTextButton("Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
 			onApply.accept(resistances);
 		}), 0.025f, 0.1f, 0.15f, 0.2f);
@@ -58,7 +58,7 @@ public class EditDamageResistances extends GuiMenu {
 			int indexY = index / 4;
 			float x = 0.2f + 0.2f * indexX;
 			float y = 0.7f - 0.1f * indexY;
-			DamageSource source = damageSources[index];
+			VDamageSource source = damageSources[index];
 			addComponent(new DynamicTextComponent(source + ":", EditProps.LABEL), x, y, x + 0.12f, y + 0.1f);
 			addComponent(
 					new EagerIntEditField(resistances.getResistance(source), -10_000, 10_100, EDIT_BASE, EDIT_ACTIVE,

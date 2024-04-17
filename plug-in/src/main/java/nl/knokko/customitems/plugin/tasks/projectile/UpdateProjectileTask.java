@@ -4,7 +4,6 @@ import de.tr7zw.changeme.nbtapi.NBT;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.nms.RaytraceResult;
 import nl.knokko.customitems.plugin.set.item.CustomItemWrapper;
-import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
@@ -15,7 +14,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
-import nl.knokko.customitems.item.CIMaterial;
+import nl.knokko.customitems.item.VMaterial;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 
 import static nl.knokko.customitems.MCVersions.VERSION1_14;
@@ -135,7 +134,7 @@ public class UpdateProjectileTask implements Runnable {
 	@SuppressWarnings("deprecation")
 	private void createCoverItem(Vector position) {
 		
-		CIMaterial coverMaterial = CustomItemWrapper.getMaterial(projectile.prototype.getCover().getItemType(), null);
+		VMaterial coverMaterial = CustomItemWrapper.getMaterial(projectile.prototype.getCover().getItemType(), null);
 		ItemStack coverStack = KciNms.instance.items.createStack(coverMaterial.name(), 1);
 		ItemMeta coverMeta = coverStack.getItemMeta();
 		if (KciNms.mcVersion < VERSION1_14) coverMeta.setUnbreakable(true);

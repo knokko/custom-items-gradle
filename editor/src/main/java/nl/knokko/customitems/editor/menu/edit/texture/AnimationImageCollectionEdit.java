@@ -1,7 +1,7 @@
 package nl.knokko.customitems.editor.menu.edit.texture;
 
 import nl.knokko.customitems.editor.menu.edit.collection.InlineCollectionEdit;
-import nl.knokko.customitems.texture.animated.AnimationImageValues;
+import nl.knokko.customitems.texture.animated.AnimationImage;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
 import nl.knokko.gui.component.image.SimpleImageComponent;
@@ -16,11 +16,11 @@ import java.util.function.Consumer;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
-public class AnimationImageCollectionEdit extends InlineCollectionEdit<AnimationImageValues> {
+public class AnimationImageCollectionEdit extends InlineCollectionEdit<AnimationImage> {
 
     public AnimationImageCollectionEdit(
-            Collection<AnimationImageValues> currentCollection,
-            Consumer<List<AnimationImageValues>> onApply,
+            Collection<AnimationImage> currentCollection,
+            Consumer<List<AnimationImage>> onApply,
             GuiComponent returnMenu
     ) {
         super(currentCollection, onApply, returnMenu);
@@ -28,7 +28,7 @@ public class AnimationImageCollectionEdit extends InlineCollectionEdit<Animation
 
     @Override
     protected void addRowComponents(int itemIndex, float minY, float maxY) {
-        AnimationImageValues image = this.ownCollection.get(itemIndex);
+        AnimationImage image = this.ownCollection.get(itemIndex);
         GuiTextureLoader textureLoader = this.state.getWindow().getTextureLoader();
 
         addComponent(new DynamicTextButton("X", QUIT_BASE, QUIT_HOVER, () -> {
@@ -56,8 +56,8 @@ public class AnimationImageCollectionEdit extends InlineCollectionEdit<Animation
     }
 
     @Override
-    protected AnimationImageValues addNew() {
-        return new AnimationImageValues(true);
+    protected AnimationImage addNew() {
+        return new AnimationImage(true);
     }
 
     @Override

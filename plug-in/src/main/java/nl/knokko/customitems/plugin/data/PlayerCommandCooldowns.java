@@ -2,7 +2,7 @@ package nl.knokko.customitems.plugin.data;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.item.command.ItemCommand;
 import nl.knokko.customitems.item.command.ItemCommandEvent;
 import nl.knokko.customitems.item.command.ItemCommandSystem;
@@ -35,7 +35,7 @@ public class PlayerCommandCooldowns {
         int numEntries = input.readInt();
         for (int counter = 0; counter < numEntries; counter++) {
             String itemName = input.readString();
-            CustomItemValues item = itemSet.getItem(itemName);
+            KciItem item = itemSet.getItem(itemName);
             ItemEntry entry = new ItemEntry();
             if (item != null) {
                 entry.load(input, item.getCommandSystem());
@@ -67,7 +67,7 @@ public class PlayerCommandCooldowns {
         }
     }
 
-    public void setOnCooldown(CustomItemValues item, ItemCommandEvent event, int commandIndex, long currentTick) {
+    public void setOnCooldown(KciItem item, ItemCommandEvent event, int commandIndex, long currentTick) {
         if (!this.itemMap.containsKey(item.getName())) {
             this.itemMap.put(item.getName(), new ItemEntry());
         }
@@ -79,7 +79,7 @@ public class PlayerCommandCooldowns {
         return this.itemMap.isEmpty();
     }
 
-    public boolean isOnCooldown(CustomItemValues item, ItemCommandEvent event, int commandIndex, long currentTick) {
+    public boolean isOnCooldown(KciItem item, ItemCommandEvent event, int commandIndex, long currentTick) {
         ItemEntry entry = this.itemMap.get(item.getName());
         return entry != null && entry.isOnCooldown(event, commandIndex, currentTick);
     }

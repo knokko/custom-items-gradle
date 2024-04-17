@@ -2,14 +2,14 @@ package nl.knokko.customitems.block.miningspeed;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
-import nl.knokko.customitems.item.CIMaterial;
+import nl.knokko.customitems.item.VMaterial;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
 
-import static nl.knokko.customitems.block.miningspeed.MiningSpeedValues.validateValue;
+import static nl.knokko.customitems.block.miningspeed.MiningSpeed.validateValue;
 
 public class VanillaMiningSpeedEntry extends ModelValues {
 
@@ -19,19 +19,19 @@ public class VanillaMiningSpeedEntry extends ModelValues {
 
         VanillaMiningSpeedEntry result = new VanillaMiningSpeedEntry(false);
         result.value = input.readInt();
-        result.material = CIMaterial.valueOf(input.readString());
+        result.material = VMaterial.valueOf(input.readString());
         result.acceptCustomItems = input.readBoolean();
         return result;
     }
 
     private int value;
-    private CIMaterial material;
+    private VMaterial material;
     private boolean acceptCustomItems;
 
     public VanillaMiningSpeedEntry(boolean mutable) {
         super(mutable);
         this.value = -1;
-        this.material = CIMaterial.STONE_PICKAXE;
+        this.material = VMaterial.STONE_PICKAXE;
         this.acceptCustomItems = true;
     }
 
@@ -69,7 +69,7 @@ public class VanillaMiningSpeedEntry extends ModelValues {
         return value;
     }
 
-    public CIMaterial getMaterial() {
+    public VMaterial getMaterial() {
         return material;
     }
 
@@ -82,7 +82,7 @@ public class VanillaMiningSpeedEntry extends ModelValues {
         this.value = value;
     }
 
-    public void setMaterial(CIMaterial material) {
+    public void setMaterial(VMaterial material) {
         assertMutable();
         Checks.notNull(material);
         this.material = material;

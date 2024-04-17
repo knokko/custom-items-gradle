@@ -1,10 +1,10 @@
 package nl.knokko.customitems.editor.resourcepack;
 
-import nl.knokko.customitems.block.CustomBlockValues;
+import nl.knokko.customitems.block.KciBlock;
 
 public class DefaultItemModels {
 
-    static String[] createModelBlockItem(CustomBlockValues block) {
+    static String[] createModelBlockItem(KciBlock block) {
         return new String[] {
                 "{",
                 "    \"parent\": \"customblocks/" + block.getName() + "\"",

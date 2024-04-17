@@ -6,21 +6,21 @@ import java.util.function.Consumer;
 
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.particle.CIParticle;
-import nl.knokko.customitems.projectile.effect.ProjectileEffectValues;
-import nl.knokko.customitems.projectile.effect.SimpleParticleValues;
+import nl.knokko.customitems.particle.VParticle;
+import nl.knokko.customitems.projectile.effect.ProjectileEffect;
+import nl.knokko.customitems.projectile.effect.PESimpleParticle;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerFloatEditField;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
-public class EditSimpleParticles extends EditProjectileEffect<SimpleParticleValues> {
+public class EditSimpleParticles extends EditProjectileEffect<PESimpleParticle> {
 	
 	private static final float BUTTON_X = 0.4f;
 	private static final float LABEL_X = BUTTON_X - 0.01f;
 	
 	public EditSimpleParticles(
-			SimpleParticleValues oldValues, Consumer<ProjectileEffectValues> changeValues, GuiComponent returnMenu
+			PESimpleParticle oldValues, Consumer<ProjectileEffect> changeValues, GuiComponent returnMenu
 	) {
 		super(oldValues, changeValues, returnMenu);
 	}
@@ -58,7 +58,7 @@ public class EditSimpleParticles extends EditProjectileEffect<SimpleParticleValu
 				LABEL_X - 0.12f, 0.4f, LABEL_X, 0.5f
 		);
 		addComponent(
-				EnumSelect.createSelectButton(CIParticle.class, currentValues::setParticle, currentValues.getParticle()),
+				EnumSelect.createSelectButton(VParticle.class, currentValues::setParticle, currentValues.getParticle()),
 				BUTTON_X, 0.41f, BUTTON_X + 0.15f, 0.49f
 		);
 		

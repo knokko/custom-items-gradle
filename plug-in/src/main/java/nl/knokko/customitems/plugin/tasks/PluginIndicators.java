@@ -1,7 +1,7 @@
 package nl.knokko.customitems.plugin.tasks;
 
 import nl.knokko.customitems.item.*;
-import nl.knokko.customitems.item.gun.IndirectGunAmmoValues;
+import nl.knokko.customitems.item.gun.IndirectGunAmmo;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.config.LanguageFile;
 import nl.knokko.customitems.plugin.data.PlayerGunInfo;
@@ -38,10 +38,10 @@ public class PluginIndicators {
         ItemStack mainItem = player.getInventory().getItemInMainHand();
         CustomItemsPlugin plugin = CustomItemsPlugin.getInstance();
         LanguageFile lang = plugin.getLanguageFile();
-        CustomItemValues customMain = plugin.getSet().getItem(mainItem);
+        KciItem customMain = plugin.getSet().getItem(mainItem);
 
-        if (customMain instanceof CustomWandValues) {
-            CustomWandValues wand = (CustomWandValues) customMain;
+        if (customMain instanceof KciWand) {
+            KciWand wand = (KciWand) customMain;
 
             PlayerWandInfo wandInfo = plugin.getData().getWandInfo(player, wand);
             if (wandInfo != null) {
@@ -81,9 +81,9 @@ public class PluginIndicators {
                     seesIndicator.add(player.getUniqueId());
                 }
             }
-        } else if (customMain instanceof CustomGunValues) {
+        } else if (customMain instanceof KciGun) {
 
-            CustomGunValues gun = (CustomGunValues) customMain;
+            KciGun gun = (KciGun) customMain;
             PlayerGunInfo gunInfo = plugin.getData().getGunInfo(player, gun, mainItem, true);
             if (gunInfo != null) {
 
@@ -94,7 +94,7 @@ public class PluginIndicators {
 
                     String ammoString = "";
                     if (gunInfo.remainingStoredAmmo != null) {
-                        ammoString = lang.getIndirectStoredAmmo() + " " + gunInfo.remainingStoredAmmo + " / " + ((IndirectGunAmmoValues) gun.getAmmo()).getStoredAmmo() + " ";
+                        ammoString = lang.getIndirectStoredAmmo() + " " + gunInfo.remainingStoredAmmo + " / " + ((IndirectGunAmmo) gun.getAmmo()).getStoredAmmo() + " ";
                     }
 
                     String cooldownString = "";
@@ -111,12 +111,12 @@ public class PluginIndicators {
                     seesIndicator.add(player.getUniqueId());
                 }
             }
-        } else if (customMain instanceof CustomToolValues) {
+        } else if (customMain instanceof KciTool) {
 
-            CustomToolValues tool = (CustomToolValues) customMain;
+            KciTool tool = (KciTool) customMain;
             if (tool.getMaxDurabilityNew() != null) {
                 long remainingDurability = wrap(tool).getDurability(mainItem);
-                if (remainingDurability != CustomToolValues.UNBREAKABLE_TOOL_DURABILITY) {
+                if (remainingDurability != KciTool.UNBREAKABLE_TOOL_DURABILITY) {
 
                     String actionBarMessage = lang.getDurabilityPrefix() + " " + remainingDurability + " / " + tool.getMaxDurabilityNew();
                     ActionBarAPISupport.sendActionBar(player, actionBarMessage);

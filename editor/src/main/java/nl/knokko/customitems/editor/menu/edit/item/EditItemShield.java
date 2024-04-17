@@ -5,7 +5,7 @@ import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.attack.effect.AttackEffectGroupCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.item.model.EditItemModel;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.item.CustomShieldValues;
+import nl.knokko.customitems.item.KciShield;
 import nl.knokko.customitems.item.model.DefaultModelType;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.gui.component.text.EagerFloatEditField;
@@ -14,9 +14,9 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
-public class EditItemShield extends EditItemTool<CustomShieldValues> {
+public class EditItemShield extends EditItemTool<KciShield> {
 	
-	public EditItemShield(EditMenu menu, CustomShieldValues oldValues, ItemReference toModify) {
+	public EditItemShield(EditMenu menu, KciShield oldValues, ItemReference toModify) {
 		super(menu, oldValues, toModify);
 	}
 	

@@ -2,8 +2,8 @@ package nl.knokko.customitems.editor.menu.edit.projectile.effect;
 
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
-import nl.knokko.customitems.projectile.effect.ProjectileEffectValues;
-import nl.knokko.customitems.projectile.effect.PushOrPullValues;
+import nl.knokko.customitems.projectile.effect.ProjectileEffect;
+import nl.knokko.customitems.projectile.effect.PEPushOrPull;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerFloatEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
@@ -12,10 +12,10 @@ import java.util.function.Consumer;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
-public class EditPushOrPull extends EditProjectileEffect<PushOrPullValues> {
+public class EditPushOrPull extends EditProjectileEffect<PEPushOrPull> {
 
     public EditPushOrPull(
-            PushOrPullValues oldValues, Consumer<ProjectileEffectValues> changeValues, GuiComponent returnMenu
+            PEPushOrPull oldValues, Consumer<ProjectileEffect> changeValues, GuiComponent returnMenu
     ) {
         super(oldValues, changeValues, returnMenu);
     }

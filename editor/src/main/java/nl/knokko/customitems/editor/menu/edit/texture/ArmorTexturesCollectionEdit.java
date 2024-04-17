@@ -8,12 +8,12 @@ import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ArmorTextureReference;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.texture.ArmorTextureValues;
+import nl.knokko.customitems.texture.ArmorTexture;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
-public class ArmorTexturesCollectionEdit extends DedicatedCollectionEdit<ArmorTextureValues, ArmorTextureReference> {
+public class ArmorTexturesCollectionEdit extends DedicatedCollectionEdit<ArmorTexture, ArmorTextureReference> {
 
 	private final ItemSet set;
 	
@@ -28,7 +28,7 @@ public class ArmorTexturesCollectionEdit extends DedicatedCollectionEdit<ArmorTe
 		addComponent(new DynamicTextButton(
 				"Create new", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(
-					new ArmorTexturesEdit(this, set, null, new ArmorTextureValues(true))
+					new ArmorTexturesEdit(this, set, null, new ArmorTexture(true))
 			);
 		}), 0.025f, 0.2f, 0.2f, 0.3f);
 		addComponent(new DynamicTextComponent("Note: only players with Optifine", 
@@ -40,17 +40,17 @@ public class ArmorTexturesCollectionEdit extends DedicatedCollectionEdit<ArmorTe
 	}
 
 	@Override
-	protected String getModelLabel(ArmorTextureValues model) {
+	protected String getModelLabel(ArmorTexture model) {
 		return model.getName();
 	}
 
 	@Override
-	protected BufferedImage getModelIcon(ArmorTextureValues model) {
+	protected BufferedImage getModelIcon(ArmorTexture model) {
 		return model.getLayer1();
 	}
 
 	@Override
-	protected boolean canEditModel(ArmorTextureValues model) {
+	protected boolean canEditModel(ArmorTexture model) {
 		return true;
 	}
 

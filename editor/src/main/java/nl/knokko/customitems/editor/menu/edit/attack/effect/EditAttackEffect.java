@@ -1,6 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.attack.effect;
 
-import nl.knokko.customitems.attack.effect.AttackEffectValues;
+import nl.knokko.customitems.attack.effect.AttackEffect;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
@@ -16,12 +16,12 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.BACKGROUND;
 
 public abstract class EditAttackEffect extends GuiMenu {
 
-    private final Consumer<AttackEffectValues> changeValues;
+    private final Consumer<AttackEffect> changeValues;
     private final GuiComponent returnMenu;
     private final ItemSet itemSet;
 
     public EditAttackEffect(
-            Consumer<AttackEffectValues> changeValues, GuiComponent returnMenu, ItemSet itemSet
+            Consumer<AttackEffect> changeValues, GuiComponent returnMenu, ItemSet itemSet
     ) {
         this.changeValues = changeValues;
         this.returnMenu = returnMenu;
@@ -38,7 +38,7 @@ public abstract class EditAttackEffect extends GuiMenu {
         }), 0.025f, 0.8f, 0.175f, 0.9f);
 
         addComponent(new DynamicTextButton("Apply", SAVE_BASE, SAVE_HOVER, () -> {
-            AttackEffectValues currentValues = getCurrentValues();
+            AttackEffect currentValues = getCurrentValues();
             String error = Validation.toErrorString(() -> currentValues.validate(itemSet));
             if (error == null) {
                 changeValues.accept(currentValues);
@@ -49,7 +49,7 @@ public abstract class EditAttackEffect extends GuiMenu {
         }), 0.025f, 0.2f, 0.175f, 0.3f);
     }
 
-    protected abstract AttackEffectValues getCurrentValues();
+    protected abstract AttackEffect getCurrentValues();
 
     @Override
     public GuiColor getBackgroundColor() {

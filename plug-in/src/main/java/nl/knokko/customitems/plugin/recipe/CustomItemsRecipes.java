@@ -1,13 +1,13 @@
 package nl.knokko.customitems.plugin.recipe;
 
-import nl.knokko.customitems.item.CustomItemValues;
+import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.util.ItemUtils;
-import nl.knokko.customitems.recipe.CraftingRecipeValues;
-import nl.knokko.customitems.recipe.ShapedRecipeValues;
-import nl.knokko.customitems.recipe.ingredient.CustomItemIngredientValues;
-import nl.knokko.customitems.recipe.ingredient.IngredientValues;
-import nl.knokko.customitems.recipe.ingredient.NoIngredientValues;
+import nl.knokko.customitems.recipe.KciCraftingRecipe;
+import nl.knokko.customitems.recipe.KciShapedRecipe;
+import nl.knokko.customitems.recipe.ingredient.CustomItemIngredient;
+import nl.knokko.customitems.recipe.ingredient.KciIngredient;
+import nl.knokko.customitems.recipe.ingredient.NoIngredient;
 import nl.knokko.customrecipes.CustomRecipes;
 import nl.knokko.customrecipes.furnace.CustomFurnaceRecipe;
 import nl.knokko.customrecipes.ingredient.CustomIngredient;
@@ -37,9 +37,9 @@ public class CustomItemsRecipes {
     }
 
     public void register() {
-        for (CraftingRecipeValues recipe : itemSet.get().craftingRecipes) {
-            if (recipe instanceof ShapedRecipeValues) {
-                ShapedRecipeValues shapedRecipe = (ShapedRecipeValues) recipe;
+        for (KciCraftingRecipe recipe : itemSet.get().craftingRecipes) {
+            if (recipe instanceof KciShapedRecipe) {
+                KciShapedRecipe shapedRecipe = (KciShapedRecipe) recipe;
 
                 int width, height, offsetX, offsetY;
                 if (shapedRecipe.shouldIgnoreDisplacement()) {
@@ -56,14 +56,14 @@ public class CustomItemsRecipes {
 
                 String[] shape = new String[height];
 
-                List<IngredientValues> ingredients = new ArrayList<>();
+                List<KciIngredient> ingredients = new ArrayList<>();
 
                 char nextChar = 'a';
                 for (int y = 0; y < height; y++) {
                     StringBuilder row = new StringBuilder(width);
                     for (int x = 0; x < width; x++) {
-                        IngredientValues ingredient = shapedRecipe.getIngredientAt(x + offsetX, y + offsetY);
-                        if (ingredient.equals(new NoIngredientValues())) {
+                        KciIngredient ingredient = shapedRecipe.getIngredientAt(x + offsetX, y + offsetY);
+                        if (ingredient.equals(new NoIngredient())) {
                             row.append(' ');
                             continue;
                         }
@@ -91,26 +91,26 @@ public class CustomItemsRecipes {
         customRecipes.block(new IngredientBlocker(ItemUtils::isCustom));
         customRecipes.furnace.add(new CustomFurnaceRecipe(
                 new ItemStack(Material.DIAMOND, 2),
-                toCustomIngredient(CustomItemIngredientValues.createQuick(
+                toCustomIngredient(CustomItemIngredient.createQuick(
                         itemSet.get().items.getReference("green_ingot"), 1
                 )), 0f, 40
         ));
         customRecipes.furnace.add(new CustomFurnaceRecipe(
                 new ItemStack(Material.BONE, 2),
-                toCustomIngredient(CustomItemIngredientValues.createQuick(
+                toCustomIngredient(CustomItemIngredient.createQuick(
                         itemSet.get().items.getReference("red_ingot"), 1
                 )), 0f, 40
         ));
 
         customRecipes.furnace.addBurnTimeFunction(itemStack -> {
-            CustomItemValues customItem = itemSet.getItem(itemStack);
+            KciItem customItem = itemSet.getItem(itemStack);
             if (customItem == null) return null;
             return 0; // TODO Add burn time to custom items
         });
         customRecipes.register();
     }
 
-    private static CustomIngredient toCustomIngredient(IngredientValues ingredient) {
+    private static CustomIngredient toCustomIngredient(KciIngredient ingredient) {
         return new CustomIngredient(
                 RecipeHelper.getMaterial(ingredient),
                 itemStack -> RecipeHelper.shouldIngredientAcceptItemStack(ingredient, itemStack),

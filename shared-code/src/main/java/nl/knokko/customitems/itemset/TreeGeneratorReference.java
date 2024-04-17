@@ -1,10 +1,10 @@
 package nl.knokko.customitems.itemset;
 
-import nl.knokko.customitems.worldgen.TreeGeneratorValues;
+import nl.knokko.customitems.worldgen.TreeGenerator;
 
-public class TreeGeneratorReference extends UnstableReference<TreeGeneratorValues> {
+public class TreeGeneratorReference extends UnstableReference<TreeGenerator> {
 
-    TreeGeneratorReference(Model<TreeGeneratorValues> model) {
+    TreeGeneratorReference(Model<TreeGenerator> model) {
         super(model);
     }
 }

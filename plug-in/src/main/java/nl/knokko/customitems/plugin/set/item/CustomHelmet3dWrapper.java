@@ -1,10 +1,10 @@
 package nl.knokko.customitems.plugin.set.item;
 
-import nl.knokko.customitems.item.CustomArmorValues;
+import nl.knokko.customitems.item.KciArmor;
 import org.bukkit.inventory.ItemStack;
 
 public class CustomHelmet3dWrapper extends CustomArmorWrapper {
-    CustomHelmet3dWrapper(CustomArmorValues item) {
+    CustomHelmet3dWrapper(KciArmor item) {
         super(item);
     }
 

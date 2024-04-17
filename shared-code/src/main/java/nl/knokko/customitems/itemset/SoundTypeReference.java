@@ -1,17 +1,17 @@
 package nl.knokko.customitems.itemset;
 
-import nl.knokko.customitems.sound.CustomSoundTypeValues;
+import nl.knokko.customitems.sound.KciSoundType;
 
 import java.util.Collection;
 import java.util.UUID;
 
-public class SoundTypeReference extends UUIDBasedReference<CustomSoundTypeValues>  {
+public class SoundTypeReference extends UUIDBasedReference<KciSoundType>  {
 
     SoundTypeReference(UUID id, ItemSet itemSet) {
         super(id, itemSet);
     }
 
-    SoundTypeReference(Model<CustomSoundTypeValues> model) {
+    SoundTypeReference(Model<KciSoundType> model) {
         super(model);
     }
 
@@ -21,12 +21,12 @@ public class SoundTypeReference extends UUIDBasedReference<CustomSoundTypeValues
     }
 
     @Override
-    Collection<Model<CustomSoundTypeValues>> getCollection() {
+    Collection<Model<KciSoundType>> getCollection() {
         return itemSet.soundTypes.elements;
     }
 
     @Override
-    UUID extractIdentity(CustomSoundTypeValues values) {
+    UUID extractIdentity(KciSoundType values) {
         return values.getId();
     }
 }
