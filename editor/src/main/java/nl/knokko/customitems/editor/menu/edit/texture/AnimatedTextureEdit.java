@@ -32,7 +32,7 @@ public class AnimatedTextureEdit extends GuiMenu {
         addComponent(errorComponent, 0.1f, 0.9f, 1f, 1f);
 
         addComponent(new DynamicTextButton("Cancel", CANCEL_BASE, CANCEL_HOVER, () -> {
-            state.getWindow().setMainComponent(menu.getTextureOverview());
+            state.getWindow().setMainComponent(new TextureCollectionEdit(menu));
         }), 0.025f, 0.7f, 0.15f, 0.8f);
 
         addComponent(new DynamicTextButton("Apply", SAVE_BASE, SAVE_HOVER, () -> {
@@ -43,7 +43,7 @@ public class AnimatedTextureEdit extends GuiMenu {
                 error = Validation.toErrorString(() -> menu.getSet().textures.change(toModify, currentValues));
             }
             if (error == null) {
-                state.getWindow().setMainComponent(menu.getTextureOverview());
+                state.getWindow().setMainComponent(new TextureCollectionEdit(menu));
             } else {
                 errorComponent.setText(error);
             }

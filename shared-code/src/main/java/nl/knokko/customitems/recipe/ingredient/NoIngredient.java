@@ -2,6 +2,7 @@ package nl.knokko.customitems.recipe.ingredient;
 
 import nl.knokko.customitems.encoding.RecipeEncoding;
 import nl.knokko.customitems.bithelper.BitOutput;
+import nl.knokko.customitems.item.VMaterial;
 
 import java.util.Objects;
 
@@ -52,5 +53,10 @@ public class NoIngredient extends KciIngredient {
     @Override
     public void save(BitOutput output) {
         output.addByte(RecipeEncoding.Ingredient.NONE);
+    }
+
+    @Override
+    public VMaterial getVMaterial(int mcVersion) {
+        return VMaterial.AIR;
     }
 }

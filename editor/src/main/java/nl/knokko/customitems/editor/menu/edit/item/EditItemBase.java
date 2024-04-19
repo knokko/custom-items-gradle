@@ -59,7 +59,7 @@ public abstract class EditItemBase<V extends KciItem> extends GuiMenu {
 	protected void addComponents() {
 		errorComponent = new DynamicTextComponent("", EditProps.ERROR);
 		addComponent(new DynamicTextButton("Cancel", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
-			state.getWindow().setMainComponent(menu.getItemOverview());
+			state.getWindow().setMainComponent(new ItemCollectionEdit(menu));
 		}), 0.025f, 0.7f, 0.15f, 0.8f);
 
 		addComponent(
@@ -184,7 +184,7 @@ public abstract class EditItemBase<V extends KciItem> extends GuiMenu {
 					errorComponent.setText(error);
 					errorComponent.setProperties(EditProps.ERROR);
 				} else {
-					state.getWindow().setMainComponent(menu.getItemOverview());
+					state.getWindow().setMainComponent(new ItemCollectionEdit(menu));
 				}
 			}), 0.025f, 0.1f, 0.15f, 0.2f);
 		} else {
@@ -194,7 +194,7 @@ public abstract class EditItemBase<V extends KciItem> extends GuiMenu {
 					errorComponent.setProperties(EditProps.ERROR);
 					errorComponent.setText(error);
 				} else
-					state.getWindow().setMainComponent(menu.getItemOverview());
+					state.getWindow().setMainComponent(new ItemCollectionEdit(menu));
 			}), 0.025f, 0.1f, 0.15f, 0.2f);
 		}
 		addComponent(errorComponent, 0.1f, 0.9f, 0.9f, 1f);

@@ -1,5 +1,6 @@
 package nl.knokko.customitems.recipe.ingredient;
 
+import nl.knokko.customitems.item.VMaterial;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.recipe.ingredient.constraint.IngredientConstraints;
@@ -135,4 +136,6 @@ public abstract class KciIngredient extends ModelValues {
         if (remainingItem != null) Validation.scope("Remaining", () -> remainingItem.validateExportVersion(version));
         constraints.validateExportVersion(version);
     }
+
+    public abstract VMaterial getVMaterial(int mcVersion);
 }

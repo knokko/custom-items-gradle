@@ -2,6 +2,8 @@ package nl.knokko.customitems.recipe;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
+import nl.knokko.customitems.item.VMaterial;
+import nl.knokko.customitems.itemset.FurnaceRecipeReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.recipe.ingredient.KciIngredient;
@@ -14,6 +16,7 @@ import nl.knokko.customitems.util.Validation;
 import nl.knokko.customitems.util.ValidationException;
 
 import static nl.knokko.customitems.MCVersions.VERSION1_13;
+import static nl.knokko.customitems.util.Checks.isClose;
 
 public class KciFurnaceRecipe extends ModelValues {
 
@@ -114,7 +117,7 @@ public class KciFurnaceRecipe extends ModelValues {
         this.cookTime = cookTime;
     }
 
-    public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet, FurnaceRecipeReference selfReference) throws ValidationException, ProgrammingValidationException {
         if (input == null) throw new ProgrammingValidationException("No input");
         Validation.scope("Input", input::validateComplete, itemSet);
 
@@ -126,12 +129,30 @@ public class KciFurnaceRecipe extends ModelValues {
 
         if (cookTime < 0) throw new ValidationException("Cook time can't be negative");
 
-        // TODO Enumerate furnace recipes
+        for (FurnaceRecipeReference otherReference : itemSet.furnaceRecipes.references()) {
+            if (otherReference.equals(selfReference)) continue;
+
+            KciFurnaceRecipe recipe = otherReference.get();
+            if (recipe.input.conflictsWith(input)) throw new ValidationException("Input conflicts with " + recipe.input);
+
+            VMaterial ownMaterial = input.getVMaterial(VERSION1_13);
+            if (ownMaterial != null && ownMaterial == recipe.input.getVMaterial(VERSION1_13)) {
+                if (!isClose(experience, recipe.experience)) {
+                    throw new ValidationException("Other recipes with input " + ownMaterial + " must also have " + experience + " xp");
+                }
+                if (cookTime != recipe.cookTime) {
+                    throw new ValidationException("Other recipes with input " + ownMaterial + " must also take " + cookTime + " ticks");
+                }
+                if (result.guessMaxStackSize() > result.getAmount() && recipe.result.guessMaxStackSize() > recipe.result.getAmount()) {
+                    throw new ValidationException("Only 1 recipe with input " + ownMaterial + " can have a stackable result");
+                }
+            }
+        }
+        // TODO Check that ownMaterial does not have vanilla recipes
     }
 
     public void validateExportVersion(int mcVersion) throws ValidationException, ProgrammingValidationException {
         if (mcVersion < VERSION1_13) throw new ValidationException("Custom furnace recipes require MC 1.13 or later");
-        // TODO Maybe, I can support mc 1.12 as well
         Validation.scope("Input", input::validateExportVersion, mcVersion);
         Validation.scope("Result", result::validateExportVersion, mcVersion);
     }

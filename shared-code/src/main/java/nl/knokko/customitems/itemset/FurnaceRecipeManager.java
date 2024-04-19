@@ -5,6 +5,7 @@ import nl.knokko.customitems.bithelper.BitOutput;
 import nl.knokko.customitems.recipe.KciFurnaceRecipe;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
+import nl.knokko.customitems.util.Validation;
 import nl.knokko.customitems.util.ValidationException;
 
 public class FurnaceRecipeManager extends ModelManager<KciFurnaceRecipe, FurnaceRecipeReference> {
@@ -34,17 +35,28 @@ public class FurnaceRecipeManager extends ModelManager<KciFurnaceRecipe, Furnace
     }
 
     @Override
+    public void validate() throws ValidationException, ProgrammingValidationException {
+        for (Model<KciFurnaceRecipe> model : elements) {
+            KciFurnaceRecipe recipe = model.getValues();
+            Validation.scope(
+                    "Furnace recipe for " + recipe.getResult(),
+                    () -> recipe.validate(itemSet, new FurnaceRecipeReference(model))
+            );
+        }
+    }
+
+    @Override
     protected void validate(KciFurnaceRecipe recipe) throws ValidationException, ProgrammingValidationException {
-        recipe.validate(itemSet);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     protected void validateCreation(KciFurnaceRecipe recipe) throws ValidationException, ProgrammingValidationException {
-        recipe.validate(itemSet);
+        recipe.validate(itemSet, null);
     }
 
     @Override
     protected void validateChange(FurnaceRecipeReference reference, KciFurnaceRecipe newValues) throws ValidationException, ProgrammingValidationException {
-        newValues.validate(itemSet);
+        newValues.validate(itemSet, reference);
     }
 }

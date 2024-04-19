@@ -1,9 +1,10 @@
 package nl.knokko.customitems.plugin.tasks.projectile;
 
 import de.tr7zw.changeme.nbtapi.NBT;
+import nl.knokko.customitems.item.KciItem;
+import nl.knokko.customitems.item.KciSimpleItem;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.nms.RaytraceResult;
-import nl.knokko.customitems.plugin.set.item.CustomItemWrapper;
 import org.bukkit.World;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
@@ -133,8 +134,10 @@ public class UpdateProjectileTask implements Runnable {
 
 	@SuppressWarnings("deprecation")
 	private void createCoverItem(Vector position) {
-		
-		VMaterial coverMaterial = CustomItemWrapper.getMaterial(projectile.prototype.getCover().getItemType(), null);
+
+		KciItem dummyItem = new KciSimpleItem(true);
+		dummyItem.setItemType(projectile.prototype.getCover().getItemType());
+		VMaterial coverMaterial = dummyItem.getVMaterial(KciNms.mcVersion);
 		ItemStack coverStack = KciNms.instance.items.createStack(coverMaterial.name(), 1);
 		ItemMeta coverMeta = coverStack.getItemMeta();
 		if (KciNms.mcVersion < VERSION1_14) coverMeta.setUnbreakable(true);

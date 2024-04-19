@@ -53,7 +53,7 @@ public class ShapedRecipeEdit extends GuiMenu {
 	@Override
 	protected void addComponents() {
 		addComponent(new DynamicTextButton("Cancel", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
-			state.getWindow().setMainComponent(menu.getRecipeOverview());
+			state.getWindow().setMainComponent(new RecipeCollectionEdit(menu));
 		}), 0.1f, 0.85f, 0.25f, 0.95f);
 		addComponent(new DynamicTextButton(toModify == null ? "Create" : "Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
 			String error;
@@ -61,7 +61,7 @@ public class ShapedRecipeEdit extends GuiMenu {
 			else error = Validation.toErrorString(() -> menu.getSet().craftingRecipes.change(toModify, currentValues));
 
 			if (error != null) errorComponent.setText(error);
-			else state.getWindow().setMainComponent(menu.getRecipeOverview());
+			else state.getWindow().setMainComponent(new RecipeCollectionEdit(menu));
 		}), 0.1f, 0.7f, 0.25f, 0.8f);
 		addComponent(ingredientsComponent, 0.05f, 0.1f, 0.65f, 0.6f);
 		addComponent(

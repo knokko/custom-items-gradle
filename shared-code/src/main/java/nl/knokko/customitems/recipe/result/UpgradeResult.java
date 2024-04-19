@@ -136,6 +136,16 @@ public class UpgradeResult extends KciResult {
         output.addBoolean(keepOldEnchantments);
     }
 
+    @Override
+    public byte getAmount() {
+        return 1;
+    }
+
+    @Override
+    public byte guessMaxStackSize() {
+        return 1;
+    }
+
     public int getIngredientIndex() {
         return ingredientIndex;
     }

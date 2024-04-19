@@ -27,7 +27,7 @@ public class CreateItem extends GuiMenu {
 	@Override
 	protected void addComponents() {
 		addComponent(new DynamicTextButton("Cancel", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
-			state.getWindow().setMainComponent(menu.getItemOverview());
+			state.getWindow().setMainComponent(new ItemCollectionEdit(menu));
 		}), 0.1f, 0.8f, 0.25f, 0.9f);
 
 		addComponent(new DynamicTextButton("Food or Potion", CHOOSE_BASE, EditProps.CHOOSE_HOVER, () -> {

@@ -102,8 +102,14 @@ public class CustomItemResult extends KciResult {
         output.addJavaString(this.item.get().getName());
     }
 
+    @Override
     public byte getAmount() {
         return amount;
+    }
+
+    @Override
+    public byte guessMaxStackSize() {
+        return getItem().getMaxStacksize();
     }
 
     public KciItem getItem() {

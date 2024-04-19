@@ -35,17 +35,28 @@ public class FurnaceFuelManager extends ModelManager<KciFurnaceFuel, FurnaceFuel
     }
 
     @Override
+    public void validate() throws ValidationException, ProgrammingValidationException {
+        for (Model<KciFurnaceFuel> model : elements) {
+            KciFurnaceFuel fuel = model.getValues();
+            Validation.scope(
+                    "Furnace fuel " + fuel.getItem(),
+                    () -> fuel.validate(itemSet, new FurnaceFuelReference(model))
+            );
+        }
+    }
+
+    @Override
     protected void validate(KciFurnaceFuel fuel) throws ValidationException, ProgrammingValidationException {
-        Validation.scope("Furnace fuel", fuel::validate, itemSet);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     protected void validateCreation(KciFurnaceFuel values) throws ValidationException, ProgrammingValidationException {
-        values.validate(itemSet);
+        values.validate(itemSet, null);
     }
 
     @Override
     protected void validateChange(FurnaceFuelReference reference, KciFurnaceFuel newValues) throws ValidationException, ProgrammingValidationException {
-        newValues.validate(itemSet);
+        newValues.validate(itemSet, reference);
     }
 }

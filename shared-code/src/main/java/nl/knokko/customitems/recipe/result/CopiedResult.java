@@ -90,6 +90,18 @@ public class CopiedResult extends KciResult {
         save1(output);
     }
 
+    @Override
+    public byte getAmount() {
+        // This is just guesswork
+        return 1;
+    }
+
+    @Override
+    public byte guessMaxStackSize() {
+        // This is also guesswork
+        return 64;
+    }
+
     private void save1(BitOutput output) {
         // Save 0 for legacy reasons
         output.addNumber(0, (byte) 6, false);

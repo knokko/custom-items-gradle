@@ -55,10 +55,7 @@ public class RecipeHelper {
 
         if (ingredient instanceof CustomItemIngredient) {
             CustomItemIngredient custom = (CustomItemIngredient) ingredient;
-            return Material.valueOf(CustomItemWrapper.getMaterial(
-                    custom.getItem().getItemType(),
-                    custom.getItem().getOtherMaterial()
-            ).name());
+            return Material.valueOf(custom.getVMaterial(KciNms.mcVersion).name());
         }
 
         if (ingredient instanceof MimicIngredient) {
