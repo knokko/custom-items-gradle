@@ -8,7 +8,7 @@ import nl.knokko.customitems.editor.menu.edit.export.ExportMenu;
 import nl.knokko.customitems.editor.menu.edit.item.ItemCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.misc.CombinedResourcepackCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.projectile.ProjectileMenu;
-import nl.knokko.customitems.editor.menu.edit.recipe.RecipeCollectionEdit;
+import nl.knokko.customitems.editor.menu.edit.recipe.RecipePortal;
 import nl.knokko.customitems.editor.menu.edit.sound.SoundTypeCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.texture.TextureCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.worldgen.WorldGenerationPortal;
@@ -17,7 +17,6 @@ import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.wiki.WikiGenerator;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
-import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
@@ -34,22 +33,9 @@ public class EditMenu extends GuiMenu {
 
 	protected final DynamicTextComponent errorComponent;
 
-	protected final GuiComponent itemOverview;
-	protected final GuiComponent textureOverview;
-	protected final GuiComponent recipeOverview;
-	protected final GuiComponent dropsMenu;
-	protected final ProjectileMenu projectileMenu;
-	protected final ContainerPortal containerPortal;
-
 	public EditMenu(ItemSet set, String fileName) {
 		this.set = set;
 		this.fileName = fileName;
-		itemOverview = new ItemCollectionEdit(this);
-		textureOverview = new TextureCollectionEdit(this);
-		recipeOverview = new RecipeCollectionEdit(this);
-		dropsMenu = new DropsMenu(this);
-		projectileMenu = new ProjectileMenu(this);
-		containerPortal = new ContainerPortal(this);
 		errorComponent = new DynamicTextComponent("", EditProps.ERROR);
 	}
 
@@ -64,26 +50,6 @@ public class EditMenu extends GuiMenu {
 
 	public ItemSet getSet() {
 		return set;
-	}
-
-	public GuiComponent getItemOverview() {
-		return itemOverview;
-	}
-
-	public GuiComponent getTextureOverview() {
-		return textureOverview;
-	}
-
-	public GuiComponent getRecipeOverview() {
-		return recipeOverview;
-	}
-
-	public ProjectileMenu getProjectileMenu() {
-		return projectileMenu;
-	}
-
-	public ContainerPortal getContainerPortal() {
-		return containerPortal;
 	}
 
 	@Override
@@ -139,22 +105,22 @@ public class EditMenu extends GuiMenu {
 		}), 0.025f, 0.05f, 0.2f, 0.13f);
 
 		addComponent(new DynamicTextButton("Textures", BUTTON, HOVER, () -> {
-			this.state.getWindow().setMainComponent(this.textureOverview);
+			this.state.getWindow().setMainComponent(new TextureCollectionEdit(this));
 		}), 0.6F, 0.825F, 0.8F, 0.9F);
 		addComponent(new DynamicTextButton("Items", BUTTON, HOVER, () -> {
-			this.state.getWindow().setMainComponent(this.itemOverview);
+			this.state.getWindow().setMainComponent(new ItemCollectionEdit(this));
 		}), 0.6F, 0.735F, 0.8F, 0.81F);
 		addComponent(new DynamicTextButton("Recipes", BUTTON, HOVER, () -> {
-			this.state.getWindow().setMainComponent(this.recipeOverview);
+			this.state.getWindow().setMainComponent(new RecipePortal(this));
 		}), 0.6F, 0.645F, 0.8F, 0.72F);
 		addComponent(new DynamicTextButton("Drops", BUTTON, HOVER, () -> {
-			this.state.getWindow().setMainComponent(this.dropsMenu);
+			this.state.getWindow().setMainComponent(new DropsMenu(this));
 		}), 0.6F, 0.555F, 0.8F, 0.63F);
 		addComponent(new DynamicTextButton("Projectiles", BUTTON, HOVER, () -> {
-			this.state.getWindow().setMainComponent(this.projectileMenu);
+			this.state.getWindow().setMainComponent(new ProjectileMenu(this));
 		}), 0.6F, 0.465F, 0.875F, 0.54F);
 		addComponent(new DynamicTextButton("Containers", BUTTON, HOVER, () -> {
-			state.getWindow().setMainComponent(containerPortal);
+			state.getWindow().setMainComponent(new ContainerPortal(this));
 		}), 0.6f, 0.375f, 0.875f, 0.45f);
 		addComponent(new DynamicTextButton("Blocks (1.13+)", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new BlockCollectionEdit(this, false));

@@ -92,8 +92,14 @@ public class MimicResult extends KciResult {
         return this.itemId;
     }
 
-    public int getAmount() {
-        return this.amount;
+    @Override
+    public byte getAmount() {
+        return (byte) this.amount;
+    }
+
+    @Override
+    public byte guessMaxStackSize() {
+        return 64;
     }
 
     public void setItemId(String itemId) {

@@ -32,24 +32,6 @@ public abstract class CustomItemWrapper {
 
     public static final String NBT_KEY = "KnokkosCustomItems";
 
-    public static VMaterial getMaterial(KciItemType itemType, VMaterial otherMaterial) {
-        if (itemType == KciItemType.OTHER) return otherMaterial;
-
-        String materialName = itemType.name();
-
-        // This method distinguishes minecraft 1.12 and before from minecraft 1.13 and later
-        // That is what we need here, because Bukkit renamed all WOOD_* tools to WOODEN_* tools
-        if (KciNms.instance.useNewCommands()) {
-            materialName = materialName.replace("WOOD", "WOODEN").replace("GOLD", "GOLDEN");
-        } else {
-            materialName = materialName.replace("SHOVEL", "SPADE");
-        }
-
-        return VMaterial.valueOf(materialName);
-    }
-
-
-
     private static final Collection<Class<? extends KciItem>> SIMPLE_WRAPPER_CLASSES = Lists.newArrayList(
             KciBlockItem.class, KciFood.class, KciGun.class, KciArrow.class,
             KciPocketContainer.class, KciWand.class, KciThrowable.class, KciSimpleItem.class
@@ -126,8 +108,7 @@ public abstract class CustomItemWrapper {
     public ItemStack create(int amount, List<String> lore){
         RawAttribute[] attributeModifiers = AttributeMerger.merge(this.item, new ArrayList<>());
         ItemStack item = KciNms.instance.items.createWithAttributes(
-                getMaterial(this.item.getItemType(), this.item.getOtherMaterial()).name(),
-                amount, attributeModifiers
+                this.item.getVMaterial(KciNms.mcVersion).name(), amount, attributeModifiers
         );
         item.setItemMeta(createItemMeta(item, lore));
         if (KciNms.mcVersion < VERSION1_14) {

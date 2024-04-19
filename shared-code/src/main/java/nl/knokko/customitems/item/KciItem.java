@@ -33,6 +33,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static nl.knokko.customitems.MCVersions.VERSION1_13;
 import static nl.knokko.customitems.encoding.ItemEncoding.*;
 import static nl.knokko.customitems.item.model.ItemModel.MODEL_TYPE_NONE;
 import static nl.knokko.customitems.util.Checks.isClose;
@@ -1320,5 +1321,20 @@ public abstract class KciItem extends ModelValues {
                 }
             }
         }
+    }
+
+    public VMaterial getVMaterial(int mcVersion) {
+        if (itemType == KciItemType.OTHER) return otherMaterial;
+
+        String materialName = itemType.name();
+
+        // Bukkit renamed all WOOD_* tools to WOODEN_* tools between MC 1.12 and 1.13
+        if (mcVersion >= VERSION1_13) {
+            materialName = materialName.replace("WOOD", "WOODEN").replace("GOLD", "GOLDEN");
+        } else {
+            materialName = materialName.replace("SHOVEL", "SPADE");
+        }
+
+        return VMaterial.valueOf(materialName);
     }
 }

@@ -2,6 +2,7 @@ package nl.knokko.customitems.editor.menu.edit.projectile.cover;
 
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
+import nl.knokko.customitems.editor.menu.edit.projectile.ProjectileMenu;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.projectile.cover.CustomProjectileCover;
 import nl.knokko.customitems.projectile.cover.SphereProjectileCover;
@@ -20,7 +21,7 @@ public class CreateProjectileCover extends GuiMenu {
 	@Override
 	protected void addComponents() {
 		addComponent(new DynamicTextButton("Cancel", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
-			state.getWindow().setMainComponent(menu.getProjectileMenu().getCoverOverview());
+			state.getWindow().setMainComponent(new ProjectileCoverCollectionEdit(menu, new ProjectileMenu(menu)));
 		}), 0.025f, 0.7f, 0.2f, 0.8f);
 		
 		addComponent(new DynamicTextButton("Sphere", EditProps.BUTTON, EditProps.HOVER, () -> {

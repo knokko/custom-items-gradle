@@ -3,6 +3,7 @@ package nl.knokko.customitems.recipe.ingredient;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 import nl.knokko.customitems.encoding.RecipeEncoding;
+import nl.knokko.customitems.item.VMaterial;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.ingredient.constraint.IngredientConstraints;
 import nl.knokko.customitems.recipe.result.KciResult;
@@ -132,5 +133,11 @@ public class MimicIngredient extends KciIngredient {
         if (!this.itemId.contains(":")) throw new ValidationException("Item id must contain ':'");
         if (this.amount < 1) throw new ValidationException("Amount must be positive");
         if (this.amount > 64) throw new ValidationException("Amount can be at most 64");
+    }
+
+    @Override
+    public VMaterial getVMaterial(int mcVersion) {
+        // Return *null* because we don't know the materials of foreign custom items
+        return null;
     }
 }

@@ -417,7 +417,7 @@ public class ItemUpdater {
 
 		newStack = upgradeEnchantments(newStack, oldItem, newItem);
 
-		KciNms.instance.items.setMaterial(newStack, CustomItemWrapper.getMaterial(newItem.getItemType(), newItem.getOtherMaterial()).name());
+		KciNms.instance.items.setMaterial(newStack, newItem.getVMaterial(KciNms.mcVersion).name());
 		
 		ItemMeta meta = newStack.getItemMeta();
 		

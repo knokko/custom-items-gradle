@@ -39,7 +39,7 @@ public class BowTextureEdit extends GuiMenu {
 	private final BowTexture currentValues;
 
 	public BowTextureEdit(EditMenu menu, TextureReference toModify, BowTexture oldValues) {
-		this(menu.getSet(), menu.getTextureOverview(), toModify, oldValues);
+		this(menu.getSet(), new TextureCollectionEdit(menu), toModify, oldValues);
 	}
 
 	public BowTextureEdit(ItemSet set, GuiComponent returnMenu, TextureReference toModify, BowTexture oldValues) {

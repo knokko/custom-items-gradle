@@ -2,6 +2,7 @@ package nl.knokko.customitems.recipe;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
+import nl.knokko.customitems.itemset.FurnaceFuelReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.recipe.ingredient.KciIngredient;
@@ -81,12 +82,21 @@ public class KciFurnaceFuel extends ModelValues {
         this.burnTime = burnTime;
     }
 
-    public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
+    public void validate(ItemSet itemSet, FurnaceFuelReference ownReference) throws ValidationException, ProgrammingValidationException {
         if (item == null) throw new ProgrammingValidationException("No item");
         Validation.scope("Item", item::validateComplete, itemSet);
 
         if (burnTime <= 0) throw new ValidationException("Burn time must be a positive integer");
-        // TODO Check conflicts
+
+        for (FurnaceFuelReference otherReference : itemSet.furnaceFuel.references()) {
+            if (otherReference.equals(ownReference)) continue;
+
+            if (item.conflictsWith(otherReference.get().getItem())) {
+                throw new ValidationException("Input conflicts with " + otherReference.get().getItem());
+            }
+        }
+
+        // TODO Check that ownMaterial is vanilla fuel
     }
 
     public void validateExportVersion(int mcVersion) throws ValidationException, ProgrammingValidationException {

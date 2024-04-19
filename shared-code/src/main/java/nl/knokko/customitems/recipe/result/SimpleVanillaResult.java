@@ -101,8 +101,15 @@ public class SimpleVanillaResult extends KciResult {
         output.addJavaString(this.material.name());
     }
 
+    @Override
     public byte getAmount() {
         return amount;
+    }
+
+    @Override
+    public byte guessMaxStackSize() {
+        return 64;
+        // TODO return material.maxStackSize;
     }
 
     public VMaterial getMaterial() {

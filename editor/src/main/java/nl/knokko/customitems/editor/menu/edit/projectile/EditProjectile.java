@@ -50,7 +50,7 @@ public class EditProjectile extends GuiMenu {
 	@Override
 	protected void addComponents() {
 		addComponent(new DynamicTextButton("Cancel", CANCEL_BASE, CANCEL_HOVER, () -> {
-			state.getWindow().setMainComponent(menu.getProjectileMenu().getProjectileOverview());
+			state.getWindow().setMainComponent(new ProjectileCollectionEdit(menu, new ProjectileMenu(menu)));
 		}), 0.025f, 0.75f, 0.15f, 0.85f);
 		
 		addComponent(errorComponent, 0.05f, 0.9f, 0.95f, 1f);
@@ -208,7 +208,7 @@ public class EditProjectile extends GuiMenu {
 			else error = Validation.toErrorString(() -> menu.getSet().projectiles.change(toModify, currentValues));
 
 			if (error == null) {
-				state.getWindow().setMainComponent(menu.getProjectileMenu().getProjectileOverview());
+				state.getWindow().setMainComponent(new ProjectileCollectionEdit(menu, new ProjectileMenu(menu)));
 			} else {
 				errorComponent.setText(error);
 			}

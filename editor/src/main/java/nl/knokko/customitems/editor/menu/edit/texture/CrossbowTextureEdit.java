@@ -37,7 +37,7 @@ public class CrossbowTextureEdit extends GuiMenu {
     public CrossbowTextureEdit(
             EditMenu menu, TextureReference toModify, CrossbowTexture oldValues
     ) {
-        this(menu.getSet(), menu.getTextureOverview(), toModify, oldValues);
+        this(menu.getSet(), new TextureCollectionEdit(menu), toModify, oldValues);
     }
 
     public CrossbowTextureEdit(

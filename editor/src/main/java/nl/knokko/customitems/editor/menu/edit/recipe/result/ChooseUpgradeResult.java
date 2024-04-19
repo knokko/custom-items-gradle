@@ -34,8 +34,12 @@ public class ChooseUpgradeResult extends GuiMenu {
         this.returnMenu = returnMenu;
         this.itemSet = itemSet;
         this.confirmResult = confirmResult;
-        this.createIngredientSelectionMenu = createIngredientSelectionMenu;
         this.currentValues = oldValues.copy(true);
+
+        // Dirty trick to support furnace upgrade recipes, which only have 1 slot
+        if (createIngredientSelectionMenu.apply(this, currentValues) == this) createIngredientSelectionMenu = null;
+
+        this.createIngredientSelectionMenu = createIngredientSelectionMenu;
     }
 
     @Override
@@ -86,9 +90,11 @@ public class ChooseUpgradeResult extends GuiMenu {
         ), 0.3f, 0.275f, 0.325f, 0.3f);
         addComponent(new DynamicTextComponent("Keep old enchantments", LABEL), 0.33f, 0.25f, 0.55f, 0.35f);
 
-        addComponent(new DynamicTextButton("Choose ingredient...", BUTTON, HOVER, () -> {
-            state.getWindow().setMainComponent(createIngredientSelectionMenu.apply(this, currentValues));
-        }), 0.3f, 0.125f, 0.5f, 0.225f);
+        if (createIngredientSelectionMenu != null) {
+            addComponent(new DynamicTextButton("Choose ingredient...", BUTTON, HOVER, () -> {
+                state.getWindow().setMainComponent(createIngredientSelectionMenu.apply(this, currentValues));
+            }), 0.3f, 0.125f, 0.5f, 0.225f);
+        }
 
         HelpButtons.addHelpLink(this, "edit menu/recipes/upgrades/result.html");
     }

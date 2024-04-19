@@ -39,7 +39,7 @@ public class TextureEdit extends GuiMenu {
 	protected final KciTexture currentValues;
 	
 	public TextureEdit(EditMenu menu, TextureReference toModify, KciTexture oldValues) {
-		this(menu.getSet(), menu.getTextureOverview(), toModify, oldValues);
+		this(menu.getSet(), new TextureCollectionEdit(menu), toModify, oldValues);
 	}
 
 	public TextureEdit(ItemSet set, GuiComponent returnMenu, TextureReference toModify, KciTexture oldValues) {

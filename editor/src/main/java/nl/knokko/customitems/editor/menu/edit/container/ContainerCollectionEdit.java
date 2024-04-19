@@ -4,12 +4,10 @@ import java.awt.image.BufferedImage;
 
 import nl.knokko.customitems.container.KciContainer;
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
-import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ContainerReference;
-import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
@@ -21,7 +19,7 @@ public class ContainerCollectionEdit extends DedicatedCollectionEdit<KciContaine
 	private final EditMenu menu;
 
 	public ContainerCollectionEdit(EditMenu menu) {
-		super(menu.getContainerPortal(), menu.getSet().containers.references(), null);
+		super(new ContainerPortal(menu), menu.getSet().containers.references(), null);
 		this.menu = menu;
 	}
 	
@@ -33,13 +31,8 @@ public class ContainerCollectionEdit extends DedicatedCollectionEdit<KciContaine
 		}), 0.025f, 0.3f, 0.2f, 0.4f);
 		HelpButtons.addHelpLink(this, "edit menu/containers/overview.html");
 	}
-	
-	@Override
-	public GuiColor getBackgroundColor() {
-		return EditProps.BACKGROUND;
-	}
 
-	@Override
+    @Override
 	protected String getModelLabel(KciContainer model) {
 		return model.getName();
 	}

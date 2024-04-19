@@ -6,7 +6,6 @@ import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.recipe.template.ChooseTemplateRecipeType;
-import nl.knokko.customitems.editor.menu.edit.upgrade.UpgradeCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.CraftingRecipeReference;
@@ -18,14 +17,13 @@ import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.BUTTON;
-import static nl.knokko.customitems.editor.menu.edit.EditProps.HOVER;
 
 public class RecipeCollectionEdit extends DedicatedCollectionEdit<KciCraftingRecipe, CraftingRecipeReference> {
 	
 	private final EditMenu menu;
 
 	public RecipeCollectionEdit(EditMenu menu) {
-		super(menu, menu.getSet().craftingRecipes.references(), null);
+		super(new RecipePortal(menu), menu.getSet().craftingRecipes.references(), null);
 		this.menu = menu;
 	}
 	
@@ -41,10 +39,8 @@ public class RecipeCollectionEdit extends DedicatedCollectionEdit<KciCraftingRec
 		addComponent(new DynamicTextButton("Create shapeless recipe", BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new ShapelessRecipeEdit(new KciShapelessRecipe(true), null, menu.getSet(), this));
 		}), 0.025f, 0.14f, 0.29f, 0.24f);
-		addComponent(new DynamicTextButton("Upgrades...", BUTTON, HOVER, () -> {
-			state.getWindow().setMainComponent(new UpgradeCollectionEdit(this, menu.getSet()));
-		}), 0.025f, 0.02f, 0.15f, 0.12f);
 
+		// TODO Update this
 		HelpButtons.addHelpLink(this, "edit menu/recipes/overview.html");
 	}
 

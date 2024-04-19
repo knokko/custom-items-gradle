@@ -3,6 +3,7 @@ package nl.knokko.customitems.recipe.ingredient;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 import nl.knokko.customitems.encoding.RecipeEncoding;
+import nl.knokko.customitems.item.VMaterial;
 import nl.knokko.customitems.recipe.ingredient.constraint.IngredientConstraints;
 import nl.knokko.customitems.recipe.result.KciResult;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -126,5 +127,11 @@ public class CopiedIngredient extends KciIngredient {
         } catch (IllegalArgumentException encodedIsInvalid) {
             throw new ValidationException("The copied text is invalid");
         }
+    }
+
+    @Override
+    public VMaterial getVMaterial(int mcVersion) {
+        // Return *null* because we don't know the Material without Bukkit help
+        return null;
     }
 }

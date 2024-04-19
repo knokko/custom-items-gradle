@@ -208,4 +208,9 @@ public class DataVanillaIngredient extends KciIngredient {
             throw new ValidationException(material + " was renamed after mc " + MCVersions.createString(material.lastVersion));
         }
     }
+
+    @Override
+    public VMaterial getVMaterial(int mcVersion) {
+        return material;
+    }
 }

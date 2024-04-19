@@ -25,7 +25,7 @@ public class TextureCreate extends GuiMenu {
 	@Override
 	protected void addComponents() {
 		addComponent(new DynamicTextButton("Back", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
-			state.getWindow().setMainComponent(menu.getTextureOverview());
+			state.getWindow().setMainComponent(new TextureCollectionEdit(menu));
 		}), 0.1f, 0.7f, 0.25f, 0.8f);
 		addComponent(new DynamicTextButton("Load simple texture", BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new TextureEdit(menu, null, new KciTexture(true)));

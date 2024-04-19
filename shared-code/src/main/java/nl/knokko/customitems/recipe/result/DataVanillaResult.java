@@ -108,8 +108,15 @@ public class DataVanillaResult extends KciResult {
         output.addNumber(this.data, (byte) 4, false);
     }
 
+    @Override
     public byte getAmount() {
         return amount;
+    }
+
+    @Override
+    public byte guessMaxStackSize() {
+        return 64;
+        // TODO return material.maxStackSize;
     }
 
     public VMaterial getMaterial() {

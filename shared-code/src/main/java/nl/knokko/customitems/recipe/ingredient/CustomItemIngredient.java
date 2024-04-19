@@ -2,6 +2,7 @@ package nl.knokko.customitems.recipe.ingredient;
 
 import nl.knokko.customitems.encoding.RecipeEncoding;
 import nl.knokko.customitems.item.KciItem;
+import nl.knokko.customitems.item.VMaterial;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.ingredient.constraint.IngredientConstraints;
@@ -180,5 +181,10 @@ public class CustomItemIngredient extends KciIngredient {
         super.validateComplete(itemSet);
 
         if (!itemSet.items.isValid(item)) throw new ValidationException("Item is not or no longer valid");
+    }
+
+    @Override
+    public VMaterial getVMaterial(int mcVersion) {
+        return item.get().getVMaterial(mcVersion);
     }
 }

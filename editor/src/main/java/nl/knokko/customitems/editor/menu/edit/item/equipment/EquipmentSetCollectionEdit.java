@@ -2,6 +2,7 @@ package nl.knokko.customitems.editor.menu.edit.item.equipment;
 
 import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
+import nl.knokko.customitems.editor.menu.edit.item.ItemCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.item.equipment.EquipmentSet;
@@ -20,7 +21,7 @@ public class EquipmentSetCollectionEdit extends DedicatedCollectionEdit<Equipmen
 
     public EquipmentSetCollectionEdit(EditMenu menu) {
         super(
-                menu.getItemOverview(), menu.getSet().equipmentSets.references(),
+                new ItemCollectionEdit(menu), menu.getSet().equipmentSets.references(),
                 toAdd -> Validation.toErrorString(() -> menu.getSet().equipmentSets.add(toAdd))
         );
         this.menu = menu;

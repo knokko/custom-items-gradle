@@ -56,6 +56,10 @@ public abstract class KciResult extends ModelValues  {
         output.addNumber(amount - 1, (byte) 6, false);
     }
 
+    public abstract byte getAmount();
+
+    public abstract byte guessMaxStackSize();
+
     public abstract void validateIndependent() throws ValidationException, ProgrammingValidationException;
 
     public abstract void validateComplete(ItemSet itemSet) throws ValidationException, ProgrammingValidationException;
