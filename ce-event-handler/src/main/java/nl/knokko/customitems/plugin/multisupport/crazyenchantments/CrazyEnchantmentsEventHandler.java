@@ -5,8 +5,8 @@ import com.badbones69.crazyenchantments.paper.api.CrazyManager;
 import com.badbones69.crazyenchantments.paper.api.enums.CEnchantments;
 import com.badbones69.crazyenchantments.paper.api.events.HellForgedUseEvent;
 import com.badbones69.crazyenchantments.paper.api.objects.CEnchantment;
-import nl.knokko.customitems.item.CustomItemValues;
-import nl.knokko.customitems.item.CustomToolValues;
+import nl.knokko.customitems.item.KciItem;
+import nl.knokko.customitems.item.KciTool;
 import nl.knokko.customitems.plugin.set.item.CustomToolWrapper;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import org.bukkit.event.EventHandler;
@@ -64,19 +64,18 @@ public class CrazyEnchantmentsEventHandler implements Listener {
 		ItemStack[] contents = event.getPlayer().getInventory().getContents();
 		boolean didChange = false;
 
-		for (int index = 0; index < contents.length; index++) {
-			ItemStack itemStack = contents[index];
-			CustomItemValues customItem = CustomItemsPlugin.getInstance().getSet().getItem(itemStack);
-			if (customItem instanceof CustomToolValues) {
-				CustomToolValues customTool = (CustomToolValues) customItem;
-				int hellForgedLevel = CEnchantments.HELLFORGED.getLevel(itemStack);
+        for (ItemStack itemStack : contents) {
+            KciItem customItem = CustomItemsPlugin.getInstance().getSet().getItem(itemStack);
+            if (customItem instanceof KciTool) {
+                KciTool customTool = (KciTool) customItem;
+                int hellForgedLevel = CEnchantments.HELLFORGED.getLevel(itemStack);
 
-				if (hellForgedLevel > 0 && CEnchantments.HELLFORGED.chanceSuccessful()) {
-					long increasedAmount = CustomToolWrapper.wrap(customTool).increaseDurability(itemStack, hellForgedLevel);
-					if (increasedAmount > 0) didChange = true;
-				}
-			}
-		}
+                if (hellForgedLevel > 0 && CEnchantments.HELLFORGED.chanceSuccessful()) {
+                    long increasedAmount = CustomToolWrapper.wrap(customTool).increaseDurability(itemStack, hellForgedLevel);
+                    if (increasedAmount > 0) didChange = true;
+                }
+            }
+        }
 
 		if (didChange) {
 			event.getPlayer().getInventory().setContents(contents);

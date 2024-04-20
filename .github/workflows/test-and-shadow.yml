@@ -45,6 +45,21 @@ jobs:
         with:
           name: plug-in-incomplete
           path: plug-in/build/libs/plug-in-all.jar
+  test-custom-recipes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: gradle
+      - run: cp github-actions-helper/VersionTrimmer.java VersionTrimmer.java
+      - run: javac VersionTrimmer.java
+      - run: curl -o BuildTools.jar https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
+      - run: java -jar BuildTools.jar --rev 1.20.4
+      - run: java VersionTrimmer test-custom-recipes
+      - run: ./gradlew test
   nms13-to-16:
     runs-on: ubuntu-latest
     steps:

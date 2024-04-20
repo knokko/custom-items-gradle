@@ -113,12 +113,27 @@ project(':plug-in') {
     }
 }
 
+// MARKER START CUSTOM RECIPES
 project(':custom-recipes') {
     dependencies {
         compileOnly 'org.bukkit:bukkit:1.13.2-R0.1-SNAPSHOT'
-        testImplementation 'com.github.seeseemelk:MockBukkit-v1.20:3.9.0'
     }
 }
+// MARKER END CUSTOM RECIPES
+
+// MARKER START TEST CUSTOM RECIPES
+//project(':custom-recipes') {
+//    dependencies {
+//        compileOnly 'org.spigotmc:spigot:1.20.4-R0.1-SNAPSHOT'
+//    }
+//}
+//project(':test-custom-recipes') {
+//    dependencies {
+//        testImplementation project(':custom-recipes')
+//        testImplementation 'com.github.seeseemelk:MockBukkit-v1.20:3.9.0'
+//    }
+//}
+// MARKER END TEST CUSTOM RECIPES
 
 project(':editor') {
     apply plugin: 'io.github.goooler.shadow'
@@ -170,13 +185,13 @@ project(':editor') {
 //}
 // MARKER END CE EVENT HANDLER
 
-// MARKER START GENERAL
+// MARKER START NMS BASE
 project(':kci-nms') {
     dependencies {
         compileOnly 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
     }
 }
-// MARKER END GENERAL
+// MARKER END NMS BASE
 
 // MARKER START NMS 12 DEPENDENCY
 project(':kci-nms12') {
