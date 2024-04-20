@@ -1,13 +1,17 @@
 package nl.knokko.customitems.plugin.recipe;
 
 import nl.knokko.customitems.item.KciItem;
+import nl.knokko.customitems.item.VMaterial;
+import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
+import nl.knokko.customitems.plugin.tasks.updater.ItemUpgrader;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import nl.knokko.customitems.recipe.KciCraftingRecipe;
+import nl.knokko.customitems.recipe.KciFurnaceRecipe;
 import nl.knokko.customitems.recipe.KciShapedRecipe;
-import nl.knokko.customitems.recipe.ingredient.CustomItemIngredient;
 import nl.knokko.customitems.recipe.ingredient.KciIngredient;
 import nl.knokko.customitems.recipe.ingredient.NoIngredient;
+import nl.knokko.customitems.recipe.result.UpgradeResult;
 import nl.knokko.customrecipes.CustomRecipes;
 import nl.knokko.customrecipes.furnace.CustomFurnaceRecipe;
 import nl.knokko.customrecipes.ingredient.CustomIngredient;
@@ -19,6 +23,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static nl.knokko.customitems.plugin.recipe.RecipeHelper.convertResultToItemStack;
 
@@ -85,28 +90,44 @@ public class CustomItemsRecipes {
                 }
 
                 customRecipes.shaped.add(customRecipe);
-            } else {}// TODO
+            } else {}// TODO shapeless
         }
 
-        customRecipes.block(new IngredientBlocker(ItemUtils::isCustom));
-        customRecipes.furnace.add(new CustomFurnaceRecipe(
-                new ItemStack(Material.DIAMOND, 2),
-                toCustomIngredient(CustomItemIngredient.createQuick(
-                        itemSet.get().items.getReference("green_ingot"), 1
-                )), 0f, 40
-        ));
-        customRecipes.furnace.add(new CustomFurnaceRecipe(
-                new ItemStack(Material.BONE, 2),
-                toCustomIngredient(CustomItemIngredient.createQuick(
-                        itemSet.get().items.getReference("red_ingot"), 1
-                )), 0f, 40
-        ));
+        customRecipes.blockCrafting(new IngredientBlocker(ItemUtils::isCustom));
+
+        Stream<KciFurnaceRecipe> sortedRecipes = itemSet.get().furnaceRecipes.stream().sorted((a, b) -> {
+            boolean stacksA = a.getResult().guessMaxStackSize() > a.getResult().getAmount();
+            boolean stacksB = b.getResult().guessMaxStackSize() > b.getResult().getAmount();
+            if (stacksA == stacksB) return 0;
+            if (stacksA) return -1;
+            return 1;
+        });
+        sortedRecipes.forEachOrdered(recipe -> {
+            customRecipes.furnace.add(new CustomFurnaceRecipe(ingredient -> {
+                if (!(recipe.getResult() instanceof UpgradeResult)) return convertResultToItemStack(recipe.getResult());
+
+                if (ingredient == null) {
+                    int guessAmount = recipe.getInput().getAmount();
+                    if (guessAmount == 0) guessAmount = 1;
+
+                    VMaterial inputMaterial = recipe.getInput().getVMaterial(KciNms.mcVersion);
+                    if (inputMaterial == null) inputMaterial = VMaterial.STONE;
+
+                    return new ItemStack(Material.valueOf(inputMaterial.name()), guessAmount);
+                }
+
+                return ItemUpgrader.addUpgrade(ingredient.clone(), itemSet, (UpgradeResult) recipe.getResult());
+            }, toCustomIngredient(recipe.getInput()), recipe.getExperience(), recipe.getCookTime()));
+        });
 
         customRecipes.furnace.addBurnTimeFunction(itemStack -> {
             KciItem customItem = itemSet.getItem(itemStack);
             if (customItem == null) return null;
-            return 0; // TODO Add burn time to custom items
+            return customItem.getFurnaceBurnTime();
         });
+
+        customRecipes.furnace.block(ItemUtils::isCustom);
+
         customRecipes.register();
     }
 

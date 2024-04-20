@@ -110,7 +110,6 @@ public class ItemSet {
     public final DamageSourceManager damageSources = new DamageSourceManager(this);
     public final CraftingRecipeManager craftingRecipes = new CraftingRecipeManager(this);
     public final FurnaceRecipeManager furnaceRecipes = new FurnaceRecipeManager(this);
-    public final FurnaceFuelManager furnaceFuel = new FurnaceFuelManager(this);
     public final UpgradeManager upgrades = new UpgradeManager(this);
     public final BlockDropManager blockDrops = new BlockDropManager(this);
     public final MobDropManager mobDrops = new MobDropManager(this);
@@ -325,7 +324,6 @@ public class ItemSet {
         output.addInt(removedItemNames.size());
         for (String removed : removedItemNames) output.addString(removed);
         furnaceRecipes.save(output, threadPool, targetSide);
-        furnaceFuel.save(output, threadPool, targetSide);
 
         threadPool.shutdown();
     }
@@ -579,7 +577,6 @@ public class ItemSet {
         loadContent11(input);
 
         furnaceRecipes.load(input);
-        furnaceFuel.load(input);
     }
 
     private void load12(BitInput rawInput) throws IntegrityException, UnknownEncodingException {

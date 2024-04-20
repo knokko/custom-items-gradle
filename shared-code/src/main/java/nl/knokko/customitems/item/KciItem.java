@@ -21,6 +21,7 @@ import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.model.Mutability;
+import nl.knokko.customitems.recipe.VFuel;
 import nl.knokko.customitems.texture.KciTexture;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.*;
@@ -174,6 +175,7 @@ public abstract class KciItem extends ModelValues {
     protected MultiBlockBreak multiBlockBreak;
     protected boolean isTwoHanded;
     protected boolean indestructible;
+    protected int furnaceBurnTime;
 
     // Editor-only properties
     protected TextureReference texture;
@@ -223,6 +225,7 @@ public abstract class KciItem extends ModelValues {
         this.multiBlockBreak = new MultiBlockBreak(false);
         this.isTwoHanded = false;
         this.indestructible = false;
+        this.furnaceBurnTime = 0;
 
         this.texture = null;
         this.model = createDefaultItemModel(getDefaultModelType());
@@ -259,6 +262,7 @@ public abstract class KciItem extends ModelValues {
         this.multiBlockBreak = source.getMultiBlockBreak();
         this.isTwoHanded = source.isTwoHanded();
         this.indestructible = source.isIndestructible();
+        this.furnaceBurnTime = source.getFurnaceBurnTime();
         this.texture = source.getTextureReference();
         this.model = source.getModel();
         this.wikiVisibility = source.getWikiVisibility();
@@ -284,7 +288,8 @@ public abstract class KciItem extends ModelValues {
                 && Objects.equals(this.customMeleeDamageSource, other.customMeleeDamageSource)
                 && this.attackEffects.equals(other.attackEffects) && this.updateAutomatically == other.updateAutomatically
                 && this.keepOnDeath == other.keepOnDeath && this.multiBlockBreak.equals(other.multiBlockBreak)
-                && this.isTwoHanded == other.isTwoHanded && this.indestructible == other.indestructible;
+                && this.isTwoHanded == other.isTwoHanded && this.indestructible == other.indestructible
+                && this.furnaceBurnTime == other.furnaceBurnTime;
     }
 
     public DefaultModelType getDefaultModelType() {
@@ -373,8 +378,10 @@ public abstract class KciItem extends ModelValues {
         if (encoding >= 5) {
             this.extraItemNbt = CollectionHelper.load(input, input2 -> input2.readString());
             this.translations = CollectionHelper.load(input, input2 -> TranslationEntry.load(input2, false));
+            this.furnaceBurnTime = input.readInt();
         } else {
             this.translations = Collections.emptyList();
+            this.furnaceBurnTime = 0;
         }
 
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
@@ -435,6 +442,7 @@ public abstract class KciItem extends ModelValues {
 
         CollectionHelper.save(extraItemNbt, output::addString, output);
         CollectionHelper.save(translations, translationEntry -> translationEntry.save(output), output);
+        output.addInt(furnaceBurnTime);
 
         if (targetSide == ItemSet.Side.EDITOR) {
             output.addString(texture.get().getName());
@@ -666,6 +674,7 @@ public abstract class KciItem extends ModelValues {
 
     private void initBaseDefaults12() {
         this.translations = Collections.emptyList();
+        this.furnaceBurnTime = 0;
     }
 
     protected void initBaseDefaults11() {
@@ -868,6 +877,10 @@ public abstract class KciItem extends ModelValues {
 
     public boolean isIndestructible() {
         return indestructible;
+    }
+
+    public int getFurnaceBurnTime() {
+        return furnaceBurnTime;
     }
 
     public KciTexture getTexture() {
@@ -1084,6 +1097,11 @@ public abstract class KciItem extends ModelValues {
         this.indestructible = indestructible;
     }
 
+    public void setFurnaceBurnTime(int furnaceBurnTime) {
+        assertMutable();
+        this.furnaceBurnTime = furnaceBurnTime;
+    }
+
     public void setTexture(TextureReference newTexture) {
         assertMutable();
         Checks.notNull(newTexture);
@@ -1221,6 +1239,19 @@ public abstract class KciItem extends ModelValues {
 
         if (multiBlockBreak == null) throw new ProgrammingValidationException("No multi block break");
         Validation.scope("Multi block break", multiBlockBreak::validate);
+
+        if (furnaceBurnTime < 0) throw new ValidationException("Furnace burn time can't be negative");
+        boolean isVanillaFuel;
+        try {
+            VFuel.valueOf(getVMaterial(VERSION1_13).name());
+            isVanillaFuel = true;
+        } catch (IllegalArgumentException nope) {
+            isVanillaFuel = false;
+        }
+
+        if (furnaceBurnTime > 0 && !isVanillaFuel) {
+            throw new ValidationException("The internal item type must be vanilla fuel when the furnace burn time is positive");
+        }
 
         if (texture == null) throw new ValidationException("No texture");
         if (getDefaultModelType() != null && model == null) throw new ProgrammingValidationException("No model");

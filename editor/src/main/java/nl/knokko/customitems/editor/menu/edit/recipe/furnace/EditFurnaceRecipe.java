@@ -2,6 +2,7 @@ package nl.knokko.customitems.editor.menu.edit.recipe.furnace;
 
 import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.EditIngredient;
 import nl.knokko.customitems.editor.menu.edit.recipe.result.ChooseResult;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.FurnaceRecipeReference;
 import nl.knokko.customitems.itemset.ItemSet;
@@ -83,7 +84,7 @@ public class EditFurnaceRecipe extends GuiMenu {
                 recipe.getExperience(), 0f, EDIT_BASE, EDIT_ACTIVE, recipe::setExperience
         ), 0.475f, 0.25f, 0.6f, 0.35f);
 
-        // TODO Add help link
+        HelpButtons.addHelpLink(this, "edit menu/recipes/furnace edit.html");
     }
 
     @Override
