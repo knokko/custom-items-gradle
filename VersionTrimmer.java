@@ -13,11 +13,9 @@ public class VersionTrimmer {
     private static final String MARKER_JAVA16 = "JAVA16";
     private static final String MARKER_JAVA17 = "JAVA17";
     private static final String MARKER_CE_EVENT_HANDLER = "CE EVENT HANDLER";
-    private static final String MARKER_CUSTOM_RECIPES = "CUSTOM RECIPES";
     private static final String MARKER_TEST_CUSTOM_RECIPES = "TEST CUSTOM RECIPES";
     private static final String MARKER_NMS12_DEPENDENCY = "NMS 12 DEPENDENCY";
     private static final String MARKER_NMS_DEPENDENCIES = "NMS DEPENDENCIES";
-    private static final String MARKER_NMS_BASE = "NMS BASE";
     private static final String MARKER_NMS13PLUS = "NMS13PLUS";
     private static final String MARKER_NMS13 = "NMS13";
     private static final String MARKER_NMS14 = "NMS14";
@@ -32,8 +30,7 @@ public class VersionTrimmer {
     private static final String MARKER_NMS20 = "NMS20";
 
     private static final String[] ALL_MARKERS = {
-            MARKER_GENERAL, MARKER_JAVA8, MARKER_JAVA16, MARKER_JAVA17, MARKER_CE_EVENT_HANDLER,
-            MARKER_TEST_CUSTOM_RECIPES, MARKER_CUSTOM_RECIPES, MARKER_NMS_BASE,
+            MARKER_GENERAL, MARKER_JAVA8, MARKER_JAVA16, MARKER_JAVA17, MARKER_CE_EVENT_HANDLER, MARKER_TEST_CUSTOM_RECIPES,
             MARKER_NMS12_DEPENDENCY, MARKER_NMS_DEPENDENCIES, MARKER_NMS13PLUS, MARKER_NMS13, MARKER_NMS14,
             MARKER_NMS15, MARKER_NMS16PLUS, MARKER_NMS16, MARKER_NMS17PLUS, MARKER_NMS17,
             MARKER_NMS18PLUS, MARKER_NMS18, MARKER_NMS19, MARKER_NMS20
@@ -91,23 +88,20 @@ public class VersionTrimmer {
         String targetVersion = args[0];
         switch (targetVersion) {
             case "jitpack":
-                allowedMarkers = new String[]{MARKER_GENERAL, MARKER_JAVA8, MARKER_CUSTOM_RECIPES, MARKER_NMS_BASE, null};
+                allowedMarkers = new String[]{MARKER_GENERAL, MARKER_JAVA8, null};
                 allowedProjects = new String[]{
                         "bit-helper", "gui", "custom-recipes", "shared-code", "plug-in", "editor", "kci-nms"
                 };
                 break;
             case "1.12":
-                allowedMarkers = new String[]{
-                        MARKER_GENERAL, MARKER_JAVA8, MARKER_NMS12_DEPENDENCY,
-                        MARKER_CUSTOM_RECIPES, MARKER_NMS_BASE, null
-                };
+                allowedMarkers = new String[]{MARKER_GENERAL, MARKER_JAVA8, MARKER_NMS12_DEPENDENCY, null};
                 allowedProjects = new String[]{
                         "bit-helper", "gui", "custom-recipes", "shared-code", "plug-in", "editor", "kci-nms", "kci-nms12"
                 };
                 break;
             case "1.13-to-1.16":
                 allowedMarkers = new String[]{
-                        MARKER_GENERAL, MARKER_NMS_BASE, MARKER_JAVA8, MARKER_NMS13PLUS, MARKER_NMS13,
+                        MARKER_GENERAL, MARKER_JAVA8, MARKER_NMS13PLUS, MARKER_NMS13,
                         MARKER_NMS14, MARKER_NMS15, MARKER_NMS16PLUS, MARKER_NMS16
                 };
                 allowedProjects = new String[]{
@@ -116,7 +110,7 @@ public class VersionTrimmer {
                 break;
             case "1.17":
                 allowedMarkers = new String[]{
-                        MARKER_GENERAL, MARKER_NMS_BASE, MARKER_JAVA16, MARKER_NMS13PLUS, MARKER_NMS17PLUS, MARKER_NMS17
+                        MARKER_GENERAL, MARKER_JAVA16, MARKER_NMS13PLUS, MARKER_NMS17PLUS, MARKER_NMS17
                 };
                 allowedProjects = new String[]{
                         "kci-nms", "kci-nms13plus", "kci-nms16plus", "kci-nms17"
@@ -124,8 +118,8 @@ public class VersionTrimmer {
                 break;
             case "1.18-to-1.20":
                 allowedMarkers = new String[]{
-                        MARKER_GENERAL, MARKER_JAVA17, MARKER_CE_EVENT_HANDLER, MARKER_NMS_BASE,
-                        MARKER_NMS13PLUS, MARKER_NMS18PLUS, MARKER_NMS18, MARKER_NMS19, MARKER_NMS20
+                        MARKER_GENERAL, MARKER_JAVA17, MARKER_CE_EVENT_HANDLER, MARKER_NMS13PLUS,
+                        MARKER_NMS18PLUS, MARKER_NMS18, MARKER_NMS19, MARKER_NMS20
                 };
                 allowedProjects = new String[]{
                         "ce-event-handler", "kci-nms", "kci-nms13plus", "kci-nms16plus",
