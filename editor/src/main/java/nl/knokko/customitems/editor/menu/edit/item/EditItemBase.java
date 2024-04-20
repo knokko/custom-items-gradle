@@ -26,6 +26,7 @@ import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.menu.TextListEditMenu;
 import nl.knokko.gui.component.text.EagerFloatEditField;
+import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.EagerTextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
@@ -176,6 +177,9 @@ public abstract class EditItemBase<V extends KciItem> extends GuiMenu {
 		addComponent(new DynamicTextComponent(
 				"Custom melee damage source", LABEL
 		), LABEL_X, -0.69f, LABEL_X + 0.19f, -0.64f);
+		addComponent(new DynamicTextComponent(
+				"Furnace burn time:", LABEL
+		), LABEL_X, -0.81f, LABEL_X + 0.15f, -0.76f);
 
 		if (toModify != null) {
 			addComponent(new DynamicTextButton("Apply", SAVE_BASE, EditProps.SAVE_HOVER, () -> {
@@ -352,6 +356,9 @@ public abstract class EditItemBase<V extends KciItem> extends GuiMenu {
 					currentValues.getTranslations(), currentValues::setTranslations, this
 			));
 		}), BUTTON_X - 0.05f, -0.75f, BUTTON_X + 0.1f, -0.7f);
+		addComponent(new EagerIntEditField(
+				currentValues.getFurnaceBurnTime(), 0, EDIT_BASE, EDIT_ACTIVE, currentValues::setFurnaceBurnTime
+		), BUTTON_X, -0.81f, BUTTON_X + 0.1f, -0.76f);
 	}
 
 	protected GuiComponent createLoadTextureMenu() {

@@ -40,7 +40,7 @@ public class CustomRecipes implements Listener {
         this.resultCollector = resultCollector;
     }
 
-    public void block(IngredientBlocker blocker) {
+    public void blockCrafting(IngredientBlocker blocker) {
         blockers.add(blocker);
     }
 
@@ -71,7 +71,6 @@ public class CustomRecipes implements Listener {
         furnace.register(plugin, keys);
 
         Bukkit.getPluginManager().registerEvents(this, plugin);
-        Bukkit.getPluginManager().registerEvents(furnace, plugin);
     }
 
     private Stream<Predicate<ItemStack>> getRelevantBlockers(String namespace) {

@@ -15,7 +15,7 @@ abstract class UnstableReference<V extends ModelValues> extends ModelReference<V
 
     @Override
     public boolean equals(Object other) {
-        if (other.getClass() == this.getClass()) {
+        if (other != null && other.getClass() == this.getClass()) {
             //noinspection unchecked
             return model == ((UnstableReference<V>) other).model;
         } else {

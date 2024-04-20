@@ -42,7 +42,8 @@ public class KciFurnaceRecipe extends ModelValues {
         super(mutable);
         this.input = new SimpleVanillaIngredient(false);
         this.result = new SimpleVanillaResult(false);
-        // TODO Find default experience and cooking time
+        this.experience = 0.1f;
+        this.cookTime = 200;
     }
 
     public KciFurnaceRecipe(KciFurnaceRecipe toCopy, boolean mutable) {
@@ -129,13 +130,13 @@ public class KciFurnaceRecipe extends ModelValues {
 
         if (cookTime < 0) throw new ValidationException("Cook time can't be negative");
 
+        VMaterial ownMaterial = input.getVMaterial(VERSION1_13);
         for (FurnaceRecipeReference otherReference : itemSet.furnaceRecipes.references()) {
             if (otherReference.equals(selfReference)) continue;
 
             KciFurnaceRecipe recipe = otherReference.get();
             if (recipe.input.conflictsWith(input)) throw new ValidationException("Input conflicts with " + recipe.input);
 
-            VMaterial ownMaterial = input.getVMaterial(VERSION1_13);
             if (ownMaterial != null && ownMaterial == recipe.input.getVMaterial(VERSION1_13)) {
                 if (!isClose(experience, recipe.experience)) {
                     throw new ValidationException("Other recipes with input " + ownMaterial + " must also have " + experience + " xp");
@@ -148,7 +149,15 @@ public class KciFurnaceRecipe extends ModelValues {
                 }
             }
         }
-        // TODO Check that ownMaterial does not have vanilla recipes
+
+        if (ownMaterial != null) {
+            try {
+                VFurnaceInput.valueOf(ownMaterial.name());
+                throw new ValidationException(ownMaterial + " can't be used because it is smeltable in vanilla mc");
+            } catch (IllegalArgumentException notVanillaFuel) {
+                // When this exception is thrown, it's not smeltable in vanilla mc, which is desired
+            }
+        }
     }
 
     public void validateExportVersion(int mcVersion) throws ValidationException, ProgrammingValidationException {

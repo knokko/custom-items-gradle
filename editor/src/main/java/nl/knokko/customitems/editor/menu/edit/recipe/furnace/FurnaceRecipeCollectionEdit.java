@@ -1,10 +1,12 @@
 package nl.knokko.customitems.editor.menu.edit.recipe.furnace;
 
 import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
+import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.FurnaceRecipeReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.KciFurnaceRecipe;
+import nl.knokko.customitems.recipe.result.CustomItemResult;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
@@ -32,7 +34,7 @@ public class FurnaceRecipeCollectionEdit extends DedicatedCollectionEdit<KciFurn
             ));
         }), 0.025f, 0.3f, 0.15f, 0.4f);
 
-        // TODO Help menu
+        HelpButtons.addHelpLink(this, "edit menu/recipes/furnace overview.html");
     }
 
     @Override
@@ -41,8 +43,10 @@ public class FurnaceRecipeCollectionEdit extends DedicatedCollectionEdit<KciFurn
     }
 
     @Override
-    protected BufferedImage getModelIcon(KciFurnaceRecipe model) {
-        return null;
+    protected BufferedImage getModelIcon(KciFurnaceRecipe recipe) {
+        if (recipe.getResult() instanceof CustomItemResult) {
+            return ((CustomItemResult) recipe.getResult()).getItem().getTexture().getImage();
+        } else return null;
     }
 
     @Override
