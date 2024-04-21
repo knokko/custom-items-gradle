@@ -372,8 +372,7 @@ public class TestFurnaceRecipes {
     }
 
     @AfterEach
-    public void tearDown()
-    {
+    public void tearDown() {
         MockBukkit.unmock();
     }
 }

@@ -1,15 +1,13 @@
-package nl.knokko.customrecipes.production;
+package nl.knokko.customrecipes.crafting;
 
-import nl.knokko.customrecipes.shaped.CustomShapedRecipe;
-import nl.knokko.customrecipes.shaped.ShapedPlacement;
 import org.bukkit.inventory.ItemStack;
 
-public class ShapedProduction extends Production {
+class ShapedProduction extends Production {
 
-    public final ShapedPlacement placement;
-    public final CustomShapedRecipe recipe;
+    final ShapedPlacement placement;
+    final CustomShapedRecipe recipe;
 
-    public ShapedProduction(
+    ShapedProduction(
             ItemStack result, int maximumCustomCount, int maximumNaturalCount,
             boolean hasSpecialIngredients, ShapedPlacement placement, CustomShapedRecipe recipe
     ) {
