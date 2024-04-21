@@ -114,7 +114,7 @@ public class CustomFurnaceRecipes implements Listener {
                         if (existingOutput == null || existingOutput.getType() == Material.AIR || existingOutput.getAmount() == 0) {
                             return true;
                         }
-                        return existingOutput.isSimilar(recipe.result.apply(input));
+                        return existingOutput.isSimilar(recipe.result.apply(input.clone()));
                     })) {
                         event.setCancelled(true);
                     }
@@ -157,7 +157,7 @@ public class CustomFurnaceRecipes implements Listener {
         if (!(event.getBlock().getState() instanceof Furnace)) return;
         Furnace furnace = (Furnace) event.getBlock().getState();
 
-        ItemStack newResult = customRecipe.result.apply(input);
+        ItemStack newResult = customRecipe.result.apply(input.clone());
 
         ItemStack existingResult = furnace.getInventory().getResult();
         if (existingResult != null && existingResult.getType() != Material.AIR && existingResult.getAmount() > 0) {

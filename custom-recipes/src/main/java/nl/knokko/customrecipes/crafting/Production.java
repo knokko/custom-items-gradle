@@ -1,15 +1,15 @@
-package nl.knokko.customrecipes.production;
+package nl.knokko.customrecipes.crafting;
 
 import org.bukkit.inventory.ItemStack;
 
-public abstract class Production {
+abstract class Production {
 
     public final ItemStack result;
-    public final int maximumCustomCount;
-    public final int maximumNaturalCount;
-    public final boolean hasSpecialIngredients;
+    final int maximumCustomCount;
+    final int maximumNaturalCount;
+    final boolean hasSpecialIngredients;
 
-    public Production(ItemStack result, int maximumCustomCount, int maximumNaturalCount, boolean hasSpecialIngredients) {
+    Production(ItemStack result, int maximumCustomCount, int maximumNaturalCount, boolean hasSpecialIngredients) {
         this.result = result;
         this.maximumCustomCount = maximumCustomCount;
         this.maximumNaturalCount = maximumNaturalCount;

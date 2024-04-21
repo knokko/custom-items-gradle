@@ -1,11 +1,9 @@
-package nl.knokko.customrecipes.shaped;
+package nl.knokko.customrecipes.crafting;
 
 import nl.knokko.customrecipes.ingredient.CustomIngredient;
-import nl.knokko.customrecipes.production.ShapedProduction;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -14,18 +12,18 @@ import java.util.*;
 
 import static java.lang.Math.min;
 
-public class CustomShapedRecipes {
+class CustomShapedRecipes {
 
     private List<CustomShapedRecipe> recipes = new ArrayList<>();
     private Map<WeakShapedRecipe, List<CustomShapedRecipe>> weakMap;
     private Map<String, WeakShapedRecipe> keyMap;
 
 
-    public void add(CustomShapedRecipe recipe) {
+    void add(CustomShapedRecipe recipe) {
         recipes.add(recipe);
     }
 
-    public void register(JavaPlugin plugin, Set<NamespacedKey> keys) {
+    void register(JavaPlugin plugin, Set<NamespacedKey> keys) {
         this.recipes = Collections.unmodifiableList(recipes);
 
         weakMap = new HashMap<>();
@@ -41,34 +39,35 @@ public class CustomShapedRecipes {
             ShapedRecipe bukkitRecipe = new ShapedRecipe(fullKey, firstRecipe.result);
             keys.add(fullKey);
             keyMap.put(key, weak);
-            bukkitRecipe.shape(weak.shape);
-            weak.materialMap.forEach(bukkitRecipe::setIngredient);
+            bukkitRecipe.shape(customRecipes.get(0).shape);
+            customRecipes.get(0).ingredientMap.forEach(
+                    (shapeKey, ingredient) -> bukkitRecipe.setIngredient(shapeKey, ingredient.material)
+            );
             Bukkit.addRecipe(bukkitRecipe);
         });
     }
 
-    public void clear() {
+    void clear() {
         recipes = new ArrayList<>();
         weakMap = new HashMap<>();
         keyMap = new HashMap<>();
     }
 
-    public static ShapedPlacement determinePlacement(WeakShapedRecipe weakRecipe, ItemStack[] matrix) {
+    static ShapedPlacement determinePlacement(WeakShapedRecipe weakRecipe, ItemStack[] matrix) {
         int gridSize;
         if (matrix.length == 9) gridSize = 3;
         else if (matrix.length == 4) gridSize = 2;
         else return null;
 
-        int sizeX = weakRecipe.shape[0].length();
-        int sizeY = weakRecipe.shape.length;
+        int sizeX = weakRecipe.shape.length;
+        int sizeY = weakRecipe.shape[0].length;
 
         for (int offsetX = 0; offsetX <= gridSize - sizeX; offsetX++) {
             nextCandidate:
             for (int offsetY = 0; offsetY <= gridSize - sizeY; offsetY++) {
                 for (int x = 0; x < sizeX; x++) {
                     for (int y = 0; y < sizeY; y++) {
-                        char ingredientChar = weakRecipe.shape[y].charAt(x);
-                        Material expectedMaterial = weakRecipe.materialMap.get(ingredientChar);
+                        Material expectedMaterial = weakRecipe.shape[x][y];
                         if (expectedMaterial == null) expectedMaterial = Material.AIR;
 
                         ItemStack correspondingItem = matrix[x + offsetX + gridSize * (y + offsetY)];
@@ -85,7 +84,7 @@ public class CustomShapedRecipes {
         return null;
     }
 
-    public ShapedProduction determineResult(String key, ItemStack[] matrix) {
+    ShapedProduction determineResult(String key, ItemStack[] matrix) {
         WeakShapedRecipe weakRecipe = keyMap.get(key);
         if (weakRecipe == null) return null;
 
@@ -93,7 +92,6 @@ public class CustomShapedRecipes {
         if (placement == null) return null;
 
         List<CustomShapedRecipe> recipes = weakMap.get(weakRecipe);
-        Bukkit.broadcastMessage("#recipes is " + recipes.size());
         recipeLoop:
         for (CustomShapedRecipe recipe : recipes) {
             int maximumCustomCount = 64;
@@ -133,10 +131,9 @@ public class CustomShapedRecipes {
         return null;
     }
 
-    public void consumeIngredients(
+    void consumeIngredients(
             ShapedProduction production, ItemStack[] matrix, int consumptionCount
     ) {
-        Bukkit.broadcastMessage("Manually consume shaped ingredients");
         ShapedPlacement placement = production.placement;
         for (int x = 0; x < placement.sizeX; x++) {
             for (int y = 0; y < placement.sizeY; y++) {
@@ -152,7 +149,9 @@ public class CustomShapedRecipes {
                 }
 
                 ItemStack consumed = matrix[matrixIndex];
-                consumed.setAmount(consumed.getAmount() - ingredient.amount * consumptionCount);
+                int newAmount = consumed.getAmount() - ingredient.amount * consumptionCount;
+                if (newAmount > 0) consumed.setAmount(newAmount);
+                else matrix[matrixIndex] = null;
             }
         }
     }

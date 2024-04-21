@@ -22,7 +22,11 @@ public class CustomIngredient {
         this.remainingItem = remainingItem;
     }
 
+    public CustomIngredient(Material material, Predicate<ItemStack> shouldAccept) {
+        this(material, shouldAccept, 1, null);
+    }
+
     public CustomIngredient(Material material) {
-        this(material, ingredient -> true, 1, null);
+        this(material, ingredient -> true);
     }
 }

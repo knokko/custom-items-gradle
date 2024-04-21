@@ -1,4 +1,4 @@
-package nl.knokko.customrecipes.shaped;
+package nl.knokko.customrecipes.crafting;
 
 import nl.knokko.customrecipes.ingredient.CustomIngredient;
 import org.bukkit.inventory.ItemStack;

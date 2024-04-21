@@ -16,7 +16,7 @@ import nl.knokko.customrecipes.CustomRecipes;
 import nl.knokko.customrecipes.furnace.CustomFurnaceRecipe;
 import nl.knokko.customrecipes.ingredient.CustomIngredient;
 import nl.knokko.customrecipes.ingredient.IngredientBlocker;
-import nl.knokko.customrecipes.shaped.CustomShapedRecipe;
+import nl.knokko.customrecipes.crafting.CustomShapedRecipe;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -31,10 +31,12 @@ public class CustomItemsRecipes {
 
     private final ItemSetWrapper itemSet;
     private final CustomRecipes customRecipes;
+    private final JavaPlugin plugin;
 
     public CustomItemsRecipes(ItemSetWrapper itemSet, JavaPlugin plugin) {
         this.itemSet = itemSet;
-        this.customRecipes = new CustomRecipes(plugin, new CustomStackingResultCollector(plugin, itemSet));
+        this.customRecipes = new CustomRecipes(plugin);
+        this.plugin = plugin;
     }
 
     public void disable() {
@@ -89,11 +91,12 @@ public class CustomItemsRecipes {
                     customRecipe.ingredientMap.put((char) ('a' + index), toCustomIngredient(ingredients.get(index)));
                 }
 
-                customRecipes.shaped.add(customRecipe);
+                customRecipes.crafting.add(customRecipe);
             } else {}// TODO shapeless
         }
 
-        customRecipes.blockCrafting(new IngredientBlocker(ItemUtils::isCustom));
+        customRecipes.crafting.blockIngredients(new IngredientBlocker(ItemUtils::isCustom));
+        customRecipes.crafting.setResultCollector(new CustomStackingResultCollector(plugin, itemSet));
 
         Stream<KciFurnaceRecipe> sortedRecipes = itemSet.get().furnaceRecipes.stream().sorted((a, b) -> {
             boolean stacksA = a.getResult().guessMaxStackSize() > a.getResult().getAmount();
