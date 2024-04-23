@@ -1,22 +1,26 @@
 package nl.knokko.customrecipes.crafting;
 
 import nl.knokko.customrecipes.ingredient.CustomIngredient;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 public class CustomShapedRecipe {
 
     public final Function<ItemStack[], ItemStack> result;
     final String[] shape;
     public final Map<Character, CustomIngredient> ingredientMap = new HashMap<>();
+    public final Predicate<HumanEntity> canCraft;
 
     final int offsetX, offsetY, width, height;
 
-    public CustomShapedRecipe(Function<ItemStack[], ItemStack> result, String... shape) {
+    public CustomShapedRecipe(Function<ItemStack[], ItemStack> result, Predicate<HumanEntity> canCraft, String... shape) {
         this.result = result;
+        this.canCraft = canCraft;
 
         int offsetX = 0;
         loopOffsetX:
@@ -51,5 +55,9 @@ public class CustomShapedRecipe {
 
         this.width = shape[0].length() - offsetX;
         this.height = shape.length - offsetY;
+    }
+
+    public CustomShapedRecipe(ItemStack result, String... shape) {
+        this(ingredients -> result, crafter -> true, shape);
     }
 }

@@ -74,8 +74,8 @@ public class CustomItemsRecipes {
                 } else {
                     offsetX = 0;
                     offsetY = 0;
-                    width += shapedRecipe.getEffectiveMinX();
-                    height += shapedRecipe.getEffectiveMinY();
+                    width = 3;
+                    height = 3;
                 }
                 int rememberWidth = width;
 
@@ -100,8 +100,7 @@ public class CustomItemsRecipes {
                     shape[y] = row.toString();
                 }
 
-
-                // TODO Test upgrades
+                String permission = recipe.getRequiredPermission();
                 CustomShapedRecipe customRecipe = new CustomShapedRecipe(currentIngredients -> {
                         if (recipe.getResult() instanceof UpgradeResult) {
                             UpgradeResult result = (UpgradeResult) recipe.getResult();
@@ -110,11 +109,15 @@ public class CustomItemsRecipes {
                             int expectedY = expectedIngredientIndex / 3;
 
                             KciIngredient expectedIngredient = ((KciShapedRecipe) recipe).getIngredientAt(expectedX, expectedY);
+
+                            int actualX = expectedX - offsetX;
+                            int actualY = expectedY - offsetY;
+
                             ItemStack toUpgrade = null;
-                            if (currentIngredients != null) toUpgrade = currentIngredients[expectedX + rememberWidth * expectedY];
+                            if (currentIngredients != null) toUpgrade = currentIngredients[actualX + rememberWidth * actualY];
                             return produceResult(toUpgrade, expectedIngredient, result);
                         } else return convertResultToItemStack(recipe.getResult());
-                        }, shape);
+                        }, crafter -> permission == null || crafter.hasPermission(permission), shape);
                 for (int index = 0; index < ingredients.size(); index++) {
                     customRecipe.ingredientMap.put((char) ('a' + index), toCustomIngredient(ingredients.get(index)));
                 }
