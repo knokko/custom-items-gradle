@@ -50,7 +50,7 @@ public class TestShapedRecipes {
                 item -> item != null && item.getEnchantmentLevel(Enchantment.DAMAGE_UNDEAD) > 2
         ));
 
-        CustomShapedRecipe customRecipe = new CustomShapedRecipe(new ItemStack(Material.REDSTONE_TORCH), "c", "s");
+        CustomShapedRecipe customRecipe = new CustomShapedRecipe(ingredients -> new ItemStack(Material.REDSTONE_TORCH), "c", "s");
         customRecipe.ingredientMap.put('c', new CustomIngredient(Material.COAL));
         customRecipe.ingredientMap.put('s', new CustomIngredient(
                 Material.STICK, candidate -> candidate.getEnchantmentLevel(Enchantment.DAMAGE_UNDEAD) > 2
@@ -60,7 +60,7 @@ public class TestShapedRecipes {
         craftingRecipes.register(plugin, customKeys);
         assertEquals(1, customKeys.size());
 
-        ShapedRecipe ownTorchRecipe = new ShapedRecipe(customKeys.iterator().next(), customRecipe.result);
+        ShapedRecipe ownTorchRecipe = new ShapedRecipe(customKeys.iterator().next(), customRecipe.result.apply(null));
 
         ItemStack[] forbiddenMatrix = {
                 null, new ItemStack(Material.COAL), null,
@@ -144,14 +144,14 @@ public class TestShapedRecipes {
 
         CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
 
-        CustomShapedRecipe smiteRecipe = new CustomShapedRecipe(smiteSword, "i", "s");
+        CustomShapedRecipe smiteRecipe = new CustomShapedRecipe(ingredients -> smiteSword, "i", "s");
         smiteRecipe.ingredientMap.put('i', new CustomIngredient(Material.IRON_INGOT));
         smiteRecipe.ingredientMap.put('s', new CustomIngredient(
                 Material.STICK, stick -> stick.containsEnchantment(Enchantment.DAMAGE_UNDEAD)
         ));
         craftingRecipes.add(smiteRecipe);
 
-        CustomShapedRecipe sharpRecipe = new CustomShapedRecipe(sharpSword, "x", "s");
+        CustomShapedRecipe sharpRecipe = new CustomShapedRecipe(ingredients -> sharpSword, "x", "s");
         sharpRecipe.ingredientMap.put('x', new CustomIngredient(Material.IRON_INGOT));
         sharpRecipe.ingredientMap.put('s', new CustomIngredient(
                 Material.STICK, stick -> stick.containsEnchantment(Enchantment.DAMAGE_ALL)
@@ -162,7 +162,7 @@ public class TestShapedRecipes {
         craftingRecipes.register(plugin, customKeys);
         assertEquals(1, customKeys.size());
 
-        ShapedRecipe mergedRecipe = new ShapedRecipe(customKeys.iterator().next(), smiteRecipe.result);
+        ShapedRecipe mergedRecipe = new ShapedRecipe(customKeys.iterator().next(), smiteRecipe.result.apply(null));
 
         ItemStack[] blockedMatrix = {
                 null, new ItemStack(Material.IRON_INGOT), null,
@@ -193,7 +193,7 @@ public class TestShapedRecipes {
         Player player = server.addPlayer();
 
         CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
-        CustomShapedRecipe customRecipe = new CustomShapedRecipe(new ItemStack(Material.BLAZE_ROD), "abc");
+        CustomShapedRecipe customRecipe = new CustomShapedRecipe(ingredients -> new ItemStack(Material.BLAZE_ROD), "abc");
         customRecipe.ingredientMap.put('a', new CustomIngredient(
                 Material.BLAZE_POWDER, blazePowder -> true, 1, new ItemStack(Material.GLOWSTONE_DUST)
         ));
@@ -208,7 +208,7 @@ public class TestShapedRecipes {
         craftingRecipes.register(plugin, keys);
         assertEquals(1, keys.size());
 
-        ShapedRecipe bukkitRecipe = new ShapedRecipe(keys.iterator().next(), customRecipe.result);
+        ShapedRecipe bukkitRecipe = new ShapedRecipe(keys.iterator().next(), customRecipe.result.apply(null));
 
         ItemStack[] matrix = {
                 null, null, null,
@@ -247,15 +247,15 @@ public class TestShapedRecipes {
                 new ItemStack(Material.GLOWSTONE_DUST), null, new ItemStack(Material.TORCH, 3)
         };
         matrix[8].setAmount(3);
-        checkResult(inventory, view, matrix, bukkitRecipe, customRecipe.result, remainingMatrix);
+        checkResult(inventory, view, matrix, bukkitRecipe, customRecipe.result.apply(null), remainingMatrix);
 
         // Stacksize is larger than needed for the second slot, which is fine since it has no remaining item
         matrix[7].setAmount(10);
         remainingMatrix[7] = new ItemStack(Material.STICK, 8);
-        checkResult(inventory, view, matrix, bukkitRecipe, customRecipe.result, remainingMatrix);
+        checkResult(inventory, view, matrix, bukkitRecipe, customRecipe.result.apply(null), remainingMatrix);
 
         inventory.setMatrix(Arrays.copyOf(matrix, matrix.length));
-        inventory.setResult(customRecipe.result);
+        inventory.setResult(customRecipe.result.apply(null));
         inventory.setRecipe(bukkitRecipe);
         {
             CraftItemEvent craftEvent = createCraftEvent(inventory, view, InventoryAction.MOVE_TO_OTHER_INVENTORY);
@@ -273,7 +273,7 @@ public class TestShapedRecipes {
         Player player = server.addPlayer();
 
         CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
-        CustomShapedRecipe customRecipe = new CustomShapedRecipe(new ItemStack(Material.GOLD_INGOT), "c");
+        CustomShapedRecipe customRecipe = new CustomShapedRecipe(ingredients -> new ItemStack(Material.GOLD_INGOT), "c");
         customRecipe.ingredientMap.put('c', new CustomIngredient(
                 Material.REDSTONE, redStone -> true, 5, new ItemStack(Material.GLOWSTONE_DUST)
         ));
@@ -282,7 +282,7 @@ public class TestShapedRecipes {
         craftingRecipes.register(plugin, keys);
         assertEquals(1, keys.size());
 
-        ShapedRecipe bukkitRecipe = new ShapedRecipe(keys.iterator().next(), customRecipe.result);
+        ShapedRecipe bukkitRecipe = new ShapedRecipe(keys.iterator().next(), customRecipe.result.apply(null));
 
         ItemStack[] matrix = {
                 null, null, null,
@@ -298,9 +298,8 @@ public class TestShapedRecipes {
         CraftingInventoryMock inventory = new CraftingInventoryMock(player);
         InventoryView view = new PlayerInventoryViewMock(player, inventory);
 
-        // All ingredients have a stacksize of 1, which is not enough
         inventory.setMatrix(Arrays.copyOf(matrix, matrix.length));
-        inventory.setResult(customRecipe.result);
+        inventory.setResult(customRecipe.result.apply(null));
         inventory.setRecipe(bukkitRecipe);
         {
             CraftItemEvent craftEvent = createCraftEvent(inventory, view, InventoryAction.MOVE_TO_OTHER_INVENTORY);
@@ -311,9 +310,297 @@ public class TestShapedRecipes {
         }
     }
 
-    // TODO Check shift-click
+    @Test
+    public void testShiftClick() {
+        ServerMock server = Objects.requireNonNull(MockBukkit.getOrCreateMock());
+        JavaPlugin plugin = MockBukkit.createMockPlugin();
+        Player player = server.addPlayer();
 
-    // TODO Check partially-conflicting shapes
+        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
+        CustomShapedRecipe customRecipe = new CustomShapedRecipe(ingredients -> new ItemStack(Material.GOLD_INGOT), "a", "b", "c");
+        customRecipe.ingredientMap.put('a', new CustomIngredient(
+                Material.REDSTONE, redStone -> true, 1, null
+        ));
+        customRecipe.ingredientMap.put('b', new CustomIngredient(
+                Material.COAL, coal -> true, 2, null
+        ));
+        customRecipe.ingredientMap.put('c', new CustomIngredient(
+                Material.IRON_INGOT, iron -> true, 3, null
+        ));
+        craftingRecipes.add(customRecipe);
+        Set<NamespacedKey> keys = new HashSet<>();
+        craftingRecipes.register(plugin, keys);
+        assertEquals(1, keys.size());
+
+        ShapedRecipe bukkitRecipe = new ShapedRecipe(keys.iterator().next(), customRecipe.result.apply(null));
+
+        ItemStack[] matrix = {
+                null, null, new ItemStack(Material.REDSTONE, 10),
+                null, null, new ItemStack(Material.COAL, 10),
+                null, null, new ItemStack(Material.IRON_INGOT, 10)
+        };
+        ItemStack[] remainingMatrix = {
+                null, null, new ItemStack(Material.REDSTONE, 7),
+                null, null, new ItemStack(Material.COAL, 4),
+                null, null, new ItemStack(Material.IRON_INGOT, 1)
+        };
+
+        CraftingInventoryMock inventory = new CraftingInventoryMock(player);
+        InventoryView view = new PlayerInventoryViewMock(player, inventory);
+
+        // All ingredients have a stacksize of 1, which is not enough
+        inventory.setMatrix(Arrays.copyOf(matrix, matrix.length));
+        inventory.setResult(customRecipe.result.apply(null));
+        inventory.setRecipe(bukkitRecipe);
+        {
+            CraftItemEvent craftEvent = createCraftEvent(inventory, view, InventoryAction.MOVE_TO_OTHER_INVENTORY);
+            assertTrue(craftEvent.callEvent());
+
+            Objects.requireNonNull(MockBukkit.getOrCreateMock()).getScheduler().performOneTick();
+            assertArrayEquals(inventory.getMatrix(), remainingMatrix);
+        }
+    }
+
+    @Test
+    public void testConflictingOffsetShapes() {
+        ServerMock server = Objects.requireNonNull(MockBukkit.getOrCreateMock());
+        JavaPlugin plugin = MockBukkit.createMockPlugin();
+        Player player = server.addPlayer();
+
+        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
+        CustomShapedRecipe freeRecipe = new CustomShapedRecipe(ingredients -> new ItemStack(Material.GOLD_INGOT), "a");
+        CustomShapedRecipe fixedRecipe = new CustomShapedRecipe(ingredients -> new ItemStack(Material.DIAMOND), "   ", " a ", "   ");
+
+        freeRecipe.ingredientMap.put('a', new CustomIngredient(
+                Material.IRON_INGOT, iron -> iron.getEnchantmentLevel(Enchantment.DAMAGE_UNDEAD) > 0
+        ));
+        fixedRecipe.ingredientMap.put('a', new CustomIngredient(
+                Material.IRON_INGOT, iron -> iron.getEnchantmentLevel(Enchantment.DAMAGE_ALL) > 0
+        ));
+        craftingRecipes.add(freeRecipe);
+        craftingRecipes.add(fixedRecipe);
+        Set<NamespacedKey> keys = new HashSet<>();
+        craftingRecipes.register(plugin, keys);
+        assertEquals(1, keys.size());
+
+        ShapedRecipe bukkitRecipe = new ShapedRecipe(keys.iterator().next(), freeRecipe.result.apply(null));
+
+        ItemStack smiteIron = new ItemStack(Material.IRON_INGOT);
+        smiteIron.addUnsafeEnchantment(Enchantment.DAMAGE_UNDEAD, 1);
+
+        ItemStack sharpIron = new ItemStack(Material.IRON_INGOT);
+        sharpIron.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 1);
+
+        ItemStack[] matrix = {
+                null, null, null,
+                null, smiteIron, null,
+                null, null, null
+        };
+
+        CraftingInventoryMock inventory = new CraftingInventoryMock(player);
+        InventoryView view = new PlayerInventoryViewMock(player, inventory);
+
+        checkResult(inventory, view, matrix, bukkitRecipe, freeRecipe.result.apply(null), null);
+
+        matrix[4] = sharpIron;
+        checkResult(inventory, view, matrix, bukkitRecipe, fixedRecipe.result.apply(null), null);
+
+        matrix[4] = null;
+        matrix[3] = smiteIron;
+        checkResult(inventory, view, matrix, bukkitRecipe, freeRecipe.result.apply(null), null);
+
+        matrix[3] = sharpIron;
+        checkResult(inventory, view, matrix, bukkitRecipe, null, null);
+
+        matrix[3] = null;
+        matrix[7] = sharpIron;
+        checkResult(inventory, view, matrix, bukkitRecipe, null, null);
+
+        ItemStack hybridIron = new ItemStack(Material.IRON_INGOT);
+        hybridIron.addUnsafeEnchantment(Enchantment.DAMAGE_UNDEAD, 1);
+        hybridIron.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 1);
+
+        matrix[4] = hybridIron;
+        checkResult(inventory, view, matrix, bukkitRecipe, null, null);
+
+        matrix[7] = null;
+        {
+            inventory.setMatrix(matrix);
+            inventory.setRecipe(bukkitRecipe);
+            inventory.setResult(new ItemStack(Material.IRON_INGOT));
+
+            CraftItemEvent event = createCraftEvent(inventory, view);
+            assertTrue(event.callEvent());
+
+            Material result = Objects.requireNonNull(inventory.getResult()).getType();
+            assertTrue(result == Material.DIAMOND || result == Material.GOLD_INGOT);
+        }
+    }
+
+    @Test
+    public void testIngredientsToResultFunctionTriangle() {
+        ServerMock server = Objects.requireNonNull(MockBukkit.getOrCreateMock());
+        JavaPlugin plugin = MockBukkit.createMockPlugin();
+        Player player = server.addPlayer();
+
+        ItemStack[][] pExpectedIngredients = { null };
+        int[] pCounter = { 0 };
+
+        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
+        CustomShapedRecipe compactRecipe = new CustomShapedRecipe(ingredients -> {
+            assertArrayEquals(pExpectedIngredients[0], ingredients);
+            pCounter[0] += 1;
+            return new ItemStack(Material.REDSTONE);
+        }, "ab", " c");
+        compactRecipe.ingredientMap.put('a', new CustomIngredient(Material.COAL));
+        compactRecipe.ingredientMap.put('b', new CustomIngredient(Material.STICK));
+        compactRecipe.ingredientMap.put('c', new CustomIngredient(Material.GLOWSTONE));
+
+        Set<NamespacedKey> keys = new HashSet<>();
+        craftingRecipes.add(compactRecipe);
+        craftingRecipes.register(plugin, keys);
+
+        CraftingInventoryMock inventory = new CraftingInventoryMock(player);
+        InventoryView view = new PlayerInventoryViewMock(player, inventory);
+        ShapedRecipe bukkitRecipe = new ShapedRecipe(keys.iterator().next(), compactRecipe.result.apply(null));
+
+        {
+            ItemStack[] matrix = {
+                    null, new ItemStack(Material.COAL, 3), new ItemStack(Material.STICK),
+                    null, null, new ItemStack(Material.GLOWSTONE),
+                    null, null, null
+            };
+            pExpectedIngredients[0] = new ItemStack[] {
+                    new ItemStack(Material.COAL, 3), new ItemStack(Material.STICK),
+                    null, new ItemStack(Material.GLOWSTONE)
+            };
+            checkIngredients(inventory, view, matrix, bukkitRecipe, pCounter);
+        }
+    }
+
+    @Test
+    public void testIngredientsToResultFunctionLowerStrip() {
+        ServerMock server = Objects.requireNonNull(MockBukkit.getOrCreateMock());
+        JavaPlugin plugin = MockBukkit.createMockPlugin();
+        Player player = server.addPlayer();
+
+        ItemStack[][] pExpectedIngredients = { null };
+        int[] pCounter = { 0 };
+
+        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
+        CustomShapedRecipe halfRecipe = new CustomShapedRecipe(ingredients -> {
+            assertArrayEquals(pExpectedIngredients[0], ingredients);
+            pCounter[0] += 1;
+            return new ItemStack(Material.REDSTONE);
+        }, "  ", "ab");
+        halfRecipe.ingredientMap.put('a', new CustomIngredient(Material.COAL));
+        halfRecipe.ingredientMap.put('b', new CustomIngredient(Material.STICK));
+
+        Set<NamespacedKey> keys = new HashSet<>();
+        craftingRecipes.add(halfRecipe);
+        craftingRecipes.register(plugin, keys);
+
+        CraftingInventoryMock inventory = new CraftingInventoryMock(player);
+        InventoryView view = new PlayerInventoryViewMock(player, inventory);
+        ShapedRecipe bukkitRecipe = new ShapedRecipe(keys.iterator().next(), halfRecipe.result.apply(null));
+
+        {
+            ItemStack[] matrix = {
+                    null, null, null,
+                    new ItemStack(Material.COAL, 3), new ItemStack(Material.STICK), null,
+                    null, null, null
+            };
+            pExpectedIngredients[0] = new ItemStack[] {
+                    null, null,
+                    new ItemStack(Material.COAL, 3), new ItemStack(Material.STICK),
+            };
+            checkIngredients(inventory, view, matrix, bukkitRecipe, pCounter);
+        }
+
+        {
+            ItemStack[] matrix = {
+                    null, null, null,
+                    null, null, null,
+                    null, new ItemStack(Material.COAL, 4), new ItemStack(Material.STICK)
+            };
+            pExpectedIngredients[0] = new ItemStack[] {
+                    null, null,
+                    new ItemStack(Material.COAL, 4), new ItemStack(Material.STICK),
+            };
+            checkIngredients(inventory, view, matrix, bukkitRecipe, pCounter);
+        }
+    }
+
+    @Test
+    public void testIngredientsToResultFunctionVertical() {
+        ServerMock server = Objects.requireNonNull(MockBukkit.getOrCreateMock());
+        JavaPlugin plugin = MockBukkit.createMockPlugin();
+        Player player = server.addPlayer();
+
+        ItemStack[][] pExpectedIngredients = { null };
+        int[] pCounter = { 0 };
+
+        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
+        CustomShapedRecipe verticalRecipe = new CustomShapedRecipe(ingredients -> {
+            assertArrayEquals(pExpectedIngredients[0], ingredients);
+            pCounter[0] += 1;
+            return new ItemStack(Material.REDSTONE);
+        }, "a", " ", " ");
+        verticalRecipe.ingredientMap.put('a', new CustomIngredient(Material.COAL));
+
+        Set<NamespacedKey> keys = new HashSet<>();
+        craftingRecipes.add(verticalRecipe);
+        craftingRecipes.register(plugin, keys);
+
+        CraftingInventoryMock inventory = new CraftingInventoryMock(player);
+        InventoryView view = new PlayerInventoryViewMock(player, inventory);
+        ShapedRecipe bukkitRecipe = new ShapedRecipe(keys.iterator().next(), verticalRecipe.result.apply(null));
+
+        pExpectedIngredients[0] = new ItemStack[] {
+                new ItemStack(Material.COAL, 2),
+                null,
+                null
+        };
+
+        {
+            ItemStack[] matrix = {
+                    new ItemStack(Material.COAL, 2), null, null,
+                    null, null, null,
+                    null, null, null,
+            };
+
+            checkIngredients(inventory, view, matrix, bukkitRecipe, pCounter);
+        }
+
+        {
+            ItemStack[] matrix = {
+                    null, null, new ItemStack(Material.COAL, 2),
+                    null, null, null,
+                    null, null, null
+            };
+            checkIngredients(inventory, view, matrix, bukkitRecipe, pCounter);
+        }
+    }
+
+    private void checkIngredients(
+            CraftingInventoryMock inventory, InventoryView view,
+            ItemStack[] matrix, Recipe recipe, int[] pCounter
+    ) {
+        inventory.setMatrix(Arrays.copyOf(matrix, matrix.length));
+        inventory.setResult(recipe.getResult());
+        inventory.setRecipe(recipe);
+        {
+            int oldCounter = pCounter[0];
+            PrepareItemCraftEvent prepareEvent = new PrepareItemCraftEvent(inventory, view, false);
+            assertTrue(prepareEvent.callEvent());
+            assertEquals(oldCounter + 1, pCounter[0]);
+
+            inventory.setResult(recipe.getResult());
+            CraftItemEvent craftEvent = createCraftEvent(inventory, view);
+            assertTrue(craftEvent.callEvent());
+            assertEquals(oldCounter + 2, pCounter[0]);
+        }
+    }
 
     @AfterEach
     public void tearDown() {
