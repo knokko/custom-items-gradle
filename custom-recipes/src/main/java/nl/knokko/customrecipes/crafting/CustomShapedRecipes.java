@@ -36,7 +36,7 @@ class CustomShapedRecipes {
             CustomShapedRecipe firstRecipe = customRecipes.get(0);
             String key = "weak-shaped-" + UUID.randomUUID();
             NamespacedKey fullKey = new NamespacedKey(plugin, key);
-            ShapedRecipe bukkitRecipe = new ShapedRecipe(fullKey, firstRecipe.result);
+            ShapedRecipe bukkitRecipe = new ShapedRecipe(fullKey, firstRecipe.result.apply(null));
             keys.add(fullKey);
             keyMap.put(key, weak);
             bukkitRecipe.shape(customRecipes.get(0).shape);
@@ -77,6 +77,17 @@ class CustomShapedRecipes {
                     }
                 }
 
+                for (int x = 0; x < gridSize; x++) {
+                    for (int y = 0; y < gridSize; y++) {
+                        if (x < offsetX || y < offsetY || x >= offsetX + sizeX || y >= offsetY + sizeY) {
+                            ItemStack correspondingItem = matrix[x + gridSize * y];
+                            if (correspondingItem != null && correspondingItem.getType() != Material.AIR && correspondingItem.getAmount() > 0) {
+                                continue nextCandidate;
+                            }
+                        }
+                    }
+                }
+
                 return new ShapedPlacement(offsetX, offsetY, sizeX, sizeY, gridSize);
             }
         }
@@ -94,6 +105,10 @@ class CustomShapedRecipes {
         List<CustomShapedRecipe> recipes = weakMap.get(weakRecipe);
         recipeLoop:
         for (CustomShapedRecipe recipe : recipes) {
+
+            if (placement.offsetX < recipe.offsetX || placement.offsetY < recipe.offsetY) continue;
+            if (placement.offsetX + recipe.width > placement.gridSize || placement.offsetY + recipe.height > placement.gridSize) continue;
+
             int maximumCustomCount = 64;
             int maximumNaturalCount = 64;
             boolean hasSpecialIngredients = false;
@@ -121,9 +136,18 @@ class CustomShapedRecipes {
                 }
             }
 
-            // TODO Upgrading
+            int originalWidth = recipe.offsetX + recipe.width;
+            int originalHeight = recipe.offsetY + recipe.height;
+            ItemStack[] ingredients = new ItemStack[originalWidth * originalHeight];
+            for (int x = 0; x < recipe.width; x++) {
+                for (int y = 0; y < recipe.height; y++) {
+                    ItemStack ingredient = matrix[placement.offsetX + x + placement.gridSize * (placement.offsetY + y)];
+                    if (ingredient != null) ingredients[recipe.offsetX + x + originalWidth * (recipe.offsetY + y)] = ingredient.clone();
+                }
+            }
+
             return new ShapedProduction(
-                    recipe.result, maximumCustomCount, maximumNaturalCount,
+                    recipe.result.apply(ingredients), maximumCustomCount, maximumNaturalCount,
                     hasSpecialIngredients, placement, recipe
             );
         }

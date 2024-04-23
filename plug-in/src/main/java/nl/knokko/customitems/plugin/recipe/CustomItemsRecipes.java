@@ -11,6 +11,7 @@ import nl.knokko.customitems.recipe.KciFurnaceRecipe;
 import nl.knokko.customitems.recipe.KciShapedRecipe;
 import nl.knokko.customitems.recipe.ingredient.KciIngredient;
 import nl.knokko.customitems.recipe.ingredient.NoIngredient;
+import nl.knokko.customitems.recipe.result.KciResult;
 import nl.knokko.customitems.recipe.result.UpgradeResult;
 import nl.knokko.customrecipes.CustomRecipes;
 import nl.knokko.customrecipes.furnace.CustomFurnaceRecipe;
@@ -43,23 +44,40 @@ public class CustomItemsRecipes {
         customRecipes.reset();
     }
 
+    private ItemStack produceResult(ItemStack inputStack, KciIngredient input, KciResult result) {
+        if (!(result instanceof UpgradeResult)) return convertResultToItemStack(result);
+
+        if (inputStack == null) {
+            int guessAmount = input.getAmount();
+            if (guessAmount == 0) guessAmount = 1;
+
+            VMaterial inputMaterial = input.getVMaterial(KciNms.mcVersion);
+            if (inputMaterial == null) inputMaterial = VMaterial.STONE;
+
+            return new ItemStack(Material.valueOf(inputMaterial.name()), guessAmount);
+        }
+
+        return ItemUpgrader.addUpgrade(inputStack.clone(), itemSet, (UpgradeResult) result);
+    }
+
     public void register() {
         for (KciCraftingRecipe recipe : itemSet.get().craftingRecipes) {
             if (recipe instanceof KciShapedRecipe) {
                 KciShapedRecipe shapedRecipe = (KciShapedRecipe) recipe;
 
-                int width, height, offsetX, offsetY;
+                int width = shapedRecipe.getEffectiveWidth();
+                int height = shapedRecipe.getEffectiveHeight();
+                int offsetX, offsetY;
                 if (shapedRecipe.shouldIgnoreDisplacement()) {
-                    width = shapedRecipe.getEffectiveWidth();
-                    height = shapedRecipe.getEffectiveHeight();
                     offsetX = shapedRecipe.getEffectiveMinX();
                     offsetY = shapedRecipe.getEffectiveMinY();
                 } else {
-                    width = 3;
-                    height = 3;
                     offsetX = 0;
                     offsetY = 0;
+                    width += shapedRecipe.getEffectiveMinX();
+                    height += shapedRecipe.getEffectiveMinY();
                 }
+                int rememberWidth = width;
 
                 String[] shape = new String[height];
 
@@ -83,10 +101,20 @@ public class CustomItemsRecipes {
                 }
 
 
-                // TODO Handle upgrade recipes
-                CustomShapedRecipe customRecipe = new CustomShapedRecipe(
-                        convertResultToItemStack(shapedRecipe.getResult()), shape
-                );
+                // TODO Test upgrades
+                CustomShapedRecipe customRecipe = new CustomShapedRecipe(currentIngredients -> {
+                        if (recipe.getResult() instanceof UpgradeResult) {
+                            UpgradeResult result = (UpgradeResult) recipe.getResult();
+                            int expectedIngredientIndex = result.getIngredientIndex();
+                            int expectedX = expectedIngredientIndex % 3;
+                            int expectedY = expectedIngredientIndex / 3;
+
+                            KciIngredient expectedIngredient = ((KciShapedRecipe) recipe).getIngredientAt(expectedX, expectedY);
+                            ItemStack toUpgrade = null;
+                            if (currentIngredients != null) toUpgrade = currentIngredients[expectedX + rememberWidth * expectedY];
+                            return produceResult(toUpgrade, expectedIngredient, result);
+                        } else return convertResultToItemStack(recipe.getResult());
+                        }, shape);
                 for (int index = 0; index < ingredients.size(); index++) {
                     customRecipe.ingredientMap.put((char) ('a' + index), toCustomIngredient(ingredients.get(index)));
                 }
@@ -106,21 +134,10 @@ public class CustomItemsRecipes {
             return 1;
         });
         sortedRecipes.forEachOrdered(recipe -> {
-            customRecipes.furnace.add(new CustomFurnaceRecipe(ingredient -> {
-                if (!(recipe.getResult() instanceof UpgradeResult)) return convertResultToItemStack(recipe.getResult());
-
-                if (ingredient == null) {
-                    int guessAmount = recipe.getInput().getAmount();
-                    if (guessAmount == 0) guessAmount = 1;
-
-                    VMaterial inputMaterial = recipe.getInput().getVMaterial(KciNms.mcVersion);
-                    if (inputMaterial == null) inputMaterial = VMaterial.STONE;
-
-                    return new ItemStack(Material.valueOf(inputMaterial.name()), guessAmount);
-                }
-
-                return ItemUpgrader.addUpgrade(ingredient.clone(), itemSet, (UpgradeResult) recipe.getResult());
-            }, toCustomIngredient(recipe.getInput()), recipe.getExperience(), recipe.getCookTime()));
+            customRecipes.furnace.add(new CustomFurnaceRecipe(
+                    ingredient -> produceResult(ingredient, recipe.getInput(), recipe.getResult()),
+                    toCustomIngredient(recipe.getInput()), recipe.getExperience(), recipe.getCookTime()
+            ));
         });
 
         customRecipes.furnace.addBurnTimeFunction(itemStack -> {

@@ -13,4 +13,9 @@ class ShapedPlacement {
         this.sizeY = sizeY;
         this.gridSize = gridSize;
     }
+
+    @Override
+    public String toString() {
+        return "ShapedPlacement(offset=(" + offsetX + "," + offsetY + "),size=(" + sizeX + "," + sizeY + ")";
+    }
 }
