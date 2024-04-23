@@ -4,6 +4,7 @@ import nl.knokko.customrecipes.ingredient.CustomIngredient;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -95,7 +96,7 @@ class CustomShapedRecipes {
         return null;
     }
 
-    ShapedProduction determineResult(String key, ItemStack[] matrix) {
+    ShapedProduction determineResult(String key, ItemStack[] matrix, HumanEntity crafter) {
         WeakShapedRecipe weakRecipe = keyMap.get(key);
         if (weakRecipe == null) return null;
 
@@ -108,6 +109,7 @@ class CustomShapedRecipes {
 
             if (placement.offsetX < recipe.offsetX || placement.offsetY < recipe.offsetY) continue;
             if (placement.offsetX + recipe.width > placement.gridSize || placement.offsetY + recipe.height > placement.gridSize) continue;
+            if (!recipe.canCraft.test(crafter)) continue;
 
             int maximumCustomCount = 64;
             int maximumNaturalCount = 64;
@@ -142,7 +144,12 @@ class CustomShapedRecipes {
             for (int x = 0; x < recipe.width; x++) {
                 for (int y = 0; y < recipe.height; y++) {
                     ItemStack ingredient = matrix[placement.offsetX + x + placement.gridSize * (placement.offsetY + y)];
-                    if (ingredient != null) ingredients[recipe.offsetX + x + originalWidth * (recipe.offsetY + y)] = ingredient.clone();
+                    if (ingredient != null) {
+                        ingredient = ingredient.clone();
+                        char ingredientChar = recipe.shape[y].charAt(x);
+                        ingredient.setAmount(recipe.ingredientMap.get(ingredientChar).amount);
+                        ingredients[recipe.offsetX + x + originalWidth * (recipe.offsetY + y)] = ingredient;
+                    }
                 }
             }
 

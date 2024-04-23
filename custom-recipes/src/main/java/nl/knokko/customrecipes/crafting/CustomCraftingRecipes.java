@@ -6,6 +6,7 @@ import nl.knokko.customrecipes.ingredient.IngredientBlocker;
 import org.bukkit.Bukkit;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -23,8 +24,6 @@ import java.util.stream.Stream;
 public class CustomCraftingRecipes implements Listener {
 
     private final CustomShapedRecipes shaped = new CustomShapedRecipes();
-    // TODO Permission support?
-
     private Collection<IngredientBlocker> blockers = new ArrayList<>();
     private Consumer<ResultCollectorEvent> resultCollector;
     private JavaPlugin plugin;
@@ -64,16 +63,16 @@ public class CustomCraftingRecipes implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void showCraftingResult(PrepareItemCraftEvent event) {
         Bukkit.broadcastMessage("PrepareItemCraftEvent");
-        handleCrafting(event.getRecipe(), event.getInventory(), null);
+        handleCrafting(event.getRecipe(), event.getInventory(), null, event.getView().getPlayer());
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void setCraftingResult(CraftItemEvent event) {
         Bukkit.broadcastMessage("CraftItemEvent: action is " + event.getAction());
-        handleCrafting(event.getRecipe(), event.getInventory(), event);
+        handleCrafting(event.getRecipe(), event.getInventory(), event, event.getWhoClicked());
     }
 
-    private void handleCrafting(Recipe recipe, CraftingInventory inventory, CraftItemEvent craftEvent) {
+    private void handleCrafting(Recipe recipe, CraftingInventory inventory, CraftItemEvent craftEvent, HumanEntity crafter) {
         if (recipe == null) return;
         NamespacedKey key = null;
 
@@ -89,7 +88,7 @@ public class CustomCraftingRecipes implements Listener {
         if (isPluginRecipe) {
             Production production = null;
             if (recipe instanceof ShapedRecipe) {
-                production = shaped.determineResult(key.getKey(), matrix);
+                production = shaped.determineResult(key.getKey(), matrix, crafter);
             }
             if (recipe instanceof ShapelessRecipe) {
                 // TODO
