@@ -1,10 +1,8 @@
-package nl.knokko.customrecipes.furnace;
+package nl.knokko.customrecipes.crafting;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
 import be.seeseemelk.mockbukkit.inventory.PlayerInventoryViewMock;
-import nl.knokko.customrecipes.crafting.CustomCraftingRecipes;
-import nl.knokko.customrecipes.crafting.CustomShapedRecipe;
 import nl.knokko.customrecipes.ingredient.CustomIngredient;
 import nl.knokko.customrecipes.ingredient.IngredientBlocker;
 import org.bukkit.Material;
@@ -86,7 +84,7 @@ public class TestShapedRecipes {
         checkResult(inventory, view, okMatrix, blockedTorchRecipe, blockedTorchRecipe.getResult(), null);
     }
 
-    private void checkResult(
+    static void checkResult(
             CraftingInventoryMock inventory, InventoryView view,
             ItemStack[] matrix, Recipe recipe, ItemStack expectedResult, ItemStack[] expectedFinalMatrix
     ) {
@@ -113,11 +111,11 @@ public class TestShapedRecipes {
         }
     }
 
-    private CraftItemEvent createCraftEvent(CraftingInventoryMock inventory, InventoryView view) {
+    static CraftItemEvent createCraftEvent(CraftingInventoryMock inventory, InventoryView view) {
         return createCraftEvent(inventory, view, InventoryAction.PICKUP_ALL);
     }
 
-    private CraftItemEvent createCraftEvent(CraftingInventoryMock inventory, InventoryView view, InventoryAction action) {
+    static CraftItemEvent createCraftEvent(CraftingInventoryMock inventory, InventoryView view, InventoryAction action) {
         return new CraftItemEvent(
                 Objects.requireNonNull(inventory.getRecipe()), view, InventoryType.SlotType.RESULT,
                 0, ClickType.LEFT, action
@@ -348,7 +346,6 @@ public class TestShapedRecipes {
         CraftingInventoryMock inventory = new CraftingInventoryMock(player);
         InventoryView view = new PlayerInventoryViewMock(player, inventory);
 
-        // All ingredients have a stacksize of 1, which is not enough
         inventory.setMatrix(Arrays.copyOf(matrix, matrix.length));
         inventory.setResult(customRecipe.result.apply(null));
         inventory.setRecipe(bukkitRecipe);
@@ -582,7 +579,7 @@ public class TestShapedRecipes {
         }
     }
 
-    private void checkIngredients(
+    static void checkIngredients(
             CraftingInventoryMock inventory, InventoryView view,
             ItemStack[] matrix, Recipe recipe, int[] pCounter
     ) {

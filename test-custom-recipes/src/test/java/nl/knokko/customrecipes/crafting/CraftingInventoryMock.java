@@ -1,4 +1,4 @@
-package nl.knokko.customrecipes.furnace;
+package nl.knokko.customrecipes.crafting;
 
 import be.seeseemelk.mockbukkit.inventory.InventoryMock;
 import org.bukkit.event.inventory.InventoryType;

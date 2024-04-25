@@ -24,6 +24,7 @@ import java.util.stream.Stream;
 public class CustomCraftingRecipes implements Listener {
 
     private final CustomShapedRecipes shaped = new CustomShapedRecipes();
+    private final CustomShapelessRecipes shapeless = new CustomShapelessRecipes();
     private Collection<IngredientBlocker> blockers = new ArrayList<>();
     private Consumer<ResultCollectorEvent> resultCollector;
     private JavaPlugin plugin;
@@ -40,16 +41,22 @@ public class CustomCraftingRecipes implements Listener {
         shaped.add(recipe);
     }
 
+    public void add(CustomShapelessRecipe recipe) {
+        shapeless.add(recipe);
+    }
+
     public void register(JavaPlugin plugin, Set<NamespacedKey> keys) {
         this.plugin = plugin;
         this.blockers = Collections.unmodifiableCollection(blockers);
         shaped.register(plugin, keys);
+        shapeless.register(plugin, keys);
 
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
     public void clear() {
         shaped.clear();
+        shapeless.clear();
         blockers = new ArrayList<>();
         resultCollector = null;
     }
@@ -91,8 +98,9 @@ public class CustomCraftingRecipes implements Listener {
                 production = shaped.determineResult(key.getKey(), matrix, crafter);
             }
             if (recipe instanceof ShapelessRecipe) {
-                // TODO
+                production = shapeless.determineResult(key.getKey(), matrix, crafter);
             }
+            // TODO What happens when shapeless recipes conflict with shaped recipes?
 
             if (production == null) {
                 if (craftEvent != null) craftEvent.setCancelled(true);
@@ -146,7 +154,7 @@ public class CustomCraftingRecipes implements Listener {
                 }
 
                 if (recipe instanceof ShapelessRecipe) {
-                    // TODO
+                    shapeless.consumeIngredients((ShapelessProduction) production, matrix, collectorEvent.actualProductionCount);
                 }
 
                 ItemStack[] finalMatrix = matrix;
