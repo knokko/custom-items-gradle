@@ -54,7 +54,7 @@ class CustomShapedRecipes {
         keyMap = new HashMap<>();
     }
 
-    static ShapedPlacement determinePlacement(WeakShapedRecipe weakRecipe, ItemStack[] matrix) {
+    private static ShapedPlacement determinePlacement(WeakShapedRecipe weakRecipe, ItemStack[] matrix) {
         int gridSize;
         if (matrix.length == 9) gridSize = 3;
         else if (matrix.length == 4) gridSize = 2;
