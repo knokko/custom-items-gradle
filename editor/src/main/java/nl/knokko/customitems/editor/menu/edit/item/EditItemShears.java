@@ -1,6 +1,5 @@
 package nl.knokko.customitems.editor.menu.edit.item;
 
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.KciAttributeModifier.Attribute;
@@ -9,6 +8,8 @@ import nl.knokko.customitems.item.KciAttributeModifier.Slot;
 import nl.knokko.customitems.item.KciAttributeModifier;
 import nl.knokko.customitems.item.KciShears;
 import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
@@ -21,11 +22,8 @@ public class EditItemShears extends EditItemTool<KciShears> {
 			Attribute.MOVEMENT_SPEED, Slot.OFFHAND, Operation.ADD_FACTOR, 1.5
 	);
 
-	private final KciShears currentValues;
-
-	public EditItemShears(EditMenu menu, KciShears oldValues, ItemReference toModify) {
-		super(menu, oldValues, toModify);
-		this.currentValues = oldValues.copy(true);
+	public EditItemShears(ItemSet itemSet, GuiComponent returnMenu, KciShears oldValues, ItemReference toModify) {
+		super(itemSet, returnMenu, oldValues, toModify);
 	}
 	
 	@Override

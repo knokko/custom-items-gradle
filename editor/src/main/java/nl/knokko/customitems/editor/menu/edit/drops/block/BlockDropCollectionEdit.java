@@ -3,32 +3,32 @@ package nl.knokko.customitems.editor.menu.edit.drops.block;
 import java.awt.image.BufferedImage;
 
 import nl.knokko.customitems.drops.BlockDrop;
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.StringLength;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.BlockDropReference;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.OutputTable;
 import nl.knokko.customitems.recipe.result.CustomItemResult;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
 public class BlockDropCollectionEdit extends DedicatedCollectionEdit<BlockDrop, BlockDropReference> {
-	
-	private final EditMenu menu;
 
-	public BlockDropCollectionEdit(EditMenu menu) {
-		super(menu, menu.getSet().blockDrops.references(), toAdd -> Validation.toErrorString(() -> menu.getSet().blockDrops.add(toAdd)));
-		this.menu = menu;
+	private final ItemSet itemSet;
+
+	public BlockDropCollectionEdit(ItemSet itemSet, GuiComponent returnMenu) {
+		super(returnMenu, itemSet.blockDrops.references(), toAdd -> Validation.toErrorString(() -> itemSet.blockDrops.add(toAdd)));
+		this.itemSet = itemSet;
 	}
 	
 	@Override
 	protected void addComponents() {
 		super.addComponents();
 		addComponent(new DynamicTextButton("New block drop", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new EditBlockDrop(menu.getSet(), this, new BlockDrop(true), null));
+			state.getWindow().setMainComponent(new EditBlockDrop(itemSet, this, new BlockDrop(true), null));
 		}), 0.025f, 0.2f, 0.2f, 0.3f);
 		
 		HelpButtons.addHelpLink(this, "edit menu/drops/blocks.html");
@@ -63,12 +63,12 @@ public class BlockDropCollectionEdit extends DedicatedCollectionEdit<BlockDrop, 
 
 	@Override
 	protected GuiComponent createEditMenu(BlockDropReference modelReference) {
-		return new EditBlockDrop(menu.getSet(), this, modelReference.get(), modelReference);
+		return new EditBlockDrop(itemSet, this, modelReference.get(), modelReference);
 	}
 
 	@Override
 	protected String deleteModel(BlockDropReference modelReference) {
-		return Validation.toErrorString(() -> menu.getSet().blockDrops.remove(modelReference));
+		return Validation.toErrorString(() -> itemSet.blockDrops.remove(modelReference));
 	}
 
 	@Override

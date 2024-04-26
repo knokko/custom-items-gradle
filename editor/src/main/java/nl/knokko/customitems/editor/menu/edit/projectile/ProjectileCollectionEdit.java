@@ -2,32 +2,32 @@ package nl.knokko.customitems.editor.menu.edit.projectile;
 
 import java.awt.image.BufferedImage;
 
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.ProjectileReference;
 import nl.knokko.customitems.projectile.KciProjectile;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
 public class ProjectileCollectionEdit extends DedicatedCollectionEdit<KciProjectile, ProjectileReference> {
-	
-	private final EditMenu menu;
 
-	public ProjectileCollectionEdit(EditMenu menu, GuiComponent returnMenu) {
-		super(returnMenu, menu.getSet().projectiles.references(), null);
-		this.menu = menu;
+	private final ItemSet itemSet;
+
+	public ProjectileCollectionEdit(ItemSet itemSet, GuiComponent returnMenu) {
+		super(returnMenu, itemSet.projectiles.references(), null);
+		this.itemSet = itemSet;
 	}
 	
 	@Override
 	protected void addComponents() {
 		super.addComponents();
 		addComponent(new DynamicTextButton("Create", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(
-					new EditProjectile(menu, new KciProjectile(true), null)
-			);
+			state.getWindow().setMainComponent(new EditProjectile(
+					itemSet, this, new KciProjectile(true), null
+			));
 		}), 0.025f, 0.2f, 0.2f, 0.3f);
 		
 		HelpButtons.addHelpLink(this, "edit%20menu/projectiles/overview.html");
@@ -50,12 +50,12 @@ public class ProjectileCollectionEdit extends DedicatedCollectionEdit<KciProject
 
 	@Override
 	protected GuiComponent createEditMenu(ProjectileReference modelReference) {
-		return new EditProjectile(menu, modelReference.get().copy(true), modelReference);
+		return new EditProjectile(itemSet, this, modelReference.get().copy(true), modelReference);
 	}
 
 	@Override
 	protected String deleteModel(ProjectileReference modelReference) {
-		return Validation.toErrorString(() -> menu.getSet().projectiles.remove(modelReference));
+		return Validation.toErrorString(() -> itemSet.projectiles.remove(modelReference));
 	}
 
 	@Override
@@ -70,6 +70,6 @@ public class ProjectileCollectionEdit extends DedicatedCollectionEdit<KciProject
 
 	@Override
 	protected GuiComponent createCopyMenu(ProjectileReference modelReference) {
-		return new EditProjectile(menu, modelReference.get().copy(true), null);
+		return new EditProjectile(itemSet, this, modelReference.get().copy(true), null);
 	}
 }

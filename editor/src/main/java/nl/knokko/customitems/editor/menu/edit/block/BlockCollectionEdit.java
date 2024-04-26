@@ -1,12 +1,12 @@
 package nl.knokko.customitems.editor.menu.edit.block;
 
 import nl.knokko.customitems.block.KciBlock;
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.BlockReference;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
@@ -17,12 +17,12 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.QUIT_HOVER;
 
 public class BlockCollectionEdit extends DedicatedCollectionEdit<KciBlock, BlockReference> {
 
-    private final EditMenu menu;
+    private final ItemSet itemSet;
     private final boolean allowDeletions;
 
-    public BlockCollectionEdit(EditMenu menu, boolean allowDeletions) {
-        super(menu, menu.getSet().blocks.references(), null);
-        this.menu = menu;
+    public BlockCollectionEdit(ItemSet itemSet, GuiComponent returnMenu, boolean allowDeletions) {
+        super(returnMenu, itemSet.blocks.references(), null);
+        this.itemSet = itemSet;
         this.allowDeletions = allowDeletions;
     }
 
@@ -31,13 +31,13 @@ public class BlockCollectionEdit extends DedicatedCollectionEdit<KciBlock, Block
         super.addComponents();
         addComponent(new DynamicTextButton("Create block", EditProps.BUTTON, EditProps.HOVER, () -> {
             state.getWindow().setMainComponent(new EditBlock(
-                    null, new KciBlock(true), this, menu.getSet()
+                    null, new KciBlock(true), this, itemSet
             ));
         }), 0.025f, 0.35f, 0.225f, 0.45f);
 
         if (!allowDeletions) {
             addComponent(new DynamicTextButton("Enable deletions", QUIT_BASE, QUIT_HOVER, () -> {
-                state.getWindow().setMainComponent(new EnableBlockDeletions(menu));
+                state.getWindow().setMainComponent(new EnableBlockDeletions(itemSet, returnMenu));
             }), 0.025f, 0.15f, 0.25f, 0.25f);
         }
 
@@ -61,12 +61,12 @@ public class BlockCollectionEdit extends DedicatedCollectionEdit<KciBlock, Block
 
     @Override
     protected GuiComponent createEditMenu(BlockReference modelReference) {
-        return new EditBlock(modelReference, modelReference.get(), menu, menu.getSet());
+        return new EditBlock(modelReference, modelReference.get(), this, itemSet);
     }
 
     @Override
     protected String deleteModel(BlockReference modelReference) {
-        return Validation.toErrorString(() -> menu.getSet().blocks.remove(modelReference));
+        return Validation.toErrorString(() -> itemSet.blocks.remove(modelReference));
     }
 
     @Override
@@ -81,6 +81,6 @@ public class BlockCollectionEdit extends DedicatedCollectionEdit<KciBlock, Block
 
     @Override
     protected GuiComponent createCopyMenu(BlockReference modelReference) {
-        return new EditBlock(null, modelReference.get(), menu, menu.getSet());
+        return new EditBlock(null, modelReference.get(), this, itemSet);
     }
 }

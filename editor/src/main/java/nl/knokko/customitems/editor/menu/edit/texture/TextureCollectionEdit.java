@@ -3,9 +3,9 @@ package nl.knokko.customitems.editor.menu.edit.texture;
 import java.awt.image.BufferedImage;
 import java.io.File;
 
-import nl.knokko.customitems.editor.menu.edit.*;
 import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.Validation;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.texture.KciTexture;
 import nl.knokko.customitems.texture.BowTexture;
@@ -24,27 +24,27 @@ import static org.lwjgl.util.nfd.NativeFileDialog.*;
 
 public class TextureCollectionEdit extends DedicatedCollectionEdit<KciTexture, TextureReference> {
 	
-	private final EditMenu menu;
+	private final ItemSet itemSet;
 
-	public TextureCollectionEdit(EditMenu menu) {
-		super(menu, menu.getSet().textures.references(), null);
-		this.menu = menu;
+	public TextureCollectionEdit(ItemSet itemSet, GuiComponent returnMenu) {
+		super(returnMenu, itemSet.textures.references(), null);
+		this.itemSet = itemSet;
 	}
 	
 	@Override
 	protected void addComponents() {
 		super.addComponents();
 		addComponent(new DynamicTextButton("FancyPants armor textures [1.17+]", BUTTON, HOVER, () -> {
-			state.getWindow().setMainComponent(new FancyPantsArmorCollectionEdit(this, menu.getSet()));
+			state.getWindow().setMainComponent(new FancyPantsArmorCollectionEdit(this, itemSet));
 		}), 0f, 0.37f, 0.3f, 0.47f);
 		addComponent(new DynamicTextButton("Worn armor textures", 
 				BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(
-					new ArmorTexturesCollectionEdit(this, menu.getSet())
+					new ArmorTexturesCollectionEdit(this, itemSet)
 			);
 		}), 0.025f, 0.25f, 0.25f, 0.35f);
 		addComponent(new DynamicTextButton("Load texture", BUTTON, HOVER, () -> {
-			state.getWindow().setMainComponent(new TextureCreate(menu));
+			state.getWindow().setMainComponent(new TextureCreate(itemSet, this));
 		}), 0.025f, 0.13f, 0.2f, 0.23f);
 
 		// MacOS is... special... see https://github.com/knokko/custom-items-gradle/issues/219
@@ -61,7 +61,7 @@ public class TextureCollectionEdit extends DedicatedCollectionEdit<KciTexture, T
 							if (path != null) {
 								try {
 									KciTexture fileImage = TextureEdit.loadBasicImage(new File(path));
-									String error = Validation.toErrorString(() -> menu.getSet().textures.add(fileImage));
+									String error = Validation.toErrorString(() -> itemSet.textures.add(fileImage));
 									if (error != null) {
 										errorComponent.setText(fileImage.getName() + ": " + error);
 									}
@@ -105,13 +105,13 @@ public class TextureCollectionEdit extends DedicatedCollectionEdit<KciTexture, T
 
 	private GuiComponent createEditMenu(TextureReference toModify, KciTexture oldValues) {
 		if (oldValues instanceof CrossbowTexture) {
-			return new CrossbowTextureEdit(menu, toModify, (CrossbowTexture) oldValues);
+			return new CrossbowTextureEdit(itemSet, this, toModify, (CrossbowTexture) oldValues);
 		} else if (oldValues instanceof BowTexture) {
-			return new BowTextureEdit(menu, toModify, (BowTexture) oldValues);
+			return new BowTextureEdit(itemSet, this, toModify, (BowTexture) oldValues);
 		} else if (oldValues instanceof AnimatedTexture) {
-			return new AnimatedTextureEdit(menu, toModify, (AnimatedTexture) oldValues);
+			return new AnimatedTextureEdit(itemSet, this, toModify, (AnimatedTexture) oldValues);
 		} else {
-			return new TextureEdit(menu, toModify, oldValues);
+			return new TextureEdit(itemSet, this, toModify, oldValues);
 		}
 	}
 
@@ -122,7 +122,7 @@ public class TextureCollectionEdit extends DedicatedCollectionEdit<KciTexture, T
 
 	@Override
 	protected String deleteModel(TextureReference modelReference) {
-		return Validation.toErrorString(() -> menu.getSet().textures.remove(modelReference));
+		return Validation.toErrorString(() -> itemSet.textures.remove(modelReference));
 	}
 
 	@Override

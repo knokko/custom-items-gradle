@@ -1,6 +1,5 @@
 package nl.knokko.customitems.editor.menu.edit.item;
 
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.sound.EditSound;
 import nl.knokko.customitems.editor.util.HelpButtons;
@@ -9,6 +8,7 @@ import nl.knokko.customitems.item.VFoodType;
 import nl.knokko.customitems.item.KciFood;
 import nl.knokko.customitems.item.KciItemType;
 import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
 import nl.knokko.gui.component.text.EagerIntEditField;
@@ -26,10 +26,8 @@ public class EditItemFood extends EditItemBase<KciFood> {
             3.0
     );
 
-    public EditItemFood(
-            EditMenu menu, KciFood oldValues, ItemReference toModify
-    ) {
-        super(menu, oldValues, toModify);
+    public EditItemFood(ItemSet itemSet, GuiComponent returnMenu, KciFood oldValues, ItemReference toModify) {
+        super(itemSet, returnMenu, oldValues, toModify);
     }
 
     private void addConditional(GuiComponent component, float minX, float minY, float maxX, float maxY) {
@@ -72,7 +70,7 @@ public class EditItemFood extends EditItemBase<KciFood> {
         );
         addConditional(new DynamicTextButton("Eat sound...", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new EditSound(
-                    currentValues.getEatSound(), currentValues::setEatSound, this, menu.getSet()
+                    currentValues.getEatSound(), currentValues::setEatSound, this, itemSet
             ));
         }), 0.825f, 0.46f, 0.975f, 0.54f);
 

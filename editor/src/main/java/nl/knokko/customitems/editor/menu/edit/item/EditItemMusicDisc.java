@@ -1,12 +1,13 @@
 package nl.knokko.customitems.editor.menu.edit.item;
 
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.sound.EditSound;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.KciAttributeModifier;
 import nl.knokko.customitems.item.KciItemType;
 import nl.knokko.customitems.item.KciMusicDisc;
 import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
@@ -20,8 +21,8 @@ public class EditItemMusicDisc extends EditItemBase<KciMusicDisc> {
             4.0
     );
 
-    public EditItemMusicDisc(EditMenu menu, KciMusicDisc oldValues, ItemReference toModify) {
-        super(menu, oldValues, toModify);
+    public EditItemMusicDisc(ItemSet itemSet, GuiComponent returnMenu, KciMusicDisc oldValues, ItemReference toModify) {
+        super(itemSet, returnMenu, oldValues, toModify);
     }
 
     @Override
@@ -40,7 +41,7 @@ public class EditItemMusicDisc extends EditItemBase<KciMusicDisc> {
 
         addComponent(new DynamicTextButton("Music...", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new EditSound(
-                    currentValues.getMusic(), currentValues::setMusic, this, menu.getSet()
+                    currentValues.getMusic(), currentValues::setMusic, this, itemSet
             ));
         }), 0.7f, 0.35f, 0.8f, 0.45f);
 

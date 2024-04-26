@@ -2,11 +2,11 @@ package nl.knokko.customitems.editor.menu.edit.projectile.cover;
 
 import java.awt.image.BufferedImage;
 
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.ProjectileCoverReference;
 import nl.knokko.customitems.projectile.cover.CustomProjectileCover;
 import nl.knokko.customitems.projectile.cover.ProjectileCover;
@@ -15,19 +15,19 @@ import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
 public class ProjectileCoverCollectionEdit extends DedicatedCollectionEdit<ProjectileCover, ProjectileCoverReference> {
-	
-	private final EditMenu menu;
 
-	public ProjectileCoverCollectionEdit(EditMenu menu, GuiComponent returnMenu) {
-		super(returnMenu, menu.getSet().projectileCovers.references(), null);
-		this.menu = menu;
+	private final ItemSet itemSet;
+
+	public ProjectileCoverCollectionEdit(ItemSet itemSet, GuiComponent returnMenu) {
+		super(returnMenu, itemSet.projectileCovers.references(), null);
+		this.itemSet = itemSet;
 	}
 	
 	@Override
 	protected void addComponents() {
 		super.addComponents();
 		addComponent(new DynamicTextButton("Create", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new CreateProjectileCover(menu));
+			state.getWindow().setMainComponent(new CreateProjectileCover(itemSet, this));
 		}), 0.025f, 0.2f, 0.2f, 0.3f);
 		
 		HelpButtons.addHelpLink(this, "edit%20menu/projectiles/covers/overview.html");
@@ -56,9 +56,9 @@ public class ProjectileCoverCollectionEdit extends DedicatedCollectionEdit<Proje
 		ProjectileCover coverValues = coverReference.get();
 		ProjectileCoverReference toModify = copy ? null : coverReference;
 		if (coverValues instanceof SphereProjectileCover) {
-			return new EditSphereProjectileCover(menu, (SphereProjectileCover) coverValues, toModify);
+			return new EditSphereProjectileCover(itemSet, this, (SphereProjectileCover) coverValues, toModify);
 		} else if (coverValues instanceof CustomProjectileCover) {
-			return new EditCustomProjectileCover(menu, (CustomProjectileCover) coverValues, toModify);
+			return new EditCustomProjectileCover(itemSet, this, (CustomProjectileCover) coverValues, toModify);
 		} else {
 			throw new Error("It looks like we forgot the edit menu for this projectile cover type. Please report on discord or BukkitDev");
 		}
@@ -71,7 +71,7 @@ public class ProjectileCoverCollectionEdit extends DedicatedCollectionEdit<Proje
 
 	@Override
 	protected String deleteModel(ProjectileCoverReference modelReference) {
-		return Validation.toErrorString(() -> menu.getSet().projectileCovers.remove(modelReference));
+		return Validation.toErrorString(() -> itemSet.projectileCovers.remove(modelReference));
 	}
 
 	@Override

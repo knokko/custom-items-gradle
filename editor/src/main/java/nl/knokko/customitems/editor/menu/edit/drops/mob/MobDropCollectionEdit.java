@@ -8,6 +8,7 @@ import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.StringLength;
 import nl.knokko.customitems.editor.util.Validation;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.MobDropReference;
 import nl.knokko.customitems.recipe.OutputTable;
 import nl.knokko.customitems.recipe.result.CustomItemResult;
@@ -15,21 +16,19 @@ import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
 public class MobDropCollectionEdit extends DedicatedCollectionEdit<MobDrop, MobDropReference> {
-	
-	private final EditMenu menu;
 
-	public MobDropCollectionEdit(EditMenu menu) {
-		super(menu, menu.getSet().mobDrops.references(), newDrop -> Validation.toErrorString(
-				() -> menu.getSet().mobDrops.add(newDrop))
-		);
-		this.menu = menu;
+	private final ItemSet itemSet;
+
+	public MobDropCollectionEdit(ItemSet itemSet, GuiComponent returnMenu) {
+		super(returnMenu, itemSet.mobDrops.references(), newDrop -> Validation.toErrorString(() -> itemSet.mobDrops.add(newDrop)));
+		this.itemSet = itemSet;
 	}
 	
 	@Override
 	protected void addComponents() {
 		super.addComponents();
 		addComponent(new DynamicTextButton("New mob drop", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new EditMobDrop(menu.getSet(), this, new MobDrop(true), null));
+			state.getWindow().setMainComponent(new EditMobDrop(itemSet, this, new MobDrop(true), null));
 		}), 0.025f, 0.2f, 0.2f, 0.3f);
 		
 		HelpButtons.addHelpLink(this, "edit menu/drops/mobs.html");
@@ -66,12 +65,12 @@ public class MobDropCollectionEdit extends DedicatedCollectionEdit<MobDrop, MobD
 
 	@Override
 	protected GuiComponent createEditMenu(MobDropReference modelReference) {
-		return new EditMobDrop(menu.getSet(), this, modelReference.get(), modelReference);
+		return new EditMobDrop(itemSet, this, modelReference.get(), modelReference);
 	}
 
 	@Override
 	protected String deleteModel(MobDropReference modelReference) {
-		return Validation.toErrorString(() -> menu.getSet().mobDrops.remove(modelReference));
+		return Validation.toErrorString(() -> itemSet.mobDrops.remove(modelReference));
 	}
 
 	@Override

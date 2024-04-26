@@ -33,14 +33,14 @@ public class ShapelessRecipeEdit extends GuiMenu {
     private final GuiComponent returnMenu;
 
     public ShapelessRecipeEdit(
-            KciShapelessRecipe oldValues, CraftingRecipeReference toModify,
-            ItemSet itemSet, GuiComponent returnMenu
+            ItemSet itemSet, GuiComponent returnMenu,
+            KciShapelessRecipe oldValues, CraftingRecipeReference toModify
     ) {
         super();
-        this.currentValues = oldValues.copy(true);
-        this.toModify = toModify;
         this.itemSet = itemSet;
         this.returnMenu = returnMenu;
+        this.currentValues = oldValues.copy(true);
+        this.toModify = toModify;
     }
 
     @Override

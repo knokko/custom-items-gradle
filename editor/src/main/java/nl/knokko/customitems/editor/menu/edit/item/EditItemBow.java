@@ -1,11 +1,11 @@
 package nl.knokko.customitems.editor.menu.edit.item;
 
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.texture.BowTextureEdit;
 import nl.knokko.customitems.item.KciAttributeModifier;
 import nl.knokko.customitems.item.KciBow;
 import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.texture.BowTexture;
 import nl.knokko.customitems.editor.util.HelpButtons;
@@ -26,8 +26,8 @@ public class EditItemBow extends EditItemTool<KciBow> {
 			1.5
 	);
 
-	public EditItemBow(EditMenu menu, KciBow oldValues, ItemReference toModify) {
-		super(menu, oldValues, toModify);
+	public EditItemBow(ItemSet itemSet, GuiComponent returnMenu, KciBow oldValues, ItemReference toModify) {
+		super(itemSet, returnMenu, oldValues, toModify);
 	}
 
 	@Override
@@ -37,7 +37,7 @@ public class EditItemBow extends EditItemTool<KciBow> {
 
 	@Override
 	protected GuiComponent createLoadTextureMenu() {
-		return new BowTextureEdit(menu.getSet(), this, null, new BowTexture(true));
+		return new BowTextureEdit(itemSet, this, null, new BowTexture(true));
 	}
 
 	@Override
@@ -92,7 +92,7 @@ public class EditItemBow extends EditItemTool<KciBow> {
 				"Custom shoot damage source:", LABEL
 		), 0.55f, -0.055f, 0.84f, 0.02f);
 		addComponent(CollectionSelect.createButton(
-				menu.getSet().damageSources.references(), currentValues::setCustomShootDamageSource,
+				itemSet.damageSources.references(), currentValues::setCustomShootDamageSource,
 				damageSource -> damageSource.get().getName(), currentValues.getCustomShootDamageSourceReference(), true
 		), 0.85f, -0.055f, 0.98f, 0.02f);
 

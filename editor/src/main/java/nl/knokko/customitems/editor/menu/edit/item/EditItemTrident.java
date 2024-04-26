@@ -1,13 +1,14 @@
 package nl.knokko.customitems.editor.menu.edit.item;
 
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.item.model.EditItemModel;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.KciTrident;
 import nl.knokko.customitems.item.model.DefaultModelType;
 import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerFloatEditField;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
@@ -17,8 +18,8 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class EditItemTrident extends EditItemTool<KciTrident> {
 	
-	public EditItemTrident(EditMenu menu, KciTrident oldValues, ItemReference toModify) {
-		super(menu, oldValues, toModify);
+	public EditItemTrident(ItemSet itemSet, GuiComponent returnMenu, KciTrident oldValues, ItemReference toModify) {
+		super(itemSet, returnMenu, oldValues, toModify);
 	}
 	
 	@Override
@@ -75,7 +76,7 @@ public class EditItemTrident extends EditItemTool<KciTrident> {
 				"Custom throw damage source:", LABEL
 		), 0.6f, -0.025f, 0.84f, 0.05f);
 		addComponent(CollectionSelect.createButton(
-				menu.getSet().damageSources.references(), currentValues::setCustomThrowDamageSource,
+				itemSet.damageSources.references(), currentValues::setCustomThrowDamageSource,
 				damageSource -> damageSource.get().getName(), currentValues.getCustomThrowDamageSourceReference(), true
 		), 0.85f, -0.025f, 0.95f, 0.05f);
 

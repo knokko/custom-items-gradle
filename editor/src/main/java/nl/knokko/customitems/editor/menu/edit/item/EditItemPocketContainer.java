@@ -1,6 +1,5 @@
 package nl.knokko.customitems.editor.menu.edit.item;
 
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.KciAttributeModifier;
@@ -8,6 +7,7 @@ import nl.knokko.customitems.item.KciItemType;
 import nl.knokko.customitems.item.KciPocketContainer;
 import nl.knokko.customitems.itemset.ContainerReference;
 import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.color.SimpleGuiColor;
 import nl.knokko.gui.component.GuiComponent;
@@ -32,8 +32,11 @@ public class EditItemPocketContainer extends EditItemBase<KciPocketContainer> {
             5.0
     );
 
-    public EditItemPocketContainer(EditMenu menu, KciPocketContainer oldValues, ItemReference toModify) {
-        super(menu, oldValues, toModify);
+    public EditItemPocketContainer(
+            ItemSet itemSet, GuiComponent returnMenu,
+            KciPocketContainer oldValues, ItemReference toModify
+    ) {
+        super(itemSet, returnMenu, oldValues, toModify);
     }
 
     @Override
@@ -50,7 +53,7 @@ public class EditItemPocketContainer extends EditItemBase<KciPocketContainer> {
         );
         addComponent(new DynamicTextButton("Choose...", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new SelectContainers(
-                    this, menu.getSet().containers.references(), currentValues.getContainerReferences(), currentValues::setContainers
+                    this, itemSet.containers.references(), currentValues.getContainerReferences(), currentValues::setContainers
             ));
         }), 0.9f, 0.35f, 0.975f, 0.45f);
 

@@ -1,7 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.item;
 
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.item.damage.EditDamageResistances;
 import nl.knokko.customitems.editor.util.HelpButtons;
@@ -10,6 +9,8 @@ import nl.knokko.customitems.item.KciArmor;
 import nl.knokko.customitems.item.KciItemType;
 import nl.knokko.customitems.item.DamageResistance;
 import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
 import nl.knokko.gui.component.text.ConditionalTextButton;
 import nl.knokko.gui.component.text.ConditionalTextComponent;
@@ -24,8 +25,8 @@ import static nl.knokko.customitems.item.KciAttributeModifier.*;
 
 public class EditItemArmor<V extends KciArmor> extends EditItemTool<V> {
 	
-	public EditItemArmor(EditMenu menu, V oldValues, ItemReference toModify) {
-		super(menu, oldValues, toModify);
+	public EditItemArmor(ItemSet itemSet, GuiComponent returnMenu, V oldValues, ItemReference toModify) {
+		super(itemSet, returnMenu, oldValues, toModify);
 	}
 	
 	@Override
@@ -125,7 +126,7 @@ public class EditItemArmor<V extends KciArmor> extends EditItemTool<V> {
 		super.addComponents();
 		addComponent(new DynamicTextComponent("Damage resistances: ", EditProps.LABEL), 0.62f, 0.35f, 0.84f, 0.425f);
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new EditDamageResistances(menu.getSet(), currentValues.getDamageResistances(), () -> {
+			state.getWindow().setMainComponent(new EditDamageResistances(itemSet, currentValues.getDamageResistances(), () -> {
 				state.getWindow().setMainComponent(this);
 			}, (DamageResistance newResistances) -> {
 				state.getWindow().setMainComponent(this);
@@ -139,7 +140,7 @@ public class EditItemArmor<V extends KciArmor> extends EditItemTool<V> {
 			addComponent(new ConditionalTextButton(
 					"Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
 						state.getWindow().setMainComponent(new SelectWornTexture(
-								this, menu.getSet(), currentValues::setArmorTexture
+								this, itemSet, currentValues::setArmorTexture
 						));
 					}, () -> !showColors()), 0.85f, 0.29f, 0.99f, 0.35f);
 			addComponent(
@@ -168,7 +169,7 @@ public class EditItemArmor<V extends KciArmor> extends EditItemTool<V> {
 			);
 			addComponent(new ConditionalTextButton("FancyPants texture...", BUTTON, HOVER, () -> {
 				state.getWindow().setMainComponent(new CollectionSelect<>(
-						menu.getSet().fancyPants.references(),
+						itemSet.fancyPants.references(),
 						currentValues::setFancyPantsTexture, candidate -> true,
 						candidate -> candidate.get().getName(), this, true
 				));

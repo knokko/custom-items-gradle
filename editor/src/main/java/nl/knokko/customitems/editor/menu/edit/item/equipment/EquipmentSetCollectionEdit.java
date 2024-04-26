@@ -1,12 +1,11 @@
 package nl.knokko.customitems.editor.menu.edit.item.equipment;
 
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
-import nl.knokko.customitems.editor.menu.edit.item.ItemCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.item.equipment.EquipmentSet;
 import nl.knokko.customitems.itemset.EquipmentSetReference;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
@@ -17,14 +16,14 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.HOVER;
 
 public class EquipmentSetCollectionEdit extends DedicatedCollectionEdit<EquipmentSet, EquipmentSetReference> {
 
-    private final EditMenu menu;
+    private final ItemSet itemSet;
 
-    public EquipmentSetCollectionEdit(EditMenu menu) {
+    public EquipmentSetCollectionEdit(ItemSet itemSet, GuiComponent returnMenu) {
         super(
-                new ItemCollectionEdit(menu), menu.getSet().equipmentSets.references(),
-                toAdd -> Validation.toErrorString(() -> menu.getSet().equipmentSets.add(toAdd))
+                returnMenu, itemSet.equipmentSets.references(),
+                toAdd -> Validation.toErrorString(() -> itemSet.equipmentSets.add(toAdd))
         );
-        this.menu = menu;
+        this.itemSet = itemSet;
     }
 
     @Override
@@ -32,7 +31,7 @@ public class EquipmentSetCollectionEdit extends DedicatedCollectionEdit<Equipmen
         super.addComponents();
         addComponent(new DynamicTextButton("Create equipment set", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new EditEquipmentSet(
-                    this, menu.getSet(), new EquipmentSet(true), null
+                    this, itemSet, new EquipmentSet(true), null
             ));
         }), 0.025f, 0.3f, 0.225f, 0.4f);
 
@@ -57,12 +56,12 @@ public class EquipmentSetCollectionEdit extends DedicatedCollectionEdit<Equipmen
 
     @Override
     protected GuiComponent createEditMenu(EquipmentSetReference modelReference) {
-        return new EditEquipmentSet(this, menu.getSet(), modelReference.get(), modelReference);
+        return new EditEquipmentSet(this, itemSet, modelReference.get(), modelReference);
     }
 
     @Override
     protected String deleteModel(EquipmentSetReference modelReference) {
-        return Validation.toErrorString(() -> menu.getSet().equipmentSets.remove(modelReference));
+        return Validation.toErrorString(() -> itemSet.equipmentSets.remove(modelReference));
     }
 
     @Override

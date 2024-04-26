@@ -1,6 +1,5 @@
 package nl.knokko.customitems.editor.menu.edit.texture;
 
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
@@ -33,12 +32,6 @@ public class CrossbowTextureEdit extends GuiMenu {
 
     private final DynamicTextComponent errorComponent = new DynamicTextComponent("", ERROR);
     private final PullTextureMenu pullTextureMenu = new PullTextureMenu();
-
-    public CrossbowTextureEdit(
-            EditMenu menu, TextureReference toModify, CrossbowTexture oldValues
-    ) {
-        this(menu.getSet(), new TextureCollectionEdit(menu), toModify, oldValues);
-    }
 
     public CrossbowTextureEdit(
             ItemSet set, GuiComponent returnMenu, TextureReference toModify, CrossbowTexture oldValues

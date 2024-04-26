@@ -3,7 +3,6 @@ package nl.knokko.customitems.editor.menu.edit.item;
 import java.util.ArrayList;
 
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.menu.edit.attack.effect.AttackEffectGroupCollectionEdit;
@@ -16,6 +15,7 @@ import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.editor.util.VanillaModelProperties;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.texture.KciTexture;
 import nl.knokko.customitems.texture.animated.AnimatedTexture;
@@ -38,15 +38,17 @@ public abstract class EditItemBase<V extends KciItem> extends GuiMenu {
 	protected static final float LABEL_X = 0.2f;
 	protected static final float BUTTON_X = 0.4f;
 
-	protected final EditMenu menu;
+	protected final ItemSet itemSet;
+	private final GuiComponent returnMenu;
 	protected final V currentValues;
 	private final ItemReference toModify;
 
 	protected DynamicTextComponent errorComponent;
 
 	@SuppressWarnings("unchecked")
-	public EditItemBase(EditMenu menu, V oldValues, ItemReference toModify) {
-		this.menu = menu;
+	public EditItemBase(ItemSet itemSet, GuiComponent returnMenu, V oldValues, ItemReference toModify) {
+		this.itemSet = itemSet;
+		this.returnMenu = returnMenu;
 		this.currentValues = (V) oldValues.copy(true);
 		this.toModify = toModify;
 	}
@@ -60,7 +62,7 @@ public abstract class EditItemBase<V extends KciItem> extends GuiMenu {
 	protected void addComponents() {
 		errorComponent = new DynamicTextComponent("", EditProps.ERROR);
 		addComponent(new DynamicTextButton("Cancel", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
-			state.getWindow().setMainComponent(new ItemCollectionEdit(menu));
+			state.getWindow().setMainComponent(returnMenu);
 		}), 0.025f, 0.7f, 0.15f, 0.8f);
 
 		addComponent(
@@ -183,22 +185,22 @@ public abstract class EditItemBase<V extends KciItem> extends GuiMenu {
 
 		if (toModify != null) {
 			addComponent(new DynamicTextButton("Apply", SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-				String error = Validation.toErrorString(() -> menu.getSet().items.change(toModify, currentValues));
+				String error = Validation.toErrorString(() -> itemSet.items.change(toModify, currentValues));
 				if (error != null) {
 					errorComponent.setText(error);
 					errorComponent.setProperties(EditProps.ERROR);
 				} else {
-					state.getWindow().setMainComponent(new ItemCollectionEdit(menu));
+					state.getWindow().setMainComponent(returnMenu);
 				}
 			}), 0.025f, 0.1f, 0.15f, 0.2f);
 		} else {
 			addComponent(new DynamicTextButton("Create", SAVE_BASE, SAVE_HOVER, () -> {
-				String error = Validation.toErrorString(() -> menu.getSet().items.add(currentValues));
+				String error = Validation.toErrorString(() -> itemSet.items.add(currentValues));
 				if (error != null) {
 					errorComponent.setProperties(EditProps.ERROR);
 					errorComponent.setText(error);
 				} else
-					state.getWindow().setMainComponent(new ItemCollectionEdit(menu));
+					state.getWindow().setMainComponent(returnMenu);
 			}), 0.025f, 0.1f, 0.15f, 0.2f);
 		}
 		addComponent(errorComponent, 0.1f, 0.9f, 0.9f, 1f);
@@ -269,7 +271,7 @@ public abstract class EditItemBase<V extends KciItem> extends GuiMenu {
 			);
 			addComponent(
 					CollectionSelect.createButton(
-							menu.getSet().textures.references(),
+							itemSet.textures.references(),
 							currentValues::setTexture,
 							this::allowTexture,
 							textureReference -> textureReference.get().getName(),
@@ -326,7 +328,7 @@ public abstract class EditItemBase<V extends KciItem> extends GuiMenu {
 		}), BUTTON_X, -0.28f, BUTTON_X + 0.1f, -0.23f);
 		addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new AttackEffectGroupCollectionEdit(
-					currentValues.getAttackEffects(), currentValues::setAttackEffects, false, this, menu.getSet()
+					currentValues.getAttackEffects(), currentValues::setAttackEffects, false, this, itemSet
 			));
 		}), BUTTON_X, -0.34f, BUTTON_X + 0.1f, -0.29f);
 		addComponent(
@@ -348,7 +350,7 @@ public abstract class EditItemBase<V extends KciItem> extends GuiMenu {
 				WikiVisibility.class, currentValues::setWikiVisibility, currentValues.getWikiVisibility()
 		), BUTTON_X, -0.63f, BUTTON_X + 0.1f, -0.58f);
 		addComponent(CollectionSelect.createButton(
-				menu.getSet().damageSources.references(), currentValues::setCustomMeleeDamageSource,
+				itemSet.damageSources.references(), currentValues::setCustomMeleeDamageSource,
 				damageSource -> damageSource.get().getName(), currentValues.getCustomMeleeDamageSourceReference(), true
 		), BUTTON_X, -0.69f, BUTTON_X + 0.1f, -0.64f);
 		addComponent(new DynamicTextButton("Translations [1.14+]...", BUTTON, HOVER, () -> {
@@ -362,7 +364,7 @@ public abstract class EditItemBase<V extends KciItem> extends GuiMenu {
 	}
 
 	protected GuiComponent createLoadTextureMenu() {
-		return new TextureEdit(menu.getSet(), this, null, new KciTexture(true));
+		return new TextureEdit(itemSet, this, null, new KciTexture(true));
 	}
 
 	protected boolean canHaveCustomModel() {
@@ -431,14 +433,14 @@ public abstract class EditItemBase<V extends KciItem> extends GuiMenu {
 	
 	private void addReplaceComponent() {
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
-			if (!menu.getSet().items.isEmpty()) {
+			if (!itemSet.items.isEmpty()) {
 				state.getWindow().setMainComponent(new ReplacementCollectionEdit(
 						currentValues.getReplacementConditions(),
 						currentValues.getConditionOp(),
 						newConditions -> currentValues.setReplaceConditions(new ArrayList<>(newConditions)),
 						EditItemBase.this,
 						getExampleReplaceCondition(),
-						menu.getSet().items.references(), currentValues::setConditionOp
+						itemSet.items.references(), currentValues::setConditionOp
 				));
 			} else {
 				errorComponent.setText("No items defined yet, so cannot replace this item with other items.");

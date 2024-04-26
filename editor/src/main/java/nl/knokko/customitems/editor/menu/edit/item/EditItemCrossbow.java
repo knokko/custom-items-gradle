@@ -1,12 +1,12 @@
 package nl.knokko.customitems.editor.menu.edit.item;
 
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.texture.CrossbowTextureEdit;
 import nl.knokko.customitems.item.KciAttributeModifier;
 import nl.knokko.customitems.item.KciCrossbow;
 import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.texture.CrossbowTexture;
 import nl.knokko.customitems.editor.util.HelpButtons;
@@ -27,13 +27,13 @@ public class EditItemCrossbow extends EditItemTool<KciCrossbow> {
             1.5
     );
 
-    public EditItemCrossbow(EditMenu menu, KciCrossbow oldValues, ItemReference toModify) {
-        super(menu, oldValues, toModify);
+    public EditItemCrossbow(ItemSet itemSet, GuiComponent returnMenu, KciCrossbow oldValues, ItemReference toModify) {
+        super(itemSet, returnMenu, oldValues, toModify);
     }
 
     @Override
     protected GuiComponent createLoadTextureMenu() {
-        return new CrossbowTextureEdit(menu.getSet(), this, null, new CrossbowTexture(true));
+        return new CrossbowTextureEdit(itemSet, this, null, new CrossbowTexture(true));
     }
 
     @Override
@@ -112,7 +112,7 @@ public class EditItemCrossbow extends EditItemTool<KciCrossbow> {
                 "Custom shoot damage source:", LABEL
         ), 0.55f, -0.25f, 0.84f, -0.175f);
         addComponent(CollectionSelect.createButton(
-                menu.getSet().damageSources.references(), currentValues::setCustomShootDamageSource,
+                itemSet.damageSources.references(), currentValues::setCustomShootDamageSource,
                 damageSource -> damageSource.get().getName(), currentValues.getCustomShootDamageSourceReference(), true
         ), 0.85f, -0.25f, 0.98f, -0.175f);
 

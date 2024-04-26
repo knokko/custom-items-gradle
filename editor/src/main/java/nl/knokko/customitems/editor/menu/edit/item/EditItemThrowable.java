@@ -1,12 +1,13 @@
 package nl.knokko.customitems.editor.menu.edit.item;
 
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.KciAttributeModifier;
 import nl.knokko.customitems.item.KciItemType;
 import nl.knokko.customitems.item.KciThrowable;
 import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
@@ -24,8 +25,8 @@ public class EditItemThrowable extends EditItemBase<KciThrowable> {
     private static final float BUTTON_X2 = 0.75f;
     private static final float LABEL_X2 = BUTTON_X2 - 0.01f;
 
-    public EditItemThrowable(EditMenu menu, KciThrowable oldValues, ItemReference toModify) {
-        super(menu, oldValues, toModify);
+    public EditItemThrowable(ItemSet itemSet, GuiComponent returnMenu, KciThrowable oldValues, ItemReference toModify) {
+        super(itemSet, returnMenu, oldValues, toModify);
     }
 
     @Override
@@ -37,7 +38,7 @@ public class EditItemThrowable extends EditItemBase<KciThrowable> {
                 LABEL_X2 - 0.15f, 0.8f, LABEL_X2, 0.85f
         );
         addComponent(CollectionSelect.createButton(
-                menu.getSet().projectiles.references(),
+                itemSet.projectiles.references(),
                 currentValues::setProjectile,
                 projectile -> projectile.get().getName(),
                 currentValues.getProjectileReference(), true
