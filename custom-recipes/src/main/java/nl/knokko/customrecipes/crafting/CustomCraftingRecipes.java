@@ -25,6 +25,7 @@ public class CustomCraftingRecipes implements Listener {
 
     private final CustomShapedRecipes shaped = new CustomShapedRecipes();
     private final CustomShapelessRecipes shapeless = new CustomShapelessRecipes();
+    private Map<WeakShapelessRecipe, List<String>> conflictingWeakKeys = new HashMap<>();
     private Collection<IngredientBlocker> blockers = new ArrayList<>();
     private Consumer<ResultCollectorEvent> resultCollector;
     private JavaPlugin plugin;
@@ -51,12 +52,24 @@ public class CustomCraftingRecipes implements Listener {
         shaped.register(plugin, keys);
         shapeless.register(plugin, keys);
 
+        this.conflictingWeakKeys = new HashMap<>();
+        for (WeakShapelessRecipe weak : shapeless.keyMap.values()) {
+            this.conflictingWeakKeys.put(weak, new ArrayList<>());
+        }
+        shaped.keyMap.forEach((key, weakShaped) -> {
+            WeakShapelessRecipe weakShapeless = new WeakShapelessRecipe(weakShaped);
+            List<String> conflictingKeys = this.conflictingWeakKeys.get(weakShapeless);
+            if (conflictingKeys != null) conflictingKeys.add(key);
+        });
+        this.conflictingWeakKeys = Collections.unmodifiableMap(this.conflictingWeakKeys);
+
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
     public void clear() {
         shaped.clear();
         shapeless.clear();
+        conflictingWeakKeys = new HashMap<>();
         blockers = new ArrayList<>();
         resultCollector = null;
     }
@@ -69,7 +82,6 @@ public class CustomCraftingRecipes implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void showCraftingResult(PrepareItemCraftEvent event) {
-        Bukkit.broadcastMessage("PrepareItemCraftEvent");
         handleCrafting(event.getRecipe(), event.getInventory(), null, event.getView().getPlayer());
     }
 
@@ -99,8 +111,16 @@ public class CustomCraftingRecipes implements Listener {
             }
             if (recipe instanceof ShapelessRecipe) {
                 production = shapeless.determineResult(key.getKey(), matrix, crafter);
+                if (production == null) {
+                    WeakShapelessRecipe weakShapeless = shapeless.keyMap.get(key.getKey());
+                    if (weakShapeless != null) {
+                        for (String shapedKey : conflictingWeakKeys.get(weakShapeless)) {
+                            production = shaped.determineResult(shapedKey, matrix, crafter);
+                            if (production != null) break;
+                        }
+                    }
+                }
             }
-            // TODO What happens when shapeless recipes conflict with shaped recipes?
 
             if (production == null) {
                 if (craftEvent != null) craftEvent.setCancelled(true);
@@ -149,11 +169,11 @@ public class CustomCraftingRecipes implements Listener {
                     if (matrix[index] != null) matrix[index] = matrix[index].clone();
                 }
 
-                if (recipe instanceof ShapedRecipe) {
+                if (production instanceof ShapedProduction) {
                     shaped.consumeIngredients((ShapedProduction) production, matrix, collectorEvent.actualProductionCount);
                 }
 
-                if (recipe instanceof ShapelessRecipe) {
+                if (production instanceof ShapelessProduction) {
                     shapeless.consumeIngredients((ShapelessProduction) production, matrix, collectorEvent.actualProductionCount);
                 }
 

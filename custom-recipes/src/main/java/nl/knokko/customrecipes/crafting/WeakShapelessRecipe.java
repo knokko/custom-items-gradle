@@ -20,6 +20,20 @@ class WeakShapelessRecipe {
         }
     }
 
+    WeakShapelessRecipe(WeakShapedRecipe shaped) {
+        for (Material[] row : shaped.shape) {
+            for (Material element : row) {
+                if (ingredients.containsKey(element)) ingredients.put(element, ingredients.get(element) + 1);
+                else ingredients.put(element, 1);
+            }
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "WeakShapeless(" + ingredients + ")";
+    }
+
     @Override
     public boolean equals(Object other) {
         return other instanceof WeakShapelessRecipe && this.ingredients.equals(((WeakShapelessRecipe) other).ingredients);

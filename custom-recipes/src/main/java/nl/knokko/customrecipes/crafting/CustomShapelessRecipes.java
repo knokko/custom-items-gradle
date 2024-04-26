@@ -16,7 +16,7 @@ class CustomShapelessRecipes {
 
     private List<CustomShapelessRecipe> recipes = new ArrayList<>();
     private Map<WeakShapelessRecipe, List<CustomShapelessRecipe>> weakMap;
-    private Map<String, WeakShapelessRecipe> keyMap;
+    Map<String, WeakShapelessRecipe> keyMap;
 
     void add(CustomShapelessRecipe recipe) {
         recipes.add(recipe);

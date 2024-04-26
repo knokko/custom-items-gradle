@@ -5,7 +5,6 @@ import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.multisupport.geyser.GeyserSupport;
-import nl.knokko.customitems.plugin.recipe.IngredientEntry;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import org.bukkit.Bukkit;
@@ -21,7 +20,6 @@ import static nl.knokko.customitems.plugin.set.item.CustomToolWrapper.wrap;
 public class InventoryEventHandler implements Listener {
 
     private final ItemSetWrapper itemSet;
-    private final Map<UUID, List<IngredientEntry>> shouldInterfere = new HashMap<>();
 
     public InventoryEventHandler(ItemSetWrapper itemSet) {
         this.itemSet = itemSet;
