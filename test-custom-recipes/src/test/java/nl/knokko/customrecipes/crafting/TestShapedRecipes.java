@@ -193,14 +193,18 @@ public class TestShapedRecipes {
         CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
         CustomShapedRecipe customRecipe = new CustomShapedRecipe(new ItemStack(Material.BLAZE_ROD), "abc");
         customRecipe.ingredientMap.put('a', new CustomIngredient(
-                Material.BLAZE_POWDER, blazePowder -> true, 1, new ItemStack(Material.GLOWSTONE_DUST)
+                Material.BLAZE_POWDER, blazePowder -> true, 1, blaze -> new ItemStack(Material.GLOWSTONE_DUST)
         ));
         customRecipe.ingredientMap.put('b', new CustomIngredient(
                 Material.STICK, stick -> true, 2, null
         ));
-        customRecipe.ingredientMap.put('c', new CustomIngredient(
-                Material.REDSTONE_TORCH, torch -> true, 3, new ItemStack(Material.TORCH, 3)
-        ));
+        customRecipe.ingredientMap.put('c', new CustomIngredient(Material.REDSTONE_TORCH, torch -> true, 3, redstoneTorches -> {
+                ItemStack torch = new ItemStack(Material.TORCH, 3);
+                if (redstoneTorches.containsEnchantment(Enchantment.DAMAGE_ARTHROPODS)) {
+                    torch.addUnsafeEnchantment(Enchantment.DAMAGE_ARTHROPODS, redstoneTorches.getEnchantmentLevel(Enchantment.DAMAGE_ARTHROPODS));
+                }
+                return torch;
+        }));
         craftingRecipes.add(customRecipe);
         Set<NamespacedKey> keys = new HashSet<>();
         craftingRecipes.register(plugin, keys);
@@ -244,7 +248,9 @@ public class TestShapedRecipes {
                 null, null, null,
                 new ItemStack(Material.GLOWSTONE_DUST), null, new ItemStack(Material.TORCH, 3)
         };
+        remainingMatrix[8].addUnsafeEnchantment(Enchantment.DAMAGE_ARTHROPODS, 1);
         matrix[8].setAmount(3);
+        matrix[8].addUnsafeEnchantment(Enchantment.DAMAGE_ARTHROPODS, 1);
         checkResult(inventory, view, matrix, bukkitRecipe, customRecipe.result.apply(null), remainingMatrix);
 
         // Stacksize is larger than needed for the second slot, which is fine since it has no remaining item
@@ -273,7 +279,7 @@ public class TestShapedRecipes {
         CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
         CustomShapedRecipe customRecipe = new CustomShapedRecipe(new ItemStack(Material.GOLD_INGOT), "c");
         customRecipe.ingredientMap.put('c', new CustomIngredient(
-                Material.REDSTONE, redStone -> true, 5, new ItemStack(Material.GLOWSTONE_DUST)
+                Material.REDSTONE, redStone -> true, 5, redstone -> new ItemStack(Material.GLOWSTONE_DUST)
         ));
         craftingRecipes.add(customRecipe);
         Set<NamespacedKey> keys = new HashSet<>();

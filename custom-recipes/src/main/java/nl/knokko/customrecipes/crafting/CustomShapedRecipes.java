@@ -131,7 +131,6 @@ class CustomShapedRecipes {
                             maximumNaturalCount = min(maximumNaturalCount, actualAmount);
                         }
 
-                        // TODO Add support for ingredients that are required, but not consumed
                         if (ingredient.remainingItem != null) maximumCustomCount = min(maximumCustomCount, 1);
                         if (ingredient.amount > 1 || ingredient.remainingItem != null) hasSpecialIngredients = true;
                     }
@@ -175,7 +174,7 @@ class CustomShapedRecipes {
                 if (ingredient == null) continue;
 
                 if (ingredient.remainingItem != null) {
-                    matrix[matrixIndex] = ingredient.remainingItem.clone();
+                    matrix[matrixIndex] = ingredient.remainingItem.apply(matrix[matrixIndex].clone());
                     continue;
                 }
 

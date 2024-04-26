@@ -159,7 +159,7 @@ public class CustomItemsRecipes {
                 RecipeHelper.getMaterial(ingredient),
                 itemStack -> RecipeHelper.shouldIngredientAcceptItemStack(ingredient, itemStack),
                 ingredient.getAmount(),
-                convertResultToItemStack(ingredient.getRemainingItem())
+                inputStack -> convertResultToItemStack(ingredient.getRemainingItem())
         );
     }
 }
