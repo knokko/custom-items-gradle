@@ -1,7 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.item;
 
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.attack.effect.AttackEffectGroupCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
@@ -9,6 +8,8 @@ import nl.knokko.customitems.item.KciAttributeModifier;
 import nl.knokko.customitems.item.KciArrow;
 import nl.knokko.customitems.item.KciItemType;
 import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.text.EagerFloatEditField;
 import nl.knokko.gui.component.text.EagerIntEditField;
@@ -26,8 +27,8 @@ public class EditItemArrow extends EditItemBase<KciArrow> {
             0.1
     );
 
-    public EditItemArrow(EditMenu menu, KciArrow oldValues, ItemReference toModify) {
-        super(menu, oldValues, toModify);
+    public EditItemArrow(ItemSet itemSet, GuiComponent returnMenu, KciArrow oldValues, ItemReference toModify) {
+        super(itemSet, returnMenu, oldValues, toModify);
     }
 
     @Override
@@ -83,7 +84,7 @@ public class EditItemArrow extends EditItemBase<KciArrow> {
         addComponent(new DynamicTextButton("Shoot effects...", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new AttackEffectGroupCollectionEdit(
                     currentValues.getShootEffects(), currentValues::setShootEffects,
-                    false, this, menu.getSet()
+                    false, this, itemSet
             ));
         }), 0.8f, 0.26f, 0.975f, 0.34f);
 
@@ -91,7 +92,7 @@ public class EditItemArrow extends EditItemBase<KciArrow> {
                 "Custom shoot damage source:", LABEL
         ), 0.6f, 0.16f, 0.84f, 0.24f);
         addComponent(CollectionSelect.createButton(
-                menu.getSet().damageSources.references(), currentValues::setCustomShootDamageSource,
+                itemSet.damageSources.references(), currentValues::setCustomShootDamageSource,
                 damageSource -> damageSource.get().getName(), currentValues.getCustomShootDamageSourceReference(), true
         ), 0.85f, 0.16f, 0.98f, 0.24f);
 

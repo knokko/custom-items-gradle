@@ -1,6 +1,5 @@
 package nl.knokko.customitems.editor.menu.edit.item;
 
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.attack.effect.AttackEffectGroupCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.item.model.EditItemModel;
@@ -8,6 +7,8 @@ import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.KciShield;
 import nl.knokko.customitems.item.model.DefaultModelType;
 import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerFloatEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
@@ -16,8 +17,8 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class EditItemShield extends EditItemTool<KciShield> {
 	
-	public EditItemShield(EditMenu menu, KciShield oldValues, ItemReference toModify) {
-		super(menu, oldValues, toModify);
+	public EditItemShield(ItemSet itemSet, GuiComponent returnMenu, KciShield oldValues, ItemReference toModify) {
+		super(itemSet, returnMenu, oldValues, toModify);
 	}
 	
 	@Override
@@ -48,7 +49,7 @@ public class EditItemShield extends EditItemTool<KciShield> {
 		addComponent(new DynamicTextComponent("Blocking effects:", LABEL), 0.65f, 0.15f, 0.84f, 0.25f);
 		addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new AttackEffectGroupCollectionEdit(
-					currentValues.getBlockingEffects(), currentValues::setBlockingEffects, true, this, menu.getSet()
+					currentValues.getBlockingEffects(), currentValues::setBlockingEffects, true, this, itemSet
 			));
 		}), 0.85f, 0.15f, 0.95f, 0.225f);
 

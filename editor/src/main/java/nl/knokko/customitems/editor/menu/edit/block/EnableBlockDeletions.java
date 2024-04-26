@@ -1,7 +1,8 @@
 package nl.knokko.customitems.editor.menu.edit.block;
 
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.color.GuiColor;
+import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
@@ -10,10 +11,12 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class EnableBlockDeletions extends GuiMenu {
 
-    private final EditMenu menu;
+    private final ItemSet itemSet;
+    private final GuiComponent returnMenu;
 
-    public EnableBlockDeletions(EditMenu menu) {
-        this.menu = menu;
+    public EnableBlockDeletions(ItemSet itemSet, GuiComponent returnMenu) {
+        this.itemSet = itemSet;
+        this.returnMenu = returnMenu;
     }
 
     @Override
@@ -33,10 +36,10 @@ public class EnableBlockDeletions extends GuiMenu {
         ), 0.05f, 0.5f, 0.95f, 0.6f);
 
         addComponent(new DynamicTextButton("Cancel", SAVE_BASE, SAVE_HOVER, () -> {
-            state.getWindow().setMainComponent(new BlockCollectionEdit(menu, false));
+            state.getWindow().setMainComponent(new BlockCollectionEdit(itemSet, returnMenu, false));
         }), 0.2f, 0.2f, 0.35f, 0.3f);
         addComponent(new DynamicTextButton("Proceed anyway", QUIT_BASE, QUIT_HOVER, () -> {
-            state.getWindow().setMainComponent(new BlockCollectionEdit(menu, true));
+            state.getWindow().setMainComponent(new BlockCollectionEdit(itemSet, returnMenu, true));
         }), 0.6f, 0.2f, 0.8f, 0.3f);
     }
 

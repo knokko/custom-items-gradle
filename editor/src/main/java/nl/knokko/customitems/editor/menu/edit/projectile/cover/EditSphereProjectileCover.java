@@ -1,11 +1,12 @@
 package nl.knokko.customitems.editor.menu.edit.projectile.cover;
 
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.ProjectileCoverReference;
 import nl.knokko.customitems.projectile.cover.SphereProjectileCover;
 import nl.knokko.customitems.editor.util.HelpButtons;
+import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerFloatEditField;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
@@ -15,8 +16,11 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
 
 public class EditSphereProjectileCover extends EditProjectileCover<SphereProjectileCover> {
 	
-	public EditSphereProjectileCover(EditMenu menu, SphereProjectileCover oldValues, ProjectileCoverReference toModify) {
-		super(menu, oldValues, toModify);
+	public EditSphereProjectileCover(
+			ItemSet itemSet, GuiComponent returnMenu,
+			SphereProjectileCover oldValues, ProjectileCoverReference toModify
+	) {
+		super(itemSet, returnMenu, oldValues, toModify);
 	}
 	
 	@Override
@@ -45,7 +49,7 @@ public class EditSphereProjectileCover extends EditProjectileCover<SphereProject
 		);
 		addComponent(
 				CollectionSelect.createButton(
-						menu.getSet().textures.references(),
+						itemSet.textures.references(),
 						currentValues::setTexture,
 						textureReference -> textureReference.get().getName(),
 						currentValues.getTextureReference(), false

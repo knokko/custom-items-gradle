@@ -1,13 +1,14 @@
 package nl.knokko.customitems.editor.menu.edit.item;
 
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.KciAttributeModifier;
 import nl.knokko.customitems.item.KciGun;
 import nl.knokko.customitems.item.KciItemType;
 import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
@@ -24,8 +25,8 @@ public class EditItemGun extends EditItemBase<KciGun> {
             3
     );
 
-    public EditItemGun(EditMenu menu, KciGun oldValues, ItemReference toModify) {
-        super(menu, oldValues, toModify);
+    public EditItemGun(ItemSet itemSet, GuiComponent returnMenu, KciGun oldValues, ItemReference toModify) {
+        super(itemSet, returnMenu, oldValues, toModify);
     }
 
     @Override
@@ -37,7 +38,7 @@ public class EditItemGun extends EditItemBase<KciGun> {
                 0.6f, 0.8f, 0.7f, 0.85f
         );
         addComponent(CollectionSelect.createButton(
-                menu.getSet().projectiles.references(),
+                itemSet.projectiles.references(),
                 currentValues::setProjectile,
                 projectileReference -> projectileReference.get().getName(),
                 currentValues.getProjectileReference(), false
@@ -49,7 +50,7 @@ public class EditItemGun extends EditItemBase<KciGun> {
         );
         addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
             state.getWindow().setMainComponent(new EditAmmoSystem(
-                    this, currentValues::setAmmo, menu.getSet(), currentValues.getAmmo()
+                    this, currentValues::setAmmo, itemSet, currentValues.getAmmo()
             ));
         }), 0.73f, 0.74f, 0.8f, 0.79f);
 

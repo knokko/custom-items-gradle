@@ -1,6 +1,5 @@
 package nl.knokko.customitems.editor.menu.edit.item;
 
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.KciAttributeModifier.Attribute;
@@ -9,6 +8,8 @@ import nl.knokko.customitems.item.KciAttributeModifier.Slot;
 import nl.knokko.customitems.item.KciAttributeModifier;
 import nl.knokko.customitems.item.KciHoe;
 import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
@@ -21,8 +22,8 @@ public class EditItemHoe extends EditItemTool<KciHoe> {
 			Attribute.MOVEMENT_SPEED, Slot.OFFHAND, Operation.ADD_FACTOR, 1.5
 	);
 
-	public EditItemHoe(EditMenu menu, KciHoe oldValues, ItemReference toModify) {
-		super(menu, oldValues, toModify);
+	public EditItemHoe(ItemSet itemSet, GuiComponent returnMenu, KciHoe oldValues, ItemReference toModify) {
+		super(itemSet, returnMenu, oldValues, toModify);
 	}
 	
 	@Override

@@ -8,7 +8,6 @@ import java.util.function.Consumer;
 
 import javax.imageio.ImageIO;
 
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.FileDialog;
 import nl.knokko.customitems.editor.util.Validation;
@@ -37,10 +36,6 @@ public class TextureEdit extends GuiMenu {
 
 	protected final TextureReference toModify;
 	protected final KciTexture currentValues;
-	
-	public TextureEdit(EditMenu menu, TextureReference toModify, KciTexture oldValues) {
-		this(menu.getSet(), new TextureCollectionEdit(menu), toModify, oldValues);
-	}
 
 	public TextureEdit(ItemSet set, GuiComponent returnMenu, TextureReference toModify, KciTexture oldValues) {
 		this.itemSet = set;

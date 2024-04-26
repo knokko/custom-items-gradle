@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
@@ -37,10 +36,6 @@ public class BowTextureEdit extends GuiMenu {
 
 	private final TextureReference toModify;
 	private final BowTexture currentValues;
-
-	public BowTextureEdit(EditMenu menu, TextureReference toModify, BowTexture oldValues) {
-		this(menu.getSet(), new TextureCollectionEdit(menu), toModify, oldValues);
-	}
 
 	public BowTextureEdit(ItemSet set, GuiComponent returnMenu, TextureReference toModify, BowTexture oldValues) {
 		this.set = set;

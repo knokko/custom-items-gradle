@@ -37,9 +37,9 @@ public abstract class SafeCollectionEdit<T> extends GuiMenu {
 		addComponent(new DynamicTextButton("Cancel", CANCEL_BASE, CANCEL_HOVER, () -> {
 			state.getWindow().setMainComponent(returnMenu);
 		}), 0.025f, 0.7f, 0.175f, 0.8f);
-		addComponent(new DynamicTextButton(isCreatingNew() ? "Create" : "Apply", SAVE_BASE, SAVE_HOVER, () -> {
-			onApply();
-		}), 0.025f, 0.1f, 0.175f, 0.2f);
+		addComponent(new DynamicTextButton(
+				isCreatingNew() ? "Create" : "Apply", SAVE_BASE, SAVE_HOVER, this::onApply
+		), 0.025f, 0.1f, 0.175f, 0.2f);
 		addComponent(itemList, 0.25f, 0f, 1f, 0.9f);
 		addComponent(errorComponent, 0.05f, 0.9f, 0.95f, 1f);
 	}

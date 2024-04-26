@@ -1,13 +1,14 @@
 package nl.knokko.customitems.editor.menu.edit.item;
 
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.KciAttributeModifier;
 import nl.knokko.customitems.item.KciBlockItem;
 import nl.knokko.customitems.item.KciItemType;
 import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
@@ -23,8 +24,8 @@ public class EditItemBlock extends EditItemBase<KciBlockItem> {
             5.0
     );
 
-    public EditItemBlock(EditMenu menu, KciBlockItem oldValues, ItemReference toModify) {
-        super(menu, oldValues, toModify);
+    public EditItemBlock(ItemSet itemSet, GuiComponent returnMenu, KciBlockItem oldValues, ItemReference toModify) {
+        super(itemSet, returnMenu, oldValues, toModify);
     }
 
     @Override
@@ -43,7 +44,7 @@ public class EditItemBlock extends EditItemBase<KciBlockItem> {
         addComponent(new DynamicTextComponent("Block:", EditProps.LABEL),
                 0.70f, 0.5f, 0.80f, 0.6f);
         addComponent(CollectionSelect.createButton(
-                menu.getSet().blocks.references(),
+                itemSet.blocks.references(),
                 currentValues::setBlock,
                 block -> block.get().getName(),
                 currentValues.getBlockReference(), false

@@ -7,7 +7,7 @@ import nl.knokko.customitems.editor.menu.edit.drops.DropsMenu;
 import nl.knokko.customitems.editor.menu.edit.export.ExportMenu;
 import nl.knokko.customitems.editor.menu.edit.item.ItemCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.misc.CombinedResourcepackCollectionEdit;
-import nl.knokko.customitems.editor.menu.edit.projectile.ProjectileMenu;
+import nl.knokko.customitems.editor.menu.edit.projectile.ProjectilePortal;
 import nl.knokko.customitems.editor.menu.edit.recipe.RecipePortal;
 import nl.knokko.customitems.editor.menu.edit.sound.SoundTypeCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.texture.TextureCollectionEdit;
@@ -105,25 +105,25 @@ public class EditMenu extends GuiMenu {
 		}), 0.025f, 0.05f, 0.2f, 0.13f);
 
 		addComponent(new DynamicTextButton("Textures", BUTTON, HOVER, () -> {
-			this.state.getWindow().setMainComponent(new TextureCollectionEdit(this));
+			this.state.getWindow().setMainComponent(new TextureCollectionEdit(set, this));
 		}), 0.6F, 0.825F, 0.8F, 0.9F);
 		addComponent(new DynamicTextButton("Items", BUTTON, HOVER, () -> {
-			this.state.getWindow().setMainComponent(new ItemCollectionEdit(this));
+			this.state.getWindow().setMainComponent(new ItemCollectionEdit(set, this));
 		}), 0.6F, 0.735F, 0.8F, 0.81F);
 		addComponent(new DynamicTextButton("Recipes", BUTTON, HOVER, () -> {
-			this.state.getWindow().setMainComponent(new RecipePortal(this));
+			this.state.getWindow().setMainComponent(new RecipePortal(set, this));
 		}), 0.6F, 0.645F, 0.8F, 0.72F);
 		addComponent(new DynamicTextButton("Drops", BUTTON, HOVER, () -> {
-			this.state.getWindow().setMainComponent(new DropsMenu(this));
+			this.state.getWindow().setMainComponent(new DropsMenu(set, this));
 		}), 0.6F, 0.555F, 0.8F, 0.63F);
 		addComponent(new DynamicTextButton("Projectiles", BUTTON, HOVER, () -> {
-			this.state.getWindow().setMainComponent(new ProjectileMenu(this));
+			this.state.getWindow().setMainComponent(new ProjectilePortal(set, this));
 		}), 0.6F, 0.465F, 0.875F, 0.54F);
 		addComponent(new DynamicTextButton("Containers", BUTTON, HOVER, () -> {
-			state.getWindow().setMainComponent(new ContainerPortal(this));
+			state.getWindow().setMainComponent(new ContainerPortal(set, this));
 		}), 0.6f, 0.375f, 0.875f, 0.45f);
 		addComponent(new DynamicTextButton("Blocks (1.13+)", BUTTON, HOVER, () -> {
-			state.getWindow().setMainComponent(new BlockCollectionEdit(this, false));
+			state.getWindow().setMainComponent(new BlockCollectionEdit(set, this, false));
 		}), 0.6f, 0.285f, 0.875f, 0.36f);
 		addComponent(new DynamicTextButton("Sounds", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new SoundTypeCollectionEdit(this, set));

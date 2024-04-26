@@ -1,12 +1,13 @@
 package nl.knokko.customitems.editor.menu.edit.item;
 
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.EditIngredient;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.KciItemType.Category;
 import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
@@ -16,8 +17,8 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class EditItemTool<V extends KciTool> extends EditItemBase<V> {
 
-	public EditItemTool(EditMenu menu, V oldValues, ItemReference toModify) {
-		super(menu, oldValues, toModify);
+	public EditItemTool(ItemSet itemSet, GuiComponent returnMenu, V oldValues, ItemReference toModify) {
+		super(itemSet, returnMenu, oldValues, toModify);
 	}
 	
 	@Override
@@ -82,8 +83,7 @@ public class EditItemTool<V extends KciTool> extends EditItemBase<V> {
 							this, newRepairItem -> {
 								currentValues.setRepairItem(newRepairItem);
 								pChangeRepairItemButton[0].setText(newRepairItem.toString("None"));
-					}, currentValues.getRepairItem(), true, menu.getSet()
-					));
+					}, currentValues.getRepairItem(), true, itemSet));
 				}
 		);
 		addComponent(pChangeRepairItemButton[0], 0.85f, 0.575f, 0.99f, 0.65f);

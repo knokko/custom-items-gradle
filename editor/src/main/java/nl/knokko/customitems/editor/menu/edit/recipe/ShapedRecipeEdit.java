@@ -1,6 +1,5 @@
 package nl.knokko.customitems.editor.menu.edit.recipe;
 
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.ChooseShapedIngredientForUpgrade;
 import nl.knokko.customitems.editor.menu.edit.recipe.ingredient.IngredientComponent;
@@ -8,8 +7,10 @@ import nl.knokko.customitems.editor.menu.edit.recipe.result.ResultComponent;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.CraftingRecipeReference;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.KciShapedRecipe;
 import nl.knokko.gui.color.GuiColor;
+import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.EagerTextEditField;
@@ -19,8 +20,9 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class ShapedRecipeEdit extends GuiMenu {
-	
-	private final EditMenu menu;
+
+	private final ItemSet itemSet;
+	private final GuiComponent returnMenu;
 	private final KciShapedRecipe currentValues;
 	private final CraftingRecipeReference toModify;
 
@@ -30,15 +32,19 @@ public class ShapedRecipeEdit extends GuiMenu {
 
 	private EagerTextEditField permissionField;
 
-	public ShapedRecipeEdit(EditMenu menu, KciShapedRecipe oldValues, CraftingRecipeReference toModify) {
-		this.menu = menu;
+	public ShapedRecipeEdit(
+			ItemSet itemSet, GuiComponent returnMenu,
+			KciShapedRecipe oldValues, CraftingRecipeReference toModify
+	) {
+		this.itemSet = itemSet;
+		this.returnMenu = returnMenu;
 		this.currentValues = oldValues.copy(true);
 		this.toModify = toModify;
 
 		this.ingredientsComponent = new Ingredients();
 		this.resultComponent = new ResultComponent(
-				currentValues.getResult(), currentValues::setResult, this, menu.getSet(),
-				(returnMenu, upgrade) -> new ChooseShapedIngredientForUpgrade(returnMenu, upgrade, currentValues)
+				currentValues.getResult(), currentValues::setResult, this, itemSet,
+				(innerReturnMenu, upgrade) -> new ChooseShapedIngredientForUpgrade(innerReturnMenu, upgrade, currentValues)
 		);
 		this.errorComponent = new DynamicTextComponent("", EditProps.ERROR);
 	}
@@ -53,15 +59,15 @@ public class ShapedRecipeEdit extends GuiMenu {
 	@Override
 	protected void addComponents() {
 		addComponent(new DynamicTextButton("Cancel", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
-			state.getWindow().setMainComponent(new RecipeCollectionEdit(menu));
+			state.getWindow().setMainComponent(returnMenu);
 		}), 0.1f, 0.85f, 0.25f, 0.95f);
 		addComponent(new DynamicTextButton(toModify == null ? "Create" : "Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
 			String error;
-			if (toModify == null) error = Validation.toErrorString(() -> menu.getSet().craftingRecipes.add(currentValues));
-			else error = Validation.toErrorString(() -> menu.getSet().craftingRecipes.change(toModify, currentValues));
+			if (toModify == null) error = Validation.toErrorString(() -> itemSet.craftingRecipes.add(currentValues));
+			else error = Validation.toErrorString(() -> itemSet.craftingRecipes.change(toModify, currentValues));
 
 			if (error != null) errorComponent.setText(error);
-			else state.getWindow().setMainComponent(new RecipeCollectionEdit(menu));
+			else state.getWindow().setMainComponent(returnMenu);
 		}), 0.1f, 0.7f, 0.25f, 0.8f);
 		addComponent(ingredientsComponent, 0.05f, 0.1f, 0.65f, 0.6f);
 		addComponent(
@@ -97,7 +103,7 @@ public class ShapedRecipeEdit extends GuiMenu {
 			ingredients = new IngredientComponent[9];
 			for (int index = 0; index < ingredients.length; index++) {
 				ingredients[index] = new IngredientComponent(
-						currentValues, index % 3, index / 3, "empty", ShapedRecipeEdit.this, menu.getSet()
+						currentValues, index % 3, index / 3, "empty", ShapedRecipeEdit.this, itemSet
 				);
 			}
 		}

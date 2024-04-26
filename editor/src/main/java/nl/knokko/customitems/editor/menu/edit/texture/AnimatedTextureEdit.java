@@ -1,11 +1,12 @@
 package nl.knokko.customitems.editor.menu.edit.texture;
 
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.texture.animated.AnimatedTexture;
 import nl.knokko.gui.color.GuiColor;
+import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.EagerTextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
@@ -15,13 +16,18 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public class AnimatedTextureEdit extends GuiMenu {
 
-    private final EditMenu menu;
+    private final ItemSet itemSet;
+    private final GuiComponent returnMenu;
     private final TextureReference toModify;
 
     private final AnimatedTexture currentValues;
 
-    public AnimatedTextureEdit(EditMenu menu, TextureReference toModify, AnimatedTexture oldValues) {
-        this.menu = menu;
+    public AnimatedTextureEdit(
+            ItemSet itemSet, GuiComponent returnMenu,
+            TextureReference toModify, AnimatedTexture oldValues
+    ) {
+        this.itemSet = itemSet;
+        this.returnMenu = returnMenu;
         this.toModify = toModify;
         this.currentValues = oldValues.copy(true);
     }
@@ -32,18 +38,18 @@ public class AnimatedTextureEdit extends GuiMenu {
         addComponent(errorComponent, 0.1f, 0.9f, 1f, 1f);
 
         addComponent(new DynamicTextButton("Cancel", CANCEL_BASE, CANCEL_HOVER, () -> {
-            state.getWindow().setMainComponent(new TextureCollectionEdit(menu));
+            state.getWindow().setMainComponent(returnMenu);
         }), 0.025f, 0.7f, 0.15f, 0.8f);
 
         addComponent(new DynamicTextButton("Apply", SAVE_BASE, SAVE_HOVER, () -> {
             String error;
             if (toModify == null) {
-                error = Validation.toErrorString(() -> menu.getSet().textures.add(currentValues));
+                error = Validation.toErrorString(() -> itemSet.textures.add(currentValues));
             } else {
-                error = Validation.toErrorString(() -> menu.getSet().textures.change(toModify, currentValues));
+                error = Validation.toErrorString(() -> itemSet.textures.change(toModify, currentValues));
             }
             if (error == null) {
-                state.getWindow().setMainComponent(new TextureCollectionEdit(menu));
+                state.getWindow().setMainComponent(returnMenu);
             } else {
                 errorComponent.setText(error);
             }

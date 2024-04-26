@@ -3,7 +3,6 @@ package nl.knokko.customitems.editor.menu.edit.item;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.KciAttributeModifier.Attribute;
@@ -11,6 +10,7 @@ import nl.knokko.customitems.item.KciAttributeModifier.Operation;
 import nl.knokko.customitems.item.KciAttributeModifier.Slot;
 import nl.knokko.customitems.item.KciItemType.Category;
 import nl.knokko.customitems.itemset.ItemReference;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
 import nl.knokko.gui.component.image.CheckboxComponent;
@@ -29,8 +29,8 @@ public class EditItemWand extends EditItemBase<KciWand> {
 	private static final float BUTTON_X2 = 0.75f;
 	private static final float LABEL_X2 = BUTTON_X2 - 0.01f;
 	
-	public EditItemWand(EditMenu menu, KciWand oldValues, ItemReference toModify) {
-		super(menu, oldValues, toModify);
+	public EditItemWand(ItemSet itemSet, GuiComponent returnMenu, KciWand oldValues, ItemReference toModify) {
+		super(itemSet, returnMenu, oldValues, toModify);
 	}
 	
 	@Override
@@ -42,7 +42,7 @@ public class EditItemWand extends EditItemBase<KciWand> {
 				LABEL_X2 - 0.15f, 0.8f, LABEL_X2, 0.85f
 		);
 		addComponent(CollectionSelect.createButton(
-				menu.getSet().projectiles.references(),
+				itemSet.projectiles.references(),
 				currentValues::setProjectile,
 				projectile -> projectile.get().getName(),
 				currentValues.getProjectileReference(), true

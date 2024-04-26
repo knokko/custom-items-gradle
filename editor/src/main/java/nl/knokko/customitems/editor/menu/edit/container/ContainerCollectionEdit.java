@@ -3,11 +3,11 @@ package nl.knokko.customitems.editor.menu.edit.container;
 import java.awt.image.BufferedImage;
 
 import nl.knokko.customitems.container.KciContainer;
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.collection.DedicatedCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ContainerReference;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 
@@ -16,18 +16,18 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.HOVER;
 
 public class ContainerCollectionEdit extends DedicatedCollectionEdit<KciContainer, ContainerReference> {
 	
-	private final EditMenu menu;
+	private final ItemSet itemSet;
 
-	public ContainerCollectionEdit(EditMenu menu) {
-		super(new ContainerPortal(menu), menu.getSet().containers.references(), null);
-		this.menu = menu;
+	public ContainerCollectionEdit(ItemSet itemSet, GuiComponent returnMenu) {
+		super(returnMenu, itemSet.containers.references(), null);
+		this.itemSet = itemSet;
 	}
 	
 	@Override
 	protected void addComponents() {
 		super.addComponents();
 		addComponent(new DynamicTextButton("Create new", BUTTON, HOVER, () -> {
-			state.getWindow().setMainComponent(new EditContainer(menu, new KciContainer(true), null));
+			state.getWindow().setMainComponent(new EditContainer(itemSet, this, new KciContainer(true), null));
 		}), 0.025f, 0.3f, 0.2f, 0.4f);
 		HelpButtons.addHelpLink(this, "edit menu/containers/overview.html");
 	}
@@ -49,12 +49,12 @@ public class ContainerCollectionEdit extends DedicatedCollectionEdit<KciContaine
 
 	@Override
 	protected GuiComponent createEditMenu(ContainerReference modelReference) {
-		return new EditContainer(menu, modelReference.get(), modelReference);
+		return new EditContainer(itemSet, this, modelReference.get(), modelReference);
 	}
 
 	@Override
 	protected String deleteModel(ContainerReference modelReference) {
-		return Validation.toErrorString(() -> menu.getSet().containers.remove(modelReference));
+		return Validation.toErrorString(() -> itemSet.containers.remove(modelReference));
 	}
 
 	@Override
@@ -69,6 +69,6 @@ public class ContainerCollectionEdit extends DedicatedCollectionEdit<KciContaine
 
 	@Override
 	protected GuiComponent createCopyMenu(ContainerReference modelReference) {
-		return new EditContainer(menu, modelReference.get(), null);
+		return new EditContainer(itemSet, this, modelReference.get(), null);
 	}
 }

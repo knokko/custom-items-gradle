@@ -1,15 +1,15 @@
 package nl.knokko.customitems.editor.menu.edit.projectile.cover;
 
-import nl.knokko.customitems.editor.menu.edit.EditMenu;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
-import nl.knokko.customitems.editor.menu.edit.projectile.ProjectileMenu;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.item.KciItemType;
 import nl.knokko.customitems.item.KciItemType.Category;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.ProjectileCoverReference;
 import nl.knokko.customitems.projectile.cover.ProjectileCover;
 import nl.knokko.gui.color.GuiColor;
+import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.EagerTextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
@@ -19,17 +19,19 @@ import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
 import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
 
 public abstract class EditProjectileCover<V extends ProjectileCover> extends GuiMenu {
-	
-	protected final EditMenu menu;
-	
+
+	protected final ItemSet itemSet;
+	protected final GuiComponent returnMenu;
+
 	protected DynamicTextComponent errorComponent;
 
 	protected final V currentValues;
 	private final ProjectileCoverReference toModify;
 
 	@SuppressWarnings("unchecked")
-	public EditProjectileCover(EditMenu menu, V oldValues, ProjectileCoverReference toModify) {
-		this.menu = menu;
+	public EditProjectileCover(ItemSet itemSet, GuiComponent returnMenu, V oldValues, ProjectileCoverReference toModify) {
+		this.itemSet = itemSet;
+		this.returnMenu = returnMenu;
 		this.currentValues = (V) oldValues.copy(true);
 		this.toModify = toModify;
 	}
@@ -43,7 +45,7 @@ public abstract class EditProjectileCover<V extends ProjectileCover> extends Gui
 	@Override
 	protected void addComponents() {
 		addComponent(new DynamicTextButton("Cancel", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
-			state.getWindow().setMainComponent(new ProjectileCoverCollectionEdit(menu, new ProjectileMenu(menu)));
+			state.getWindow().setMainComponent(returnMenu);
 		}), 0.025f, 0.7f, 0.2f, 0.8f);
 		
 		errorComponent = new DynamicTextComponent("", EditProps.ERROR);
@@ -66,11 +68,11 @@ public abstract class EditProjectileCover<V extends ProjectileCover> extends Gui
 		
 		if (toModify == null) {
 			addComponent(new DynamicTextButton("Create", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-				handleError(Validation.toErrorString(() -> menu.getSet().projectileCovers.add(currentValues)));
+				handleError(Validation.toErrorString(() -> itemSet.projectileCovers.add(currentValues)));
 			}), 0.025f, 0.2f, 0.2f, 0.3f);
 		} else {
 			addComponent(new DynamicTextButton("Apply", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
-				handleError(Validation.toErrorString(() -> menu.getSet().projectileCovers.change(toModify, currentValues)));
+				handleError(Validation.toErrorString(() -> itemSet.projectileCovers.change(toModify, currentValues)));
 			}), 0.025f, 0.2f, 0.2f, 0.3f);
 		}
 	}
@@ -82,7 +84,7 @@ public abstract class EditProjectileCover<V extends ProjectileCover> extends Gui
 	
 	protected void handleError(String error) {
 		if (error == null) {
-			state.getWindow().setMainComponent(new ProjectileCoverCollectionEdit(menu, new ProjectileMenu(menu)));
+			state.getWindow().setMainComponent(returnMenu);
 		} else {
 			errorComponent.setText(error);
 		}
