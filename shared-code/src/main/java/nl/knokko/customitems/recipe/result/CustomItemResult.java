@@ -103,6 +103,10 @@ public class CustomItemResult extends KciResult {
     }
 
     @Override
+    public byte guessAmount() {
+        return amount;
+    }
+
     public byte getAmount() {
         return amount;
     }

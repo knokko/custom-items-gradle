@@ -91,7 +91,7 @@ public class CopiedResult extends KciResult {
     }
 
     @Override
-    public byte getAmount() {
+    public byte guessAmount() {
         // This is just guesswork
         return 1;
     }
