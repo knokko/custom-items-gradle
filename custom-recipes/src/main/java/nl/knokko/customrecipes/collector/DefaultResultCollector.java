@@ -12,20 +12,6 @@ public class DefaultResultCollector implements Consumer<ResultCollectorEvent> {
 
     @Override
     public void accept(ResultCollectorEvent event) {
-        if (event.action == InventoryAction.NOTHING) {
-            event.actualProductionCount = 0;
-            return;
-        }
-
-        if (event.action == InventoryAction.PICKUP_ALL) {
-            event.actualProductionCount = 1;
-            return;
-        }
-
-        if (event.action == InventoryAction.DROP_ONE_SLOT) {
-            // TODO
-        }
-
         if (event.action == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
             ItemStack[] contents = event.destination.getStorageContents();
 
