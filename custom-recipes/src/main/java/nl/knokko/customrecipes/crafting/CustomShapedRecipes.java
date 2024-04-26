@@ -121,10 +121,8 @@ class CustomShapedRecipes {
                     char ingredientChar = recipe.shape[y].charAt(x);
                     CustomIngredient ingredient = recipe.ingredientMap.get(ingredientChar);
                     if (ingredient != null) {
-                        int actualAmount = candidate != null ? candidate.getAmount() : 0;
-                        if (actualAmount < ingredient.amount) continue recipeLoop;
-                        if (ingredient.remainingItem != null && actualAmount != ingredient.amount) continue recipeLoop;
-                        if (!ingredient.shouldAccept.test(candidate)) continue recipeLoop;
+                        if (!ingredient.accepts(candidate)) continue recipeLoop;
+                        int actualAmount = candidate.getAmount();
 
                         if (ingredient.amount > 0) {
                             maximumCustomCount = min(maximumCustomCount, actualAmount / ingredient.amount);

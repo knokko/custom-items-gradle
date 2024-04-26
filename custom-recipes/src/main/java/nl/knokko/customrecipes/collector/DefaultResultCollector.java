@@ -47,7 +47,10 @@ public class DefaultResultCollector implements Consumer<ResultCollectorEvent> {
                 }
             }
 
-            event.destination.setStorageContents(contents);
+            // The stupid PlayerInventoryMock class doesn't support setStorageContents
+            if (!event.destination.getClass().getSimpleName().equals("PlayerInventoryMock")) {
+                event.destination.setStorageContents(contents);
+            }
             event.actualProductionCount = productionCount;
             return;
         }
