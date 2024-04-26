@@ -307,7 +307,7 @@ public class TestShapedRecipes {
         inventory.setRecipe(bukkitRecipe);
         {
             CraftItemEvent craftEvent = createCraftEvent(inventory, view, InventoryAction.MOVE_TO_OTHER_INVENTORY);
-            assertTrue(craftEvent.callEvent());
+            assertFalse(craftEvent.callEvent());
 
             Objects.requireNonNull(MockBukkit.getOrCreateMock()).getScheduler().performOneTick();
             assertArrayEquals(inventory.getMatrix(), remainingMatrix);
@@ -357,7 +357,7 @@ public class TestShapedRecipes {
         inventory.setRecipe(bukkitRecipe);
         {
             CraftItemEvent craftEvent = createCraftEvent(inventory, view, InventoryAction.MOVE_TO_OTHER_INVENTORY);
-            assertTrue(craftEvent.callEvent());
+            assertFalse(craftEvent.callEvent());
 
             Objects.requireNonNull(MockBukkit.getOrCreateMock()).getScheduler().performOneTick();
             assertArrayEquals(inventory.getMatrix(), remainingMatrix);

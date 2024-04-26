@@ -29,13 +29,7 @@ class ShapelessMatcher {
             for (int dest = 0; dest < properIngredients.size(); dest++) {
                 CustomIngredient ingredient = recipe.ingredients[source];
                 ItemStack input = properIngredients.get(dest);
-                if (ingredient.material != input.getType()) continue;
-                if (ingredient.amount > input.getAmount()) continue;
-                if (ingredient.remainingItem != null && ingredient.amount != input.getAmount()) continue;
-                if (!ingredient.shouldAccept.test(input)) continue;
-                // TODO Reuse shaped crafting code for this?
-
-                acceptanceMatrix[source][dest] = true;
+                if (ingredient.accepts(input)) acceptanceMatrix[source][dest] = true;
             }
         }
 
