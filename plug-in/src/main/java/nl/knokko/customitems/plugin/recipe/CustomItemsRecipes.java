@@ -9,11 +9,13 @@ import nl.knokko.customitems.plugin.util.ItemUtils;
 import nl.knokko.customitems.recipe.KciCraftingRecipe;
 import nl.knokko.customitems.recipe.KciFurnaceRecipe;
 import nl.knokko.customitems.recipe.KciShapedRecipe;
+import nl.knokko.customitems.recipe.KciShapelessRecipe;
 import nl.knokko.customitems.recipe.ingredient.KciIngredient;
 import nl.knokko.customitems.recipe.ingredient.NoIngredient;
 import nl.knokko.customitems.recipe.result.KciResult;
 import nl.knokko.customitems.recipe.result.UpgradeResult;
 import nl.knokko.customrecipes.CustomRecipes;
+import nl.knokko.customrecipes.crafting.CustomShapelessRecipe;
 import nl.knokko.customrecipes.furnace.CustomFurnaceRecipe;
 import nl.knokko.customrecipes.ingredient.CustomIngredient;
 import nl.knokko.customrecipes.ingredient.IngredientBlocker;
@@ -133,7 +135,28 @@ public class CustomItemsRecipes {
                 }
 
                 customRecipes.crafting.add(customRecipe);
-            } else {}// TODO shapeless
+            } else {
+                KciShapelessRecipe shapelessRecipe = (KciShapelessRecipe) recipe;
+                String permission = shapelessRecipe.getRequiredPermission();
+
+                List<KciIngredient> kciIngredients = shapelessRecipe.getIngredients();
+                CustomIngredient[] customIngredients = new CustomIngredient[kciIngredients.size()];
+                for (int index = 0; index < customIngredients.length; index++) {
+                    customIngredients[index] = toCustomIngredient(kciIngredients.get(index));
+                }
+
+                CustomShapelessRecipe customRecipe = new CustomShapelessRecipe(currentIngredients -> {
+                    if (recipe.getResult() instanceof UpgradeResult) {
+                        UpgradeResult result = (UpgradeResult) recipe.getResult();
+                        int ingredientIndex = result.getIngredientIndex();
+
+                        ItemStack toUpgrade = null;
+                        if (currentIngredients != null) toUpgrade = currentIngredients[ingredientIndex];
+                        return produceResult(toUpgrade, kciIngredients.get(ingredientIndex), result);
+                    } else return convertResultToItemStack(recipe.getResult());
+                }, crafter -> permission == null || crafter.hasPermission(permission), customIngredients);
+                customRecipes.crafting.add(customRecipe);
+            }
         }
 
         customRecipes.crafting.blockIngredients(new IngredientBlocker(ItemUtils::isCustom));
@@ -165,11 +188,12 @@ public class CustomItemsRecipes {
     }
 
     private static CustomIngredient toCustomIngredient(KciIngredient ingredient) {
+        KciResult remainingItem = ingredient.getRemainingItem();
         return new CustomIngredient(
                 RecipeHelper.getMaterial(ingredient),
                 itemStack -> RecipeHelper.shouldIngredientAcceptItemStack(ingredient, itemStack),
                 ingredient.getAmount(),
-                inputStack -> convertResultToItemStack(ingredient.getRemainingItem())
+                remainingItem != null ? inputStack -> convertResultToItemStack(remainingItem) : null
         );
     }
 }

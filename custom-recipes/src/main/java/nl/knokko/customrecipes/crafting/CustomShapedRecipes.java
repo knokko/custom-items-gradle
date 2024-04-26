@@ -17,7 +17,7 @@ class CustomShapedRecipes {
 
     private List<CustomShapedRecipe> recipes = new ArrayList<>();
     private Map<WeakShapedRecipe, List<CustomShapedRecipe>> weakMap;
-    private Map<String, WeakShapedRecipe> keyMap;
+    Map<String, WeakShapedRecipe> keyMap;
 
 
     void add(CustomShapedRecipe recipe) {
