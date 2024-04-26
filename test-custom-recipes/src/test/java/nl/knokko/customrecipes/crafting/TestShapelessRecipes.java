@@ -147,9 +147,13 @@ public class TestShapelessRecipes {
         CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
         CustomShapelessRecipe customRecipe = new CustomShapelessRecipe(
                 new ItemStack(Material.BLAZE_ROD),
-                new CustomIngredient(Material.BLAZE_POWDER, blaze -> true, 1, new ItemStack(Material.GLOWSTONE_DUST)),
+                new CustomIngredient(Material.BLAZE_POWDER, blaze -> true, 1, blazePowder -> {
+                    ItemStack glowStone = new ItemStack(Material.GLOWSTONE_DUST);
+                    glowStone.addUnsafeEnchantment(Enchantment.ARROW_INFINITE, blazePowder.getEnchantmentLevel(Enchantment.ARROW_INFINITE));
+                    return glowStone;
+                }),
                 new CustomIngredient(Material.STICK, stick -> true, 2, null),
-                new CustomIngredient(Material.REDSTONE_TORCH, torch -> true, 3, new ItemStack(Material.TORCH, 3))
+                new CustomIngredient(Material.REDSTONE_TORCH, torch -> true, 3, torch -> new ItemStack(Material.TORCH, 3))
         );
         craftingRecipes.add(customRecipe);
         Set<NamespacedKey> keys = new HashSet<>();
@@ -190,11 +194,13 @@ public class TestShapelessRecipes {
 
         // Perfect fit
         matrix[3].setAmount(3);
+        matrix[6].addUnsafeEnchantment(Enchantment.ARROW_INFINITE, 3);
         ItemStack[] remainingMatrix = {
                 null, null, null,
                 new ItemStack(Material.TORCH, 3), null, null,
                 new ItemStack(Material.GLOWSTONE_DUST), null, null
         };
+        remainingMatrix[6].addUnsafeEnchantment(Enchantment.ARROW_INFINITE, 3);
         checkResult(inventory, view, matrix, bukkitRecipe, customRecipe.result.apply(null), remainingMatrix);
 
         // There are more sticks than needed, which is fine since it has no remaining item
@@ -222,7 +228,7 @@ public class TestShapelessRecipes {
 
         CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
         CustomShapelessRecipe customRecipe = new CustomShapelessRecipe(new ItemStack(Material.GOLD_INGOT), new CustomIngredient(
-                Material.REDSTONE, redstone -> true, 5, new ItemStack(Material.GLOWSTONE_DUST)
+                Material.REDSTONE, redstone -> true, 5, redstone -> new ItemStack(Material.GLOWSTONE_DUST)
         ));
         craftingRecipes.add(customRecipe);
         Set<NamespacedKey> keys = new HashSet<>();

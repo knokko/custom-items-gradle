@@ -173,7 +173,7 @@ public class CustomFurnaceRecipes implements Listener {
                 return;
             }
 
-            furnace.getInventory().setSmelting(customRecipe.input.remainingItem.clone());
+            furnace.getInventory().setSmelting(customRecipe.input.remainingItem.apply(input.clone()));
         } else if (customRecipe.input.amount > 1) {
             if (input.getAmount() < customRecipe.input.amount) {
                 event.setCancelled(true);

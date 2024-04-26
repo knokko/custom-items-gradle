@@ -320,7 +320,13 @@ public class TestFurnaceRecipes {
 
         CustomFurnaceRecipes furnaceRecipes = new CustomFurnaceRecipes();
         furnaceRecipes.add(new CustomFurnaceRecipe(input -> new ItemStack(Material.DIAMOND), new CustomIngredient(
-                Material.GOLD_INGOT, candidate -> true, 5, new ItemStack(Material.IRON_INGOT, 5)
+                Material.GOLD_INGOT, candidate -> true, 5, goldIngot -> {
+                    ItemStack ironIngot = new ItemStack(Material.IRON_INGOT, goldIngot.getAmount());
+                    if (goldIngot.containsEnchantment(Enchantment.DIG_SPEED)) {
+                        ironIngot.addUnsafeEnchantment(Enchantment.DIG_SPEED, goldIngot.getEnchantmentLevel(Enchantment.DIG_SPEED));
+                    }
+                    return ironIngot;
+            }
         ), 1f, 1));
         furnaceRecipes.register(plugin, new HashSet<>());
 
@@ -345,17 +351,21 @@ public class TestFurnaceRecipes {
 
         // 5 gold works
         {
-            furnace.setSmelting(new ItemStack(Material.GOLD_INGOT, 5));
+            ItemStack input = new ItemStack(Material.GOLD_INGOT, 5);
+            input.addUnsafeEnchantment(Enchantment.DIG_SPEED, 2);
+            furnace.setSmelting(input);
+
             FurnaceBurnEvent burnEvent = new FurnaceBurnEvent(furnaceBlock, fuel, 100);
             assertTrue(burnEvent.callEvent());
 
             FurnaceSmeltEvent smeltEvent = new FurnaceSmeltEvent(
-                    furnaceBlock, new ItemStack(Material.GOLD_INGOT, 5), new ItemStack(Material.DIAMOND)
+                    furnaceBlock, input, new ItemStack(Material.DIAMOND)
             );
             assertTrue(smeltEvent.callEvent());
             ItemStack remaining = Objects.requireNonNull(furnace.getSmelting());
             assertEquals(Material.IRON_INGOT, remaining.getType());
             assertEquals(5, remaining.getAmount());
+            assertEquals(2, remaining.getEnchantmentLevel(Enchantment.DIG_SPEED));
         }
 
         // 6 gold is too much

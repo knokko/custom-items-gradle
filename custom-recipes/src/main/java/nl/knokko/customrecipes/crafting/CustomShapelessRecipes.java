@@ -5,7 +5,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -72,7 +71,6 @@ class CustomShapelessRecipes {
                 maximumCustomCount = min(maximumCustomCount, input.getAmount() / ingredient.amount);
                 maximumNaturalCount = min(maximumNaturalCount, input.getAmount());
 
-                // TODO Add support for ingredients that are required, but not consumed
                 if (ingredient.remainingItem != null) maximumCustomCount = min(maximumCustomCount, 1);
                 if (ingredient.amount > 1 || ingredient.remainingItem != null) hasSpecialIngredients = true;
             }
@@ -97,9 +95,9 @@ class CustomShapelessRecipes {
     ) {
         int[] permutation = production.placement.permutation;
         for (int index = 0; index < permutation.length; index++) {
-            CustomIngredient ingredient = production.recipe.ingredients[index];;
+            CustomIngredient ingredient = production.recipe.ingredients[index];
             if (ingredient.remainingItem != null) {
-                matrix[permutation[index]] = ingredient.remainingItem.clone();
+                matrix[permutation[index]] = ingredient.remainingItem.apply(matrix[permutation[index]].clone());
                 continue;
             }
 
