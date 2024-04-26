@@ -137,7 +137,7 @@ public class UpgradeResult extends KciResult {
     }
 
     @Override
-    public byte getAmount() {
+    public byte guessAmount() {
         return 1;
     }
 

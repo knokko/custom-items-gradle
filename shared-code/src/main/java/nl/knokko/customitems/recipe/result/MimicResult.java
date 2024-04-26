@@ -93,6 +93,10 @@ public class MimicResult extends KciResult {
     }
 
     @Override
+    public byte guessAmount() {
+        return (byte) this.amount;
+    }
+
     public byte getAmount() {
         return (byte) this.amount;
     }

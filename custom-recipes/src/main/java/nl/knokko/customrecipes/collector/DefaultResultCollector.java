@@ -42,6 +42,7 @@ public class DefaultResultCollector implements Consumer<ResultCollectorEvent> {
             for (int index = 0; index < contents.length; index++) {
                 if (remaining <= 0) break;
 
+                // TODO Prioritize existing slots
                 ItemStack stack = contents[index];
                 if (stack == null || stack.getType() == Material.AIR) {
                     ItemStack newStack = event.result.clone();

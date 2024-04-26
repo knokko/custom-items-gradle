@@ -144,7 +144,7 @@ public class KciFurnaceRecipe extends ModelValues {
                 if (cookTime != recipe.cookTime) {
                     throw new ValidationException("Other recipes with input " + ownMaterial + " must also take " + cookTime + " ticks");
                 }
-                if (result.guessMaxStackSize() > result.getAmount() && recipe.result.guessMaxStackSize() > recipe.result.getAmount()) {
+                if (result.guessMaxStackSize() > result.guessAmount() && recipe.result.guessMaxStackSize() > recipe.result.guessAmount()) {
                     throw new ValidationException("Only 1 recipe with input " + ownMaterial + " can have a stackable result");
                 }
             }

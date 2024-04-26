@@ -109,14 +109,17 @@ public class DataVanillaResult extends KciResult {
     }
 
     @Override
+    public byte guessAmount() {
+        return amount;
+    }
+
     public byte getAmount() {
         return amount;
     }
 
     @Override
     public byte guessMaxStackSize() {
-        return 64;
-        // TODO return material.maxStackSize;
+        return (byte) material.maxStackSize;
     }
 
     public VMaterial getMaterial() {

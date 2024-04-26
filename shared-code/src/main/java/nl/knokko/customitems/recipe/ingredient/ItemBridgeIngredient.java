@@ -65,7 +65,7 @@ public class ItemBridgeIngredient extends KciIngredient {
     }
 
     @Override
-    public byte getAmount() throws UnsupportedOperationException {
+    public byte getAmount() {
         return (byte) amount;
     }
 

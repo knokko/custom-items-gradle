@@ -56,7 +56,7 @@ public abstract class KciResult extends ModelValues  {
         output.addNumber(amount - 1, (byte) 6, false);
     }
 
-    public abstract byte getAmount();
+    public abstract byte guessAmount();
 
     public abstract byte guessMaxStackSize();
 

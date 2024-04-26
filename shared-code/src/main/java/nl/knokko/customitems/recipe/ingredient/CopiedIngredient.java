@@ -77,7 +77,7 @@ public class CopiedIngredient extends KciIngredient {
     }
 
     @Override
-    public byte getAmount() throws UnsupportedOperationException {
+    public byte getAmount() {
         return amount;
     }
 

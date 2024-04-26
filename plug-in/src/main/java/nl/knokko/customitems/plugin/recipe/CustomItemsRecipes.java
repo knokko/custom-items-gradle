@@ -60,6 +60,16 @@ public class CustomItemsRecipes {
         return ItemUpgrader.addUpgrade(inputStack.clone(), itemSet, (UpgradeResult) result);
     }
 
+    private boolean guessStacks(KciResult result) {
+        if (result instanceof UpgradeResult) return false;
+
+        ItemStack stack = convertResultToItemStack(result);
+        KciItem customItem = itemSet.getItem(stack);
+        if (customItem != null) return customItem.getMaxStacksize() > stack.getAmount();
+
+        return stack.getType().getMaxStackSize() > stack.getAmount();
+    }
+
     public void register() {
         for (KciCraftingRecipe recipe : itemSet.get().craftingRecipes) {
             if (recipe instanceof KciShapedRecipe) {
@@ -130,8 +140,8 @@ public class CustomItemsRecipes {
         customRecipes.crafting.setResultCollector(new CustomStackingResultCollector(plugin, itemSet));
 
         Stream<KciFurnaceRecipe> sortedRecipes = itemSet.get().furnaceRecipes.stream().sorted((a, b) -> {
-            boolean stacksA = a.getResult().guessMaxStackSize() > a.getResult().getAmount();
-            boolean stacksB = b.getResult().guessMaxStackSize() > b.getResult().getAmount();
+            boolean stacksA = guessStacks(a.getResult());
+            boolean stacksB = guessStacks(b.getResult());
             if (stacksA == stacksB) return 0;
             if (stacksA) return -1;
             return 1;
