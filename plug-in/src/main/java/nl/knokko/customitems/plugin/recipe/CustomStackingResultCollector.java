@@ -28,6 +28,7 @@ public class CustomStackingResultCollector implements Consumer<ResultCollectorEv
     public void accept(ResultCollectorEvent event) {
         KciItem customResult = itemSet.getItem(event.result);
         if (customResult == null || !wrap(customResult).needsStackingHelp()) return;
+        if (event.action == InventoryAction.DROP_ONE_SLOT) return;
 
         /*
          * Normally, when you click on an item in the result slot while holding that item (e.g. crafting a torch
@@ -42,7 +43,6 @@ public class CustomStackingResultCollector implements Consumer<ResultCollectorEv
             if (itemSet.getItem(event.oldCursor) == customResult && event.oldCursor.getAmount() + event.result.getAmount() <= customResult.getMaxStacksize()) {
                 ItemStack newCursor = event.oldCursor.clone();
                 Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                    Bukkit.broadcastMessage("Increase amount to " + (newCursor.getAmount() + event.result.getAmount()));
                     newCursor.setAmount(newCursor.getAmount() + event.result.getAmount());
                     event.changeCursor.accept(newCursor);
                 });
@@ -52,8 +52,9 @@ public class CustomStackingResultCollector implements Consumer<ResultCollectorEv
         }
 
         if (event.action == InventoryAction.PICKUP_ALL) {
-            // TODO Check maximum stacksize
-            if (itemSet.getItem(event.oldCursor) == customResult) {
+            if (itemSet.getItem(event.oldCursor) == customResult &&
+                    event.oldCursor.getAmount() + event.result.getAmount() <= customResult.getMaxStacksize()) {
+
                 ItemStack newCursor = event.oldCursor.clone();
                 Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
                     newCursor.setAmount(newCursor.getAmount() + event.result.getAmount());
@@ -66,10 +67,6 @@ public class CustomStackingResultCollector implements Consumer<ResultCollectorEv
                 event.actualProductionCount = 1;
                 return;
             }
-        }
-
-        if (event.action == InventoryAction.DROP_ONE_SLOT) {
-            // TODO
         }
 
         if (event.action == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
@@ -85,20 +82,26 @@ public class CustomStackingResultCollector implements Consumer<ResultCollectorEv
 
             int productionCount = min(availableSpace / event.result.getAmount(), event.maximumProductionCount);
             int remaining = event.result.getAmount() * productionCount;
+
+            for (ItemStack stack : contents) {
+                if (remaining <= 0) break;
+
+                if (stack != null && itemSet.getItem(stack) == customResult && stack.getAmount() < customResult.getMaxStacksize()) {
+                    int extraAmount = min(remaining, customResult.getMaxStacksize() - stack.getAmount());
+                    stack.setAmount(stack.getAmount() + extraAmount);
+                    remaining -= extraAmount;
+                }
+            }
+
             for (int index = 0; index < contents.length; index++) {
                 if (remaining <= 0) break;
 
-                // TODO Prioritize existing stacks
                 ItemStack stack = contents[index];
                 if (ItemUtils.isEmpty(stack)) {
                     ItemStack newStack = event.result.clone();
                     newStack.setAmount(min(remaining, customResult.getMaxStacksize()));
                     contents[index] = newStack;
                     remaining -= newStack.getAmount();
-                } else if (itemSet.getItem(stack) == customResult && stack.getAmount() < customResult.getMaxStacksize()) {
-                    int extraAmount = min(remaining, customResult.getMaxStacksize() - stack.getAmount());
-                    stack.setAmount(stack.getAmount() + extraAmount);
-                    remaining -= extraAmount;
                 }
             }
 

@@ -139,7 +139,7 @@ public class CustomCraftingRecipes implements Listener {
                 int naturalConsumptionCount;
 
                 if (collectorEvent.actualProductionCount == -1 &&
-                        production.maximumCustomCount > production.maximumNaturalCount
+                        production.maximumCustomCount != production.maximumNaturalCount
                         && craftEvent.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY
                 ) {
                     new DefaultResultCollector().accept(collectorEvent);
