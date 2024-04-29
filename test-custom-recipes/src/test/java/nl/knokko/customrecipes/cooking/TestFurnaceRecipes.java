@@ -1,4 +1,4 @@
-package nl.knokko.customrecipes.furnace;
+package nl.knokko.customrecipes.cooking;
 
 import be.seeseemelk.mockbukkit.MockBukkit;
 import be.seeseemelk.mockbukkit.ServerMock;
@@ -9,7 +9,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.*;
@@ -34,12 +33,12 @@ public class TestFurnaceRecipes {
         JavaPlugin plugin = MockBukkit.createMockPlugin();
         Player player = server.addPlayer();
 
-        CustomFurnaceRecipes furnaceRecipes = new CustomFurnaceRecipes();
-        furnaceRecipes.addBurnTimeFunction(fuel -> {
+        CustomCookingManager cooking = new CustomCookingManager();
+        cooking.addBurnTimeFunction(fuel -> {
             if (fuel.containsEnchantment(Enchantment.DAMAGE_UNDEAD)) return 0;
             else return null;
         });
-        furnaceRecipes.register(plugin, new HashSet<>());
+        cooking.register(plugin, new HashSet<>());
 
         ItemStack badFuel = new ItemStack(Material.COAL);
         badFuel.addUnsafeEnchantment(Enchantment.DAMAGE_UNDEAD, 2);
@@ -61,8 +60,9 @@ public class TestFurnaceRecipes {
             assertTrue(clickEvent.callEvent());
         }
 
-        Block furnaceBlock = Objects.requireNonNull(server.getWorld("world")).getBlockAt(1, 2, 3);
-        furnaceBlock.setType(Material.FURNACE);
+        BlockMock furnaceBlock = new BlockMock(Material.FURNACE, new Location(server.addSimpleWorld("test"), 1, 2, 3));
+        FurnaceMock furnaceMock = new FurnaceMock(furnaceBlock);
+        furnaceBlock.setState(furnaceMock);
         {
             FurnaceBurnEvent burnEvent = new FurnaceBurnEvent(furnaceBlock, badFuel, 100);
             assertFalse(burnEvent.callEvent());
@@ -79,10 +79,10 @@ public class TestFurnaceRecipes {
         JavaPlugin plugin = MockBukkit.createMockPlugin();
         World world = server.addSimpleWorld("test");
 
-        CustomFurnaceRecipes furnaceRecipes = new CustomFurnaceRecipes();
-        furnaceRecipes.block(candidate -> candidate.getType() == Material.IRON_ORE &&
+        CustomCookingManager cooking = new CustomCookingManager();
+        cooking.block(candidate -> candidate.getType() == Material.IRON_ORE &&
                 candidate.containsEnchantment(Enchantment.DAMAGE_ARTHROPODS));
-        furnaceRecipes.register(plugin, new HashSet<>());
+        cooking.register(plugin, new HashSet<>());
 
         ItemStack badIngredient = new ItemStack(Material.IRON_ORE);
         badIngredient.addUnsafeEnchantment(Enchantment.DAMAGE_ARTHROPODS, 3);
@@ -124,16 +124,16 @@ public class TestFurnaceRecipes {
 
     @Test
     public void testRespectCustomBurnTimes() {
-        MockBukkit.getOrCreateMock();
+        ServerMock server = Objects.requireNonNull(MockBukkit.getOrCreateMock());
         JavaPlugin plugin = MockBukkit.createMockPlugin();
 
-        CustomFurnaceRecipes furnaceRecipes = new CustomFurnaceRecipes();
-        furnaceRecipes.addBurnTimeFunction(candidate -> {
+        CustomCookingManager cooking = new CustomCookingManager();
+        cooking.addBurnTimeFunction(candidate -> {
             int level = candidate.getEnchantmentLevel(Enchantment.DIG_SPEED);
             if (level == 0) return null;
             return 20 * level;
         });
-        furnaceRecipes.register(plugin, new HashSet<>());
+        cooking.register(plugin, new HashSet<>());
 
         ItemStack simpleFuel = new ItemStack(Material.COAL);
         ItemStack dig1 = new ItemStack(Material.COAL);
@@ -141,7 +141,9 @@ public class TestFurnaceRecipes {
         ItemStack dig2 = new ItemStack(Material.COAL);
         dig2.addUnsafeEnchantment(Enchantment.DIG_SPEED, 2);
 
-        Block furnaceBlock = new BlockMock();
+        BlockMock furnaceBlock = new BlockMock(Material.FURNACE, new Location(server.addSimpleWorld("test"), 1, 2, 3));
+        FurnaceMock furnaceMock = new FurnaceMock(furnaceBlock);
+        furnaceBlock.setState(furnaceMock);
         {
             FurnaceBurnEvent event = new FurnaceBurnEvent(furnaceBlock, simpleFuel, 100);
             assertTrue(event.callEvent());
@@ -179,15 +181,15 @@ public class TestFurnaceRecipes {
         ItemStack dirtIngredient = new ItemStack(Material.REDSTONE);
         dirtIngredient.addUnsafeEnchantment(Enchantment.DAMAGE_ARTHROPODS, 2);
 
-        CustomFurnaceRecipes furnaceRecipes = new CustomFurnaceRecipes();
-        furnaceRecipes.add(new CustomFurnaceRecipe(
+        CustomCookingManager cooking = new CustomCookingManager();
+        cooking.addFurnaceRecipe(new CustomCookingRecipe(
                 input -> new ItemStack(Material.BONE), enchantedRedstone(Enchantment.DAMAGE_ALL), 12f, 345
         ));
-        furnaceRecipes.add(new CustomFurnaceRecipe(
+        cooking.addFurnaceRecipe(new CustomCookingRecipe(
                 input -> new ItemStack(Material.DIRT), enchantedRedstone(Enchantment.DAMAGE_ARTHROPODS), 12f, 345)
         );
         Set<NamespacedKey> keys = new HashSet<>();
-        furnaceRecipes.register(plugin, keys);
+        cooking.register(plugin, keys);
 
         assertEquals(1, keys.size());
         FurnaceRecipe vanillaRecipe = (FurnaceRecipe) Objects.requireNonNull(server.getRecipe(keys.iterator().next()));
@@ -257,11 +259,11 @@ public class TestFurnaceRecipes {
         JavaPlugin plugin = MockBukkit.createMockPlugin();
         World world = server.addSimpleWorld("test124");
 
-        CustomFurnaceRecipes furnaceRecipes = new CustomFurnaceRecipes();
-        furnaceRecipes.add(new CustomFurnaceRecipe(input -> new ItemStack(Material.DIAMOND), new CustomIngredient(
+        CustomCookingManager cooking = new CustomCookingManager();
+        cooking.addFurnaceRecipe(new CustomCookingRecipe(input -> new ItemStack(Material.DIAMOND), new CustomIngredient(
                 Material.GOLD_INGOT, candidate -> true, 5, null
         ), 1f, 1));
-        furnaceRecipes.register(plugin, new HashSet<>());
+        cooking.register(plugin, new HashSet<>());
 
         ItemStack fuel = new ItemStack(Material.COAL_BLOCK);
 
@@ -318,8 +320,8 @@ public class TestFurnaceRecipes {
         JavaPlugin plugin = MockBukkit.createMockPlugin();
         World world = server.addSimpleWorld("test1234");
 
-        CustomFurnaceRecipes furnaceRecipes = new CustomFurnaceRecipes();
-        furnaceRecipes.add(new CustomFurnaceRecipe(input -> new ItemStack(Material.DIAMOND), new CustomIngredient(
+        CustomCookingManager cooking = new CustomCookingManager();
+        cooking.addFurnaceRecipe(new CustomCookingRecipe(input -> new ItemStack(Material.DIAMOND), new CustomIngredient(
                 Material.GOLD_INGOT, candidate -> true, 5, goldIngot -> {
                     ItemStack ironIngot = new ItemStack(Material.IRON_INGOT, goldIngot.getAmount());
                     if (goldIngot.containsEnchantment(Enchantment.DIG_SPEED)) {
@@ -328,7 +330,7 @@ public class TestFurnaceRecipes {
                     return ironIngot;
             }
         ), 1f, 1));
-        furnaceRecipes.register(plugin, new HashSet<>());
+        cooking.register(plugin, new HashSet<>());
 
         ItemStack fuel = new ItemStack(Material.COAL_BLOCK);
 

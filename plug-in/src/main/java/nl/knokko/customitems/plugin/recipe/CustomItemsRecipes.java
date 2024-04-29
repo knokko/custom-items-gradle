@@ -16,7 +16,7 @@ import nl.knokko.customitems.recipe.result.KciResult;
 import nl.knokko.customitems.recipe.result.UpgradeResult;
 import nl.knokko.customrecipes.CustomRecipes;
 import nl.knokko.customrecipes.crafting.CustomShapelessRecipe;
-import nl.knokko.customrecipes.furnace.CustomFurnaceRecipe;
+import nl.knokko.customrecipes.cooking.CustomCookingRecipe;
 import nl.knokko.customrecipes.ingredient.CustomIngredient;
 import nl.knokko.customrecipes.ingredient.IngredientBlocker;
 import nl.knokko.customrecipes.crafting.CustomShapedRecipe;
@@ -170,19 +170,19 @@ public class CustomItemsRecipes {
             return 1;
         });
         sortedRecipes.forEachOrdered(recipe -> {
-            customRecipes.furnace.add(new CustomFurnaceRecipe(
+            customRecipes.cooking.addFurnaceRecipe(new CustomCookingRecipe(
                     ingredient -> produceResult(ingredient, recipe.getInput(), recipe.getResult()),
                     toCustomIngredient(recipe.getInput()), recipe.getExperience(), recipe.getCookTime()
             ));
         });
 
-        customRecipes.furnace.addBurnTimeFunction(itemStack -> {
+        customRecipes.cooking.addBurnTimeFunction(itemStack -> {
             KciItem customItem = itemSet.getItem(itemStack);
             if (customItem == null) return null;
             return customItem.getFurnaceBurnTime();
         });
 
-        customRecipes.furnace.block(ItemUtils::isCustom);
+        customRecipes.cooking.block(ItemUtils::isCustom);
 
         customRecipes.register();
     }
