@@ -1,7 +1,7 @@
 package nl.knokko.customrecipes;
 
+import nl.knokko.customrecipes.cooking.CustomCookingManager;
 import nl.knokko.customrecipes.crafting.CustomCraftingRecipes;
-import nl.knokko.customrecipes.furnace.CustomFurnaceRecipes;
 import org.bukkit.Bukkit;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
@@ -15,7 +15,7 @@ public class CustomRecipes implements Listener {
 
     private final JavaPlugin plugin;
     public final CustomCraftingRecipes crafting = new CustomCraftingRecipes();
-    public final CustomFurnaceRecipes furnace = new CustomFurnaceRecipes();
+    public final CustomCookingManager cooking = new CustomCookingManager();
 
     private Set<NamespacedKey> keys;
 
@@ -28,7 +28,14 @@ public class CustomRecipes implements Listener {
             Iterator<Recipe> iterator = Bukkit.recipeIterator();
             while (iterator.hasNext()) {
                 Recipe next = iterator.next();
-                if (next instanceof Keyed && keys.contains(((Keyed) next).getKey())) iterator.remove();
+                if (next instanceof Keyed && keys.contains(((Keyed) next).getKey())) {
+                    try {
+                        iterator.remove();
+                    } catch (UnsupportedOperationException stupidOldMinecraftVersion) {
+                        Bukkit.resetRecipes();
+                        break;
+                    }
+                }
             }
             keys = null;
         }
@@ -37,7 +44,7 @@ public class CustomRecipes implements Listener {
     public void reset() {
         removeRecipes();
         crafting.clear();
-        furnace.clear();
+        cooking.clear();
     }
 
     public void register() {
@@ -45,6 +52,6 @@ public class CustomRecipes implements Listener {
         keys = new HashSet<>();
 
         crafting.register(plugin, keys);
-        furnace.register(plugin, keys);
+        cooking.register(plugin, keys);
     }
 }

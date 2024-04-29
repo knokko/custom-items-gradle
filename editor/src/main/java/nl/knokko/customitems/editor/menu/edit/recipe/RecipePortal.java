@@ -1,6 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.recipe;
 
-import nl.knokko.customitems.editor.menu.edit.recipe.furnace.FurnaceRecipeCollectionEdit;
+import nl.knokko.customitems.editor.menu.edit.recipe.cooking.CookingRecipeCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.upgrade.UpgradeCollectionEdit;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.itemset.ItemSet;
@@ -31,9 +31,12 @@ public class RecipePortal extends GuiMenu {
         addComponent(new DynamicTextButton("Crafting recipes", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new RecipeCollectionEdit(itemSet, this));
         }), 0.7f, 0.75f, 0.925f, 0.85f);
-        addComponent(new DynamicTextButton("Furnace recipes [1.13+]", BUTTON, HOVER, () -> {
-            state.getWindow().setMainComponent(new FurnaceRecipeCollectionEdit(this, itemSet));
+        addComponent(new DynamicTextButton("Cooking recipes [1.13+]", BUTTON, HOVER, () -> {
+            state.getWindow().setMainComponent(new CookingRecipeCollectionEdit(this, itemSet));
         }), 0.7f, 0.6f, 0.95f, 0.7f);
+
+        // TODO Smithing transform + trim: PrepareSmithingEvent + SmithItemEvent
+
         addComponent(new DynamicTextButton("Upgrades", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new UpgradeCollectionEdit(this, itemSet));
         }), 0.7f, 0.3f, 0.9f, 0.4f);

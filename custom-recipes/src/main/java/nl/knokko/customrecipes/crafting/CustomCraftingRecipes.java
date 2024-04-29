@@ -29,6 +29,7 @@ public class CustomCraftingRecipes implements Listener {
     private Collection<IngredientBlocker> blockers = new ArrayList<>();
     private Consumer<ResultCollectorEvent> resultCollector;
     private JavaPlugin plugin;
+    private boolean didRegister;
 
     public void setResultCollector(Consumer<ResultCollectorEvent> collector) {
         this.resultCollector = collector;
@@ -63,7 +64,10 @@ public class CustomCraftingRecipes implements Listener {
         });
         this.conflictingWeakKeys = Collections.unmodifiableMap(this.conflictingWeakKeys);
 
-        Bukkit.getPluginManager().registerEvents(this, plugin);
+        if (!didRegister) {
+            Bukkit.getPluginManager().registerEvents(this, plugin);
+            didRegister = true;
+        }
     }
 
     public void clear() {
@@ -87,7 +91,6 @@ public class CustomCraftingRecipes implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void setCraftingResult(CraftItemEvent event) {
-        Bukkit.broadcastMessage("CraftItemEvent: action is " + event.getAction());
         handleCrafting(event.getRecipe(), event.getInventory(), event, event.getWhoClicked());
     }
 

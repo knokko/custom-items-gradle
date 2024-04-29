@@ -1,4 +1,4 @@
-package nl.knokko.customrecipes.furnace;
+package nl.knokko.customrecipes.cooking;
 
 import be.seeseemelk.mockbukkit.block.state.AbstractFurnaceMock;
 import org.bukkit.block.Block;

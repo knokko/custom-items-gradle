@@ -1,72 +1,65 @@
-package nl.knokko.customrecipes.furnace;
+package nl.knokko.customrecipes.cooking;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.block.Block;
 import org.bukkit.block.Furnace;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.inventory.FurnaceSmeltEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
-public class CustomFurnaceRecipes implements Listener {
+abstract class CustomCookingRecipes implements Listener {
 
-    private List<CustomFurnaceRecipe> recipes = new ArrayList<>();
-    private List<Function<ItemStack, Integer>> customBurnTimes = new ArrayList<>();
-    private List<Predicate<ItemStack>> blockers = new ArrayList<>();
+    private final Supplier<Collection<Predicate<ItemStack>>> getBlockers;
+    private final Function<ItemStack, Integer> getCustomBurnTime;
 
-    private Map<Material, List<CustomFurnaceRecipe>> materialMap;
+    private List<CustomCookingRecipe> recipes = new ArrayList<>();
+    Map<Material, List<CustomCookingRecipe>> materialMap;
     private boolean didRegister;
 
-    /**
-     * Note: this function requires MC 1.13 or later
-     */
-    public void add(CustomFurnaceRecipe recipe) {
+    CustomCookingRecipes(Supplier<Collection<Predicate<ItemStack>>> getBlockers, Function<ItemStack, Integer> getCustomBurnTime) {
+        this.getBlockers = getBlockers;
+        this.getCustomBurnTime = getCustomBurnTime;
+    }
+
+    void add(CustomCookingRecipe recipe) {
         recipes.add(recipe);
     }
 
-    public void addBurnTimeFunction(Function<ItemStack, Integer> burnTimeFunction) {
-        customBurnTimes.add(burnTimeFunction);
-    }
+    protected abstract String getRecipeTypeString();
 
-    public void block(Predicate<ItemStack> shouldBlockIngredient) {
-        blockers.add(shouldBlockIngredient);
-    }
+    protected abstract Recipe createBukkitRecipe(
+            NamespacedKey key, ItemStack result, Material input,
+            float experience, int cookingTime
+    );
 
-    private Integer getCustomBurnTime(ItemStack fuel) {
-        for (Function<ItemStack, Integer> function : customBurnTimes) {
-            Integer burnTime = function.apply(fuel);
-            if (burnTime != null) return burnTime;
-        }
+    protected abstract boolean isRightBlock(Block block);
 
-        return null;
-    }
+    protected abstract int getBurnTimeFactor();
 
     public void register(JavaPlugin plugin, Set<NamespacedKey> keys) {
         this.recipes = Collections.unmodifiableList(recipes);
-        this.customBurnTimes = Collections.unmodifiableList(customBurnTimes);
-        this.blockers = Collections.unmodifiableList(blockers);
-
         this.materialMap = new HashMap<>();
-        for (CustomFurnaceRecipe recipe : recipes) {
+        for (CustomCookingRecipe recipe : recipes) {
             materialMap.computeIfAbsent(recipe.input.material, r -> new ArrayList<>()).add(recipe);
         }
 
         materialMap.forEach((material, customRecipes) -> {
-            CustomFurnaceRecipe firstRecipe = customRecipes.get(0);
-            String key = "furnace-" + UUID.randomUUID();
+            CustomCookingRecipe firstRecipe = customRecipes.get(0);
+            String key = getRecipeTypeString() + "-" + UUID.randomUUID();
             NamespacedKey fullKey = new NamespacedKey(plugin, key);
-            FurnaceRecipe bukkitRecipe = new FurnaceRecipe(
+            Recipe bukkitRecipe = createBukkitRecipe(
                     fullKey, firstRecipe.result.apply(null), material,
                     firstRecipe.experience, firstRecipe.cookingTime
             );
@@ -82,35 +75,23 @@ public class CustomFurnaceRecipes implements Listener {
 
     public void clear() {
         recipes = new ArrayList<>();
-        customBurnTimes = new ArrayList<>();
-        blockers = new ArrayList<>();
-    }
-
-    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
-    public void blockBadFuel(InventoryClickEvent event) {
-        if (event.getSlotType() == InventoryType.SlotType.FUEL) {
-            Integer customBurnTime = getCustomBurnTime(event.getCursor());
-            if (customBurnTime != null && customBurnTime == 0) event.setCancelled(true);
-        }
     }
 
     @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
     public void controlBurnTime(FurnaceBurnEvent event) {
-        if (event.getBlock().getState() instanceof Furnace) {
+        if (event.getBlock().getState() instanceof Furnace && isRightBlock(event.getBlock())) {
             Furnace furnace = (Furnace) event.getBlock().getState();
             ItemStack input = furnace.getInventory().getSmelting();
             if (input != null) {
-                boolean blockVanilla = blockers.stream().anyMatch(blocker -> blocker.test(input));
-                List<CustomFurnaceRecipe> candidateRecipes = materialMap.get(input.getType());
+                boolean blockVanilla = getBlockers.get().stream().anyMatch(blocker -> blocker.test(input));
+                List<CustomCookingRecipe> candidateRecipes = materialMap.get(input.getType());
                 ItemStack existingOutput = furnace.getInventory().getResult();
 
                 if (candidateRecipes == null) {
                     if (blockVanilla) event.setCancelled(true);
                 } else {
                     if (candidateRecipes.stream().noneMatch(recipe -> {
-                        if (!recipe.input.shouldAccept.test(input)) return false;
-                        if (input.getAmount() < recipe.input.amount) return false;
-                        if (recipe.input.remainingItem != null && input.getAmount() != recipe.input.amount) return false;
+                        if (!recipe.input.accepts(input)) return false;
                         if (existingOutput == null || existingOutput.getType() == Material.AIR || existingOutput.getAmount() == 0) {
                             return true;
                         }
@@ -123,38 +104,40 @@ public class CustomFurnaceRecipes implements Listener {
                 //noinspection IsCancelled
                 if (event.isCancelled()) return;
             }
+
+            Integer customBurnTime = getCustomBurnTime.apply(event.getFuel());
+            if (customBurnTime != null) {
+                if (customBurnTime == 0) event.setCancelled(true);
+                else event.setBurnTime(customBurnTime / getBurnTimeFactor());
+            }
+        }
+    }
+
+    protected CustomCookingRecipe findRightRecipe(ItemStack input, Runnable cancelEvent) {
+        List<CustomCookingRecipe> candidateRecipes = materialMap.get(input.getType());
+        if (candidateRecipes == null) {
+            if (getBlockers.get().stream().anyMatch(blocker -> blocker.test(input))) cancelEvent.run();
+            return null;
         }
 
-        Integer customBurnTime = getCustomBurnTime(event.getFuel());
-        if (customBurnTime != null) {
-            if (customBurnTime == 0) event.setCancelled(true);
-            else event.setBurnTime(customBurnTime);
+        for (CustomCookingRecipe candidate : candidateRecipes) {
+            if (candidate.input.shouldAccept.test(input)) {
+                return candidate;
+            }
         }
+
+        cancelEvent.run();
+        return null;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void controlResult(FurnaceSmeltEvent event) {
+        if (!(event.getBlock().getState() instanceof Furnace) || !isRightBlock(event.getBlock())) return;
+
         ItemStack input = event.getSource();
-        List<CustomFurnaceRecipe> candidateRecipes = materialMap.get(input.getType());
-        if (candidateRecipes == null) {
-            if (blockers.stream().anyMatch(blocker -> blocker.test(input))) event.setCancelled(true);
-            return;
-        }
+        CustomCookingRecipe customRecipe = findRightRecipe(input, () -> event.setCancelled(true));
+        if (customRecipe == null) return;
 
-        CustomFurnaceRecipe customRecipe = null;
-        for (CustomFurnaceRecipe candidate : candidateRecipes) {
-            if (candidate.input.shouldAccept.test(input)) {
-                customRecipe = candidate;
-                break;
-            }
-        }
-
-        if (customRecipe == null) {
-            event.setCancelled(true);
-            return;
-        }
-
-        if (!(event.getBlock().getState() instanceof Furnace)) return;
         Furnace furnace = (Furnace) event.getBlock().getState();
 
         ItemStack newResult = customRecipe.result.apply(input.clone());
