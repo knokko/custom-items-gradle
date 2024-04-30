@@ -28,7 +28,14 @@ public class CustomRecipes implements Listener {
             Iterator<Recipe> iterator = Bukkit.recipeIterator();
             while (iterator.hasNext()) {
                 Recipe next = iterator.next();
-                if (next instanceof Keyed && keys.contains(((Keyed) next).getKey())) iterator.remove();
+                if (next instanceof Keyed && keys.contains(((Keyed) next).getKey())) {
+                    try {
+                        iterator.remove();
+                    } catch (UnsupportedOperationException stupidOldMinecraftVersion) {
+                        Bukkit.resetRecipes();
+                        break;
+                    }
+                }
             }
             keys = null;
         }
@@ -45,12 +52,6 @@ public class CustomRecipes implements Listener {
         keys = new HashSet<>();
 
         crafting.register(plugin, keys);
-        // TODO Use FurnaceStartSmeltEvent?
         cooking.register(plugin, keys);
-//        Bukkit.addRecipe(new CampfireRecipe(
-//                new NamespacedKey(plugin, "test-camp"),
-//                new ItemStack(Material.DIAMOND),
-//                Material.DIAMOND_SWORD, 1, 100
-//        ));
     }
 }

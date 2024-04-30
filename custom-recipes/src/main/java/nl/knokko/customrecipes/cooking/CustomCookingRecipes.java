@@ -25,7 +25,7 @@ abstract class CustomCookingRecipes implements Listener {
     private final Function<ItemStack, Integer> getCustomBurnTime;
 
     private List<CustomCookingRecipe> recipes = new ArrayList<>();
-    private Map<Material, List<CustomCookingRecipe>> materialMap;
+    Map<Material, List<CustomCookingRecipe>> materialMap;
     private boolean didRegister;
 
     CustomCookingRecipes(Supplier<Collection<Predicate<ItemStack>>> getBlockers, Function<ItemStack, Integer> getCustomBurnTime) {
@@ -45,6 +45,8 @@ abstract class CustomCookingRecipes implements Listener {
     );
 
     protected abstract boolean isRightBlock(Block block);
+
+    protected abstract int getBurnTimeFactor();
 
     public void register(JavaPlugin plugin, Set<NamespacedKey> keys) {
         this.recipes = Collections.unmodifiableList(recipes);
@@ -89,9 +91,7 @@ abstract class CustomCookingRecipes implements Listener {
                     if (blockVanilla) event.setCancelled(true);
                 } else {
                     if (candidateRecipes.stream().noneMatch(recipe -> {
-                        if (!recipe.input.shouldAccept.test(input)) return false;
-                        if (input.getAmount() < recipe.input.amount) return false;
-                        if (recipe.input.remainingItem != null && input.getAmount() != recipe.input.amount) return false;
+                        if (!recipe.input.accepts(input)) return false;
                         if (existingOutput == null || existingOutput.getType() == Material.AIR || existingOutput.getAmount() == 0) {
                             return true;
                         }
@@ -108,10 +108,26 @@ abstract class CustomCookingRecipes implements Listener {
             Integer customBurnTime = getCustomBurnTime.apply(event.getFuel());
             if (customBurnTime != null) {
                 if (customBurnTime == 0) event.setCancelled(true);
-                // TODO Maybe multiply this with a factor
-                else event.setBurnTime(customBurnTime);
+                else event.setBurnTime(customBurnTime / getBurnTimeFactor());
             }
         }
+    }
+
+    protected CustomCookingRecipe findRightRecipe(ItemStack input, Runnable cancelEvent) {
+        List<CustomCookingRecipe> candidateRecipes = materialMap.get(input.getType());
+        if (candidateRecipes == null) {
+            if (getBlockers.get().stream().anyMatch(blocker -> blocker.test(input))) cancelEvent.run();
+            return null;
+        }
+
+        for (CustomCookingRecipe candidate : candidateRecipes) {
+            if (candidate.input.shouldAccept.test(input)) {
+                return candidate;
+            }
+        }
+
+        cancelEvent.run();
+        return null;
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -119,24 +135,8 @@ abstract class CustomCookingRecipes implements Listener {
         if (!(event.getBlock().getState() instanceof Furnace) || !isRightBlock(event.getBlock())) return;
 
         ItemStack input = event.getSource();
-        List<CustomCookingRecipe> candidateRecipes = materialMap.get(input.getType());
-        if (candidateRecipes == null) {
-            if (getBlockers.get().stream().anyMatch(blocker -> blocker.test(input))) event.setCancelled(true);
-            return;
-        }
-
-        CustomCookingRecipe customRecipe = null;
-        for (CustomCookingRecipe candidate : candidateRecipes) {
-            if (candidate.input.shouldAccept.test(input)) {
-                customRecipe = candidate;
-                break;
-            }
-        }
-
-        if (customRecipe == null) {
-            event.setCancelled(true);
-            return;
-        }
+        CustomCookingRecipe customRecipe = findRightRecipe(input, () -> event.setCancelled(true));
+        if (customRecipe == null) return;
 
         Furnace furnace = (Furnace) event.getBlock().getState();
 

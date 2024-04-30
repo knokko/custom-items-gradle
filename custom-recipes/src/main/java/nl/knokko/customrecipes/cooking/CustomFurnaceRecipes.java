@@ -13,7 +13,6 @@ import java.util.function.Supplier;
 
 class CustomFurnaceRecipes extends CustomCookingRecipes {
 
-
     CustomFurnaceRecipes(Supplier<Collection<Predicate<ItemStack>>> getBlockers, Function<ItemStack, Integer> getCustomBurnTime) {
         super(getBlockers, getCustomBurnTime);
     }
@@ -31,5 +30,10 @@ class CustomFurnaceRecipes extends CustomCookingRecipes {
     @Override
     protected boolean isRightBlock(Block block) {
         return block.getType() == Material.FURNACE;
+    }
+
+    @Override
+    protected int getBurnTimeFactor() {
+        return 1;
     }
 }

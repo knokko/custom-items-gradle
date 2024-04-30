@@ -3,7 +3,6 @@ package nl.knokko.customrecipes.cooking;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
-import org.bukkit.block.Smoker;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.SmokingRecipe;
 
@@ -30,6 +29,11 @@ class CustomSmokerRecipes extends CustomCookingRecipes {
 
     @Override
     protected boolean isRightBlock(Block block) {
-        return block.getState() instanceof Smoker;
+        return block.getType().name().equals("SMOKER");
+    }
+
+    @Override
+    protected int getBurnTimeFactor() {
+        return 2;
     }
 }

@@ -2,7 +2,6 @@ package nl.knokko.customrecipes.cooking;
 
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
-import org.bukkit.block.BlastFurnace;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.BlastingRecipe;
 import org.bukkit.inventory.ItemStack;
@@ -30,6 +29,11 @@ class CustomBlastFurnaceRecipes extends CustomCookingRecipes {
 
     @Override
     protected boolean isRightBlock(Block block) {
-        return block.getState() instanceof BlastFurnace;
+        return block.getType().name().equals("BLAST_FURNACE");
+    }
+
+    @Override
+    protected int getBurnTimeFactor() {
+        return 2;
     }
 }

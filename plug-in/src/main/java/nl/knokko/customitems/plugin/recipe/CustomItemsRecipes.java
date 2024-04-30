@@ -7,7 +7,7 @@ import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.tasks.updater.ItemUpgrader;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import nl.knokko.customitems.recipe.KciCraftingRecipe;
-import nl.knokko.customitems.recipe.KciFurnaceRecipe;
+import nl.knokko.customitems.recipe.KciCookingRecipe;
 import nl.knokko.customitems.recipe.KciShapedRecipe;
 import nl.knokko.customitems.recipe.KciShapelessRecipe;
 import nl.knokko.customitems.recipe.ingredient.KciIngredient;
@@ -162,7 +162,7 @@ public class CustomItemsRecipes {
         customRecipes.crafting.blockIngredients(new IngredientBlocker(ItemUtils::isCustom));
         customRecipes.crafting.setResultCollector(new CustomStackingResultCollector(plugin, itemSet));
 
-        Stream<KciFurnaceRecipe> sortedRecipes = itemSet.get().furnaceRecipes.stream().sorted((a, b) -> {
+        Stream<KciCookingRecipe> sortedRecipes = itemSet.get().cookingRecipes.stream().sorted((a, b) -> {
             boolean stacksA = guessStacks(a.getResult());
             boolean stacksB = guessStacks(b.getResult());
             if (stacksA == stacksB) return 0;
@@ -170,10 +170,30 @@ public class CustomItemsRecipes {
             return 1;
         });
         sortedRecipes.forEachOrdered(recipe -> {
-            customRecipes.cooking.addFurnaceRecipe(new CustomCookingRecipe(
-                    ingredient -> produceResult(ingredient, recipe.getInput(), recipe.getResult()),
-                    toCustomIngredient(recipe.getInput()), recipe.getExperience(), recipe.getCookTime()
-            ));
+            if (recipe.isFurnaceRecipe()) {
+                customRecipes.cooking.addFurnaceRecipe(new CustomCookingRecipe(
+                        ingredient -> produceResult(ingredient, recipe.getInput(), recipe.getResult()),
+                        toCustomIngredient(recipe.getInput()), recipe.getExperience(), recipe.getCookTime()
+                ));
+            }
+            if (recipe.isBlastFurnaceRecipe()) {
+                customRecipes.cooking.addBlastFurnaceRecipe(new CustomCookingRecipe(
+                        ingredient -> produceResult(ingredient, recipe.getInput(), recipe.getResult()),
+                        toCustomIngredient(recipe.getInput()), recipe.getExperience(), recipe.getCookTime() / 2
+                ));
+            }
+            if (recipe.isSmokerRecipe()) {
+                customRecipes.cooking.addSmokerRecipe(new CustomCookingRecipe(
+                        ingredient -> produceResult(ingredient, recipe.getInput(), recipe.getResult()),
+                        toCustomIngredient(recipe.getInput()), recipe.getExperience(), recipe.getCookTime() / 2
+                ));
+            }
+            if (recipe.isCampfireRecipe()) {
+                customRecipes.cooking.addCampfireRecipe(new CustomCookingRecipe(
+                        ingredient -> produceResult(ingredient, recipe.getInput(), recipe.getResult()),
+                        toCustomIngredient(recipe.getInput()), recipe.getExperience(), recipe.getCookTime() * 3
+                ));
+            }
         });
 
         customRecipes.cooking.addBurnTimeFunction(itemStack -> {

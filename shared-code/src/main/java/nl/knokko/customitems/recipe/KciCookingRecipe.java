@@ -3,7 +3,7 @@ package nl.knokko.customitems.recipe;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 import nl.knokko.customitems.item.VMaterial;
-import nl.knokko.customitems.itemset.FurnaceRecipeReference;
+import nl.knokko.customitems.itemset.CookingRecipeReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
 import nl.knokko.customitems.recipe.ingredient.KciIngredient;
@@ -18,17 +18,21 @@ import nl.knokko.customitems.util.ValidationException;
 import static nl.knokko.customitems.MCVersions.VERSION1_13;
 import static nl.knokko.customitems.util.Checks.isClose;
 
-public class KciFurnaceRecipe extends ModelValues {
+public class KciCookingRecipe extends ModelValues {
 
-    public static KciFurnaceRecipe load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+    public static KciCookingRecipe load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
         if (encoding != 1) throw new UnknownEncodingException("FurnaceRecipe", encoding);
 
-        KciFurnaceRecipe recipe = new KciFurnaceRecipe(false);
+        KciCookingRecipe recipe = new KciCookingRecipe(false);
         recipe.input = KciIngredient.load(input, itemSet);
         recipe.result = KciResult.load(input, itemSet);
         recipe.experience = input.readFloat();
         recipe.cookTime = input.readInt();
+        recipe.isFurnaceRecipe = input.readBoolean();
+        recipe.isBlastFurnaceRecipe = input.readBoolean();
+        recipe.isSmokerRecipe = input.readBoolean();
+        recipe.isCampfireRecipe = input.readBoolean();
         return recipe;
     }
 
@@ -38,20 +42,35 @@ public class KciFurnaceRecipe extends ModelValues {
     private float experience;
     private int cookTime;
 
-    public KciFurnaceRecipe(boolean mutable) {
+    private boolean isFurnaceRecipe;
+    private boolean isBlastFurnaceRecipe;
+    private boolean isSmokerRecipe;
+    private boolean isCampfireRecipe;
+
+    public KciCookingRecipe(boolean mutable) {
         super(mutable);
         this.input = new SimpleVanillaIngredient(false);
         this.result = new SimpleVanillaResult(false);
         this.experience = 0.1f;
         this.cookTime = 200;
+
+        this.isFurnaceRecipe = true;
+        this.isBlastFurnaceRecipe = false;
+        this.isSmokerRecipe = false;
+        this.isCampfireRecipe = false;
     }
 
-    public KciFurnaceRecipe(KciFurnaceRecipe toCopy, boolean mutable) {
+    public KciCookingRecipe(KciCookingRecipe toCopy, boolean mutable) {
         super(mutable);
         this.input = toCopy.getInput();
         this.result = toCopy.getResult();
         this.experience = toCopy.getExperience();
         this.cookTime = toCopy.getCookTime();
+
+        this.isFurnaceRecipe = toCopy.isFurnaceRecipe();
+        this.isBlastFurnaceRecipe = toCopy.isBlastFurnaceRecipe();
+        this.isSmokerRecipe = toCopy.isSmokerRecipe();
+        this.isCampfireRecipe = toCopy.isCampfireRecipe();
     }
 
     public void save(BitOutput output) {
@@ -61,25 +80,28 @@ public class KciFurnaceRecipe extends ModelValues {
         result.save(output);
         output.addFloat(experience);
         output.addInt(cookTime);
+        output.addBooleans(isFurnaceRecipe, isBlastFurnaceRecipe, isSmokerRecipe, isCampfireRecipe);
     }
 
     @Override
     public String toString() {
-        return "Furnace(" + input + " -> " + result + ")";
+        return "Cooking(" + input + " -> " + result + ")";
     }
 
     @Override
     public boolean equals(Object other) {
-        if (other instanceof KciFurnaceRecipe) {
-            KciFurnaceRecipe recipe = (KciFurnaceRecipe) other;
+        if (other instanceof KciCookingRecipe) {
+            KciCookingRecipe recipe = (KciCookingRecipe) other;
             return this.input.equals(recipe.input) && this.result.equals(recipe.result) &&
-                    this.experience == recipe.experience && this.cookTime == recipe.getCookTime();
+                    this.experience == recipe.experience && this.cookTime == recipe.cookTime &&
+                    this.isFurnaceRecipe == recipe.isFurnaceRecipe && this.isBlastFurnaceRecipe == recipe.isBlastFurnaceRecipe &&
+                    this.isSmokerRecipe == recipe.isSmokerRecipe && this.isCampfireRecipe == recipe.isCampfireRecipe;
         } else return false;
     }
 
     @Override
-    public KciFurnaceRecipe copy(boolean mutable) {
-        return new KciFurnaceRecipe(this, mutable);
+    public KciCookingRecipe copy(boolean mutable) {
+        return new KciCookingRecipe(this, mutable);
     }
 
     public KciIngredient getInput() {
@@ -96,6 +118,22 @@ public class KciFurnaceRecipe extends ModelValues {
 
     public int getCookTime() {
         return cookTime;
+    }
+
+    public boolean isFurnaceRecipe() {
+        return isFurnaceRecipe;
+    }
+
+    public boolean isBlastFurnaceRecipe() {
+        return isBlastFurnaceRecipe;
+    }
+
+    public boolean isSmokerRecipe() {
+        return isSmokerRecipe;
+    }
+
+    public boolean isCampfireRecipe() {
+        return isCampfireRecipe;
     }
 
     public void setInput(KciIngredient input) {
@@ -118,7 +156,27 @@ public class KciFurnaceRecipe extends ModelValues {
         this.cookTime = cookTime;
     }
 
-    public void validate(ItemSet itemSet, FurnaceRecipeReference selfReference) throws ValidationException, ProgrammingValidationException {
+    public void setFurnaceRecipe(boolean furnaceRecipe) {
+        assertMutable();
+        isFurnaceRecipe = furnaceRecipe;
+    }
+
+    public void setBlastFurnaceRecipe(boolean blastFurnaceRecipe) {
+        assertMutable();
+        isBlastFurnaceRecipe = blastFurnaceRecipe;
+    }
+
+    public void setSmokerRecipe(boolean smokerRecipe) {
+        assertMutable();
+        isSmokerRecipe = smokerRecipe;
+    }
+
+    public void setCampfireRecipe(boolean campfireRecipe) {
+        assertMutable();
+        isCampfireRecipe = campfireRecipe;
+    }
+
+    public void validate(ItemSet itemSet, CookingRecipeReference selfReference) throws ValidationException, ProgrammingValidationException {
         if (input == null) throw new ProgrammingValidationException("No input");
         Validation.scope("Input", input::validateComplete, itemSet);
 
@@ -130,11 +188,25 @@ public class KciFurnaceRecipe extends ModelValues {
 
         if (cookTime < 0) throw new ValidationException("Cook time can't be negative");
 
+        if (isCampfireRecipe && input.getAmount() != 1) {
+            throw new ValidationException("Inputs of campfire recipes must have an amount of 1");
+        }
+        if (isCampfireRecipe && input.getRemainingItem() != null) {
+            throw new ValidationException("Inputs of campfire recipes must not have a remaining item");
+        }
+
         VMaterial ownMaterial = input.getVMaterial(VERSION1_13);
-        for (FurnaceRecipeReference otherReference : itemSet.furnaceRecipes.references()) {
+        for (CookingRecipeReference otherReference : itemSet.cookingRecipes.references()) {
             if (otherReference.equals(selfReference)) continue;
 
-            KciFurnaceRecipe recipe = otherReference.get();
+            KciCookingRecipe recipe = otherReference.get();
+
+            boolean sharesBlock = isFurnaceRecipe && recipe.isFurnaceRecipe;
+            if (isBlastFurnaceRecipe && recipe.isBlastFurnaceRecipe) sharesBlock = true;
+            if (isSmokerRecipe && recipe.isSmokerRecipe) sharesBlock = true;
+            if (isCampfireRecipe && recipe.isCampfireRecipe) sharesBlock = true;
+            if (!sharesBlock) continue;
+
             if (recipe.input.conflictsWith(input)) throw new ValidationException("Input conflicts with " + recipe.input);
 
             if (ownMaterial != null && ownMaterial == recipe.input.getVMaterial(VERSION1_13)) {
@@ -161,7 +233,16 @@ public class KciFurnaceRecipe extends ModelValues {
     }
 
     public void validateExportVersion(int mcVersion) throws ValidationException, ProgrammingValidationException {
-        if (mcVersion < VERSION1_13) throw new ValidationException("Custom furnace recipes require MC 1.13 or later");
+        if (mcVersion < VERSION1_13) throw new ValidationException("Custom cooking recipes require MC 1.13 or later");
+        if (isBlastFurnaceRecipe && mcVersion < VMaterial.BLAST_FURNACE.firstVersion) {
+            throw new ValidationException("Blast furnaces are not supported in this minecraft version");
+        }
+        if (isSmokerRecipe && mcVersion < VMaterial.SMOKER.firstVersion) {
+            throw new ValidationException("Smokers are not supported in this minecraft version");
+        }
+        if (isCampfireRecipe && mcVersion < VMaterial.CAMPFIRE.firstVersion) {
+            throw new ValidationException("Campfires are not supported in this minecraft version");
+        }
         Validation.scope("Input", input::validateExportVersion, mcVersion);
         Validation.scope("Result", result::validateExportVersion, mcVersion);
     }

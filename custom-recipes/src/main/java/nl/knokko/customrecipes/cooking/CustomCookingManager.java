@@ -25,6 +25,7 @@ public class CustomCookingManager implements Listener {
     private final CustomFurnaceRecipes furnace = new CustomFurnaceRecipes(() -> blockers, this::getCustomBurnTime);
     private final CustomBlastFurnaceRecipes blastFurnace = new CustomBlastFurnaceRecipes(() -> blockers, this::getCustomBurnTime);
     private final CustomSmokerRecipes smoker = new CustomSmokerRecipes(() -> blockers, this::getCustomBurnTime);
+    private final CustomCampfireRecipes campfire = new CustomCampfireRecipes(() -> blockers);
 
     private boolean didRegister;
 
@@ -40,10 +41,15 @@ public class CustomCookingManager implements Listener {
         smoker.add(recipe);
     }
 
+    public void addCampfireRecipe(CustomCookingRecipe recipe) {
+        campfire.add(recipe);
+    }
+
     public void clear() {
         furnace.clear();
         blastFurnace.clear();
         smoker.clear();
+        campfire.clear();
 
         customBurnTimes = new ArrayList<>();
         blockers = new ArrayList<>();
@@ -56,6 +62,7 @@ public class CustomCookingManager implements Listener {
         furnace.register(plugin, keys);
         blastFurnace.register(plugin, keys);
         smoker.register(plugin, keys);
+        campfire.register(plugin, keys);
 
         if (!didRegister) {
             Bukkit.getPluginManager().registerEvents(this, plugin);
