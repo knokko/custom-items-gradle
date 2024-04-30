@@ -18,9 +18,9 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static nl.knokko.customitems.MCVersions.VERSION1_13;
-import static nl.knokko.customitems.MCVersions.VERSION1_14;
+import static nl.knokko.customitems.MCVersions.*;
 import static nl.knokko.customitems.editor.resourcepack.DefaultItemModels.getMinecraftModelTridentInHandBegin;
+import static nl.knokko.customitems.editor.resourcepack.ResourcepackModelWriter.ARMOR_TRIMS;
 
 class ResourcepackItemOverrider {
 
@@ -60,6 +60,11 @@ class ResourcepackItemOverrider {
                     zipOutput.putNextEntry(zipEntry);
                     final PrintWriter jsonWriter = new PrintWriter(zipOutput);
 
+                    boolean isArmor = itemType.canServe(KciItemType.Category.HELMET) ||
+                            itemType.canServe(KciItemType.Category.CHESTPLATE) ||
+                            itemType.canServe(KciItemType.Category.LEGGINGS) ||
+                            itemType.canServe(KciItemType.Category.BOOTS);
+
                     if (itemType == KciItemType.BOW) {
                         overrideBow(jsonWriter, damageAssignments);
                     } else if (itemType == KciItemType.CROSSBOW) {
@@ -68,6 +73,8 @@ class ResourcepackItemOverrider {
                         overrideShield(jsonWriter, damageAssignments);
                     } else if (itemType == KciItemType.ELYTRA) {
                         overrideElytra(jsonWriter, damageAssignments);
+                    } else if (isArmor && itemSet.getExportSettings().getMcVersion() >= VERSION1_20) {
+                        overrideArmor(jsonWriter, damageAssignments, itemType, textureName);
                     } else {
                         overrideItem(jsonWriter, damageAssignments, itemType, modelName, textureName);
                     }
@@ -439,6 +446,51 @@ class ResourcepackItemOverrider {
         }
 
         // Now finish the json
+        jsonWriter.println("    ]");
+        jsonWriter.println("}");
+    }
+
+    private void overrideArmor(
+            PrintWriter jsonWriter, ItemDurabilityAssignments damageAssignments,
+            KciItemType itemType, String textureName
+    ) {
+        jsonWriter.println("{");
+        jsonWriter.println("    \"parent\": \"item/generated\",");
+        jsonWriter.println("    \"textures\": {");
+        jsonWriter.print("        \"layer0\": \"item/" + textureName + "\"");
+
+        boolean isLeatherArmor = itemType.isLeatherArmor();
+        if (isLeatherArmor) jsonWriter.print(",");
+        jsonWriter.println();
+        if (isLeatherArmor) jsonWriter.print("        \"layer1\": \"item/" + textureName + "_overlay\"");
+
+        jsonWriter.println("    },");
+        jsonWriter.println("    \"overrides\": [");
+
+        int claimCounter = 0;
+        for (ItemDurabilityClaim claim : damageAssignments.claimList) {
+            jsonWriter.print("        { \"predicate\": { \"custom_model_data\": " + claim.itemDamage +
+                    " }, \"model\": \"" + claim.resourcePath + "\" }");
+            if (claim.hasCustomModel || claimCounter != damageAssignments.claimList.size()) jsonWriter.print(',');
+            jsonWriter.println();
+
+            if (!claim.hasCustomModel) {
+                for (ResourcepackModelWriter.ArmorTrim trim : ARMOR_TRIMS) {
+                    jsonWriter.print("        { \"predicate\": { \"custom_model_data\": " + claim.itemDamage +
+                            ", \"trim_type\": " + trim.type + " }, \"model\": \"" + claim.resourcePath +
+                            "_" + trim.name + "_trim\" }");
+                    if (claimCounter != damageAssignments.claimList.size() - 1 || trim != ARMOR_TRIMS[ARMOR_TRIMS.length - 1]) {
+                        jsonWriter.print(",");
+                    }
+
+                    jsonWriter.println();
+                }
+            }
+
+            claimCounter += 1;
+        }
+
+        // End of the json file
         jsonWriter.println("    ]");
         jsonWriter.println("}");
     }
