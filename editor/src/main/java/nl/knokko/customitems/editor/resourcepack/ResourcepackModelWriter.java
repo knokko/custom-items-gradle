@@ -2,6 +2,7 @@ package nl.knokko.customitems.editor.resourcepack;
 
 import nl.knokko.customitems.block.KciBlock;
 import nl.knokko.customitems.item.*;
+import nl.knokko.customitems.item.model.DefaultItemModel;
 import nl.knokko.customitems.item.model.DefaultModelType;
 import nl.knokko.customitems.item.model.ItemModel;
 import nl.knokko.customitems.itemset.ItemSet;
@@ -12,9 +13,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static nl.knokko.customitems.MCVersions.VERSION1_20;
 import static nl.knokko.customitems.editor.resourcepack.DefaultItemModels.*;
 
 class ResourcepackModelWriter {
@@ -36,6 +39,7 @@ class ResourcepackModelWriter {
     }
 
     void writeCustomItemModels() throws IOException {
+        boolean supportsArmorTrims = itemSet.getExportSettings().getMcVersion() >= VERSION1_20;
         for (KciItem item : itemSet.items) {
 
             // Core item model
@@ -64,6 +68,8 @@ class ResourcepackModelWriter {
                 writeExtraShieldModels((KciShield) item);
             } else if (item instanceof KciTrident) {
                 writeExtraTridentModels((KciTrident) item);
+            } else if (item instanceof KciArmor && supportsArmorTrims && item.getModel() instanceof DefaultItemModel) {
+                writeExtraArmorModels(item);
             }
         }
     }
@@ -159,4 +165,49 @@ class ResourcepackModelWriter {
             zipOutput.flush();
         }
     }
+
+    private void writeExtraArmorModels(KciItem item) throws IOException {
+        for (ArmorTrim trim : ARMOR_TRIMS) {
+            String armorType = item.getItemType().getMainCategory().name().toLowerCase(Locale.ROOT);
+            zipOutput.putNextEntry(new ZipEntry("assets/minecraft/models/customitems/" + item.getName() + "_" + trim.name + "_trim.json"));
+            PrintWriter jsonWriter = new PrintWriter(zipOutput);
+            jsonWriter.println("{");
+            jsonWriter.println("    \"parent\": \"item/generated\",");
+            jsonWriter.println("    \"textures\": {");
+            jsonWriter.println("        \"layer0\": \"customitems/" + item.getTexture().getName() + "\",");
+            if (item.getItemType().isLeatherArmor()) {
+                jsonWriter.println("        \"layer1\": \"customitems/" + item.getTexture().getName() + "\",");
+                jsonWriter.println("        \"layer2\": \"trims/items/" + armorType + "_trim_" + trim.name + "\"");
+            } else {
+                jsonWriter.println("        \"layer1\": \"trims/items/" + armorType + "_trim_" + trim.name + "\"");
+            }
+            jsonWriter.println("    }");
+            jsonWriter.println("}");
+            jsonWriter.flush();
+            zipOutput.closeEntry();
+        }
+    }
+
+    static class ArmorTrim {
+        final String name;
+        final String type;
+
+        ArmorTrim(String name, String type) {
+            this.name = name;
+            this.type = type;
+        }
+    }
+
+    static final ArmorTrim[] ARMOR_TRIMS = {
+            new ArmorTrim("quartz", "0.1"),
+            new ArmorTrim("iron", "0.2"),
+            new ArmorTrim("netherite", "0.3"),
+            new ArmorTrim("redstone", "0.4"),
+            new ArmorTrim("copper", "0.5"),
+            new ArmorTrim("gold", "0.6"),
+            new ArmorTrim("emerald", "0.7"),
+            new ArmorTrim("diamond", "0.8"),
+            new ArmorTrim("lapis", "0.9"),
+            new ArmorTrim("amethyst", "1.0")
+    };
 }

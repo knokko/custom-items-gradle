@@ -10,10 +10,15 @@ public class ItemDurabilityClaim {
     public final short itemDamage;
 
     public final List<BowTextureEntry> pullTextures;
+    public final boolean hasCustomModel;
 
-    public ItemDurabilityClaim(String resourcePath, short itemDamage, List<BowTextureEntry> pullTextures) {
+    public ItemDurabilityClaim(
+            String resourcePath, short itemDamage,
+            List<BowTextureEntry> pullTextures, boolean hasCustomModel
+    ) {
         this.resourcePath = resourcePath;
         this.itemDamage = itemDamage;
         this.pullTextures = pullTextures;
+        this.hasCustomModel = hasCustomModel;
     }
 }

@@ -186,7 +186,8 @@ public class ItemSet {
                     }
 
                     ItemDurabilityClaim lockedClaim = new ItemDurabilityClaim(
-                            "customitems/" + item.getName(), item.getItemDamage(), pullTextures
+                            "customitems/" + item.getName(), item.getItemDamage(),
+                            pullTextures, !(item.getModel() instanceof DefaultItemModel)
                     );
                     assignments.claimList.add(lockedClaim);
                     lockedAssignments.add(item.getItemDamage());
@@ -243,7 +244,9 @@ public class ItemSet {
                         pullTextures = ((CrossbowTexture) item.getTexture()).getPullTextures();
                     }
 
-                    assignments.claimList.add(new ItemDurabilityClaim(resourcePath, nextItemDamage, pullTextures));
+                    assignments.claimList.add(new ItemDurabilityClaim(
+                            resourcePath, nextItemDamage, pullTextures, !(item.getModel() instanceof DefaultItemModel)
+                    ));
 
                     if (canReuseModel) {
                         assignments.textureReuseMap.put(item.getTexture().getName(), nextItemDamage);
@@ -267,7 +270,7 @@ public class ItemSet {
             short itemDamage = assignments.getNextItemDamage(itemType, exportSettings.getMcVersion());
             cover.setItemDamage(itemDamage);
             String resourcePath = "customprojectiles/" + cover.getName();
-            assignments.claimList.add(new ItemDurabilityClaim(resourcePath, itemDamage, null));
+            assignments.claimList.add(new ItemDurabilityClaim(resourcePath, itemDamage, null, true));
 
             projectileCovers.getReference(originalCover.getName()).getModel().setValues(cover);
         }
