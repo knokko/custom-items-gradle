@@ -7,7 +7,7 @@ import nl.knokko.customitems.editor.menu.edit.drops.DropsMenu;
 import nl.knokko.customitems.editor.menu.edit.export.ExportMenu;
 import nl.knokko.customitems.editor.menu.edit.item.ItemCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.misc.CombinedResourcepackCollectionEdit;
-import nl.knokko.customitems.editor.menu.edit.projectile.ProjectileMenu;
+import nl.knokko.customitems.editor.menu.edit.projectile.ProjectilePortal;
 import nl.knokko.customitems.editor.menu.edit.recipe.RecipePortal;
 import nl.knokko.customitems.editor.menu.edit.sound.SoundTypeCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.texture.TextureCollectionEdit;
@@ -117,7 +117,7 @@ public class EditMenu extends GuiMenu {
 			this.state.getWindow().setMainComponent(new DropsMenu(set, this));
 		}), 0.6F, 0.555F, 0.8F, 0.63F);
 		addComponent(new DynamicTextButton("Projectiles", BUTTON, HOVER, () -> {
-			this.state.getWindow().setMainComponent(new ProjectileMenu(set, this));
+			this.state.getWindow().setMainComponent(new ProjectilePortal(set, this));
 		}), 0.6F, 0.465F, 0.875F, 0.54F);
 		addComponent(new DynamicTextButton("Containers", BUTTON, HOVER, () -> {
 			state.getWindow().setMainComponent(new ContainerPortal(set, this));
