@@ -2,6 +2,7 @@ package nl.knokko.customrecipes;
 
 import nl.knokko.customrecipes.cooking.CustomCookingManager;
 import nl.knokko.customrecipes.crafting.CustomCraftingRecipes;
+import nl.knokko.customrecipes.smithing.CustomSmithingRecipes;
 import org.bukkit.Bukkit;
 import org.bukkit.Keyed;
 import org.bukkit.NamespacedKey;
@@ -16,6 +17,7 @@ public class CustomRecipes implements Listener {
     private final JavaPlugin plugin;
     public final CustomCraftingRecipes crafting = new CustomCraftingRecipes();
     public final CustomCookingManager cooking = new CustomCookingManager();
+    public final CustomSmithingRecipes smithing = new CustomSmithingRecipes();
 
     private Set<NamespacedKey> keys;
 
@@ -45,6 +47,7 @@ public class CustomRecipes implements Listener {
         removeRecipes();
         crafting.clear();
         cooking.clear();
+        smithing.clear();
     }
 
     public void register() {
@@ -53,5 +56,6 @@ public class CustomRecipes implements Listener {
 
         crafting.register(plugin, keys);
         cooking.register(plugin, keys);
+        smithing.register(plugin, keys);
     }
 }
