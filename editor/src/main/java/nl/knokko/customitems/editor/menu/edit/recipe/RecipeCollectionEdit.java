@@ -40,7 +40,6 @@ public class RecipeCollectionEdit extends DedicatedCollectionEdit<KciCraftingRec
 			state.getWindow().setMainComponent(new ShapelessRecipeEdit(itemSet, this, new KciShapelessRecipe(true), null));
 		}), 0.025f, 0.14f, 0.29f, 0.24f);
 
-		// TODO Update this
 		HelpButtons.addHelpLink(this, "edit menu/recipes/overview.html");
 	}
 

@@ -67,7 +67,7 @@ abstract class CustomCookingRecipes implements Listener {
             Bukkit.addRecipe(bukkitRecipe);
         });
 
-        if (!didRegister) {
+        if (!didRegister && (!recipes.isEmpty() || !getBlockers.get().isEmpty())) {
             Bukkit.getPluginManager().registerEvents(this, plugin);
             didRegister = true;
         }

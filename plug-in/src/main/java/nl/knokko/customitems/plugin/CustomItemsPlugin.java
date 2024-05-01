@@ -20,11 +20,7 @@ import nl.knokko.customitems.plugin.set.loading.ItemSetLoader;
 import nl.knokko.customitems.plugin.worldgen.LatePopulator;
 import nl.knokko.customitems.plugin.worldgen.WorldgenListener;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import nl.knokko.customitems.plugin.command.CommandCustomItems;
@@ -33,6 +29,8 @@ import nl.knokko.customitems.plugin.data.PluginData;
 import nl.knokko.customitems.plugin.multisupport.crazyenchantments.CrazyEnchantmentsSupport;
 import nl.knokko.customitems.plugin.tasks.projectile.ProjectileManager;
 import nl.knokko.customitems.plugin.tasks.updater.ItemUpdater;
+
+import static nl.knokko.customitems.MCVersions.VERSION1_19;
 
 public class CustomItemsPlugin extends JavaPlugin {
 
@@ -144,8 +142,11 @@ public class CustomItemsPlugin extends JavaPlugin {
 					(shooter, projectile) -> getProjectileManager().fireProjectile(shooter, projectile)
 			).start(this);
 
-			// Prevent custom items from being upgraded in a smithing table
-			KciNms.instance.items.blockSmithingTableUpgrades(itemStack -> this.getSet().getItem(itemStack) != null, this);
+			// Prevent custom items from being upgraded in a smithing table between 1.16 and 1.19
+			// Custom smithing is supported properly in mc 1.20 and later
+			if (KciNms.mcVersion <= VERSION1_19) {
+				KciNms.instance.items.blockSmithingTableUpgrades(itemStack -> this.getSet().getItem(itemStack) != null, this);
+			}
 		}
 	}
 

@@ -6,10 +6,7 @@ import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.tasks.updater.ItemUpgrader;
 import nl.knokko.customitems.plugin.util.ItemUtils;
-import nl.knokko.customitems.recipe.KciCraftingRecipe;
-import nl.knokko.customitems.recipe.KciCookingRecipe;
-import nl.knokko.customitems.recipe.KciShapedRecipe;
-import nl.knokko.customitems.recipe.KciShapelessRecipe;
+import nl.knokko.customitems.recipe.*;
 import nl.knokko.customitems.recipe.ingredient.KciIngredient;
 import nl.knokko.customitems.recipe.ingredient.NoIngredient;
 import nl.knokko.customitems.recipe.result.KciResult;
@@ -20,6 +17,7 @@ import nl.knokko.customrecipes.cooking.CustomCookingRecipe;
 import nl.knokko.customrecipes.ingredient.CustomIngredient;
 import nl.knokko.customrecipes.ingredient.IngredientBlocker;
 import nl.knokko.customrecipes.crafting.CustomShapedRecipe;
+import nl.knokko.customrecipes.smithing.CustomSmithingRecipe;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -28,6 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static nl.knokko.customitems.MCVersions.VERSION1_14;
+import static nl.knokko.customitems.MCVersions.VERSION1_20;
 import static nl.knokko.customitems.plugin.recipe.RecipeHelper.convertResultToItemStack;
 
 public class CustomItemsRecipes {
@@ -162,47 +162,76 @@ public class CustomItemsRecipes {
         customRecipes.crafting.blockIngredients(new IngredientBlocker(ItemUtils::isCustom));
         customRecipes.crafting.setResultCollector(new CustomStackingResultCollector(plugin, itemSet));
 
-        Stream<KciCookingRecipe> sortedRecipes = itemSet.get().cookingRecipes.stream().sorted((a, b) -> {
-            boolean stacksA = guessStacks(a.getResult());
-            boolean stacksB = guessStacks(b.getResult());
-            if (stacksA == stacksB) return 0;
-            if (stacksA) return -1;
-            return 1;
-        });
-        sortedRecipes.forEachOrdered(recipe -> {
-            if (recipe.isFurnaceRecipe()) {
-                customRecipes.cooking.addFurnaceRecipe(new CustomCookingRecipe(
-                        ingredient -> produceResult(ingredient, recipe.getInput(), recipe.getResult()),
-                        toCustomIngredient(recipe.getInput()), recipe.getExperience(), recipe.getCookTime()
-                ));
-            }
-            if (recipe.isBlastFurnaceRecipe()) {
-                customRecipes.cooking.addBlastFurnaceRecipe(new CustomCookingRecipe(
-                        ingredient -> produceResult(ingredient, recipe.getInput(), recipe.getResult()),
-                        toCustomIngredient(recipe.getInput()), recipe.getExperience(), recipe.getCookTime() / 2
-                ));
-            }
-            if (recipe.isSmokerRecipe()) {
-                customRecipes.cooking.addSmokerRecipe(new CustomCookingRecipe(
-                        ingredient -> produceResult(ingredient, recipe.getInput(), recipe.getResult()),
-                        toCustomIngredient(recipe.getInput()), recipe.getExperience(), recipe.getCookTime() / 2
-                ));
-            }
-            if (recipe.isCampfireRecipe()) {
-                customRecipes.cooking.addCampfireRecipe(new CustomCookingRecipe(
-                        ingredient -> produceResult(ingredient, recipe.getInput(), recipe.getResult()),
-                        toCustomIngredient(recipe.getInput()), recipe.getExperience(), recipe.getCookTime() * 3
-                ));
-            }
-        });
+        if (KciNms.mcVersion >= VERSION1_14) {
+            Stream<KciCookingRecipe> sortedRecipes = itemSet.get().cookingRecipes.stream().sorted((a, b) -> {
+                boolean stacksA = guessStacks(a.getResult());
+                boolean stacksB = guessStacks(b.getResult());
+                if (stacksA == stacksB) return 0;
+                if (stacksA) return -1;
+                return 1;
+            });
+            sortedRecipes.forEachOrdered(recipe -> {
+                if (recipe.isFurnaceRecipe()) {
+                    customRecipes.cooking.addFurnaceRecipe(new CustomCookingRecipe(
+                            ingredient -> produceResult(ingredient, recipe.getInput(), recipe.getResult()),
+                            toCustomIngredient(recipe.getInput()), recipe.getExperience(), recipe.getCookTime()
+                    ));
+                }
+                if (recipe.isBlastFurnaceRecipe()) {
+                    customRecipes.cooking.addBlastFurnaceRecipe(new CustomCookingRecipe(
+                            ingredient -> produceResult(ingredient, recipe.getInput(), recipe.getResult()),
+                            toCustomIngredient(recipe.getInput()), recipe.getExperience(), recipe.getCookTime() / 2
+                    ));
+                }
+                if (recipe.isSmokerRecipe()) {
+                    customRecipes.cooking.addSmokerRecipe(new CustomCookingRecipe(
+                            ingredient -> produceResult(ingredient, recipe.getInput(), recipe.getResult()),
+                            toCustomIngredient(recipe.getInput()), recipe.getExperience(), recipe.getCookTime() / 2
+                    ));
+                }
+                if (recipe.isCampfireRecipe()) {
+                    customRecipes.cooking.addCampfireRecipe(new CustomCookingRecipe(
+                            ingredient -> produceResult(ingredient, recipe.getInput(), recipe.getResult()),
+                            toCustomIngredient(recipe.getInput()), recipe.getExperience(), recipe.getCookTime() * 3
+                    ));
+                }
+            });
 
-        customRecipes.cooking.addBurnTimeFunction(itemStack -> {
-            KciItem customItem = itemSet.getItem(itemStack);
-            if (customItem == null) return null;
-            return customItem.getFurnaceBurnTime();
-        });
+            customRecipes.cooking.addBurnTimeFunction(itemStack -> {
+                KciItem customItem = itemSet.getItem(itemStack);
+                if (customItem == null) return null;
+                return customItem.getFurnaceBurnTime();
+            });
 
-        customRecipes.cooking.block(ItemUtils::isCustom);
+            customRecipes.cooking.block(ItemUtils::isCustom);
+        }
+
+        if (KciNms.mcVersion >= VERSION1_20) {
+            for (KciSmithingRecipe recipe : itemSet.get().smithingRecipes) {
+                String permission = recipe.getRequiredPermission();
+                customRecipes.smithing.add(new CustomSmithingRecipe(inputs -> {
+                    if (recipe.getResult() instanceof UpgradeResult) {
+                        UpgradeResult result = (UpgradeResult) recipe.getResult();
+                        int inputIndex = result.getIngredientIndex();
+
+                        ItemStack toUpgrade = null;
+                        if (inputs != null) toUpgrade = inputs[inputIndex];
+
+                        KciIngredient kciIngredient;
+                        if (inputIndex == 0) kciIngredient = recipe.getTemplate();
+                        else if (inputIndex == 1) kciIngredient = recipe.getTool();
+                        else if (inputIndex == 2) kciIngredient = recipe.getMaterial();
+                        else throw new IllegalArgumentException("Unexpected input index " + inputIndex);
+
+                        return produceResult(toUpgrade, kciIngredient, result);
+                    } else return convertResultToItemStack(recipe.getResult());
+                }, crafter -> permission == null || crafter.hasPermission(permission),
+                        toCustomIngredient(recipe.getTemplate()), toCustomIngredient(recipe.getTool()),
+                        toCustomIngredient(recipe.getMaterial())
+                ));
+            }
+            customRecipes.smithing.blockIngredients(new IngredientBlocker(ItemUtils::isCustom));
+        }
 
         customRecipes.register();
     }
