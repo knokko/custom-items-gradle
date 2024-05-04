@@ -20,7 +20,9 @@ import nl.knokko.customrecipes.cooking.CustomCookingRecipe;
 import nl.knokko.customrecipes.ingredient.CustomIngredient;
 import nl.knokko.customrecipes.ingredient.IngredientBlocker;
 import nl.knokko.customrecipes.crafting.CustomShapedRecipe;
+import nl.knokko.customrecipes.smithing.CustomSmithingRecipe;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -28,6 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static nl.knokko.customitems.MCVersions.VERSION1_14;
+import static nl.knokko.customitems.MCVersions.VERSION1_20;
 import static nl.knokko.customitems.plugin.recipe.RecipeHelper.convertResultToItemStack;
 
 public class CustomItemsRecipes {
@@ -162,47 +166,66 @@ public class CustomItemsRecipes {
         customRecipes.crafting.blockIngredients(new IngredientBlocker(ItemUtils::isCustom));
         customRecipes.crafting.setResultCollector(new CustomStackingResultCollector(plugin, itemSet));
 
-        Stream<KciCookingRecipe> sortedRecipes = itemSet.get().cookingRecipes.stream().sorted((a, b) -> {
-            boolean stacksA = guessStacks(a.getResult());
-            boolean stacksB = guessStacks(b.getResult());
-            if (stacksA == stacksB) return 0;
-            if (stacksA) return -1;
-            return 1;
-        });
-        sortedRecipes.forEachOrdered(recipe -> {
-            if (recipe.isFurnaceRecipe()) {
-                customRecipes.cooking.addFurnaceRecipe(new CustomCookingRecipe(
-                        ingredient -> produceResult(ingredient, recipe.getInput(), recipe.getResult()),
-                        toCustomIngredient(recipe.getInput()), recipe.getExperience(), recipe.getCookTime()
-                ));
-            }
-            if (recipe.isBlastFurnaceRecipe()) {
-                customRecipes.cooking.addBlastFurnaceRecipe(new CustomCookingRecipe(
-                        ingredient -> produceResult(ingredient, recipe.getInput(), recipe.getResult()),
-                        toCustomIngredient(recipe.getInput()), recipe.getExperience(), recipe.getCookTime() / 2
-                ));
-            }
-            if (recipe.isSmokerRecipe()) {
-                customRecipes.cooking.addSmokerRecipe(new CustomCookingRecipe(
-                        ingredient -> produceResult(ingredient, recipe.getInput(), recipe.getResult()),
-                        toCustomIngredient(recipe.getInput()), recipe.getExperience(), recipe.getCookTime() / 2
-                ));
-            }
-            if (recipe.isCampfireRecipe()) {
-                customRecipes.cooking.addCampfireRecipe(new CustomCookingRecipe(
-                        ingredient -> produceResult(ingredient, recipe.getInput(), recipe.getResult()),
-                        toCustomIngredient(recipe.getInput()), recipe.getExperience(), recipe.getCookTime() * 3
-                ));
-            }
-        });
+        // TODO Test on mc 1.14
+        if (KciNms.mcVersion >= VERSION1_14) {
+            Stream<KciCookingRecipe> sortedRecipes = itemSet.get().cookingRecipes.stream().sorted((a, b) -> {
+                boolean stacksA = guessStacks(a.getResult());
+                boolean stacksB = guessStacks(b.getResult());
+                if (stacksA == stacksB) return 0;
+                if (stacksA) return -1;
+                return 1;
+            });
+            sortedRecipes.forEachOrdered(recipe -> {
+                if (recipe.isFurnaceRecipe()) {
+                    customRecipes.cooking.addFurnaceRecipe(new CustomCookingRecipe(
+                            ingredient -> produceResult(ingredient, recipe.getInput(), recipe.getResult()),
+                            toCustomIngredient(recipe.getInput()), recipe.getExperience(), recipe.getCookTime()
+                    ));
+                }
+                if (recipe.isBlastFurnaceRecipe()) {
+                    customRecipes.cooking.addBlastFurnaceRecipe(new CustomCookingRecipe(
+                            ingredient -> produceResult(ingredient, recipe.getInput(), recipe.getResult()),
+                            toCustomIngredient(recipe.getInput()), recipe.getExperience(), recipe.getCookTime() / 2
+                    ));
+                }
+                if (recipe.isSmokerRecipe()) {
+                    customRecipes.cooking.addSmokerRecipe(new CustomCookingRecipe(
+                            ingredient -> produceResult(ingredient, recipe.getInput(), recipe.getResult()),
+                            toCustomIngredient(recipe.getInput()), recipe.getExperience(), recipe.getCookTime() / 2
+                    ));
+                }
+                if (recipe.isCampfireRecipe()) {
+                    customRecipes.cooking.addCampfireRecipe(new CustomCookingRecipe(
+                            ingredient -> produceResult(ingredient, recipe.getInput(), recipe.getResult()),
+                            toCustomIngredient(recipe.getInput()), recipe.getExperience(), recipe.getCookTime() * 3
+                    ));
+                }
+            });
 
-        customRecipes.cooking.addBurnTimeFunction(itemStack -> {
-            KciItem customItem = itemSet.getItem(itemStack);
-            if (customItem == null) return null;
-            return customItem.getFurnaceBurnTime();
-        });
+            customRecipes.cooking.addBurnTimeFunction(itemStack -> {
+                KciItem customItem = itemSet.getItem(itemStack);
+                if (customItem == null) return null;
+                return customItem.getFurnaceBurnTime();
+            });
 
-        customRecipes.cooking.block(ItemUtils::isCustom);
+            customRecipes.cooking.block(ItemUtils::isCustom);
+        }
+
+        if (KciNms.mcVersion >= VERSION1_20) {
+            customRecipes.smithing.add(new CustomSmithingRecipe(
+                    ingredients -> new ItemStack(Material.DIAMOND),
+                    new CustomIngredient(Material.IRON_INGOT, iron -> true, 3, null),
+                    new CustomIngredient(Material.GOLD_INGOT, gold -> true, 1, gold -> new ItemStack(Material.IRON_INGOT)),
+                    new CustomIngredient(Material.IRON_SWORD, sword -> sword.containsEnchantment(Enchantment.DAMAGE_ALL))
+            ));
+            customRecipes.smithing.add(new CustomSmithingRecipe(
+                    ingredients -> new ItemStack(Material.EMERALD, 2),
+                    new CustomIngredient(Material.IRON_INGOT, iron -> true, 3, null),
+                    new CustomIngredient(Material.IRON_INGOT, iron -> true, 2, null),
+                    new CustomIngredient(Material.IRON_INGOT, iron -> true, 1, null)
+            ));
+            customRecipes.smithing.blockIngredients(new IngredientBlocker(ItemUtils::isCustom));
+        }
 
         customRecipes.register();
     }
