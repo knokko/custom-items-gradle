@@ -270,6 +270,9 @@ public class InventoryEventHandler implements Listener {
                 }
             }
         } else if (action == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
+            // Don't mess with the result slot of smithing tables
+            if (event.getRawSlot() == 3 && event.getInventory().getClass().getSimpleName().contains("Smithing")) return;
+
             // This block ensures that shift-clicking custom items can stack them
             ItemStack clickedItem = event.getCurrentItem();
             KciItem customClicked = itemSet.getItem(clickedItem);
@@ -465,9 +468,13 @@ public class InventoryEventHandler implements Listener {
 
     @EventHandler
     public void fixCraftingCloseStacking(InventoryCloseEvent event) {
-        if (event.getInventory() instanceof CraftingInventory) {
+        if (event.getInventory() instanceof CraftingInventory ||
+                event.getInventory().getClass().getSimpleName().contains("Smithing")) {
 
-            ItemStack result = ((CraftingInventory) event.getInventory()).getResult();
+            ItemStack result = null;
+            if (event.getInventory() instanceof CraftingInventory) {
+                result = ((CraftingInventory) event.getInventory()).getResult();
+            }
 
             ItemStack[] craftingContents = event.getInventory().getStorageContents();
             ItemStack[] inventoryContents = event.getPlayer().getInventory().getStorageContents();

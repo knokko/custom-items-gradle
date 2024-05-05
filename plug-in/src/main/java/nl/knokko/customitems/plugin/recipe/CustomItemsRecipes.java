@@ -6,10 +6,7 @@ import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.tasks.updater.ItemUpgrader;
 import nl.knokko.customitems.plugin.util.ItemUtils;
-import nl.knokko.customitems.recipe.KciCraftingRecipe;
-import nl.knokko.customitems.recipe.KciCookingRecipe;
-import nl.knokko.customitems.recipe.KciShapedRecipe;
-import nl.knokko.customitems.recipe.KciShapelessRecipe;
+import nl.knokko.customitems.recipe.*;
 import nl.knokko.customitems.recipe.ingredient.KciIngredient;
 import nl.knokko.customitems.recipe.ingredient.NoIngredient;
 import nl.knokko.customitems.recipe.result.KciResult;
@@ -22,7 +19,6 @@ import nl.knokko.customrecipes.ingredient.IngredientBlocker;
 import nl.knokko.customrecipes.crafting.CustomShapedRecipe;
 import nl.knokko.customrecipes.smithing.CustomSmithingRecipe;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -166,7 +162,6 @@ public class CustomItemsRecipes {
         customRecipes.crafting.blockIngredients(new IngredientBlocker(ItemUtils::isCustom));
         customRecipes.crafting.setResultCollector(new CustomStackingResultCollector(plugin, itemSet));
 
-        // TODO Test on mc 1.14
         if (KciNms.mcVersion >= VERSION1_14) {
             Stream<KciCookingRecipe> sortedRecipes = itemSet.get().cookingRecipes.stream().sorted((a, b) -> {
                 boolean stacksA = guessStacks(a.getResult());
@@ -212,18 +207,29 @@ public class CustomItemsRecipes {
         }
 
         if (KciNms.mcVersion >= VERSION1_20) {
-            customRecipes.smithing.add(new CustomSmithingRecipe(
-                    ingredients -> new ItemStack(Material.DIAMOND),
-                    new CustomIngredient(Material.IRON_INGOT, iron -> true, 3, null),
-                    new CustomIngredient(Material.GOLD_INGOT, gold -> true, 1, gold -> new ItemStack(Material.IRON_INGOT)),
-                    new CustomIngredient(Material.IRON_SWORD, sword -> sword.containsEnchantment(Enchantment.DAMAGE_ALL))
-            ));
-            customRecipes.smithing.add(new CustomSmithingRecipe(
-                    ingredients -> new ItemStack(Material.EMERALD, 2),
-                    new CustomIngredient(Material.IRON_INGOT, iron -> true, 3, null),
-                    new CustomIngredient(Material.IRON_INGOT, iron -> true, 2, null),
-                    new CustomIngredient(Material.IRON_INGOT, iron -> true, 1, null)
-            ));
+            for (KciSmithingRecipe recipe : itemSet.get().smithingRecipes) {
+                String permission = recipe.getRequiredPermission();
+                customRecipes.smithing.add(new CustomSmithingRecipe(inputs -> {
+                    if (recipe.getResult() instanceof UpgradeResult) {
+                        UpgradeResult result = (UpgradeResult) recipe.getResult();
+                        int inputIndex = result.getIngredientIndex();
+
+                        ItemStack toUpgrade = null;
+                        if (inputs != null) toUpgrade = inputs[inputIndex];
+
+                        KciIngredient kciIngredient;
+                        if (inputIndex == 0) kciIngredient = recipe.getTemplate();
+                        else if (inputIndex == 1) kciIngredient = recipe.getTool();
+                        else if (inputIndex == 2) kciIngredient = recipe.getMaterial();
+                        else throw new IllegalArgumentException("Unexpected input index " + inputIndex);
+
+                        return produceResult(toUpgrade, kciIngredient, result);
+                    } else return convertResultToItemStack(recipe.getResult());
+                }, crafter -> permission == null || crafter.hasPermission(permission),
+                        toCustomIngredient(recipe.getTemplate()), toCustomIngredient(recipe.getTool()),
+                        toCustomIngredient(recipe.getMaterial())
+                ));
+            }
             customRecipes.smithing.blockIngredients(new IngredientBlocker(ItemUtils::isCustom));
         }
 

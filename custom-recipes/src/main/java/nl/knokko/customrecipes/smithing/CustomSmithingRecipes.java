@@ -186,8 +186,6 @@ public class CustomSmithingRecipes implements Listener {
             setResult.accept(new SmithingResult(result));
             if (result == null || !shouldConsumeInputs) return;
 
-            // TODO Test shift-clicking on bedrock edition
-
             CustomSmithingRecipe finalRecipe = customRecipe;
             Bukkit.getScheduler().runTask(plugin, () -> {
                 for (int index = 0; index < 3; index++) {
@@ -205,7 +203,7 @@ public class CustomSmithingRecipes implements Listener {
             getRelevantBlockers(key.getNamespace()).forEach(blockIngredient -> {
                 for (ItemStack input : inputs) {
                     if (blockIngredient.test(input)) {
-                        setResult.accept(null);
+                        setResult.accept(new SmithingResult(null));
                         break;
                     }
                 }
@@ -213,7 +211,6 @@ public class CustomSmithingRecipes implements Listener {
         }
     }
 
-    // TODO What happens on older MC versions?
     @EventHandler(priority = EventPriority.HIGH)
     public void showSmithingResult(PrepareSmithingEvent event) {
         handleSmithing(
@@ -222,7 +219,7 @@ public class CustomSmithingRecipes implements Listener {
         );
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void fixSmithingResult(SmithItemEvent event) {
         handleSmithing(event.getInventory(), result -> {
             event.setCurrentItem(result.result);
