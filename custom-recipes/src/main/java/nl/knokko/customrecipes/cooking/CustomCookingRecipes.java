@@ -15,6 +15,7 @@ import org.bukkit.inventory.Recipe;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
+import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -23,14 +24,20 @@ abstract class CustomCookingRecipes implements Listener {
 
     private final Supplier<Collection<Predicate<ItemStack>>> getBlockers;
     private final Function<ItemStack, Integer> getCustomBurnTime;
+    private final BooleanSupplier hasCustomBurnTimes;
 
     private List<CustomCookingRecipe> recipes = new ArrayList<>();
     Map<Material, List<CustomCookingRecipe>> materialMap;
     private boolean didRegister;
 
-    CustomCookingRecipes(Supplier<Collection<Predicate<ItemStack>>> getBlockers, Function<ItemStack, Integer> getCustomBurnTime) {
+    CustomCookingRecipes(
+            Supplier<Collection<Predicate<ItemStack>>> getBlockers,
+            Function<ItemStack, Integer> getCustomBurnTime,
+            BooleanSupplier hasCustomBurnTimes
+    ) {
         this.getBlockers = getBlockers;
         this.getCustomBurnTime = getCustomBurnTime;
+        this.hasCustomBurnTimes = hasCustomBurnTimes;
     }
 
     void add(CustomCookingRecipe recipe) {
@@ -67,7 +74,7 @@ abstract class CustomCookingRecipes implements Listener {
             Bukkit.addRecipe(bukkitRecipe);
         });
 
-        if (!didRegister && (!recipes.isEmpty() || !getBlockers.get().isEmpty())) {
+        if (!didRegister && (!recipes.isEmpty() || !getBlockers.get().isEmpty() || hasCustomBurnTimes.getAsBoolean())) {
             Bukkit.getPluginManager().registerEvents(this, plugin);
             didRegister = true;
         }

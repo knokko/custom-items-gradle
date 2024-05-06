@@ -22,9 +22,16 @@ public class CustomCookingManager implements Listener {
     private List<Function<ItemStack, Integer>> customBurnTimes = new ArrayList<>();
     private List<Predicate<ItemStack>> blockers = new ArrayList<>();
 
-    private final CustomFurnaceRecipes furnace = new CustomFurnaceRecipes(() -> blockers, this::getCustomBurnTime);
-    private final CustomBlastFurnaceRecipes blastFurnace = new CustomBlastFurnaceRecipes(() -> blockers, this::getCustomBurnTime);
-    private final CustomSmokerRecipes smoker = new CustomSmokerRecipes(() -> blockers, this::getCustomBurnTime);
+    // TODO Test custom burn times on MC 1.13 and MC 1.12
+    private final CustomFurnaceRecipes furnace = new CustomFurnaceRecipes(
+            () -> blockers, this::getCustomBurnTime, () -> !customBurnTimes.isEmpty()
+    );
+    private final CustomBlastFurnaceRecipes blastFurnace = new CustomBlastFurnaceRecipes(
+            () -> blockers, this::getCustomBurnTime, () -> !customBurnTimes.isEmpty()
+    );
+    private final CustomSmokerRecipes smoker = new CustomSmokerRecipes(
+            () -> blockers, this::getCustomBurnTime, () -> !customBurnTimes.isEmpty()
+    );
     private final CustomCampfireRecipes campfire = new CustomCampfireRecipes(() -> blockers);
 
     private boolean didRegister;
