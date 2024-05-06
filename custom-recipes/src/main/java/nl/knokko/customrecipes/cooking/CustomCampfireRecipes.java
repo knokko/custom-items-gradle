@@ -18,7 +18,7 @@ import java.util.function.Supplier;
 public class CustomCampfireRecipes extends CustomCookingRecipes {
 
     CustomCampfireRecipes(Supplier<Collection<Predicate<ItemStack>>> getBlockers) {
-        super(getBlockers, null);
+        super(getBlockers, null, () -> false);
     }
 
     @Override

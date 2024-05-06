@@ -7,14 +7,19 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.SmokingRecipe;
 
 import java.util.Collection;
+import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 class CustomSmokerRecipes extends CustomCookingRecipes {
 
-    CustomSmokerRecipes(Supplier<Collection<Predicate<ItemStack>>> getBlockers, Function<ItemStack, Integer> getCustomBurnTime) {
-        super(getBlockers, getCustomBurnTime);
+    CustomSmokerRecipes(
+            Supplier<Collection<Predicate<ItemStack>>> getBlockers,
+            Function<ItemStack, Integer> getCustomBurnTime,
+            BooleanSupplier hasCustomBurnTimes
+    ) {
+        super(getBlockers, getCustomBurnTime, hasCustomBurnTimes);
     }
 
     @Override
