@@ -154,11 +154,16 @@ public class CustomSmithingRecipes implements Listener {
             }
 
             ItemStack[] inputs = { inventory.getItem(0), inventory.getItem(1), inventory.getItem(2) };
+            ItemStack[] fixedInputs = Arrays.copyOf(inputs, inputs.length);
             for (int index = 0; index < 3; index++) {
-                if (inputs[index] != null) inputs[index] = inputs[index].clone();
+                if (inputs[index] != null) {
+                    inputs[index] = inputs[index].clone();
+                    fixedInputs[index] = inputs[index].clone();
+                    fixedInputs[index].setAmount(customRecipe.ingredients[index].amount);
+                }
             }
 
-            ItemStack result = customRecipe.result.apply(inputs);
+            ItemStack result = customRecipe.result.apply(fixedInputs);
 
             if (isShiftClick) {
                 boolean shouldCancel = false;
@@ -194,7 +199,8 @@ public class CustomSmithingRecipes implements Listener {
                         inventory.setItem(index, ingredient.remainingItem.apply(inputs[index].clone()));
                     } else if (ingredient.amount != 1) {
                         inputs[index].setAmount(inputs[index].getAmount() - ingredient.amount);
-                        inventory.setItem(index, inputs[index]);
+                        if (inputs[index].getAmount() > 0) inventory.setItem(index, inputs[index]);
+                        else inventory.setItem(index, null);
                     }
                 }
             });
