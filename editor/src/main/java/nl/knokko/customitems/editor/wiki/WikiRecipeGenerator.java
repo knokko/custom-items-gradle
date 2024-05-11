@@ -11,9 +11,7 @@ import nl.knokko.customitems.item.enchantment.LeveledEnchantment;
 import nl.knokko.customitems.itemset.DamageSourceReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.UpgradeReference;
-import nl.knokko.customitems.recipe.OutputTable;
-import nl.knokko.customitems.recipe.KciShapedRecipe;
-import nl.knokko.customitems.recipe.KciShapelessRecipe;
+import nl.knokko.customitems.recipe.*;
 import nl.knokko.customitems.recipe.ingredient.*;
 import nl.knokko.customitems.recipe.ingredient.constraint.DurabilityConstraint;
 import nl.knokko.customitems.recipe.ingredient.constraint.EnchantmentConstraint;
@@ -91,6 +89,60 @@ public class WikiRecipeGenerator {
         }
 
         // The actual result
+        generateResult(output, tabs + "\t\t\t", recipe.getResult(), pathToRoot, itemSet);
+
+        output.println(tabs + "\t\t</tr>");
+        output.println(tabs + "\t</tbody>");
+        output.println(tabs + "</table>");
+    }
+
+    public static void generateCookingRecipe(
+            PrintWriter output, String tabs, KciCookingRecipe recipe, String pathToRoot, ItemSet itemSet
+    ) {
+        output.println(tabs + "<table class=\"recipe-table\">");
+        output.println(tabs + "\t<tbody>");
+        output.println(tabs + "\t\t<tr>");
+
+        generateIngredient(output, tabs + "\t\t\t", recipe.getInput(), pathToRoot, recipe.getResult() instanceof UpgradeResult);
+        output.print(tabs + "\t\t\t");
+        generateRecipeArrow(output, pathToRoot);
+
+        if (recipe.getInput().getRemainingItem() != null) {
+            generateResult(output, tabs + "\t\t\t", recipe.getInput().getRemainingItem(), pathToRoot, itemSet);
+        }
+        generateResult(output, tabs + "\t\t\t", recipe.getResult(), pathToRoot, itemSet);
+
+        output.println(tabs + "\t\t</tr>");
+        output.println(tabs + "\t</tbody>");
+        output.println(tabs + "</table>");
+    }
+
+    public static void generateSmithingRecipe(
+            PrintWriter output, String tabs, KciSmithingRecipe recipe, String pathToRoot, ItemSet itemSet
+    ) {
+        output.println(tabs + "<table class=\"recipe-table\">");
+        output.println(tabs + "\t<tbody>");
+        output.println(tabs + "\t\t<tr>");
+
+        int upgradeIndex = -1;
+        if (recipe.getResult() instanceof UpgradeResult) {
+            upgradeIndex = ((UpgradeResult) recipe.getResult()).getIngredientIndex();
+        }
+
+        generateIngredient(output, tabs + "\t\t\t", recipe.getTemplate(), pathToRoot, upgradeIndex == 0);
+        generateIngredient(output, tabs + "\t\t\t", recipe.getTool(), pathToRoot, upgradeIndex == 1);
+        generateIngredient(output, tabs + "\t\t\t", recipe.getMaterial(), pathToRoot, upgradeIndex == 2);
+        output.print(tabs + "\t\t\t");
+        generateRecipeArrow(output, pathToRoot);
+
+        KciResult[] remainingItems = {
+                recipe.getTemplate().getRemainingItem(),
+                recipe.getTool().getRemainingItem(),
+                recipe.getMaterial().getRemainingItem()
+        };
+        for (KciResult remainingItem : remainingItems) {
+            if (remainingItem != null)generateResult(output, tabs + "\t\t\t", remainingItem, pathToRoot, itemSet);
+        }
         generateResult(output, tabs + "\t\t\t", recipe.getResult(), pathToRoot, itemSet);
 
         output.println(tabs + "\t\t</tr>");

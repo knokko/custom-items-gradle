@@ -5,10 +5,7 @@ import nl.knokko.customitems.container.KciContainer;
 import nl.knokko.customitems.editor.wiki.WikiProtector;
 import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.recipe.KciCraftingRecipe;
-import nl.knokko.customitems.recipe.OutputTable;
-import nl.knokko.customitems.recipe.KciShapedRecipe;
-import nl.knokko.customitems.recipe.KciShapelessRecipe;
+import nl.knokko.customitems.recipe.*;
 import nl.knokko.customitems.recipe.ingredient.CustomItemIngredient;
 import nl.knokko.customitems.recipe.ingredient.KciIngredient;
 import nl.knokko.customitems.recipe.result.CustomItemResult;
@@ -52,9 +49,13 @@ class ItemRecipeGenerator {
     private final ItemSet itemSet;
 
     private final Collection<KciCraftingRecipe> resultCraftingRecipes;
+    private final Collection<KciCookingRecipe> resultCookingRecipes;
+    private final Collection<KciSmithingRecipe> resultSmithingRecipes;
     private final Map<String, Collection<ContainerRecipe>> resultContainerRecipes;
 
     private final Collection<KciCraftingRecipe> ingredientCraftingRecipes;
+    private final Collection<KciCookingRecipe> ingredientCookingRecipes;
+    private final Collection<KciSmithingRecipe> ingredientSmithingRecipes;
     private final Map<String, Collection<ContainerRecipe>> ingredientContainerRecipes;
 
     ItemRecipeGenerator(ItemSet itemSet, KciItem item) {
@@ -81,6 +82,19 @@ class ItemRecipeGenerator {
             throw new IllegalArgumentException("Unknown crafting recipe class: " + recipe.getClass());
 
         }).filter(recipe -> !WikiProtector.isRecipeSecret(recipe)).collect(Collectors.toList());
+
+        this.resultCookingRecipes = itemSet.cookingRecipes.stream().filter(
+                recipe -> (isItem(item, recipe.getResult()) || remainsItem(item, recipe.getInput())) &&
+                        !WikiProtector.isRecipeSecret(recipe)
+        ).collect(Collectors.toList());
+
+        this.resultSmithingRecipes = itemSet.smithingRecipes.stream().filter(recipe -> {
+            if (WikiProtector.isRecipeSecret(recipe)) return false;
+            if (isItem(item, recipe.getResult())) return true;
+            if (remainsItem(item, recipe.getTemplate())) return true;
+            if (remainsItem(item, recipe.getTool())) return true;
+            return remainsItem(item, recipe.getMaterial());
+        }).collect(Collectors.toList());
 
         this.resultContainerRecipes = new HashMap<>();
         for (KciContainer container : itemSet.containers) {
@@ -115,6 +129,17 @@ class ItemRecipeGenerator {
             return false;
         }).filter(recipe -> !WikiProtector.isRecipeSecret(recipe)).collect(Collectors.toList());
 
+        this.ingredientCookingRecipes = itemSet.cookingRecipes.stream().filter(
+                recipe -> isItem(item, recipe.getInput()) && !WikiProtector.isRecipeSecret(recipe)
+        ).collect(Collectors.toList());
+
+        this.ingredientSmithingRecipes = itemSet.smithingRecipes.stream().filter(recipe -> {
+            if (WikiProtector.isRecipeSecret(recipe)) return false;
+            if (isItem(item, recipe.getTemplate())) return true;
+            if (isItem(item, recipe.getTool())) return true;
+            return isItem(item, recipe.getMaterial());
+        }).collect(Collectors.toList());
+
         this.ingredientContainerRecipes = new HashMap<>();
         for (KciContainer container : itemSet.containers) {
             Collection<ContainerRecipe> relevantRecipes = container.getRecipes().stream().filter(candidateRecipe ->
@@ -147,14 +172,43 @@ class ItemRecipeGenerator {
                     if (recipe instanceof KciShapelessRecipe) {
                         generateShapelessRecipe(output, "\t\t", (KciShapelessRecipe) recipe, "../", itemSet);
                     }
-                    output.println("<br><br>");
+                    output.println("\t\t<br><br>");
                 }
             }
         }
     }
 
+    private void generateCookingRecipes(
+            PrintWriter output, Collection<KciCookingRecipe> recipes, String title, Predicate<KciCookingRecipe> predicate
+    ) {
+        if (recipes.stream().anyMatch(predicate)) {
+            output.println("\t\t" + title);
+            for (KciCookingRecipe recipe : recipes) {
+                if (predicate.test(recipe)) {
+                    generateCookingRecipe(output, "\t\t", recipe, "../", itemSet);
+                    output.println("\t\t<br><br>");
+                }
+            }
+        }
+    }
+
+    private void generateSmithingRecipes(
+            PrintWriter output, Collection<KciSmithingRecipe> recipes, String title
+    ) {
+        if (recipes.isEmpty()) return;
+        output.println("\t\t" + title);
+        for (KciSmithingRecipe recipe : recipes) {
+            if (recipe.getRequiredPermission() != null){
+                output.println("\t\tPlayers need <b>" + recipe.getRequiredPermission() + "</b> or <b>customitems.craftall</b> permission to craft this item.");
+            }
+            generateSmithingRecipe(output, "\t\t", recipe, "../", itemSet);
+            output.println("\t\t<br><br>");
+        }
+    }
+
     void generateIngredientRecipes(PrintWriter output) {
-        if (!ingredientCraftingRecipes.isEmpty() || !ingredientContainerRecipes.isEmpty()) {
+        if (!ingredientCraftingRecipes.isEmpty() || !ingredientCookingRecipes.isEmpty() ||
+                !ingredientSmithingRecipes.isEmpty() || !ingredientContainerRecipes.isEmpty()) {
             if (!shouldGenerateResultRecipes())  {
                 output.println("\t\t<link rel=\"stylesheet\" href=\"../recipe.css\" />");
             }
@@ -167,6 +221,23 @@ class ItemRecipeGenerator {
                     output, ingredientCraftingRecipes, "<h3>Shapeless recipes</h3>",
                     recipe -> recipe instanceof KciShapelessRecipe
             );
+            generateCookingRecipes(
+                    output, ingredientCookingRecipes, "<h3>Furnace recipes</h3>",
+                    KciCookingRecipe::isFurnaceRecipe
+            );
+            generateCookingRecipes(
+                    output, ingredientCookingRecipes, "<h3>Blast furnace recipes</h3>",
+                    KciCookingRecipe::isBlastFurnaceRecipe
+            );
+            generateCookingRecipes(
+                    output, ingredientCookingRecipes, "<h3>Smoker recipes</h3>",
+                    KciCookingRecipe::isSmokerRecipe
+            );
+            generateCookingRecipes(
+                    output, ingredientCookingRecipes, "<h3>Campfire recipes</h3>",
+                    KciCookingRecipe::isCampfireRecipe
+            );
+            generateSmithingRecipes(output, ingredientSmithingRecipes, "<h3>Smithing recipes</h3>");
 
             for (String containerName : ingredientContainerRecipes.keySet()) {
                 output.println("\t\t<h3><a href=\"../containers/" + containerName + ".html\">" +
@@ -182,21 +253,38 @@ class ItemRecipeGenerator {
     }
 
     void generateResultRecipes(PrintWriter output) {
-        if (!resultCraftingRecipes.isEmpty() || !resultContainerRecipes.isEmpty()) {
+        if (!resultCraftingRecipes.isEmpty() || !resultCookingRecipes.isEmpty() ||
+                !resultSmithingRecipes.isEmpty() || !resultContainerRecipes.isEmpty()) {
             output.println("\t\t<link rel=\"stylesheet\" href=\"../recipe.css\" />");
-            output.println("\t\t<h3>Crafting this item<h3>");
             generateCraftingRecipes(
-                    output, resultCraftingRecipes, "<h4>Shaped recipes</h4>",
+                    output, resultCraftingRecipes, "<h3>Shaped recipes</h3>",
                     recipe -> recipe instanceof KciShapedRecipe
             );
             generateCraftingRecipes(
-                    output, resultCraftingRecipes, "<h4>Shapeless recipes</h4>",
+                    output, resultCraftingRecipes, "<h3>Shapeless recipes</h3>",
                     recipe -> recipe instanceof KciShapelessRecipe
             );
+            generateCookingRecipes(
+                    output, resultCookingRecipes, "<h3>Furnace recipes</h3>",
+                    KciCookingRecipe::isFurnaceRecipe
+            );
+            generateCookingRecipes(
+                    output, resultCookingRecipes, "<h3>Blast furnace recipes</h3>",
+                    KciCookingRecipe::isBlastFurnaceRecipe
+            );
+            generateCookingRecipes(
+                    output, resultCookingRecipes, "<h3>Smoker recipes</h3>",
+                    KciCookingRecipe::isSmokerRecipe
+            );
+            generateCookingRecipes(
+                    output, resultCookingRecipes, "<h3>Campfire recipes</h3>",
+                    KciCookingRecipe::isCampfireRecipe
+            );
+            generateSmithingRecipes(output, resultSmithingRecipes, "<h3>Smithing recipes</h3>");
 
             for (String containerName : resultContainerRecipes.keySet()) {
-                output.println("\t\t<h4><a href=\"../containers/" + containerName + ".html\">" +
-                        getDisplayName(itemSet.containers.get(containerName).get()) + " recipes</a></h4>");
+                output.println("\t\t<h3><a href=\"../containers/" + containerName + ".html\">" +
+                        getDisplayName(itemSet.containers.get(containerName).get()) + " recipes</a></h3>");
                 KciContainer container = itemSet.containers.get(containerName).get();
 
                 Collection<ContainerRecipe> recipes = resultContainerRecipes.get(containerName);
