@@ -2,10 +2,7 @@ package nl.knokko.customitems.editor.wiki;
 
 import nl.knokko.customitems.container.ContainerRecipe;
 import nl.knokko.customitems.item.WikiVisibility;
-import nl.knokko.customitems.recipe.KciCraftingRecipe;
-import nl.knokko.customitems.recipe.OutputTable;
-import nl.knokko.customitems.recipe.KciShapedRecipe;
-import nl.knokko.customitems.recipe.KciShapelessRecipe;
+import nl.knokko.customitems.recipe.*;
 import nl.knokko.customitems.recipe.ingredient.CustomItemIngredient;
 import nl.knokko.customitems.recipe.ingredient.KciIngredient;
 import nl.knokko.customitems.recipe.result.CustomItemResult;
@@ -29,6 +26,15 @@ public class WikiProtector {
             KciShapelessRecipe shapelessRecipe = (KciShapelessRecipe) recipe;
             return shapelessRecipe.getIngredients().stream().anyMatch(WikiProtector::isIngredientSecret);
         }
+    }
+
+    public static boolean isRecipeSecret(KciCookingRecipe recipe) {
+        return isResultSecret(recipe.getResult()) || isIngredientSecret(recipe.getInput());
+    }
+
+    public static boolean isRecipeSecret(KciSmithingRecipe recipe) {
+        return isResultSecret(recipe.getResult()) || isIngredientSecret(recipe.getTemplate()) ||
+                isIngredientSecret(recipe.getTool()) || isIngredientSecret(recipe.getMaterial());
     }
 
     public static boolean isRecipeSecret(ContainerRecipe recipe) {
