@@ -107,8 +107,14 @@ public class ExportMenu extends GuiMenu {
                     exportSettings.shouldGenerateGeyserPack(), exportSettings::setGenerateGeyserPack
             ), 0.01f, 0.615f, 0.025f, 0.64f);
             addComponent(new DynamicTextComponent(
-                    "Also generate Geyser pack: exporting will take longer", LABEL
-            ), 0.05f, 0.6f, 0.7f, 0.66f);
+                    "Also generate Geyser pack [experimental]", LABEL
+            ), 0.05f, 0.6f, 0.6f, 0.66f);
+            addComponent(new CheckboxComponent(
+                    exportSettings.shouldSkipResourcepack(), exportSettings::setSkipResourcepack
+            ), 0.01f, 0.555f, 0.025f, 0.58f);
+            addComponent(new DynamicTextComponent(
+                    "Skip generating resourcepack", LABEL
+            ), 0.05f, 0.54f, 0.4f, 0.6f);
 
             addComponent(new CheckboxComponent(
                     exportSettings.shouldKickUponReject(), exportSettings::setKickUponReject

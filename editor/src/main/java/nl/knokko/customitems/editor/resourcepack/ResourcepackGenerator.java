@@ -27,47 +27,50 @@ public class ResourcepackGenerator {
         ZipOutputStream zipOutput = new PriorityZipOutputStream(rawOutputStream);
 
         ResourcepackCombiner combiner = new ResourcepackCombiner(itemSet, zipOutput);
-        combiner.writeEarly();
+        if (!itemSet.getExportSettings().shouldSkipResourcepack()) {
+            combiner.writeEarly();
 
-        ResourcepackTextureWriter textureWriter = new ResourcepackTextureWriter(itemSet, zipOutput);
-        textureWriter.writeBaseTextures();
-        textureWriter.writeOptifineArmorTextures();
-        textureWriter.writeOptifineElytraTextures();
-        textureWriter.writeContainerOverlayTextures();
+            ResourcepackTextureWriter textureWriter = new ResourcepackTextureWriter(itemSet, zipOutput);
+            textureWriter.writeBaseTextures();
+            textureWriter.writeOptifineArmorTextures();
+            textureWriter.writeOptifineElytraTextures();
+            textureWriter.writeContainerOverlayTextures();
 
-        ResourcepackFancyPants fancyPants = new ResourcepackFancyPants(itemSet, zipOutput);
-        fancyPants.copyShaderAndLicense();
-        fancyPants.generateEmptyTextures();
-        fancyPants.generateFullTextures();
+            ResourcepackFancyPants fancyPants = new ResourcepackFancyPants(itemSet, zipOutput);
+            fancyPants.copyShaderAndLicense();
+            fancyPants.generateEmptyTextures();
+            fancyPants.generateFullTextures();
 
-        ResourcepackFontOverrider fontWriter = new ResourcepackFontOverrider(itemSet, zipOutput);
-        fontWriter.overrideContainerOverlayChars();
+            ResourcepackFontOverrider fontWriter = new ResourcepackFontOverrider(itemSet, zipOutput);
+            fontWriter.overrideContainerOverlayChars();
 
-        ResourcepackSoundWriter soundWriter = new ResourcepackSoundWriter(itemSet, zipOutput);
-        soundWriter.writeSoundsJson();
-        soundWriter.writeSoundFiles();
+            ResourcepackSoundWriter soundWriter = new ResourcepackSoundWriter(itemSet, zipOutput);
+            soundWriter.writeSoundsJson();
+            soundWriter.writeSoundFiles();
 
-        ResourcepackModelWriter modelWriter = new ResourcepackModelWriter(itemSet, zipOutput);
-        modelWriter.writeCustomItemModels();
-        modelWriter.writeCustomBlockModels();
-        modelWriter.writeProjectileCoverModels();
+            ResourcepackModelWriter modelWriter = new ResourcepackModelWriter(itemSet, zipOutput);
+            modelWriter.writeCustomItemModels();
+            modelWriter.writeCustomBlockModels();
+            modelWriter.writeProjectileCoverModels();
 
-        ResourcepackBlockOverrider blockOverrider = new ResourcepackBlockOverrider(itemSet, zipOutput);
-        blockOverrider.overrideMushroomBlocks();
+            ResourcepackBlockOverrider blockOverrider = new ResourcepackBlockOverrider(itemSet, zipOutput);
+            blockOverrider.overrideMushroomBlocks();
 
-        ResourcepackItemOverrider itemOverrider = new ResourcepackItemOverrider(itemSet, zipOutput);
-        itemOverrider.overrideItems();
+            ResourcepackItemOverrider itemOverrider = new ResourcepackItemOverrider(itemSet, zipOutput);
+            itemOverrider.overrideItems();
 
-        ResourcepackLanguageWriter languageWriter = new ResourcepackLanguageWriter(itemSet, zipOutput);
-        languageWriter.writeLanguageFiles();
+            ResourcepackLanguageWriter languageWriter = new ResourcepackLanguageWriter(itemSet, zipOutput);
+            languageWriter.writeLanguageFiles();
 
+            writeAtlases(zipOutput);
+        }
+        
         if (geyserPack != null) {
             GeyserMappingsGenerator geyserMapper = new GeyserMappingsGenerator(itemSet, zipOutput);
             geyserMapper.writeItemMappings();
         }
 
         writePackMcMeta(zipOutput);
-        writeAtlases(zipOutput);
 
         if (cisTxtFileContent != null) {
             ZipEntry cisTxtEntry = new ZipEntry("items.cis.txt");
@@ -84,9 +87,7 @@ public class ResourcepackGenerator {
             zipOutput.closeEntry();
         }
 
-        writeAtlases(zipOutput);
-
-        combiner.writeLate();
+        if (!itemSet.getExportSettings().shouldSkipResourcepack()) combiner.writeLate();
 
         zipOutput.flush();
         if (closeOutput) zipOutput.close();
@@ -96,6 +97,22 @@ public class ResourcepackGenerator {
     private void writePackMcMeta(ZipOutputStream zipOutput) throws IOException, ProgrammingValidationException {
 
         int mcVersion = itemSet.getExportSettings().getMcVersion();
+        int packFormat = getPackFormat(mcVersion);
+
+        ZipEntry mcMeta = new ZipEntry("pack.mcmeta");
+        zipOutput.putNextEntry(mcMeta);
+        PrintWriter jsonWriter = new PrintWriter(zipOutput);
+        jsonWriter.println("{");
+        jsonWriter.println("    \"pack\": {");
+        jsonWriter.println("        \"pack_format\": " + packFormat + ",");
+        jsonWriter.println("        \"description\": \"KnokkosCustomItems generated resourcepack\"");
+        jsonWriter.println("    }");
+        jsonWriter.println("}");
+        jsonWriter.flush();
+        zipOutput.closeEntry();
+    }
+
+    private static int getPackFormat(int mcVersion) throws ProgrammingValidationException {
         int packFormat;
         if (mcVersion == VERSION1_12) {
             packFormat = 3;
@@ -116,18 +133,7 @@ public class ResourcepackGenerator {
         } else {
             throw new ProgrammingValidationException("Unknown pack format for mc version " + mcVersion);
         }
-
-        ZipEntry mcMeta = new ZipEntry("pack.mcmeta");
-        zipOutput.putNextEntry(mcMeta);
-        PrintWriter jsonWriter = new PrintWriter(zipOutput);
-        jsonWriter.println("{");
-        jsonWriter.println("    \"pack\": {");
-        jsonWriter.println("        \"pack_format\": " + packFormat + ",");
-        jsonWriter.println("        \"description\": \"KnokkosCustomItems generated resourcepack\"");
-        jsonWriter.println("    }");
-        jsonWriter.println("}");
-        jsonWriter.flush();
-        zipOutput.closeEntry();
+        return packFormat;
     }
 
     private void writeAtlases(ZipOutputStream zipOutput) throws IOException {
