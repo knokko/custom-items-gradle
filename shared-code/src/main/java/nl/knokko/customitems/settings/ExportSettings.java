@@ -27,9 +27,11 @@ public class ExportSettings extends ModelValues {
         if (encoding == 1) {
             settings.hostAddress = ResourcePackHost.DEFAULT_ADDRESS;
             settings.generateGeyserPack = false;
+            settings.skipResourcepack = false;
         } else {
             settings.hostAddress = input.readString();
             settings.generateGeyserPack = input.readBoolean();
+            settings.skipResourcepack = input.readBoolean();
         }
 
         settings.kickUponReject = input.readBoolean();
@@ -48,6 +50,7 @@ public class ExportSettings extends ModelValues {
     private String reloadMessage;
     private String hostAddress;
     private boolean generateGeyserPack;
+    private boolean skipResourcepack;
 
     private boolean kickUponReject;
     private String forceRejectMessage;
@@ -66,6 +69,7 @@ public class ExportSettings extends ModelValues {
                 "probably freeze for several seconds while downloading it, so please do this at a safe location.";
         this.hostAddress = ResourcePackHost.DEFAULT_ADDRESS;
         this.generateGeyserPack = false;
+        this.skipResourcepack = false;
         this.kickUponReject = false;
         this.forceRejectMessage = "You must accept the server resource pack. If you didn't get the chance to accept it, " +
                 "check out https://knokko.github.io/resource-pack-host/accept.html";
@@ -84,6 +88,7 @@ public class ExportSettings extends ModelValues {
         this.reloadMessage = toCopy.getReloadMessage();
         this.hostAddress = toCopy.getHostAddress();
         this.generateGeyserPack = toCopy.shouldGenerateGeyserPack();
+        this.skipResourcepack = toCopy.shouldSkipResourcepack();
         this.kickUponReject = toCopy.shouldKickUponReject();
         this.forceRejectMessage = toCopy.getForceRejectMessage();
         this.optionalRejectMessage = toCopy.getOptionalRejectMessage();
@@ -100,6 +105,7 @@ public class ExportSettings extends ModelValues {
         output.addString(reloadMessage);
         output.addString(hostAddress);
         output.addBoolean(generateGeyserPack);
+        output.addBoolean(skipResourcepack);
 
         output.addBoolean(kickUponReject);
         output.addString(forceRejectMessage);
@@ -128,6 +134,10 @@ public class ExportSettings extends ModelValues {
 
     public boolean shouldGenerateGeyserPack() {
         return generateGeyserPack;
+    }
+
+    public boolean shouldSkipResourcepack() {
+        return skipResourcepack;
     }
 
     public boolean shouldKickUponReject() {
@@ -179,6 +189,11 @@ public class ExportSettings extends ModelValues {
     public void setGenerateGeyserPack(boolean generateGeyserPack) {
         assertMutable();
         this.generateGeyserPack = generateGeyserPack;
+    }
+
+    public void setSkipResourcepack(boolean skipResourcepack) {
+        assertMutable();
+        this.skipResourcepack = skipResourcepack;
     }
 
     public void setKickUponReject(boolean kickUponReject) {

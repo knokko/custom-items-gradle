@@ -70,7 +70,7 @@ public class ItemSetLoader implements Listener {
     public void sendResourcePack(Player player) {
         if (busy.tryAcquire()) {
             try {
-                if (currentHashes != null) {
+                if (currentHashes != null && !itemSet.get().getExportSettings().shouldSkipResourcepack()) {
                     player.setResourcePack(
                             getResourcePackPrefix(itemSet.get().getExportSettings().getHostAddress())
                                     + currentHashes.getSha256Hex(), currentHashes.sha1
@@ -217,6 +217,11 @@ public class ItemSetLoader implements Listener {
         }
 
         currentHashes = newHashes;
+
+        if (itemSet.get().getExportSettings().shouldSkipResourcepack()) {
+            sendSyncMessage.accept(ChatColor.YELLOW + "The resourcepack is skipped");
+            return true;
+        }
 
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             Consumer<String> sendAsyncMessage = message -> {
