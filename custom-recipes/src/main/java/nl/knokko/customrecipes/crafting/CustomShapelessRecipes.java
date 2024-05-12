@@ -1,5 +1,6 @@
 package nl.knokko.customrecipes.crafting;
 
+import nl.knokko.customrecipes.IdHelper;
 import nl.knokko.customrecipes.ingredient.CustomIngredient;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
@@ -33,7 +34,7 @@ class CustomShapelessRecipes {
 
         weakMap.forEach((weak, customRecipes) -> {
             CustomShapelessRecipe firstRecipe = customRecipes.get(0);
-            String key = "weak-shapeless-" + UUID.randomUUID();
+            String key = "weak-shapeless-" + IdHelper.createHash(weak.ingredients.toString());
             NamespacedKey fullKey = new NamespacedKey(plugin, key);
             ShapelessRecipe bukkitRecipe = new ShapelessRecipe(fullKey, firstRecipe.result.apply(null));
             keys.add(fullKey);

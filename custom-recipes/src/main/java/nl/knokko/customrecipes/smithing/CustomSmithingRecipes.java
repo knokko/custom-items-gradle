@@ -1,5 +1,6 @@
 package nl.knokko.customrecipes.smithing;
 
+import nl.knokko.customrecipes.IdHelper;
 import nl.knokko.customrecipes.ingredient.CustomIngredient;
 import nl.knokko.customrecipes.ingredient.IngredientBlocker;
 import org.bukkit.Bukkit;
@@ -89,7 +90,11 @@ public class CustomSmithingRecipes implements Listener {
             }
 
             CustomSmithingRecipe firstRecipe = customRecipes.get(0);
-            String key = "smithing-" + UUID.randomUUID();
+            String key = "smithing-" + IdHelper.createHash(
+                    firstRecipe.ingredients[0].material + "," +
+                            firstRecipe.ingredients[1].material + "," +
+                            firstRecipe.ingredients[2].material
+            );
             NamespacedKey fullKey = new NamespacedKey(plugin, key);
             SmithingRecipe bukkitRecipe = createRecipe.apply(fullKey, firstRecipe);
             keys.add(fullKey);

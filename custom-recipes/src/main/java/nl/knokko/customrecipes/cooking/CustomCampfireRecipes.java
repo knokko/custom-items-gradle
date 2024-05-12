@@ -18,7 +18,7 @@ import java.util.function.Supplier;
 public class CustomCampfireRecipes extends CustomCookingRecipes {
 
     CustomCampfireRecipes(Supplier<Collection<Predicate<ItemStack>>> getBlockers) {
-        super(getBlockers, null, () -> false);
+        super(getBlockers);
     }
 
     @Override
@@ -48,8 +48,8 @@ public class CustomCampfireRecipes extends CustomCookingRecipes {
     }
 
     @Override
-    protected int getBurnTimeFactor() {
-        return 0;
+    protected String getTestClassName() {
+        return "org.bukkit.event.block.BlockCookEvent";
     }
 
     @EventHandler

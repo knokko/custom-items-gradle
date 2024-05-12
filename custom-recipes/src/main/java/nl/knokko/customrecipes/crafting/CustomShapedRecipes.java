@@ -1,5 +1,6 @@
 package nl.knokko.customrecipes.crafting;
 
+import nl.knokko.customrecipes.IdHelper;
 import nl.knokko.customrecipes.ingredient.CustomIngredient;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -19,7 +20,6 @@ class CustomShapedRecipes {
     private Map<WeakShapedRecipe, List<CustomShapedRecipe>> weakMap;
     Map<String, WeakShapedRecipe> keyMap;
 
-
     void add(CustomShapedRecipe recipe) {
         recipes.add(recipe);
     }
@@ -35,9 +35,11 @@ class CustomShapedRecipes {
 
         weakMap.forEach((weak, customRecipes) -> {
             CustomShapedRecipe firstRecipe = customRecipes.get(0);
-            String key = "weak-shaped-" + UUID.randomUUID();
+            String key = "weak-shaped-" + IdHelper.createHash(Arrays.deepToString(weak.shape));
             NamespacedKey fullKey = new NamespacedKey(plugin, key);
-            ShapedRecipe bukkitRecipe = new ShapedRecipe(fullKey, firstRecipe.result.apply(null));
+            ItemStack firstResult = firstRecipe.result.apply(null);
+            if (firstResult == null) throw new NullPointerException("firstResult is null: result function was " + firstRecipe.result);
+            ShapedRecipe bukkitRecipe = new ShapedRecipe(fullKey, firstResult);
             keys.add(fullKey);
             keyMap.put(key, weak);
             bukkitRecipe.shape(customRecipes.get(0).shape);

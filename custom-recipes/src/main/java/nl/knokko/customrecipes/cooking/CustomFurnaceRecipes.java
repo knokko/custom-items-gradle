@@ -7,19 +7,15 @@ import org.bukkit.inventory.FurnaceRecipe;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Collection;
-import java.util.function.BooleanSupplier;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 class CustomFurnaceRecipes extends CustomCookingRecipes {
 
     CustomFurnaceRecipes(
-            Supplier<Collection<Predicate<ItemStack>>> getBlockers,
-            Function<ItemStack, Integer> getCustomBurnTime,
-            BooleanSupplier hasCustomBurnTimes
+            Supplier<Collection<Predicate<ItemStack>>> getBlockers
     ) {
-        super(getBlockers, getCustomBurnTime, hasCustomBurnTimes);
+        super(getBlockers);
     }
 
     @Override
@@ -38,7 +34,7 @@ class CustomFurnaceRecipes extends CustomCookingRecipes {
     }
 
     @Override
-    protected int getBurnTimeFactor() {
-        return 1;
+    protected String getTestClassName() {
+        return "org.bukkit.inventory.FurnaceRecipe";
     }
 }

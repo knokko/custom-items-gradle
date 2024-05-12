@@ -1,5 +1,6 @@
 package nl.knokko.customrecipes.cooking;
 
+import nl.knokko.customrecipes.IdHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -15,29 +16,21 @@ import org.bukkit.inventory.Recipe;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
-import java.util.function.BooleanSupplier;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 abstract class CustomCookingRecipes implements Listener {
 
     private final Supplier<Collection<Predicate<ItemStack>>> getBlockers;
-    private final Function<ItemStack, Integer> getCustomBurnTime;
-    private final BooleanSupplier hasCustomBurnTimes;
 
     private List<CustomCookingRecipe> recipes = new ArrayList<>();
     Map<Material, List<CustomCookingRecipe>> materialMap;
     private boolean didRegister;
 
     CustomCookingRecipes(
-            Supplier<Collection<Predicate<ItemStack>>> getBlockers,
-            Function<ItemStack, Integer> getCustomBurnTime,
-            BooleanSupplier hasCustomBurnTimes
+            Supplier<Collection<Predicate<ItemStack>>> getBlockers
     ) {
         this.getBlockers = getBlockers;
-        this.getCustomBurnTime = getCustomBurnTime;
-        this.hasCustomBurnTimes = hasCustomBurnTimes;
     }
 
     void add(CustomCookingRecipe recipe) {
@@ -53,8 +46,6 @@ abstract class CustomCookingRecipes implements Listener {
 
     protected abstract boolean isRightBlock(Block block);
 
-    protected abstract int getBurnTimeFactor();
-
     public void register(JavaPlugin plugin, Set<NamespacedKey> keys) {
         this.recipes = Collections.unmodifiableList(recipes);
         this.materialMap = new HashMap<>();
@@ -64,7 +55,7 @@ abstract class CustomCookingRecipes implements Listener {
 
         materialMap.forEach((material, customRecipes) -> {
             CustomCookingRecipe firstRecipe = customRecipes.get(0);
-            String key = getRecipeTypeString() + "-" + UUID.randomUUID();
+            String key = getRecipeTypeString() + "-" + IdHelper.createHash(material.toString());
             NamespacedKey fullKey = new NamespacedKey(plugin, key);
             Recipe bukkitRecipe = createBukkitRecipe(
                     fullKey, firstRecipe.result.apply(null), material,
@@ -74,11 +65,18 @@ abstract class CustomCookingRecipes implements Listener {
             Bukkit.addRecipe(bukkitRecipe);
         });
 
-        if (!didRegister && (!recipes.isEmpty() || !getBlockers.get().isEmpty() || hasCustomBurnTimes.getAsBoolean())) {
-            Bukkit.getPluginManager().registerEvents(this, plugin);
-            didRegister = true;
+        if (!didRegister && (!recipes.isEmpty() || !getBlockers.get().isEmpty())) {
+            try {
+                Class.forName(getTestClassName());
+                Bukkit.getPluginManager().registerEvents(this, plugin);
+                didRegister = true;
+            } catch (ClassNotFoundException unsupportedMinecraftVersion) {
+                // This minecraft version is not supported for this recipe type, so do nothing
+            }
         }
     }
+
+    protected abstract String getTestClassName();
 
     public void clear() {
         recipes = new ArrayList<>();
@@ -107,15 +105,6 @@ abstract class CustomCookingRecipes implements Listener {
                         event.setCancelled(true);
                     }
                 }
-
-                //noinspection IsCancelled
-                if (event.isCancelled()) return;
-            }
-
-            Integer customBurnTime = getCustomBurnTime.apply(event.getFuel());
-            if (customBurnTime != null) {
-                if (customBurnTime == 0) event.setCancelled(true);
-                else event.setBurnTime(customBurnTime / getBurnTimeFactor());
             }
         }
     }
