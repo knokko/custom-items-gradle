@@ -27,15 +27,29 @@ public class CustomRecipes implements Listener {
 
     private void removeRecipes() {
         if (keys != null) {
+
+            boolean canRemoveRecipes;
+            try {
+                Bukkit.class.getMethod("removeRecipe", NamespacedKey.class);
+                canRemoveRecipes = true;
+            } catch (NoSuchMethodException cantRemove) {
+                canRemoveRecipes = false;
+            }
+
             Iterator<Recipe> iterator = Bukkit.recipeIterator();
             while (iterator.hasNext()) {
                 Recipe next = iterator.next();
                 if (next instanceof Keyed && keys.contains(((Keyed) next).getKey())) {
-                    try {
-                        iterator.remove();
-                    } catch (UnsupportedOperationException stupidOldMinecraftVersion) {
-                        Bukkit.resetRecipes();
-                        break;
+                    NamespacedKey key = ((Keyed) next).getKey();
+                    if (canRemoveRecipes) {
+                        Bukkit.removeRecipe(key);
+                    } else {
+                        try {
+                            iterator.remove();
+                        } catch (UnsupportedOperationException stupidOldMinecraftVersion) {
+                            Bukkit.resetRecipes();
+                            break;
+                        }
                     }
                 }
             }

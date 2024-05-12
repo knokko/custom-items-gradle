@@ -31,6 +31,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
 
 import java.util.List;
+import java.util.logging.Level;
 
 import static nl.knokko.customitems.item.KciItem.UNBREAKABLE_TOOL_DURABILITY;
 
@@ -294,12 +295,22 @@ public class RecipeHelper {
 
         if (result instanceof MimicResult) {
             MimicResult mimicResult = (MimicResult) result;
-            return MimicSupport.fetchItem(mimicResult.getItemId(), mimicResult.getAmount());
+            ItemStack mimicItem = MimicSupport.fetchItem(mimicResult.getItemId(), mimicResult.getAmount());
+            if (ItemUtils.isEmpty(mimicItem)) {
+                Bukkit.getLogger().log(Level.SEVERE, "Failed to find Mimic item " + mimicResult.getItemId());
+                return new ItemStack(Material.STONE);
+            }
+            return mimicItem;
         }
 
         if (result instanceof ItemBridgeResult) {
             ItemBridgeResult itemBridgeResult = (ItemBridgeResult) result;
-            return ItemBridgeSupport.fetchItem(itemBridgeResult.getItemId(), itemBridgeResult.getAmount());
+            ItemStack itemBridgeItem = ItemBridgeSupport.fetchItem(itemBridgeResult.getItemId(), itemBridgeResult.getAmount());
+            if (ItemUtils.isEmpty(itemBridgeItem)) {
+                Bukkit.getLogger().log(Level.SEVERE, "Failed to find ItemBridge item " + itemBridgeResult.getItemId());
+                return new ItemStack(Material.STONE);
+            }
+            return itemBridgeItem;
         }
 
         throw new IllegalArgumentException("Unknown result class: " + result.getClass());

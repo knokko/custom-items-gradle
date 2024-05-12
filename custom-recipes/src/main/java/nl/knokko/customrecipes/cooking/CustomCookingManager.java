@@ -5,6 +5,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.FurnaceBurnEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
@@ -22,16 +23,9 @@ public class CustomCookingManager implements Listener {
     private List<Function<ItemStack, Integer>> customBurnTimes = new ArrayList<>();
     private List<Predicate<ItemStack>> blockers = new ArrayList<>();
 
-    // TODO Test custom burn times on MC 1.13 and MC 1.12
-    private final CustomFurnaceRecipes furnace = new CustomFurnaceRecipes(
-            () -> blockers, this::getCustomBurnTime, () -> !customBurnTimes.isEmpty()
-    );
-    private final CustomBlastFurnaceRecipes blastFurnace = new CustomBlastFurnaceRecipes(
-            () -> blockers, this::getCustomBurnTime, () -> !customBurnTimes.isEmpty()
-    );
-    private final CustomSmokerRecipes smoker = new CustomSmokerRecipes(
-            () -> blockers, this::getCustomBurnTime, () -> !customBurnTimes.isEmpty()
-    );
+    private final CustomFurnaceRecipes furnace = new CustomFurnaceRecipes(() -> blockers);
+    private final CustomBlastFurnaceRecipes blastFurnace = new CustomBlastFurnaceRecipes(() -> blockers);
+    private final CustomSmokerRecipes smoker = new CustomSmokerRecipes(() -> blockers);
     private final CustomCampfireRecipes campfire = new CustomCampfireRecipes(() -> blockers);
 
     private boolean didRegister;
@@ -99,6 +93,19 @@ public class CustomCookingManager implements Listener {
         if (event.getSlotType() == InventoryType.SlotType.FUEL) {
             Integer customBurnTime = getCustomBurnTime(event.getCursor());
             if (customBurnTime != null && customBurnTime == 0) event.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void handleCustomBurnTimes(FurnaceBurnEvent event) {
+        Integer customBurnTime = getCustomBurnTime(event.getFuel());
+        if (customBurnTime != null) {
+            if (customBurnTime == 0) event.setCancelled(true);
+            else {
+                int burnTimeFactor = 1;
+                if (blastFurnace.isRightBlock(event.getBlock()) || smoker.isRightBlock(event.getBlock())) burnTimeFactor = 2;
+                event.setBurnTime(customBurnTime / burnTimeFactor);
+            }
         }
     }
 }
