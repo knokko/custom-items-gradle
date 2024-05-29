@@ -38,6 +38,7 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.Scanner;
 
+import static nl.knokko.customitems.serialization.TestBackward1.testExportSettings1;
 import static nl.knokko.customitems.serialization.TestBackward10.*;
 import static nl.knokko.customitems.serialization.TestBackward3.testTextures3;
 import static nl.knokko.customitems.serialization.TestBackward6.*;
@@ -50,6 +51,7 @@ public class TestBackward8 {
     @Test
     public void testBackwardCompatibility8() {
         for (ItemSet oldSet : loadItemSet("backward8old", false)) {
+            testExportSettings1(oldSet);
             testTextures3(oldSet, 3);
             testArmorTexturesOld8(oldSet, 1);
             testItemsOld8(oldSet, 30);

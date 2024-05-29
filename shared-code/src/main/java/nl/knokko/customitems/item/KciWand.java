@@ -144,7 +144,7 @@ public class KciWand extends KciItem {
     }
 
     protected boolean areWandPropertiesEqual(KciWand other) {
-        return areBaseItemPropertiesEqual(other) && this.projectile.equals(other.projectile)
+        return areBaseItemPropertiesEqual(other) && Objects.equals(this.projectile, other.projectile)
                 && this.amountPerShot == other.amountPerShot && this.cooldown == other.cooldown
                 && this.manaCost == other.manaCost && this.magicSpells.equals(other.magicSpells)
                 && Objects.equals(this.charges, other.charges) && this.requiresPermission == other.requiresPermission;

@@ -10,10 +10,12 @@ import nl.knokko.customitems.recipe.KciShapelessRecipe;
 import nl.knokko.customitems.recipe.ingredient.*;
 import nl.knokko.customitems.recipe.result.CustomItemResult;
 import nl.knokko.customitems.recipe.result.SimpleVanillaResult;
+import nl.knokko.customitems.settings.ExportSettings;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static nl.knokko.customitems.MCVersions.VERSION1_12;
 import static nl.knokko.customitems.serialization.BackwardHelper.*;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,10 +24,17 @@ public class TestBackward1 {
     @Test
     public void testBackwardCompatibility1() {
         for (ItemSet set1 : BackwardHelper.loadItemSet("backward1", false)) {
+            testExportSettings1(set1);
             testTextures1(set1, 2);
             testItems1(set1, 1);
             testRecipes1(set1, 2);
         }
+    }
+
+    static void testExportSettings1(ItemSet itemSet) {
+        ExportSettings ex = itemSet.getExportSettings();
+        assertEquals(ExportSettings.Mode.AUTOMATIC, ex.getMode());
+        assertEquals(VERSION1_12, ex.getMcVersion());
     }
 
     static void testTextures1(ItemSet itemSet, int numTextures) {

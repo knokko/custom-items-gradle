@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 
+import static nl.knokko.customitems.serialization.TestBackward1.testExportSettings1;
 import static nl.knokko.customitems.serialization.TestBackward3.testTextures3;
 import static nl.knokko.customitems.serialization.TestBackward6.*;
 import static nl.knokko.customitems.serialization.BackwardHelper.listOf;
@@ -27,6 +28,7 @@ public class TestBackward7 {
     @Test
     public void testBackwardCompatibility7() {
         for (ItemSet set7 : loadItemSet("backward7", false)) {
+            testExportSettings1(set7);
             testTextures3(set7, 3);
             testItemsOld6(set7, 21);
             testRecipesOld6(set7, 3);

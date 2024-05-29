@@ -3,7 +3,6 @@ package nl.knokko.customitems.editor.menu.edit.export;
 import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
 import nl.knokko.customitems.editor.EditorFileManager;
 import nl.knokko.customitems.editor.resourcepack.ResourcepackGenerator;
-import nl.knokko.customitems.editor.resourcepack.geyser.GeyserPackGenerator;
 import nl.knokko.customitems.editor.util.Validation;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.settings.ExportSettings;
@@ -13,7 +12,6 @@ import nl.knokko.customitems.util.StringEncoder;
 import nl.knokko.customitems.util.ValidationException;
 import nl.knokko.gui.component.GuiComponent;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import static nl.knokko.customitems.editor.menu.edit.export.ExportProgress.*;
@@ -33,6 +31,7 @@ public class Exporter {
 
                 if (exportSettings.getMode() == ExportSettings.Mode.AUTOMATIC) {
                     pResourcePackHash[0] = uploadResourcePackToMyHost(itemSet, progress);
+                    progress.status = STATUS_SAVING_AFTER_UPLOAD;
                 } else {
                     EditorFileManager.exportFiles(itemSet, progress);
                 }
@@ -45,8 +44,6 @@ public class Exporter {
             progress.error = error;
             return;
         }
-
-        progress.status = STATUS_SAVING_ITEM_SET;
 
         try {
             EditorFileManager.saveAndBackUp(itemSet, fileName);
@@ -82,20 +79,17 @@ public class Exporter {
         byte[] cisBytes = cisOutput.getBytes();
         byte[] textyBytes = StringEncoder.encodeTextyBytes(cisBytes, true);
 
-        byte[] geyserBytes;
+        Runnable notifyStartGeyserPack;
         if (itemSet.getExportSettings().shouldGenerateGeyserPack()) {
-            progress.status = STATUS_GENERATING_GEYSERPACK;
-            ByteArrayOutputStream geyserStream = new ByteArrayOutputStream();
-            new GeyserPackGenerator(itemSet, geyserStream).write();
-            geyserBytes = geyserStream.toByteArray();
-        } else geyserBytes = null;
+            notifyStartGeyserPack = () -> progress.status = STATUS_UPLOADING_GEYSERPACK;
+        } else notifyStartGeyserPack = null;
 
-        progress.status = STATUS_GENERATING_RESOURCEPACK;
+        progress.status = STATUS_CONNECTING;
 
         return ResourcePackHost.upload(
                 itemSet.getExportSettings().getHostAddress(),
                 uploadOutput -> {
-                    new ResourcepackGenerator(itemSet).write(uploadOutput, textyBytes, geyserBytes, false);
+                    new ResourcepackGenerator(itemSet).write(uploadOutput, textyBytes, notifyStartGeyserPack, false);
                     progress.status = STATUS_UPLOADING_RESOURCEPACK;
                 }, (responseCode, responseMessage, errorResponse) -> {
                     System.err.println("Uploading resource pack failed:");

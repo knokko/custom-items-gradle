@@ -12,10 +12,12 @@ public class GeyserPackGenerator {
 
     private final ItemSet itemSet;
     private final ZipOutputStream zipOutput;
+    private final boolean closeOutput;
 
-    public GeyserPackGenerator(ItemSet itemSet, OutputStream rawOutputStream) {
+    public GeyserPackGenerator(ItemSet itemSet, OutputStream rawOutputStream, boolean closeOutput) {
         this.itemSet = itemSet;
         this.zipOutput = new PriorityZipOutputStream(rawOutputStream);
+        this.closeOutput = closeOutput;
     }
 
     public void write() throws IOException {
@@ -36,7 +38,8 @@ public class GeyserPackGenerator {
         controllerGenerator.generateBow();
 
         zipOutput.flush();
-        zipOutput.close();
+        if (closeOutput) zipOutput.close();
+        else zipOutput.finish();
     }
 
     private void generateManifest() throws IOException {

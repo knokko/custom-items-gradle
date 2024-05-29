@@ -1,6 +1,7 @@
 package nl.knokko.customitems.editor.resourcepack;
 
 import nl.knokko.customitems.editor.resourcepack.geyser.GeyserMappingsGenerator;
+import nl.knokko.customitems.editor.resourcepack.geyser.GeyserPackGenerator;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
@@ -22,7 +23,7 @@ public class ResourcepackGenerator {
     }
 
     public void write(
-            OutputStream rawOutputStream, byte[] cisTxtFileContent, byte[] geyserPack, boolean closeOutput
+            OutputStream rawOutputStream, byte[] cisTxtFileContent, Runnable notifyStartGeyserPack, boolean closeOutput
     ) throws IOException, ValidationException, ProgrammingValidationException {
         ZipOutputStream zipOutput = new PriorityZipOutputStream(rawOutputStream);
 
@@ -64,11 +65,6 @@ public class ResourcepackGenerator {
 
             writeAtlases(zipOutput);
         }
-        
-        if (geyserPack != null) {
-            GeyserMappingsGenerator geyserMapper = new GeyserMappingsGenerator(itemSet, zipOutput);
-            geyserMapper.writeItemMappings();
-        }
 
         writePackMcMeta(zipOutput);
 
@@ -80,10 +76,15 @@ public class ResourcepackGenerator {
             zipOutput.closeEntry();
         }
 
-        if (geyserPack != null) {
+        if (notifyStartGeyserPack != null) {
+            notifyStartGeyserPack.run();
             zipOutput.putNextEntry(new ZipEntry("geyser.mcpack"));
-            zipOutput.write(geyserPack);
-            zipOutput.flush();
+            new GeyserPackGenerator(itemSet, zipOutput, false).write();
+            zipOutput.closeEntry();
+
+            zipOutput.putNextEntry(new ZipEntry("geyser_mappings.json"));
+            GeyserMappingsGenerator geyserMapper = new GeyserMappingsGenerator(itemSet, zipOutput);
+            geyserMapper.writeItemMappings();
             zipOutput.closeEntry();
         }
 

@@ -35,6 +35,7 @@ import nl.knokko.customitems.recipe.result.CustomItemResult;
 import nl.knokko.customitems.recipe.result.SimpleVanillaResult;
 import nl.knokko.customitems.recipe.result.UpgradeResult;
 import nl.knokko.customitems.recipe.upgrade.Upgrade;
+import nl.knokko.customitems.settings.ExportSettings;
 import nl.knokko.customitems.sound.VSoundType;
 import nl.knokko.customitems.texture.FancyPantsFrame;
 import nl.knokko.customitems.texture.FancyPantsTexture;
@@ -51,8 +52,10 @@ import java.util.Scanner;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import static nl.knokko.customitems.MCVersions.VERSION1_12;
 import static nl.knokko.customitems.serialization.TestBackward10.*;
 import static nl.knokko.customitems.serialization.TestBackward11.*;
+import static nl.knokko.customitems.serialization.TestBackward13.*;
 import static nl.knokko.customitems.serialization.TestBackward6.testProjectileCoversOld6;
 import static nl.knokko.customitems.serialization.TestBackward8.testArmorTexturesOld8;
 import static nl.knokko.customitems.serialization.TestBackward8.testFuelRegistriesOld8;
@@ -66,6 +69,7 @@ public class TestBackward12 {
     public void testBackwardCompatibility12() {
         ItemSet[] oldPair = loadItemSet("backward12old", true);
         for (ItemSet old12 : oldPair) {
+            testExportSettings12Old(old12);
             testTexturesOld10(old12, 4);
             testArmorTexturesOld8(old12, 1);
             testItemsOld12(old12, 50);
@@ -100,6 +104,17 @@ public class TestBackward12 {
             testFancyPantsTextures12(fancySet, 2);
             testItemsFancy12(fancySet, 2);
         }
+    }
+
+    static void testExportSettings12Old(ItemSet itemSet) {
+        ExportSettings ex = itemSet.getExportSettings();
+        assertEquals(ExportSettings.Mode.AUTOMATIC, ex.getMode());
+        assertEquals(VERSION1_12, ex.getMcVersion());
+        assertEquals("RELOAD", ex.getReloadMessage());
+        assertTrue(ex.shouldKickUponReject());
+        assertEquals("REJECTED", ex.getForceRejectMessage());
+        assertFalse(ex.shouldKickUponFailedDownload());
+        assertEquals("FAILURE", ex.getOptionalFailedMessage());
     }
 
     static void testItemsFancy12(ItemSet itemSet, int numItems) {
@@ -488,100 +503,102 @@ public class TestBackward12 {
         assertFalse(item.isIndestructible());
         assertFalse(item.isTwoHanded());
         assertEquals(WikiVisibility.VISIBLE, item.getWikiVisibility());
-        // TODO Call testBaseDefault13
+        testBaseDefault13(item);
     }
 
     static void testSimpleDefault12(KciSimpleItem item) {
         testBaseDefault12(item);
-        // TODO Call testSimpleDefault13
+        testSimpleDefault13(item);
     }
 
     static void testToolDefault12(KciTool item) {
         testBaseDefault12(item);
-        // TODO Call testToolDefault13
+        testToolDefault13(item);
     }
 
     static void testArmorDefault12(KciArmor item) {
         testToolDefault12(item);
         assertNull(item.getFancyPantsTextureReference());
-        // TODO Call testArmorDefault13
+        testArmorDefault13(item);
     }
 
     static void testHoeDefault12(KciHoe item) {
         testToolDefault12(item);
-        // TODO Call testHoeDefault13
+        testHoeDefault13(item);
     }
 
     static void testShearsDefault12(KciShears item) {
         testToolDefault12(item);
-        // TODO Call testShearsDefault13
+        testShearsDefault13(item);
     }
 
     static void testBowDefault12(KciBow item) {
         testToolDefault12(item);
         assertNull(item.getCustomShootDamageSourceReference());
-        // TODO Call testBowDefault13
+        testBowDefault13(item);
     }
 
     static void testShieldDefault12(KciShield item) {
         testToolDefault12(item);
-        // TODO Call testShieldDefault13
+        testShieldDefault13(item);
     }
 
     static void testWandDefault12(KciWand item) {
         testBaseDefault12(item);
-        // TODO Call testWandDefault13
+        testWandDefault13(item);
     }
 
     static void testGunDefault12(KciGun item) {
         testBaseDefault12(item);
-        // TODO Call testGunDefault13
+        testGunDefault13(item);
     }
 
     static void testFoodDefault12(KciFood item) {
         testBaseDefault12(item);
-        // TODO Call testFoodDefault13
+        testFoodDefault13(item);
     }
 
     static void testPocketContainerDefault12(KciPocketContainer item) {
         testBaseDefault12(item);
-        // TODO Call testPocketContainerDefault13
+        testPocketContainerDefault13(item);
     }
 
     static void test3dHelmetDefault12(Kci3dHelmet item) {
         testArmorDefault12(item);
-        // TODO Call test3dHelmetDefault13
+        test3dHelmetDefault13(item);
     }
 
     static void testTridentDefault12(KciTrident item) {
         testToolDefault12(item);
         assertNull(item.getCustomThrowDamageSourceReference());
-        // TODO Call testTridentDefault13
+        testTridentDefault13(item);
     }
 
     static void testCrossbowDefault12(KciCrossbow item) {
         testToolDefault12(item);
         assertNull(item.getCustomShootDamageSourceReference());
-        // TODO Call testCrossbowDefault13
+        testCrossbowDefault13(item);
     }
 
     static void testBlockItemDefault12(KciBlockItem item) {
         testBaseDefault12(item);
-        // TODO Call testBlockItemDefault13
+        testBlockItemDefault13(item);
     }
 
     static void testElytraDefault12(KciElytra item) {
         testArmorDefault12(item);
-        // TODO Call testElytraDefault13
+        testElytraDefault13(item);
     }
 
     static void testMusicDiscDefault12(KciMusicDisc item) {
         testBaseDefault12(item);
-        // TODO Call testMusicDiscDefault13
+        testMusicDiscDefault13(item);
     }
 
     static void testDefaultBlockDrop12(BlockDrop blockDrop) {
         assertEquals(0, blockDrop.getMinFortuneLevel());
         assertNull(blockDrop.getMaxFortuneLevel());
+
+        // TODO Call testDefaultBlockDrop14
     }
 }

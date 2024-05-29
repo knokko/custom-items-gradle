@@ -2,6 +2,8 @@ package nl.knokko.customitems.editor;
 
 import nl.knokko.customitems.editor.menu.edit.export.ExportProgress;
 import nl.knokko.customitems.editor.resourcepack.ResourcepackGenerator;
+import nl.knokko.customitems.editor.resourcepack.geyser.GeyserMappingsGenerator;
+import nl.knokko.customitems.editor.resourcepack.geyser.GeyserPackGenerator;
 import nl.knokko.customitems.editor.util.ItemSetBackups;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -18,8 +20,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import static nl.knokko.customitems.editor.menu.edit.export.ExportProgress.STATUS_GENERATING_GEYSERPACK;
-import static nl.knokko.customitems.editor.menu.edit.export.ExportProgress.STATUS_GENERATING_RESOURCEPACK;
+import static nl.knokko.customitems.editor.menu.edit.export.ExportProgress.*;
 
 public class EditorFileManager {
 
@@ -47,18 +48,27 @@ public class EditorFileManager {
 
         FOLDER.mkdirs();
 
+        if (!itemSet.getExportSettings().shouldSkipResourcepack()) {
+            progress.status = STATUS_GENERATING_RESOURCEPACK;
+
+            // Generate the resourcepack...
+            // NOTE: This must happen BEFORE writing the .cis file since this also assigns internal item damages
+            try (OutputStream outputStream = Files.newOutputStream(new File(FOLDER + "/resource-pack.zip").toPath())) {
+                new ResourcepackGenerator(itemSet).write(outputStream, null, null, true);
+            }
+        }
+
         if (itemSet.getExportSettings().shouldGenerateGeyserPack()) {
             progress.status = STATUS_GENERATING_GEYSERPACK;
-            // TODO Export Geyser files and show status in ExportLoadingScreen
+            try (OutputStream outputStream = Files.newOutputStream(new File(FOLDER + "/geyser.mcpack").toPath())) {
+                new GeyserPackGenerator(itemSet, outputStream, true).write();
+            }
+            try (OutputStream outputStream = Files.newOutputStream(new File(FOLDER + "/geyser_mappings.json").toPath())) {
+                new GeyserMappingsGenerator(itemSet, outputStream).writeItemMappings();
+            }
         }
 
-        progress.status = STATUS_GENERATING_RESOURCEPACK;
-
-        // Generate the resourcepack...
-        // NOTE: This must happen BEFORE writing the .cis file since this also assigns internal item damages
-        try (OutputStream outputStream = Files.newOutputStream(new File(FOLDER + "/resource-pack.zip").toPath())) {
-            new ResourcepackGenerator(itemSet).write(outputStream, null, null, true);
-        }
+        progress.status = STATUS_SAVING_AFTER_GENERATION;
 
         ByteArrayBitOutput output = new ByteArrayBitOutput();
         itemSet.save(output, ItemSet.Side.PLUGIN);

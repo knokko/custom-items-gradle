@@ -9,6 +9,7 @@ import nl.knokko.customitems.recipe.ingredient.NoIngredient;
 import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredient;
 import org.junit.jupiter.api.Test;
 
+import static nl.knokko.customitems.serialization.TestBackward1.testExportSettings1;
 import static nl.knokko.customitems.serialization.TestBackward1.testRecipes1;
 import static nl.knokko.customitems.serialization.TestBackward3.testTextures3;
 import static nl.knokko.customitems.serialization.TestBackward4.testItems4;
@@ -21,6 +22,7 @@ public class TestBackward5 {
     @Test
     public void testBackwardCompatibility5() {
         for (ItemSet set5 : loadItemSet("backward5", false)) {
+            testExportSettings1(set5);
             testTextures3(set5, 3);
             testItems5(set5, 19);
             testRecipes1(set5, 2);
