@@ -55,6 +55,20 @@ public class TranslationEntry extends ModelValues {
     }
 
     @Override
+    public String toString() {
+        return language + ": name is " + displayName;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other instanceof TranslationEntry) {
+            TranslationEntry translation = (TranslationEntry) other;
+            return language.equals(translation.language) && displayName.equals(translation.displayName) &&
+                    lore.equals(translation.lore);
+        } else return false;
+    }
+
+    @Override
     public TranslationEntry copy(boolean mutable) {
         return new TranslationEntry(this, mutable);
     }

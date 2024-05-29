@@ -32,6 +32,7 @@ import nl.knokko.customitems.recipe.result.SimpleVanillaResult;
 import nl.knokko.customitems.util.Chance;
 import org.junit.jupiter.api.Test;
 
+import static nl.knokko.customitems.serialization.TestBackward1.testExportSettings1;
 import static nl.knokko.customitems.serialization.TestBackward1.testRecipes1;
 import static nl.knokko.customitems.serialization.TestBackward3.testTextures3;
 import static nl.knokko.customitems.serialization.TestBackward5.testItems5;
@@ -43,6 +44,7 @@ public class TestBackward6 {
     @Test
     public void testBackwardCompatibility6() {
         for (ItemSet oldSet : loadItemSet("backward6old", false)) {
+            testExportSettings1(oldSet);
             testTextures3(oldSet, 3);
             testItemsOld6(oldSet, 21);
             testRecipesOld6(oldSet, 3);

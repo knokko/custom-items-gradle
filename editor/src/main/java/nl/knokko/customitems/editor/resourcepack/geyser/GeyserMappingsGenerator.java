@@ -5,21 +5,20 @@ import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.itemset.ItemSet;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 public class GeyserMappingsGenerator {
 
     private final ItemSet itemSet;
-    private final ZipOutputStream zipOutput;
+    private final OutputStream output;
 
-    public GeyserMappingsGenerator(ItemSet itemSet, ZipOutputStream zipOutput) {
+    public GeyserMappingsGenerator(ItemSet itemSet, OutputStream output) {
         this.itemSet = itemSet;
-        this.zipOutput = zipOutput;
+        this.output = output;
     }
 
     private String getVanillaName(KciItem item) {
@@ -34,8 +33,7 @@ public class GeyserMappingsGenerator {
             vanillaItems.add(getVanillaName(item));
         }
 
-        zipOutput.putNextEntry(new ZipEntry("geyser_mappings.json"));
-        PrintWriter jsonWriter = new PrintWriter(zipOutput);
+        PrintWriter jsonWriter = new PrintWriter(output);
         jsonWriter.println("{");
         jsonWriter.println("    \"format_version\": \"1\",");
         jsonWriter.println("    \"items\": {");
@@ -46,7 +44,6 @@ public class GeyserMappingsGenerator {
             jsonWriter.println("        \"" + vanillaItem + "\": [");
 
             boolean isFirst = true;
-            // TODO Maybe call itemSet.assignInternalItemDamages()
             for (KciItem item : itemSet.items) {
                 if (getVanillaName(item).equals(vanillaItem)) {
                     if (!isFirst) jsonWriter.println(',');
@@ -72,6 +69,5 @@ public class GeyserMappingsGenerator {
         jsonWriter.println("    }");
         jsonWriter.println("}");
         jsonWriter.flush();
-        zipOutput.closeEntry();
     }
 }

@@ -51,6 +51,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
 
+import static nl.knokko.customitems.serialization.TestBackward1.testExportSettings1;
 import static nl.knokko.customitems.serialization.TestBackward10.*;
 import static nl.knokko.customitems.serialization.TestBackward12.*;
 import static nl.knokko.customitems.serialization.TestBackward6.testProjectileCoversOld6;
@@ -67,6 +68,7 @@ public class TestBackward11 {
     public void testBackwardCompatibility11() {
         ItemSet[] oldPair = loadItemSet("backward11old", false);
         for (ItemSet old11 : oldPair) {
+            testExportSettings1(old11);
             testTexturesOld10(old11, 4);
             testArmorTexturesOld8(old11, 1);
             testItemsOld11(old11, 49);

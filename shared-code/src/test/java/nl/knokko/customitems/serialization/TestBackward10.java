@@ -43,8 +43,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import static nl.knokko.customitems.serialization.TestBackward1.testExportSettings1;
 import static nl.knokko.customitems.serialization.TestBackward11.*;
 import static nl.knokko.customitems.serialization.TestBackward12.testDefaultBlockDrop12;
+import static nl.knokko.customitems.serialization.TestBackward13.testDefaultDrop13;
 import static nl.knokko.customitems.serialization.TestBackward3.testTextures3;
 import static nl.knokko.customitems.serialization.TestBackward6.testProjectileCoversOld6;
 import static nl.knokko.customitems.serialization.TestBackward6.testRecipesNew6;
@@ -59,6 +61,7 @@ public class TestBackward10 {
     public void testBackwardCompatibility10() {
         ItemSet[] oldPair = loadItemSet("backward10old", false);
         for (ItemSet old10 : oldPair) {
+            testExportSettings1(old10);
             testTexturesOld10(old10, 4);
             testArmorTexturesOld8(old10, 1);
             testItemsOld10(old10, 45);
@@ -765,7 +768,7 @@ public class TestBackward10 {
     static void testDefaultDrop10(KciDrop drop) {
         assertEquals(0, drop.getAllowedBiomes().getWhitelist().size());
         assertEquals(0, drop.getAllowedBiomes().getBlacklist().size());
-        // TODO Call testDefaultDrop13
+        testDefaultDrop13(drop);
     }
 
     static void testDefaultBlockDrop10(BlockDrop blockDrop) {
@@ -775,6 +778,6 @@ public class TestBackward10 {
 
     static void testDefaultMobDrop10(MobDrop mobDrop) {
         testDefaultDrop10(mobDrop.getDrop());
-        // TODO Call testDefaultMobDrop13
+        // TODO Call testDefaultMobDrop14
     }
 }

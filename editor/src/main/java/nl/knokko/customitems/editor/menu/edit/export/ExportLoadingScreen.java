@@ -17,7 +17,6 @@ public class ExportLoadingScreen extends GuiMenu {
     private final ExportProgress progress;
 
     private int lastStatus = 0;
-    private boolean didUploadResourcepack;
 
     public ExportLoadingScreen(GuiComponent failureMenu, DynamicTextComponent errorComponent, ExportProgress progress) {
         this.failureMenu = failureMenu;
@@ -40,8 +39,6 @@ public class ExportLoadingScreen extends GuiMenu {
             lastStatus = currentStatus;
             state.getWindow().markChange();
         }
-
-        if (currentStatus == STATUS_UPLOADING_RESOURCEPACK) didUploadResourcepack = true;
     }
 
     @Override
@@ -49,22 +46,43 @@ public class ExportLoadingScreen extends GuiMenu {
         addComponent(new DynamicTextComponent("Export is in progress...", LABEL), 0.3f, 0.9f, 0.7f, 1f);
 
         addComponent(new ConditionalTextComponent(
-                "Generating resourcepack...", LABEL, () -> progress.status == STATUS_GENERATING_RESOURCEPACK
-        ), 0.4f, 0.7f, 0.6f, 0.78f);
+                "Connecting...", LABEL, () -> progress.status == STATUS_CONNECTING
+        ), 0.4f, 0.7f, 0.55f, 0.78f);
         addComponent(new ConditionalTextComponent(
-                "Generated resourcepack", LABEL, () -> progress.status > STATUS_GENERATING_RESOURCEPACK
-        ), 0.4f, 0.7f, 0.6f, 0.78f);
+                "Connected", LABEL, () -> progress.status > STATUS_CONNECTING
+        ), 0.4f, 0.7f, 0.55f, 0.78f);
+
+        addComponent(new ConditionalTextComponent(
+                "Generating resourcepack...", LABEL, () -> progress.status == STATUS_GENERATING_RESOURCEPACK
+        ), 0.4f, 0.62f, 0.6f, 0.7f);
+        addComponent(new ConditionalTextComponent(
+                "Generated resourcepack", LABEL, () -> progress.status < STATUS_GENERATING_RESOURCEPACK
+        ), 0.4f, 0.62f, 0.6f, 0.7f);
+
+        addComponent(new ConditionalTextComponent(
+                "Generating geyserpack...", LABEL, () -> progress.status == STATUS_GENERATING_GEYSERPACK
+        ), 0.4f, 0.54f, 0.6f, 0.62f);
+        addComponent(new ConditionalTextComponent(
+                "Generated geyserpack", LABEL, () -> progress.status < STATUS_GENERATING_GEYSERPACK
+        ), 0.4f, 0.54f, 0.6f, 0.62f);
 
         addComponent(new ConditionalTextComponent(
                 "Uploading resourcepack...", LABEL, () -> progress.status == STATUS_UPLOADING_RESOURCEPACK
         ), 0.4f, 0.62f, 0.6f, 0.7f);
         addComponent(new ConditionalTextComponent(
-                "Uploaded resourcepack", LABEL, () -> progress.status > STATUS_UPLOADING_RESOURCEPACK && didUploadResourcepack
+                "Uploaded resourcepack", LABEL, () -> progress.status > STATUS_UPLOADING_RESOURCEPACK
         ), 0.4f, 0.62f, 0.6f, 0.7f);
 
         addComponent(new ConditionalTextComponent(
-                "Saving item set...", LABEL, () -> progress.status == STATUS_SAVING_ITEM_SET
+                "Uploading geyserpack...", LABEL, () -> progress.status == STATUS_UPLOADING_GEYSERPACK
         ), 0.4f, 0.54f, 0.56f, 0.62f);
+        addComponent(new ConditionalTextComponent(
+                "Uploaded geyserpack", LABEL, () -> progress.status > STATUS_UPLOADING_GEYSERPACK
+        ), 0.4f, 0.54f, 0.56f, 0.62f);
+
+        addComponent(new ConditionalTextComponent(
+                "Saving item set...", LABEL, () -> progress.status == STATUS_SAVING_AFTER_GENERATION || progress.status == STATUS_SAVING_AFTER_UPLOAD
+        ), 0.4f, 0.46f, 0.56f, 0.54f);
     }
 
     @Override

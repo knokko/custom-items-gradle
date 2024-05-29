@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import static nl.knokko.customitems.serialization.TestBackward1.testExportSettings1;
 import static nl.knokko.customitems.serialization.TestBackward10.*;
 import static nl.knokko.customitems.serialization.TestBackward3.testTextures3;
 import static nl.knokko.customitems.serialization.TestBackward6.*;
@@ -58,6 +59,7 @@ public class TestBackward9 {
                 loadItemSet("backward9_12old", false)
         }) {
             for (ItemSet old9 : oldPair) {
+                testExportSettings1(old9);
                 testTextures3(old9, 3);
                 testArmorTexturesOld8(old9, 1);
                 testItemsOld9(old9, 33);
