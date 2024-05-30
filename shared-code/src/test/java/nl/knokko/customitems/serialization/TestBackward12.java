@@ -466,6 +466,7 @@ public class TestBackward12 {
 
             CombinedResourcepack staff = itemSet.combinedResourcepacks.get("staff").get();
             assertEquals(3, staff.getPriority());
+            assertFalse(staff.isGeyser());
             try {
                 ZipInputStream zipInput = new ZipInputStream(new ByteArrayInputStream(staff.getContent()));
                 boolean foundStaffJson = false;

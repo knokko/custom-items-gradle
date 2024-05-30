@@ -8,6 +8,7 @@ import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.misc.CombinedResourcepack;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
+import nl.knokko.gui.component.image.CheckboxComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
 import nl.knokko.gui.component.text.EagerIntEditField;
 import nl.knokko.gui.component.text.EagerTextEditField;
@@ -64,6 +65,11 @@ public class EditCombinedResourcepack extends GuiMenu {
                 currentValues.getPriority(), Integer.MIN_VALUE, EDIT_BASE, EDIT_ACTIVE, currentValues::setPriority
         ), 0.46f, 0.65f, 0.55f, 0.75f);
 
+        addComponent(new DynamicTextComponent("Is for Geyser pack", LABEL), 0.33f, 0.5f, 0.55f, 0.6f);
+        addComponent(new CheckboxComponent(
+                currentValues.isGeyser(), currentValues::setGeyser
+        ), 0.3f, 0.525f, 0.32f, 0.56f);
+
         addComponent(new DynamicTextButton("Choose file...", BUTTON, HOVER, () -> {
             FileDialog.open("zip", errorComponent::setText, this, chosenFile -> {
                 try {
@@ -72,7 +78,7 @@ public class EditCombinedResourcepack extends GuiMenu {
                     errorComponent.setText("Failed to read file: " + io.getLocalizedMessage());
                 }
             });
-        }), 0.3f, 0.5f, 0.45f, 0.6f);
+        }), 0.3f, 0.35f, 0.45f, 0.45f);
 
         HelpButtons.addHelpLink(this, "edit menu/combined resourcepacks/edit.html");
     }

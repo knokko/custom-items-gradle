@@ -77,8 +77,17 @@ public class TestBackward13 {
             testItemsFancy13(fancySet, 3);
             testSmithingRecipesFancy13(fancySet, 1);
             testTreesFancy13(fancySet, 1);
+            testCombinedResourcepacksFancy13(fancySet, 1);
             testExportSettingsFancy13(fancySet);
         }
+    }
+
+    static void testCombinedResourcepacksFancy13(ItemSet itemSet, int numPacks) {
+        if (itemSet.getSide() == ItemSet.Side.PLUGIN) return;
+
+        assertEquals(numPacks, itemSet.combinedResourcepacks.size());
+
+        assertTrue(itemSet.combinedResourcepacks.get("testpack").get().isGeyser());
     }
 
     static void testExportSettingsFancy13(ItemSet itemSet) {

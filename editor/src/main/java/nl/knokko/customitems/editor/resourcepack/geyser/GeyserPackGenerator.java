@@ -1,6 +1,7 @@
 package nl.knokko.customitems.editor.resourcepack.geyser;
 
 import nl.knokko.customitems.editor.resourcepack.PriorityZipOutputStream;
+import nl.knokko.customitems.editor.resourcepack.ResourcepackCombiner;
 import nl.knokko.customitems.itemset.ItemSet;
 
 import java.io.IOException;
@@ -21,6 +22,9 @@ public class GeyserPackGenerator {
     }
 
     public void write() throws IOException {
+        ResourcepackCombiner combiner = new ResourcepackCombiner(itemSet, zipOutput, true);
+        combiner.writeEarly();
+
         generateManifest();
 
         GeyserPackTextureGenerator textureGenerator = new GeyserPackTextureGenerator(itemSet, zipOutput);
@@ -36,6 +40,8 @@ public class GeyserPackGenerator {
 
         GeyserPackControllerGenerator controllerGenerator = new GeyserPackControllerGenerator(itemSet, zipOutput);
         controllerGenerator.generateBow();
+
+        combiner.writeLate();
 
         zipOutput.flush();
         if (closeOutput) zipOutput.close();
