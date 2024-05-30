@@ -49,13 +49,13 @@ public class TestResourcepackGenerator {
             while (entry != null) {
                 if (entry.getName().contains("pack.mcmeta")) {
                     packCounter += 1;
-                    assertTrue(Jsoner.deserialize(new InputStreamReader(resourceInput)) instanceof JsonObject);
+                    assertInstanceOf(JsonObject.class, Jsoner.deserialize(new InputStreamReader(resourceInput)));
                 } else if (entry.getName().endsWith(".png")) {
                     pngCounter += 1;
                     assertNotNull(ImageIO.read(resourceInput));
                 } else if (entry.getName().endsWith(".json")) {
                     jsonCounter += 1;
-                    assertTrue(Jsoner.deserialize(new InputStreamReader(resourceInput)) instanceof JsonObject);
+                    assertInstanceOf(JsonObject.class, Jsoner.deserialize(new InputStreamReader(resourceInput)));
                 }
                 entry = resourceInput.getNextEntry();
             }

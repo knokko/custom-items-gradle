@@ -27,7 +27,7 @@ public class ResourcepackGenerator {
     ) throws IOException, ValidationException, ProgrammingValidationException {
         ZipOutputStream zipOutput = new PriorityZipOutputStream(rawOutputStream);
 
-        ResourcepackCombiner combiner = new ResourcepackCombiner(itemSet, zipOutput);
+        ResourcepackCombiner combiner = new ResourcepackCombiner(itemSet, zipOutput, false);
         if (!itemSet.getExportSettings().shouldSkipResourcepack()) {
             combiner.writeEarly();
 

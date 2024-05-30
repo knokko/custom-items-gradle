@@ -18,23 +18,27 @@ public class CombinedResourcepack extends ModelValues {
 
     public static CombinedResourcepack load(BitInput input) throws UnknownEncodingException {
         byte encoding = input.readByte();
-        if (encoding != 1) throw new UnknownEncodingException("CombinedResourcepack", encoding);
+        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("CombinedResourcepack", encoding);
 
         CombinedResourcepack combinedPack = new CombinedResourcepack(false);
         combinedPack.name = input.readString();
         combinedPack.priority = input.readInt();
+        if (encoding > 1) combinedPack.isGeyser = input.readBoolean();
+        else combinedPack.isGeyser = false;
         combinedPack.content = input.readByteArray();
         return combinedPack;
     }
 
     private String name;
     private int priority;
+    private boolean isGeyser;
     private byte[] content;
 
     public CombinedResourcepack(boolean mutable) {
         super(mutable);
         this.name = "";
         this.priority = -1;
+        this.isGeyser = false;
         this.content = null;
     }
 
@@ -42,13 +46,15 @@ public class CombinedResourcepack extends ModelValues {
         super(mutable);
         this.name = toCopy.getName();
         this.priority = toCopy.getPriority();
+        this.isGeyser = toCopy.isGeyser();
         this.content = toCopy.getContent();
     }
 
     public void save(BitOutput output) {
-        output.addByte((byte) 1);
+        output.addByte((byte) 2);
         output.addString(name);
         output.addInt(priority);
+        output.addBoolean(isGeyser);
         output.addByteArray(content);
     }
 
@@ -62,7 +68,7 @@ public class CombinedResourcepack extends ModelValues {
         if (other instanceof CombinedResourcepack) {
             CombinedResourcepack otherPack = (CombinedResourcepack) other;
             return this.name.equals(otherPack.name) && this.priority == otherPack.priority
-                    && Arrays.equals(this.content, otherPack.content);
+                    && this.isGeyser == otherPack.isGeyser && Arrays.equals(this.content, otherPack.content);
         } else return false;
     }
 
@@ -72,6 +78,10 @@ public class CombinedResourcepack extends ModelValues {
 
     public int getPriority() {
         return priority;
+    }
+
+    public boolean isGeyser() {
+        return isGeyser;
     }
 
     public byte[] getContent() {
@@ -86,6 +96,11 @@ public class CombinedResourcepack extends ModelValues {
     public void setPriority(int priority) {
         assertMutable();
         this.priority = priority;
+    }
+
+    public void setGeyser(boolean geyser) {
+        assertMutable();
+        this.isGeyser = geyser;
     }
 
     public void setContent(byte[] content) {
@@ -114,12 +129,16 @@ public class CombinedResourcepack extends ModelValues {
         }
 
         boolean changedName = oldName == null || !oldName.equals(this.name);
-        if (changedName && itemSet.combinedResourcepacks.stream().anyMatch(otherPack -> otherPack.getName().equals(this.name))) {
+        if (changedName && itemSet.combinedResourcepacks.stream().anyMatch(
+                otherPack -> otherPack.isGeyser() == this.isGeyser && otherPack.getName().equals(this.name)
+        )) {
             throw new ValidationException("Another pack already has this name");
         }
 
         boolean changedPriority = oldPriority == null || oldPriority != this.priority;
-        if (changedPriority && itemSet.combinedResourcepacks.stream().anyMatch(otherPack -> otherPack.getPriority() == this.priority)) {
+        if (changedPriority && itemSet.combinedResourcepacks.stream().anyMatch(
+                otherPack -> otherPack.isGeyser() == this.isGeyser && otherPack.getPriority() == this.priority
+        )) {
             throw new ValidationException("Another pack already has this priority");
         }
     }

@@ -15,10 +15,12 @@ public class ResourcepackCombiner {
 
     private final ItemSet itemSet;
     private final ZipOutputStream zipOutput;
+    private final boolean isGeyser;
 
-    public ResourcepackCombiner(ItemSet itemSet, ZipOutputStream zipOutput) {
+    public ResourcepackCombiner(ItemSet itemSet, ZipOutputStream zipOutput, boolean isGeyser) {
         this.itemSet = itemSet;
         this.zipOutput = zipOutput;
+        this.isGeyser = isGeyser;
     }
 
     private void write(Stream<CombinedResourcepack> packs) throws IOException {
@@ -56,7 +58,7 @@ public class ResourcepackCombiner {
 
     public void writeLate() throws IOException {
         Stream<CombinedResourcepack> latePacks = itemSet.combinedResourcepacks.stream().filter(
-                pack -> pack.getPriority() < 0
+                pack -> pack.isGeyser() == this.isGeyser && pack.getPriority() < 0
         ).sorted(Comparator.comparingInt(CombinedResourcepack::getPriority).reversed());
 
         write(latePacks);
@@ -64,7 +66,7 @@ public class ResourcepackCombiner {
 
     public void writeEarly() throws IOException {
         Stream<CombinedResourcepack> earlyPacks = itemSet.combinedResourcepacks.stream().filter(
-                pack -> pack.getPriority() > 0
+                pack -> pack.isGeyser() == this.isGeyser && pack.getPriority() > 0
         ).sorted(Comparator.comparingInt(CombinedResourcepack::getPriority).reversed());
 
         write(earlyPacks);
