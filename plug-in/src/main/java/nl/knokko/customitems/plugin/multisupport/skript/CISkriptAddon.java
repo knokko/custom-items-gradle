@@ -10,6 +10,11 @@ import java.io.IOException;
 class CISkriptAddon {
 
     static void enable(CustomItemsPlugin plugin) {
+        if (!Skript.isAcceptRegistrations()) {
+            Bukkit.getLogger().warning("Failed to enable Skript support because Skript no longer accepts registrations");
+            return;
+        }
+
         SkriptAddon addon = Skript.registerAddon(plugin);
         try {
             addon.loadClasses("nl.knokko.customitems.plugin.multisupport.skript", "elements");
