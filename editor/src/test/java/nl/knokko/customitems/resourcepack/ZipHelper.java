@@ -1,7 +1,8 @@
 package nl.knokko.customitems.resourcepack;
 
+import nl.knokko.customitems.util.IOHelper;
+
 import java.io.*;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -27,20 +28,10 @@ public class ZipHelper {
         Map<String, byte[]> entries = new HashMap<>();
         ZipInputStream zip = new ZipInputStream(new ByteArrayInputStream(rawZip));
 
-        byte[] rawContent = new byte[1000];
         ZipEntry currentEntry = zip.getNextEntry();
         while (currentEntry != null) {
             if (!currentEntry.isDirectory()) {
-                int numReadBytes = 0;
-                while (true) {
-                    int nextReadBytes = zip.read(rawContent, numReadBytes, rawContent.length - numReadBytes);
-                    if (nextReadBytes == -1) break;
-
-                    numReadBytes += nextReadBytes;
-                    if (numReadBytes == rawContent.length) rawContent = Arrays.copyOf(rawContent, 2 * numReadBytes);
-                }
-
-                entries.put(currentEntry.getName(), Arrays.copyOf(rawContent, numReadBytes));
+                entries.put(currentEntry.getName(), IOHelper.readAllBytes(zip));
             }
             currentEntry = zip.getNextEntry();
         }

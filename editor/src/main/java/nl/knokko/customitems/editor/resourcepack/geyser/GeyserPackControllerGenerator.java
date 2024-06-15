@@ -20,7 +20,7 @@ class GeyserPackControllerGenerator {
         if (itemSet.textures.stream().anyMatch(texture -> texture instanceof BowTexture)) {
             IOHelper.propagate(
                     "kci_bow.render_controllers.json", zipOutput,
-                    "render_controllers/kci_bow.render_controllers.json", null
+                    "render_controllers/kci/bow.render_controllers.json", null
             );
         }
     }

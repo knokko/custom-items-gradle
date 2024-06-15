@@ -4,7 +4,6 @@ import nl.knokko.customitems.item.KciItemType;
 import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.itemset.ItemSet;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.HashSet;
@@ -27,7 +26,7 @@ public class GeyserMappingsGenerator {
         } else return "minecraft:" + item.getItemType().getModelName14();
     }
 
-    public void writeItemMappings() throws IOException {
+    public void writeItemMappings() {
         Set<String> vanillaItems = new HashSet<>();
         for (KciItem item : itemSet.items) {
             vanillaItems.add(getVanillaName(item));
@@ -51,7 +50,9 @@ public class GeyserMappingsGenerator {
                     jsonWriter.println("            {");
 
                     String prefix = "                ";
-                    jsonWriter.println(prefix + "\"name\": \"kci_" + item.getName() + "\",");
+                    String attachableId = "kci_" + item.getName();
+                    if (item.getGeyserModel() != null) attachableId = item.getGeyserModel().attachableId;
+                    jsonWriter.println(prefix + "\"name\": \"" + attachableId + "\",");
                     jsonWriter.println(prefix + "\"allow_offhand\": " + !item.isTwoHanded() + ",");
                     jsonWriter.println(prefix + "\"icon\": \"kci_" + item.getTexture().getName() + "\",");
                     jsonWriter.println(prefix + "\"custom_model_data\": " + item.getItemDamage());

@@ -54,8 +54,8 @@ public class ExportLoadingScreen extends GuiMenu {
         addComponent(new ConditionalTextComponent(
                 "Connecting...", LABEL, () -> progress.status == STATUS_CONNECTING
         ), 0.4f, 0.7f, 0.55f, 0.78f);
-        addComponent(new ConditionalTextComponent(
-                "Connected", LABEL, () -> progress.status > STATUS_CONNECTING
+        addComponent(new ConditionalTextComponent("Connected", LABEL,
+                () -> progress.status >= STATUS_UPLOADING_RESOURCEPACK || progress.status <= STATUS_GENERATING_RESOURCEPACK
         ), 0.4f, 0.7f, 0.55f, 0.78f);
 
         addComponent(new ConditionalTextComponent(

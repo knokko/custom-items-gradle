@@ -33,10 +33,14 @@ public class GeyserPackGenerator {
 
         GeyserPackAnimationGenerator animationsGenerator = new GeyserPackAnimationGenerator(itemSet, zipOutput);
         animationsGenerator.writeBowsJson();
-        // TODO Crossbow animations and regular animations
+        animationsGenerator.writeCustomModelAnimations();
 
         GeyserPackAttachableGenerator attachableGenerator = new GeyserPackAttachableGenerator(itemSet, zipOutput);
         attachableGenerator.generateBows();
+        attachableGenerator.generateCustomModels();
+
+        GeyserPackModelGenerator modelGenerator = new GeyserPackModelGenerator(itemSet, zipOutput);
+        modelGenerator.generateCustomModels();
 
         GeyserPackControllerGenerator controllerGenerator = new GeyserPackControllerGenerator(itemSet, zipOutput);
         controllerGenerator.generateBow();

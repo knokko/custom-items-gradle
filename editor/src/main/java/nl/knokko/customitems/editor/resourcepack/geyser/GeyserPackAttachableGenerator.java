@@ -1,10 +1,12 @@
 package nl.knokko.customitems.editor.resourcepack.geyser;
 
+import nl.knokko.customitems.item.KciBow;
+import nl.knokko.customitems.item.KciItem;
+import nl.knokko.customitems.item.model.GeyserCustomModel;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.texture.KciTexture;
-import nl.knokko.customitems.texture.BowTexture;
 
 import java.io.IOException;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 class GeyserPackAttachableGenerator {
@@ -18,13 +20,27 @@ class GeyserPackAttachableGenerator {
     }
 
     void generateBows() throws IOException {
-        for (KciTexture texture : itemSet.textures) {
-            if (texture instanceof BowTexture) {
+        for (KciItem item : itemSet.items) {
+            if (item instanceof KciBow) {
                 IOHelper.propagate(
                         "bow_template.attachable.json", zipOutput,
-                        "attachables/kci_" + texture.getName() + ".attachable.json",
-                        line -> line.replace("%TEXTURE_NAME%", texture.getName())
+                        "attachables/kci/bow/" + item.getName() + ".attachable.json",
+                        line -> line.replace("%TEXTURE_NAME%", item.getTexture().getName())
+                                .replace("%ITEM_NAME%", item.getName())
                 );
+            }
+        }
+    }
+
+    void generateCustomModels() throws IOException {
+        for (KciItem item : itemSet.items) {
+            GeyserCustomModel model = item.getGeyserModel();
+            if (model != null) {
+                zipOutput.putNextEntry(new ZipEntry(
+                        "attachables/kci/custom/" + item.getName() + ".attachable.json"
+                ));
+                zipOutput.write(model.attachableFile);
+                zipOutput.closeEntry();
             }
         }
     }

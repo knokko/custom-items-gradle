@@ -89,8 +89,8 @@ public class Exporter {
         return ResourcePackHost.upload(
                 itemSet.getExportSettings().getHostAddress(),
                 uploadOutput -> {
-                    new ResourcepackGenerator(itemSet).write(uploadOutput, textyBytes, notifyStartGeyserPack, false);
                     progress.status = STATUS_UPLOADING_RESOURCEPACK;
+                    new ResourcepackGenerator(itemSet).write(uploadOutput, textyBytes, notifyStartGeyserPack, false);
                 }, (responseCode, responseMessage, errorResponse) -> {
                     System.err.println("Uploading resource pack failed:");
                     for (String line : errorResponse) {

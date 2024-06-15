@@ -4,6 +4,7 @@ import nl.knokko.customitems.block.drop.CustomBlockDrop;
 import nl.knokko.customitems.block.drop.RequiredItems;
 import nl.knokko.customitems.drops.*;
 import nl.knokko.customitems.item.*;
+import nl.knokko.customitems.item.model.GeyserCustomModel;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.projectile.KciProjectile;
 import nl.knokko.customitems.recipe.KciCookingRecipe;
@@ -22,8 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 
-import static nl.knokko.customitems.serialization.BackwardHelper.listOf;
-import static nl.knokko.customitems.serialization.BackwardHelper.loadItemSet;
+import static nl.knokko.customitems.serialization.BackwardHelper.*;
 import static nl.knokko.customitems.serialization.TestBackward10.*;
 import static nl.knokko.customitems.serialization.TestBackward11.testEnergyTypesOld11;
 import static nl.knokko.customitems.serialization.TestBackward11.testSoundsOld11;
@@ -129,12 +129,35 @@ public class TestBackward13 {
     static void testItemsFancy13(ItemSet itemSet, int numItems) {
         testItemsFancy12(itemSet, numItems);
 
-        assertEquals(listOf(
-                false, false, true, false, false, false, true, true
-        ), itemSet.items.get("flagged").get().getItemFlags());
+        testFlagged(itemSet.getSide(), itemSet.items.get("flagged").get());
 
         testArmorDefault13((KciArmor) itemSet.items.get("simple_helmet").get());
         testArmorDefault13((KciArmor) itemSet.items.get("shiny_boots").get());
+    }
+
+    private static void testFlagged(ItemSet.Side side, KciItem item) {
+        assertEquals(listOf(
+                false, false, true, false, false, false, true, true
+        ), item.getItemFlags());
+
+        GeyserCustomModel geyserModel = item.getGeyserModel();
+        if (side == ItemSet.Side.PLUGIN) {
+            assertNull(geyserModel);
+            return;
+        }
+
+        assertNotNull(geyserModel);
+        assertEquals("gmdl_aff65df", geyserModel.attachableId);
+        assertStringResourceEquals(
+                "nl/knokko/customitems/serialization/geyser/animation.flagged.json", geyserModel.animationFile
+        );
+        assertStringResourceEquals(
+                "nl/knokko/customitems/serialization/geyser/flagged.gmdl_aff65df.attachable.json", geyserModel.attachableFile
+        );
+        assertStringResourceEquals(
+                "nl/knokko/customitems/serialization/geyser/flagged.model.json", geyserModel.modelFile
+        );
+        assertResourceEquals("nl/knokko/customitems/serialization/geyser/gmdl_aff65df.png", geyserModel.textureFile);
     }
 
     static void testContainersNew13(ItemSet itemSet, int numContainers) {

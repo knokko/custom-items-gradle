@@ -1,5 +1,7 @@
 package nl.knokko.customitems.editor.resourcepack.geyser;
 
+import nl.knokko.customitems.item.KciItem;
+import nl.knokko.customitems.item.model.GeyserCustomModel;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.texture.KciTexture;
 import nl.knokko.customitems.texture.BowTextureEntry;
@@ -54,6 +56,12 @@ public class GeyserPackTextureGenerator {
         writePullTexture(texture, 2, 0.9);
     }
 
+    private void writeCustomModelTexture(GeyserCustomModel model) throws IOException {
+        zipOutput.putNextEntry(new ZipEntry("textures/kci/models/" + model.attachableId + ".png"));
+        zipOutput.write(model.textureFile);
+        zipOutput.closeEntry();
+    }
+
     public void writeTextures() throws IOException {
         // TODO Support crossbow textures
         for (KciTexture texture : itemSet.textures) {
@@ -62,6 +70,10 @@ public class GeyserPackTextureGenerator {
             } else {
                 writeTexture(texture.getName(), texture.getImage());
             }
+        }
+
+        for (KciItem item : itemSet.items) {
+            if (item.getGeyserModel() != null) writeCustomModelTexture(item.getGeyserModel());
         }
     }
 

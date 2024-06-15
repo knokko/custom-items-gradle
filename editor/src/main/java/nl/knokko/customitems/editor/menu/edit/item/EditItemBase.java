@@ -9,6 +9,7 @@ import nl.knokko.customitems.editor.menu.edit.attack.effect.AttackEffectGroupCol
 import nl.knokko.customitems.editor.menu.edit.item.command.EditCommandSystem;
 import nl.knokko.customitems.editor.menu.edit.item.damage.EditSpecialMeleeDamage;
 import nl.knokko.customitems.editor.menu.edit.item.model.EditItemModel;
+import nl.knokko.customitems.editor.menu.edit.item.model.GeyserModelMenu;
 import nl.knokko.customitems.editor.menu.edit.item.translation.TranslationCollectionEdit;
 import nl.knokko.customitems.editor.menu.edit.texture.TextureEdit;
 import nl.knokko.customitems.editor.util.Validation;
@@ -361,6 +362,11 @@ public abstract class EditItemBase<V extends KciItem> extends GuiMenu {
 		addComponent(new EagerIntEditField(
 				currentValues.getFurnaceBurnTime(), 0, EDIT_BASE, EDIT_ACTIVE, currentValues::setFurnaceBurnTime
 		), BUTTON_X, -0.81f, BUTTON_X + 0.1f, -0.76f);
+		if (canHaveCustomModel()) {
+			addComponent(new DynamicTextButton("Geyser custom model...", BUTTON, HOVER, () -> {
+				state.getWindow().setMainComponent(new GeyserModelMenu(currentValues, this));
+			}), BUTTON_X - 0.05f, -0.87f, BUTTON_X + 0.1f, -0.82f);
+		}
 	}
 
 	protected GuiComponent createLoadTextureMenu() {

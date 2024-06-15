@@ -11,10 +11,7 @@ import nl.knokko.customitems.item.command.ItemCommand;
 import nl.knokko.customitems.item.command.ItemCommandEvent;
 import nl.knokko.customitems.item.command.ItemCommandSystem;
 import nl.knokko.customitems.item.enchantment.LeveledEnchantment;
-import nl.knokko.customitems.item.model.DefaultItemModel;
-import nl.knokko.customitems.item.model.DefaultModelType;
-import nl.knokko.customitems.item.model.ItemModel;
-import nl.knokko.customitems.item.model.LegacyCustomItemModel;
+import nl.knokko.customitems.item.model.*;
 import nl.knokko.customitems.itemset.DamageSourceReference;
 import nl.knokko.customitems.itemset.FakeItemSet;
 import nl.knokko.customitems.itemset.ItemSet;
@@ -180,6 +177,7 @@ public abstract class KciItem extends ModelValues {
     // Editor-only properties
     protected TextureReference texture;
     protected ItemModel model;
+    protected GeyserCustomModel geyserModel;
     protected WikiVisibility wikiVisibility;
 
     // Plugin-only properties
@@ -229,6 +227,7 @@ public abstract class KciItem extends ModelValues {
 
         this.texture = null;
         this.model = createDefaultItemModel(getDefaultModelType());
+        this.geyserModel = null;
         this.wikiVisibility = WikiVisibility.VISIBLE;
     }
 
@@ -265,6 +264,7 @@ public abstract class KciItem extends ModelValues {
         this.furnaceBurnTime = source.getFurnaceBurnTime();
         this.texture = source.getTextureReference();
         this.model = source.getModel();
+        this.geyserModel = source.getGeyserModel();
         this.wikiVisibility = source.getWikiVisibility();
         this.booleanRepresentation = source.getBooleanRepresentation();
     }
@@ -398,6 +398,10 @@ public abstract class KciItem extends ModelValues {
                 this.loadEditorOnlyProperties1(input, itemSet, true);
             }
         }
+
+        if (itemSet.getSide() == ItemSet.Side.EDITOR && encoding >= 5 && input.readBoolean()) {
+            this.geyserModel = GeyserCustomModel.load(input);
+        } else this.geyserModel = null;
     }
 
     protected void saveSharedPropertiesNew(BitOutput output, ItemSet.Side targetSide) {
@@ -449,6 +453,8 @@ public abstract class KciItem extends ModelValues {
             if (model != null) model.save(output);
             else output.addByte(MODEL_TYPE_NONE);
             output.addString(wikiVisibility.name());
+            output.addBoolean(geyserModel != null);
+            if (geyserModel != null) geyserModel.save(output);
         }
     }
 
@@ -675,6 +681,7 @@ public abstract class KciItem extends ModelValues {
     private void initBaseDefaults12() {
         this.translations = Collections.emptyList();
         this.furnaceBurnTime = 0;
+        this.geyserModel = null;
     }
 
     protected void initBaseDefaults11() {
@@ -895,6 +902,10 @@ public abstract class KciItem extends ModelValues {
         return model;
     }
 
+    public GeyserCustomModel getGeyserModel() {
+        return geyserModel;
+    }
+
     public WikiVisibility getWikiVisibility() {
         return wikiVisibility;
     }
@@ -1113,6 +1124,11 @@ public abstract class KciItem extends ModelValues {
         this.model = newModel;
     }
 
+    public void setGeyserModel(GeyserCustomModel newModel) {
+        assertMutable();
+        this.geyserModel = newModel;
+    }
+
     public void setWikiVisibility(WikiVisibility wikiVisibility) {
         assertMutable();
         this.wikiVisibility = Objects.requireNonNull(wikiVisibility);
@@ -1256,6 +1272,9 @@ public abstract class KciItem extends ModelValues {
         if (texture == null) throw new ValidationException("No texture");
         if (getDefaultModelType() != null && model == null) throw new ProgrammingValidationException("No model");
         if (wikiVisibility == null) throw new ProgrammingValidationException("No wiki visibility");
+        if (geyserModel != null && geyserModel.attachableId.contains("\"")) {
+            throw new ValidationException("The attachable ID of the geyser model can't contain double quotes");
+        }
     }
 
     public void validateComplete(
