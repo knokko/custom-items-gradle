@@ -1,6 +1,6 @@
 package nl.knokko.customitems.plugin.command;
 
-import nl.knokko.customitems.nms.KciNms;
+import de.tr7zw.changeme.nbtapi.NBT;
 import nl.knokko.customitems.plugin.util.ItemUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -13,9 +13,7 @@ public class CommandCustomItemsTag {
             Player player = (Player) sender;
             ItemStack item = player.getInventory().getItemInMainHand();
             if (!ItemUtils.isEmpty(item)) {
-                String nbt = KciNms.instance.items.getTagAsString(item);
-                if (nbt != null) sender.sendMessage(nbt);
-                else sender.sendMessage("This item doesn't have NBT");
+                sender.sendMessage(NBT.readNbt(item).toString());
             } else {
                 sender.sendMessage("Hold the item to check in your main hand");
             }

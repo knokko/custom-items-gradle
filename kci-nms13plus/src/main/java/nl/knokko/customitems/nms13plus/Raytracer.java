@@ -14,7 +14,7 @@ public class Raytracer {
         // TODO Determine proper raysize
         double raySize = 0.1;
 
-        // I'm glade my own class is called RaytraceResult, which prevents naming clashes
+        // I'm glad my own class is called RaytraceResult, which prevents naming clashes
         RayTraceResult bukkitResult = startLocation.getWorld().rayTrace(
                 startLocation, vector, vector.length(), FluidCollisionMode.NEVER, true, raySize,
                 (Entity toCheck) -> {

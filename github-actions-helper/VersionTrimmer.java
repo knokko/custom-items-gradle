@@ -129,7 +129,7 @@ public class VersionTrimmer {
                 };
                 allowedProjects = new String[]{
                         "ce-event-handler", "kci-nms", "kci-nms13plus", "kci-nms16plus",
-                        "kci-nms18", "kci-nms19", "kci-nms20"
+                        "kci-nms18", "kci-nms18plus", "kci-nms19", "kci-nms20"
                 };
                 break;
             case "test-custom-recipes":

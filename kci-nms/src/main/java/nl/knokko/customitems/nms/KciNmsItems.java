@@ -18,8 +18,6 @@ public interface KciNmsItems {
 
     String getStackName(ItemStack stack);
 
-    String getTagAsString(ItemStack stack);
-
     // TODO Stop using these methods since we no longer need them (they were needed in the past due to api-version)
     default String getMaterialName(Block block) {
         return block.getType().name();
