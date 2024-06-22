@@ -18,6 +18,17 @@ import static nl.knokko.customitems.encoding.RecipeEncoding.Ingredient.*;
 
 public class SimpleVanillaIngredient extends KciIngredient {
 
+    static void checkMaterial(VMaterial material) throws ValidationException {
+        if (material == null) throw new ValidationException("You need to choose a material");
+        if (material == VMaterial.AIR) throw new ValidationException("Air is not allowed");
+        if (material == VMaterial.WATER || material == VMaterial.STATIONARY_WATER) {
+            throw new ValidationException("Water is not allowed; Consider water buckets");
+        }
+        if (material == VMaterial.LAVA || material == VMaterial.STATIONARY_LAVA) {
+            throw new ValidationException("Lava is not allowed; Consider lava buckets");
+        }
+    }
+
     static SimpleVanillaIngredient load(BitInput input, byte encoding, ItemSet itemSet) throws UnknownEncodingException {
         SimpleVanillaIngredient result = new SimpleVanillaIngredient(false);
 
@@ -168,8 +179,7 @@ public class SimpleVanillaIngredient extends KciIngredient {
 
         if (amount < 1) throw new ValidationException("Amount must be positive");
         if (amount > 64) throw new ValidationException("Amount can be at most 64");
-        if (material == null) throw new ValidationException("You need to choose a material");
-        if (material == VMaterial.AIR) throw new ValidationException("Air is not allowed");
+        checkMaterial(material);
     }
 
     @Override

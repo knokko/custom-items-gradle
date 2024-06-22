@@ -144,9 +144,9 @@ public class UpdateProjectileTask implements Runnable {
 		coverStack.setItemMeta(coverMeta);
 		short itemDamage = projectile.prototype.getCover().getItemDamage();
 		if (KciNms.mcVersion < VERSION1_14) coverStack.setDurability(itemDamage);
+		else KciNms.instance.items.setCustomModelData(coverMeta, itemDamage);
 		NBT.modify(coverStack, nbt -> {
 			nbt.setBoolean(FlyingProjectile.KEY_COVER_ITEM, true);
-			if (KciNms.mcVersion >= VERSION1_14) nbt.setInteger("CustomModelData", (int) itemDamage);
 		});
 
 		coverItem = projectile.world.dropItem(position.toLocation(projectile.world), coverStack);

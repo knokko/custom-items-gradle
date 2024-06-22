@@ -27,6 +27,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static nl.knokko.customitems.MCVersions.VERSION1_14;
+import static nl.knokko.customitems.MCVersions.VERSION1_20;
 
 public abstract class CustomItemWrapper {
 
@@ -85,6 +86,9 @@ public abstract class CustomItemWrapper {
                 meta.addItemFlags(allFlags[index]);
             }
         }
+
+        if (KciNms.mcVersion >= VERSION1_14) KciNms.instance.items.setCustomModelData(meta, this.item.getItemDamage());
+
         return meta;
     }
 
@@ -120,6 +124,13 @@ public abstract class CustomItemWrapper {
             defaultEnchantmentMap.put(enchantment.getType(), enchantment.getLevel());
         }
 
+        if (!this.item.getTranslations().isEmpty() && KciNms.mcVersion >= VERSION1_20) {
+            TranslationEntry first = this.item.getTranslations().iterator().next();
+            item = KciNms.instance.items.translate(
+                    item, this.item.getName(), !first.getDisplayName().isEmpty(), first.getLore().size()
+            );
+        }
+
         NBT.modify(item, nbt -> {
 
             long lastModified = CustomItemsPlugin.getInstance().getSet().get().getExportTime();
@@ -135,14 +146,9 @@ public abstract class CustomItemWrapper {
                 nbt.mergeCompound(NBT.parseNBT(extraNbt));
             }
 
-            if (!this.item.getTranslations().isEmpty()) {
+            if (!this.item.getTranslations().isEmpty() && KciNms.mcVersion < VERSION1_20) {
                 translateName(nbt);
                 translateLore(nbt);
-            }
-
-            if (KciNms.mcVersion >= VERSION1_14) {
-                String customModelDataKey = "CustomModelData";
-                nbt.setInteger(customModelDataKey, (int) this.item.getItemDamage());
             }
 
             ItemUpgrader.setAttributeIDs(

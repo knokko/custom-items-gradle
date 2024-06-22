@@ -8,6 +8,7 @@ import org.bukkit.craftbukkit.v1_15_R1.CraftEquipmentSlot;
 import org.bukkit.craftbukkit.v1_15_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
@@ -47,5 +48,10 @@ public class KciNmsItems15 extends KciNmsItems13Plus {
     @Override
     public void blockSmithingTableUpgrades(Predicate<ItemStack> shouldBeBlocked, Plugin plugin) {
         // This minecraft version has smithing tables, but they don't have any recipes
+    }
+
+    @Override
+    public void setCustomModelData(ItemMeta meta, int data) {
+        meta.setCustomModelData(data);
     }
 }

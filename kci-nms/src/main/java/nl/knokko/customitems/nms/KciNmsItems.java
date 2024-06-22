@@ -3,6 +3,7 @@ package nl.knokko.customitems.nms;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
 import java.util.function.Consumer;
@@ -43,4 +44,8 @@ public interface KciNmsItems {
     }
 
     void blockSmithingTableUpgrades(Predicate<ItemStack> shouldBeBlocked, Plugin plugin);
+
+    void setCustomModelData(ItemMeta meta, int data);
+
+    ItemStack translate(ItemStack item, String itemName, boolean translateDisplayName, int loreSize);
 }
