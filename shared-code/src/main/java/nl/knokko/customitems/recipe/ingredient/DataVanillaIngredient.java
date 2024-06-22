@@ -16,6 +16,7 @@ import nl.knokko.customitems.bithelper.BitOutput;
 import java.util.Objects;
 
 import static nl.knokko.customitems.encoding.RecipeEncoding.Ingredient.VANILLA_DATA_NEW;
+import static nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredient.checkMaterial;
 
 public class DataVanillaIngredient extends KciIngredient {
 
@@ -191,8 +192,7 @@ public class DataVanillaIngredient extends KciIngredient {
         if (amount < 1) throw new ValidationException("Amount must be positive");
         if (amount > 64) throw new ValidationException("Amount can be at most 64");
 
-        if (material == null) throw new ValidationException("You must choose a material");
-        if (material == VMaterial.AIR) throw new ValidationException("Air is not allowed");
+        checkMaterial(material);
 
         if (dataValue < 0) throw new ValidationException("Data value can't be negative");
         if (dataValue > 15) throw new ValidationException("Data value can be at most 15");

@@ -3,6 +3,7 @@ package nl.knokko.customitems.nms12;
 import nl.knokko.customitems.nms.*;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
 import java.util.function.Predicate;
@@ -33,5 +34,16 @@ class KciNmsItems12 implements KciNmsItems {
     @Override
     public void blockSmithingTableUpgrades(Predicate<ItemStack> shouldBeBlocked, Plugin plugin) {
         // There is no need to do anything because there are no smithing tables in minecraft 1.12
+    }
+
+    @Override
+    public void setCustomModelData(ItemMeta meta, int data) {
+        // MC 1.12 doesn't support CustomModelData
+    }
+
+    @Override
+    public ItemStack translate(ItemStack item, String itemName, boolean translateDisplayName, int loreSize) {
+        // Only MC 1.14+ supports translations
+        return item;
     }
 }

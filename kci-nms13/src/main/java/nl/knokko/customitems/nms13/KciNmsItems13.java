@@ -8,6 +8,7 @@ import org.bukkit.craftbukkit.v1_13_R2.CraftEquipmentSlot;
 import org.bukkit.craftbukkit.v1_13_R2.inventory.CraftItemStack;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
 import java.util.ArrayList;
@@ -47,5 +48,10 @@ class KciNmsItems13 extends KciNmsItems13Plus {
     @Override
     public void blockSmithingTableUpgrades(Predicate<ItemStack> shouldBeBlocked, Plugin plugin) {
         // There are no smithing tables in minecraft 1.13
+    }
+
+    @Override
+    public void setCustomModelData(ItemMeta meta, int data) {
+        // MC 1.13 doesn't support CustomModelData
     }
 }

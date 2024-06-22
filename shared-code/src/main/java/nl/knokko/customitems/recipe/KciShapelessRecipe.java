@@ -203,5 +203,9 @@ public class KciShapelessRecipe extends KciCraftingRecipe {
         for (KciIngredient ingredient : ingredients) {
             Validation.scope("Ingredients", () -> ingredient.validateExportVersion(version));
         }
+        if (result instanceof UpgradeResult) {
+            UpgradeResult upgradeResult = (UpgradeResult) result;
+            upgradeResult.validateExportVersion(version, ingredients.get(upgradeResult.getIngredientIndex()));
+        }
     }
 }

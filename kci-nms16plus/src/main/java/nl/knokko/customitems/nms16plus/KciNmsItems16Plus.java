@@ -7,6 +7,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.PrepareSmithingEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
 import java.util.function.Predicate;
@@ -18,6 +19,11 @@ public abstract class KciNmsItems16Plus extends KciNmsItems13Plus {
         Bukkit.getPluginManager().registerEvents(
                 new SmithingBlockEventHandler(shouldBeBlocked), plugin
         );
+    }
+
+    @Override
+    public void setCustomModelData(ItemMeta meta, int data) {
+        meta.setCustomModelData(data);
     }
 
     private static class SmithingBlockEventHandler implements Listener {

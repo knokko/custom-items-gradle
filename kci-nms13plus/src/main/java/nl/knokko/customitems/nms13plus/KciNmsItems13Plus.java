@@ -158,4 +158,10 @@ public abstract class KciNmsItems13Plus implements KciNmsItems {
                 DUMMY_UUID, "dummy", 0, AttributeModifier.Operation.ADD_NUMBER
         ));
     }
+
+    @Override
+    public ItemStack translate(ItemStack item, String itemName, boolean translateDisplayName, int loreSize) {
+        // Only MC 1.20+ requires complex translation code
+        return item;
+    }
 }

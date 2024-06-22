@@ -423,6 +423,12 @@ public class ContainerRecipe extends ModelValues {
                     "Output " + outputEntry.getKey(),
                     () -> outputEntry.getValue().validateExportVersion(version)
             );
+            for (OutputTable.Entry entry : outputEntry.getValue().getEntries()) {
+                if (entry.getResult() instanceof UpgradeResult) {
+                    UpgradeResult upgradeResult = (UpgradeResult) entry.getResult();
+                    upgradeResult.validateExportVersion(version, inputs.get(upgradeResult.getInputSlotName()));
+                }
+            }
         }
 
         if (manualOutput != null) {

@@ -8,6 +8,7 @@ import nl.knokko.customitems.recipe.ingredient.KciIngredient;
 import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredient;
 import nl.knokko.customitems.recipe.result.KciResult;
 import nl.knokko.customitems.recipe.result.SimpleVanillaResult;
+import nl.knokko.customitems.recipe.result.UpgradeResult;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.Validation;
@@ -184,5 +185,13 @@ public class KciSmithingRecipe extends ModelValues {
         Validation.scope("Tool", tool::validateExportVersion, mcVersion);
         Validation.scope("Material", material::validateExportVersion, mcVersion);
         Validation.scope("Result", result::validateExportVersion, mcVersion);
+        if (result instanceof UpgradeResult) {
+            UpgradeResult upgradeResult = (UpgradeResult) result;
+            KciIngredient ingredient = null;
+            if (upgradeResult.getIngredientIndex() == 0) ingredient = template;
+            if (upgradeResult.getIngredientIndex() == 1) ingredient = tool;
+            if (upgradeResult.getIngredientIndex() == 2) ingredient = material;
+            upgradeResult.validateExportVersion(mcVersion, ingredient);
+        }
     }
 }

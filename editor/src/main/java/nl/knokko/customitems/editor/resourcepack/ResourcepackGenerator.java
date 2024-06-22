@@ -1,6 +1,5 @@
 package nl.knokko.customitems.editor.resourcepack;
 
-import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.editor.resourcepack.geyser.GeyserMappingsGenerator;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -12,8 +11,7 @@ import java.io.PrintWriter;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static nl.knokko.customitems.MCVersions.VERSION1_19;
-import static nl.knokko.customitems.MCVersions.VERSION1_20;
+import static nl.knokko.customitems.MCVersions.*;
 
 public class ResourcepackGenerator {
 
@@ -99,22 +97,22 @@ public class ResourcepackGenerator {
 
         int mcVersion = itemSet.getExportSettings().getMcVersion();
         int packFormat;
-        if (mcVersion == MCVersions.VERSION1_12) {
+        if (mcVersion == VERSION1_12) {
             packFormat = 3;
-        } else if (mcVersion == MCVersions.VERSION1_13 || mcVersion == MCVersions.VERSION1_14) {
+        } else if (mcVersion == VERSION1_13 || mcVersion == VERSION1_14) {
             packFormat = 4;
-        } else if (mcVersion == MCVersions.VERSION1_15) {
+        } else if (mcVersion == VERSION1_15) {
             packFormat = 5;
-        } else if (mcVersion == MCVersions.VERSION1_16) {
+        } else if (mcVersion == VERSION1_16) {
             packFormat = 6;
-        } else if (mcVersion == MCVersions.VERSION1_17) {
+        } else if (mcVersion == VERSION1_17) {
             packFormat = 7;
-        } else if (mcVersion == MCVersions.VERSION1_18) {
+        } else if (mcVersion == VERSION1_18) {
             packFormat = 8;
         } else if (mcVersion == VERSION1_19) {
-            packFormat = 12;
+            packFormat = 13;
         } else if (mcVersion == VERSION1_20) {
-            packFormat = 15;
+            packFormat = 32;
         } else {
             throw new ProgrammingValidationException("Unknown pack format for mc version " + mcVersion);
         }

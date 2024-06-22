@@ -10,6 +10,7 @@ import nl.knokko.customitems.recipe.ingredient.KciIngredient;
 import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredient;
 import nl.knokko.customitems.recipe.result.KciResult;
 import nl.knokko.customitems.recipe.result.SimpleVanillaResult;
+import nl.knokko.customitems.recipe.result.UpgradeResult;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.Validation;
@@ -245,5 +246,9 @@ public class KciCookingRecipe extends ModelValues {
         }
         Validation.scope("Input", input::validateExportVersion, mcVersion);
         Validation.scope("Result", result::validateExportVersion, mcVersion);
+        if (result instanceof UpgradeResult) {
+            UpgradeResult upgradeResult = (UpgradeResult) result;
+            upgradeResult.validateExportVersion(mcVersion, input);
+        }
     }
 }

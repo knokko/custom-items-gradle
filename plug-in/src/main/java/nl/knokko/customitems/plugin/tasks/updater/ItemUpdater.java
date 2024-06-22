@@ -409,10 +409,6 @@ public class ItemUpdater {
 			for (String newNbt : newItem.getExtraNbt()) {
 				generalNbt.mergeCompound(NBT.parseNBT(newNbt));
 			}
-			if (KciNms.mcVersion >= VERSION1_14) {
-				String customModelDataKey = "CustomModelData";
-				generalNbt.setInteger(customModelDataKey, (int) newItem.getItemDamage());
-			}
 		});
 
 		newStack = upgradeEnchantments(newStack, oldItem, newItem);
@@ -429,6 +425,7 @@ public class ItemUpdater {
 		}
 
 		meta.setUnbreakable(KciNms.mcVersion < VERSION1_14 || !wrap(newItem).showDurabilityBar());
+		if (KciNms.mcVersion >= VERSION1_14) KciNms.instance.items.setCustomModelData(meta, newItem.getItemDamage());
 		newStack.setItemMeta(meta);
 		upgradeLore2(newStack, oldItem, newItem);
 
