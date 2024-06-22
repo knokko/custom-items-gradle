@@ -31,17 +31,6 @@ class KciNmsItems12 implements KciNmsItems {
     }
 
     @Override
-    public String getTagAsString(ItemStack stack) {
-        net.minecraft.server.v1_12_R1.ItemStack nms = CraftItemStack.asNMSCopy(stack);
-        if (nms.hasTag()) {
-            assert nms.getTag() != null;
-            return nms.getTag().toString();
-        } else {
-            return null;
-        }
-    }
-
-    @Override
     public void blockSmithingTableUpgrades(Predicate<ItemStack> shouldBeBlocked, Plugin plugin) {
         // There is no need to do anything because there are no smithing tables in minecraft 1.12
     }

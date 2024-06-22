@@ -151,6 +151,10 @@ jobs:
           path: kci-nms18/build/classes/java/main
       - uses: actions/upload-artifact@v3
         with:
+          name: kci-nms18plus
+          path: kci-nms18plus/build/classes/java/main
+      - uses: actions/upload-artifact@v3
+        with:
           name: kci-nms19
           path: kci-nms19/build/classes/java/main
       - uses: actions/upload-artifact@v3
@@ -206,6 +210,10 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: kci-nms18
+          path: combined
+      - uses: actions/download-artifact@v3
+        with:
+          name: kci-nms18plus
           path: combined
       - uses: actions/download-artifact@v3
         with:

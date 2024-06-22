@@ -1,28 +1,13 @@
 package nl.knokko.customitems.nms19;
 
-import nl.knokko.customitems.nms.*;
-import nl.knokko.customitems.nms13plus.Raytracer;
-import nl.knokko.customitems.nms16plus.KciNmsBlocks16Plus;
-import org.bukkit.Location;
-import org.bukkit.entity.Entity;
-import org.bukkit.util.Vector;
+import nl.knokko.customitems.nms16plus.KciNms16Plus;
 
 @SuppressWarnings("unused")
-public class KciNms19 extends KciNms {
+public class KciNms19 extends KciNms16Plus {
 
     public static final String NMS_VERSION_STRING = "1_19_R3";
 
     public KciNms19() {
-        super(new KciNmsBlocks16Plus(), new KciNmsEntities19(), new KciNmsItems19());
-    }
-
-    @Override
-    public RaytraceResult raytrace(Location startLocation, Vector vector, Entity... entitiesToExclude) {
-        return Raytracer.raytrace(startLocation, vector, entitiesToExclude);
-    }
-
-    @Override
-    public boolean useNewCommands() {
-        return true;
+        super(new KciNmsEntities19(), new KciNmsItems19());
     }
 }

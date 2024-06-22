@@ -45,17 +45,6 @@ class KciNmsItems13 extends KciNmsItems13Plus {
     }
 
     @Override
-    public String getTagAsString(ItemStack stack) {
-        net.minecraft.server.v1_13_R2.ItemStack nms = CraftItemStack.asNMSCopy(stack);
-        if (nms.hasTag()) {
-            assert nms.getTag() != null;
-            return nms.getTag().toString();
-        } else {
-            return null;
-        }
-    }
-
-    @Override
     public void blockSmithingTableUpgrades(Predicate<ItemStack> shouldBeBlocked, Plugin plugin) {
         // There are no smithing tables in minecraft 1.13
     }

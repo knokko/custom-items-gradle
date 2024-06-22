@@ -1,12 +1,12 @@
 package nl.knokko.customitems.nms16plus;
 
-import nl.knokko.customitems.nms.KciNmsEntities;
+import nl.knokko.customitems.nms13plus.KciNmsEntities13Plus;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Trident;
 import org.bukkit.inventory.ItemStack;
 
-public abstract class KciNmsEntities16Plus implements KciNmsEntities {
+public abstract class KciNmsEntities16Plus extends KciNmsEntities13Plus {
 
     @Override
     public ItemStack getTridentItem(Entity tridentEntity) {
