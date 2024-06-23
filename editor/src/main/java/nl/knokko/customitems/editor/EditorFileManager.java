@@ -46,7 +46,6 @@ public class EditorFileManager {
             ItemSet itemSet, ExportProgress progress
     ) throws IOException, ValidationException, ProgrammingValidationException {
 
-        System.out.println("exportFiles?" + itemSet.getExportSettings().shouldSkipResourcepack());
         FOLDER.mkdirs();
 
         if (!itemSet.getExportSettings().shouldSkipResourcepack()) {
