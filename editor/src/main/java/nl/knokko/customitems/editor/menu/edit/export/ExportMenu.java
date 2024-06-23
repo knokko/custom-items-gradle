@@ -84,7 +84,7 @@ public class ExportMenu extends GuiMenu {
             new Thread(() -> {
                 Exporter.attemptToExport(itemSet, fileName, exportSettings, returnMenu, progress);
             }).start();
-            state.getWindow().setMainComponent(new ExportLoadingScreen(this, errorComponent, progress));
+            state.getWindow().setMainComponent(new ExportLoadingScreen(this, errorComponent, progress, exportSettings));
         }), 0.825f, 0.8f, 0.975f, 0.9f);
 
         addComponent(new WrapperComponent<GuiMenu>(new AutomaticSettings()) {

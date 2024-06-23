@@ -1,5 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.export;
 
+import nl.knokko.customitems.settings.ExportSettings;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -15,13 +16,18 @@ public class ExportLoadingScreen extends GuiMenu {
     private final GuiComponent failureMenu;
     private final DynamicTextComponent errorComponent;
     private final ExportProgress progress;
+    private final ExportSettings settings;
 
     private int lastStatus = 0;
 
-    public ExportLoadingScreen(GuiComponent failureMenu, DynamicTextComponent errorComponent, ExportProgress progress) {
+    public ExportLoadingScreen(
+            GuiComponent failureMenu, DynamicTextComponent errorComponent,
+            ExportProgress progress, ExportSettings settings
+    ) {
         this.failureMenu = failureMenu;
         this.errorComponent = errorComponent;
         this.progress = progress;
+        this.settings = settings;
     }
 
     @Override
@@ -53,17 +59,21 @@ public class ExportLoadingScreen extends GuiMenu {
         ), 0.4f, 0.7f, 0.55f, 0.78f);
 
         addComponent(new ConditionalTextComponent(
-                "Generating resourcepack...", LABEL, () -> progress.status == STATUS_GENERATING_RESOURCEPACK
+                "Generating resourcepack...", LABEL,
+                () -> progress.status == STATUS_GENERATING_RESOURCEPACK && !settings.shouldSkipResourcepack()
         ), 0.4f, 0.62f, 0.6f, 0.7f);
         addComponent(new ConditionalTextComponent(
-                "Generated resourcepack", LABEL, () -> progress.status < STATUS_GENERATING_RESOURCEPACK
+                "Generated resourcepack", LABEL,
+                () -> progress.status < STATUS_GENERATING_RESOURCEPACK && !settings.shouldSkipResourcepack()
         ), 0.4f, 0.62f, 0.6f, 0.7f);
 
         addComponent(new ConditionalTextComponent(
-                "Generating geyserpack...", LABEL, () -> progress.status == STATUS_GENERATING_GEYSERPACK
+                "Generating geyserpack...", LABEL,
+                () -> progress.status == STATUS_GENERATING_GEYSERPACK && settings.shouldGenerateGeyserPack()
         ), 0.4f, 0.54f, 0.6f, 0.62f);
         addComponent(new ConditionalTextComponent(
-                "Generated geyserpack", LABEL, () -> progress.status < STATUS_GENERATING_GEYSERPACK
+                "Generated geyserpack", LABEL,
+                () -> progress.status < STATUS_GENERATING_GEYSERPACK && settings.shouldGenerateGeyserPack()
         ), 0.4f, 0.54f, 0.6f, 0.62f);
 
         addComponent(new ConditionalTextComponent(
@@ -74,10 +84,12 @@ public class ExportLoadingScreen extends GuiMenu {
         ), 0.4f, 0.62f, 0.6f, 0.7f);
 
         addComponent(new ConditionalTextComponent(
-                "Uploading geyserpack...", LABEL, () -> progress.status == STATUS_UPLOADING_GEYSERPACK
+                "Uploading geyserpack...", LABEL,
+                () -> progress.status == STATUS_UPLOADING_GEYSERPACK && settings.shouldGenerateGeyserPack()
         ), 0.4f, 0.54f, 0.56f, 0.62f);
         addComponent(new ConditionalTextComponent(
-                "Uploaded geyserpack", LABEL, () -> progress.status > STATUS_UPLOADING_GEYSERPACK
+                "Uploaded geyserpack", LABEL,
+                () -> progress.status > STATUS_UPLOADING_GEYSERPACK && settings.shouldGenerateGeyserPack()
         ), 0.4f, 0.54f, 0.56f, 0.62f);
 
         addComponent(new ConditionalTextComponent(
