@@ -19,4 +19,9 @@ final class Model<V extends ModelValues> {
     public void setValues(V newValues) {
         this.values = (V) newValues.copy(false);
     }
+
+    @Override
+    public String toString() {
+        return "Model(" + values + ")";
+    }
 }

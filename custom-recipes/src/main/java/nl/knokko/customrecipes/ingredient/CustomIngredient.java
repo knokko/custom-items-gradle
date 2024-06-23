@@ -31,6 +31,11 @@ public class CustomIngredient {
         this(material, ingredient -> true);
     }
 
+    @Override
+    public String toString() {
+        return "CustomIngredient(" + material + "," + (shouldAccept != null) + "," + amount + "," + remainingItem + ")";
+    }
+
     public boolean accepts(ItemStack input) {
         if (input == null) return false;
         if (material != input.getType()) return false;
