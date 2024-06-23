@@ -43,6 +43,7 @@ public class ProjectileManager extends ModelManager<KciProjectile, ProjectileRef
 
     @Override
     public void validate() throws ValidationException, ProgrammingValidationException {
+        super.validate();
         validateUniqueIDs("projectile name", elements, projectile -> projectile.getValues().getName());
     }
 

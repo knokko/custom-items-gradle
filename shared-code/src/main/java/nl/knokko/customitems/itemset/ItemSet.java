@@ -618,7 +618,7 @@ public class ItemSet {
         for (ModelManager<?, ?> manager : getAllManagers()) manager.validateExportVersion(version);
     }
 
-    private void validate() throws ValidationException, ProgrammingValidationException {
+    void validate() throws ValidationException, ProgrammingValidationException {
         for (ModelManager<?, ?> manager : getAllManagers()) manager.validate();
     }
 
