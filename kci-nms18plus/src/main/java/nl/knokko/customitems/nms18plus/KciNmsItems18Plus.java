@@ -20,7 +20,6 @@ public abstract class KciNmsItems18Plus extends KciNmsItems16Plus {
         List<RawAttribute> attributeList = new ArrayList<>(2);
         for (EquipmentSlot slot : EquipmentSlot.values()) {
             Multimap<Attribute, AttributeModifier> map = stack.getType().getDefaultAttributeModifiers(slot);
-            System.out.println("default attributes of " + stack.getType() + "for slot " + slot + " are " + map);
 
             map.entries().forEach(attributePair -> {
                 UUID id = attributePair.getValue().getUniqueId();

@@ -71,7 +71,6 @@ public abstract class KciNmsItems13Plus implements KciNmsItems {
     @Override
     public RawAttribute[] getAttributes(ItemStack stack) {
         ItemMeta meta = stack.getItemMeta();
-        System.out.println("default attributes of " + stack.getType() + " are " + Arrays.toString(getDefaultAttributes(stack)));
         if (meta != null) {
             Multimap<Attribute, AttributeModifier> attributeModifiers = meta.getAttributeModifiers();
             if (attributeModifiers == null) return getDefaultAttributes(stack);
