@@ -1,6 +1,19 @@
 package nl.knokko.customitems.item.model;
 
+import nl.knokko.customitems.bithelper.BitInput;
+import nl.knokko.customitems.bithelper.BitOutput;
+import nl.knokko.customitems.trouble.UnknownEncodingException;
+
+import java.util.Objects;
+
 public class GeyserCustomModel {
+
+    public static GeyserCustomModel load(BitInput input) throws UnknownEncodingException {
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("GeyserCustomModel", encoding);
+
+        return new GeyserCustomModel(input.readString(), input.readByteArray(), input.readByteArray(), input.readByteArray());
+    }
 
     public final String attachableId;
     public final byte[] animationFile;
@@ -8,9 +21,18 @@ public class GeyserCustomModel {
     public final byte[] modelFile;
 
     public GeyserCustomModel(String attachableId, byte[] animationFile, byte[] attachableFile, byte[] modelFile) {
-        this.attachableId = attachableId;
-        this.animationFile = animationFile;
-        this.attachableFile = attachableFile;
-        this.modelFile = modelFile;
+        this.attachableId = Objects.requireNonNull(attachableId);
+        this.animationFile = Objects.requireNonNull(animationFile);
+        this.attachableFile = Objects.requireNonNull(attachableFile);
+        this.modelFile = Objects.requireNonNull(modelFile);
+    }
+
+    public void save(BitOutput output) {
+        output.addByte((byte) 1);
+        output.addString(attachableId);
+        output.addByteArray(animationFile);
+        output.addByteArray(attachableFile);
+        output.addByteArray(modelFile);
+        // TODO Test this
     }
 }

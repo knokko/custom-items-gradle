@@ -1,9 +1,12 @@
 package nl.knokko.customitems.editor.resourcepack.geyser;
 
+import nl.knokko.customitems.item.KciItem;
+import nl.knokko.customitems.item.model.GeyserCustomModel;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.texture.BowTexture;
 
 import java.io.IOException;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 class GeyserPackAnimationGenerator {
@@ -22,6 +25,25 @@ class GeyserPackAnimationGenerator {
                     "kci_bow.animation.json", zipOutput,
                     "animations/kci_bow.animation.json", null
             );
+        }
+    }
+
+    void writeCustomModelAnimations() throws IOException {
+        if (itemSet.items.stream().anyMatch(item -> item.getGeyserModel() != null)) {
+            // TODO Test if this is required
+            IOHelper.propagate(
+                    "animation.geyser_custom.disable.json", zipOutput,
+                    "animations/animation.geyser_custom.disable.json", null
+            );
+        }
+
+        for (KciItem item : itemSet.items) {
+            GeyserCustomModel model = item.getGeyserModel();
+            if (model != null) {
+                zipOutput.putNextEntry(new ZipEntry("animations/minecraft/customitems/animation." + item.getName() + ".json"));
+                zipOutput.write(model.animationFile);
+                zipOutput.closeEntry();
+            }
         }
     }
 }
