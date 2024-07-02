@@ -9,6 +9,7 @@ import nl.knokko.customitems.trouble.UnknownEncodingException;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.UUID;
 
 public class GeyserCustomModel {
 
@@ -17,7 +18,7 @@ public class GeyserCustomModel {
         if (encoding != 1) throw new UnknownEncodingException("GeyserCustomModel", encoding);
 
         return new GeyserCustomModel(
-                input.readString(), input.readByteArray(),
+                input.readString(), input.readString(), input.readByteArray(),
                 input.readByteArray(), input.readByteArray(), input.readByteArray()
         );
     }
@@ -43,6 +44,17 @@ public class GeyserCustomModel {
             }
             JsonObject description = (JsonObject) descriptionObject;
 
+            Object geometryObject = description.get("geometry");
+            if (!(geometryObject instanceof JsonObject)) {
+                return new AttachableParseResult("Attachable JSON doesn't seem to have a geometry object");
+            }
+            Object defaultGeometryObject = ((JsonObject) geometryObject).get("default");
+            if (!(defaultGeometryObject instanceof String)) {
+                return new AttachableParseResult("Geometry object doesn't have a default");
+            }
+
+            // TODO Refactor
+            description.put("identifier", "geyser_custom:" + UUID.randomUUID());
             Object identifierObject = description.get("identifier");
             if (!(identifierObject instanceof String)) {
                 return new AttachableParseResult("Description JSON doesn't seem to have an identifier string");
@@ -66,23 +78,25 @@ public class GeyserCustomModel {
             String newString = Jsoner.prettyPrint(json.toJson());
             byte[] newBytes = newString.getBytes(StandardCharsets.UTF_8);
 
-            return new AttachableParseResult(identifier, newBytes);
+            return new AttachableParseResult(identifier, (String) defaultGeometryObject, newBytes);
         } catch (JsonException e) {
             return new AttachableParseResult("Attachable file doesn't seem to be valid JSON");
         }
     }
 
     public final String attachableId;
+    public final String geometryId;
     public final byte[] animationFile;
     public final byte[] attachableFile;
     public final byte[] modelFile;
     public final byte[] textureFile;
 
     public GeyserCustomModel(
-            String attachableId, byte[] animationFile,
+            String attachableId, String geometryId, byte[] animationFile,
             byte[] attachableFile, byte[] modelFile, byte[] textureFile
     ) {
         this.attachableId = Objects.requireNonNull(attachableId);
+        this.geometryId = Objects.requireNonNull(geometryId);
         this.animationFile = Objects.requireNonNull(animationFile);
         this.attachableFile = Objects.requireNonNull(attachableFile);
         this.modelFile = Objects.requireNonNull(modelFile);
@@ -92,6 +106,7 @@ public class GeyserCustomModel {
     public void save(BitOutput output) {
         output.addByte((byte) 1);
         output.addString(attachableId);
+        output.addString(geometryId);
         output.addByteArray(animationFile);
         output.addByteArray(attachableFile);
         output.addByteArray(modelFile);
@@ -102,17 +117,20 @@ public class GeyserCustomModel {
 
         public final String error;
         public final String id;
+        public final String geometryId;
         public final byte[] newJsonBytes;
 
         AttachableParseResult(String error) {
             this.error = error;
             this.id = null;
+            this.geometryId = null;
             this.newJsonBytes = null;
         }
 
-        AttachableParseResult(String id, byte[] newJsonBytes) {
+        AttachableParseResult(String id, String geometryId, byte[] newJsonBytes) {
             this.error = null;
             this.id = id;
+            this.geometryId = geometryId;
             this.newJsonBytes = newJsonBytes;
         }
     }

@@ -28,11 +28,11 @@ public class GeyserPackGenerator {
         generateManifest();
 
         GeyserPackTextureGenerator textureGenerator = new GeyserPackTextureGenerator(itemSet, zipOutput);
-        textureGenerator.writeTexturesJson();
+        textureGenerator.writeTexturesJsons();
         textureGenerator.writeTextures();
 
         GeyserPackAnimationGenerator animationsGenerator = new GeyserPackAnimationGenerator(itemSet, zipOutput);
-        animationsGenerator.writeBowsJson();
+        animationsGenerator.copyAnimations();
         animationsGenerator.writeCustomModelAnimations();
 
         GeyserPackAttachableGenerator attachableGenerator = new GeyserPackAttachableGenerator(itemSet, zipOutput);
@@ -41,6 +41,7 @@ public class GeyserPackGenerator {
 
         GeyserPackModelGenerator modelGenerator = new GeyserPackModelGenerator(itemSet, zipOutput);
         modelGenerator.generateCustomModels();
+        modelGenerator.generateBlockModel();
 
         GeyserPackControllerGenerator controllerGenerator = new GeyserPackControllerGenerator(itemSet, zipOutput);
         controllerGenerator.generateBow();

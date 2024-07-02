@@ -1,0 +1,133 @@
+{
+	"format_version": "1.16.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.kci_same_block",
+				"texture_width": 16,
+				"texture_height": 16,
+				"visible_bounds_width": 4,
+				"visible_bounds_height": 4.5,
+				"visible_bounds_offset": [
+					0,
+					0.75,
+					0
+				]
+			},
+			"bones": [
+				{
+					"name": "geyser_custom",
+					"binding": "c.item_slot == 'head' ? 'head' : q.item_slot_to_bone_name(c.item_slot)",
+					"pivot": [
+						0,
+						8,
+						0
+					]
+				},
+				{
+					"name": "geyser_custom_x",
+					"parent": "geyser_custom",
+					"pivot": [
+						0,
+						8,
+						0
+					]
+				},
+				{
+					"name": "geyser_custom_y",
+					"parent": "geyser_custom_x",
+					"pivot": [
+						0,
+						8,
+						0
+					]
+				},
+				{
+					"name": "geyser_custom_z",
+					"parent": "geyser_custom_y",
+					"pivot": [
+						0,
+						8,
+						0
+					],
+					"cubes": [
+						{
+							"origin": [
+								-8,
+								0,
+								-8
+							],
+							"size": [
+								16,
+								16,
+								16
+							],
+							"uv": {
+								"north": {
+									"uv": [
+										0.016,
+										0.016
+									],
+									"uv_size": [
+										15.984,
+										15.984
+									]
+								},
+								"south": {
+									"uv": [
+										0.016,
+										0.016
+									],
+									"uv_size": [
+										15.984,
+										15.984
+									]
+								},
+								"east": {
+									"uv": [
+										0.016,
+										0.016
+									],
+									"uv_size": [
+										15.984,
+										15.984
+									]
+								},
+								"west": {
+									"uv": [
+										0.016,
+										0.016
+									],
+									"uv_size": [
+										15.984,
+										15.984
+									]
+								},
+								"up": {
+									"uv": [
+										15.984,
+										15.984
+									],
+									"uv_size": [
+										-15.984,
+										-15.984
+									]
+								},
+								"down": {
+									"uv": [
+										15.984,
+										15.984
+									],
+									"uv_size": [
+										-15.984,
+										-15.984
+									]
+								}
+							}
+						}
+					]
+				}
+			]
+		}
+	]
+}

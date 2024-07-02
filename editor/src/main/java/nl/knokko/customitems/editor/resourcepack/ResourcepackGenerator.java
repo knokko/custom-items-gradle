@@ -84,7 +84,7 @@ public class ResourcepackGenerator {
 
             zipOutput.putNextEntry(new ZipEntry("geyser_mappings.json"));
             GeyserMappingsGenerator geyserMapper = new GeyserMappingsGenerator(itemSet, zipOutput);
-            geyserMapper.writeItemMappings();
+            geyserMapper.writeMappings();
             zipOutput.closeEntry();
         }
 

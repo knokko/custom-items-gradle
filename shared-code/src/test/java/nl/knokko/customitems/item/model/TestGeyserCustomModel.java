@@ -52,7 +52,7 @@ public class TestGeyserCustomModel {
     @Test
     public void testSaveAndLoad() throws UnknownEncodingException {
         GeyserCustomModel original = new GeyserCustomModel(
-                "hello", new byte[1], new byte[2], new byte[3], new byte[4]
+                "hello", "hi", new byte[1], new byte[2], new byte[3], new byte[4]
         );
 
         ByteArrayBitOutput output = new ByteArrayBitOutput();

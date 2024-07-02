@@ -37,7 +37,7 @@ public class SelectGeyserModel extends GuiMenu {
         addComponent(errorComponent, 0.1f, 0.9f, 1f, 1f);
 
         byte[][] files = { null, null, null, null };
-        String[] attachableID = { null };
+        String[] ids = { null, null };
         addComponent(new DynamicTextButton("Select animation file...", BUTTON, HOVER, () -> {
             selectFile(0, files, errorComponent, "json");
         }), 0.25f, 0.55f, 0.5f, 0.65f);
@@ -46,7 +46,8 @@ public class SelectGeyserModel extends GuiMenu {
                 GeyserCustomModel.AttachableParseResult parsed = GeyserCustomModel.parseAttachable(files[1]);
                 if (parsed.error == null) {
                     files[1] = parsed.newJsonBytes;
-                    attachableID[0] = parsed.id;
+                    ids[0] = parsed.id;
+                    ids[1] = parsed.geometryId;
                 } else {
                     files[1] = null;
                     errorComponent.setText(parsed.error);
@@ -68,9 +69,9 @@ public class SelectGeyserModel extends GuiMenu {
         }
 
         addComponent(new ConditionalTextButton("Done", SAVE_BASE, SAVE_HOVER, () -> {
-            consumeModel.accept(new GeyserCustomModel(attachableID[0], files[0], files[1], files[2], files[3]));
+            consumeModel.accept(new GeyserCustomModel(ids[0], ids[1], files[0], files[1], files[2], files[3]));
             state.getWindow().setMainComponent(returnMenu);
-        }, () -> files[0] != null && files[1] != null && files[2] != null && attachableID[0] != null),
+        }, () -> files[0] != null && files[1] != null && files[2] != null && ids[0] != null && ids[1] != null),
                 0.025f, 0.2f, 0.15f, 0.3f
         );
 

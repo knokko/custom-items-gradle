@@ -61,7 +61,7 @@ public class CreateCustomBlockModel extends GuiMenu {
         ), 0.625f, 0.55f, 0.8f, 0.65f);
 
         addComponent(new DynamicTextButton("Done", SAVE_BASE, SAVE_HOVER, () -> {
-            CustomBlockModel model = new CustomBlockModel(pModel[0], pTexture[0]);
+            CustomBlockModel model = new CustomBlockModel(pModel[0], pTexture[0], null);
             String error = Validation.toErrorString(() -> model.validate(itemSet));
 
             if (error == null) {

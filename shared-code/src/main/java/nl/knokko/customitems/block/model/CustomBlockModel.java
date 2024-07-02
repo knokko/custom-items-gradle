@@ -2,6 +2,7 @@ package nl.knokko.customitems.block.model;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
+import nl.knokko.customitems.item.model.GeyserCustomModel;
 import nl.knokko.customitems.item.model.ItemModel;
 import nl.knokko.customitems.item.model.ModernCustomItemModel;
 import nl.knokko.customitems.itemset.ItemSet;
@@ -17,17 +18,24 @@ public class CustomBlockModel implements BlockModel {
 
     static CustomBlockModel loadCustom(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
-        if (encoding != 1) throw new UnknownEncodingException("CustomBlockModel", encoding);
+        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("CustomBlockModel", encoding);
 
-        return new CustomBlockModel((ModernCustomItemModel) ItemModel.load(input), itemSet.textures.getReference(input.readString()));
+        ModernCustomItemModel model = (ModernCustomItemModel) ItemModel.load(input);
+        TextureReference editorTexture = itemSet.textures.getReference(input.readString());
+        GeyserCustomModel geyserModel = null;
+        if (encoding != 1 && input.readBoolean()) geyserModel = GeyserCustomModel.load(input);
+
+        return new CustomBlockModel(model, editorTexture, geyserModel);
     }
 
     private final ModernCustomItemModel itemModel;
     private final TextureReference editorTexture;
+    private final GeyserCustomModel geyserModel;
 
-    public CustomBlockModel(ModernCustomItemModel itemModel, TextureReference editorTexture) {
+    public CustomBlockModel(ModernCustomItemModel itemModel, TextureReference editorTexture, GeyserCustomModel geyserModel) {
         this.itemModel = itemModel;
         this.editorTexture = editorTexture;
+        this.geyserModel = geyserModel;
     }
 
     @Override
@@ -38,10 +46,12 @@ public class CustomBlockModel implements BlockModel {
     @Override
     public void save(BitOutput output) {
         output.addByte(MODEL_TYPE_CUSTOM);
-        output.addByte((byte) 1);
+        output.addByte((byte) 2);
 
         itemModel.save(output);
         output.addString(editorTexture.get().getName());
+        output.addBoolean(geyserModel != null);
+        if (geyserModel != null) geyserModel.save(output);
     }
 
     @Override
@@ -60,6 +70,10 @@ public class CustomBlockModel implements BlockModel {
     @Override
     public TextureReference getPrimaryTexture() {
         return editorTexture;
+    }
+
+    public GeyserCustomModel getGeyserModel() {
+        return geyserModel;
     }
 
     @Override

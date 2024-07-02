@@ -42,7 +42,9 @@ public class GeyserModelMenu extends GuiMenu {
         ItemModel javaModel = item.getModel();
         if (javaModel != null) {
             addComponent(new DynamicTextButton("Generate Geyser model from the custom Java model", BUTTON, HOVER, () -> {
-                state.getWindow().setMainComponent(new ConvertModelMenu(returnMenu, item));
+                state.getWindow().setMainComponent(new ConvertModelMenu(
+                        returnMenu, item::setGeyserModel, item.getModel(), item.getTexture()
+                ));
             }), 0.3f, 0.6f, 0.8f, 0.7f);
         }
 

@@ -31,16 +31,16 @@ public class TextureCreate extends GuiMenu {
 			state.getWindow().setMainComponent(returnMenu);
 		}), 0.1f, 0.7f, 0.25f, 0.8f);
 		addComponent(new DynamicTextButton("Load simple texture", BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new TextureEdit(itemSet, this, null, new KciTexture(true)));
+			state.getWindow().setMainComponent(new TextureEdit(itemSet, returnMenu, null, new KciTexture(true)));
 		}), 0.5f, 0.6f, 0.75f, 0.7f);
 		addComponent(new DynamicTextButton("Load bow texture", BUTTON, EditProps.HOVER, () -> {
-			state.getWindow().setMainComponent(new BowTextureEdit(itemSet, this, null, new BowTexture(true)));
+			state.getWindow().setMainComponent(new BowTextureEdit(itemSet, returnMenu, null, new BowTexture(true)));
 		}), 0.5f, 0.45f, 0.75f, 0.55f);
 		addComponent(new DynamicTextButton("Load crossbow texture", BUTTON, EditProps.HOVER, () -> {
-		    state.getWindow().setMainComponent(new CrossbowTextureEdit(itemSet, this, null, new CrossbowTexture(true)));
+		    state.getWindow().setMainComponent(new CrossbowTextureEdit(itemSet, returnMenu, null, new CrossbowTexture(true)));
 		}), 0.5f, 0.3f, 0.8f, 0.4f);
 		addComponent(new DynamicTextButton("Load animated texture", BUTTON, HOVER, () -> {
-			state.getWindow().setMainComponent(new AnimatedTextureEdit(itemSet, this, null, new AnimatedTexture(true)));
+			state.getWindow().setMainComponent(new AnimatedTextureEdit(itemSet, returnMenu, null, new AnimatedTexture(true)));
 		}), 0.5f, 0.15f, 0.8f, 0.25f);
 
 		HelpButtons.addHelpLink(this, "edit menu/textures/type selection.html");
