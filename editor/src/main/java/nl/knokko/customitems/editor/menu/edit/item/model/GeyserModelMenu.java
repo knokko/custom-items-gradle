@@ -4,6 +4,7 @@ import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.item.model.GeyserCustomModel;
 import nl.knokko.customitems.item.model.ItemModel;
+import nl.knokko.customitems.item.model.ModernCustomItemModel;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -40,14 +41,19 @@ public class GeyserModelMenu extends GuiMenu {
         }
 
         ItemModel javaModel = item.getModel();
-        if (javaModel != null) {
+        if (javaModel instanceof ModernCustomItemModel) {
             addComponent(new DynamicTextButton("Generate Geyser model from the custom Java model", BUTTON, HOVER, () -> {
-                state.getWindow().setMainComponent(new ConvertModelMenu(returnMenu, item));
+                state.getWindow().setMainComponent(new ConvertModelMenu(
+                        returnMenu, item::setGeyserModel, item.getModel(),
+                        item.getTexture(), "kci_item_" + item.getName()
+                ));
             }), 0.3f, 0.6f, 0.8f, 0.7f);
         }
 
         addComponent(new DynamicTextButton("Manually select Geyser model", BUTTON, HOVER, () -> {
-            state.getWindow().setMainComponent(new SelectGeyserModel(item::setGeyserModel, returnMenu));
+            state.getWindow().setMainComponent(new SelectGeyserModel(
+                    item::setGeyserModel, returnMenu, "kci_item_" + item.getName()
+            ));
         }), 0.3f, 0.4f, 0.6f, 0.5f);
 
         addComponent(new DynamicTextButton("Remove Geyser model", BUTTON, HOVER, () -> {

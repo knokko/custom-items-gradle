@@ -80,7 +80,7 @@ public class EditBlock extends GuiMenu  {
                 0.15f, 0.56f, 0.44f, 0.66f);
         addComponent(new DynamicTextButton("Change...", BUTTON, HOVER, () -> {
             state.getWindow().setMainComponent(new ManageBlockModel(
-                    this, set, currentValues.getModel(), currentValues::setModel
+                    this, set, currentValues.getModel(), currentValues::setModel, currentValues.getName()
             ));
         }), 0.45f, 0.56f, 0.6f, 0.66f);
 

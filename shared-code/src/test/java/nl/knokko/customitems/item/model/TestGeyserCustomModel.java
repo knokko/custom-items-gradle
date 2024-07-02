@@ -25,9 +25,11 @@ public class TestGeyserCustomModel {
                 TestGeyserCustomModel.class.getResourceAsStream("geyser/staff-original.json")
         ));
 
-        GeyserCustomModel.AttachableParseResult result = GeyserCustomModel.parseAttachable(originalStaff);
+        GeyserCustomModel.AttachableParseResult result = GeyserCustomModel.parseAttachable(
+                "kci_test_staff", originalStaff
+        );
         assertNull(result.error);
-        assertEquals("gmdl_aff65df", result.id);
+        assertEquals("geometry.geyser_custom.geo_69ffc83", result.geometryId);
         assertNotNull(result.newJsonBytes);
 
         Object actualStaff;
@@ -52,7 +54,7 @@ public class TestGeyserCustomModel {
     @Test
     public void testSaveAndLoad() throws UnknownEncodingException {
         GeyserCustomModel original = new GeyserCustomModel(
-                "hello", new byte[1], new byte[2], new byte[3], new byte[4]
+                "hello", "hi", new byte[1], new byte[2], new byte[3], new byte[4]
         );
 
         ByteArrayBitOutput output = new ByteArrayBitOutput();
@@ -75,6 +77,7 @@ public class TestGeyserCustomModel {
 
     private void testLoaded(GeyserCustomModel loaded) {
         assertEquals("hello", loaded.attachableId);
+        assertEquals("hi", loaded.geometryId);
         assertEquals(1, loaded.animationFile.length);
         assertEquals(2, loaded.attachableFile.length);
         assertEquals(3, loaded.modelFile.length);

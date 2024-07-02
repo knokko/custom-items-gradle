@@ -1,7 +1,9 @@
 package nl.knokko.customitems.serialization;
 
+import nl.knokko.customitems.block.KciBlock;
 import nl.knokko.customitems.block.drop.CustomBlockDrop;
 import nl.knokko.customitems.block.drop.RequiredItems;
+import nl.knokko.customitems.block.model.CustomBlockModel;
 import nl.knokko.customitems.drops.*;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.model.GeyserCustomModel;
@@ -66,7 +68,7 @@ public class TestBackward13 {
             testRecipesNew10(newSet, 2);
             testCookingRecipesNew13(newSet, 1);
             testContainersNew13(newSet, 2);
-            testBlocksNew12(newSet, 4);
+            testBlocksNew13(newSet, 5);
             testOreVeinsNew12(newSet, 2);
             testTreesNew12(newSet, 2);
         }
@@ -80,6 +82,30 @@ public class TestBackward13 {
             testCombinedResourcepacksFancy13(fancySet, 1);
             testExportSettingsFancy13(fancySet);
         }
+    }
+
+    static void testBlocksNew13(ItemSet itemSet, int numBlocks) {
+        testBlocksNew12(itemSet, numBlocks);
+
+        KciBlock geyserBlock = itemSet.blocks.get("geyser").get();
+
+        if (itemSet.getSide() == ItemSet.Side.PLUGIN) return;
+
+        CustomBlockModel model = (CustomBlockModel) geyserBlock.getModel();
+
+        GeyserCustomModel geyserModel = model.getGeyserModel();
+        assertEquals("kci_block_geyser", geyserModel.attachableId);
+        assertEquals("geometry.geyser_custom.geo_69ffc83", geyserModel.geometryId);
+        assertStringResourceEquals(
+                "nl/knokko/customitems/serialization/geyser/animation.flagged.json", geyserModel.animationFile
+        );
+        assertStringResourceEquals(
+                "nl/knokko/customitems/serialization/geyser/flagged_block.attachable.json", geyserModel.attachableFile
+        );
+        assertStringResourceEquals(
+                "nl/knokko/customitems/serialization/geyser/flagged.model.json", geyserModel.modelFile
+        );
+        assertResourceEquals("nl/knokko/customitems/serialization/geyser/gmdl_aff65df.png", geyserModel.textureFile);
     }
 
     static void testCombinedResourcepacksFancy13(ItemSet itemSet, int numPacks) {
@@ -147,12 +173,12 @@ public class TestBackward13 {
         }
 
         assertNotNull(geyserModel);
-        assertEquals("gmdl_aff65df", geyserModel.attachableId);
+        assertEquals("kci_item_flagged", geyserModel.attachableId);
         assertStringResourceEquals(
                 "nl/knokko/customitems/serialization/geyser/animation.flagged.json", geyserModel.animationFile
         );
         assertStringResourceEquals(
-                "nl/knokko/customitems/serialization/geyser/flagged.gmdl_aff65df.attachable.json", geyserModel.attachableFile
+                "nl/knokko/customitems/serialization/geyser/flagged_item.attachable.json", geyserModel.attachableFile
         );
         assertStringResourceEquals(
                 "nl/knokko/customitems/serialization/geyser/flagged.model.json", geyserModel.modelFile

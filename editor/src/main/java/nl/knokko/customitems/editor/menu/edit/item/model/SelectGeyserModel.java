@@ -21,10 +21,12 @@ public class SelectGeyserModel extends GuiMenu {
 
     private final Consumer<GeyserCustomModel> consumeModel;
     private final GuiComponent returnMenu;
+    private final String attachableId;
 
-    public SelectGeyserModel(Consumer<GeyserCustomModel> consumeModel, GuiComponent returnMenu) {
+    public SelectGeyserModel(Consumer<GeyserCustomModel> consumeModel, GuiComponent returnMenu, String attachableId) {
         this.consumeModel = consumeModel;
         this.returnMenu = returnMenu;
+        this.attachableId = attachableId;
     }
 
     @Override
@@ -37,16 +39,16 @@ public class SelectGeyserModel extends GuiMenu {
         addComponent(errorComponent, 0.1f, 0.9f, 1f, 1f);
 
         byte[][] files = { null, null, null, null };
-        String[] attachableID = { null };
+        String[] ids = { null };
         addComponent(new DynamicTextButton("Select animation file...", BUTTON, HOVER, () -> {
             selectFile(0, files, errorComponent, "json");
         }), 0.25f, 0.55f, 0.5f, 0.65f);
         addComponent(new DynamicTextButton("Select attachable file...", BUTTON, HOVER, () -> {
             if (selectFile(1, files, errorComponent, "json")) {
-                GeyserCustomModel.AttachableParseResult parsed = GeyserCustomModel.parseAttachable(files[1]);
+                GeyserCustomModel.AttachableParseResult parsed = GeyserCustomModel.parseAttachable(attachableId, files[1]);
                 if (parsed.error == null) {
                     files[1] = parsed.newJsonBytes;
-                    attachableID[0] = parsed.id;
+                    ids[0] = parsed.geometryId;
                 } else {
                     files[1] = null;
                     errorComponent.setText(parsed.error);
@@ -68,9 +70,9 @@ public class SelectGeyserModel extends GuiMenu {
         }
 
         addComponent(new ConditionalTextButton("Done", SAVE_BASE, SAVE_HOVER, () -> {
-            consumeModel.accept(new GeyserCustomModel(attachableID[0], files[0], files[1], files[2], files[3]));
+            consumeModel.accept(new GeyserCustomModel(attachableId, ids[0], files[0], files[1], files[2], files[3]));
             state.getWindow().setMainComponent(returnMenu);
-        }, () -> files[0] != null && files[1] != null && files[2] != null && attachableID[0] != null),
+        }, () -> files[0] != null && files[1] != null && files[2] != null && ids[0] != null),
                 0.025f, 0.2f, 0.15f, 0.3f
         );
 

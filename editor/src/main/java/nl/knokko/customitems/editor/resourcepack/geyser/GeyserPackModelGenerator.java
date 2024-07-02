@@ -1,5 +1,10 @@
 package nl.knokko.customitems.editor.resourcepack.geyser;
 
+import nl.knokko.customitems.block.KciBlock;
+import nl.knokko.customitems.block.model.CustomBlockModel;
+import nl.knokko.customitems.block.model.SidedBlockModel;
+import nl.knokko.customitems.block.model.SimpleBlockModel;
+import nl.knokko.customitems.item.KciBlockItem;
 import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.item.model.GeyserCustomModel;
 import nl.knokko.customitems.itemset.ItemSet;
@@ -26,6 +31,36 @@ public class GeyserPackModelGenerator {
                 zipOutput.write(model.modelFile);
                 zipOutput.closeEntry();
             }
+        }
+
+        for (KciBlock block : itemSet.blocks) {
+            if (block.getModel() instanceof CustomBlockModel) {
+                GeyserCustomModel model = ((CustomBlockModel) block.getModel()).getGeyserModel();
+                if (model != null) {
+                    zipOutput.putNextEntry(new ZipEntry("models/blocks/kci/blocks/" + block.getName() + ".model.json"));
+                    zipOutput.write(model.modelFile);
+                    zipOutput.closeEntry();
+                }
+            }
+        }
+    }
+
+    void generateBlockModel() throws IOException {
+        if (itemSet.items.stream().anyMatch(
+                item -> item instanceof KciBlockItem && ((KciBlockItem) item).getBlock().getModel() instanceof SimpleBlockModel
+        )) {
+            IOHelper.propagate(
+                    "same_block.geo.json", zipOutput,
+                    "models/blocks/kci/same_block.geo.json", null
+            );
+        }
+        if (itemSet.items.stream().anyMatch(
+                item -> item instanceof KciBlockItem && ((KciBlockItem) item).getBlock().getModel() instanceof SidedBlockModel
+        )) {
+            IOHelper.propagate(
+                    "sided_block.geo.json", zipOutput,
+                    "models/blocks/kci/sided_block.geo.json", null
+            );
         }
     }
 }

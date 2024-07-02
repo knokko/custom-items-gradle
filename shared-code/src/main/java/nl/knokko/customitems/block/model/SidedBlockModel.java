@@ -8,6 +8,7 @@ import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.zip.ZipOutputStream;
@@ -39,7 +40,7 @@ public class SidedBlockModel implements BlockModel {
         this.down = down;
     }
 
-    private TexturePair[] getTexturePairs() {
+    public TexturePair[] getTexturePairs() {
         TexturePair[] textures = {
                 new TexturePair("north", north),
                 new TexturePair("east", east),
@@ -81,9 +82,14 @@ public class SidedBlockModel implements BlockModel {
 
     @Override
     public void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException {
+        BufferedImage firstImage = getTexturePairs()[0].texture.get().getImage();
         for (TexturePair pair : getTexturePairs()) {
             if (pair.texture == null) throw new ValidationException("Missing " + pair.direction);
             if (!itemSet.textures.isValid(pair.texture)) throw new ProgrammingValidationException(pair.direction + " is no longer valid");
+            BufferedImage image = pair.texture.get().getImage();
+            if (image.getWidth() != firstImage.getWidth() || image.getHeight() != firstImage.getHeight()) {
+                throw new ValidationException("All textures must have the same size");
+            }
         }
     }
 
@@ -97,10 +103,10 @@ public class SidedBlockModel implements BlockModel {
         return "sided";
     }
 
-    private static class TexturePair {
+    public static class TexturePair {
 
-        final String direction;
-        final TextureReference texture;
+        public final String direction;
+        public final TextureReference texture;
 
         TexturePair(String direction, TextureReference texture) {
             this.direction = direction;

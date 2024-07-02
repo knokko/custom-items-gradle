@@ -64,7 +64,7 @@ public class EditorFileManager {
                 new GeyserPackGenerator(itemSet, outputStream, true).write();
             }
             try (OutputStream outputStream = Files.newOutputStream(new File(FOLDER + "/geyser_mappings.json").toPath())) {
-                new GeyserMappingsGenerator(itemSet, outputStream).writeItemMappings();
+                new GeyserMappingsGenerator(itemSet, outputStream).writeMappings();
             }
         }
 

@@ -7,6 +7,7 @@ import nl.knokko.customitems.item.model.GeyserCustomModel;
 import nl.knokko.customitems.item.model.ItemModel;
 import nl.knokko.customitems.item.model.ModernCustomItemModel;
 import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.customitems.texture.KciTexture;
 import nl.knokko.customitems.util.IOHelper;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.ValidationException;
@@ -19,10 +20,9 @@ import java.util.zip.ZipInputStream;
 
 public class ModelConverter {
 
-    public static Progress convert(KciItem item) {
+    public static Progress convert(ItemModel javaModel, KciTexture texture, String attachableId) {
         Progress progress = new Progress();
-        ItemModel model = item.getModel();
-        if (!(model instanceof ModernCustomItemModel)) {
+        if (!(javaModel instanceof ModernCustomItemModel)) {
             progress.error = "The item needs a modern custom model";
             return progress;
         }
@@ -32,12 +32,12 @@ public class ModelConverter {
                 progress.connected = true;
 
                 ItemSet miniSet = new ItemSet(ItemSet.Side.EDITOR);
-                miniSet.textures.add(item.getTexture());
+                miniSet.textures.add(texture);
 
                 KciItem miniItem = new KciSimpleItem(true);
-                miniItem.setName(item.getName());
-                miniItem.setTexture(miniSet.textures.getReference(item.getTexture().getName()));
-                miniItem.setModel(item.getModel());
+                miniItem.setName("test_item");
+                miniItem.setTexture(miniSet.textures.getReference(texture.getName()));
+                miniItem.setModel(javaModel);
                 miniSet.items.add(miniItem);
 
                 OutputStream output = socket.getOutputStream();
@@ -68,14 +68,22 @@ public class ModelConverter {
                     entry = input.getNextEntry();
                 }
 
-                GeyserCustomModel.AttachableParseResult attachableResult = GeyserCustomModel.parseAttachable(attachableFile);
+                if (animationFile == null || animationFile.length == 0) progress.error = "Failed to convert animation";
+                if (attachableFile == null || attachableFile.length == 0) progress.error = "Failed to convert attachable";
+                if (modelFile == null || modelFile.length == 0) progress.error = "Failed to convert model";
+                if (textureFile == null || textureFile.length == 0) progress.error = "Failed to convert texture";
+                if (progress.error != null) return;
+
+                GeyserCustomModel.AttachableParseResult attachableResult = GeyserCustomModel.parseAttachable(
+                        attachableId, attachableFile
+                );
                 if (attachableResult.error != null) {
                     progress.error = "Failed to parse attachable: " + attachableResult.error;
                     return;
                 }
 
                 progress.result = new GeyserCustomModel(
-                        attachableResult.id, animationFile,
+                        attachableId, attachableResult.geometryId, animationFile,
                         attachableResult.newJsonBytes, modelFile, textureFile
                 );
             } catch (IOException io) {
