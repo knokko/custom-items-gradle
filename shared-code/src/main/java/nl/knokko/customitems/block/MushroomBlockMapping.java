@@ -3,6 +3,7 @@ package nl.knokko.customitems.block;
 import nl.knokko.customitems.item.VMaterial;
 
 import java.util.Arrays;
+import java.util.Locale;
 
 import static nl.knokko.customitems.block.BlockConstants.MAX_BLOCK_ID;
 import static nl.knokko.customitems.block.BlockConstants.MIN_BLOCK_ID;
@@ -225,7 +226,7 @@ public class MushroomBlockMapping {
         }
 
         public String getResourceName() {
-            return material.name().toLowerCase();
+            return material.name().toLowerCase(Locale.ROOT);
         }
     }
 
