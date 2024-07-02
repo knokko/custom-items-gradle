@@ -131,6 +131,11 @@ public class BlockEventHandler implements Listener {
         }
     }
 
+    private boolean isEmptyEnough(Block block) {
+        return block.isLiquid() || block.getType().getHardness() == 0f || block.getType() == Material.SNOW ||
+                block.getType() == Material.VINE;
+    }
+
     @EventHandler(priority = EventPriority.MONITOR)
     public void handleCustomBlockPlacements(PlayerInteractEvent event) {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
@@ -140,10 +145,15 @@ public class BlockEventHandler implements Listener {
                 KciBlockItem blockItem = (KciBlockItem) usedItem;
                 KciBlock block = blockItem.getBlock();
 
-                Block destination = event.getClickedBlock().getRelative(event.getBlockFace());
+                Block destination = Objects.requireNonNull(event.getClickedBlock());
+                if (!isEmptyEnough(destination)) destination = destination.getRelative(event.getBlockFace());
+                Block finalDestination = destination;
+
                 Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
-                    if (destination.isEmpty() || destination.isLiquid()) {
-                        if (destination.getWorld().getNearbyEntities(destination.getLocation().add(0.5, 0.5, 0.5), 0.5, 0.5, 0.5).isEmpty()) {
+                    if (isEmptyEnough(finalDestination)) {
+                        if (finalDestination.getWorld().getNearbyEntities(
+                                finalDestination.getLocation().add(0.5, 0.5, 0.5), 0.5, 0.5, 0.5).isEmpty()
+                        ) {
 
                             ItemStack newItemStack;
                             if (event.getHand() == EquipmentSlot.HAND) {
@@ -154,7 +164,7 @@ public class BlockEventHandler implements Listener {
 
                             if (itemSet.getItem(newItemStack) == usedItem) {
                                 BlockPlaceEvent placeEvent = new BlockPlaceEvent(
-                                        destination, destination.getState(), event.getClickedBlock(),
+                                        finalDestination, finalDestination.getState(), event.getClickedBlock(),
                                         newItemStack, event.getPlayer(), true, event.getHand()
                                 );
                                 this.isPlacingCustomBlock = true;
@@ -162,7 +172,7 @@ public class BlockEventHandler implements Listener {
                                 this.isPlacingCustomBlock = false;
 
                                 if (placeEvent.canBuild() && !placeEvent.isCancelled()) {
-                                    MushroomBlockHelper.place(destination, block);
+                                    MushroomBlockHelper.place(finalDestination, block);
 
                                     if (event.getPlayer().getGameMode() != GameMode.CREATIVE) {
                                         event.getItem().setAmount(event.getItem().getAmount() - 1);
