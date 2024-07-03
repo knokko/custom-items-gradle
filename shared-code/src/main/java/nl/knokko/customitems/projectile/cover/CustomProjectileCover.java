@@ -16,13 +16,13 @@ import java.util.zip.ZipOutputStream;
 
 public class CustomProjectileCover extends ProjectileCover {
 
-    static CustomProjectileCover load(BitInput input, byte encoding) throws UnknownEncodingException {
+    static CustomProjectileCover load(BitInput input, ItemSet itemSet, byte encoding) throws UnknownEncodingException {
         CustomProjectileCover result = new CustomProjectileCover(false);
 
         if (encoding == ENCODING_CUSTOM1) {
             result.load1(input);
         } else if (encoding == ENCODING_CUSTOM2) {
-            result.loadNew(input);
+            result.loadNew(input, itemSet);
         } else {
             throw new UnknownEncodingException("CustomProjectileCover", encoding);
         }
@@ -47,18 +47,19 @@ public class CustomProjectileCover extends ProjectileCover {
         this.model = new LegacyCustomItemModel(input.readByteArray());
     }
 
-    private void loadNew(BitInput input) throws UnknownEncodingException {
+    private void loadNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
-        if (encoding != 1) throw new UnknownEncodingException("CustomProjectileCover", encoding);
-        loadSharedProperties1(input);
+        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("CustomProjectileCover", encoding);
+        if (encoding == 1) loadSharedProperties1(input);
+        else loadSharedPropertiesNew(input, itemSet);
         this.model = ItemModel.load(input);
     }
 
     @Override
     protected void save(BitOutput output) {
         output.addByte(ENCODING_CUSTOM2);
-        output.addByte((byte) 1);
-        saveSharedProperties1(output);
+        output.addByte((byte) 2);
+        saveSharedPropertiesNew(output);
         this.model.save(output);
     }
 

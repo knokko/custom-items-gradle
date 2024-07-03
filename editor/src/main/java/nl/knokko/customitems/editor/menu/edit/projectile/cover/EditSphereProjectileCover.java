@@ -56,7 +56,7 @@ public class EditSphereProjectileCover extends EditProjectileCover<SphereProject
 				),
 				0.6f, 0.11f, 0.8f, 0.19f
 		);
-		
-		HelpButtons.addHelpLink(this, "edit%20menu/projectiles/covers/edit/sphere.html");
+
+		HelpButtons.addHelpLink(this, "edit menu/projectiles/covers/edit/sphere.html");
 	}
 }

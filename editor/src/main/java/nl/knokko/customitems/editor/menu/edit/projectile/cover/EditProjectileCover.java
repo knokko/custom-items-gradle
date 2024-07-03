@@ -1,5 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.projectile.cover;
 
+import nl.knokko.customitems.editor.menu.edit.CollectionSelect;
 import nl.knokko.customitems.editor.menu.edit.EditProps;
 import nl.knokko.customitems.editor.menu.edit.EnumSelect;
 import nl.knokko.customitems.editor.util.Validation;
@@ -8,6 +9,7 @@ import nl.knokko.customitems.item.KciItemType.Category;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.itemset.ProjectileCoverReference;
 import nl.knokko.customitems.projectile.cover.ProjectileCover;
+import nl.knokko.customitems.texture.KciTexture;
 import nl.knokko.gui.color.GuiColor;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
@@ -15,8 +17,7 @@ import nl.knokko.gui.component.text.EagerTextEditField;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
-import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_ACTIVE;
-import static nl.knokko.customitems.editor.menu.edit.EditProps.EDIT_BASE;
+import static nl.knokko.customitems.editor.menu.edit.EditProps.*;
 
 public abstract class EditProjectileCover<V extends ProjectileCover> extends GuiMenu {
 
@@ -65,7 +66,13 @@ public abstract class EditProjectileCover<V extends ProjectileCover> extends Gui
 		addComponent(EnumSelect.createSelectButton(KciItemType.class, currentValues::setItemType, (KciItemType option) -> {
 			return option.canServe(Category.PROJECTILE_COVER);
 		}, currentValues.getItemType()), 0.6f, 0.71f, 0.8f, 0.79f);
-		
+
+		addComponent(new DynamicTextComponent("Geyser texture:", LABEL), 0.4f, 0.6f, 0.59f, 0.7f);
+		addComponent(CollectionSelect.createButton(
+				itemSet.textures.references(), currentValues::setGeyserTexture, texture -> texture.get().getClass() == KciTexture.class,
+				texture -> texture.get().getName(), currentValues.getGeyserTextureReference(), true
+		), 0.6f, 0.6f, 0.8f, 0.7f);
+
 		if (toModify == null) {
 			addComponent(new DynamicTextButton("Create", EditProps.SAVE_BASE, EditProps.SAVE_HOVER, () -> {
 				handleError(Validation.toErrorString(() -> itemSet.projectileCovers.add(currentValues)));

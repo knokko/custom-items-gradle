@@ -3,7 +3,9 @@ package nl.knokko.customitems.projectile.cover;
 import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.item.KciItemType;
 import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.model.ModelValues;
+import nl.knokko.customitems.texture.KciTexture;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
@@ -20,15 +22,16 @@ public class ProjectileCover extends ModelValues {
     static final byte ENCODING_SPHERE1 = 0;
     static final byte ENCODING_CUSTOM1 = 1;
     static final byte ENCODING_CUSTOM2 = 2;
+    static final byte ENCODING_SPHERE2 = 3;
 
     public static ProjectileCover load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
 
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             byte encoding = input.readByte();
-            if (encoding == ENCODING_SPHERE1) {
+            if (encoding == ENCODING_SPHERE1 || encoding == ENCODING_SPHERE2) {
                 return SphereProjectileCover.load(input, encoding, itemSet);
             } else if (encoding == ENCODING_CUSTOM1 || encoding == ENCODING_CUSTOM2) {
-                return CustomProjectileCover.load(input, encoding);
+                return CustomProjectileCover.load(input, itemSet, encoding);
             } else {
                 throw new UnknownEncodingException("EditorProjectileCover", encoding);
             }
@@ -42,12 +45,14 @@ public class ProjectileCover extends ModelValues {
     protected KciItemType itemType;
     protected short itemDamage;
     protected String name;
+    protected TextureReference geyserTexture;
 
     public ProjectileCover(boolean mutable) {
         super(mutable);
         this.itemType = KciItemType.DIAMOND_SHOVEL;
         // itemDamage will be set right before exporting
         this.name = "";
+        this.geyserTexture = null;
     }
 
     public ProjectileCover(ProjectileCover toCopy, boolean mutable) {
@@ -55,6 +60,7 @@ public class ProjectileCover extends ModelValues {
         this.itemType = toCopy.getItemType();
         this.itemDamage = toCopy.getItemDamage();
         this.name = toCopy.getName();
+        this.geyserTexture = toCopy.getGeyserTextureReference();
     }
 
     protected void loadSharedProperties1(BitInput input) {
@@ -63,10 +69,26 @@ public class ProjectileCover extends ModelValues {
         this.name = input.readString();
     }
 
+    protected void loadSharedPropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("ProjectileCoverShared", encoding);
+
+        loadSharedProperties1(input);
+        if (input.readBoolean()) this.geyserTexture = itemSet.textures.getReference(input.readString());
+        else this.geyserTexture = null;
+    }
+
     protected void saveSharedProperties1(BitOutput output) {
         output.addString(itemType.name());
         output.addShort(itemDamage);
         output.addString(name);
+    }
+
+    protected void saveSharedPropertiesNew(BitOutput output) {
+        output.addByte((byte) 1);
+        saveSharedProperties1(output);
+        output.addBoolean(geyserTexture != null);
+        if (geyserTexture != null) output.addString(geyserTexture.get().getName());
     }
 
     protected final void export(BitOutput output) {
@@ -111,6 +133,14 @@ public class ProjectileCover extends ModelValues {
         return name;
     }
 
+    public TextureReference getGeyserTextureReference() {
+        return geyserTexture;
+    }
+
+    public KciTexture getGeyserTexture() {
+        return geyserTexture != null ? geyserTexture.get() : null;
+    }
+
     public void setItemType(KciItemType newItemType) {
         assertMutable();
         Checks.notNull(newItemType);
@@ -127,6 +157,11 @@ public class ProjectileCover extends ModelValues {
         this.name = newName;
     }
 
+    public void setGeyserTexture(TextureReference texture) {
+        assertMutable();
+        this.geyserTexture = texture;
+    }
+
     public void writeModel(ZipOutputStream output) throws IOException {
         throw new UnsupportedOperationException("This can only be done on the Editor side");
     }
@@ -140,6 +175,10 @@ public class ProjectileCover extends ModelValues {
         Validation.safeName(name);
         if (!name.equals(oldName) && itemSet.projectileCovers.get(name).isPresent()) {
             throw new ValidationException("Another projectile with this name already exists");
+        }
+
+        if (geyserTexture != null && !itemSet.textures.isValid(geyserTexture)) {
+            throw new ProgrammingValidationException("Geyser texture is not valid (anymore)");
         }
     }
 

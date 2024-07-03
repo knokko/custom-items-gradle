@@ -10,6 +10,7 @@ import nl.knokko.customitems.item.KciItemType;
 import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.item.model.GeyserCustomModel;
 import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.customitems.projectile.cover.ProjectileCover;
 
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -26,6 +27,10 @@ public class GeyserMappingsGenerator {
         this.output = output;
     }
 
+    private String getVanillaName(ProjectileCover cover) {
+        return "minecraft:" + cover.getItemType().getModelName14();
+    }
+
     private String getVanillaName(KciItem item) {
         if (item.getItemType() == KciItemType.OTHER) {
             return "minecraft:" + item.getOtherMaterial().name().toLowerCase(Locale.ROOT);
@@ -36,6 +41,9 @@ public class GeyserMappingsGenerator {
         Set<String> vanillaItems = new HashSet<>();
         for (KciItem item : itemSet.items) {
             vanillaItems.add(getVanillaName(item));
+        }
+        for (ProjectileCover cover : itemSet.projectileCovers) {
+            vanillaItems.add(getVanillaName(cover));
         }
 
         PrintWriter jsonWriter = new PrintWriter(output);
@@ -64,12 +72,31 @@ public class GeyserMappingsGenerator {
                     }
 
                     String prefix = "                ";
-                    String attachableId = "kci_" + item.getName();
+                    String attachableId = "kci_item_" + item.getName();
                     if (geyserModel != null) attachableId = geyserModel.attachableId;
                     jsonWriter.println(prefix + "\"name\": \"" + attachableId + "\",");
                     jsonWriter.println(prefix + "\"allow_offhand\": " + !item.isTwoHanded() + ",");
                     jsonWriter.println(prefix + "\"icon\": \"kci_" + item.getTexture().getName() + "\",");
                     jsonWriter.println(prefix + "\"custom_model_data\": " + item.getItemDamage());
+
+                    jsonWriter.print("            }");
+                }
+            }
+
+            for (ProjectileCover cover : itemSet.projectileCovers) {
+                if (getVanillaName(cover).equals(vanillaItem)) {
+
+                    if (!isFirst) jsonWriter.println(',');
+                    isFirst = false;
+                    jsonWriter.println("            {");
+
+                    String icon = cover.getGeyserTexture() != null ? "kci_" + cover.getGeyserTexture().getName() : "fireball";
+
+                    String prefix = "                ";
+                    jsonWriter.println(prefix + "\"name\": \"kci_cover_" + cover.getName() + "\",");
+                    jsonWriter.println(prefix + "\"allow_offhand\": true,");
+                    jsonWriter.println(prefix + "\"icon\": \"" + icon + "\",");
+                    jsonWriter.println(prefix + "\"custom_model_data\": " + cover.getItemDamage());
 
                     jsonWriter.print("            }");
                 }

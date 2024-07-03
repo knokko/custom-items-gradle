@@ -27,6 +27,8 @@ public class SphereProjectileCover extends ProjectileCover {
 
         if (encoding == ENCODING_SPHERE1) {
             result.load1(input, itemSet);
+        } else if (encoding == ENCODING_SPHERE2) {
+            result.loadNew(input, itemSet);
         } else {
             throw new UnknownEncodingException("SphereProjectileCover", encoding);
         }
@@ -59,10 +61,21 @@ public class SphereProjectileCover extends ProjectileCover {
         this.scale = input.readDouble();
     }
 
+    private void loadNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("SphereProjectileCover", encoding);
+
+        loadSharedPropertiesNew(input, itemSet);
+        this.texture = itemSet.textures.getReference(input.readString());
+        this.slotsPerAxis = input.readInt();
+        this.scale = input.readDouble();
+    }
+
     @Override
     protected void save(BitOutput output) {
-        output.addByte(ENCODING_SPHERE1);
-        saveSharedProperties1(output);
+        output.addByte(ENCODING_SPHERE2);
+        output.addByte((byte) 1);
+        saveSharedPropertiesNew(output);
         output.addString(texture.get().getName());
         output.addInt(slotsPerAxis);
         output.addDouble(scale);

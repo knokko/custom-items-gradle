@@ -137,14 +137,18 @@ public class UpdateProjectileTask implements Runnable {
 
 		KciItem dummyItem = new KciSimpleItem(true);
 		dummyItem.setItemType(projectile.prototype.getCover().getItemType());
+
 		VMaterial coverMaterial = dummyItem.getVMaterial(KciNms.mcVersion);
 		ItemStack coverStack = KciNms.instance.items.createStack(coverMaterial.name(), 1);
+		short itemDamage = projectile.prototype.getCover().getItemDamage();
+
+		if (KciNms.mcVersion < VERSION1_14) coverStack.setDurability(itemDamage);
+
 		ItemMeta coverMeta = coverStack.getItemMeta();
 		if (KciNms.mcVersion < VERSION1_14) coverMeta.setUnbreakable(true);
-		coverStack.setItemMeta(coverMeta);
-		short itemDamage = projectile.prototype.getCover().getItemDamage();
-		if (KciNms.mcVersion < VERSION1_14) coverStack.setDurability(itemDamage);
 		else KciNms.instance.items.setCustomModelData(coverMeta, itemDamage);
+		coverStack.setItemMeta(coverMeta);
+
 		NBT.modify(coverStack, nbt -> {
 			nbt.setBoolean(FlyingProjectile.KEY_COVER_ITEM, true);
 		});

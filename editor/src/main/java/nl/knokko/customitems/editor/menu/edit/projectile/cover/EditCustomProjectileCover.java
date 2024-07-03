@@ -33,7 +33,7 @@ public class EditCustomProjectileCover extends EditProjectileCover<CustomProject
 					null, null, false, this
 			));
 		}), 0.6f, 0.11f, 0.7f, 0.19f);
-		
-		HelpButtons.addHelpLink(this, "edit%20menu/projectiles/covers/edit/custom.html");
+
+		HelpButtons.addHelpLink(this, "edit menu/projectiles/covers/edit/custom.html");
 	}
 }

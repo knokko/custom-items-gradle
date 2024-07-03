@@ -9,6 +9,8 @@ import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.model.GeyserCustomModel;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.projectile.KciProjectile;
+import nl.knokko.customitems.projectile.cover.ProjectileCover;
+import nl.knokko.customitems.projectile.cover.SphereProjectileCover;
 import nl.knokko.customitems.recipe.KciCookingRecipe;
 import nl.knokko.customitems.recipe.KciShapelessRecipe;
 import nl.knokko.customitems.recipe.KciSmithingRecipe;
@@ -52,7 +54,7 @@ public class TestBackward13 {
             testRecipesOld13(old13, 11);
             testBlockDropsOld13(old13, 5);
             testMobDropsOld13(old13, 4);
-            testProjectileCoversOld6(old13, 2);
+            testProjectileCoversOld13(old13, 4);
             testProjectilesOld13(old13, 5);
             testFuelRegistriesOld8(old13, 1);
             testContainersOld12(old13, 6);
@@ -82,6 +84,19 @@ public class TestBackward13 {
             testCombinedResourcepacksFancy13(fancySet, 1);
             testExportSettingsFancy13(fancySet);
         }
+    }
+
+    static void testProjectileCoversOld13(ItemSet itemSet, int numProjectileCovers) {
+        testProjectileCoversOld6(itemSet, numProjectileCovers);
+
+        if (itemSet.getSide() != ItemSet.Side.EDITOR) return;
+
+        SphereProjectileCover geyserSphere = (SphereProjectileCover) itemSet.projectileCovers.get("geyser_sphere").get();
+        assertEquals("gun1", geyserSphere.getGeyserTexture().getName());
+        assertEquals("test1", geyserSphere.getTexture().getName());
+
+        ProjectileCover geyserCustom = itemSet.projectileCovers.get("geyser_custom").get();
+        assertEquals("gun1", geyserCustom.getGeyserTexture().getName());
     }
 
     static void testBlocksNew13(ItemSet itemSet, int numBlocks) {

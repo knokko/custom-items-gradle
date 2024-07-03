@@ -28,16 +28,16 @@ public class CreateProjectileCover extends GuiMenu {
 		
 		addComponent(new DynamicTextButton("Sphere", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new EditSphereProjectileCover(
-					itemSet, this, new SphereProjectileCover(true), null
+					itemSet, returnMenu, new SphereProjectileCover(true), null
 			));
 		}), 0.5f, 0.7f, 0.65f, 0.8f);
 		addComponent(new DynamicTextButton("Custom", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new EditCustomProjectileCover(
-					itemSet, this, new CustomProjectileCover(true), null
+					itemSet, returnMenu, new CustomProjectileCover(true), null
 			));
 		}), 0.5f, 0.55f, 0.65f, 0.65f);
 		
-		HelpButtons.addHelpLink(this, "edit%20menu/projectiles/covers/create.html");
+		HelpButtons.addHelpLink(this, "edit menu/projectiles/covers/create.html");
 	}
 	
 	@Override
