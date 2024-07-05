@@ -216,6 +216,14 @@ public class KciArmor extends KciTool {
     }
 
     @Override
+    public void setItemType(KciItemType newItemType) {
+        super.setItemType(newItemType);
+
+        if (newItemType.isLeatherArmor()) armorTexture = null;
+        else fancyPantsTexture = null;
+    }
+
+    @Override
     public boolean equals(Object other) {
         return other.getClass() == KciArmor.class && areArmorPropertiesEqual((KciArmor) other);
     }

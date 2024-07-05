@@ -2,13 +2,12 @@ package nl.knokko.customitems.editor.resourcepack.geyser;
 
 import nl.knokko.customitems.block.model.CustomBlockModel;
 import nl.knokko.customitems.block.model.SidedBlockModel;
-import nl.knokko.customitems.item.KciBlockItem;
-import nl.knokko.customitems.item.KciBow;
-import nl.knokko.customitems.item.KciItem;
+import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.model.GeyserCustomModel;
 import nl.knokko.customitems.itemset.ItemSet;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -31,6 +30,34 @@ class GeyserPackAttachableGenerator {
                         line -> line.replace("%TEXTURE_NAME%", item.getTexture().getName())
                                 .replace("%ITEM_NAME%", item.getName())
                 );
+            }
+        }
+    }
+
+    void generateArmor() throws IOException {
+        for (KciItem item : itemSet.items) {
+            if (item.getGeyserModel() != null) continue;
+
+            if (item instanceof KciArmor) {
+                KciArmor armor = (KciArmor) item;
+                String armorName = null;
+                if (armor.getFancyPantsTexture() != null) armorName = "fp_" + armor.getFancyPantsTexture().getName();
+                if (armor.getArmorTexture() != null) armorName = "op_" + armor.getArmorTexture().getName();
+
+                if (armorName != null) {
+                    if (armor.getItemType().getMainCategory() == KciItemType.Category.LEGGINGS) armorName += "2";
+                    else armorName += "1";
+
+                    String finalArmorName = armorName;
+                    String armorType = armor.getItemType().getMainCategory().name().toLowerCase(Locale.ROOT);
+                    IOHelper.propagate(
+                            "armor_template.attachable.json", zipOutput,
+                            "attachables/kci/" + armor.getName() + ".attachable.json",
+                            line -> line.replace("%ITEM_NAME%", armor.getName())
+                                    .replace("%ARMOR_NAME%", finalArmorName)
+                                    .replace("%ARMOR_TYPE%", armorType)
+                    );
+                }
             }
         }
     }

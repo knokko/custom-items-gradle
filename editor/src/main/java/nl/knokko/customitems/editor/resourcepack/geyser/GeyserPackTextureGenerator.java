@@ -6,9 +6,7 @@ import nl.knokko.customitems.block.model.SidedBlockModel;
 import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.item.model.GeyserCustomModel;
 import nl.knokko.customitems.itemset.ItemSet;
-import nl.knokko.customitems.texture.KciTexture;
-import nl.knokko.customitems.texture.BowTextureEntry;
-import nl.knokko.customitems.texture.BowTexture;
+import nl.knokko.customitems.texture.*;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -108,11 +106,23 @@ public class GeyserPackTextureGenerator {
                 writeTexture("sided/" + block.getName(), textureAtlas);
             }
         }
+
+        for (FancyPantsTexture armorTexture : itemSet.fancyPants) {
+            writeTexture("armor/fp_" + armorTexture.getName() + "1", armorTexture.getFrames().get(0).getLayer1());
+            writeTexture("armor/fp_" + armorTexture.getName() + "2", armorTexture.getFrames().get(0).getLayer2());
+        }
+
+        for (ArmorTexture armorTexture : itemSet.armorTextures) {
+            writeTexture("armor/op_" + armorTexture.getName() + "1", armorTexture.getLayer1());
+            writeTexture("armor/op_" + armorTexture.getName() + "2", armorTexture.getLayer2());
+        }
     }
 
     public void writeTexturesJsons() throws IOException {
         writeTexturesJson("item_texture", "atlas.items");
-        writeTexturesJson("terrain_texture", "atlas.terrain");
+        if (!itemSet.blocks.isEmpty()) {
+            writeTexturesJson("terrain_texture", "atlas.terrain");
+        }
     }
 
     private void writeTexturesJson(String fileName, String textureName) throws IOException {
