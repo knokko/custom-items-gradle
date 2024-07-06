@@ -52,6 +52,10 @@ public class GeyserPackGenerator {
         controllerGenerator.generateBow();
         controllerGenerator.generateAnimations();
 
+        GeyserPackSoundsGenerator soundGenerator = new GeyserPackSoundsGenerator(zipOutput, itemSet);
+        soundGenerator.generateSoundDefinitions();
+        soundGenerator.generateSounds();
+
         combiner.writeLate();
 
         zipOutput.flush();
