@@ -7,6 +7,8 @@ import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.item.model.GeyserCustomModel;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.texture.*;
+import nl.knokko.customitems.texture.animated.AnimatedTexture;
+import nl.knokko.customitems.texture.animated.AnimationImage;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -14,11 +16,13 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static java.lang.Math.abs;
+import static nl.knokko.customitems.editor.resourcepack.geyser.GeyserPackControllerGenerator.createFrameMap;
 
 public class GeyserPackTextureGenerator {
 
@@ -59,6 +63,13 @@ public class GeyserPackTextureGenerator {
         writePullTexture(texture, 2, 0.9);
     }
 
+    private void writeAnimatedTexture(AnimatedTexture texture) throws IOException {
+        Map<String, Integer> frameMap = createFrameMap(texture);
+        for (AnimationImage frame : texture.getImageReferences()) {
+            writeTexture(texture.getName() + "/frame" + frameMap.get(frame.getLabel()), frame.getImageReference());
+        }
+    }
+
     private void writeCustomModelTexture(GeyserCustomModel model) throws IOException {
         zipOutput.putNextEntry(new ZipEntry("textures/kci/models/" + model.attachableId + ".png"));
         zipOutput.write(model.textureFile);
@@ -70,6 +81,8 @@ public class GeyserPackTextureGenerator {
         for (KciTexture texture : itemSet.textures) {
             if (texture instanceof BowTexture) {
                 writeBowTexture((BowTexture) texture);
+            } else if (texture instanceof AnimatedTexture) {
+                writeAnimatedTexture((AnimatedTexture) texture);
             } else {
                 writeTexture(texture.getName(), texture.getImage());
             }
@@ -146,6 +159,7 @@ public class GeyserPackTextureGenerator {
         for (KciTexture texture : itemSet.textures) {
             String texturePath = "textures/kci/" + texture.getName();
             if (texture instanceof BowTexture) texturePath += "_standby";
+            if (texture instanceof AnimatedTexture) texturePath += "/frame1";
             jsonWriter.println("        \"kci_" + texture.getName() + "\": {");
             jsonWriter.println("            \"textures\": \"" + texturePath + "\"");
             jsonWriter.print("        }");

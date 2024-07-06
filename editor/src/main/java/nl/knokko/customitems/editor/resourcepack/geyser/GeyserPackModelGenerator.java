@@ -8,6 +8,7 @@ import nl.knokko.customitems.item.KciBlockItem;
 import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.item.model.GeyserCustomModel;
 import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.customitems.texture.animated.AnimatedTexture;
 
 import java.io.IOException;
 import java.util.zip.ZipEntry;
@@ -42,6 +43,15 @@ public class GeyserPackModelGenerator {
                     zipOutput.closeEntry();
                 }
             }
+        }
+    }
+
+    void generateAnimationModel() throws IOException {
+        if (itemSet.textures.stream().anyMatch(texture -> texture instanceof AnimatedTexture)) {
+            IOHelper.propagate(
+                    "kci_animated.geo.json", zipOutput,
+                    "models/blocks/kci/animated.geo.json", null
+            );
         }
     }
 

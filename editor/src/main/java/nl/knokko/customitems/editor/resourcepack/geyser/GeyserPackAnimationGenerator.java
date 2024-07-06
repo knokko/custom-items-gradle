@@ -4,9 +4,11 @@ import nl.knokko.customitems.block.KciBlock;
 import nl.knokko.customitems.block.model.CustomBlockModel;
 import nl.knokko.customitems.item.KciBlockItem;
 import nl.knokko.customitems.item.KciItem;
+import nl.knokko.customitems.item.KciShield;
 import nl.knokko.customitems.item.model.GeyserCustomModel;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.texture.BowTexture;
+import nl.knokko.customitems.texture.animated.AnimatedTexture;
 
 import java.io.IOException;
 import java.util.zip.ZipEntry;
@@ -30,6 +32,13 @@ class GeyserPackAnimationGenerator {
             );
         }
 
+        if (itemSet.textures.stream().anyMatch(texture -> texture instanceof AnimatedTexture)) {
+            IOHelper.propagate(
+                    "kci_animated.animation.json", zipOutput,
+                    "animations/kci/animated.animation.json", null
+            );
+        }
+
         if (itemSet.items.stream().anyMatch(item -> item instanceof KciBlockItem)) {
             IOHelper.propagate(
                     "kci_block.animation.json", zipOutput,
@@ -37,7 +46,10 @@ class GeyserPackAnimationGenerator {
             );
         }
 
-        if (itemSet.items.stream().anyMatch(item -> item.getGeyserModel() != null || item instanceof KciBlockItem)) {
+        if (itemSet.items.stream().anyMatch(
+                item -> item.getGeyserModel() != null || item instanceof KciBlockItem ||
+                        item instanceof KciShield || item.getTexture() instanceof AnimatedTexture
+        )) {
             IOHelper.propagate(
                     "animation.geyser_custom.disable.json", zipOutput,
                     "animations/kci/disable.animation.json", null

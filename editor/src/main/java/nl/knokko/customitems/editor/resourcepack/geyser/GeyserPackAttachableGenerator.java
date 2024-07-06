@@ -5,9 +5,12 @@ import nl.knokko.customitems.block.model.SidedBlockModel;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.model.GeyserCustomModel;
 import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.customitems.texture.animated.AnimatedTexture;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Locale;
+import java.util.Scanner;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -58,6 +61,38 @@ class GeyserPackAttachableGenerator {
                                     .replace("%ARMOR_TYPE%", armorType)
                     );
                 }
+            }
+        }
+    }
+
+    void generateAnimations() throws IOException {
+        for (KciItem item : itemSet.items) {
+            if (item.getGeyserModel() == null && item.getTexture() instanceof AnimatedTexture) {
+                AnimatedTexture texture = (AnimatedTexture) item.getTexture();
+
+                zipOutput.putNextEntry(new ZipEntry("attachables/kci/animated/" + item.getName() + ".attachable.json"));
+                PrintWriter attachableWriter = new PrintWriter(zipOutput);
+
+                Scanner startScanner = new Scanner(getClass().getClassLoader().getResourceAsStream(
+                        "nl/knokko/customitems/editor/geyser/animated_template_start.attachable.txt"
+                ));
+                while (startScanner.hasNextLine()) {
+                    attachableWriter.println(startScanner.nextLine().replace("%ITEM_NAME%", item.getName()));
+                }
+
+                for (int frame = 1; frame <= texture.getImageReferences().size(); frame++) {
+                    attachableWriter.println("\t\t\t\t\"frame" + frame + "\": \"textures/kci/" + texture.getName() + "/frame" + frame + "\",");
+                }
+
+                Scanner endScanner = new Scanner(getClass().getClassLoader().getResourceAsStream(
+                        "nl/knokko/customitems/editor/geyser/animated_template_end.attachable.txt"
+                ));
+                while (endScanner.hasNextLine()) {
+                    attachableWriter.println(endScanner.nextLine().replace("%TEXTURE_NAME%", texture.getName()));
+                }
+
+                attachableWriter.flush();
+                zipOutput.closeEntry();
             }
         }
     }

@@ -1,0 +1,77 @@
+{
+  "format_version": "1.16.0",
+  "minecraft:geometry": [
+    {
+      "description": {
+        "identifier": "geometry.kci_animated",
+        "texture_width": 16,
+        "texture_height": 16,
+        "visible_bounds_width": 4,
+        "visible_bounds_height": 4.5,
+        "visible_bounds_offset": [
+          0,
+          0.75,
+          0
+        ]
+      },
+      "bones": [
+        {
+          "name": "geyser_custom",
+          "binding": "c.item_slot == 'head' ? 'head' : q.item_slot_to_bone_name(c.item_slot)",
+          "pivot": [
+            0,
+            8,
+            0
+          ]
+        },
+        {
+          "name": "geyser_custom_x",
+          "parent": "geyser_custom",
+          "pivot": [
+            0,
+            8,
+            0
+          ]
+        },
+        {
+          "name": "geyser_custom_y",
+          "parent": "geyser_custom_x",
+          "pivot": [
+            0,
+            8,
+            0
+          ]
+        },
+        {
+          "name": "geyser_custom_z",
+          "parent": "geyser_custom_y",
+          "pivot": [
+            0,
+            8,
+            0
+          ],
+          "texture_meshes": [
+            {
+              "texture": "frame1",
+              "position": [
+                0,
+                8,
+                0
+              ],
+              "rotation": [
+                90,
+                0,
+                -180
+              ],
+              "local_pivot": [
+                8,
+                0.5,
+                8
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
