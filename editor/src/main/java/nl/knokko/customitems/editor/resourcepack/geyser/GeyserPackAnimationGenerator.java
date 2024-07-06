@@ -46,6 +46,17 @@ class GeyserPackAnimationGenerator {
             );
         }
 
+        if (itemSet.items.stream().anyMatch(item -> item instanceof KciShield)) {
+            IOHelper.propagate(
+                    "kci_shield.animation.json", zipOutput,
+                    "animations/kci/shield.animation.json", null
+            );
+            IOHelper.propagate(
+                    "kci_shield_blocking.animation.json", zipOutput,
+                    "animations/kci/shield_blocking.animation.json", null
+            );
+        }
+
         if (itemSet.items.stream().anyMatch(
                 item -> item.getGeyserModel() != null || item instanceof KciBlockItem ||
                         item instanceof KciShield || item.getTexture() instanceof AnimatedTexture

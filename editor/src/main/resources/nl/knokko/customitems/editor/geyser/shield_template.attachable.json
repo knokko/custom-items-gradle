@@ -1,0 +1,74 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:attachable": {
+    "description": {
+      "identifier": "geyser_custom:kci_item_%ITEM_NAME%",
+      "materials": {
+        "default": "entity_alphatest_one_sided",
+        "enchanted": "entity_alphatest_one_sided"
+      },
+      "textures": {
+        "default": "textures/kci/%TEXTURE_NAME%",
+        "enchanted": "textures/misc/enchanted_item_glint"
+      },
+      "geometry": {
+        "default": "geometry.kci_shield"
+      },
+      "scripts": {
+        "pre_animation": [
+          "v.main_hand = c.item_slot == 'main_hand';",
+          "v.off_hand = c.item_slot == 'off_hand';",
+          "v.head = c.item_slot == 'head';",
+          "v.blocking = query.blocking == 1.0;"
+        ],
+        "animate": [
+          {
+            "thirdperson_main_hand": "v.main_hand && !c.is_first_person && !v.blocking"
+          },
+          {
+            "thirdperson_main_hand_blocking": "v.main_hand && !c.is_first_person && v.blocking"
+          },
+          {
+            "thirdperson_off_hand": "v.off_hand && !c.is_first_person && !v.blocking"
+          },
+          {
+            "thirdperson_off_hand_blocking": "v.off_hand && !c.is_first_person && v.blocking"
+          },
+          {
+            "thirdperson_head": "v.head && !c.is_first_person"
+          },
+          {
+            "firstperson_main_hand": "v.main_hand && c.is_first_person && !v.blocking"
+          },
+          {
+            "firstperson_main_hand_blocking": "v.main_hand && c.is_first_person && v.blocking"
+          },
+          {
+            "firstperson_off_hand": "v.off_hand && c.is_first_person && !v.blocking"
+          },
+          {
+            "firstperson_off_hand_blocking": "v.off_hand && c.is_first_person && v.blocking"
+          },
+          {
+            "firstperson_head": "c.is_first_person && v.head"
+          }
+        ]
+      },
+      "animations": {
+        "thirdperson_main_hand": "animation.kci_shield.thirdperson_main_hand",
+        "thirdperson_main_hand_blocking": "animation.kci_shield_blocking.thirdperson_main_hand",
+        "thirdperson_off_hand": "animation.kci_shield.thirdperson_off_hand",
+        "thirdperson_off_hand_blocking": "animation.kci_shield_blocking.thirdperson_off_hand",
+        "thirdperson_head": "animation.geyser_custom.disable",
+        "firstperson_main_hand": "animation.kci_shield.firstperson_main_hand",
+        "firstperson_main_hand_blocking": "animation.kci_shield_blocking.firstperson_main_hand",
+        "firstperson_off_hand": "animation.kci_shield.firstperson_off_hand",
+        "firstperson_off_hand_blocking": "animation.kci_shield_blocking.firstperson_off_hand",
+        "firstperson_head": "animation.geyser_custom.disable"
+      },
+      "render_controllers": [
+        "controller.render.item_default"
+      ]
+    }
+  }
+}

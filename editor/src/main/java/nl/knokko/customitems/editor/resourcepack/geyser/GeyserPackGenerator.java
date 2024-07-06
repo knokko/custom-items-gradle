@@ -38,12 +38,14 @@ public class GeyserPackGenerator {
         GeyserPackAttachableGenerator attachableGenerator = new GeyserPackAttachableGenerator(itemSet, zipOutput);
         attachableGenerator.generateBows();
         attachableGenerator.generateArmor();
+        attachableGenerator.generateShields();
         attachableGenerator.generateAnimations();
         attachableGenerator.generateCustomModels();
 
         GeyserPackModelGenerator modelGenerator = new GeyserPackModelGenerator(itemSet, zipOutput);
         modelGenerator.generateCustomModels();
         modelGenerator.generateBlockModel();
+        modelGenerator.generateShieldModel();
         modelGenerator.generateAnimationModel();
 
         GeyserPackControllerGenerator controllerGenerator = new GeyserPackControllerGenerator(itemSet, zipOutput);

@@ -37,6 +37,19 @@ class GeyserPackAttachableGenerator {
         }
     }
 
+    void generateShields() throws IOException {
+        for (KciItem item : itemSet.items) {
+            if (item instanceof KciShield && item.getGeyserModel() == null) {
+                IOHelper.propagate(
+                        "shield_template.attachable.json", zipOutput,
+                        "attachables/kci/shield/" + item.getName() + ".attachable.json",
+                        line -> line.replace("%ITEM_NAME%", item.getName())
+                                .replace("%TEXTURE_NAME%", item.getTexture().getName())
+                );
+            }
+        }
+    }
+
     void generateArmor() throws IOException {
         for (KciItem item : itemSet.items) {
             if (item.getGeyserModel() != null) continue;

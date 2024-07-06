@@ -6,6 +6,7 @@ import nl.knokko.customitems.block.model.SidedBlockModel;
 import nl.knokko.customitems.block.model.SimpleBlockModel;
 import nl.knokko.customitems.item.KciBlockItem;
 import nl.knokko.customitems.item.KciItem;
+import nl.knokko.customitems.item.KciShield;
 import nl.knokko.customitems.item.model.GeyserCustomModel;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.texture.animated.AnimatedTexture;
@@ -51,6 +52,15 @@ public class GeyserPackModelGenerator {
             IOHelper.propagate(
                     "kci_animated.geo.json", zipOutput,
                     "models/blocks/kci/animated.geo.json", null
+            );
+        }
+    }
+
+    void generateShieldModel() throws IOException {
+        if (itemSet.items.stream().anyMatch(item -> item instanceof KciShield)) {
+            IOHelper.propagate(
+                    "kci_shield.geo.json", zipOutput,
+                    "models/blocks/kci/shield.geo.json", null
             );
         }
     }
