@@ -2,7 +2,7 @@
   "format_version": "1.10.0",
   "minecraft:attachable": {
     "description": {
-      "identifier": "geyser_custom:kci_%ITEM_NAME%",
+      "identifier": "geyser_custom:kci_item_%ITEM_NAME%",
       "materials": {
         "default": "entity_alphatest_one_sided",
         "enchanted": "entity_alphatest_one_sided"
@@ -46,7 +46,7 @@
         "thirdperson_off_hand": "animation.geyser_custom.kci_block.thirdperson_off_hand",
         "thirdperson_head": "animation.geyser_custom.kci_block.head",
         "firstperson_main_hand": "animation.geyser_custom.kci_block.firstperson_main_hand",
-        "firstperson_off_hand": "animation.geyser_custom.kic_block.firstperson_off_hand",
+        "firstperson_off_hand": "animation.geyser_custom.kci_block.firstperson_off_hand",
         "firstperson_head": "animation.geyser_custom.disable"
       },
       "render_controllers": [
