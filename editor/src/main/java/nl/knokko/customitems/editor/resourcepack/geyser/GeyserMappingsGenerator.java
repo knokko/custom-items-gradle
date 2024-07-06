@@ -5,9 +5,7 @@ import nl.knokko.customitems.block.MushroomBlockMapping;
 import nl.knokko.customitems.block.model.BlockModel;
 import nl.knokko.customitems.block.model.CustomBlockModel;
 import nl.knokko.customitems.block.model.SidedBlockModel;
-import nl.knokko.customitems.item.KciBlockItem;
-import nl.knokko.customitems.item.KciItemType;
-import nl.knokko.customitems.item.KciItem;
+import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.model.GeyserCustomModel;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.projectile.cover.ProjectileCover;
@@ -75,7 +73,11 @@ public class GeyserMappingsGenerator {
                     String attachableId = "kci_item_" + item.getName();
                     if (geyserModel != null) attachableId = geyserModel.attachableId;
                     jsonWriter.println(prefix + "\"name\": \"" + attachableId + "\",");
-                    jsonWriter.println(prefix + "\"allow_offhand\": " + !item.isTwoHanded() + ",");
+                    boolean allowOffhand = !item.isTwoHanded();
+                    if (item instanceof KciBow || item instanceof KciCrossbow || item instanceof KciBlockItem) {
+                        allowOffhand = false;
+                    }
+                    jsonWriter.println(prefix + "\"allow_offhand\": " + allowOffhand + ",");
                     jsonWriter.println(prefix + "\"icon\": \"kci_" + item.getTexture().getName() + "\",");
                     jsonWriter.println(prefix + "\"custom_model_data\": " + item.getItemDamage());
 

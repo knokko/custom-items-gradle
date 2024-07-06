@@ -34,6 +34,14 @@ class GeyserPackAttachableGenerator {
                                 .replace("%ITEM_NAME%", item.getName())
                 );
             }
+            if (item instanceof KciCrossbow) {
+                IOHelper.propagate(
+                        "crossbow_template.attachable.json", zipOutput,
+                        "attachables/kci/crossbow/" + item.getName() + ".attachable.json",
+                        line -> line.replace("%TEXTURE_NAME%", item.getTexture().getName())
+                                .replace("%ITEM_NAME%", item.getName())
+                );
+            }
         }
     }
 

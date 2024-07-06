@@ -2,6 +2,7 @@ package nl.knokko.customitems.editor.resourcepack.geyser;
 
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.texture.BowTexture;
+import nl.knokko.customitems.texture.CrossbowTexture;
 import nl.knokko.customitems.texture.KciTexture;
 import nl.knokko.customitems.texture.animated.AnimatedTexture;
 import nl.knokko.customitems.texture.animated.AnimationFrame;
@@ -27,6 +28,12 @@ class GeyserPackControllerGenerator {
             IOHelper.propagate(
                     "kci_bow.render_controllers.json", zipOutput,
                     "render_controllers/kci/bow.render_controllers.json", null
+            );
+        }
+        if (itemSet.textures.stream().anyMatch(texture -> texture instanceof CrossbowTexture)) {
+            IOHelper.propagate(
+                    "kci_crossbow.render_controllers.json", zipOutput,
+                    "render_controllers/kci/crossbow.render_controllers.json", null
             );
         }
     }

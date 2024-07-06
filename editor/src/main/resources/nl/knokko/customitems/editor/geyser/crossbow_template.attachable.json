@@ -1,0 +1,38 @@
+{
+  "format_version": "1.10.0",
+  "minecraft:attachable": {
+    "description": {
+      "identifier": "geyser_custom:kci_item_%ITEM_NAME%",
+      "materials": {
+        "default": "entity_alphatest",
+        "enchanted": "entity_alphatest_glint"
+      },
+      "textures": {
+        "default": "textures/kci/%TEXTURE_NAME%_standby",
+        "crossbow_pulling_0": "textures/kci/%TEXTURE_NAME%_pulling_0",
+        "crossbow_pulling_1": "textures/kci/%TEXTURE_NAME%_pulling_1",
+        "crossbow_pulling_2": "textures/kci/%TEXTURE_NAME%_pulling_2",
+        "crossbow_arrow": "textures/kci/%TEXTURE_NAME%_arrow",
+        "crossbow_rocket": "textures/kci/%TEXTURE_NAME%_rocket",
+        "enchanted": "textures/misc/enchanted_item_glint"
+      },
+      "geometry": {
+        "default": "geometry.crossbow_standby",
+        "crossbow_pulling_0": "geometry.crossbow_pulling_0",
+        "crossbow_pulling_1": "geometry.crossbow_pulling_1",
+        "crossbow_pulling_2": "geometry.crossbow_pulling_2",
+        "crossbow_arrow": "geometry.crossbow_arrow",
+        "crossbow_rocket": "geometry.crossbow_rocket"
+      },
+      "scripts": {
+        "pre_animation": [
+          "v.charge_amount = math.clamp((q.main_hand_item_max_duration - (q.main_hand_item_use_duration - q.frame_alpha + 1.0)) / 10.0, 0.0, 1.0f);",
+          "v.total_frames = 3;",
+          "v.step = v.total_frames / 120;",
+          "v.frame = query.is_using_item ? math.clamp((v.frame ?? 0) + v.step, 1, v.total_frames) : 0;"
+        ]
+      },
+      "render_controllers": ["controller.render.kci_crossbow"]
+    }
+  }
+}

@@ -40,8 +40,7 @@ public class GeyserPackTextureGenerator {
         zipOutput.closeEntry();
     }
 
-    private void writePullTexture(BowTexture texture, int entry, double pull) throws IOException {
-        List<BowTextureEntry> pulls = texture.getPullTextures();
+    private void writePullTexture(KciTexture texture, List<BowTextureEntry> pulls, int entry, double pull) throws IOException {
         String textureName = texture.getName() + "_pulling_" + entry;
         if (pulls.isEmpty()) {
             writeTexture(textureName, texture.getImage());
@@ -58,9 +57,18 @@ public class GeyserPackTextureGenerator {
 
     private void writeBowTexture(BowTexture texture) throws IOException {
         writeTexture(texture.getName() + "_standby", texture.getImage());
-        writePullTexture(texture, 0, 0.0);
-        writePullTexture(texture, 1, 0.65);
-        writePullTexture(texture, 2, 0.9);
+        writePullTexture(texture, texture.getPullTextures(), 0, 0.0);
+        writePullTexture(texture, texture.getPullTextures(), 1, 0.65);
+        writePullTexture(texture, texture.getPullTextures(), 2, 0.9);
+    }
+
+    private void writeCrossbowTexture(CrossbowTexture texture) throws IOException {
+        writeTexture(texture.getName() + "_standby", texture.getImage());
+        writePullTexture(texture, texture.getPullTextures(), 0, 0.0);
+        writePullTexture(texture, texture.getPullTextures(), 1, 0.58);
+        writePullTexture(texture, texture.getPullTextures(), 2, 1.0);
+        writeTexture(texture.getName() + "_arrow", texture.getArrowImage());
+        writeTexture(texture.getName() + "_rocket", texture.getFireworkImage());
     }
 
     private void writeAnimatedTexture(AnimatedTexture texture) throws IOException {
@@ -77,10 +85,11 @@ public class GeyserPackTextureGenerator {
     }
 
     public void writeTextures() throws IOException {
-        // TODO Support crossbow textures
         for (KciTexture texture : itemSet.textures) {
             if (texture instanceof BowTexture) {
                 writeBowTexture((BowTexture) texture);
+            } else if (texture instanceof CrossbowTexture) {
+                writeCrossbowTexture((CrossbowTexture) texture);
             } else if (texture instanceof AnimatedTexture) {
                 writeAnimatedTexture((AnimatedTexture) texture);
             } else {
@@ -158,7 +167,7 @@ public class GeyserPackTextureGenerator {
         int counter = 1;
         for (KciTexture texture : itemSet.textures) {
             String texturePath = "textures/kci/" + texture.getName();
-            if (texture instanceof BowTexture) texturePath += "_standby";
+            if (texture instanceof BowTexture || texture instanceof CrossbowTexture) texturePath += "_standby";
             if (texture instanceof AnimatedTexture) texturePath += "/frame1";
             jsonWriter.println("        \"kci_" + texture.getName() + "\": {");
             jsonWriter.println("            \"textures\": \"" + texturePath + "\"");

@@ -1,0 +1,28 @@
+{
+  "format_version": "1.10",
+  "render_controllers": {
+    "controller.render.kci_crossbow": {
+      "arrays": {
+        "textures": {
+          "array.crossbow_texture_frames": [
+            "texture.default",
+            "texture.crossbow_pulling_0",
+            "texture.crossbow_pulling_1",
+            "texture.crossbow_pulling_2"
+          ]
+        },
+        "geometries": {
+          "array.crossbow_geo_frames": [
+            "geometry.default",
+            "geometry.crossbow_pulling_0",
+            "geometry.crossbow_pulling_1",
+            "geometry.crossbow_pulling_2"
+          ]
+        }
+      },
+      "geometry": "array.crossbow_geo_frames[math.floor(v.frame)]",
+      "materials": [ { "*": "variable.is_enchanted ? material.enchanted : material.default" } ],
+      "textures": [ "query.item_is_charged ? texture.crossbow_arrow : array.crossbow_texture_frames[math.floor(v.frame)]", "texture.enchanted" ]
+    }
+  }
+}
