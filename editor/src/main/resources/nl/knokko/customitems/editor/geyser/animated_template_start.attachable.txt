@@ -5,6 +5,6 @@
 			"identifier": "geyser_custom:kci_item_%ITEM_NAME%",
 			"materials": {
 				"default": "entity_alphatest",
-				"enchanted": "entity_emissive_alpha"
+				"enchanted": "entity_alphatest_glint"
 			},
 			"textures": {

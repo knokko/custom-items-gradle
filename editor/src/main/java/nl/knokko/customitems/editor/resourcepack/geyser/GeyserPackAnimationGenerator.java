@@ -25,13 +25,6 @@ class GeyserPackAnimationGenerator {
     }
 
     void copyAnimations() throws IOException {
-        if (itemSet.textures.stream().anyMatch(texture -> texture instanceof BowTexture)) {
-            IOHelper.propagate(
-                    "kci_bow.animation.json", zipOutput,
-                    "animations/kci/bow.animation.json", null
-            );
-        }
-
         if (itemSet.textures.stream().anyMatch(texture -> texture instanceof AnimatedTexture)) {
             IOHelper.propagate(
                     "kci_animated.animation.json", zipOutput,
@@ -59,7 +52,7 @@ class GeyserPackAnimationGenerator {
 
         if (itemSet.items.stream().anyMatch(
                 item -> item.getGeyserModel() != null || item instanceof KciBlockItem ||
-                        item instanceof KciShield || item.getTexture() instanceof AnimatedTexture
+                        item.getTexture() instanceof AnimatedTexture
         )) {
             IOHelper.propagate(
                     "animation.geyser_custom.disable.json", zipOutput,
