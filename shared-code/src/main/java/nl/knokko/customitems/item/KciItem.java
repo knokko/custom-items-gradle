@@ -1173,7 +1173,7 @@ public abstract class KciItem extends ModelValues {
         }
 
         if (itemFlags == null) throw new ProgrammingValidationException("No item flags");
-        if (itemFlags.size() != 8) throw new ProgrammingValidationException("Number of item flags is not 6");
+        if (itemFlags.size() != 10) throw new ProgrammingValidationException("Number of item flags is not 10");
 
         if (attributeModifiers == null) throw new ProgrammingValidationException("No attribute modifiers");
         if (attributeModifiers.size() > Byte.MAX_VALUE) throw new ValidationException("Too many attribute modifiers");

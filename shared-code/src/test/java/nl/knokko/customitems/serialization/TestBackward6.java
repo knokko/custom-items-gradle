@@ -94,7 +94,7 @@ public class TestBackward6 {
                 LeveledEnchantment.createQuick(VEnchantmentType.DAMAGE_ARTHROPODS, 2)
         ), trident1.getDefaultEnchantments());
         assertEquals(listOf(
-                false, false, true, false, false, false, false, false
+                false, false, true, false, false, false, false, false, false, false
         ), trident1.getItemFlags());
         if (set.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("quick_wand", trident1.getTexture().getName());
@@ -311,7 +311,7 @@ public class TestBackward6 {
                 LeveledEnchantment.createQuick(VEnchantmentType.MENDING, 1)
         ), item.getDefaultEnchantments());
         assertEquals(listOf(
-                true, false, true, false, false, false, false, false
+                true, false, true, false, false, false, false, false, false, false
         ), item.getItemFlags());
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
@@ -350,7 +350,7 @@ public class TestBackward6 {
         assertEquals(0, item.getAttributeModifiers().size());
         assertEquals(0, item.getDefaultEnchantments().size());
         assertEquals(listOf(
-                true, true, true, false, false, false, false, false
+                true, true, true, false, false, false, false, false, false, false
         ), item.getItemFlags());
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());

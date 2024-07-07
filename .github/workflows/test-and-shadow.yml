@@ -160,7 +160,7 @@ jobs:
         with:
           name: ce-event-handler
           path: ce-event-handler/build/classes/java/main
-  nms20:
+  nms20-to-21:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -173,22 +173,30 @@ jobs:
       - run: javac VersionTrimmer.java
       - run: curl -o BuildTools.jar https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar
       - run: java -jar BuildTools.jar --rev 1.20.6
-      - run: java VersionTrimmer 1.20
+      - run: java -jar BuildTools.jar --rev 1.21
+      - run: java VersionTrimmer 1.20-to-1.21
+      - run: ./gradlew build --no-daemon
       - run: ./gradlew shadowJar --no-daemon
       - uses: actions/upload-artifact@v3
         with:
+          name: kci-nms20plus
+          path: kci-nms20plus/build/libs/kci-nms20plus-all.jar
+      - uses: actions/upload-artifact@v3
+        with:
           name: kci-nms20
-          path: kci-nms20/build/libs/kci-nms20-all.jar
+          path: kci-nms20/build/classes/java/main
+      - uses: actions/upload-artifact@v3
+        with:
+          name: kci-nms21
+          path: kci-nms21/build/classes/java/main
   combine-plugin-with-nms:
     runs-on: ubuntu-latest
-    needs: [test-and-shadow-general, nms13-to-16, nms17, nms18-to-19, nms20]
+    needs: [test-and-shadow-general, nms13-to-16, nms17, nms18-to-19, nms20-to-21]
     steps:
       - uses: actions/download-artifact@v3
         with:
           name: plug-in-incomplete
           path: combined
-      - run: unzip -d combined combined/plug-in-all.jar
-      - run: rm combined/plug-in-all.jar
       - uses: actions/download-artifact@v3
         with:
           name: ce-event-handler
@@ -235,10 +243,20 @@ jobs:
           path: combined
       - uses: actions/download-artifact@v3
         with:
+          name: kci-nms20plus
+          path: combined
+      - uses: actions/download-artifact@v3
+        with:
           name: kci-nms20
           path: combined
-      - run: unzip -d combined -o combined/kci-nms20-all.jar
-      - run: rm combined/kci-nms20-all.jar
+      - uses: actions/download-artifact@v3
+        with:
+          name: kci-nms21
+          path: combined
+      - run: unzip -d combined combined/kci-nms20plus-all.jar
+      - run: rm combined/kci-nms20plus-all.jar
+      - run: unzip -d combined -o combined/plug-in-all.jar
+      - run: rm combined/plug-in-all.jar
       - run: cd combined && zip -r CustomItems.jar * && cd ..
       - run: mkdir releases
       - run: cp combined/CustomItems.jar releases/CustomItems.jar

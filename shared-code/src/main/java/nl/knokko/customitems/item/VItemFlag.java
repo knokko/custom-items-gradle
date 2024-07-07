@@ -9,21 +9,23 @@ import static nl.knokko.customitems.MCVersions.*;
 
 public enum VItemFlag {
 
-    HIDE_ENCHANTS(VERSION1_12, VERSION1_20),
-    HIDE_ATTRIBUTES(VERSION1_12, VERSION1_20),
-    HIDE_UNBREAKABLE(VERSION1_12, VERSION1_20),
-    HIDE_DESTROYS(VERSION1_12, VERSION1_20),
-    HIDE_PLACED_ON(VERSION1_12, VERSION1_20),
+    HIDE_ENCHANTS(VERSION1_12, VERSION1_21),
+    HIDE_ATTRIBUTES(VERSION1_12, VERSION1_21),
+    HIDE_UNBREAKABLE(VERSION1_12, VERSION1_21),
+    HIDE_DESTROYS(VERSION1_12, VERSION1_21),
+    HIDE_PLACED_ON(VERSION1_12, VERSION1_21),
     HIDE_POTION_EFFECTS(VERSION1_12, VERSION1_20),
-    HIDE_DYE(VERSION1_16, VERSION1_20),
-    HIDE_ARMOR_TRIM(VERSION1_19, VERSION1_20);
+    HIDE_DYE(VERSION1_16, VERSION1_21),
+    HIDE_ARMOR_TRIM(VERSION1_19, VERSION1_21),
+    HIDE_ADDITIONAL_TOOLTIP(VERSION1_21, VERSION1_21),
+    HIDE_STORED_ENCHANTS(VERSION1_21, VERSION1_21);
 
     public static boolean[] getDefaultValues() {
-		return new boolean[]{ false, false, true, false, false, false, false, false };
+		return new boolean[]{ false, false, true, false, false, false, false, false, false, false };
 	}
 
 	public static List<Boolean> getDefaultValuesList() {
-	    List<Boolean> result = new ArrayList<>(8);
+	    List<Boolean> result = new ArrayList<>(10);
 	    for (boolean defaultValue : getDefaultValues()) {
 	        result.add(defaultValue);
         }

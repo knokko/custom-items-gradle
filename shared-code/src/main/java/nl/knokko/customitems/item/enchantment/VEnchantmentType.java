@@ -48,6 +48,9 @@ public enum VEnchantmentType {
 	
 	SOUL_SPEED("soul_speed", VERSION1_16),
     SWIFT_SNEAK("swift_sneak", VERSION1_19),
+    DENSITY("density", VERSION1_21),
+    BREACH("breach", VERSION1_21),
+    WIND_BURST("wind_burst", VERSION1_21),
 	
 	GEARS("Gears", CustomEnchantmentProvider.CRAZY_ENCHANTMENTS),
     WINGS("Wings", CustomEnchantmentProvider.CRAZY_ENCHANTMENTS),

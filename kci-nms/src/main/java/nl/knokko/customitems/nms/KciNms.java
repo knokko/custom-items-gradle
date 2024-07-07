@@ -11,7 +11,7 @@ public abstract class KciNms {
     static {
         KciNms supportedInstance = null;
         int chosenMcVersion = -1;
-        int[] supportedMcVersions = { 12, 13, 14, 15, 16, 17, 18, 19, 20 };
+        int[] supportedMcVersions = { 12, 13, 14, 15, 16, 17, 18, 19, 20, 21 };
 
         for (int candidateVersion : supportedMcVersions) {
             try {

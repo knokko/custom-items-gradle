@@ -178,7 +178,7 @@ public class TestBackward13 {
 
     private static void testFlagged(ItemSet.Side side, KciItem item) {
         assertEquals(listOf(
-                false, false, true, false, false, false, true, true
+                false, false, true, false, false, false, true, true, true, true
         ), item.getItemFlags());
 
         GeyserCustomModel geyserModel = item.getGeyserModel();
@@ -338,7 +338,6 @@ public class TestBackward13 {
     static void testBaseDefault13(KciItem item) {
         assertEquals(0, item.getFurnaceBurnTime());
         assertEquals(0, item.getTranslations().size());
-        assertEquals(8, item.getItemFlags().size());
         assertFalse(item.getItemFlags().get(6));
         assertFalse(item.getItemFlags().get(7));
         // TODO Call testBaseDefault14

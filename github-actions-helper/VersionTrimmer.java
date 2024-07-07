@@ -30,14 +30,16 @@ public class VersionTrimmer {
     private static final String MARKER_NMS18PLUS = "NMS18PLUS";
     private static final String MARKER_NMS18 = "NMS18";
     private static final String MARKER_NMS19 = "NMS19";
+    private static final String MARKER_NMS20PLUS = "NMS20PLUS";
     private static final String MARKER_NMS20 = "NMS20";
+    private static final String MARKER_NMS21 = "NMS21";
 
     private static final String[] ALL_MARKERS = {
             MARKER_GENERAL, MARKER_JAVA8, MARKER_JAVA16, MARKER_JAVA17, MARKER_JAVA21, MARKER_CE_EVENT_HANDLER,
             MARKER_TEST_CUSTOM_RECIPES, MARKER_CUSTOM_RECIPES, MARKER_NMS_BASE,
             MARKER_NMS12_DEPENDENCY, MARKER_NMS_DEPENDENCIES, MARKER_NMS13PLUS, MARKER_NMS13, MARKER_NMS14,
             MARKER_NMS15, MARKER_NMS16PLUS, MARKER_NMS16, MARKER_NMS17PLUS, MARKER_NMS17,
-            MARKER_NMS18PLUS, MARKER_NMS18, MARKER_NMS19, MARKER_NMS20
+            MARKER_NMS18PLUS, MARKER_NMS18, MARKER_NMS19, MARKER_NMS20PLUS, MARKER_NMS20, MARKER_NMS21
     };
 
     public static void main(String[] args) throws IOException {
@@ -75,6 +77,7 @@ public class VersionTrimmer {
                                 || MARKER_JAVA21.equals(currentMarker)
                                 || MARKER_NMS17PLUS.equals(currentMarker) || MARKER_NMS18PLUS.equals(currentMarker)
                                 || MARKER_NMS19.equals(currentMarker) || MARKER_NMS20.equals(currentMarker)
+                                || MARKER_NMS20PLUS.equals(currentMarker) || MARKER_NMS21.equals(currentMarker)
                                 || MARKER_CE_EVENT_HANDLER.equals(currentMarker)
                                 || MARKER_TEST_CUSTOM_RECIPES.equals(currentMarker)
                 ) {
@@ -134,13 +137,15 @@ public class VersionTrimmer {
                         "kci-nms18", "kci-nms18plus", "kci-nms19"
                 };
                 break;
-            case "1.20":
+            case "1.20-to-1.21":
                 allowedMarkers = new String[]{
                         MARKER_GENERAL, MARKER_JAVA21, MARKER_NMS_BASE,
-                        MARKER_NMS13PLUS, MARKER_NMS18PLUS, MARKER_NMS20
+                        MARKER_NMS13PLUS, MARKER_NMS18PLUS, MARKER_NMS20PLUS,
+                        MARKER_NMS20, MARKER_NMS21
                 };
                 allowedProjects = new String[]{
-                        "kci-nms", "kci-nms13plus", "kci-nms16plus", "kci-nms18plus", "kci-nms20"
+                        "kci-nms", "kci-nms13plus", "kci-nms16plus", "kci-nms18plus",
+                        "kci-nms20plus", "kci-nms20", "kci-nms21"
                 };
                 break;
             case "test-custom-recipes":

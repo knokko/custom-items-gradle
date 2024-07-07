@@ -6,14 +6,14 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.projectile.EntityTippedArrow;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import nl.knokko.customitems.nms16plus.KciNmsEntities16Plus;
+import nl.knokko.customitems.nms20plus.KciNmsEntities20Plus;
 import org.bukkit.craftbukkit.v1_20_R4.CraftWorld;
 import org.bukkit.craftbukkit.v1_20_R4.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_20_R4.entity.CraftLivingEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
-class KciNmsEntities20 extends KciNmsEntities16Plus {
+class KciNmsEntities20 extends KciNmsEntities20Plus {
 
     @Override
     public void causeFakeProjectileDamage(
@@ -32,11 +32,5 @@ class KciNmsEntities20 extends KciNmsEntities16Plus {
         DamageSource indirectDamageSource = nmsEntity.dQ().a(fakeArrow, ((CraftEntity) responsibleShooter).getHandle());
 
         nmsEntity.a(indirectDamageSource, damage);
-    }
-
-    @Override
-    public void causeCustomPhysicalAttack(Entity attacker, Entity target, float damage, String damageCauseName, boolean ignoresArmor, boolean isFire) {
-        // TODO Fix broken textures!!
-        throw new UnsupportedOperationException("Custom physical attacks are only supported in MC 1.18 and earlier");
     }
 }

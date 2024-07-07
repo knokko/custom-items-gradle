@@ -167,7 +167,7 @@ public class TestBackward9 {
                 LeveledEnchantment.createQuick(VEnchantmentType.DURABILITY, 2)
         ), item.getDefaultEnchantments());
         assertEquals(listOf(
-                false, false, true, true, false, false, false, false
+                false, false, true, true, false, false, false, false, false, false
         ), item.getItemFlags());
         assertEquals(listOf(
                 ChancePotionEffect.createQuick(VEffectType.REGENERATION, 100, 1, Chance.percentage(100))
@@ -217,7 +217,7 @@ public class TestBackward9 {
                 LeveledEnchantment.createQuick(VEnchantmentType.PIERCING, 2)
         ), item.getDefaultEnchantments());
         assertEquals(listOf(
-                true, true, true, true, true, true, false, false
+                true, true, true, true, true, true, false, false, false, false
         ), item.getItemFlags());
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("crossbow_texture", item.getTexture().getName());
@@ -370,7 +370,7 @@ public class TestBackward9 {
                 LeveledEnchantment.createQuick(VEnchantmentType.SILK_TOUCH, 1)
         ), item.getDefaultEnchantments());
         assertEquals(listOf(
-                false, true, true, false, false, false, false, false
+                false, true, true, false, false, false, false, false, false, false
         ), item.getItemFlags());
         if (set.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
@@ -433,7 +433,7 @@ public class TestBackward9 {
         assertEquals(listOf(
                 LeveledEnchantment.createQuick(VEnchantmentType.DAMAGE_ARTHROPODS, 2)
         ), item.getDefaultEnchantments());
-        assertEquals(listOf(false, false, false, false, false, false, false, false), item.getItemFlags());
+        assertEquals(listOf(false, false, false, false, false, false, false, false, false, false), item.getItemFlags());
         if (set.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
             assertStringResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", ((LegacyCustomItemModel) item.getModel()).getRawModel());
@@ -491,7 +491,7 @@ public class TestBackward9 {
                 LeveledEnchantment.createQuick(VEnchantmentType.LOOT_BONUS_BLOCKS, 2)
         ), item.getDefaultEnchantments());
         assertEquals(listOf(
-                false, false, true, true, true, true, false, false
+                false, false, true, true, true, true, false, false, false, false
         ), item.getItemFlags());
         if (set.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
