@@ -21,6 +21,7 @@ import nl.knokko.customitems.container.slot.StorageSlot;
 import nl.knokko.customitems.container.slot.display.*;
 import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.nms.KciNms;
+import nl.knokko.customitems.plugin.multisupport.geyser.GeyserSupport;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.data.container.ContainerStorageKey;
 import nl.knokko.customitems.plugin.data.container.StoredEnergy;
@@ -56,6 +57,7 @@ import static nl.knokko.customitems.plugin.container.ContainerRecipeWrapper.wrap
 import static nl.knokko.customitems.plugin.recipe.RecipeHelper.convertResultToItemStack;
 import static nl.knokko.customitems.plugin.recipe.RecipeHelper.shouldIngredientAcceptItemStack;
 import static nl.knokko.customitems.plugin.set.item.CustomItemWrapper.wrap;
+import static nl.knokko.customitems.util.ColorCodes.stripColorCodes;
 
 /**
  * An in-game instance of a custom container. While the CustomContainerValues class defines
@@ -121,8 +123,14 @@ public class ContainerInstance {
 
 		String displayName = container.getSelectionIcon().getDisplayName();
 		if (container.getOverlayTexture() != null) {
-			displayName = (char) 0xE000 + "" + (char) 167 + "f" + container.getOverlayChar() + displayName;
+			displayName = (char) KciContainer.OVERLAY_BASE_CHAR + "" + (char) 167 + "f" + container.getOverlayChar() + displayName;
 		}
+
+		// For some reason, JSON UI doesn't like string comparisons containing color codes
+		if (Bukkit.getPluginManager().isPluginEnabled("Geyser-Spigot")) {
+			displayName = stripColorCodes(displayName);
+		}
+
 		Inventory inv = Bukkit.createInventory(null, 9 * container.getHeight(), displayName);
 		
 		for (DecorationProps decoration : typeInfo.getDecorations()) {

@@ -27,20 +27,16 @@ class ResourcepackFontOverrider {
             jsonWriter.println("{");
             jsonWriter.println("  \"providers\": [");
 
-            int nextOverlayChar = 0xE000;
-
             for (KciContainer container : itemSet.containers) {
                 if (container.getOverlayTexture() != null) {
-                    nextOverlayChar += 1;
-                    container.setOverlayChar((char) nextOverlayChar);
                     writeFontEntry(
-                            jsonWriter, "customcontainers/overlay/" + container.getName(),
-                            16, 105, (char) nextOverlayChar, true
+                            jsonWriter, "customcontainers/overlay/" + container.getResourceName(),
+                            16, 105, container.getOverlayChar(), true
                     );
                 }
             }
 
-            writeFontEntry(jsonWriter, "customcontainers/black", -5000, -50, (char) 0xE000, false);
+            writeFontEntry(jsonWriter, "customcontainers/black", -5000, -50, (char) KciContainer.OVERLAY_BASE_CHAR, false);
             jsonWriter.println("  ]");
             jsonWriter.println("}");
 

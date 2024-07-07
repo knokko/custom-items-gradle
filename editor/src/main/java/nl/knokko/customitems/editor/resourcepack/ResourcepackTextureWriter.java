@@ -260,7 +260,7 @@ class ResourcepackTextureWriter {
         for (KciContainer container : itemSet.containers) {
             if (container.getOverlayTexture() != null) {
 
-                ZipEntry overlayTextureEntry = new ZipEntry("assets/minecraft/textures/customcontainers/overlay/" + container.getName() + ".png");
+                ZipEntry overlayTextureEntry = new ZipEntry("assets/minecraft/textures/customcontainers/overlay/" + container.getResourceName() + ".png");
                 zipOutput.putNextEntry(overlayTextureEntry);
                 ImageIO.write(container.getOverlayTexture(), "PNG", new MemoryCacheImageOutputStream(zipOutput));
                 zipOutput.closeEntry();

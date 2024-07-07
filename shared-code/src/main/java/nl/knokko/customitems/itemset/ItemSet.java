@@ -1,6 +1,7 @@
 package nl.knokko.customitems.itemset;
 
 import nl.knokko.customitems.bithelper.*;
+import nl.knokko.customitems.container.KciContainer;
 import nl.knokko.customitems.encoding.SetEncoding;
 import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.durability.ItemDurabilityAssignments;
@@ -166,6 +167,17 @@ public class ItemSet {
         Consumer<ItemSet> createBackup = this.createBackup;
         if (createBackup != null && Math.random() < 0.2) {
             createBackup.accept(this);
+        }
+    }
+
+    public void assignContainerOverlayCharacters() {
+        int nextOverlayChar = KciContainer.OVERLAY_BASE_CHAR;
+
+        for (KciContainer container : containers) {
+            if (container.getOverlayTexture() != null) {
+                nextOverlayChar += 1;
+                container.setOverlayChar((char) nextOverlayChar);
+            }
         }
     }
 

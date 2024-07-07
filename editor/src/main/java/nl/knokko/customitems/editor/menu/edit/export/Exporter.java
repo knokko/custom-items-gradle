@@ -71,6 +71,7 @@ public class Exporter {
 
         // Ensure that the right item damages are used when writing the .cis file
         itemSet.assignInternalItemDamages();
+        itemSet.assignContainerOverlayCharacters();
 
         ByteArrayBitOutput cisOutput = new ByteArrayBitOutput();
         itemSet.save(cisOutput, ItemSet.Side.PLUGIN);

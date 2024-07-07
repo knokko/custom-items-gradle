@@ -22,6 +22,7 @@ import static nl.knokko.customitems.texture.KciTexture.*;
 
 public class KciContainer extends ModelValues {
 
+    public static final int OVERLAY_BASE_CHAR = 0xE110;
     private static final int WIDTH = 9;
 
     public static KciContainer load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
@@ -185,6 +186,11 @@ public class KciContainer extends ModelValues {
 
     public String getName() {
         return name;
+    }
+
+    public String getResourceName() {
+        String lowerName = name.toLowerCase(Locale.ROOT);
+        return lowerName.replaceAll("[^a-z0-9/._-]", "_");
     }
 
     public SlotDisplay getSelectionIcon() {

@@ -56,6 +56,10 @@ public class GeyserPackGenerator {
         soundGenerator.generateSoundDefinitions();
         soundGenerator.generateSounds();
 
+        GeyserPackUIGenerator uiGenerator = new GeyserPackUIGenerator(itemSet, zipOutput);
+        uiGenerator.useOverlayTextures();
+        uiGenerator.writeOverlayTextures();
+
         combiner.writeLate();
 
         zipOutput.flush();
