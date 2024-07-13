@@ -1,3 +1,6 @@
 rootProject.name = 'custom-items'
+
 include 'bit-helper', 'gui', 'shared-code', 'plug-in', 'editor', 'kci-nms', 'custom-recipes',
-        'kci-nms12', 'kci-nms13plus', 'kci-nms13', 'kci-nms14', 'kci-nms15', 'kci-nms16plus', 'kci-nms16'
+        'kci-nms12', 'kci-nms13plus', 'kci-nms13', 'kci-nms14', 'kci-nms15', 'kci-nms16plus', 'kci-nms16',
+        'kci-nms17', 'kci-nms18plus', 'kci-nms18', 'kci-nms19', 'kci-nms20plus', 'kci-nms20', 'kci-nms21',
+        'ce-event-handler', 'test-custom-recipes'

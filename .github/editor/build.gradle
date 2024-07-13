@@ -1,0 +1,68 @@
+plugins {
+    id 'java'
+    id 'io.github.goooler.shadow' version '8.1.5'
+}
+
+allprojects {
+    apply plugin: 'java'
+    
+    group = 'nl.knokko.customitems'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+}
+
+project(':shared-code') {
+    dependencies {
+        implementation project(':bit-helper')
+        implementation 'com.github.cliftonlabs:json-simple:4.0.1'
+    }
+}
+
+project(':editor') {
+    apply plugin: 'io.github.goooler.shadow'
+    dependencies {
+        implementation project(':shared-code')
+        implementation project(':bit-helper')
+        implementation project(':gui')
+        implementation 'com.github.cliftonlabs:json-simple:4.0.1'
+
+        implementation platform("org.lwjgl:lwjgl-bom:3.3.1")
+        implementation "org.lwjgl:lwjgl"
+        implementation "org.lwjgl:lwjgl-nfd"
+
+        runtimeOnly "org.lwjgl:lwjgl::natives-linux"
+        runtimeOnly "org.lwjgl:lwjgl-nfd::natives-linux"
+        runtimeOnly "org.lwjgl:lwjgl::natives-linux-arm32"
+        runtimeOnly "org.lwjgl:lwjgl-nfd::natives-linux-arm32"
+        runtimeOnly "org.lwjgl:lwjgl::natives-linux-arm64"
+        runtimeOnly "org.lwjgl:lwjgl-nfd::natives-linux-arm64"
+
+        runtimeOnly "org.lwjgl:lwjgl::natives-macos"
+        runtimeOnly "org.lwjgl:lwjgl-nfd::natives-macos"
+        runtimeOnly "org.lwjgl:lwjgl::natives-macos-arm64"
+        runtimeOnly "org.lwjgl:lwjgl-nfd::natives-macos-arm64"
+
+        runtimeOnly "org.lwjgl:lwjgl::natives-windows"
+        runtimeOnly "org.lwjgl:lwjgl-nfd::natives-windows"
+        runtimeOnly "org.lwjgl:lwjgl::natives-windows-x86"
+        runtimeOnly "org.lwjgl:lwjgl-nfd::natives-windows-x86"
+        runtimeOnly "org.lwjgl:lwjgl::natives-windows-arm64"
+        runtimeOnly "org.lwjgl:lwjgl-nfd::natives-windows-arm64"
+    }
+    shadowJar {
+        manifest {
+            attributes ('Main-Class': 'nl.knokko.customitems.editor.Editor')
+        }
+    }
+}

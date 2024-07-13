@@ -1,51 +1,8 @@
-// MARKER START GENERAL
 plugins {
     id 'java'
     id 'io.github.goooler.shadow' version '8.1.5'
 }
-// MARKER END GENERAL
 
-// MARKER START JAVA8
-java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
-
-    compileJava.options.encoding = "UTF-8"
-    compileTestJava.options.encoding = "UTF-8"
-}
-// MARKER END JAVA8
-
-// MARKER START JAVA16
-//java {
-//    sourceCompatibility = JavaVersion.VERSION_16
-//    targetCompatibility = JavaVersion.VERSION_16
-//
-//    compileJava.options.encoding = "UTF-8"
-//    compileTestJava.options.encoding = "UTF-8"
-//}
-// MARKER END JAVA16
-
-// MARKER START JAVA17
-//java {
-//    sourceCompatibility = JavaVersion.VERSION_17
-//    targetCompatibility = JavaVersion.VERSION_17
-//
-//    compileJava.options.encoding = "UTF-8"
-//    compileTestJava.options.encoding = "UTF-8"
-//}
-// MARKER END JAVA17
-
-// MARKER START JAVA21
-//java {
-//    sourceCompatibility = JavaVersion.VERSION_21
-//    targetCompatibility = JavaVersion.VERSION_21
-//
-//    compileJava.options.encoding = "UTF-8"
-//    compileTestJava.options.encoding = "UTF-8"
-//}
-// MARKER END JAVA21
-
-// MARKER START GENERAL
 allprojects {
     apply plugin: 'java'
     
@@ -76,7 +33,6 @@ allprojects {
         useJUnitPlatform()
     }
 }
-// MARKER END GENERAL
 
 project(':shared-code') {
     dependencies {
@@ -91,17 +47,20 @@ project(':plug-in') {
         implementation project(':shared-code')
         implementation project(':kci-nms')
         implementation project(':custom-recipes')
-// MARKER START NMS 12 DEPENDENCY
         runtimeOnly project(':kci-nms12')
-// MARKER END NMS 12 DEPENDENCY
-// MARKER START NMS DEPENDENCIES
         runtimeOnly project(':kci-nms13plus')
         runtimeOnly project(':kci-nms13')
         runtimeOnly project(':kci-nms14')
         runtimeOnly project(':kci-nms15')
         runtimeOnly project(':kci-nms16plus')
         runtimeOnly project(':kci-nms16')
-// MARKER END NMS DEPENDENCIES
+        runtimeOnly project(':kci-nms17')
+        runtimeOnly project(':kci-nms18plus')
+        runtimeOnly project(':kci-nms18')
+        runtimeOnly project(':kci-nms20plus')
+        runtimeOnly project(':kci-nms20')
+        runtimeOnly project(':kci-nms21')
+        runtimeOnly project(':ce-event-handler')
         compileOnly project(':bit-helper')
         compileOnly 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
         compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.0'
@@ -122,27 +81,18 @@ project(':plug-in') {
     }
 }
 
-// MARKER START CUSTOM RECIPES
 project(':custom-recipes') {
     dependencies {
-        compileOnly 'org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT'
+        compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
     }
 }
-// MARKER END CUSTOM RECIPES
 
-// MARKER START TEST CUSTOM RECIPES
-//project(':custom-recipes') {
-//    dependencies {
-//        compileOnly 'org.spigotmc:spigot:1.20.4-R0.1-SNAPSHOT'
-//    }
-//}
-//project(':test-custom-recipes') {
-//    dependencies {
-//        testImplementation project(':custom-recipes')
-//        testImplementation 'com.github.seeseemelk:MockBukkit-v1.20:3.9.0'
-//    }
-//}
-// MARKER END TEST CUSTOM RECIPES
+project(':test-custom-recipes') {
+    dependencies {
+        testImplementation project(':custom-recipes')
+        testImplementation 'com.github.seeseemelk:MockBukkit-v1.20:3.9.0'
+    }
+}
 
 project(':editor') {
     apply plugin: 'io.github.goooler.shadow'
@@ -182,45 +132,35 @@ project(':editor') {
     }
 }
 
-// MARKER START CE EVENT HANDLER
-//project(':ce-event-handler') {
-//    dependencies {
-//        //compileOnly project(':plug-in') // Uncomment this line in development
-//        //compileOnly project(':shared-code') // Uncomment this line in development
-//        compileOnly files('../CustomItems.jar') // Comment this line out in development
-//        compileOnly 'com.badbones69.crazyenchantments:crazyenchantments-paper-api:2.1.2'
-//        compileOnly 'org.spigotmc:spigot:1.20.4-R0.1-SNAPSHOT'
-//    }
-//}
-// MARKER END CE EVENT HANDLER
+project(':ce-event-handler') {
+    dependencies {
+        compileOnly project(':plug-in')
+        compileOnly project(':shared-code')
+        compileOnly 'com.badbones69.crazyenchantments:crazyenchantments-paper-api:2.1.2'
+        compileOnly 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
+    }
+}
 
-// MARKER START NMS BASE
 project(':kci-nms') {
     dependencies {
         compileOnly 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
     }
 }
-// MARKER END NMS BASE
 
-// MARKER START NMS 12 DEPENDENCY
 project(':kci-nms12') {
     dependencies {
         compileOnly project(':kci-nms')
         compileOnly 'org.bukkit:craftbukkit:1.12.2-R0.1-SNAPSHOT'
     }
 }
-// MARKER END NMS 12 DEPENDENCY
 
-// MARKER START NMS13PLUS
 project(':kci-nms13plus') {
     dependencies {
         compileOnly project(':kci-nms')
         compileOnly 'org.bukkit:bukkit:1.13.2-R0.1-SNAPSHOT'
     }
 }
-// MARKER END NMS13PLUS
 
-// MARKER START NMS13
 project(':kci-nms13') {
     dependencies {
         compileOnly project(':kci-nms')
@@ -228,9 +168,7 @@ project(':kci-nms13') {
         compileOnly 'org.bukkit:craftbukkit:1.13.2-R0.1-SNAPSHOT'
     }
 }
-// MARKER END NMS13
 
-// MARKER START NMS14
 project(':kci-nms14') {
     dependencies {
         compileOnly project(':kci-nms')
@@ -238,9 +176,7 @@ project(':kci-nms14') {
         compileOnly 'org.bukkit:craftbukkit:1.14.4-R0.1-SNAPSHOT'
     }
 }
-// MARKER END NMS14
 
-// MARKER START NMS15
 project(':kci-nms15') {
     dependencies {
         compileOnly project(':kci-nms')
@@ -248,9 +184,7 @@ project(':kci-nms15') {
         compileOnly 'org.spigotmc:spigot:1.15.2-R0.1-SNAPSHOT'
     }
 }
-// MARKER END NMS15
 
-// MARKER START NMS16PLUS
 project(':kci-nms16plus') {
     dependencies {
         compileOnly project(':kci-nms')
@@ -258,9 +192,7 @@ project(':kci-nms16plus') {
         compileOnly 'org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT'
     }
 }
-// MARKER END NMS16PLUS
 
-// MARKER START NMS16
 project(':kci-nms16') {
     dependencies {
         compileOnly project(':kci-nms')
@@ -269,111 +201,75 @@ project(':kci-nms16') {
         compileOnly 'org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT'
     }
 }
-// MARKER END NMS16
 
-// MARKER START NMS17PLUS
-//project(':kci-nms16plus') {
-//    dependencies {
-//        compileOnly project(':kci-nms')
-//        compileOnly project(':kci-nms13plus')
-//        compileOnly 'org.spigotmc:spigot:1.17.1-R0.1-SNAPSHOT'
-//    }
-//}
-// MARKER END NMS17PLUS
+project(':kci-nms17') {
+    dependencies {
+        compileOnly project(':kci-nms')
+        compileOnly project(':kci-nms13plus')
+        compileOnly project(':kci-nms16plus')
+        compileOnly 'org.spigotmc:spigot:1.17.1-R0.1-SNAPSHOT'
+    }
+}
 
-// MARKER START NMS17
-//project(':kci-nms17') {
-//    dependencies {
-//        compileOnly project(':kci-nms')
-//        compileOnly project(':kci-nms13plus')
-//        compileOnly project(':kci-nms16plus')
-//        compileOnly 'org.spigotmc:spigot:1.17.1-R0.1-SNAPSHOT'
-//    }
-//}
-// MARKER END NMS17
+project(':kci-nms18plus') {
+    dependencies {
+        compileOnly project(':kci-nms')
+        compileOnly project(':kci-nms13plus')
+        compileOnly project(':kci-nms16plus')
+        compileOnly 'org.spigotmc:spigot:1.18.2-R0.1-SNAPSHOT'
+    }
+}
 
-// MARKER START NMS18PLUS
-//project(':kci-nms16plus') {
-//    dependencies {
-//        compileOnly project(':kci-nms')
-//        compileOnly project(':kci-nms13plus')
-//        compileOnly 'org.spigotmc:spigot:1.18.2-R0.1-SNAPSHOT'
-//    }
-//}
-//project(':kci-nms18plus') {
-//    dependencies {
-//        compileOnly project(':kci-nms')
-//        compileOnly project(':kci-nms13plus')
-//        compileOnly project(':kci-nms16plus')
-//        compileOnly 'org.spigotmc:spigot:1.18.2-R0.1-SNAPSHOT'
-//    }
-//}
-// MARKER END NMS18PLUS
+project(':kci-nms18') {
+    dependencies {
+        compileOnly project(':kci-nms')
+        compileOnly project(':kci-nms13plus')
+        compileOnly project(':kci-nms16plus')
+        compileOnly project(':kci-nms18plus')
+        compileOnly 'org.spigotmc:spigot:1.18.2-R0.1-SNAPSHOT'
+    }
+}
 
-// MARKER START NMS18
-//project(':kci-nms18') {
-//    dependencies {
-//        compileOnly project(':kci-nms')
-//        compileOnly project(':kci-nms13plus')
-//        compileOnly project(':kci-nms16plus')
-//        compileOnly project(':kci-nms18plus')
-//        compileOnly 'org.spigotmc:spigot:1.18.2-R0.1-SNAPSHOT'
-//    }
-//}
-// MARKER END NMS18
+project(':kci-nms19') {
+    dependencies {
+        compileOnly project(':kci-nms')
+        compileOnly project(':kci-nms13plus')
+        compileOnly project(':kci-nms16plus')
+        compileOnly project(':kci-nms18plus')
+        compileOnly 'org.spigotmc:spigot:1.19.4-R0.1-SNAPSHOT'
+    }
+}
 
-// MARKER START NMS19
-//project(':kci-nms19') {
-//    dependencies {
-//        compileOnly project(':kci-nms')
-//        compileOnly project(':kci-nms13plus')
-//        compileOnly project(':kci-nms16plus')
-//        compileOnly project(':kci-nms18plus')
-//        compileOnly 'org.spigotmc:spigot:1.19.4-R0.1-SNAPSHOT'
-//    }
-//}
-// MARKER END NMS19
+project(':kci-nms20plus') {
+    dependencies {
+        compileOnly project(':kci-nms')
+        compileOnly project(':kci-nms13plus')
+        compileOnly project(':kci-nms16plus')
+        compileOnly project(':kci-nms18plus')
+        compileOnly 'org.spigotmc:spigot:1.20.6-R0.1-SNAPSHOT'
+        compileOnly 'io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT'
+        implementation 'com.github.knokko:DataComponentAPI:af113220f5'
+    }
+}
 
-// MARKER START NMS20PLUS
-//project(':kci-nms20plus') {
-//    apply plugin: 'io.github.goooler.shadow'
-//    dependencies {
-//        compileOnly project(':kci-nms')
-//        compileOnly project(':kci-nms13plus')
-//        compileOnly project(':kci-nms16plus')
-//        compileOnly project(':kci-nms18plus')
-//        compileOnly 'org.spigotmc:spigot:1.20.6-R0.1-SNAPSHOT'
-//        compileOnly 'io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT'
-//        implementation 'com.github.knokko:DataComponentAPI:af113220f5'
-//    }
-//    shadowJar {
-//        relocate('kr.toxicity.libraries.datacomponent', 'nl.knokko.customitems.plugin.shadow.datacomponent')
-//    }
-//}
-// MARKER END NMS20PLUS
+project(':kci-nms20') {
+    dependencies {
+        compileOnly project(':kci-nms')
+        compileOnly project(':kci-nms13plus')
+        compileOnly project(':kci-nms16plus')
+        compileOnly project(':kci-nms18plus')
+        compileOnly project(':kci-nms20plus')
+        compileOnly 'org.spigotmc:spigot:1.20.6-R0.1-SNAPSHOT'
+    }
+}
 
-// MARKER START NMS20
-//project(':kci-nms20') {
-//    dependencies {
-//        compileOnly project(':kci-nms')
-//        compileOnly project(':kci-nms13plus')
-//        compileOnly project(':kci-nms16plus')
-//        compileOnly project(':kci-nms18plus')
-//        compileOnly project(':kci-nms20plus')
-//        compileOnly 'org.spigotmc:spigot:1.20.6-R0.1-SNAPSHOT'
-//    }
-//}
-// MARKER END NMS20
-
-// MARKER START NMS21
-//project(':kci-nms21') {
-//    dependencies {
-//        compileOnly project(':kci-nms')
-//        compileOnly project(':kci-nms13plus')
-//        compileOnly project(':kci-nms16plus')
-//        compileOnly project(':kci-nms18plus')
-//        compileOnly project(':kci-nms20plus')
-//        compileOnly 'org.spigotmc:spigot:1.21-R0.1-SNAPSHOT'
-//    }
-//}
-// MARKER END NMS21
+project(':kci-nms21') {
+    dependencies {
+        compileOnly project(':kci-nms')
+        compileOnly project(':kci-nms13plus')
+        compileOnly project(':kci-nms16plus')
+        compileOnly project(':kci-nms18plus')
+        compileOnly project(':kci-nms20plus')
+        compileOnly 'org.spigotmc:spigot:1.21-R0.1-SNAPSHOT'
+    }
+}

@@ -1,0 +1,30 @@
+plugins { id 'java' }
+
+allprojects {
+    apply plugin: 'java'
+
+    group = 'nl.knokko.customitems'
+
+    repositories {
+        mavenLocal()
+        mavenCentral {
+            content {
+                includeGroup 'junit'
+                includeGroup 'org.hamcrest'
+            }
+        }
+    }
+}
+
+project(':kci-nms') {
+    dependencies {
+        compileOnly 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
+    }
+}
+
+project(':kci-nms12') {
+    dependencies {
+        compileOnly project(':kci-nms')
+        compileOnly 'org.bukkit:craftbukkit:1.12.2-R0.1-SNAPSHOT'
+    }
+}

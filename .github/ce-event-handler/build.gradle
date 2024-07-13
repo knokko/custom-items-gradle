@@ -1,0 +1,97 @@
+plugins { id 'java' }
+
+allprojects {
+    apply plugin: 'java'
+
+    group = 'nl.knokko.customitems'
+
+    repositories {
+        maven { url = 'https://repo.crazycrew.us/releases' }
+        mavenCentral()
+
+        maven {
+            url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+            content {
+                includeGroup 'org.bukkit'
+                includeGroup 'org.spigotmc'
+            }
+        }
+
+        maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
+        maven { url = 'https://oss.sonatype.org/content/repositories/central' }
+        maven { url = 'https://maven.enginehub.org/repo/' }
+        maven { url = 'https://repo.crazycrew.us/releases' }
+        maven { url = 'https://repo.citizensnpcs.co' }
+        maven { url = 'https://jitpack.io' }
+        maven { url = 'https://maven.elmakers.com/repository/' }
+        maven { url = 'https://repo.codemc.io/repository/maven-public/' }
+        maven { url = 'https://repo.opencollab.dev/main/' }
+        maven { url = 'https://repo.skriptlang.org/releases' }
+    }
+
+    dependencies {
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+}
+
+project(':shared-code') {
+    dependencies {
+        implementation project(':bit-helper')
+        implementation 'com.github.cliftonlabs:json-simple:4.0.1'
+    }
+}
+
+project(':plug-in') {
+    dependencies {
+        implementation project(':shared-code')
+        implementation project(':kci-nms')
+        implementation project(':custom-recipes')
+
+        compileOnly project(':bit-helper')
+        compileOnly 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
+        compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.0'
+        compileOnly 'ru.endlesscode.mimic:mimic-bukkit-api:0.7.1'
+        compileOnly 'com.github.jojodmo:ItemBridge:master-SNAPSHOT'
+        compileOnly 'com.github.SkriptLang:Skript:2.6'
+        compileOnly 'com.denizenscript:denizen:1.2.5-SNAPSHOT'
+        compileOnly 'com.elmakers.mine.bukkit:MagicAPI:7.5'
+        compileOnly 'org.geysermc.geyser:api:2.2.0-SNAPSHOT'
+        implementation 'de.tr7zw:item-nbt-api:2.13.1'
+
+        testImplementation project(':bit-helper')
+        testImplementation 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
+    }
+}
+
+project(':custom-recipes') {
+    dependencies {
+        compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
+    }
+}
+
+project(':kci-nms') {
+    dependencies {
+        compileOnly 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
+    }
+}
+
+
+project(':ce-event-handler') {
+    dependencies {
+        compileOnly project(':shared-code')
+        compileOnly project(':plug-in')
+        compileOnly 'com.badbones69.crazyenchantments:crazyenchantments-paper-api:2.1.2'
+        compileOnly 'org.spigotmc:spigot-api:1.20.4-R0.1-SNAPSHOT'
+    }
+}
+
+project(':kci-nms') {
+    dependencies {
+        compileOnly 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
+    }
+}

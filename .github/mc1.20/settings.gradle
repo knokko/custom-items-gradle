@@ -1,0 +1,3 @@
+rootProject.name = 'custom-items'
+
+include 'kci-nms', 'kci-nms13plus', 'kci-nms16plus', 'kci-nms18plus', 'kci-nms20plus', 'kci-nms20'
