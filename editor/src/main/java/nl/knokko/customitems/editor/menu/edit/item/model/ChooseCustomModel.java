@@ -3,7 +3,6 @@ package nl.knokko.customitems.editor.menu.edit.item.model;
 import com.github.cliftonlabs.json_simple.JsonException;
 import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
-import nl.knokko.customitems.editor.menu.edit.texture.TextureEdit;
 import nl.knokko.customitems.editor.util.FileDialog;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.model.ModernCustomItemModel;
@@ -104,7 +103,9 @@ public class ChooseCustomModel extends GuiMenu {
                     }
 
                     String value = namePair.getValue().toLowerCase(Locale.ROOT)
-                            .replace(':', '_').replace('/', '_');
+                            .replace(':', '_')
+                            .replace('/', '_')
+                            .replace('.', '_');
                     try {
                         Validation.safeName(value);
                     } catch (ValidationException | ProgrammingValidationException invalidValue) {
