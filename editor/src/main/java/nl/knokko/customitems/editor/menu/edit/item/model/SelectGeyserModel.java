@@ -1,5 +1,6 @@
 package nl.knokko.customitems.editor.menu.edit.item.model;
 
+import nl.knokko.customitems.editor.resourcepack.geyser.GeyserModelAdapter;
 import nl.knokko.customitems.editor.util.FileDialog;
 import nl.knokko.customitems.editor.util.HelpButtons;
 import nl.knokko.customitems.item.model.GeyserCustomModel;
@@ -45,13 +46,12 @@ public class SelectGeyserModel extends GuiMenu {
         }), 0.25f, 0.55f, 0.5f, 0.65f);
         addComponent(new DynamicTextButton("Select attachable file...", BUTTON, HOVER, () -> {
             if (selectFile(1, files, errorComponent, "json")) {
-                GeyserCustomModel.AttachableParseResult parsed = GeyserCustomModel.parseAttachable(attachableId, files[1]);
-                if (parsed.error == null) {
-                    files[1] = parsed.newJsonBytes;
-                    ids[0] = parsed.geometryId;
-                } else {
-                    files[1] = null;
-                    errorComponent.setText(parsed.error);
+                try {
+                    GeyserModelAdapter.ManualResult result = GeyserModelAdapter.adaptManuallySelected(attachableId, files[1]);
+                    files[1] = result.newAttachableBytes;
+                    ids[0] = result.geometryId;
+                } catch (GeyserModelAdapter.ConversionException failed) {
+                    errorComponent.setText(failed.getMessage());
                 }
             }
         }), 0.25f, 0.4f, 0.5f, 0.5f);

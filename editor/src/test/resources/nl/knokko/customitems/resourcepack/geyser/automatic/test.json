@@ -1,0 +1,104 @@
+{
+  "format_version": "1.8.0",
+  "animations": {
+    "animation.kci_item_rong.thirdperson_main_hand": {
+      "loop": true,
+      "bones": {
+        "geyser_custom": {
+          "rotation": [
+            90,
+            0,
+            0
+          ],
+          "position": [
+            0,
+            13,
+            -3
+          ]
+        }
+      }
+    },
+    "animation.kci_item_rong.firstperson_off_hand": {
+      "loop": true,
+      "bones": {
+        "geyser_custom": {
+          "rotation": [
+            90,
+            60,
+            -40
+          ],
+          "scale": 1.5,
+          "position": [
+            4,
+            10,
+            4
+          ]
+        },
+        "geyser_custom_x": {
+          "rotation": [
+            0.1,
+            0.1,
+            0.1
+          ]
+        }
+      }
+    },
+    "animation.kci_item_rong.thirdperson_off_hand": {
+      "loop": true,
+      "bones": {
+        "geyser_custom": {
+          "rotation": [
+            90,
+            0,
+            0
+          ],
+          "position": [
+            0,
+            13,
+            -3
+          ]
+        }
+      }
+    },
+    "animation.kci_item_rong.thirdperson_head": {
+      "loop": true,
+      "bones": {
+        "geyser_custom": {
+          "position": [
+            0,
+            19.9,
+            0
+          ]
+        },
+        "geyser_custom_x": {
+          "scale": 0.625
+        }
+      }
+    },
+    "animation.kci_item_rong.firstperson_main_hand": {
+      "loop": true,
+      "bones": {
+        "geyser_custom": {
+          "rotation": [
+            90,
+            60,
+            -40
+          ],
+          "scale": 1.5,
+          "position": [
+            4,
+            10,
+            4
+          ]
+        },
+        "geyser_custom_x": {
+          "rotation": [
+            0.1,
+            0.1,
+            0.1
+          ]
+        }
+      }
+    }
+  }
+}

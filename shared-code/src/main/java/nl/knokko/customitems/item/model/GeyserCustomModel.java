@@ -1,13 +1,9 @@
 package nl.knokko.customitems.item.model;
 
-import com.github.cliftonlabs.json_simple.JsonException;
-import com.github.cliftonlabs.json_simple.JsonObject;
-import com.github.cliftonlabs.json_simple.Jsoner;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 public class GeyserCustomModel {
@@ -20,57 +16,6 @@ public class GeyserCustomModel {
                 input.readString(), input.readString(), input.readByteArray(),
                 input.readByteArray(), input.readByteArray(), input.readByteArray()
         );
-    }
-
-    public static AttachableParseResult parseAttachable(String attachableId, byte[] jsonBytes) {
-        try {
-            String jsonText = new String(jsonBytes, StandardCharsets.UTF_8);
-
-            Object jsonObject = Jsoner.deserialize(jsonText);
-            if (!(jsonObject instanceof JsonObject)) {
-                return new AttachableParseResult("Attachable file doesn't seem to have a root JSON object");
-            }
-            JsonObject json = (JsonObject) jsonObject;
-
-            Object attachableObject = json.get("minecraft:attachable");
-            if (!(attachableObject instanceof JsonObject)) {
-                return new AttachableParseResult("Root JSON object doesn't seem to have an attachable object");
-            }
-
-            Object descriptionObject = ((JsonObject) attachableObject).get("description");
-            if (!(descriptionObject instanceof JsonObject)) {
-                return new AttachableParseResult("Attachable JSON object doesn't seem to have a description object");
-            }
-            JsonObject description = (JsonObject) descriptionObject;
-
-            Object geometryObject = description.get("geometry");
-            if (!(geometryObject instanceof JsonObject)) {
-                return new AttachableParseResult("Attachable JSON doesn't seem to have a geometry object");
-            }
-            Object defaultGeometryObject = ((JsonObject) geometryObject).get("default");
-            if (!(defaultGeometryObject instanceof String)) {
-                return new AttachableParseResult("Geometry object doesn't have a default");
-            }
-
-            description.put("identifier", "geyser_custom:" + attachableId);
-
-            Object texturesObject = description.get("textures");
-            if (!(texturesObject instanceof JsonObject)) {
-                return new AttachableParseResult("Description JSON doesn't seem to have a textures object");
-            }
-            JsonObject textures = (JsonObject) texturesObject;
-
-            if (textures.containsKey("default")) {
-                textures.put("default", "textures/kci/models/" + attachableId);
-            }
-
-            String newString = Jsoner.prettyPrint(json.toJson());
-            byte[] newBytes = newString.getBytes(StandardCharsets.UTF_8);
-
-            return new AttachableParseResult((String) defaultGeometryObject, newBytes);
-        } catch (JsonException e) {
-            return new AttachableParseResult("Attachable file doesn't seem to be valid JSON");
-        }
     }
 
     public final String attachableId;
@@ -100,24 +45,5 @@ public class GeyserCustomModel {
         output.addByteArray(attachableFile);
         output.addByteArray(modelFile);
         output.addByteArray(textureFile);
-    }
-
-    public static class AttachableParseResult {
-
-        public final String error;
-        public final String geometryId;
-        public final byte[] newJsonBytes;
-
-        AttachableParseResult(String error) {
-            this.error = error;
-            this.geometryId = null;
-            this.newJsonBytes = null;
-        }
-
-        AttachableParseResult(String geometryId, byte[] newJsonBytes) {
-            this.error = null;
-            this.geometryId = geometryId;
-            this.newJsonBytes = newJsonBytes;
-        }
     }
 }
