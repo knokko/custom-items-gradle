@@ -20,6 +20,8 @@ class GeyserPackSoundsGenerator {
     }
 
     void generateSoundDefinitions() throws IOException {
+        if (itemSet.soundTypes.isEmpty()) return;
+
         zipOutput.putNextEntry(new ZipEntry("sounds/sound_definitions.json"));
         PrintWriter writer = new PrintWriter(zipOutput);
         writer.println("{");
