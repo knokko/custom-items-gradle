@@ -129,9 +129,14 @@ public class ContainerSelectionManager {
     }
 
     public void openEntityContainerMenu(Player player, Entity entity) {
-        Collection<KciContainer> candidates = itemSet.getContainers(
-                new ContainerHost(VEntityType.valueOf(entity.getType().name()))
-        );
+        VEntityType entityType;
+        try {
+            entityType = VEntityType.valueOf(entity.getType().name());
+        } catch (IllegalArgumentException notSupported) {
+            return;
+        }
+
+        Collection<KciContainer> candidates = itemSet.getContainers(new ContainerHost(entityType));
         List<KciContainer> permittedContainers = getContainersToChooseFrom(player, candidates);
 
         PlayerData pd = PlayerData.get(player, playerData);
