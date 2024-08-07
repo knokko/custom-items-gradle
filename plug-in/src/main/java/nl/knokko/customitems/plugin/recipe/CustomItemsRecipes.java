@@ -2,6 +2,7 @@ package nl.knokko.customitems.plugin.recipe;
 
 import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.item.VMaterial;
+import nl.knokko.customitems.nms.CorruptedItemStackException;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.tasks.updater.ItemUpgrader;
@@ -18,6 +19,7 @@ import nl.knokko.customrecipes.ingredient.CustomIngredient;
 import nl.knokko.customrecipes.ingredient.IngredientBlocker;
 import nl.knokko.customrecipes.crafting.CustomShapedRecipe;
 import nl.knokko.customrecipes.smithing.CustomSmithingRecipe;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -59,7 +61,12 @@ public class CustomItemsRecipes {
             return new ItemStack(Material.valueOf(inputMaterial.name()), guessAmount);
         }
 
-        return ItemUpgrader.addUpgrade(inputStack.clone(), itemSet, (UpgradeResult) result);
+        try {
+            return ItemUpgrader.addUpgrade(inputStack.clone(), itemSet, (UpgradeResult) result);
+        } catch (CorruptedItemStackException e) {
+            Bukkit.getLogger().warning("Encountered corrupted item stack in recipe: " + inputStack);
+            return produceResult(null, input, result);
+        }
     }
 
     private boolean guessStacks(KciResult result) {

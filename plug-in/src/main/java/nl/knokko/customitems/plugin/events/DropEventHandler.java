@@ -4,6 +4,7 @@ import nl.knokko.customitems.drops.VBiome;
 import nl.knokko.customitems.drops.KciDrop;
 import nl.knokko.customitems.drops.MobDrop;
 import nl.knokko.customitems.item.*;
+import nl.knokko.customitems.nms.CorruptedItemStackException;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.tasks.updater.ItemUpdater;
@@ -98,13 +99,27 @@ public class DropEventHandler implements Listener {
         ItemUpdater itemUpdater = CustomItemsPlugin.getInstance().getItemUpdater();
 
         // Remove corrupted or deleted custom items
-        event.getDrops().removeIf(itemStack -> itemUpdater.maybeUpdate(itemStack) == null);
+        event.getDrops().removeIf(itemStack -> {
+            try {
+                return itemUpdater.maybeUpdate(itemStack) == null;
+            } catch (CorruptedItemStackException corrupted) {
+                return true;
+            }
+        });
 
         // Upgrade/initialize potential custom items
         for (int index = 0; index < event.getDrops().size(); index++) {
 
             ItemStack original = event.getDrops().get(index);
-            ItemStack replacement = itemUpdater.maybeUpdate(original);
+
+            ItemStack replacement;
+            try {
+                replacement = itemUpdater.maybeUpdate(original);
+            } catch (CorruptedItemStackException e) {
+                // Should not happen because the corruption filter should have removed it already
+                throw new RuntimeException(e);
+            }
+
             if (replacement != original) {
                 event.getDrops().set(index, replacement);
             }
@@ -117,9 +132,13 @@ public class DropEventHandler implements Listener {
                 if (nearbyEntity instanceof Item) {
                     Item nearbyItem = (Item) nearbyEntity;
                     ItemStack oldStack = nearbyItem.getItemStack();
-                    ItemStack newStack = itemUpdater.maybeUpdate(oldStack);
-                    if (oldStack != newStack) {
-                        nearbyItem.setItemStack(newStack);
+                    try {
+                        ItemStack newStack = itemUpdater.maybeUpdate(oldStack);
+                        if (oldStack != newStack) {
+                            nearbyItem.setItemStack(newStack);
+                        }
+                    } catch (CorruptedItemStackException corrupted) {
+                        Bukkit.getLogger().warning("Encountered corrupted dropped item: " + nearbyItem);
                     }
                 }
             }

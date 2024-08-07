@@ -2,6 +2,7 @@ package nl.knokko.customitems.nms13plus;
 
 import com.google.common.base.CaseFormat;
 import com.google.common.collect.Multimap;
+import nl.knokko.customitems.nms.CorruptedItemStackException;
 import nl.knokko.customitems.nms.KciNmsItems;
 import nl.knokko.customitems.nms.RawAttribute;
 import org.bukkit.Bukkit;
@@ -66,10 +67,10 @@ public abstract class KciNmsItems13Plus implements KciNmsItems {
         return original;
     }
 
-    protected abstract RawAttribute[] getDefaultAttributes(ItemStack stack);
+    protected abstract RawAttribute[] getDefaultAttributes(ItemStack stack) throws CorruptedItemStackException;
 
     @Override
-    public RawAttribute[] getAttributes(ItemStack stack) {
+    public RawAttribute[] getAttributes(ItemStack stack) throws CorruptedItemStackException {
         ItemMeta meta = stack.getItemMeta();
         if (meta != null) {
             Multimap<Attribute, AttributeModifier> attributeModifiers = meta.getAttributeModifiers();
@@ -78,7 +79,12 @@ public abstract class KciNmsItems13Plus implements KciNmsItems {
             RawAttribute[] attributes = new RawAttribute[attributeModifiers.size()];
             int index = 0;
             for (Map.Entry<Attribute, AttributeModifier> attributePair : attributeModifiers.entries()) {
-                UUID id = attributePair.getValue().getUniqueId();
+                UUID id;
+                try {
+                    id = attributePair.getValue().getUniqueId();
+                } catch (IllegalArgumentException corrupted) {
+                    throw new CorruptedItemStackException();
+                }
                 String attribute = fromBukkitAttribute(attributePair.getKey());
                 String slot = fromBukkitSlot(attributePair.getValue().getSlot());
                 int operation = attributePair.getValue().getOperation().ordinal();
