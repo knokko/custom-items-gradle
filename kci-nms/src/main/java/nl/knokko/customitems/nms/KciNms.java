@@ -22,6 +22,10 @@ public abstract class KciNms {
                 Class.forName("org.bukkit.craftbukkit.v" + nmsVersion + ".inventory.CraftItemStack");
                 supportedInstance = (KciNms) nmsClass.getConstructor().newInstance();
                 chosenMcVersion = candidateVersion;
+                if (!supportedInstance.isCompatible()) {
+                    supportedInstance = null;
+                    chosenMcVersion = -1;
+                }
                 break;
             } catch (ClassNotFoundException unavailable) {
                 // This block will be reached if this candidate version doesn't match the NMS version of the server
@@ -80,4 +84,8 @@ public abstract class KciNms {
      * @return True when running on MC 1.13 or later; false when running on MC 1.12
      */
     public abstract boolean useNewCommands();
+
+    protected boolean isCompatible() {
+        return true;
+    }
 }
