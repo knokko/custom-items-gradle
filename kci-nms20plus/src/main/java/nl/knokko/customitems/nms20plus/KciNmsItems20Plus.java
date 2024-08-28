@@ -12,10 +12,12 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 public abstract class KciNmsItems20Plus extends KciNmsItems18Plus {
 
     private static final boolean HAS_PAPER;
+    private static final boolean DATA_COMPONENTS_API_SUPPORTS_VERSION;
 
     static {
         boolean foundPaper;
@@ -27,13 +29,31 @@ public abstract class KciNmsItems20Plus extends KciNmsItems18Plus {
         }
         HAS_PAPER = foundPaper;
 
-        if (HAS_PAPER) DataComponentAPIBukkit.load();
+        boolean dataComponentApiSupportsVersion = false;
+        if (HAS_PAPER) {
+            try {
+                DataComponentAPIBukkit.load();
+                dataComponentApiSupportsVersion = true;
+            } catch (UnsupportedOperationException versionNotSupported) {
+                Bukkit.getLogger().log(
+                        Level.WARNING, "It looks like the DataComponentsAPI version bundled with CustomItems " +
+                                "doesn't support this minecraft version", versionNotSupported
+                );
+            }
+        }
+
+        DATA_COMPONENTS_API_SUPPORTS_VERSION = dataComponentApiSupportsVersion;
     }
 
     @Override
     public ItemStack translate(ItemStack item, String itemName, boolean translateDisplayName, int loreSize) {
         if (!HAS_PAPER) {
             Bukkit.getLogger().warning("Translations in MC 1.20+ require PaperMC");
+            return item;
+        }
+
+        if (!DATA_COMPONENTS_API_SUPPORTS_VERSION) {
+            Bukkit.getLogger().warning("The bundled DCAPI version doesn't support this minecraft version");
             return item;
         }
 
