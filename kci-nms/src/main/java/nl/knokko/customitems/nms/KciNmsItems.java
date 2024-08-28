@@ -15,7 +15,7 @@ public interface KciNmsItems {
 
     ItemStack replaceAttributes(ItemStack original, RawAttribute...attributes);
 
-    RawAttribute[] getAttributes(ItemStack stack) throws CorruptedItemStackException;
+    RawAttribute[] getAttributes(ItemStack stack);
 
     String getStackName(ItemStack stack);
 

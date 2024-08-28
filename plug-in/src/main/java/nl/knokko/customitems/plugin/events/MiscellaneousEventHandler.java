@@ -3,7 +3,6 @@ package nl.knokko.customitems.plugin.events;
 import static nl.knokko.customitems.plugin.set.item.CustomItemWrapper.wrap;
 
 import nl.knokko.customitems.item.*;
-import nl.knokko.customitems.nms.CorruptedItemStackException;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
@@ -89,19 +88,11 @@ public class MiscellaneousEventHandler implements Listener {
 			}
 		}
 	}
-
-	private void updateEquipment(LivingEntity entity) {
-		ItemUpdater updater = CustomItemsPlugin.getInstance().getItemUpdater();
-		try {
-			updater.updateEquipment(entity.getEquipment());
-		} catch (CorruptedItemStackException corrupted) {
-			Bukkit.getLogger().warning("Encountered corrupted item stack in equipment of just-spawned " + entity);
-		}
-	}
 	
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled=true)
 	public void upgradeMobEquipment(CreatureSpawnEvent event) {
-		updateEquipment(event.getEntity());
+		ItemUpdater updater = CustomItemsPlugin.getInstance().getItemUpdater();
+		updater.updateEquipment(event.getEntity().getEquipment());
 
 		/*
 		 * This (somewhat dirty) code improves the integration with MythicMobs. For some reason,
@@ -113,7 +104,7 @@ public class MiscellaneousEventHandler implements Listener {
 		 */
         for (int attempt = 1; attempt < 8; attempt++) {
 			Bukkit.getScheduler().scheduleSyncDelayedTask(
-					CustomItemsPlugin.getInstance(), () -> updateEquipment(event.getEntity()), attempt * 4
+					CustomItemsPlugin.getInstance(), () -> updater.updateEquipment(event.getEntity().getEquipment()), attempt * 4
 			);
 		}
 	}

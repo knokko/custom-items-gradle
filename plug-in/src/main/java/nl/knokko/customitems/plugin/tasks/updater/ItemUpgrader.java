@@ -10,7 +10,6 @@ import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.item.KciTool;
 import nl.knokko.customitems.item.enchantment.VEnchantmentType;
 import nl.knokko.customitems.itemset.UpgradeReference;
-import nl.knokko.customitems.nms.CorruptedItemStackException;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.nms.RawAttribute;
 import nl.knokko.customitems.plugin.recipe.RecipeHelper;
@@ -138,9 +137,7 @@ public class ItemUpgrader {
         return upgrades;
     }
 
-    public static ItemStack addUpgrade(
-            ItemStack original, ItemSetWrapper itemSet, UpgradeResult result
-    ) throws CorruptedItemStackException {
+    public static ItemStack addUpgrade(ItemStack original, ItemSetWrapper itemSet, UpgradeResult result) {
         KciItem customItem = itemSet.getItem(original);
 
         ItemStack currentStack = original.clone();
@@ -209,13 +206,7 @@ public class ItemUpgrader {
                         id -> itemSet.get().upgrades.getReference(id)).collect(Collectors.toList()
                 ));
 
-                try {
-                    nbtResult.newStack = addUpgrade(newStack, itemSet, newResult);
-                } catch (CorruptedItemStackException e) {
-                    // This should not happen because newStack is a fresh ItemStack
-                    throw new RuntimeException(e);
-                }
-
+                nbtResult.newStack = addUpgrade(newStack, itemSet, newResult);
                 return nbtResult;
             }
 

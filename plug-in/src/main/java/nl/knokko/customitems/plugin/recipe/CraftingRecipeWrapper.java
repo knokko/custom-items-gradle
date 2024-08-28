@@ -1,13 +1,10 @@
 package nl.knokko.customitems.plugin.recipe;
 
-import nl.knokko.customitems.nms.CorruptedItemStackException;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.tasks.updater.ItemUpgrader;
 import nl.knokko.customitems.recipe.KciCraftingRecipe;
 import nl.knokko.customitems.recipe.result.KciResult;
 import nl.knokko.customitems.recipe.result.UpgradeResult;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
@@ -42,12 +39,7 @@ public abstract class CraftingRecipeWrapper {
 
             ItemStack ingredientToUpgrade = ingredients[ingredientEntry.itemIndex].clone();
             ingredientToUpgrade.setAmount(ingredientEntry.ingredient.getAmount());
-            try {
-                return ItemUpgrader.addUpgrade(ingredientToUpgrade, CustomItemsPlugin.getInstance().getSet(), upgrade);
-            } catch (CorruptedItemStackException corruptedIngredient) {
-                Bukkit.getLogger().warning("Encountered corrupted ItemStack in crafting upgrade recipe: " + ingredientToUpgrade);
-                return new ItemStack(Material.STONE);
-            }
+            return ItemUpgrader.addUpgrade(ingredientToUpgrade, CustomItemsPlugin.getInstance().getSet(), upgrade);
         }
         return convertResultToItemStack(result);
     }

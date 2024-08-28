@@ -18,7 +18,6 @@ import nl.knokko.customitems.item.*;
 import nl.knokko.customitems.item.enchantment.VEnchantmentType;
 import nl.knokko.customitems.item.enchantment.LeveledEnchantment;
 import nl.knokko.customitems.nms.BooleanRepresentation;
-import nl.knokko.customitems.nms.CorruptedItemStackException;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.nms.RawAttribute;
 import nl.knokko.customitems.plugin.multisupport.dualwield.DualWieldSupport;
@@ -59,22 +58,12 @@ public class ItemUpdater {
 
 			for (World world : Bukkit.getWorlds()) {
 				for (LivingEntity entity : world.getLivingEntities()) {
-					try {
-						updateEquipment(entity.getEquipment());
-					} catch (CorruptedItemStackException e) {
-						Bukkit.getLogger().warning("Encountered corrupted item stack in equipment of " + entity);
-					}
+					updateEquipment(entity.getEquipment());
 				}
 
 				for (ItemFrame itemFrame : world.getEntitiesByClass(ItemFrame.class)) {
 					ItemStack item = itemFrame.getItem();
-					ItemStack upgradedItem;
-					try {
-						upgradedItem = maybeUpdate(item);
-					} catch (CorruptedItemStackException e) {
-						Bukkit.getLogger().warning("Encountered corrupted item stack in item frame at " + itemFrame.getLocation());
-						continue;
-					}
+					ItemStack upgradedItem = maybeUpdate(item);
 
 					if (item != upgradedItem) {
 						itemFrame.setItem(upgradedItem);
@@ -92,16 +81,7 @@ public class ItemUpdater {
 			// ItemUtils.isEmpty will return true if currentStack is a placeholder item. If clearPlaceholder
 			// is false, we shouldn't destroy it (upgrading a placeholder item will result in destroying it).
 			if (clearPlaceholders || !ItemUtils.isEmpty(currentStack)) {
-				ItemStack newStack;
-				try {
-					newStack = maybeUpdate(currentStack);
-				} catch (CorruptedItemStackException e) {
-					Bukkit.getLogger().warning(
-							"Encountered corrupted item stack in inventory of " +
-									inventory.getHolder() + ": " + currentStack
-					);
-					continue;
-				}
+				ItemStack newStack = maybeUpdate(currentStack);
 				if (newStack != currentStack) {
 					inventory.setItem(index, newStack);
 				}
@@ -109,7 +89,7 @@ public class ItemUpdater {
 		}
 	}
 
-	public void updateEquipment(EntityEquipment equipment) throws CorruptedItemStackException {
+	public void updateEquipment(EntityEquipment equipment) {
 		if (equipment != null) {
 			updateEquipmentPiece(equipment.getItemInMainHand(), equipment::setItemInMainHand);
 			updateEquipmentPiece(equipment.getItemInOffHand(), equipment::setItemInOffHand);
@@ -120,14 +100,14 @@ public class ItemUpdater {
 		}
 	}
 
-	private void updateEquipmentPiece(ItemStack original, Consumer<ItemStack> replace) throws CorruptedItemStackException {
+	private void updateEquipmentPiece(ItemStack original, Consumer<ItemStack> replace) {
 		ItemStack upgraded = maybeUpdate(original);
 		if (upgraded != original) {
 			replace.accept(upgraded);
 		}
 	}
 	
-	public ItemStack maybeUpdate(ItemStack originalStack) throws CorruptedItemStackException {
+	public ItemStack maybeUpdate(ItemStack originalStack) {
 		if (originalStack == null || originalStack.getAmount() == 0 || originalStack.getType() == Material.AIR) {
 			return null;
 		}
@@ -336,7 +316,7 @@ public class ItemUpdater {
 		}
 	}
 
-	private ItemStack upgradeVanillaItem(ItemStack oldStack) throws CorruptedItemStackException {
+	private ItemStack upgradeVanillaItem(ItemStack oldStack) {
 
 		ItemStack newStack = upgradeAttributeModifiers(oldStack, null, null);
 
@@ -347,9 +327,7 @@ public class ItemUpdater {
 		return newStack;
 	}
 	
-	private ItemStack upgradeCustomItem(
-			ItemStack oldStack, KciItem oldItem, KciItem newItem
-	) throws CorruptedItemStackException {
+	private ItemStack upgradeCustomItem(ItemStack oldStack, KciItem oldItem, KciItem newItem) {
 		
 		ItemStack newStack = upgradeAttributeModifiers(oldStack, oldItem, newItem);
 
@@ -608,7 +586,7 @@ public class ItemUpdater {
 	
 	private ItemStack upgradeAttributeModifiers(
 			ItemStack oldStack, KciItem oldItem, KciItem newItem
-	) throws CorruptedItemStackException {
+	) {
 		RawAttribute[] oldStackAttributes = KciNms.instance.items.getAttributes(oldStack);
 		Collection<RawAttribute> newStackAttributes = new ArrayList<>(oldStackAttributes.length);
 
