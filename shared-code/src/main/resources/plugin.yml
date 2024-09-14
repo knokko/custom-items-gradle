@@ -1,6 +1,6 @@
 name: CustomItems
 main: nl.knokko.customitems.plugin.CustomItemsPlugin
-version: "13.3"
+version: "13.4"
 softdepend: [KnokkoCore, CrazyEnchantments, ActionBarAPI, Mimic, ItemBridge, WorldGuard, Skript, Denizen, Magic, Geyser-Spigot]
 loadbefore: [UltraChest]
 api-version: "1.13"

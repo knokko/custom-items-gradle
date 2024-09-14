@@ -410,7 +410,9 @@ public class InventoryEventHandler implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void guardInventoryEvents(InventoryDragEvent event) {
-        guardInventoryEvents(event, event.getWhoClicked().getUniqueId());
+        if (itemSet.get().items.stream().anyMatch(item -> wrap(item).needsStackingHelp())) {
+            guardInventoryEvents(event, event.getWhoClicked().getUniqueId());
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
