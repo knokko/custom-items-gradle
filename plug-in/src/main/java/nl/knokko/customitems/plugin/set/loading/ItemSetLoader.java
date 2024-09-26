@@ -344,10 +344,12 @@ public class ItemSetLoader implements Listener {
     private void refreshResourcePack() {
         ResourcePackHashes currentHashes = this.currentHashes;
         if (currentHashes != null) {
+            ExportSettings exportSettings = itemSet.get().getExportSettings();
+            if (exportSettings.shouldSkipResourcepack()) return;
             if (busy.tryAcquire()) {
                 try {
                     if (!ResourcePackIO.checkStatus(
-                            itemSet.get().getExportSettings().getHostAddress(), currentHashes.getSha256Hex()
+                            exportSettings.getHostAddress(), currentHashes.getSha256Hex()
                     )) {
                         logAsync(Level.WARNING, "The resource pack server lost the resource pack", null);
                         lostResourcePack = true;
