@@ -21,7 +21,6 @@ import nl.knokko.customitems.container.slot.StorageSlot;
 import nl.knokko.customitems.container.slot.display.*;
 import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.nms.KciNms;
-import nl.knokko.customitems.plugin.multisupport.geyser.GeyserSupport;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.data.container.ContainerStorageKey;
 import nl.knokko.customitems.plugin.data.container.StoredEnergy;

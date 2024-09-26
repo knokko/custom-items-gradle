@@ -18,7 +18,7 @@ import java.util.UUID;
 
 import static nl.knokko.customitems.plugin.container.ContainerSelectionManager.hasPermission;
 import static nl.knokko.customitems.plugin.container.EntityContainerManager.DUMMY_ENTITY_LOCATION;
-import static nl.knokko.customitems.plugin.container.PocketContainerManager.DUMMY_POCKET_LOCATION;
+import static nl.knokko.customitems.plugin.data.container.ContainerStorageKey.DUMMY_POCKET_LOCATION;
 
 public class ContainerManager {
 

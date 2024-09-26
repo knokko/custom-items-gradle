@@ -9,6 +9,11 @@ import java.util.UUID;
 
 public class ContainerStorageKey {
 
+    // This location is used for pocket containers. Its coordinates don't really matter, but they must be consistent
+    public static final PassiveLocation DUMMY_POCKET_LOCATION = new PassiveLocation(
+            new UUID(1, 2), 3, 4, 5
+    );
+
     public static ContainerStorageKey load(BitInput input) throws UnknownEncodingException {
         byte encoding = input.readByte();
         if (encoding != 1) throw new UnknownEncodingException("ContainerStorageKey", encoding);
@@ -60,6 +65,10 @@ public class ContainerStorageKey {
 
     public ContainerStorageKey(ContainerStorageKey toCopy) {
         this(toCopy.containerName, toCopy.location, toCopy.stringHost, toCopy.playerID);
+    }
+
+    public boolean isPocketContainer() {
+        return DUMMY_POCKET_LOCATION.equals(location);
     }
 
     @Override

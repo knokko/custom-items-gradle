@@ -13,7 +13,6 @@ import nl.knokko.customitems.item.KciPocketContainer;
 import nl.knokko.customitems.plugin.data.PlayerData;
 import nl.knokko.customitems.plugin.data.container.ContainerStorageKey;
 import nl.knokko.customitems.plugin.data.container.LocalStoredEnergy;
-import nl.knokko.customitems.plugin.data.container.PassiveLocation;
 import nl.knokko.customitems.plugin.data.container.StoredEnergy;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.util.NbtHelper;
@@ -30,12 +29,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
 
-class PocketContainerManager {
+import static nl.knokko.customitems.plugin.data.container.ContainerStorageKey.DUMMY_POCKET_LOCATION;
 
-    // This location is used for pocket containers. Its coordinates don't really matter, but they must be consistent
-    static final PassiveLocation DUMMY_POCKET_LOCATION = new PassiveLocation(
-            new UUID(1, 2), 3, 4, 5
-    );
+class PocketContainerManager {
 
     private static String[] getPocketContainerEnergyNbtKey(KciContainer containerType, Player player) {
         ContainerStorageMode mode = containerType.getStorageMode();

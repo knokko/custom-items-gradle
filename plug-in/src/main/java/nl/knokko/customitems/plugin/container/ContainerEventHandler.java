@@ -140,6 +140,11 @@ public class ContainerEventHandler implements Listener {
 			
 			ContainerInstance customContainer = pluginData().containerManager.getOpened(player);
 			if (customContainer != null) {
+				if (event.getNewItems().values().stream().anyMatch(item -> !canStore(item, customContainer))) {
+					event.setCancelled(true);
+					return;
+				}
+
 				for (int slotIndex : event.getRawSlots()) {
 					if (slotIndex >= 0 && slotIndex < 9 * customContainer.getType().getHeight()) {
 						ContainerSlot slot = customContainer.getType().getSlot(slotIndex % 9, slotIndex / 9);
@@ -236,7 +241,7 @@ public class ContainerEventHandler implements Listener {
 							event.setCancelled(true);
 						}
 					} else if (isInsert(event.getAction())) {
-						if (!slot.canInsertItems()) {
+						if (!slot.canInsertItems() || !canStore(event.getCursor(), customContainer)) {
 							if (currentManualRecipe != null) {
 								consumeManualRecipeOnce = true;
 							}
@@ -257,7 +262,7 @@ public class ContainerEventHandler implements Listener {
 						if (
 							// Placeholder items are considered empty
 								(!slot.canTakeItems() && !ItemUtils.isEmpty(event.getCurrentItem()))
-										|| !slot.canInsertItems()) {
+										|| !slot.canInsertItems() || !canStore(event.getCursor(), customContainer)) {
 							event.setCancelled(true);
 						}
 						if (currentManualRecipe != null) {
@@ -433,6 +438,7 @@ public class ContainerEventHandler implements Listener {
 						event.setCancelled(true);
 
 						ItemStack toTransfer = event.getCurrentItem();
+						if (!canStore(toTransfer, customContainer)) return;
 						KciItem customTransfer = itemSet.getItem(toTransfer);
 
 						// First try to find a slot that already contains the item
@@ -637,5 +643,16 @@ public class ContainerEventHandler implements Listener {
 				action == InventoryAction.PLACE_SOME ||
 				action == InventoryAction.PLACE_ALL ||
 				action == InventoryAction.COLLECT_TO_CURSOR;
+	}
+
+	private boolean canStore(ItemStack item, ContainerInstance destination) {
+		KciItem customItem = itemSet.getItem(item);
+		if (destination.getStorageKey().isPocketContainer() && customItem instanceof KciPocketContainer) {
+			for (KciContainer pocketContainer : ((KciPocketContainer) customItem).getContainers()) {
+				if (9 * pocketContainer.getHeight() >= destination.getInventory().getSize()) return false;
+			}
+		}
+
+		return true;
 	}
 }
