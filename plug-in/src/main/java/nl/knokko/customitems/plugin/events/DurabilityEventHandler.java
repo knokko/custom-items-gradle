@@ -12,6 +12,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
+import org.bukkit.event.player.PlayerItemMendEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 
@@ -150,8 +151,13 @@ public class DurabilityEventHandler implements Listener {
     }
 
     @EventHandler
-    public void handleMendingXP(PlayerExpChangeEvent event) {
+    public void handleMending(PlayerItemMendEvent event) {
+        // Handle it during PlayerExpChangeEvent instead
+        if (itemSet.getItem(event.getItem()) != null) event.setCancelled(true);
+    }
 
+    @EventHandler(priority = EventPriority.LOW)
+    public void handleMendingXP(PlayerExpChangeEvent event) {
         EntityEquipment eq = event.getPlayer().getEquipment();
         if (eq == null) return;
 
