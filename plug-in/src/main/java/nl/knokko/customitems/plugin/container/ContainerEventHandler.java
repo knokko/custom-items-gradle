@@ -627,6 +627,10 @@ public class ContainerEventHandler implements Listener {
 				Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(),
 						() ->pluginData().containerSelections.openPocketContainerMenu(event.getPlayer(), pocketContainer)
 				);
+
+				for (String armorType : new String[] { "HELMET", "CHESTPLATE", "LEGGINGS", "BOOTS"}) {
+					if (event.getMaterial().name().contains(armorType)) event.setCancelled(true);
+				}
 			}
 		}
 	}
