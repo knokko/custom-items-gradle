@@ -64,7 +64,7 @@ project(':kci-nms20plus') {
         compileOnly project(':kci-nms18plus')
         compileOnly 'org.spigotmc:spigot-api:1.20.6-R0.1-SNAPSHOT'
         compileOnly 'io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT'
-        implementation("com.github.toxicity188:DataComponentAPI:1.0.11")
+        implementation("com.github.toxicity188:DataComponentAPI:bdf54fb020337c4cec9f65ccc7f916979e929008")
     }
     shadowJar {
         relocate('kr.toxicity.libraries.datacomponent', 'nl.knokko.customitems.plugin.shadow.datacomponent')
