@@ -61,7 +61,7 @@ project(':plug-in') {
         compileOnly 'com.denizenscript:denizen:1.2.5-SNAPSHOT'
         compileOnly 'com.elmakers.mine.bukkit:MagicAPI:7.5'
         compileOnly 'org.geysermc.geyser:api:2.2.0-SNAPSHOT'
-        implementation 'de.tr7zw:item-nbt-api:2.13.1'
+        implementation 'de.tr7zw:item-nbt-api:2.13.2'
 
         testImplementation project(':bit-helper')
         testImplementation 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
