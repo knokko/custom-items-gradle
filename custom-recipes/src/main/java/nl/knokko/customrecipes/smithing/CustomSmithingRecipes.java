@@ -5,6 +5,7 @@ import nl.knokko.customrecipes.ingredient.CustomIngredient;
 import nl.knokko.customrecipes.ingredient.IngredientBlocker;
 import org.bukkit.Bukkit;
 import org.bukkit.Keyed;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.EventHandler;
@@ -131,17 +132,29 @@ public class CustomSmithingRecipes implements Listener {
         NamespacedKey key = ((Keyed) recipe).getKey();
         boolean isPluginRecipe = key.getNamespace().toLowerCase(Locale.ROOT).equals(plugin.getName().toLowerCase(Locale.ROOT));
 
-        if (isPluginRecipe) {
-            WeakSmithingRecipe weakRecipe = keyMap.get(key.getKey());
-            List<CustomSmithingRecipe> customRecipes = weakMap.get(weakRecipe);
+        ItemStack[] inputs = { inventory.getItem(0), inventory.getItem(1), inventory.getItem(2) };
 
-            if (customRecipes == null) {
-                setResult.accept(new SmithingResult(null));
-                return;
+        WeakSmithingRecipe weakRecipe;
+        if (isPluginRecipe) weakRecipe = keyMap.get(key.getKey());
+        else {
+            Material[] materials = new Material[inputs.length];
+            for (int index = 0; index < materials.length; index++) {
+                if (inputs[index] != null) materials[index] = inputs[index].getType();
+                else materials[index] = Material.AIR;
             }
+            weakRecipe = new WeakSmithingRecipe(materials);
+        }
 
-            CustomSmithingRecipe customRecipe = null;
+        List<CustomSmithingRecipe> customRecipes = weakMap.get(weakRecipe);
 
+        if (customRecipes == null && isPluginRecipe) {
+            setResult.accept(new SmithingResult(null));
+            return;
+        }
+
+        CustomSmithingRecipe customRecipe = null;
+
+        if (customRecipes != null) {
             candidateLoop:
             for (CustomSmithingRecipe candidate : customRecipes) {
                 if (!candidate.canCraft.test(viewer)) continue;
@@ -152,65 +165,14 @@ public class CustomSmithingRecipes implements Listener {
                 customRecipe = candidate;
                 break;
             }
+        }
 
-            if (customRecipe == null) {
-                setResult.accept(new SmithingResult(null));
-                return;
-            }
+        if (customRecipe == null && isPluginRecipe) {
+            setResult.accept(new SmithingResult(null));
+            return;
+        }
 
-            ItemStack[] inputs = { inventory.getItem(0), inventory.getItem(1), inventory.getItem(2) };
-            ItemStack[] fixedInputs = Arrays.copyOf(inputs, inputs.length);
-            for (int index = 0; index < 3; index++) {
-                if (inputs[index] != null) {
-                    inputs[index] = inputs[index].clone();
-                    fixedInputs[index] = inputs[index].clone();
-                    fixedInputs[index].setAmount(customRecipe.ingredients[index].amount);
-                }
-            }
-
-            ItemStack result = customRecipe.result.apply(fixedInputs);
-
-            if (isShiftClick) {
-                boolean shouldCancel = false;
-
-                for (CustomIngredient ingredient : customRecipe.ingredients) {
-                    if (ingredient.amount != 1 || ingredient.remainingItem != null) {
-                        shouldCancel = true;
-                        break;
-                    }
-                }
-
-                for (ItemStack input : inputs) {
-                    if (input != null && input.getAmount() == 1) {
-                        shouldCancel = false;
-                        break;
-                    }
-                }
-
-                if (shouldCancel) {
-                    setResult.accept(new SmithingResult(result, true));
-                    return;
-                }
-            }
-
-            setResult.accept(new SmithingResult(result));
-            if (result == null || !shouldConsumeInputs) return;
-
-            CustomSmithingRecipe finalRecipe = customRecipe;
-            Bukkit.getScheduler().runTask(plugin, () -> {
-                for (int index = 0; index < 3; index++) {
-                    CustomIngredient ingredient = finalRecipe.ingredients[index];
-                    if (ingredient.remainingItem != null) {
-                        inventory.setItem(index, ingredient.remainingItem.apply(inputs[index].clone()));
-                    } else if (ingredient.amount != 1) {
-                        inputs[index].setAmount(inputs[index].getAmount() - ingredient.amount);
-                        if (inputs[index].getAmount() > 0) inventory.setItem(index, inputs[index]);
-                        else inventory.setItem(index, null);
-                    }
-                }
-            });
-        } else {
-            ItemStack[] inputs = { inventory.getItem(0), inventory.getItem(1), inventory.getItem(2) };
+        if (customRecipe == null) {
             getRelevantBlockers(key.getNamespace()).forEach(blockIngredient -> {
                 for (ItemStack input : inputs) {
                     if (blockIngredient.test(input)) {
@@ -219,7 +181,59 @@ public class CustomSmithingRecipes implements Listener {
                     }
                 }
             });
+            return;
         }
+
+        ItemStack[] fixedInputs = Arrays.copyOf(inputs, inputs.length);
+        for (int index = 0; index < 3; index++) {
+            if (inputs[index] != null) {
+                inputs[index] = inputs[index].clone();
+                fixedInputs[index] = inputs[index].clone();
+                fixedInputs[index].setAmount(customRecipe.ingredients[index].amount);
+            }
+        }
+
+        ItemStack result = customRecipe.result.apply(fixedInputs);
+
+        if (isShiftClick) {
+            boolean shouldCancel = false;
+
+            for (CustomIngredient ingredient : customRecipe.ingredients) {
+                if (ingredient.amount != 1 || ingredient.remainingItem != null) {
+                    shouldCancel = true;
+                    break;
+                }
+            }
+
+            for (ItemStack input : inputs) {
+                if (input != null && input.getAmount() == 1) {
+                    shouldCancel = false;
+                    break;
+                }
+            }
+
+            if (shouldCancel) {
+                setResult.accept(new SmithingResult(result, true));
+                return;
+            }
+        }
+
+        setResult.accept(new SmithingResult(result));
+        if (result == null || !shouldConsumeInputs) return;
+
+        CustomSmithingRecipe finalRecipe = customRecipe;
+        Bukkit.getScheduler().runTask(plugin, () -> {
+            for (int index = 0; index < 3; index++) {
+                CustomIngredient ingredient = finalRecipe.ingredients[index];
+                if (ingredient.remainingItem != null) {
+                    inventory.setItem(index, ingredient.remainingItem.apply(inputs[index].clone()));
+                } else if (ingredient.amount != 1) {
+                    inputs[index].setAmount(inputs[index].getAmount() - ingredient.amount);
+                    if (inputs[index].getAmount() > 0) inventory.setItem(index, inputs[index]);
+                    else inventory.setItem(index, null);
+                }
+            }
+        });
     }
 
     @EventHandler(priority = EventPriority.HIGH)

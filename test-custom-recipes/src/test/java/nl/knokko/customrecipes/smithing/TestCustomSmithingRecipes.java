@@ -58,7 +58,8 @@ public class TestCustomSmithingRecipes {
         CustomSmithingRecipe customRecipe = new CustomSmithingRecipe(
                 ingredients -> new ItemStack(Material.NETHERITE_SWORD),
                 new CustomIngredient(Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE),
-                new CustomIngredient(Material.DIAMOND_SWORD), new CustomIngredient(Material.NETHERITE_INGOT)
+                new CustomIngredient(Material.DIAMOND_SWORD),
+                new CustomIngredient(Material.NETHERITE_INGOT, ingot -> ingot.containsEnchantment(Enchantment.DAMAGE_UNDEAD))
         );
         smithingRecipes.add(customRecipe);
 
@@ -77,20 +78,28 @@ public class TestCustomSmithingRecipes {
         InventoryView view = new PlayerInventoryViewMock(player, inventory);
 
         ItemStack template = new ItemStack(Material.NETHERITE_UPGRADE_SMITHING_TEMPLATE);
-        ItemStack ingot = new ItemStack(Material.NETHERITE_INGOT);
+        ItemStack smiteIngot = new ItemStack(Material.NETHERITE_INGOT);
+        smiteIngot.addUnsafeEnchantment(Enchantment.DAMAGE_UNDEAD, 1);
+        ItemStack simpleIngot = new ItemStack(Material.NETHERITE_INGOT);
         ItemStack diamondSword = new ItemStack(Material.DIAMOND_SWORD);
 
-        // Block this recipe because both the namespace and an ingredient are blocked
-        checkResult(inventory, view, blockedUpgradeRecipe, null, template, silverSword, ingot);
+        // Block this recipe because:
+        // - the namespace is blocked
+        // - the second ingredient (silverSword) is blocked
+        // - it does NOT match the custom recipe since the ingot doesn't have the smite enchantment
+        checkResult(inventory, view, blockedUpgradeRecipe, null, template, silverSword, simpleIngot);
 
         // Don't block this recipe because the namespace is not blocked
-        checkResult(inventory, view, vanillaUpgradeRecipe, vanillaUpgradeRecipe.getResult(), template, silverSword, ingot);
+        checkResult(inventory, view, vanillaUpgradeRecipe, vanillaUpgradeRecipe.getResult(), template, silverSword, simpleIngot);
 
         // Never block own recipes
-        checkResult(inventory, view, ownRecipe, ownRecipe.getResult(), template, silverSword, ingot);
+        checkResult(inventory, view, ownRecipe, ownRecipe.getResult(), template, silverSword, smiteIngot);
 
         // Don't block this recipe because the ingredients are not blocked
-        checkResult(inventory, view, blockedUpgradeRecipe, blockedUpgradeRecipe.getResult(), template, diamondSword, ingot);
+        checkResult(inventory, view, blockedUpgradeRecipe, blockedUpgradeRecipe.getResult(), template, diamondSword, smiteIngot);
+
+        // Don't block this recipe because it matches the custom recipe
+        checkResult(inventory, view, blockedUpgradeRecipe, ownRecipe.getResult(), template, silverSword, smiteIngot);
     }
 
     private static void checkResult(
