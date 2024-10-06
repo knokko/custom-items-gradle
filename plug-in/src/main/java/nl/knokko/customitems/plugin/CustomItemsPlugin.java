@@ -147,7 +147,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 				KciNms.instance.items.blockSmithingTableUpgrades(itemStack -> this.getSet().getItem(itemStack) != null, this);
 			}
 
-			Bukkit.getScheduler().scheduleSyncDelayedTask(this, recipes::register);
+			Bukkit.getScheduler().scheduleSyncDelayedTask(this, recipes::register, 100);
 		}
 	}
 
