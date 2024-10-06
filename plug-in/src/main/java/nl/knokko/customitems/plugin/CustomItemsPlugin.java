@@ -132,7 +132,6 @@ public class CustomItemsPlugin extends JavaPlugin {
 			TwoHandedEnforcer.start(this, itemSet);
 			EquipmentSetAttributes.startUpdateTask(this, itemSet);
 			recipes = new CustomItemsRecipes(itemSet, this);
-			recipes.register();
 			miningSpeedManager = new MiningSpeedManager();
 			miningSpeedManager.start(this);
 			latePopulator = new LatePopulator(itemSet, getDataFolder(), enabledAreas);
@@ -147,6 +146,8 @@ public class CustomItemsPlugin extends JavaPlugin {
 			if (KciNms.mcVersion <= VERSION1_19) {
 				KciNms.instance.items.blockSmithingTableUpgrades(itemStack -> this.getSet().getItem(itemStack) != null, this);
 			}
+
+			Bukkit.getScheduler().scheduleSyncDelayedTask(this, recipes::register);
 		}
 	}
 
