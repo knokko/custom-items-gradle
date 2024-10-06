@@ -2,7 +2,9 @@ package nl.knokko.customitems.plugin.multisupport.mimic;
 
 import nl.knokko.customitems.plugin.CustomItemsApi;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
+import nl.knokko.customitems.plugin.util.ItemUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.ServicePriority;
 import ru.endlesscode.mimic.Mimic;
@@ -10,6 +12,7 @@ import ru.endlesscode.mimic.MimicApiLevel;
 import ru.endlesscode.mimic.items.BukkitItemsRegistry;
 
 import java.util.Collection;
+import java.util.logging.Level;
 
 class MimicItemRegistry implements BukkitItemsRegistry {
 
@@ -24,7 +27,10 @@ class MimicItemRegistry implements BukkitItemsRegistry {
     static ItemStack fetchMimicItem(String id, int amount) {
         try {
             ItemStack result = fetchModernMimicItem(id, amount);
-            if (result == null) Bukkit.broadcastMessage("Can't find Mimic item " + id);
+            if (ItemUtils.isEmpty(result)) {
+                Bukkit.getLogger().log(Level.SEVERE, "Can't find Mimic item " + id + " -> " + result);
+                return new ItemStack(Material.AIR);
+            }
             return result;
         } catch (NoSuchMethodError tryLegacy) {
             return fetchLegacyMimicItem(id, amount);
