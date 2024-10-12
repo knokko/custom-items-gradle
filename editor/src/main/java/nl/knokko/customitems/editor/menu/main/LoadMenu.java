@@ -1,5 +1,6 @@
 package nl.knokko.customitems.editor.menu.main;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
@@ -17,6 +18,9 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.ByteArrayBitInput;
+
+import static nl.knokko.customitems.editor.menu.edit.EditProps.BUTTON;
+import static nl.knokko.customitems.editor.menu.edit.EditProps.HOVER;
 
 public class LoadMenu extends GuiMenu {
 	
@@ -63,12 +67,19 @@ public class LoadMenu extends GuiMenu {
 		addComponent(new DynamicTextButton("Cancel", EditProps.CANCEL_BASE, EditProps.CANCEL_HOVER, () -> {
 			state.getWindow().setMainComponent(MainMenu.INSTANCE);
 		}), 0.05f, 0.8f, 0.25f, 0.9f);
-		addComponent(new DynamicTextButton("Load back-up", EditProps.BUTTON, EditProps.HOVER, () -> {
+		addComponent(new DynamicTextButton("Load back-up", BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new BackupMenu(this));
 		}), 0.05f, 0.6f, 0.25f, 0.7f);
-		addComponent(new DynamicTextButton("Refresh", EditProps.BUTTON, EditProps.HOVER, setList::refresh), 0.35f, 0.75f, 0.55f, 0.85f);
+		addComponent(new DynamicTextButton("Refresh", BUTTON, EditProps.HOVER, setList::refresh), 0.35f, 0.75f, 0.55f, 0.85f);
+		addComponent(new DynamicTextButton("Open folder", BUTTON, HOVER, () -> {
+			try {
+				Desktop.getDesktop().open(EditorFileManager.FOLDER);
+			} catch (IOException e) {
+				System.err.println("Couldn't open export destination folder: " + e.getLocalizedMessage());
+			}
+		}), 0.05f, 0.4f, 0.25f, 0.5f);
 		
-		HelpButtons.addHelpLink(this, "main%20menu/edit/selection.html");
+		HelpButtons.addHelpLink(this, "main menu/edit/selection.html");
 	}
 	
 	@Override
@@ -105,7 +116,7 @@ public class LoadMenu extends GuiMenu {
 			if(files != null) {
 				for(int index = 0; index < files.length; index++) {
 					final File file = files[index];
-					addComponent(new DynamicTextButton(file.getName().substring(0, file.getName().length() - 5), EditProps.BUTTON, EditProps.HOVER, () -> {
+					addComponent(new DynamicTextButton(file.getName().substring(0, file.getName().length() - 5), BUTTON, EditProps.HOVER, () -> {
 						loadSave(file, errorComponent, false);
 					}), 0, 0.9f - index * 0.1f, 1, 1 - index * 0.1f);
 				}
