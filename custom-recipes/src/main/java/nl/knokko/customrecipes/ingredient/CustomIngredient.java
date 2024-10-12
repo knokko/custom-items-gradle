@@ -1,10 +1,12 @@
 package nl.knokko.customrecipes.ingredient;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.logging.Level;
 
 public class CustomIngredient {
 
@@ -17,6 +19,10 @@ public class CustomIngredient {
             Material material, Predicate<ItemStack> shouldAccept,
             int amount, Function<ItemStack, ItemStack> remainingItem
     ) {
+        if (!material.isItem()) {
+            Bukkit.getLogger().log(Level.SEVERE, "Invalid ingredient " + material + ": it must be an item");
+            material = Material.BEDROCK;
+        }
         this.material = material;
         this.shouldAccept = shouldAccept;
         this.amount = amount;
