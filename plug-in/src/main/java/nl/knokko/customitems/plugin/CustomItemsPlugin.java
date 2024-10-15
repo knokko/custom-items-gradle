@@ -51,10 +51,19 @@ public class CustomItemsPlugin extends JavaPlugin {
 	private int chunkPopulationCount;
 	private boolean cancelWhenDamageResistanceIsAtLeast100Percent;
 
+	/**
+	 * To avoid compatibility issues with other plug-ins, recipes can't be registered the first 5 seconds
+	 */
+	private boolean canRegisterRecipes;
+
 	public static CustomItemsPlugin getInstance() {
 		return instance;
 	}
-	
+
+	public boolean canRegisterRecipes() {
+		return canRegisterRecipes;
+	}
+
 	public void afterReloadItems() {
 		// The ItemSetLoader can call this method during its initial load, but this code should only run during real reloads
 		if (latePopulator != null) {
@@ -147,7 +156,10 @@ public class CustomItemsPlugin extends JavaPlugin {
 				KciNms.instance.items.blockSmithingTableUpgrades(itemStack -> this.getSet().getItem(itemStack) != null, this);
 			}
 
-			Bukkit.getScheduler().scheduleSyncDelayedTask(this, recipes::register, 100);
+			Bukkit.getScheduler().scheduleSyncDelayedTask(this, () -> {
+				recipes.register();
+				this.canRegisterRecipes = true;
+			}, 100);
 		}
 	}
 

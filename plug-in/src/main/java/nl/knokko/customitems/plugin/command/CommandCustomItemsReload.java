@@ -19,6 +19,11 @@ class CommandCustomItemsReload {
         };
 
         CustomItemsPlugin instance = CustomItemsPlugin.getInstance();
+        if (!instance.canRegisterRecipes()) {
+            sender.sendMessage(ChatColor.RED + "You can't reload the first 5 seconds");
+            return;
+        }
+
         if (args.length == 1) {
             instance.getItemSetLoader().reload(sendMessage);
         } else if (args.length == 2) {
