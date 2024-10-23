@@ -85,6 +85,8 @@ class CIDenizenAddon {
         new KciItemsTag();
 
         Bukkit.getPluginManager().registerEvents(new KciContainerActionEvent(), CustomItemsPlugin.getInstance());
+        Bukkit.getPluginManager().registerEvents(new KciContainerRecipeStartEvent(), CustomItemsPlugin.getInstance());
+        Bukkit.getPluginManager().registerEvents(new KciContainerRecipeEndEvent(), CustomItemsPlugin.getInstance());
         Bukkit.getPluginManager().registerEvents(new KciFoodEatEvent(), CustomItemsPlugin.getInstance());
     }
 }

@@ -21,6 +21,9 @@ import nl.knokko.customitems.container.slot.StorageSlot;
 import nl.knokko.customitems.container.slot.display.*;
 import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.nms.KciNms;
+import nl.knokko.customitems.plugin.CustomItemsPlugin;
+import nl.knokko.customitems.plugin.events.CustomContainerRecipeEndEvent;
+import nl.knokko.customitems.plugin.events.CustomContainerRecipeStartEvent;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.data.container.ContainerStorageKey;
 import nl.knokko.customitems.plugin.data.container.StoredEnergy;
@@ -1133,6 +1136,14 @@ public class ContainerInstance {
 				currentCraftingProgress = 0;
 			}
 
+			if (currentCraftingProgress == 0 && currentRecipe != null) {
+				CustomContainerRecipeStartEvent event = new CustomContainerRecipeStartEvent(
+						this, currentRecipe, CustomItemsPlugin.getInstance().getSet()
+				);
+				Bukkit.getPluginManager().callEvent(event);
+				if (event.isCancelled()) currentRecipe = null;
+			}
+
 			if (currentRecipe != null && currentRecipe.getManualOutput() == null) {
 				maybeStartBurning();
 			}
@@ -1146,33 +1157,41 @@ public class ContainerInstance {
 						// that all inputs are still present before producing a result.
 					    if (currentRecipe == determineCurrentRecipe(currentRecipe)) {
 
-							// Decrease the stacksize of all relevant input slots, but remember the ingredients
-							// for upgrading purposes
-							Map<String, ItemStack> originalIngredients = getCurrentIngredients();
-							this.consumeIngredientsAndEnergyOfCurrentRecipe();
+							CustomContainerRecipeEndEvent event = new CustomContainerRecipeEndEvent(
+									this, currentRecipe, CustomItemsPlugin.getInstance().getSet()
+							);
+							Bukkit.getPluginManager().callEvent(event);
 
-							// Add the results to the output slots
-							for (Map.Entry<String, OutputTable> output : currentRecipe.getOutputs().entrySet()) {
+							if (!event.isCancelled()) {
 
-								int invIndex = typeInfo.getOutputSlot(output.getKey()).getSlotIndex();
-								ItemStack outputItem = inventory.getItem(invIndex);
-								ItemStack result = wrap(
-										currentRecipe, originalIngredients
-								).convertResultToItemStack(output.getValue().pickResult(new Random()));
+								// Decrease the stacksize of all relevant input slots, but remember the ingredients
+								// for upgrading purposes
+								Map<String, ItemStack> originalIngredients = getCurrentIngredients();
+								this.consumeIngredientsAndEnergyOfCurrentRecipe();
 
-								// result can be null because the chance to get something could be < 100%
-								if (result != null) {
-									// If the output slot is empty, set its item to the result
-									// Otherwise increase its amount
-									if (ItemUtils.isEmpty(outputItem)) {
-										outputItem = result.clone();
-									} else {
-										outputItem.setAmount(outputItem.getAmount() + result.getAmount());
+								// Add the results to the output slots
+								for (Map.Entry<String, OutputTable> output : currentRecipe.getOutputs().entrySet()) {
+
+									int invIndex = typeInfo.getOutputSlot(output.getKey()).getSlotIndex();
+									ItemStack outputItem = inventory.getItem(invIndex);
+									ItemStack result = wrap(
+											currentRecipe, originalIngredients
+									).convertResultToItemStack(output.getValue().pickResult(new Random()));
+
+									// result can be null because the chance to get something could be < 100%
+									if (result != null) {
+										// If the output slot is empty, set its item to the result
+										// Otherwise increase its amount
+										if (ItemUtils.isEmpty(outputItem)) {
+											outputItem = result.clone();
+										} else {
+											outputItem.setAmount(outputItem.getAmount() + result.getAmount());
+										}
+										inventory.setItem(invIndex, outputItem);
 									}
-									inventory.setItem(invIndex, outputItem);
 								}
+								storedExperience += currentRecipe.getExperience();
 							}
-							storedExperience += currentRecipe.getExperience();
 						} else {
 					    	// The current could be updating during the next tick, but this tick is lost
 					    	currentRecipe = null;
