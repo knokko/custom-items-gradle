@@ -132,7 +132,7 @@ public class ResourcepackGenerator {
         } else if (mcVersion == VERSION1_20) {
             packFormat = 32;
         } else if (mcVersion == VERSION1_21) {
-            packFormat = 34;
+            packFormat = 46;
         } else {
             throw new ProgrammingValidationException("Unknown pack format for mc version " + mcVersion);
         }

@@ -15,6 +15,12 @@ you should replace the `run-1.12` in the first command
 with the desired minecraft version.
 
 Note: only MC 1.12 and 1.21 are supported right now.
-More versions will hopefully follow soon.
+More versions may follow later.
+
+Note: do **not** run the second command with git bash,
+since that will probably give the following error:
+```
+the input device is not a TTY.  If you are using mintty, try prefixing the command with 'winpty'
+```
 
 TODO Editor

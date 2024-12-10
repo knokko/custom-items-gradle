@@ -1,4 +1,4 @@
-FROM knokkogator/kci:0.1.2-mc1.21 AS build_base
+FROM knokkogator/kci:0.1.3-mc1.21 AS build_base
 RUN mkdir /custom-items
 WORKDIR /custom-items
 COPY gradlew ./gradlew
@@ -36,10 +36,10 @@ RUN unzip -d combined -o plug-in-raw.jar
 WORKDIR /custom-items/combined
 RUN zip -r CustomItems.jar *
 
-FROM knokkogator/kci:0.1.2-mc1.21 AS prepared
+FROM knokkogator/kci:0.1.3-mc1.21 AS prepared
 
 RUN mkdir /server
-RUN cp /build-tools/spigot-1.21.jar /server/server.jar
+RUN cp /build-tools/spigot-1.21.4.jar /server/server.jar
 WORKDIR /server
 
 RUN mkdir plugins

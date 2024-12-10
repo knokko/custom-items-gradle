@@ -28,7 +28,7 @@ multiple Java versions, but I only mention 1):
 - MC 1.18: use Java 17: `java -jar BuildTools.jar --rev 1.18.2`
 - MC 1.19: use Java 17: `java -jar BuildTools.jar --rev 1.19.4`
 - MC 1.20: use Java 21: `java -jar BuildTools.jar --rev 1.20.6`
-- MC 1.21: use Java 21: `java -jar BuildTools.jar --rev 1.21`
+- MC 1.21: use Java 21: `java -jar BuildTools.jar --rev 1.21.4`
 
 These steps will add some dependencies to the mavenLocal
 on your computer, which are required for development.

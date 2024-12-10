@@ -1,5 +1,6 @@
 package nl.knokko.customitems.editor.resourcepack;
 
+import com.github.cliftonlabs.json_simple.JsonObject;
 import nl.knokko.customitems.MCVersions;
 import nl.knokko.customitems.editor.util.VanillaModelProperties;
 import nl.knokko.customitems.item.VMaterial;
@@ -56,14 +57,36 @@ class ResourcepackItemOverrider {
                         textureName = itemType.getTextureName14();
                     }
 
-                    ZipEntry zipEntry = new ZipEntry("assets/minecraft/models/item/" + modelName + ".json");
-                    zipOutput.putNextEntry(zipEntry);
-                    final PrintWriter jsonWriter = new PrintWriter(zipOutput);
-
                     boolean isArmor = itemType.canServe(KciItemType.Category.HELMET) ||
                             itemType.canServe(KciItemType.Category.CHESTPLATE) ||
                             itemType.canServe(KciItemType.Category.LEGGINGS) ||
                             itemType.canServe(KciItemType.Category.BOOTS);
+
+                    if (itemSet.getExportSettings().getMcVersion() >= VERSION1_21) {
+                        zipOutput.putNextEntry(new ZipEntry("assets/minecraft/items/" + modelName + ".json"));
+                        if (itemType == KciItemType.BOW) {
+                            overrideModernBow(new PrintWriter(zipOutput), damageAssignments);
+                        } else if (itemType == KciItemType.CROSSBOW) {
+                            overrideModernCrossbow(new PrintWriter(zipOutput), damageAssignments);
+                        } else if (itemType == KciItemType.SHIELD) {
+                            overrideModernShield(new PrintWriter(zipOutput), damageAssignments);
+                        } else if (itemType == KciItemType.ELYTRA) {
+                            overrideModernElytra(new PrintWriter(zipOutput), damageAssignments);
+                        } else if (isArmor) {
+                            overrideModernArmor(
+                                    new PrintWriter(zipOutput), "item/" + textureName,
+                                    itemType.isLeatherArmor(), damageAssignments
+                            );
+                        } else {
+                            overrideModernItem(new PrintWriter(zipOutput), modelName, null, damageAssignments);
+                        }
+                        zipOutput.closeEntry();
+                        continue;
+                    }
+
+                    ZipEntry zipEntry = new ZipEntry("assets/minecraft/models/item/" + modelName + ".json");
+                    zipOutput.putNextEntry(zipEntry);
+                    final PrintWriter jsonWriter = new PrintWriter(zipOutput);
 
                     if (itemType == KciItemType.BOW) {
                         overrideBow(jsonWriter, damageAssignments);
@@ -91,6 +114,292 @@ class ResourcepackItemOverrider {
         }
     }
 
+    private void overrideModernBow(PrintWriter output, ItemDurabilityAssignments dataAssignments) throws IOException {
+        List<JsonObject> entries = new ArrayList<>(dataAssignments.claimList.size());
+        for (ItemDurabilityClaim claim : dataAssignments.claimList) {
+            entries.add(createBowEntry(claim.resourcePath, claim.pullTextures, claim.itemDamage));
+        }
+
+        List<BowTextureEntry> vanillaPulls = new ArrayList<>();
+        vanillaPulls.add(BowTextureEntry.createQuick(null, 0.0));
+        vanillaPulls.add(BowTextureEntry.createQuick(null, 0.65));
+        vanillaPulls.add(BowTextureEntry.createQuick(null, 0.9));
+
+        overrideModernItemTemplate(output, createBowEntry("item/bow", vanillaPulls, -1), entries);
+    }
+
+    private void overrideModernCrossbow(PrintWriter output, ItemDurabilityAssignments dataAssignments) throws IOException {
+        List<JsonObject> entries = new ArrayList<>(dataAssignments.claimList.size());
+        for (ItemDurabilityClaim claim : dataAssignments.claimList) {
+            entries.add(createCrossbowEntry(claim.resourcePath, claim.pullTextures, claim.itemDamage));
+        }
+
+        List<BowTextureEntry> vanillaPulls = new ArrayList<>();
+        vanillaPulls.add(BowTextureEntry.createQuick(null, 0.0));
+        vanillaPulls.add(BowTextureEntry.createQuick(null, 0.58));
+        vanillaPulls.add(BowTextureEntry.createQuick(null, 1.0));
+
+        overrideModernItemTemplate(output, createCrossbowEntry("item/crossbow", vanillaPulls, -1), entries);
+    }
+
+    private void overrideModernShield(PrintWriter output, ItemDurabilityAssignments dataAssignments) throws IOException {
+        List<JsonObject> entries = new ArrayList<>(dataAssignments.claimList.size());
+        for (ItemDurabilityClaim claim : dataAssignments.claimList) {
+            entries.add(createShieldEntry(claim.resourcePath, claim.itemDamage));
+        }
+
+        overrideModernItemTemplate(output, createShieldEntry("item/shield", -1), entries);
+    }
+
+    private void overrideModernElytra(PrintWriter output, ItemDurabilityAssignments dataAssignments) throws IOException {
+        List<JsonObject> entries = new ArrayList<>(dataAssignments.claimList.size());
+        for (ItemDurabilityClaim claim : dataAssignments.claimList) {
+            entries.add(createElytraEntry(claim.resourcePath, claim.itemDamage));
+        }
+
+        overrideModernItemTemplate(output, createElytraEntry("item/elytra", -1), entries);
+    }
+
+    private void overrideModernArmor(
+            PrintWriter output, String vanillaTexturePath, boolean isLeather,
+            ItemDurabilityAssignments dataAssignments
+    ) throws IOException {
+        List<JsonObject> entries = new ArrayList<>(dataAssignments.claimList.size());
+        for (ItemDurabilityClaim claim : dataAssignments.claimList) {
+            entries.add(createArmorEntry(claim.resourcePath, claim.itemDamage, false));
+        }
+
+        overrideModernItemTemplate(output, createArmorEntry(vanillaTexturePath, -1, isLeather), entries);
+    }
+
+    private JsonObject createBowEntry(String texturePrefix, List<BowTextureEntry> pulls, int threshold) {
+        JsonObject root = new JsonObject();
+        JsonObject outerModel = new JsonObject();
+        outerModel.put("type", "condition");
+        outerModel.put("property", "using_item");
+        outerModel.put("on_false", createModernLeaf(texturePrefix));
+
+        JsonObject using = new JsonObject();
+        using.put("type", "range_dispatch");
+        using.put("property", "use_duration");
+        using.put("scale", 0.05);
+        using.put("fallback", createModernLeaf(texturePrefix + "_pulling_0"));
+        List<JsonObject> pullEntries = new ArrayList<>(pulls.size() - 1);
+        int pullIndex = 0;
+        for (BowTextureEntry pull : pulls) {
+            if (pullIndex != 0) {
+                JsonObject pullEntry = new JsonObject();
+                pullEntry.put("threshold", pull.getPull());
+                pullEntry.put("model", createModernLeaf(texturePrefix + "_pulling_" + pullIndex));
+                pullEntries.add(pullEntry);
+            }
+            pullIndex += 1;
+        }
+        using.put("entries", pullEntries);
+        outerModel.put("on_true", using);
+
+        if (threshold == -1) return outerModel;
+        root.put("model", outerModel);
+        root.put("threshold", threshold);
+        return root;
+    }
+
+    private JsonObject createCrossbowEntry(String texturePrefix, List<BowTextureEntry> pulls, int threshold) {
+        JsonObject root = new JsonObject();
+        JsonObject outerModel = new JsonObject();
+        outerModel.put("type", "condition");
+        outerModel.put("property", "using_item");
+
+        JsonObject notPulling = new JsonObject();
+        notPulling.put("type", "select");
+        notPulling.put("property", "charge_type");
+        notPulling.put("fallback", createModernLeaf(texturePrefix));
+        List<JsonObject> cases = new ArrayList<>(2);
+        JsonObject arrowCase = new JsonObject();
+        arrowCase.put("when", "arrow");
+        arrowCase.put("model", createModernLeaf(texturePrefix + "_arrow"));
+        JsonObject fireworkCase = new JsonObject();
+        fireworkCase.put("when", "rocket");
+        fireworkCase.put("model", createModernLeaf(texturePrefix + "_firework"));
+        cases.add(arrowCase);
+        cases.add(fireworkCase);
+        notPulling.put("cases", cases);
+        outerModel.put("on_false", notPulling);
+
+        JsonObject pulling = new JsonObject();
+        pulling.put("type", "range_dispatch");
+        pulling.put("property", "crossbow/pull");
+        pulling.put("fallback", createModernLeaf(texturePrefix + "_pulling_0"));
+        List<JsonObject> entries = new ArrayList<>(pulls.size() - 1);
+        int index = 0;
+        for (BowTextureEntry pull : pulls) {
+            if (index != 0) {
+                JsonObject entry = new JsonObject();
+                entry.put("threshold", pull.getPull());
+                entry.put("model", createModernLeaf(texturePrefix + "_pulling_" + index));
+                entries.add(entry);
+            }
+            index += 1;
+        }
+        pulling.put("entries", entries);
+        outerModel.put("on_true", pulling);
+
+        if (threshold == -1) return outerModel;
+        root.put("model", outerModel);
+        root.put("threshold", threshold);
+        return root;
+    }
+
+    private JsonObject createShieldEntry(String texturePrefix, int threshold) {
+        JsonObject root = new JsonObject();
+        JsonObject outerModel = new JsonObject();
+
+        outerModel.put("type", "condition");
+        outerModel.put("property", "using_item");
+        if (threshold == -1) {
+            outerModel.put("on_false", createVanillaShieldSpecial(texturePrefix));
+            outerModel.put("on_true", createVanillaShieldSpecial(texturePrefix + "_blocking"));
+            return outerModel;
+        }
+        outerModel.put("on_false", createModernLeaf(texturePrefix));
+        outerModel.put("on_true", createModernLeaf(texturePrefix + "_blocking"));
+
+        root.put("model", outerModel);
+        root.put("threshold", threshold);
+        return root;
+    }
+
+    private JsonObject createElytraEntry(String texturePrefix, int threshold) {
+        JsonObject root = new JsonObject();
+        JsonObject outerModel = new JsonObject();
+
+        outerModel.put("type", "condition");
+        outerModel.put("property", "broken");
+        outerModel.put("on_false", createModernLeaf(texturePrefix));
+        // TODO Handle broken custom elytras
+        outerModel.put("on_true", createModernLeaf("item/elytra_broken"));
+
+        if (threshold == -1) return outerModel;
+        root.put("model", outerModel);
+        root.put("threshold", threshold);
+        return root;
+    }
+
+    private JsonObject createArmorEntry(String texturePrefix, int threshold, boolean isLeather) {
+        JsonObject root = new JsonObject();
+        JsonObject outerModel = new JsonObject();
+
+        outerModel.put("type", "select");
+        outerModel.put("property", "trim_material");
+        outerModel.put("fallback", createArmorLeaf(texturePrefix, isLeather));
+
+        List<JsonObject> cases = new ArrayList<>(ARMOR_TRIMS.length);
+        for (ResourcepackModelWriter.ArmorTrim trim : ARMOR_TRIMS) {
+            JsonObject trimCase = new JsonObject();
+            trimCase.put("when", trim.name);
+            trimCase.put("model", createArmorLeaf(texturePrefix + "_" + trim.name + "_trim", isLeather));
+            cases.add(trimCase);
+        }
+        outerModel.put("cases", cases);
+
+        if (threshold == -1) return outerModel;
+        root.put("model", outerModel);
+        root.put("threshold", threshold);
+        return root;
+    }
+
+    private JsonObject createArmorLeaf(String texture, boolean isLeather) {
+        JsonObject leaf = createModernLeaf(texture);
+        if (isLeather) {
+            JsonObject tints = new JsonObject();
+            tints.put("type", "dye");
+            tints.put("default", -6265536);
+
+            List<JsonObject> tintList = new ArrayList<>(1);
+            tintList.add(tints);
+            leaf.put("tints", tintList);
+        }
+        return leaf;
+    }
+
+    private JsonObject createVanillaShieldSpecial(String texture) {
+        JsonObject special = new JsonObject();
+        special.put("type", "special");
+        special.put("base", texture);
+
+        JsonObject model = new JsonObject();
+        model.put("type", "shield");
+        special.put("model", model);
+
+        return special;
+    }
+
+    private void overrideModernItemTemplate(
+            PrintWriter output, JsonObject fallback, List<JsonObject> entries
+    ) throws IOException {
+        JsonObject root = new JsonObject();
+        JsonObject model = new JsonObject();
+        model.put("type", "range_dispatch");
+        model.put("property", "custom_model_data");
+
+        model.put("fallback", fallback);
+        model.put("entries", entries);
+
+        root.put("model", model);
+        root.toJson(output);
+        output.flush();
+    }
+
+    private void overrideModernItem(
+            PrintWriter output, String fallbackItem,
+            List<KciItem> items, ItemDurabilityAssignments dataAssignments
+    ) throws IOException {
+        List<JsonObject> entries = createSimpleEntries(items, dataAssignments);
+        overrideModernItemTemplate(output, createModernLeaf("item/" + fallbackItem), entries);
+    }
+
+    private static JsonObject createClaimEntry(ItemDurabilityClaim claim) {
+        JsonObject entry = new JsonObject();
+        entry.put("threshold", claim.itemDamage);
+        entry.put("model", createModernLeaf(claim.resourcePath));
+        return entry;
+    }
+
+    private static JsonObject createModernLeaf(String texture) {
+        JsonObject leaf = new JsonObject();
+        leaf.put("type", "model");
+        leaf.put("model", texture);
+        return leaf;
+    }
+
+    private static List<JsonObject> createSimpleEntries(List<KciItem> items, ItemDurabilityAssignments dataAssignments) {
+        if (items == null) {
+            List<JsonObject> entries = new ArrayList<>(dataAssignments.claimList.size());
+
+            for (ItemDurabilityClaim claim : dataAssignments.claimList) {
+                entries.add(createClaimEntry(claim));
+            }
+
+            return entries;
+        }
+
+        List<JsonObject> entries = new ArrayList<>(items.size());
+
+        for (KciItem item : items) {
+
+            // Find the corresponding claim
+            ItemDurabilityClaim claim = null;
+            for (ItemDurabilityClaim candidateClaim : dataAssignments.claimList) {
+                if (candidateClaim.itemDamage == item.getItemDamage()) {
+                    claim = candidateClaim;
+                }
+            }
+            assert claim != null;
+            entries.add(createClaimEntry(claim));
+        }
+        return entries;
+    }
+
     private void overrideOtherItems(
             ZipOutputStream zipOutput, ItemDurabilityAssignments dataAssignments
     ) throws IOException {
@@ -116,6 +425,20 @@ class ResourcepackItemOverrider {
                 parent = "item/handheld";
             }
 
+            // The interesting part...
+            List<KciItem> currentItems = itemSet.items.stream().sorted(
+                    Comparator.comparingInt(KciItem::getItemDamage)
+            ).filter(
+                    item -> item.getItemType() == KciItemType.OTHER && item.getOtherMaterial() == currentOtherMaterial
+            ).collect(Collectors.toList());
+
+            if (itemSet.getExportSettings().getMcVersion() >= VERSION1_21) {
+                zipOutput.putNextEntry(new ZipEntry("assets/minecraft/items/" + modelName + ".json"));
+                overrideModernItem(new PrintWriter(zipOutput), modelName, currentItems, dataAssignments);
+                zipOutput.closeEntry();
+                continue;
+            }
+
             ZipEntry zipEntry = new ZipEntry("assets/minecraft/models/item/" + modelName + ".json");
             zipOutput.putNextEntry(zipEntry);
             final PrintWriter jsonWriter = new PrintWriter(zipOutput);
@@ -129,21 +452,6 @@ class ResourcepackItemOverrider {
                 jsonWriter.println("    },");
             }
             jsonWriter.println("    \"overrides\": [");
-
-            // Some bookkeeping
-            int maxItemDamage = 0;
-            for (KciItem item : itemSet.items) {
-                if (item.getItemType() == KciItemType.OTHER && item.getOtherMaterial() == currentOtherMaterial && item.getItemDamage() > maxItemDamage) {
-                    maxItemDamage = item.getItemDamage();
-                }
-            }
-
-            // The interesting part...
-            List<KciItem> currentItems = itemSet.items.stream().sorted(
-                    Comparator.comparingInt(KciItem::getItemDamage)
-            ).filter(
-                    item -> item.getItemType() == KciItemType.OTHER && item.getOtherMaterial() == currentOtherMaterial
-            ).collect(Collectors.toList());
             for (int index = 0; index < currentItems.size(); index++) {
                 KciItem item = currentItems.get(index);
 
@@ -438,7 +746,6 @@ class ResourcepackItemOverrider {
                 jsonWriter.println("        { \"predicate\": { \"broken\": 0, \"damaged\": 0, \"damage\": "
                         + damage + " }, \"model\": \"" + claim.resourcePath + "\" },");
             }
-            // TODO Handle broken textures someday
 
             // The next ones are required to preserve the vanilla elytra models
             jsonWriter.println("        { \"predicate\": { \"broken\": 0, \"damaged\": 1, \"damage\": 0 }, \"model\": \"item/elytra\" },");

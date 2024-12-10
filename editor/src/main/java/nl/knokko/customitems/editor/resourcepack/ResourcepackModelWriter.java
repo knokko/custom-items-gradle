@@ -208,6 +208,7 @@ class ResourcepackModelWriter {
             new ArmorTrim("emerald", "0.7"),
             new ArmorTrim("diamond", "0.8"),
             new ArmorTrim("lapis", "0.9"),
-            new ArmorTrim("amethyst", "1.0")
+            new ArmorTrim("amethyst", "1.0"),
+            new ArmorTrim("resin", "1.1")
     };
 }
