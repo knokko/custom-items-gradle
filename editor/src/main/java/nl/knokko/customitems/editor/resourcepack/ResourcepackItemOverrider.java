@@ -77,6 +77,8 @@ class ResourcepackItemOverrider {
                                     new PrintWriter(zipOutput), "item/" + textureName,
                                     itemType.isLeatherArmor(), damageAssignments
                             );
+                        } else if (itemType == KciItemType.TRIDENT) {
+                            overrideModernTrident(new PrintWriter(zipOutput), damageAssignments);
                         } else {
                             overrideModernItem(new PrintWriter(zipOutput), modelName, null, damageAssignments);
                         }
@@ -170,6 +172,15 @@ class ResourcepackItemOverrider {
         }
 
         overrideModernItemTemplate(output, createArmorEntry(vanillaTexturePath, -1, isLeather), entries);
+    }
+
+    private void overrideModernTrident(PrintWriter output, ItemDurabilityAssignments dataAssignments) throws IOException {
+        List<JsonObject> entries = new ArrayList<>(dataAssignments.claimList.size());
+        for (ItemDurabilityClaim claim : dataAssignments.claimList) {
+            entries.add(createTridentEntry(claim.resourcePath, claim.itemDamage));
+        }
+
+        overrideModernItemTemplate(output, createTridentEntry("item/trident", -1), entries);
     }
 
     private JsonObject createBowEntry(String texturePrefix, List<BowTextureEntry> pulls, int threshold) {
@@ -308,6 +319,43 @@ class ResourcepackItemOverrider {
         return root;
     }
 
+    private JsonObject createTridentEntry(String texturePrefix, int threshold) {
+        JsonObject root = new JsonObject();
+        JsonObject outerModel = new JsonObject();
+
+        outerModel.put("type", "select");
+        outerModel.put("property", "display_context");
+        JsonObject simpleCase = new JsonObject();
+        simpleCase.put("model", createModernLeaf(texturePrefix));
+        List<String> simpleWhen = new ArrayList<>(3);
+        simpleWhen.add("gui");
+        simpleWhen.add("ground");
+        simpleWhen.add("fixed");
+        simpleCase.put("when", simpleWhen);
+
+        List<JsonObject> simpleCases = new ArrayList<>(1);
+        simpleCases.add(simpleCase);
+        outerModel.put("cases", simpleCases);
+
+        JsonObject fallback = new JsonObject();
+        fallback.put("type", "condition");
+        fallback.put("property", "using_item");
+
+        if (threshold == -1) {
+            fallback.put("on_false", createVanillaTridentSpecial("item/trident_in_hand"));
+            fallback.put("on_true", createVanillaTridentSpecial("item/trident_throwing"));
+        } else {
+            fallback.put("on_false", createModernLeaf(texturePrefix + "_in_hand"));
+            fallback.put("on_true", createModernLeaf(texturePrefix + "_throwing"));
+        }
+
+        outerModel.put("fallback", fallback);
+        if (threshold == -1) return outerModel;
+        root.put("model", outerModel);
+        root.put("threshold", threshold);
+        return root;
+    }
+
     private JsonObject createArmorLeaf(String texture, boolean isLeather) {
         JsonObject leaf = createModernLeaf(texture);
         if (isLeather) {
@@ -329,6 +377,18 @@ class ResourcepackItemOverrider {
 
         JsonObject model = new JsonObject();
         model.put("type", "shield");
+        special.put("model", model);
+
+        return special;
+    }
+
+    private JsonObject createVanillaTridentSpecial(String texture) {
+        JsonObject special = new JsonObject();
+        special.put("type", "special");
+        special.put("base", texture);
+
+        JsonObject model = new JsonObject();
+        model.put("type", "trident");
         special.put("model", model);
 
         return special;

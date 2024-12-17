@@ -332,9 +332,11 @@ public class KciTrident extends KciTool {
 
     @Override
     public void validateExportVersion(int version) throws ValidationException, ProgrammingValidationException {
-        if (version > MCVersions.VERSION1_14) {
-            throw new ValidationException("No custom tridents in MC 1.15+. See github.com/knokko/custom-items-gradle/issues/7");
+        if (version < MCVersions.VERSION1_13) throw new ValidationException("No tridents before MC 1.13");
+        if (version > MCVersions.VERSION1_14 && version < MCVersions.VERSION1_21) {
+            throw new ValidationException("No custom tridents between MC 1.15 and 1.20. " +
+                    "See github.com/knokko/custom-items-gradle/issues/7"); // TODO Update issue
         }
-        super.validateExportVersion(version);
+        repairItem.validateExportVersion(version);
     }
 }

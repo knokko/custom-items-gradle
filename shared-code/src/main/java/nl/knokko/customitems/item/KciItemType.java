@@ -147,6 +147,7 @@ public enum KciItemType {
 	
 	@Override
 	public String toString() {
+		if (this == TRIDENT) return "Trident (1.13, 1.14, 1.21+)";
 		return NameHelper.getNiceEnumName(name(), firstVersion, lastVersion);
 	}
 
