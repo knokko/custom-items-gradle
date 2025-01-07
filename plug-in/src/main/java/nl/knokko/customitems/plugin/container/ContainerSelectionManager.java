@@ -111,10 +111,12 @@ public class ContainerSelectionManager {
     }
 
     public void openPocketContainerMenu(Player player, KciPocketContainer pocketContainer) {
+        PlayerData pd = PlayerData.get(player, playerData);
+        if (pd.openPocketContainer != null || pd.pocketContainerSelection) return;
+
         List<KciContainer> permittedContainers = getContainersToChooseFrom(
                 player, pocketContainer.getContainers()
         );
-        PlayerData pd = PlayerData.get(player, playerData);
         pd.pocketContainerSelection = !permittedContainers.isEmpty();
 
         if (permittedContainers.isEmpty()) {

@@ -625,7 +625,7 @@ public class ContainerEventHandler implements Listener {
 			if (customItem instanceof KciPocketContainer) {
 				KciPocketContainer pocketContainer = (KciPocketContainer) customItem;
 				Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(),
-						() ->pluginData().containerSelections.openPocketContainerMenu(event.getPlayer(), pocketContainer)
+						() -> pluginData().containerSelections.openPocketContainerMenu(event.getPlayer(), pocketContainer)
 				);
 
 				for (String armorType : new String[] { "HELMET", "CHESTPLATE", "LEGGINGS", "BOOTS"}) {
