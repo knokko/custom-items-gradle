@@ -50,6 +50,7 @@ public class AnimationImage extends ModelValues {
     }
 
     public BufferedImage copyImage() {
+        if (image == null) return null;
         BufferedImage copied = new BufferedImage(this.image.getWidth(), this.image.getHeight(), BufferedImage.TYPE_INT_ARGB);
         for (int x = 0; x < this.image.getWidth(); x++) {
             for (int y = 0; y < this.image.getHeight(); y++) {

@@ -40,7 +40,7 @@ public class SimpleBlockModel implements BlockModel {
     }
 
     @Override
-    public void save(BitOutput output) {
+    public void save(BitOutput output, ItemSet.Side targetSide) {
         output.addByte(MODEL_TYPE_SIMPLE);
         output.addByte((byte) 1);
 

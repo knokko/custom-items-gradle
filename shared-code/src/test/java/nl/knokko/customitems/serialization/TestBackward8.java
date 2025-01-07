@@ -19,6 +19,7 @@ import nl.knokko.customitems.item.enchantment.VEnchantmentType;
 import nl.knokko.customitems.item.enchantment.LeveledEnchantment;
 import nl.knokko.customitems.item.model.DefaultItemModel;
 import nl.knokko.customitems.item.model.LegacyCustomItemModel;
+import nl.knokko.customitems.itemset.ArmorTextureReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.recipe.OutputTable;
 import nl.knokko.customitems.recipe.KciShapedRecipe;
@@ -38,6 +39,7 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.Scanner;
 
+import static nl.knokko.customitems.serialization.TestBackward1.assertNoTexture;
 import static nl.knokko.customitems.serialization.TestBackward1.testExportSettings1;
 import static nl.knokko.customitems.serialization.TestBackward10.*;
 import static nl.knokko.customitems.serialization.TestBackward3.testTextures3;
@@ -50,22 +52,22 @@ public class TestBackward8 {
 
     @Test
     public void testBackwardCompatibility8() {
-        for (ItemSet oldSet : loadItemSet("backward8old", false)) {
+        for (ItemSet oldSet : loadItemSet("backward8old", false, true)) {
             testExportSettings1(oldSet);
-            testTextures3(oldSet, 3);
-            testArmorTexturesOld8(oldSet, 1);
+            testTextures3(oldSet, 3, true);
+            testArmorTexturesOld8(oldSet, 1, true);
             testItemsOld8(oldSet, 30);
             testRecipesOld8(oldSet, 4);
             testBlockDropsOld8(oldSet, 2);
             testMobDropsOld8(oldSet, 2);
-            testProjectileCoversOld6(oldSet, 2);
+            testProjectileCoversOld6(oldSet, 2, true);
             testProjectilesOld6(oldSet, 1);
             testFuelRegistriesOld8(oldSet, 1);
             testContainersOld8(oldSet, 2);
         }
 
-        for (ItemSet newSet : loadItemSet("backward8new", false)) {
-            testTexturesNew6(newSet, 1);
+        for (ItemSet newSet : loadItemSet("backward8new", false, true)) {
+            testTexturesNew6(newSet, 1, true);
             testItemsNew8(newSet, 2);
             testRecipesNew6(newSet, 1);
         }
@@ -101,7 +103,7 @@ public class TestBackward8 {
         if (set.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("quick_wand", item.getTexture().getName());
         } else {
-            assertNull(item.getTextureReference());
+            assertNoTexture(item.getTextureReference());
         }
         assertTrue(item.getModel() instanceof DefaultItemModel);
         assertEquals(0, item.getOnHitPlayerEffects().size());
@@ -248,8 +250,8 @@ public class TestBackward8 {
         return KciShapedRecipe.createQuick(ingredients, CopiedResult.createQuick(copiedFromServerString()), false);
     }
 
-    static void testArmorTexturesOld8(ItemSet set, int numArmorTextures) {
-        if (set.getSide() == ItemSet.Side.PLUGIN) {
+    static void testArmorTexturesOld8(ItemSet set, int numArmorTextures, boolean skipPlugin) {
+        if (set.getSide() == ItemSet.Side.PLUGIN && skipPlugin) {
             assertEquals(0, set.armorTextures.size());
             return;
         }
@@ -258,8 +260,10 @@ public class TestBackward8 {
 
         ArmorTexture armorTexture1 = set.armorTextures.get("armor_texture1").get();
         assertEquals("armor_texture1", armorTexture1.getName());
-        assertImageEqual(loadImage("armor1layer1"), armorTexture1.getLayer1());
-        assertImageEqual(loadImage("armor1layer2"), armorTexture1.getLayer2());
+        if (set.getSide() == ItemSet.Side.EDITOR) {
+            assertImageEqual(loadImage("armor1layer1"), armorTexture1.getLayer1());
+            assertImageEqual(loadImage("armor1layer2"), armorTexture1.getLayer2());
+        }
     }
 
     static void testItemsOld8(ItemSet set, int numItems) {
@@ -294,7 +298,7 @@ public class TestBackward8 {
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
         } else {
-            assertNull(item.getTextureReference());
+            assertNoTexture(item.getTextureReference());
         }
         assertTrue(item.getModel() instanceof DefaultItemModel);
         assertEquals(0, item.getOnHitPlayerEffects().size());
@@ -337,9 +341,9 @@ public class TestBackward8 {
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
         } else {
-            assertNull(item.getTextureReference());
+            assertNoTexture(item.getTextureReference());
         }
-        assertTrue(item.getModel() instanceof DefaultItemModel);
+        assertNoModel(item.getModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
         assertEquals(new ItemCommandSystem(false), item.getCommandSystem());
@@ -375,9 +379,9 @@ public class TestBackward8 {
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
         } else {
-            assertNull(item.getTextureReference());
+            assertNoTexture(item.getTextureReference());
         }
-        assertTrue(item.getModel() instanceof DefaultItemModel);
+        assertNoModel(item.getModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
         assertEquals(new ItemCommandSystem(false), item.getCommandSystem());
@@ -418,9 +422,9 @@ public class TestBackward8 {
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
         } else {
-            assertNull(item.getTextureReference());
+            assertNoTexture(item.getTextureReference());
         }
-        assertTrue(item.getModel() instanceof DefaultItemModel);
+        assertNoModel(item.getModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
         assertEquals(new ItemCommandSystem(false), item.getCommandSystem());
@@ -462,9 +466,9 @@ public class TestBackward8 {
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
         } else {
-            assertNull(item.getTextureReference());
+            assertNoTexture(item.getTextureReference());
         }
-        assertTrue(item.getModel() instanceof DefaultItemModel);
+        assertNoModel(item.getModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
         assertEquals(new ItemCommandSystem(true), item.getCommandSystem());
@@ -519,8 +523,8 @@ public class TestBackward8 {
             assertEquals("gun1", item.getTexture().getName());
             assertStringResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", ((LegacyCustomItemModel) item.getModel()).getRawModel());
         } else {
-            assertNull(item.getTextureReference());
-            assertNull(item.getModel());
+            assertNoTexture(item.getTextureReference());
+            assertNoModel(item.getModel());
         }
         assertEquals(listOf(
                 ChancePotionEffect.createQuick(VEffectType.INVISIBILITY, 30, 1, Chance.percentage(100))
@@ -575,7 +579,7 @@ public class TestBackward8 {
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("bow_one", item.getTexture().getName());
         } else {
-            assertNull(item.getTextureReference());
+            assertNoTexture(item.getTextureReference());
         }
         assertNull(item.getModel());
         assertEquals(listOf(
@@ -627,9 +631,9 @@ public class TestBackward8 {
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
         } else {
-            assertNull(item.getTextureReference());
+            assertNoTexture(item.getTextureReference());
         }
-        assertTrue(item.getModel() instanceof DefaultItemModel);
+        assertNoModel(item.getModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
         assertEquals(new ItemCommandSystem(false), item.getCommandSystem());
@@ -660,7 +664,14 @@ public class TestBackward8 {
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("armor_texture1", item.getArmorTexture().getName());
         } else {
-            assertNull(item.getArmorTextureReference());
+            assertNoArmorTexture(item.getArmorTextureReference());
+        }
+    }
+
+    static void assertNoArmorTexture(ArmorTextureReference armorTextureReference) {
+        if (armorTextureReference != null) {
+            assertNull(armorTextureReference.get().getLayer1());
+            assertNull(armorTextureReference.get().getLayer2());
         }
     }
 
@@ -678,9 +689,9 @@ public class TestBackward8 {
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
         } else {
-            assertNull(item.getTextureReference());
+            assertNoTexture(item.getTextureReference());
         }
-        assertTrue(item.getModel() instanceof DefaultItemModel);
+        assertNoModel(item.getModel());
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());
         assertEquals(new ItemCommandSystem(true), item.getCommandSystem());
@@ -704,7 +715,7 @@ public class TestBackward8 {
         assertEquals(0, item.getEntityHitDurabilityLoss());
         assertEquals(0, item.getBlockBreakDurabilityLoss());
         assertEquals(4.0, item.getThresholdDamage(), 0.0);
-        assertTrue(item.getBlockingModel() instanceof DefaultItemModel);
+        assertNoModel(item.getBlockingModel());
     }
 
     static void testBaseDefault8(KciItem item) {

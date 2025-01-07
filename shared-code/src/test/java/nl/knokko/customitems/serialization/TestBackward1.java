@@ -5,6 +5,7 @@ import nl.knokko.customitems.item.KciItemType;
 import nl.knokko.customitems.item.KciSimpleItem;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.customitems.itemset.TextureReference;
 import nl.knokko.customitems.recipe.KciShapedRecipe;
 import nl.knokko.customitems.recipe.KciShapelessRecipe;
 import nl.knokko.customitems.recipe.ingredient.*;
@@ -23,9 +24,9 @@ public class TestBackward1 {
 
     @Test
     public void testBackwardCompatibility1() {
-        for (ItemSet set1 : BackwardHelper.loadItemSet("backward1", false)) {
+        for (ItemSet set1 : BackwardHelper.loadItemSet("backward1", false, true)) {
             testExportSettings1(set1);
-            testTextures1(set1, 2);
+            testTextures1(set1, 2, true);
             testItems1(set1, 1);
             testRecipes1(set1, 2);
         }
@@ -37,8 +38,8 @@ public class TestBackward1 {
         assertEquals(VERSION1_12, ex.getMcVersion());
     }
 
-    static void testTextures1(ItemSet itemSet, int numTextures) {
-        if (itemSet.getSide() == ItemSet.Side.PLUGIN) {
+    static void testTextures1(ItemSet itemSet, int numTextures, boolean skipPlugin) {
+        if (itemSet.getSide() == ItemSet.Side.PLUGIN && skipPlugin) {
             assertEquals(0, itemSet.textures.size());
             return;
         }
@@ -60,8 +61,12 @@ public class TestBackward1 {
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals(itemSet.textures.getReference("test1"), simple1.getTextureReference());
         } else {
-            assertNull(simple1.getTextureReference());
+            assertNoTexture(simple1.getTextureReference());
         }
+    }
+
+    static void assertNoTexture(TextureReference textureReference) {
+        if (textureReference != null) assertNull(textureReference.get().getImage());
     }
 
     static void testRecipes1(ItemSet set, int numRecipes) {

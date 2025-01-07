@@ -27,7 +27,7 @@ public interface BlockModel {
 
     void write(ZipOutputStream zipOutput, String blockName) throws IOException;
 
-    void save(BitOutput output);
+    void save(BitOutput output, ItemSet.Side targetSide);
 
     void validate(ItemSet itemSet) throws ValidationException, ProgrammingValidationException;
 

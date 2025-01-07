@@ -4,6 +4,9 @@ import nl.knokko.customitems.block.KciBlock;
 import nl.knokko.customitems.block.drop.CustomBlockDrop;
 import nl.knokko.customitems.block.drop.RequiredItems;
 import nl.knokko.customitems.block.drop.SilkTouchRequirement;
+import nl.knokko.customitems.block.model.BlockModel;
+import nl.knokko.customitems.block.model.CustomBlockModel;
+import nl.knokko.customitems.block.model.SidedBlockModel;
 import nl.knokko.customitems.container.KciContainer;
 import nl.knokko.customitems.container.slot.StorageSlot;
 import nl.knokko.customitems.container.slot.display.SimpleVanillaDisplayItem;
@@ -16,7 +19,7 @@ import nl.knokko.customitems.item.command.ItemCommandSystem;
 import nl.knokko.customitems.item.enchantment.VEnchantmentType;
 import nl.knokko.customitems.item.enchantment.LeveledEnchantment;
 import nl.knokko.customitems.item.gun.IndirectGunAmmo;
-import nl.knokko.customitems.item.model.DefaultItemModel;
+import nl.knokko.customitems.item.model.GeyserCustomModel;
 import nl.knokko.customitems.item.model.LegacyCustomItemModel;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.projectile.KciProjectile;
@@ -41,6 +44,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import static nl.knokko.customitems.serialization.TestBackward1.assertNoTexture;
 import static nl.knokko.customitems.serialization.TestBackward1.testExportSettings1;
 import static nl.knokko.customitems.serialization.TestBackward10.*;
 import static nl.knokko.customitems.serialization.TestBackward3.testTextures3;
@@ -55,26 +59,26 @@ public class TestBackward9 {
     public void testBackwardCompatibility9() {
         // Due to a stupid oversight, I introduced an extra encoding between Editor 9.0 and Editor 9.12
         for (ItemSet[] oldPair : new ItemSet[][] {
-                loadItemSet("backward9old", false),
-                loadItemSet("backward9_12old", false)
+                loadItemSet("backward9old", false, true),
+                loadItemSet("backward9_12old", false, true)
         }) {
             for (ItemSet old9 : oldPair) {
                 testExportSettings1(old9);
-                testTextures3(old9, 3);
-                testArmorTexturesOld8(old9, 1);
+                testTextures3(old9, 3, true);
+                testArmorTexturesOld8(old9, 1, true);
                 testItemsOld9(old9, 33);
                 testRecipesOld9(old9, 5);
                 testBlockDropsOld8(old9, 2);
                 testMobDropsOld8(old9, 2);
-                testProjectileCoversOld6(old9, 2);
+                testProjectileCoversOld6(old9, 2, true);
                 testProjectilesOld9(old9, 2);
                 testFuelRegistriesOld8(old9, 1);
                 testContainersOld9(old9, 3);
             }
         }
 
-        for (ItemSet new9 : loadItemSet("backward9new", false)) {
-            testTexturesNew9(new9, 2);
+        for (ItemSet new9 : loadItemSet("backward9new", false, true)) {
+            testTexturesNew9(new9, 2, true);
             testItemsNew9(new9, 4);
             testRecipesNew6(new9, 1);
             testBlocksNew9(new9, 1);
@@ -107,34 +111,57 @@ public class TestBackward9 {
         if (set.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("quick_wand", block1.getModel().getPrimaryTexture().get().getName());
         } else {
-            assertNull(block1.getModel());
+            assertNoBlockModel(block1.getModel());
         }
     }
 
-    static void testTexturesNew9(ItemSet set, int numTextures) {
-        if (set.getSide() == ItemSet.Side.PLUGIN) {
+    static void assertNoBlockModel(BlockModel model) {
+        if (model != null) assertNoTexture(model.getPrimaryTexture());
+        if (model instanceof SidedBlockModel) {
+            for (SidedBlockModel.TexturePair pair : ((SidedBlockModel) model).getTexturePairs()) {
+                assertNoTexture(pair.texture);
+            }
+        }
+        if (model instanceof CustomBlockModel) {
+            CustomBlockModel customModel = (CustomBlockModel) model;
+            assertNoModel(customModel.getItemModel());
+            assertNoGeyserModel(customModel.getGeyserModel());
+        }
+    }
+
+    static void assertNoGeyserModel(GeyserCustomModel model) {
+        if (model == null) return;
+        assertNull(model.modelFile);
+        assertNull(model.attachableFile);
+        assertNull(model.animationFile);
+    }
+
+    static void testTexturesNew9(ItemSet set, int numTextures, boolean skipPlugin) {
+        if (set.getSide() == ItemSet.Side.PLUGIN && skipPlugin) {
             assertEquals(0, set.textures.size());
             return;
         }
 
-        testTexturesNew6(set, numTextures);
+        testTexturesNew6(set, numTextures, skipPlugin);
 
         CrossbowTexture crossbowTextures = (CrossbowTexture) set.textures.get("crossbow_texture").get();
         assertEquals("crossbow_texture", crossbowTextures.getName());
-        assertImageEqual(loadImage("gun1"), crossbowTextures.getImage());
-        assertImageEqual(loadImage("test1"), crossbowTextures.getArrowImage());
-        assertImageEqual(loadImage("test1"), crossbowTextures.getFireworkImage());
+        if (set.getSide() == ItemSet.Side.EDITOR) {
+            assertImageEqual(loadImage("gun1"), crossbowTextures.getImage());
+            assertImageEqual(loadImage("test1"), crossbowTextures.getArrowImage());
+            assertImageEqual(loadImage("test1"), crossbowTextures.getFireworkImage());
+        }
 
         assertEquals(3, crossbowTextures.getPullTextures().size());
         BowTextureEntry pull1 = crossbowTextures.getPullTextures().get(0);
         assertEquals(0.0, pull1.getPull(), 0.0);
-        assertImageEqual(loadImage("gun1"), pull1.getImage());
+        if (set.getSide() == ItemSet.Side.EDITOR) assertImageEqual(loadImage("gun1"), pull1.getImage());
         BowTextureEntry pull2 = crossbowTextures.getPullTextures().get(1);
         assertEquals(0.5, pull2.getPull(), 0.0);
-        assertImageEqual(loadImage("gun1"), pull2.getImage());
+        if (set.getSide() == ItemSet.Side.EDITOR) assertImageEqual(loadImage("gun1"), pull2.getImage());
         BowTextureEntry pull3 = crossbowTextures.getPullTextures().get(2);
         assertEquals(0.75, pull3.getPull(), 0.0);
-        assertImageEqual(loadImage("test1"), pull3.getImage());
+        if (set.getSide() == ItemSet.Side.EDITOR) assertImageEqual(loadImage("test1"), pull3.getImage());
     }
 
     static void testItemsNew9(ItemSet set, int numItems) {
@@ -222,7 +249,7 @@ public class TestBackward9 {
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("crossbow_texture", item.getTexture().getName());
         } else {
-            assertNull(item.getTextureReference());
+            assertNoTexture(item.getTextureReference());
         }
         assertEquals(listOf(
                 ChancePotionEffect.createQuick(VEffectType.SPEED, 20, 1, Chance.percentage(100))
@@ -375,9 +402,9 @@ public class TestBackward9 {
         if (set.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
         } else {
-            assertNull(item.getTextureReference());
+            assertNoTexture(item.getTextureReference());
         }
-        assertTrue(item.getModel() instanceof DefaultItemModel);
+        TestBackward6.assertNoModel(item.getModel());
         assertEquals(listOf(
                 ChancePotionEffect.createQuick(VEffectType.SPEED, 10, 1, Chance.percentage(100))
         ), item.getOnHitPlayerEffects());
@@ -438,8 +465,8 @@ public class TestBackward9 {
             assertEquals("test1", item.getTexture().getName());
             assertStringResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", ((LegacyCustomItemModel) item.getModel()).getRawModel());
         } else {
-            assertNull(item.getTextureReference());
-            assertTrue(item.getModel() instanceof DefaultItemModel);
+            assertNoTexture(item.getTextureReference());
+            assertNoModel(item.getModel());
         }
         assertEquals(listOf(
                 ChancePotionEffect.createQuick(VEffectType.HEAL, 1, 1, Chance.percentage(100))
@@ -497,8 +524,8 @@ public class TestBackward9 {
             assertEquals("test1", item.getTexture().getName());
             assertStringResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", ((LegacyCustomItemModel) item.getModel()).getRawModel());
         } else {
-            assertNull(item.getTextureReference());
-            assertTrue(item.getModel() instanceof DefaultItemModel);
+            assertNoTexture(item.getTextureReference());
+            assertNoModel(item.getModel());
         }
         assertEquals(listOf(
                 ChancePotionEffect.createQuick(VEffectType.SATURATION, 100, 1, Chance.percentage(100))

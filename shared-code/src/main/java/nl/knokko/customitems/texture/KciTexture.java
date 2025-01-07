@@ -24,6 +24,9 @@ public class KciTexture extends ModelValues {
     public static final byte ENCODING_BOW_1 = 1;
     public static final byte ENCODING_CROSSBOW_1 = 2;
     public static final byte ENCODING_ANIMATED = 3;
+    public static final byte ENCODING_SIMPLE_2 = 4;
+    public static final byte ENCODING_BOW_2 = 5;
+    public static final byte ENCODING_CROSSBOW_2 = 6;
 
     public static boolean areImagesEqual(BufferedImage a, BufferedImage b) {
         if (a == null && b == null) return true;
@@ -56,13 +59,13 @@ public class KciTexture extends ModelValues {
     }
 
     public static KciTexture load(
-            BitInput input, boolean expectCompressed
+            BitInput input, boolean expectCompressed, ItemSet.Side targetSide
     ) throws UnknownEncodingException {
-        return load(input, input.readByte(), expectCompressed);
+        return load(input, input.readByte(), expectCompressed, targetSide);
     }
 
     public static KciTexture load(
-            BitInput input, byte encoding, boolean expectCompressed
+            BitInput input, byte encoding, boolean expectCompressed, ItemSet.Side side
     ) throws UnknownEncodingException {
         KciTexture result;
 
@@ -76,7 +79,16 @@ public class KciTexture extends ModelValues {
             result = new CrossbowTexture(false);
             ((CrossbowTexture) result).loadCrossbow1(input);
         } else if (encoding == ENCODING_ANIMATED) {
-            result = AnimatedTexture.load(input);
+            result = AnimatedTexture.load(input, side);
+        } else if (encoding == ENCODING_SIMPLE_2) {
+            result = new KciTexture(false);
+            result.loadBase2(input, side);
+        } else if (encoding == ENCODING_BOW_2) {
+            result = new BowTexture(false);
+            ((BowTexture) result).loadBow2(input, side);
+        } else if (encoding == ENCODING_CROSSBOW_2) {
+            result = new CrossbowTexture(false);
+            ((CrossbowTexture) result).loadCrossbow2(input, side);
         } else {
             throw new UnknownEncodingException("Texture", encoding);
         }
@@ -111,6 +123,13 @@ public class KciTexture extends ModelValues {
     protected void loadBase1(BitInput input, boolean expectCompressed) {
         name = input.readJavaString();
         this.image = loadImage(input, expectCompressed);
+    }
+
+    protected void loadBase2(BitInput input, ItemSet.Side side) throws UnknownEncodingException {
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("Base texture", encoding);
+        name = input.readJavaString();
+        if (side == ItemSet.Side.EDITOR) this.image = loadImage(input, true);
     }
 
     public static BufferedImage loadImage(BitInput input, boolean expectCompressed) {
@@ -155,14 +174,15 @@ public class KciTexture extends ModelValues {
         return new KciTexture(this, mutable);
     }
 
-    public void save(BitOutput output) {
-        output.addByte(ENCODING_SIMPLE_1);
-        saveBase1(output);
+    public void save(BitOutput output, ItemSet.Side targetSide) {
+        output.addByte(ENCODING_SIMPLE_2);
+        saveBase2(output, targetSide);
     }
 
-    protected void saveBase1(BitOutput output) {
+    protected void saveBase2(BitOutput output, ItemSet.Side targetSide) {
+        output.addByte((byte) 1);
         output.addJavaString(name);
-        saveImage(output, image);
+        if (targetSide == ItemSet.Side.EDITOR) saveImage(output, image);
     }
 
     public static void saveImage(BitOutput output, BufferedImage toSave) {

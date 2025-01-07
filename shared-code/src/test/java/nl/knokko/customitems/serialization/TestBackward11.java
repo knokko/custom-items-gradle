@@ -66,17 +66,17 @@ public class TestBackward11 {
 
     @Test
     public void testBackwardCompatibility11() {
-        ItemSet[] oldPair = loadItemSet("backward11old", false);
+        ItemSet[] oldPair = loadItemSet("backward11old", false, true);
         for (ItemSet old11 : oldPair) {
             testExportSettings1(old11);
-            testTexturesOld10(old11, 4);
-            testArmorTexturesOld8(old11, 1);
+            testTexturesOld10(old11, 4, true);
+            testArmorTexturesOld8(old11, 1, true);
             testItemsOld11(old11, 49);
             testEquipmentSetsOld11(old11, 1);
             testRecipesOld11(old11, 8);
             testBlockDropsOld10(old11, 3);
             testMobDropsOld10(old11, 3);
-            testProjectileCoversOld6(old11, 2);
+            testProjectileCoversOld6(old11, 2, true);
             testProjectilesOld11(old11, 3);
             testFuelRegistriesOld8(old11, 1);
             testContainersOld11(old11, 5);
@@ -84,9 +84,9 @@ public class TestBackward11 {
             testSoundsOld11(old11, 1);
         }
 
-        ItemSet[] newPair = loadItemSet("backward11new", false);
+        ItemSet[] newPair = loadItemSet("backward11new", false, true);
         for (ItemSet newSet : newPair) {
-            testTexturesNew9(newSet, 2);
+            testTexturesNew9(newSet, 2, true);
             testItemsNew11(newSet, 8);
             testRecipesNew10(newSet, 2);
             testContainersNew10(newSet, 1);

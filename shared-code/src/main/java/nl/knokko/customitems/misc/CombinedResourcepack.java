@@ -16,16 +16,19 @@ import java.util.zip.ZipInputStream;
 
 public class CombinedResourcepack extends ModelValues {
 
-    public static CombinedResourcepack load(BitInput input) throws UnknownEncodingException {
+    public static CombinedResourcepack load(BitInput input, ItemSet.Side side) throws UnknownEncodingException {
         byte encoding = input.readByte();
-        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("CombinedResourcepack", encoding);
+        if (encoding < 1 || encoding > 3) throw new UnknownEncodingException("CombinedResourcepack", encoding);
 
         CombinedResourcepack combinedPack = new CombinedResourcepack(false);
         combinedPack.name = input.readString();
         combinedPack.priority = input.readInt();
         if (encoding > 1) combinedPack.isGeyser = input.readBoolean();
         else combinedPack.isGeyser = false;
-        combinedPack.content = input.readByteArray();
+
+        if (encoding < 3 || side == ItemSet.Side.EDITOR) {
+            combinedPack.content = input.readByteArray();
+        } else combinedPack.content = null;
         return combinedPack;
     }
 
@@ -50,12 +53,12 @@ public class CombinedResourcepack extends ModelValues {
         this.content = toCopy.getContent();
     }
 
-    public void save(BitOutput output) {
-        output.addByte((byte) 2);
+    public void save(BitOutput output, ItemSet.Side targetSide) {
+        output.addByte((byte) 3);
         output.addString(name);
         output.addInt(priority);
         output.addBoolean(isGeyser);
-        output.addByteArray(content);
+        if (targetSide == ItemSet.Side.EDITOR) output.addByteArray(content);
     }
 
     @Override

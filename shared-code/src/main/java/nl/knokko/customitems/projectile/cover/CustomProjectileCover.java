@@ -52,15 +52,15 @@ public class CustomProjectileCover extends ProjectileCover {
         if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("CustomProjectileCover", encoding);
         if (encoding == 1) loadSharedProperties1(input);
         else loadSharedPropertiesNew(input, itemSet);
-        this.model = ItemModel.load(input);
+        this.model = ItemModel.load(input, itemSet.getSide());
     }
 
     @Override
-    protected void save(BitOutput output) {
+    public void save(BitOutput output, ItemSet.Side targetSide) {
         output.addByte(ENCODING_CUSTOM2);
         output.addByte((byte) 2);
         saveSharedPropertiesNew(output);
-        this.model.save(output);
+        this.model.save(output, targetSide);
     }
 
     protected boolean areCustomPropertiesEqual(CustomProjectileCover other) {

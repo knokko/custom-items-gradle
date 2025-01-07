@@ -97,6 +97,7 @@ public class ItemSet {
     Collection<StringBasedReference<?>> stringReferences;
     Collection<UUIDBasedReference<?>> uuidReferences;
     boolean finishedLoading;
+    byte loadEncoding;
     // <---- END OF INTERNAL USE ---->
 
     private long exportTime;
@@ -296,7 +297,7 @@ public class ItemSet {
     }
 
     public void save(BitOutput output, Side targetSide) {
-        output.addByte(SetEncoding.ENCODING_12);
+        output.addByte(SetEncoding.ENCODING_13);
 
         ByteArrayBitOutput checkedOutput = new ByteArrayBitOutput();
         saveContent(checkedOutput, targetSide);
@@ -310,17 +311,13 @@ public class ItemSet {
     private void saveContent(BitOutput output, Side targetSide) {
         ExecutorService threadPool = Executors.newFixedThreadPool(20);
 
+        output.addLong(System.currentTimeMillis());
         exportSettings.save(output);
 
-        if (targetSide == Side.EDITOR) {
-            combinedResourcepacks.save(output, threadPool, targetSide);
-            textures.save(output, threadPool, targetSide);
-            armorTextures.save(output, threadPool, targetSide);
-        } else {
-            output.addLong(System.currentTimeMillis());
-        }
-
+        textures.save(output, threadPool, targetSide);
+        armorTextures.save(output, threadPool, targetSide);
         fancyPants.save(output, threadPool, targetSide);
+        combinedResourcepacks.save(output, threadPool, targetSide);
         projectileCovers.save(output, threadPool, targetSide);
         projectiles.save(output, threadPool, targetSide);
         items.save(output, threadPool, targetSide);
@@ -353,6 +350,7 @@ public class ItemSet {
         this.uuidReferences = new ArrayList<>();
 
         byte encoding = input.readByte();
+        this.loadEncoding = encoding;
         if (!allowOutdated && encoding < SetEncoding.ENCODING_11) throw new OutdatedItemSetException();
         if (encoding == SetEncoding.ENCODING_1) {
             load1(input);
@@ -378,10 +376,13 @@ public class ItemSet {
             load11(input);
         } else if (encoding == SetEncoding.ENCODING_12) {
             load12(input);
+        } else if (encoding == SetEncoding.ENCODING_13) {
+            load13(input);
         } else {
             throw new UnknownEncodingException("ItemSet", encoding);
         }
         finishedLoading = true;
+        this.loadEncoding = -1;
 
         // Ensure that all references find their model (this must happen before the user can rename models)
         for (IntBasedReference<?> intReference : intReferences) intReference.get();
@@ -420,14 +421,14 @@ public class ItemSet {
 
     private void load1(BitInput input) throws UnknownEncodingException {
         exportTime = generateFakeExportTime();
-        textures.load(input, false, false);
+        if (side == Side.EDITOR) textures.load(input, false, false);
         items.loadWithoutModel(input);
         craftingRecipes.load(input);
     }
 
     private void load2(BitInput input) throws UnknownEncodingException {
         exportTime = generateFakeExportTime();
-        textures.load(input, true, false);
+        if (side == Side.EDITOR) textures.load(input, true, false);
         items.loadWithoutModel(input);
         craftingRecipes.load(input);
     }
@@ -440,7 +441,7 @@ public class ItemSet {
 
     private void load4(BitInput input) throws UnknownEncodingException {
         exportTime = generateFakeExportTime();
-        textures.load(input, true, false);
+        if (side == Side.EDITOR) textures.load(input, true, false);
         items.load(input);
         craftingRecipes.load(input);
         blockDrops.load(input);
@@ -449,7 +450,7 @@ public class ItemSet {
 
     private void load5(BitInput input) throws UnknownEncodingException {
         exportTime = generateFakeExportTime();
-        textures.load(input, true, false);
+        if (side == Side.EDITOR) textures.load(input, true, false);
         projectileCovers.load(input);
         projectiles.load(input);
         items.load(input);
@@ -503,8 +504,10 @@ public class ItemSet {
     private void load8(BitInput rawInput) throws IntegrityException, UnknownEncodingException {
         loadWithIntegrityCheck(rawInput, (input, hash) -> {
             loadExportTime(input);
-            textures.load(input, true, true);
-            armorTextures.load(input);
+            if (side == Side.EDITOR) {
+                textures.load(input, true, true);
+                armorTextures.load(input);
+            }
             projectileCovers.load(input);
             projectiles.load(input);
             items.load(input);
@@ -520,8 +523,10 @@ public class ItemSet {
     private void load9(BitInput rawInput) throws IntegrityException, UnknownEncodingException {
         loadWithIntegrityCheck(rawInput, (input, hash) -> {
             loadExportTime(input);
-            textures.load(input, true, true);
-            armorTextures.load(input);
+            if (side == Side.EDITOR) {
+                textures.load(input, true, true);
+                armorTextures.load(input);
+            }
             projectileCovers.load(input);
             projectiles.load(input);
             items.load(input);
@@ -538,8 +543,10 @@ public class ItemSet {
     private void load10(BitInput rawInput) throws IntegrityException, UnknownEncodingException {
         loadWithIntegrityCheck(rawInput, (input, hash) -> {
             loadExportTime(input);
-            textures.load(input, true, true);
-            armorTextures.load(input);
+            if (side == Side.EDITOR) {
+                textures.load(input, true, true);
+                armorTextures.load(input);
+            }
             projectileCovers.load(input);
             projectiles.load(input);
             items.load(input);
@@ -561,9 +568,11 @@ public class ItemSet {
     private void loadContent11(BitInput input) throws UnknownEncodingException {
         this.exportSettings = ExportSettings.load(input);
         loadExportTime(input);
-        combinedResourcepacks.load(input);
-        textures.load(input, true, true);
-        armorTextures.load(input);
+        if (side == Side.EDITOR) {
+            combinedResourcepacks.load(input);
+            textures.load(input, true, true);
+            armorTextures.load(input);
+        }
         fancyPants.load(input);
         projectileCovers.load(input);
         projectiles.load(input);
@@ -600,6 +609,40 @@ public class ItemSet {
     private void load12(BitInput rawInput) throws IntegrityException, UnknownEncodingException {
         loadWithIntegrityCheck(rawInput, (input, hash) -> {
             loadContent12(input);
+        });
+    }
+
+    private void loadContent13(BitInput input) throws UnknownEncodingException {
+        exportTime = input.readLong();
+        exportSettings = ExportSettings.load(input);
+        textures.load(input, true, true);
+        armorTextures.load(input);
+        fancyPants.load(input);
+        combinedResourcepacks.load(input);
+        projectileCovers.load(input);
+        projectiles.load(input);
+        items.load(input);
+        equipmentSets.load(input);
+        damageSources.load(input);
+        blocks.load(input);
+        oreGenerators.load(input);
+        treeGenerators.load(input);
+        craftingRecipes.load(input);
+        upgrades.load(input);
+        blockDrops.load(input);
+        mobDrops.load(input);
+        fuelRegistries.load(input);
+        energyTypes.load(input);
+        soundTypes.load(input);
+        containers.load(input);
+        loadDeletedItemNames(input);
+        cookingRecipes.load(input);
+        smithingRecipes.load(input);
+    }
+
+    private void load13(BitInput rawInput) throws IntegrityException, UnknownEncodingException {
+        loadWithIntegrityCheck(rawInput, (input, hash) -> {
+            loadContent13(input);
         });
     }
 

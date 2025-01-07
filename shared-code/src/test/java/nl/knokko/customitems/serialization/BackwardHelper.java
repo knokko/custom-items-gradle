@@ -1,6 +1,12 @@
 package nl.knokko.customitems.serialization;
 
+import nl.knokko.customitems.block.KciBlock;
+import nl.knokko.customitems.item.KciItem;
+import nl.knokko.customitems.item.model.DefaultItemModel;
 import nl.knokko.customitems.itemset.ItemSet;
+import nl.knokko.customitems.misc.CombinedResourcepack;
+import nl.knokko.customitems.texture.ArmorTexture;
+import nl.knokko.customitems.texture.FancyPantsTexture;
 import nl.knokko.customitems.texture.KciTexture;
 import nl.knokko.customitems.bithelper.BitInputStream;
 import nl.knokko.customitems.util.StringEncoder;
@@ -13,21 +19,20 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BackwardHelper {
 
     public static final float DELTA = 0.0001f;
 
-    public static ItemSet[] loadItemSet(String name, boolean useTexty) {
+    public static ItemSet[] loadItemSet(String name, boolean useTexty, boolean skipPluginTextures) {
         return new ItemSet[] {
-                loadItemSet(name, ItemSet.Side.EDITOR, useTexty),
-                loadItemSet(name, ItemSet.Side.PLUGIN, useTexty)
+                loadItemSet(name, ItemSet.Side.EDITOR, useTexty, skipPluginTextures),
+                loadItemSet(name, ItemSet.Side.PLUGIN, useTexty, skipPluginTextures)
         };
     }
 
-    public static ItemSet loadItemSet(String name, ItemSet.Side side, boolean useTexty) {
+    public static ItemSet loadItemSet(String name, ItemSet.Side side, boolean useTexty, boolean skipPluginTextures) {
         String extension = side == ItemSet.Side.EDITOR ? ".cisb" : (useTexty ? ".cis.txt" : ".cis");
         String resourceName = "nl/knokko/customitems/serialization/" + name + extension;
         InputStream rawInput = BackwardHelper.class.getClassLoader().getResourceAsStream(resourceName);
@@ -62,12 +67,42 @@ public class BackwardHelper {
         try {
             result = new ItemSet(bitInput, side, true);
             if (side == ItemSet.Side.EDITOR) {
-                SaveEqualityHelper.testSaveEquality(result);
+                SaveEqualityHelper.testSaveEquality(result, skipPluginTextures);
             }
         } catch (Exception e) {
             throw new RuntimeException("Let the test fail", e);
         }
         bitInput.terminate();
+
+        if (side == ItemSet.Side.EDITOR) {
+            for (KciTexture texture : result.textures) assertNotNull(texture.getImage());
+            for (ArmorTexture armorTexture : result.armorTextures) assertNotNull(armorTexture.getLayer1());
+            for (FancyPantsTexture texture : result.fancyPants) assertNotNull(texture.getFrames().get(0).getLayer1());
+            for (CombinedResourcepack pack : result.combinedResourcepacks) assertNotNull(pack.getContent());
+        } else {
+            for (FancyPantsTexture texture : result.fancyPants) assertEquals(0, texture.getFrames().size());
+            if (skipPluginTextures) {
+                assertEquals(0, result.textures.size());
+                assertEquals(0, result.armorTextures.size());
+                assertEquals(0, result.combinedResourcepacks.size());
+            } else {
+                for (KciTexture texture : result.textures) assertNull(texture.getImage());
+                for (ArmorTexture armorTexture : result.armorTextures) assertNull(armorTexture.getLayer1());
+                for (CombinedResourcepack pack : result.combinedResourcepacks) assertNull(pack.getContent());
+            }
+        }
+
+        if (side == ItemSet.Side.EDITOR || !skipPluginTextures) {
+            for (KciItem item : result.items) assertNotNull(item.getTexture());
+            for (KciBlock block : result.blocks) assertNotNull(block.getModel());
+        } else {
+            for (KciItem item : result.items) {
+                assertNull(item.getTextureReference());
+                assertTrue(item.getModel() instanceof DefaultItemModel || item.getModel() == null);
+                assertNull(item.getGeyserModel());
+            }
+            for (KciBlock block : result.blocks) assertNull(block.getModel());
+        }
 
         return result;
     }
@@ -133,6 +168,7 @@ public class BackwardHelper {
 
     public static void checkTexture(ItemSet itemSet, String expectedName) {
         KciTexture texture = itemSet.textures.get(expectedName).get();
+        if (itemSet.getSide() == ItemSet.Side.PLUGIN) return;
         BufferedImage expectedImage = loadImage(texture.getName());
         BufferedImage actualImage = texture.getImage();
 

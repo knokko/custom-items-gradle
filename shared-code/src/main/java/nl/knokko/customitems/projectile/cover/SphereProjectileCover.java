@@ -72,7 +72,7 @@ public class SphereProjectileCover extends ProjectileCover {
     }
 
     @Override
-    protected void save(BitOutput output) {
+    public void save(BitOutput output, ItemSet.Side targetSide) {
         output.addByte(ENCODING_SPHERE2);
         output.addByte((byte) 1);
         saveSharedPropertiesNew(output);

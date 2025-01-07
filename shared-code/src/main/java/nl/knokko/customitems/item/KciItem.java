@@ -319,7 +319,7 @@ public abstract class KciItem extends ModelValues {
 
     protected void loadSharedPropertiesNew(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
         byte encoding = input.readByte();
-        if (encoding < 1 || encoding > 5) throw new UnknownEncodingException("CustomItemBaseNew", encoding);
+        if (encoding < 1 || encoding > 6) throw new UnknownEncodingException("CustomItemBaseNew", encoding);
 
         this.loadIdentityProperties10(input);
         if (this.itemType == KciItemType.OTHER) {
@@ -384,11 +384,11 @@ public abstract class KciItem extends ModelValues {
             this.furnaceBurnTime = 0;
         }
 
-        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR && encoding <= 5) {
             if (encoding >= 3) {
                 String textureName = input.readString();
                 this.texture = itemSet.textures.getReference(textureName);
-                this.model = ItemModel.load(input);
+                this.model = ItemModel.load(input, itemSet.getSide());
                 if (encoding >= 4) {
                     this.wikiVisibility = WikiVisibility.valueOf(input.readString());
                 } else {
@@ -399,13 +399,20 @@ public abstract class KciItem extends ModelValues {
             }
         }
 
-        if (itemSet.getSide() == ItemSet.Side.EDITOR && encoding >= 5 && input.readBoolean()) {
-            this.geyserModel = GeyserCustomModel.load(input);
+        if (itemSet.getSide() == ItemSet.Side.EDITOR && encoding == 5 && input.readBoolean()) {
+            this.geyserModel = GeyserCustomModel.load(input, itemSet.getSide());
         } else this.geyserModel = null;
+
+        if (encoding == 6) {
+            this.texture = itemSet.textures.getReference(input.readString());
+            this.model = ItemModel.load(input, itemSet.getSide());
+            this.wikiVisibility = WikiVisibility.valueOf(input.readString());
+            if (input.readBoolean()) this.geyserModel = GeyserCustomModel.load(input, itemSet.getSide());
+        }
     }
 
     protected void saveSharedPropertiesNew(BitOutput output, ItemSet.Side targetSide) {
-        output.addByte((byte) 5);
+        output.addByte((byte) 6);
 
         this.saveIdentityProperties10(output);
         if (this.itemType == KciItemType.OTHER) {
@@ -448,14 +455,12 @@ public abstract class KciItem extends ModelValues {
         CollectionHelper.save(translations, translationEntry -> translationEntry.save(output), output);
         output.addInt(furnaceBurnTime);
 
-        if (targetSide == ItemSet.Side.EDITOR) {
-            output.addString(texture.get().getName());
-            if (model != null) model.save(output);
-            else output.addByte(MODEL_TYPE_NONE);
-            output.addString(wikiVisibility.name());
-            output.addBoolean(geyserModel != null);
-            if (geyserModel != null) geyserModel.save(output);
-        }
+        output.addString(texture.get().getName());
+        if (model != null) model.save(output, targetSide);
+        else output.addByte(MODEL_TYPE_NONE);
+        output.addString(wikiVisibility.name());
+        output.addBoolean(geyserModel != null);
+        if (geyserModel != null) geyserModel.save(output, targetSide);
     }
 
     protected void loadIdentityProperties1(BitInput input) {

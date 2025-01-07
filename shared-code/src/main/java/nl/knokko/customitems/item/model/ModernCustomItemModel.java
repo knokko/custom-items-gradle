@@ -6,6 +6,7 @@ import com.github.cliftonlabs.json_simple.JsonObject;
 import com.github.cliftonlabs.json_simple.Jsoner;
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 
 import javax.imageio.ImageIO;
@@ -26,11 +27,12 @@ public class ModernCustomItemModel implements ItemModel {
         return "customitems/model/" + itemName + "/" + includedImageName;
     }
 
-    public static ModernCustomItemModel loadModernCustom(BitInput input) throws UnknownEncodingException {
+    public static ModernCustomItemModel loadModernCustom(BitInput input, ItemSet.Side side) throws UnknownEncodingException {
         byte encoding = input.readByte();
-        if (encoding != 1) throw new UnknownEncodingException("ModernCustomItemModel", encoding);
+        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("ModernCustomItemModel", encoding);
 
-        byte[] rawModel = input.readByteArray();
+        byte[] rawModel = null;
+        if (encoding == 1 || side == ItemSet.Side.EDITOR) rawModel = input.readByteArray();
 
         int numIncludedImages = input.readInt();
         Collection<IncludedImage> includedImages = new ArrayList<>(numIncludedImages);
@@ -41,7 +43,10 @@ public class ModernCustomItemModel implements ItemModel {
                 textureReferences.add(input.readString());
             }
             String name = input.readString();
-            BufferedImage image = loadImage(input, true);
+            BufferedImage image = null;
+            if (encoding == 1 || side == ItemSet.Side.EDITOR) {
+                image = loadImage(input, true);
+            }
             includedImages.add(new IncludedImage(textureReferences, name, image));
         }
 
@@ -107,11 +112,11 @@ public class ModernCustomItemModel implements ItemModel {
     }
 
     @Override
-    public void save(BitOutput output) {
+    public void save(BitOutput output, ItemSet.Side targetSide) {
         output.addByte(MODEL_TYPE_CUSTOM_MODERN);
-        output.addByte((byte) 1);
+        output.addByte((byte) 2);
 
-        output.addByteArray(rawModel);
+        if (targetSide == ItemSet.Side.EDITOR) output.addByteArray(rawModel);
 
         output.addInt(includedImages.size());
         for (IncludedImage image : includedImages) {
@@ -120,7 +125,7 @@ public class ModernCustomItemModel implements ItemModel {
                 output.addString(textureReference);
             }
             output.addString(image.name);
-            saveImage(output, image.image);
+            if (targetSide == ItemSet.Side.EDITOR) saveImage(output, image.image);
         }
     }
 

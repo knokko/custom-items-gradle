@@ -21,7 +21,7 @@ public class TextureManager extends ModelManager<KciTexture, TextureReference> {
 
     @Override
     protected void saveElement(KciTexture texture, BitOutput output, ItemSet.Side targetSide) {
-        texture.save(output);
+        texture.save(output, targetSide);
     }
 
     @Override
@@ -35,15 +35,13 @@ public class TextureManager extends ModelManager<KciTexture, TextureReference> {
     }
 
     public void load(BitInput input, boolean readEncoding, boolean expectCompressed) throws UnknownEncodingException {
-        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
-            int numTextures = input.readInt();
-            this.elements = new ArrayList<>(numTextures);
-            for (int counter = 0; counter < numTextures; counter++) {
-                if (readEncoding) {
-                    this.elements.add(new Model<>(KciTexture.load(input, expectCompressed)));
-                } else {
-                    this.elements.add(new Model<>(KciTexture.load(input, KciTexture.ENCODING_SIMPLE_1, expectCompressed)));
-                }
+        int numTextures = input.readInt();
+        this.elements = new ArrayList<>(numTextures);
+        for (int counter = 0; counter < numTextures; counter++) {
+            if (readEncoding) {
+                this.elements.add(new Model<>(KciTexture.load(input, expectCompressed, itemSet.getSide())));
+            } else {
+                this.elements.add(new Model<>(KciTexture.load(input, KciTexture.ENCODING_SIMPLE_1, expectCompressed, itemSet.getSide())));
             }
         }
     }

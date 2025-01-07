@@ -20,7 +20,7 @@ public class ArmorTextureManager extends ModelManager<ArmorTexture, ArmorTexture
 
     @Override
     protected void saveElement(ArmorTexture element, BitOutput output, ItemSet.Side targetSide) {
-        element.save(output);
+        element.save(output, targetSide);
     }
 
     @Override
@@ -29,13 +29,8 @@ public class ArmorTextureManager extends ModelManager<ArmorTexture, ArmorTexture
     }
 
     @Override
-    public void load(BitInput input) throws UnknownEncodingException {
-        if (itemSet.getSide() == ItemSet.Side.EDITOR) super.load(input);
-    }
-
-    @Override
     protected ArmorTexture loadElement(BitInput input) throws UnknownEncodingException {
-        return ArmorTexture.load(input);
+        return ArmorTexture.load(input, itemSet.getSide());
     }
 
     @Override

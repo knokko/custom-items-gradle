@@ -4,6 +4,7 @@ import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitInputStream;
 import nl.knokko.customitems.bithelper.ByteArrayBitInput;
 import nl.knokko.customitems.bithelper.ByteArrayBitOutput;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import org.junit.jupiter.api.Test;
 
@@ -18,10 +19,10 @@ public class TestGeyserCustomModel {
         );
 
         ByteArrayBitOutput output = new ByteArrayBitOutput();
-        original.save(output);
+        original.save(output, ItemSet.Side.EDITOR);
 
         ByteArrayBitInput input = new ByteArrayBitInput(output.getBytes());
-        GeyserCustomModel loaded = GeyserCustomModel.load(input);
+        GeyserCustomModel loaded = GeyserCustomModel.load(input, ItemSet.Side.EDITOR);
 
         testLoaded(loaded);
     }
@@ -29,7 +30,7 @@ public class TestGeyserCustomModel {
     @Test
     public void testBackwardCompatibility1() throws UnknownEncodingException {
         BitInput input = new BitInputStream(TestGeyserCustomModel.class.getResourceAsStream("geyser/backward1.bin"));
-        GeyserCustomModel loaded = GeyserCustomModel.load(input);
+        GeyserCustomModel loaded = GeyserCustomModel.load(input, ItemSet.Side.EDITOR);
         input.terminate();
 
         testLoaded(loaded);

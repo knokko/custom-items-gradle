@@ -33,6 +33,7 @@ public class ResourcepackGenerator {
 
             ResourcepackTextureWriter textureWriter = new ResourcepackTextureWriter(itemSet, zipOutput);
             textureWriter.writeBaseTextures();
+            textureWriter.writeArmorTextures();
             textureWriter.writeOptifineArmorTextures();
             textureWriter.writeOptifineElytraTextures();
             textureWriter.writeContainerOverlayTextures();

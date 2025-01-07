@@ -59,24 +59,24 @@ public class TestBackward10 {
 
     @Test
     public void testBackwardCompatibility10() {
-        ItemSet[] oldPair = loadItemSet("backward10old", false);
+        ItemSet[] oldPair = loadItemSet("backward10old", false, true);
         for (ItemSet old10 : oldPair) {
             testExportSettings1(old10);
-            testTexturesOld10(old10, 4);
-            testArmorTexturesOld8(old10, 1);
+            testTexturesOld10(old10, 4, true);
+            testArmorTexturesOld8(old10, 1, true);
             testItemsOld10(old10, 45);
             testRecipesOld10(old10, 7);
             testBlockDropsOld10(old10, 3);
             testMobDropsOld10(old10, 3);
-            testProjectileCoversOld6(old10, 2);
+            testProjectileCoversOld6(old10, 2, true);
             testProjectilesOld9(old10, 2);
             testFuelRegistriesOld8(old10, 1);
             testContainersOld10(old10, 4);
         }
 
-        ItemSet[] newPair = loadItemSet("backward10new", false);
+        ItemSet[] newPair = loadItemSet("backward10new", false, true);
         for (ItemSet newSet : newPair) {
-            testTexturesNew9(newSet, 2);
+            testTexturesNew9(newSet, 2, true);
             testItemsNew10(newSet, 7);
             testRecipesNew10(newSet, 2);
             testContainersNew10(newSet, 1);
@@ -84,19 +84,21 @@ public class TestBackward10 {
         }
     }
 
-    static void testTexturesOld10(ItemSet set, int numTextures) {
-        testTextures3(set, numTextures);
+    static void testTexturesOld10(ItemSet set, int numTextures, boolean skipPlugin) {
+        testTextures3(set, numTextures, skipPlugin);
 
-        if (set.getSide() == ItemSet.Side.PLUGIN) return;
+        if (set.getSide() == ItemSet.Side.PLUGIN && skipPlugin) return;
 
         AnimatedTexture animated = (AnimatedTexture) set.textures.get("animated_texture").get();
         assertEquals("animated_texture", animated.getName());
-        assertImageEqual(loadImage("random3"), animated.getImage());
+        if (set.getSide() == ItemSet.Side.EDITOR) assertImageEqual(loadImage("random3"), animated.getImage());
 
         Collection<AnimationImage> images = animated.getImageReferences();
         assertTrue(images.stream().anyMatch(candidateImage -> {
             if (candidateImage.getLabel().equals("autotest3")) {
-                assertImageEqual(loadImage("random3"), candidateImage.getImageReference());
+                if (set.getSide() == ItemSet.Side.EDITOR) {
+                    assertImageEqual(loadImage("random3"), candidateImage.getImageReference());
+                }
                 return true;
             } else {
                 return false;
@@ -104,7 +106,9 @@ public class TestBackward10 {
         }));
         assertTrue(images.stream().anyMatch(candidateImage -> {
             if (candidateImage.getLabel().equals("autotest5")) {
-                assertImageEqual(loadImage("random5"), candidateImage.getImageReference());
+                if (set.getSide() == ItemSet.Side.EDITOR) {
+                    assertImageEqual(loadImage("random5"), candidateImage.getImageReference());
+                }
                 return true;
             } else {
                 return false;

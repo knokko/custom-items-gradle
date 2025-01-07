@@ -2,6 +2,7 @@ package nl.knokko.customitems.texture.animated;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.Mutability;
 import nl.knokko.customitems.texture.KciTexture;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
@@ -13,18 +14,24 @@ import java.util.*;
 
 public class AnimatedTexture extends KciTexture {
 
-    public static AnimatedTexture load(BitInput input) throws UnknownEncodingException {
+    public static AnimatedTexture load(BitInput input, ItemSet.Side side) throws UnknownEncodingException {
         byte encoding = input.readByte();
-        if (encoding != 1) throw new UnknownEncodingException("AnimatedTexture", encoding);
+        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("AnimatedTexture", encoding);
 
         AnimatedTexture result = new AnimatedTexture(false);
         result.name = input.readString();
 
         int numImages = input.readInt();
         for (int counter = 0; counter < numImages; counter++) {
-            result.images.add(AnimationImage.createQuick(
-                    loadImage(input, true), input.readString()
-            ).copy(false));
+            if (encoding == 1 || side == ItemSet.Side.EDITOR) {
+                result.images.add(AnimationImage.createQuick(
+                        loadImage(input, true), input.readString()
+                ).copy(false));
+            } else {
+                AnimationImage image = new AnimationImage(true);
+                image.setLabel(input.readString());
+                result.images.add(image.copy(false));
+            }
         }
 
         result.image = result.images.get(0).copyImage();
@@ -70,14 +77,14 @@ public class AnimatedTexture extends KciTexture {
     }
 
     @Override
-    public void save(BitOutput output) {
+    public void save(BitOutput output, ItemSet.Side targetSide) {
         output.addByte(ENCODING_ANIMATED);
-        output.addByte((byte) 1);
+        output.addByte((byte) 2);
 
         output.addString(this.name);
         output.addInt(this.images.size());
         for (AnimationImage image : this.images) {
-            saveImage(output, image.getImageReference());
+            if (targetSide == ItemSet.Side.EDITOR) saveImage(output, image.getImageReference());
             output.addString(image.getLabel());
         }
 

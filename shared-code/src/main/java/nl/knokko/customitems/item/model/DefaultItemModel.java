@@ -2,6 +2,7 @@ package nl.knokko.customitems.item.model;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 
 import java.io.PrintWriter;
@@ -72,7 +73,7 @@ public class DefaultItemModel implements ItemModel {
     }
 
     @Override
-    public void save(BitOutput output) {
+    public void save(BitOutput output, ItemSet.Side targetSide) {
         output.addByte(MODEL_TYPE_DEFAULT);
         output.addByte((byte) 1);
 

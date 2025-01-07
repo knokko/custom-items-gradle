@@ -11,7 +11,6 @@ import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.texture.ArmorTexture;
 import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
-import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 public class ArmorTexturesCollectionEdit extends DedicatedCollectionEdit<ArmorTexture, ArmorTextureReference> {
 
@@ -31,12 +30,8 @@ public class ArmorTexturesCollectionEdit extends DedicatedCollectionEdit<ArmorTe
 					new ArmorTexturesEdit(this, set, null, new ArmorTexture(true))
 			);
 		}), 0.025f, 0.2f, 0.2f, 0.3f);
-		addComponent(new DynamicTextComponent("Note: only players with Optifine", 
-				EditProps.LABEL), 0f, 0.4f, 0.3f, 0.5f);
-		addComponent(new DynamicTextComponent("will see worn armor textures", 
-				EditProps.LABEL), 0f, 0.3f, 0.25f, 0.4f);
-		
-		HelpButtons.addHelpLink(this, "edit%20menu/textures/armor overview.html");
+
+		HelpButtons.addHelpLink(this, "edit menu/textures/armor overview.html");
 	}
 
 	@Override

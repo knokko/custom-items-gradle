@@ -67,7 +67,7 @@ abstract class StringBasedReference<V extends ModelValues> extends ModelReferenc
     Model<V> getModel() {
         if (model == null) {
             if (!itemSet.finishedLoading) {
-                throw new IllegalStateException("Attempted to load " + getDescription() + name + " before the item set finished loading");
+                throw new IllegalStateException("Attempted to load " + getDescription() + " " + name + " before the item set finished loading");
             }
 
             Optional<Model<V>> foundModel = CollectionHelper.find(getCollection(), item -> extractIdentity(item.getValues()), name);

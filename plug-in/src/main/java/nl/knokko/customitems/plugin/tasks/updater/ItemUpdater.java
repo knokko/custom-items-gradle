@@ -422,6 +422,7 @@ public class ItemUpdater {
 		upgradeItemFlags(meta, oldItem, newItem);
 		if (newItem instanceof KciArmor) {
 			CustomArmorWrapper.colorItemMeta((KciArmor) newItem, meta);
+			CustomArmorWrapper.setItemMetaArmor((KciArmor) newItem, meta);
 		}
 
 		meta.setUnbreakable(KciNms.mcVersion < VERSION1_14 || !wrap(newItem).showDurabilityBar());

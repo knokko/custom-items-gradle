@@ -12,7 +12,9 @@ import nl.knokko.customitems.item.command.ItemCommandSystem;
 import nl.knokko.customitems.item.enchantment.VEnchantmentType;
 import nl.knokko.customitems.item.enchantment.LeveledEnchantment;
 import nl.knokko.customitems.item.model.DefaultItemModel;
+import nl.knokko.customitems.item.model.ItemModel;
 import nl.knokko.customitems.item.model.LegacyCustomItemModel;
+import nl.knokko.customitems.item.model.ModernCustomItemModel;
 import nl.knokko.customitems.itemset.ItemReference;
 import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.particle.VParticle;
@@ -32,8 +34,7 @@ import nl.knokko.customitems.recipe.result.SimpleVanillaResult;
 import nl.knokko.customitems.util.Chance;
 import org.junit.jupiter.api.Test;
 
-import static nl.knokko.customitems.serialization.TestBackward1.testExportSettings1;
-import static nl.knokko.customitems.serialization.TestBackward1.testRecipes1;
+import static nl.knokko.customitems.serialization.TestBackward1.*;
 import static nl.knokko.customitems.serialization.TestBackward3.testTextures3;
 import static nl.knokko.customitems.serialization.TestBackward5.testItems5;
 import static nl.knokko.customitems.serialization.BackwardHelper.*;
@@ -43,33 +44,36 @@ public class TestBackward6 {
 
     @Test
     public void testBackwardCompatibility6() {
-        for (ItemSet oldSet : loadItemSet("backward6old", false)) {
+        for (ItemSet oldSet : loadItemSet("backward6old", false, true)) {
             testExportSettings1(oldSet);
-            testTextures3(oldSet, 3);
+            testTextures3(oldSet, 3, true);
             testItemsOld6(oldSet, 21);
             testRecipesOld6(oldSet, 3);
             testBlockDropsOld6(oldSet, 1, false);
             testMobDropsOld6(oldSet, 2);
-            testProjectileCoversOld6(oldSet, 2);
+            testProjectileCoversOld6(oldSet, 2, true);
             testProjectilesOld6(oldSet, 1);
         }
 
-        for (ItemSet newSet : loadItemSet("backward6new", false)) {
-            testTexturesNew6(newSet, 1);
+        for (ItemSet newSet : loadItemSet("backward6new", false, true)) {
+            testTexturesNew6(newSet, 1, true);
             testItemsNew6(newSet, 1);
             testRecipesNew6(newSet, 1);
         }
     }
 
-    static void testTexturesNew6(ItemSet set, int numTextures) {
-        if (set.getSide() == ItemSet.Side.PLUGIN) {
+    static void testTexturesNew6(ItemSet set, int numTextures, boolean skipPlugin) {
+        if (set.getSide() == ItemSet.Side.PLUGIN && skipPlugin) {
             assertEquals(0, set.textures.size());
             return;
         }
 
         assertEquals(numTextures, set.textures.size());
 
-        assertImageEqual(loadImage("quick_wand"), set.textures.get("quick_wand").get().getImage());
+        assertTrue(set.textures.get("quick_wand").isPresent());
+        if (set.getSide() == ItemSet.Side.EDITOR) {
+            assertImageEqual(loadImage("quick_wand"), set.textures.get("quick_wand").get().getImage());
+        }
     }
 
     static void testItemsNew6(ItemSet set, int numItems) {
@@ -101,9 +105,9 @@ public class TestBackward6 {
             assertStringResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", ((LegacyCustomItemModel) trident1.getModel()).getRawModel());
             assertStringResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", ((LegacyCustomItemModel) trident1.getInHandModel()).getRawModel());
         } else {
-            assertNull(trident1.getTextureReference());
-            assertTrue(trident1.getModel() instanceof DefaultItemModel);
-            assertTrue(trident1.getInHandModel() instanceof DefaultItemModel);
+            assertNoTexture(trident1.getTextureReference());
+            assertNoModel(trident1.getModel());
+            assertNoModel(trident1.getInHandModel());
         }
         assertEquals(0, trident1.getOnHitPlayerEffects().size());
         assertEquals(listOf(
@@ -227,13 +231,13 @@ public class TestBackward6 {
         assertTrue(set.mobDrops.stream().anyMatch(drop -> drop.equals(createAxeMobDrop(set))));
     }
 
-    static void testProjectileCoversOld6(ItemSet set, int numProjectileCovers) {
+    static void testProjectileCoversOld6(ItemSet set, int numProjectileCovers, boolean skipPlugin) {
         assertEquals(numProjectileCovers, set.projectileCovers.size());
 
         ProjectileCover cover1 = set.projectileCovers.get("sphere_one").get();
         assertEquals("sphere_one", cover1.getName());
         assertEquals(KciItemType.DIAMOND_SHOVEL, cover1.getItemType());
-        if (set.getSide() == ItemSet.Side.EDITOR) {
+        if (set.getSide() == ItemSet.Side.EDITOR || !skipPlugin) {
             SphereProjectileCover sphere1 = (SphereProjectileCover) cover1;
             assertEquals(13, sphere1.getSlotsPerAxis());
             assertEquals(0.65, sphere1.getScale(), 0.0);
@@ -244,9 +248,14 @@ public class TestBackward6 {
         assertEquals("custom_one", cover2.getName());
         assertEquals(KciItemType.DIAMOND_SHOVEL, cover2.getItemType());
 
-        if (set.getSide() == ItemSet.Side.EDITOR) {
+        if (set.getSide() == ItemSet.Side.EDITOR || !skipPlugin) {
             CustomProjectileCover custom1 = (CustomProjectileCover) set.projectileCovers.get("custom_one").get();
-            assertStringResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", ((LegacyCustomItemModel) custom1.getModel()).getRawModel());
+            if (set.getSide() == ItemSet.Side.EDITOR) {
+                assertStringResourceEquals(
+                        "nl/knokko/customitems/serialization/model/spear_diamond.json",
+                        ((LegacyCustomItemModel) custom1.getModel()).getRawModel()
+                );
+            }
         }
     }
 
@@ -318,9 +327,9 @@ public class TestBackward6 {
             assertStringResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", ((LegacyCustomItemModel) item.getModel()).getRawModel());
             assertStringResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", ((LegacyCustomItemModel) item.getBlockingModel()).getRawModel());
         } else {
-            assertNull(item.getTextureReference());
-            assertTrue(item.getModel() instanceof DefaultItemModel);
-            assertTrue(item.getBlockingModel() instanceof DefaultItemModel);
+            assertNoTexture(item.getTextureReference());
+            assertNoModel(item.getModel());
+            assertNoModel(item.getBlockingModel());
         }
         assertEquals(listOf(
                 ChancePotionEffect.createQuick(VEffectType.SPEED, 40, 1, Chance.percentage(100))
@@ -340,6 +349,17 @@ public class TestBackward6 {
         assertEquals(7.0, item.getThresholdDamage(), 0.0);
     }
 
+    static void assertNoModel(ItemModel model) {
+        if (model instanceof LegacyCustomItemModel) assertNull(((LegacyCustomItemModel) model).getRawModel());
+        if (model instanceof ModernCustomItemModel) {
+            ModernCustomItemModel modern = (ModernCustomItemModel) model;
+            assertNull(modern.getRawModel());
+            for (ModernCustomItemModel.IncludedImage image : modern.getIncludedImages()) {
+                assertNull(image.image);
+            }
+        }
+    }
+
     static void testWand1(KciWand item, ItemSet.Side side) {
         assertEquals("wand_one", item.getName());
         assertEquals(KciItemType.DIAMOND_HOE, item.getItemType());
@@ -356,8 +376,8 @@ public class TestBackward6 {
             assertEquals("test1", item.getTexture().getName());
             assertStringResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", ((LegacyCustomItemModel) item.getModel()).getRawModel());
         } else {
-            assertNull(item.getTextureReference());
-            assertTrue(item.getModel() instanceof DefaultItemModel);
+            assertNoTexture(item.getTextureReference());
+            assertNoModel(item.getModel());
         }
         assertEquals(listOf(
                 ChancePotionEffect.createQuick(VEffectType.REGENERATION, 100, 1, Chance.percentage(100))
@@ -375,7 +395,7 @@ public class TestBackward6 {
         if (item.getDefaultModelType() != null) {
             assertTrue(item.getModel() instanceof DefaultItemModel);
         } else {
-            assertNull(item.getModel());
+            assertNoModel(item.getModel());
         }
         assertEquals(0, item.getOnHitPlayerEffects().size());
         assertEquals(0, item.getOnHitTargetEffects().size());

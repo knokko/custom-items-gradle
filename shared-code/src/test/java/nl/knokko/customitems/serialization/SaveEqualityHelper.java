@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class SaveEqualityHelper {
 
     public static void testSaveEquality(
-            ItemSet originalSet
+            ItemSet originalSet, boolean skipPluginTextures
     ) throws UnknownEncodingException, IntegrityException, OutdatedItemSetException {
         for (ItemSet.Side side : ItemSet.Side.values()) {
             ByteArrayBitOutput bitOutput = new ByteArrayBitOutput();
@@ -41,20 +41,26 @@ public class SaveEqualityHelper {
 
             ItemSet testSet = new ItemSet(new ByteArrayBitInput(bitOutput.getBytes()), side, true);
             assertEquals(originalSet.getExportSettings(), testSet.getExportSettings());
-            if (side == ItemSet.Side.EDITOR) {
+            if (side == ItemSet.Side.EDITOR || !skipPluginTextures) {
                 assertEquals(originalSet.combinedResourcepacks.size(), testSet.combinedResourcepacks.size());
                 for (CombinedResourcepack originalPack : originalSet.combinedResourcepacks) {
-                    assertEquals(originalPack, testSet.combinedResourcepacks.get(originalPack.getName()).get());
+                    if (side == ItemSet.Side.EDITOR) {
+                        assertEquals(originalPack, testSet.combinedResourcepacks.get(originalPack.getName()).get());
+                    } else assertTrue(testSet.combinedResourcepacks.get(originalPack.getName()).isPresent());
                 }
 
                 assertEquals(originalSet.textures.size(), testSet.textures.size());
                 for (KciTexture originalTexture : originalSet.textures) {
-                    assertEquals(originalTexture, testSet.textures.get(originalTexture.getName()).get());
+                    if (side == ItemSet.Side.EDITOR) {
+                        assertEquals(originalTexture, testSet.textures.get(originalTexture.getName()).get());
+                    } else assertTrue(testSet.textures.get(originalTexture.getName()).isPresent());
                 }
 
                 assertEquals(originalSet.armorTextures.size(), testSet.armorTextures.size());
                 for (ArmorTexture originalArmorTexture : originalSet.armorTextures) {
-                    assertEquals(originalArmorTexture, testSet.armorTextures.get(originalArmorTexture.getName()).get());
+                    if (side == ItemSet.Side.EDITOR) {
+                        assertEquals(originalArmorTexture, testSet.armorTextures.get(originalArmorTexture.getName()).get());
+                    } else assertTrue(testSet.armorTextures.get(originalArmorTexture.getName()).isPresent());
                 }
             }
 

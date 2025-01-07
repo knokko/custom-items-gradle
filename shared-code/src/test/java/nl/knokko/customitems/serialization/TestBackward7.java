@@ -27,14 +27,14 @@ public class TestBackward7 {
 
     @Test
     public void testBackwardCompatibility7() {
-        for (ItemSet set7 : loadItemSet("backward7", false)) {
+        for (ItemSet set7 : loadItemSet("backward7", false, true)) {
             testExportSettings1(set7);
-            testTextures3(set7, 3);
+            testTextures3(set7, 3, true);
             testItemsOld6(set7, 21);
             testRecipesOld6(set7, 3);
             testBlockDropsOld6(set7, 1, false);
             testMobDropsOld6(set7, 2);
-            testProjectileCoversOld6(set7, 2);
+            testProjectileCoversOld6(set7, 2, true);
             testProjectilesOld6(set7, 1);
             testFuelRegistries7(set7, 1);
             testContainers7(set7, 1);

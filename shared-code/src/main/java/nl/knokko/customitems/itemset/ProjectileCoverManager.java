@@ -2,6 +2,7 @@ package nl.knokko.customitems.itemset;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
+import nl.knokko.customitems.encoding.SetEncoding;
 import nl.knokko.customitems.projectile.cover.ProjectileCover;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.CollectionHelper;
@@ -30,7 +31,7 @@ public class ProjectileCoverManager extends ModelManager<ProjectileCover, Projec
 
     @Override
     protected ProjectileCover loadElement(BitInput input) throws UnknownEncodingException {
-        return ProjectileCover.load(input, itemSet);
+        return ProjectileCover.load(input, itemSet, itemSet.loadEncoding < SetEncoding.ENCODING_13);
     }
 
     @Override

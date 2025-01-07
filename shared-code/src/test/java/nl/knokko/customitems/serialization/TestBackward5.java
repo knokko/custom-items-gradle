@@ -9,8 +9,7 @@ import nl.knokko.customitems.recipe.ingredient.NoIngredient;
 import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredient;
 import org.junit.jupiter.api.Test;
 
-import static nl.knokko.customitems.serialization.TestBackward1.testExportSettings1;
-import static nl.knokko.customitems.serialization.TestBackward1.testRecipes1;
+import static nl.knokko.customitems.serialization.TestBackward1.*;
 import static nl.knokko.customitems.serialization.TestBackward3.testTextures3;
 import static nl.knokko.customitems.serialization.TestBackward4.testItems4;
 import static nl.knokko.customitems.serialization.BackwardHelper.listOf;
@@ -21,9 +20,9 @@ public class TestBackward5 {
 
     @Test
     public void testBackwardCompatibility5() {
-        for (ItemSet set5 : loadItemSet("backward5", false)) {
+        for (ItemSet set5 : loadItemSet("backward5", false, true)) {
             testExportSettings1(set5);
-            testTextures3(set5, 3);
+            testTextures3(set5, 3, true);
             testItems5(set5, 19);
             testRecipes1(set5, 2);
         }
@@ -64,7 +63,7 @@ public class TestBackward5 {
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
         } else {
-            assertNull(item.getTextureReference());
+            assertNoTexture(item.getTextureReference());
         }
         assertTrue(item.allowEnchanting());
         assertTrue(item.allowAnvilActions());
@@ -97,7 +96,7 @@ public class TestBackward5 {
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
         } else {
-            assertNull(item.getTextureReference());
+            assertNoTexture(item.getTextureReference());
         }
     }
 
@@ -114,7 +113,7 @@ public class TestBackward5 {
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("bow_one", item.getTexture().getName());
         } else {
-            assertNull(item.getTextureReference());
+            assertNoTexture(item.getTextureReference());
         }
         assertTrue(item.allowEnchanting());
         assertTrue(item.allowAnvilActions());
@@ -151,7 +150,7 @@ public class TestBackward5 {
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
         } else {
-            assertNull(item.getTextureReference());
+            assertNoTexture(item.getTextureReference());
         }
         assertTrue(item.allowEnchanting());
         assertTrue(item.allowAnvilActions());

@@ -18,35 +18,35 @@ public class TestBackward3 {
 
     @Test
     public void testBackwardCompatibility3() {
-        for (ItemSet set3 : loadItemSet("backward3", false)) {
+        for (ItemSet set3 : loadItemSet("backward3", false, true)) {
             testExportSettings1(set3);
-            testTextures3(set3, 3);
+            testTextures3(set3, 3, true);
             testItems3(set3, 9);
             testRecipes1(set3, 2);
         }
     }
 
-    static void testTextures3(ItemSet set, int numTextures) {
-        testTextures1(set, numTextures);
+    static void testTextures3(ItemSet set, int numTextures, boolean skipPlugin) {
+        testTextures1(set, numTextures, skipPlugin);
 
-        if (set.getSide() == ItemSet.Side.PLUGIN) return;
+        if (set.getSide() == ItemSet.Side.PLUGIN && skipPlugin) return;
 
         BowTexture bow1 = (BowTexture) set.textures.get("bow_one").get();
         assertEquals("bow_one", bow1.getName());
-        assertImageEqual(loadImage("gun2"), bow1.getImage());
+        if (set.getSide() == ItemSet.Side.EDITOR) assertImageEqual(loadImage("gun2"), bow1.getImage());
         assertEquals(4, bow1.getPullTextures().size());
 
         assertEquals(0.0, bow1.getPullTextures().get(0).getPull(), 0.0);
-        assertImageEqual(loadImage("test2"), bow1.getPullTextures().get(0).getImage());
+        if (set.getSide() == ItemSet.Side.EDITOR) assertImageEqual(loadImage("test2"), bow1.getPullTextures().get(0).getImage());
 
         assertEquals(0.3, bow1.getPullTextures().get(1).getPull(), 0.0);
-        assertImageEqual(loadImage("gun1"), bow1.getPullTextures().get(1).getImage());
+        if (set.getSide() == ItemSet.Side.EDITOR) assertImageEqual(loadImage("gun1"), bow1.getPullTextures().get(1).getImage());
 
         assertEquals(0.7, bow1.getPullTextures().get(2).getPull(), 0.0);
-        assertImageEqual(loadImage("test3"), bow1.getPullTextures().get(2).getImage());
+        if (set.getSide() == ItemSet.Side.EDITOR) assertImageEqual(loadImage("test3"), bow1.getPullTextures().get(2).getImage());
 
         assertEquals(0.9, bow1.getPullTextures().get(3).getPull(), 0.0);
-        assertImageEqual(loadImage("test4"), bow1.getPullTextures().get(3).getImage());
+        if (set.getSide() == ItemSet.Side.EDITOR) assertImageEqual(loadImage("test4"), bow1.getPullTextures().get(3).getImage());
     }
 
     static void testItems3(ItemSet set, int numItems) {
@@ -73,7 +73,7 @@ public class TestBackward3 {
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
         } else {
-            assertNull(item.getTextureReference());
+            assertNoTexture(item.getTextureReference());
         }
         assertTrue(item.allowEnchanting());
         assertTrue(item.allowAnvilActions());
@@ -93,7 +93,7 @@ public class TestBackward3 {
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
         } else {
-            assertNull(item.getTextureReference());
+            assertNoTexture(item.getTextureReference());
         }
         assertFalse(item.allowEnchanting());
         assertFalse(item.allowAnvilActions());
@@ -113,7 +113,7 @@ public class TestBackward3 {
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("bow_one", item.getTexture().getName());
         } else {
-            assertNull(item.getTextureReference());
+            assertNoTexture(item.getTextureReference());
         }
         assertFalse(item.allowEnchanting());
         assertTrue(item.allowAnvilActions());

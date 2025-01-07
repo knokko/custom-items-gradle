@@ -105,11 +105,11 @@ public class KciBlock extends ModelValues {
     private void loadNew(
             BitInput input, ItemSet itemSet, byte encoding
     ) throws UnknownEncodingException {
-        if (encoding < 1 || encoding > 3) throw new UnknownEncodingException("CustomBlock", encoding);
+        if (encoding < 1 || encoding > 4) throw new UnknownEncodingException("CustomBlock", encoding);
 
         this.name = input.readString();
         this.loadDrops1(input, itemSet);
-        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR && encoding <= 3) {
             if (encoding == 1) this.model = new SimpleBlockModel(itemSet.textures.getReference(input.readString()));
             else this.model = BlockModel.load(input, itemSet);
         } else {
@@ -123,16 +123,17 @@ public class KciBlock extends ModelValues {
         }
         if (encoding >= 3) this.sounds = BlockSounds.load(input, itemSet);
         else this.sounds = new BlockSounds(false);
+        if (encoding >= 4) this.model = BlockModel.load(input, itemSet);
     }
 
     public void save(BitOutput output, ItemSet.Side targetSide) {
-        output.addByte((byte) 3);
+        output.addByte((byte) 4);
 
         output.addString(name);
         saveDrops1(output);
-        if (targetSide == ItemSet.Side.EDITOR) model.save(output);
         miningSpeed.save(output);
         sounds.save(output);
+        model.save(output, targetSide);
     }
 
     private void saveDrops1(BitOutput output) {

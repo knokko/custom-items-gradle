@@ -9,8 +9,7 @@ import nl.knokko.customitems.recipe.ingredient.NoIngredient;
 import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredient;
 import org.junit.jupiter.api.Test;
 
-import static nl.knokko.customitems.serialization.TestBackward1.testExportSettings1;
-import static nl.knokko.customitems.serialization.TestBackward1.testRecipes1;
+import static nl.knokko.customitems.serialization.TestBackward1.*;
 import static nl.knokko.customitems.serialization.TestBackward3.testItems3;
 import static nl.knokko.customitems.serialization.TestBackward3.testTextures3;
 import static nl.knokko.customitems.serialization.BackwardHelper.listOf;
@@ -21,9 +20,9 @@ public class TestBackward4 {
 
     @Test
     public void testBackwardCompatibility4() {
-        for (ItemSet set4 : loadItemSet("backward4", false)) {
+        for (ItemSet set4 : loadItemSet("backward4", false, true)) {
             testExportSettings1(set4);
-            testTextures3(set4, 3);
+            testTextures3(set4, 3, true);
             testItems4(set4, 14);
             testRecipes1(set4, 2);
         }
@@ -53,7 +52,7 @@ public class TestBackward4 {
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
         } else {
-            assertNull(item.getTextureReference());
+            assertNoTexture(item.getTextureReference());
         }
         assertEquals(3, item.getMaxStacksize());
     }
@@ -70,7 +69,7 @@ public class TestBackward4 {
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("gun1", helmet.getTexture().getName());
         } else {
-            assertNull(helmet.getTextureReference());
+            assertNoTexture(helmet.getTextureReference());
         }
         assertFalse(helmet.allowEnchanting());
         assertFalse(helmet.allowAnvilActions());
@@ -95,7 +94,7 @@ public class TestBackward4 {
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("test1", chestplate.getTexture().getName());
         } else {
-            assertNull(chestplate.getTextureReference());
+            assertNoTexture(chestplate.getTextureReference());
         }
         assertTrue(chestplate.allowEnchanting());
         assertFalse(chestplate.allowAnvilActions());
@@ -115,7 +114,7 @@ public class TestBackward4 {
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("test1", leggings.getTexture().getName());
         } else {
-            assertNull(leggings.getTextureReference());
+            assertNoTexture(leggings.getTextureReference());
         }
         assertFalse(leggings.allowEnchanting());
         assertTrue(leggings.allowAnvilActions());
@@ -145,7 +144,7 @@ public class TestBackward4 {
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("test1", boots.getTexture().getName());
         } else {
-            assertNull(boots.getTextureReference());
+            assertNoTexture(boots.getTextureReference());
         }
         assertTrue(boots.allowEnchanting());
         assertTrue(boots.allowAnvilActions());

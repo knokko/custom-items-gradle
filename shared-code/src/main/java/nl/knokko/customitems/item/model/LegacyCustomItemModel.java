@@ -2,6 +2,7 @@ package nl.knokko.customitems.item.model;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 
 import java.io.IOException;
@@ -10,12 +11,13 @@ import java.util.zip.ZipOutputStream;
 
 public class LegacyCustomItemModel implements ItemModel {
 
-    public static LegacyCustomItemModel loadLegacyCustom(BitInput input) throws UnknownEncodingException {
+    public static LegacyCustomItemModel loadLegacyCustom(BitInput input, ItemSet.Side side) throws UnknownEncodingException {
         byte encoding = input.readByte();
-        if (encoding != 1) throw new UnknownEncodingException("LegacyCustomItemModel", encoding);
+        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("LegacyCustomItemModel", encoding);
 
-        byte[] rawModel = input.readByteArray();
-        return new LegacyCustomItemModel(rawModel);
+        if (encoding == 1 || side == ItemSet.Side.EDITOR) {
+            return new LegacyCustomItemModel(input.readByteArray());
+        } else return new LegacyCustomItemModel(null);
     }
 
     private final byte[] rawModel;
@@ -43,10 +45,10 @@ public class LegacyCustomItemModel implements ItemModel {
     }
 
     @Override
-    public void save(BitOutput output) {
+    public void save(BitOutput output, ItemSet.Side targetSide) {
         output.addByte(MODEL_TYPE_CUSTOM_LEGACY);
-        output.addByte((byte) 1);
+        output.addByte((byte) 2);
 
-        output.addByteArray(rawModel);
+        if (targetSide == ItemSet.Side.EDITOR) output.addByteArray(rawModel);
     }
 }

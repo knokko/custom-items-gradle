@@ -71,7 +71,7 @@ public class SidedBlockModel implements BlockModel {
     }
 
     @Override
-    public void save(BitOutput output) {
+    public void save(BitOutput output, ItemSet.Side targetSide) {
         output.addByte(MODEL_TYPE_SIDED);
         output.addByte((byte) 1);
 

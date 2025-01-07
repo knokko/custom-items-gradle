@@ -93,14 +93,18 @@ public class KciArmor extends KciTool {
         this.loadToolPropertiesNew(input, itemSet);
 
         byte encoding = input.readByte();
-        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("CustomArmorNew", encoding);
+        if (encoding < 1 || encoding > 3) throw new UnknownEncodingException("CustomArmorNew", encoding);
 
         this.loadLeatherColors(input);
         this.damageResistances = DamageResistance.loadNew(input, itemSet);
-        if (itemSet.getSide() == ItemSet.Side.EDITOR && input.readBoolean()) {
+        if (encoding <= 2 && itemSet.getSide() == ItemSet.Side.EDITOR && input.readBoolean()) {
             this.armorTexture = itemSet.armorTextures.getReference(input.readString());
         } else {
             this.armorTexture = null;
+        }
+
+        if (encoding >= 3 && input.readBoolean()) {
+            this.armorTexture = itemSet.armorTextures.getReference(input.readString());
         }
 
         if (encoding >= 2 && input.readBoolean()) {
@@ -111,16 +115,14 @@ public class KciArmor extends KciTool {
     protected void saveArmorPropertiesNew(BitOutput output, ItemSet.Side targetSide) {
         this.saveToolPropertiesNew(output, targetSide);
 
-        output.addByte((byte) 2);
+        output.addByte((byte) 3);
         if (this.itemType.isLeatherArmor()) {
             output.addBytes((byte) this.red, (byte) this.green, (byte) this.blue);
         }
         this.damageResistances.saveNew(output);
-        if (targetSide == ItemSet.Side.EDITOR) {
-            output.addBoolean(this.armorTexture != null);
-            if (this.armorTexture != null) {
-                output.addString(this.armorTexture.get().getName());
-            }
+        output.addBoolean(this.armorTexture != null);
+        if (this.armorTexture != null) {
+            output.addString(this.armorTexture.get().getName());
         }
 
         output.addBoolean(this.fancyPantsTexture != null);

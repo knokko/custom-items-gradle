@@ -17,16 +17,16 @@ import nl.knokko.customitems.bithelper.BitOutput;
 import java.io.IOException;
 import java.util.zip.ZipOutputStream;
 
-public class ProjectileCover extends ModelValues {
+public abstract class ProjectileCover extends ModelValues {
 
     static final byte ENCODING_SPHERE1 = 0;
     static final byte ENCODING_CUSTOM1 = 1;
     static final byte ENCODING_CUSTOM2 = 2;
     static final byte ENCODING_SPHERE2 = 3;
 
-    public static ProjectileCover load(BitInput input, ItemSet itemSet) throws UnknownEncodingException {
+    public static ProjectileCover load(BitInput input, ItemSet itemSet, boolean fakePlugin) throws UnknownEncodingException {
 
-        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR || !fakePlugin) {
             byte encoding = input.readByte();
             if (encoding == ENCODING_SPHERE1 || encoding == ENCODING_SPHERE2) {
                 return SphereProjectileCover.load(input, encoding, itemSet);
@@ -36,7 +36,7 @@ public class ProjectileCover extends ModelValues {
                 throw new UnknownEncodingException("EditorProjectileCover", encoding);
             }
         } else {
-            ProjectileCover result = new ProjectileCover(false);
+            ProjectileCover result = new CustomProjectileCover(false);
             result.loadSharedProperties1(input);
             return result;
         }
@@ -91,21 +91,7 @@ public class ProjectileCover extends ModelValues {
         if (geyserTexture != null) output.addString(geyserTexture.get().getName());
     }
 
-    protected final void export(BitOutput output) {
-        saveSharedProperties1(output);
-    }
-
-    protected void save(BitOutput output) {
-        throw new UnsupportedOperationException("This is only for Editor projectile covers");
-    }
-
-    public final void save(BitOutput output, ItemSet.Side side) {
-        if (side == ItemSet.Side.EDITOR) {
-            save(output);
-        } else {
-            export(output);
-        }
-    }
+    public abstract void save(BitOutput output, ItemSet.Side side);
 
     protected boolean areBasePropertiesEqual(ProjectileCover other) {
         return this.itemType == other.itemType && this.name.equals(other.name);
@@ -117,9 +103,7 @@ public class ProjectileCover extends ModelValues {
     }
 
     @Override
-    public ProjectileCover copy(boolean mutable) {
-        return new ProjectileCover(this, mutable);
-    }
+    public abstract ProjectileCover copy(boolean mutable);
 
     public KciItemType getItemType() {
         return itemType;

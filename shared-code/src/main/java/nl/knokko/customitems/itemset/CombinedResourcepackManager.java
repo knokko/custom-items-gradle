@@ -19,7 +19,7 @@ public class CombinedResourcepackManager extends ModelManager<CombinedResourcepa
 
     @Override
     protected void saveElement(CombinedResourcepack element, BitOutput output, ItemSet.Side targetSide) {
-        element.save(output);
+        element.save(output, targetSide);
     }
 
     @Override
@@ -28,13 +28,8 @@ public class CombinedResourcepackManager extends ModelManager<CombinedResourcepa
     }
 
     @Override
-    public void load(BitInput input) throws UnknownEncodingException {
-        if (itemSet.getSide() == ItemSet.Side.EDITOR) super.load(input);
-    }
-
-    @Override
     protected CombinedResourcepack loadElement(BitInput input) throws UnknownEncodingException {
-        return CombinedResourcepack.load(input);
+        return CombinedResourcepack.load(input, itemSet.getSide());
     }
 
     @Override

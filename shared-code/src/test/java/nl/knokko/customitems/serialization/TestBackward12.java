@@ -67,11 +67,11 @@ public class TestBackward12 {
 
     @Test
     public void testBackwardCompatibility12() {
-        ItemSet[] oldPair = loadItemSet("backward12old", true);
+        ItemSet[] oldPair = loadItemSet("backward12old", true, true);
         for (ItemSet old12 : oldPair) {
             testExportSettings12Old(old12);
-            testTexturesOld10(old12, 4);
-            testArmorTexturesOld8(old12, 1);
+            testTexturesOld10(old12, 4, true);
+            testArmorTexturesOld8(old12, 1, true);
             testItemsOld12(old12, 50);
             testEquipmentSetsOld12(old12, 2);
             testDamageSourcesOld12(old12, 2);
@@ -79,18 +79,18 @@ public class TestBackward12 {
             testRecipesOld12(old12, 10);
             testBlockDropsOld12(old12, 4);
             testMobDropsOld10(old12, 3);
-            testProjectileCoversOld6(old12, 2);
+            testProjectileCoversOld6(old12, 2, true);
             testProjectilesOld12(old12, 4);
             testFuelRegistriesOld8(old12, 1);
             testContainersOld12(old12, 6);
             testEnergyTypesOld11(old12, 1);
             testSoundsOld11(old12, 1);
-            testCombinedResourcepacksOld12(old12, 1);
+            testCombinedResourcepacksOld12(old12, 1, true);
         }
 
-        ItemSet[] newPair = loadItemSet("backward12new", true);
+        ItemSet[] newPair = loadItemSet("backward12new", true, true);
         for (ItemSet newSet : newPair) {
-            testTexturesNew9(newSet, 2);
+            testTexturesNew9(newSet, 2, true);
             testItemsNew12(newSet, 9);
             testRecipesNew10(newSet, 2);
             testContainersNew10(newSet, 1);
@@ -99,7 +99,7 @@ public class TestBackward12 {
             testTreesNew12(newSet, 2);
         }
 
-        ItemSet[] fancyPair = loadItemSet("backward12fancy", true);
+        ItemSet[] fancyPair = loadItemSet("backward12fancy", true, true);
         for (ItemSet fancySet : fancyPair) {
             testFancyPantsTextures12(fancySet, 2);
             testItemsFancy12(fancySet, 2);
@@ -460,42 +460,44 @@ public class TestBackward12 {
         assertFalse(manualSwordResult.shouldKeepOldEnchantments());
     }
 
-    static void testCombinedResourcepacksOld12(ItemSet itemSet, int numPacks) {
-        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
+    static void testCombinedResourcepacksOld12(ItemSet itemSet, int numPacks, boolean ignorePlugin) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR || !ignorePlugin) {
             assertEquals(numPacks, itemSet.combinedResourcepacks.size());
 
             CombinedResourcepack staff = itemSet.combinedResourcepacks.get("staff").get();
             assertEquals(3, staff.getPriority());
             assertFalse(staff.isGeyser());
-            try {
-                ZipInputStream zipInput = new ZipInputStream(new ByteArrayInputStream(staff.getContent()));
-                boolean foundStaffJson = false;
-                ZipEntry zipEntry = zipInput.getNextEntry();
-                while (zipEntry != null) {
-                    if (zipEntry.getName().equals("staff1.json")) {
-                        Scanner expectedScanner = new Scanner(Objects.requireNonNull(
-                                TestBackward12.class.getClassLoader().getResourceAsStream(
-                                        "nl/knokko/customitems/serialization/model/staff1.json"
-                                )
-                        ));
-                        Scanner actualScanner = new Scanner(zipInput);
-                        while (expectedScanner.hasNextLine()) {
-                            assertTrue(actualScanner.hasNextLine());
-                            assertEquals(expectedScanner.nextLine(), actualScanner.nextLine());
+            if (itemSet.getSide() == ItemSet.Side.EDITOR) {
+                try {
+                    ZipInputStream zipInput = new ZipInputStream(new ByteArrayInputStream(staff.getContent()));
+                    boolean foundStaffJson = false;
+                    ZipEntry zipEntry = zipInput.getNextEntry();
+                    while (zipEntry != null) {
+                        if (zipEntry.getName().equals("staff1.json")) {
+                            Scanner expectedScanner = new Scanner(Objects.requireNonNull(
+                                    TestBackward12.class.getClassLoader().getResourceAsStream(
+                                            "nl/knokko/customitems/serialization/model/staff1.json"
+                                    )
+                            ));
+                            Scanner actualScanner = new Scanner(zipInput);
+                            while (expectedScanner.hasNextLine()) {
+                                assertTrue(actualScanner.hasNextLine());
+                                assertEquals(expectedScanner.nextLine(), actualScanner.nextLine());
+                            }
+                            assertFalse(actualScanner.hasNextLine());
+
+                            expectedScanner.close();
+                            foundStaffJson = true;
                         }
-                        assertFalse(actualScanner.hasNextLine());
-
-                        expectedScanner.close();
-                        foundStaffJson = true;
+                        zipEntry = zipInput.getNextEntry();
                     }
-                    zipEntry = zipInput.getNextEntry();
-                }
-                zipInput.close();
+                    zipInput.close();
 
-                assertTrue(foundStaffJson);
-            } catch (IOException shouldNotHappen) {
-                throw new RuntimeException(shouldNotHappen);
-            }
+                    assertTrue(foundStaffJson);
+                } catch (IOException shouldNotHappen) {
+                    throw new RuntimeException(shouldNotHappen);
+                }
+            } else assertNull(staff.getContent());
         }
     }
 

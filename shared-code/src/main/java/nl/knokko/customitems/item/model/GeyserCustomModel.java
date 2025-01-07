@@ -2,19 +2,25 @@ package nl.knokko.customitems.item.model;
 
 import nl.knokko.customitems.bithelper.BitInput;
 import nl.knokko.customitems.bithelper.BitOutput;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.trouble.UnknownEncodingException;
 
 import java.util.Objects;
 
 public class GeyserCustomModel {
 
-    public static GeyserCustomModel load(BitInput input) throws UnknownEncodingException {
+    public static GeyserCustomModel load(BitInput input, ItemSet.Side side) throws UnknownEncodingException {
         byte encoding = input.readByte();
-        if (encoding != 1) throw new UnknownEncodingException("GeyserCustomModel", encoding);
+        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("GeyserCustomModel", encoding);
 
-        return new GeyserCustomModel(
-                input.readString(), input.readString(), input.readByteArray(),
-                input.readByteArray(), input.readByteArray(), input.readByteArray()
+        if (encoding == 1 || side == ItemSet.Side.EDITOR) {
+            return new GeyserCustomModel(
+                    input.readString(), input.readString(), input.readByteArray(),
+                    input.readByteArray(), input.readByteArray(), input.readByteArray()
+            );
+        } else return new GeyserCustomModel(
+                input.readString(), input.readString(), null,
+                null, null, null
         );
     }
 
@@ -31,19 +37,21 @@ public class GeyserCustomModel {
     ) {
         this.attachableId = Objects.requireNonNull(attachableId);
         this.geometryId = Objects.requireNonNull(geometryId);
-        this.animationFile = Objects.requireNonNull(animationFile);
-        this.attachableFile = Objects.requireNonNull(attachableFile);
-        this.modelFile = Objects.requireNonNull(modelFile);
-        this.textureFile = Objects.requireNonNull(textureFile);
+        this.animationFile = animationFile;
+        this.attachableFile = attachableFile;
+        this.modelFile = modelFile;
+        this.textureFile = textureFile;
     }
 
-    public void save(BitOutput output) {
-        output.addByte((byte) 1);
+    public void save(BitOutput output, ItemSet.Side targetSide) {
+        output.addByte((byte) 2);
         output.addString(attachableId);
         output.addString(geometryId);
-        output.addByteArray(animationFile);
-        output.addByteArray(attachableFile);
-        output.addByteArray(modelFile);
-        output.addByteArray(textureFile);
+        if (targetSide == ItemSet.Side.EDITOR) {
+            output.addByteArray(animationFile);
+            output.addByteArray(attachableFile);
+            output.addByteArray(modelFile);
+            output.addByteArray(textureFile);
+        }
     }
 }

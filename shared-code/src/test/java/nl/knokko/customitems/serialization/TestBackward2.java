@@ -12,9 +12,9 @@ public class TestBackward2 {
 
     @Test
     public void testBackwardCompatibility2() {
-        for (ItemSet set2 : BackwardHelper.loadItemSet("backward2", false)) {
+        for (ItemSet set2 : BackwardHelper.loadItemSet("backward2", false, true)) {
             testExportSettings1(set2);
-            testTextures1(set2, 2);
+            testTextures1(set2, 2, true);
             testItems2(set2, 6);
             testRecipes1(set2, 2);
         }
@@ -52,7 +52,7 @@ public class TestBackward2 {
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
         } else {
-            assertNull(item.getTextureReference());
+            assertNoTexture(item.getTextureReference());
         }
     }
 
@@ -75,7 +75,7 @@ public class TestBackward2 {
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
         } else {
-            assertNull(item.getTextureReference());
+            assertNoTexture(item.getTextureReference());
         }
         assertFalse(item.allowEnchanting());
         assertEquals(53L, (long) item.getMaxDurabilityNew());
@@ -93,7 +93,7 @@ public class TestBackward2 {
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
         } else {
-            assertNull(item.getTextureReference());
+            assertNoTexture(item.getTextureReference());
         }
         assertTrue(item.allowEnchanting());
         assertNull(item.getMaxDurabilityNew());
@@ -115,7 +115,7 @@ public class TestBackward2 {
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
         } else {
-            assertNull(item.getTextureReference());
+            assertNoTexture(item.getTextureReference());
         }
         assertTrue(item.allowEnchanting());
         assertEquals(500, (long) item.getMaxDurabilityNew());
@@ -130,7 +130,7 @@ public class TestBackward2 {
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
         } else {
-            assertNull(item.getTextureReference());
+            assertNoTexture(item.getTextureReference());
         }
         assertFalse(item.allowEnchanting());
         assertEquals(5000, (long) item.getMaxDurabilityNew());

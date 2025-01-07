@@ -92,16 +92,16 @@ public class KciTrident extends KciTool {
         this.loadToolPropertiesNew(input, itemSet);
 
         byte encoding = input.readByte();
-        if (encoding < 1 || encoding > 3) throw new UnknownEncodingException("CustomTridentNew", encoding);
+        if (encoding < 1 || encoding > 4) throw new UnknownEncodingException("CustomTridentNew", encoding);
 
         this.throwDurabilityLoss = input.readInt();
         this.throwDamageMultiplier = input.readDouble();
         this.throwSpeedMultiplier = input.readDouble();
 
-        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
+        if (itemSet.getSide() == ItemSet.Side.EDITOR && encoding <= 3) {
             if (encoding >= 2) {
-                this.inHandModel = ItemModel.load(input);
-                this.throwingModel = ItemModel.load(input);
+                this.inHandModel = ItemModel.load(input, itemSet.getSide());
+                this.throwingModel = ItemModel.load(input, itemSet.getSide());
             } else {
                 if (input.readBoolean()) {
                     this.inHandModel = new LegacyCustomItemModel(input.readByteArray());
@@ -119,24 +119,27 @@ public class KciTrident extends KciTool {
         if (encoding >= 3 && input.readBoolean()) {
             this.customThrowDamageSource = itemSet.damageSources.getReference(new UUID(input.readLong(), input.readLong()));
         } else this.customThrowDamageSource = null;
+
+        if (encoding >= 4) {
+            this.inHandModel = ItemModel.load(input, itemSet.getSide());
+            this.throwingModel = ItemModel.load(input, itemSet.getSide());
+        }
     }
 
-    protected void saveTridentPropertiesNew(BitOutput output, ItemSet.Side side) {
-        this.saveToolPropertiesNew(output, side);
+    protected void saveTridentPropertiesNew(BitOutput output, ItemSet.Side targetSide) {
+        this.saveToolPropertiesNew(output, targetSide);
 
-        output.addByte((byte) 3);
+        output.addByte((byte) 4);
 
         output.addInt(this.throwDurabilityLoss);
         output.addDoubles(this.throwDamageMultiplier, this.throwSpeedMultiplier);
-        if (side == ItemSet.Side.EDITOR) {
-            this.inHandModel.save(output);
-            this.throwingModel.save(output);
-        }
         output.addBoolean(this.customThrowDamageSource != null);
         if (this.customThrowDamageSource != null) {
             output.addLong(this.customThrowDamageSource.get().getId().getMostSignificantBits());
             output.addLong(this.customThrowDamageSource.get().getId().getLeastSignificantBits());
         }
+        this.inHandModel.save(output, targetSide);
+        this.throwingModel.save(output, targetSide);
     }
 
     private void loadTridentEditorOnlyProperties8(BitInput input, ItemSet itemSet) {

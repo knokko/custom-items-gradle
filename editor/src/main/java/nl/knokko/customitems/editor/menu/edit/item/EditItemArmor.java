@@ -135,12 +135,12 @@ public class EditItemArmor<V extends KciArmor> extends EditItemTool<V> {
 		}), 0.85f, 0.35f, 0.99f, 0.425f);
 		if (!(this instanceof EditItemHelmet3D || this instanceof EditItemElytra)) {
 			addComponent(new ConditionalTextComponent(
-					"Worn texture:", EditProps.LABEL, () -> !showColors()), 
+					"Worn texture:", EditProps.LABEL, () -> !showColors()),
 					0.65f, 0.29f, 0.84f, 0.35f);
 			addComponent(new ConditionalTextButton(
 					"Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
 						state.getWindow().setMainComponent(new SelectWornTexture(
-								this, itemSet, currentValues::setArmorTexture
+								this, itemSet, currentValues::setArmorTexture, currentValues.getArmorTexture()
 						));
 					}, () -> !showColors()), 0.85f, 0.29f, 0.99f, 0.35f);
 			addComponent(

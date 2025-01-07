@@ -20,10 +20,10 @@ public class CustomBlockModel implements BlockModel {
         byte encoding = input.readByte();
         if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("CustomBlockModel", encoding);
 
-        ModernCustomItemModel model = (ModernCustomItemModel) ItemModel.load(input);
+        ModernCustomItemModel model = (ModernCustomItemModel) ItemModel.load(input, itemSet.getSide());
         TextureReference editorTexture = itemSet.textures.getReference(input.readString());
         GeyserCustomModel geyserModel = null;
-        if (encoding != 1 && input.readBoolean()) geyserModel = GeyserCustomModel.load(input);
+        if (encoding != 1 && input.readBoolean()) geyserModel = GeyserCustomModel.load(input, itemSet.getSide());
 
         return new CustomBlockModel(model, editorTexture, geyserModel);
     }
@@ -44,14 +44,14 @@ public class CustomBlockModel implements BlockModel {
     }
 
     @Override
-    public void save(BitOutput output) {
+    public void save(BitOutput output, ItemSet.Side targetSide) {
         output.addByte(MODEL_TYPE_CUSTOM);
         output.addByte((byte) 2);
 
-        itemModel.save(output);
+        itemModel.save(output, targetSide);
         output.addString(editorTexture.get().getName());
         output.addBoolean(geyserModel != null);
-        if (geyserModel != null) geyserModel.save(output);
+        if (geyserModel != null) geyserModel.save(output, targetSide);
     }
 
     @Override

@@ -62,4 +62,9 @@ public class SetEncoding {
 	 * Added furnace recipes
 	 */
 	public static final byte ENCODING_12 = 11;
+
+	/**
+	 * Save (armor) texture names
+	 */
+	public static final byte ENCODING_13 = 12;
 }

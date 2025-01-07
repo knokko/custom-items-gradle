@@ -14,6 +14,8 @@ import java.util.Scanner;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static nl.knokko.customitems.MCVersions.VERSION1_21;
+
 class ResourcepackFancyPants {
 
     private final ItemSet itemSet;
@@ -26,24 +28,7 @@ class ResourcepackFancyPants {
 
     public void copyShaderAndLicense() throws IOException {
         if (!itemSet.fancyPants.isEmpty()) {
-            String[][] pathsToCopy = {
-                    {
-                            "ancientking/fancypants/rendertype_armor_cutout_no_cull.fsh",
-                            "assets/minecraft/shaders/core/rendertype_armor_cutout_no_cull.fsh"
-                    },
-                    {
-                            "ancientking/fancypants/rendertype_armor_cutout_no_cull.vsh",
-                            "assets/minecraft/shaders/core/rendertype_armor_cutout_no_cull.vsh"
-                    },
-                    {
-                            "ancientking/fancypants/rendertype_armor_cutout_no_cull.json",
-                            "assets/minecraft/shaders/core/rendertype_armor_cutout_no_cull.json"
-                    },
-                    {
-                            "ancientking/fancypants/LICENSE",
-                            "assets/minecraft/shaders/core/FancyPantsLicense"
-                    }
-            };
+            String[][] pathsToCopy = getPathsToCopy();
             for (String[] copyPair : pathsToCopy) {
                 String source = copyPair[0];
                 String destination = copyPair[1];
@@ -65,13 +50,45 @@ class ResourcepackFancyPants {
         }
     }
 
+    private String[][] getPathsToCopy() {
+        String versionString = itemSet.getExportSettings().getMcVersion() >= VERSION1_21 ? "1.21" : "1.17";
+        String[][] pathsToCopy = {
+                {
+                        "ancientking/fancypants/" + versionString + "/rendertype_armor_cutout_no_cull.fsh",
+                        "assets/minecraft/shaders/core/rendertype_armor_cutout_no_cull.fsh"
+                },
+                {
+                        "ancientking/fancypants/" + versionString + "/rendertype_armor_cutout_no_cull.vsh",
+                        "assets/minecraft/shaders/core/rendertype_armor_cutout_no_cull.vsh"
+                },
+                {
+                        "ancientking/fancypants/" + versionString + "/rendertype_armor_cutout_no_cull.json",
+                        "assets/minecraft/shaders/core/rendertype_armor_cutout_no_cull.json"
+                },
+                {
+                        "ancientking/fancypants/LICENSE",
+                        "assets/minecraft/shaders/core/FancyPantsLicense"
+                }
+        };
+        return pathsToCopy;
+    }
+
     public void generateEmptyTextures() throws IOException {
         if (!itemSet.fancyPants.isEmpty()) {
             BufferedImage emptyImage = new BufferedImage(64, 32, BufferedImage.TYPE_INT_ARGB);
-            String[] destinations = {
-                    "assets/minecraft/textures/models/armor/leather_layer_1_overlay.png",
-                    "assets/minecraft/textures/models/armor/leather_layer_2_overlay.png"
-            };
+            String[] destinations;
+            if (itemSet.getExportSettings().getMcVersion() >= VERSION1_21) {
+                destinations = new String[] {
+                        "assets/minecraft/textures/entity/equipment/humanoid/leather_overlay.png",
+                        "assets/minecraft/textures/entity/equipment/humanoid_leggings/leather_overlay.png"
+                };
+            } else {
+                destinations = new String[] {
+                        "assets/minecraft/textures/models/armor/leather_layer_1_overlay.png",
+                        "assets/minecraft/textures/models/armor/leather_layer_2_overlay.png"
+                };
+            }
+
             for (String destination : destinations) {
                 zipOutput.putNextEntry(new ZipEntry(destination));
                 ImageIO.write(emptyImage, "PNG", zipOutput);
@@ -150,10 +167,18 @@ class ResourcepackFancyPants {
             graphics1.dispose();
             graphics2.dispose();
 
-            zipOutput.putNextEntry(new ZipEntry("assets/minecraft/textures/models/armor/leather_layer_1.png"));
+            if (itemSet.getExportSettings().getMcVersion() >= VERSION1_21) {
+                zipOutput.putNextEntry(new ZipEntry("assets/minecraft/textures/entity/equipment/humanoid/leather.png"));
+            } else {
+                zipOutput.putNextEntry(new ZipEntry("assets/minecraft/textures/models/armor/leather_layer_1.png"));
+            }
             ImageIO.write(layer1, "PNG", zipOutput);
             zipOutput.closeEntry();
-            zipOutput.putNextEntry(new ZipEntry("assets/minecraft/textures/models/armor/leather_layer_2.png"));
+            if (itemSet.getExportSettings().getMcVersion() >= VERSION1_21) {
+                zipOutput.putNextEntry(new ZipEntry("assets/minecraft/textures/entity/equipment/humanoid_leggings/leather.png"));
+            } else {
+                zipOutput.putNextEntry(new ZipEntry("assets/minecraft/textures/models/armor/leather_layer_2.png"));
+            }
             ImageIO.write(layer2, "PNG", zipOutput);
             zipOutput.closeEntry();
         }

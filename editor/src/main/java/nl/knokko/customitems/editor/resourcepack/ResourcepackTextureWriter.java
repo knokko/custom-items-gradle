@@ -1,5 +1,6 @@
 package nl.knokko.customitems.editor.resourcepack;
 
+import com.github.cliftonlabs.json_simple.JsonObject;
 import nl.knokko.customitems.container.KciContainer;
 import nl.knokko.customitems.item.KciArmor;
 import nl.knokko.customitems.item.KciElytra;
@@ -28,6 +29,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static nl.knokko.customitems.MCVersions.VERSION1_12;
+import static nl.knokko.customitems.MCVersions.VERSION1_21;
 
 class ResourcepackTextureWriter {
 
@@ -166,7 +168,44 @@ class ResourcepackTextureWriter {
         threadPool.shutdown();
     }
 
+    void writeArmorTextures() throws IOException {
+        if (itemSet.getExportSettings().getMcVersion() < VERSION1_21) return;
+
+        for (ArmorTexture armorTexture : itemSet.armorTextures) {
+            zipOutput.putNextEntry(new ZipEntry("assets/minecraft/equipment/kci_" + armorTexture.getName() + ".json"));
+
+            JsonObject bodyTexture = new JsonObject();
+            bodyTexture.put("texture", "kci_" + armorTexture.getName());
+            List<JsonObject> bodyTextures = new ArrayList<>(1);
+            bodyTextures.add(bodyTexture);
+
+            JsonObject layers = new JsonObject();
+            layers.put("humanoid", bodyTextures);
+            layers.put("humanoid_leggings", bodyTextures);
+            JsonObject root = new JsonObject();
+            root.put("layers", layers);
+
+            PrintWriter jsonOutput = new PrintWriter(zipOutput);
+            root.toJson(jsonOutput);
+            jsonOutput.flush();
+            zipOutput.closeEntry();
+
+            zipOutput.putNextEntry(new ZipEntry(
+                    "assets/minecraft/textures/entity/equipment/humanoid/kci_" + armorTexture.getName() + ".png")
+            );
+            ImageIO.write(armorTexture.getLayer1(), "PNG", zipOutput);
+            zipOutput.closeEntry();
+
+            zipOutput.putNextEntry(new ZipEntry(
+                    "assets/minecraft/textures/entity/equipment/humanoid_leggings/kci_" + armorTexture.getName() + ".png")
+            );
+            ImageIO.write(armorTexture.getLayer2(), "PNG", zipOutput);
+            zipOutput.closeEntry();
+        }
+    }
+
     void writeOptifineArmorTextures() throws IOException {
+        if (itemSet.getExportSettings().getMcVersion() >= VERSION1_21) return;
         String citPrefix;
         if (itemSet.getExportSettings().getMcVersion() <= VERSION1_12) {
             citPrefix = "assets/minecraft/mcpatcher/cit/";

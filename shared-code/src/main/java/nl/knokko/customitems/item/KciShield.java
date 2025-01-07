@@ -77,7 +77,7 @@ public class KciShield extends KciTool {
         this.loadToolPropertiesNew(input, itemSet);
 
         byte encoding = input.readByte();
-        if (encoding < 1 || encoding > 3) throw new UnknownEncodingException("CustomShieldNew", encoding);
+        if (encoding < 1 || encoding > 4) throw new UnknownEncodingException("CustomShieldNew", encoding);
 
         this.thresholdDamage = input.readDouble();
         if (encoding >= 2) {
@@ -88,9 +88,9 @@ public class KciShield extends KciTool {
             }
         }
 
-        if (itemSet.getSide() == ItemSet.Side.EDITOR) {
-            if (encoding >= 3) {
-                this.blockingModel = ItemModel.load(input);
+        if (itemSet.getSide() == ItemSet.Side.EDITOR && encoding < 4) {
+            if (encoding == 3) {
+                this.blockingModel = ItemModel.load(input, itemSet.getSide());
             } else {
                 if (input.readBoolean()) {
                     this.blockingModel = new LegacyCustomItemModel(input.readByteArray())           ;
@@ -99,21 +99,23 @@ public class KciShield extends KciTool {
                 }
             }
         }
+
+        if (encoding >= 4) {
+            this.blockingModel = ItemModel.load(input, itemSet.getSide());
+        }
     }
 
     protected void saveShieldPropertiesNew(BitOutput output, ItemSet.Side targetSide) {
         this.saveToolPropertiesNew(output, targetSide);
 
-        output.addByte((byte) 3);
+        output.addByte((byte) 4);
 
         output.addDouble(this.thresholdDamage);
         output.addInt(this.blockingEffects.size());
         for (AttackEffectGroup blockingEffectGroup : this.blockingEffects) {
             blockingEffectGroup.save(output);
         }
-        if (targetSide == ItemSet.Side.EDITOR) {
-            this.blockingModel.save(output);
-        }
+        this.blockingModel.save(output, targetSide);
     }
 
     private void load7(BitInput input, ItemSet itemSet) throws UnknownEncodingException {

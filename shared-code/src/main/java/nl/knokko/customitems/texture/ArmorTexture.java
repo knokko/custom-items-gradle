@@ -19,18 +19,21 @@ import static nl.knokko.customitems.texture.KciTexture.areImagesEqual;
 
 public class ArmorTexture extends ModelValues {
 
-    private static final byte ENCODING_1 = 1;
-
-    public static ArmorTexture load(BitInput input) throws UnknownEncodingException {
+    public static ArmorTexture load(BitInput input, ItemSet.Side side) throws UnknownEncodingException {
         byte encoding = input.readByte();
+        if (encoding < 1 || encoding > 2) throw new UnknownEncodingException("ArmorTexture", encoding);
         ArmorTexture result = new ArmorTexture(false);
-
-        if (encoding == ENCODING_1) {
-            result.load1(input);
-        } else {
-            throw new UnknownEncodingException("ArmorTexture", encoding);
+        result.name = input.readString();
+        if (side == ItemSet.Side.EDITOR || encoding == 1) {
+            byte[] bytesOfLayer1 = input.readByteArray();
+            byte[] bytesOfLayer2 = input.readByteArray();
+            try {
+                result.layer1 = ImageIO.read(new ByteArrayInputStream(bytesOfLayer1));
+                result.layer2 = ImageIO.read(new ByteArrayInputStream(bytesOfLayer2));
+            } catch (IOException shouldNotHappen) {
+                throw new IllegalArgumentException("Corrupted image input", shouldNotHappen);
+            }
         }
-
         return result;
     }
 
@@ -53,38 +56,25 @@ public class ArmorTexture extends ModelValues {
         this.layer2 = toCopy.getLayer2();
     }
 
-    public void save(BitOutput output) {
-        output.addByte(ENCODING_1);
-        save1(output);
-    }
-
-    private void save1(BitOutput output) {
+    public void save(BitOutput output, ItemSet.Side targetSide) {
+        output.addByte((byte) 2);
         output.addString(name);
-        byte[] bytesOfLayer1;
-        byte[] bytesOfLayer2;
-        try {
-            ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
-            ImageIO.write(layer1, "PNG", byteOutput);
-            bytesOfLayer1 = byteOutput.toByteArray();
-            byteOutput.reset();
-            ImageIO.write(layer2, "PNG", byteOutput);
-            bytesOfLayer2 = byteOutput.toByteArray();
-        } catch (IOException shouldntHappen) {
-            throw new RuntimeException("Computer is incapable of encoding images", shouldntHappen);
-        }
-        output.addByteArray(bytesOfLayer1);
-        output.addByteArray(bytesOfLayer2);
-    }
 
-    private void load1(BitInput input) {
-        name = input.readString();
-        byte[] bytesOfLayer1 = input.readByteArray();
-        byte[] bytesOfLayer2 = input.readByteArray();
-        try {
-            layer1 = ImageIO.read(new ByteArrayInputStream(bytesOfLayer1));
-            layer2 = ImageIO.read(new ByteArrayInputStream(bytesOfLayer2));
-        } catch (IOException shouldntHappen) {
-            throw new IllegalArgumentException("Corrupted image input", shouldntHappen);
+        if (targetSide == ItemSet.Side.EDITOR) {
+            byte[] bytesOfLayer1;
+            byte[] bytesOfLayer2;
+            try {
+                ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
+                ImageIO.write(layer1, "PNG", byteOutput);
+                bytesOfLayer1 = byteOutput.toByteArray();
+                byteOutput.reset();
+                ImageIO.write(layer2, "PNG", byteOutput);
+                bytesOfLayer2 = byteOutput.toByteArray();
+            } catch (IOException shouldntHappen) {
+                throw new RuntimeException("Computer is incapable of encoding images", shouldntHappen);
+            }
+            output.addByteArray(bytesOfLayer1);
+            output.addByteArray(bytesOfLayer2);
         }
     }
 

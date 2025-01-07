@@ -1,6 +1,8 @@
 package nl.knokko.customitems.texture;
 
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.ModelValues;
+import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.Validation;
@@ -19,6 +21,15 @@ public class BowTextureEntry extends ModelValues {
         BowTextureEntry result = new BowTextureEntry(mutable);
         result.pull = input.readDouble();
         result.image = KciTexture.loadImage(input, expectCompressed);
+        return result;
+    }
+
+    public static BowTextureEntry load2(BitInput input, ItemSet.Side side) throws UnknownEncodingException {
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("BowTextureEntry", encoding);
+        BowTextureEntry result = new BowTextureEntry(false);
+        result.pull = input.readDouble();
+        if (side == ItemSet.Side.EDITOR) result.image = KciTexture.loadImage(input, true);
         return result;
     }
 
@@ -61,9 +72,10 @@ public class BowTextureEntry extends ModelValues {
         return new BowTextureEntry(this, mutable);
     }
 
-    public void save(BitOutput output) {
+    public void save(BitOutput output, ItemSet.Side targetSide) {
+        output.addByte((byte) 1);
         output.addDouble(pull);
-        KciTexture.saveImage(output, image);
+        if (targetSide == ItemSet.Side.EDITOR) KciTexture.saveImage(output, image);
     }
 
     public BufferedImage getImage() {

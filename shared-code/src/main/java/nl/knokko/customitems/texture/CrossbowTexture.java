@@ -1,7 +1,9 @@
 package nl.knokko.customitems.texture;
 
 import nl.knokko.customitems.MCVersions;
+import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.model.Mutability;
+import nl.knokko.customitems.trouble.UnknownEncodingException;
 import nl.knokko.customitems.util.Checks;
 import nl.knokko.customitems.util.ProgrammingValidationException;
 import nl.knokko.customitems.util.Validation;
@@ -51,6 +53,25 @@ public class CrossbowTexture extends KciTexture {
         }
     }
 
+    protected void loadCrossbow2(BitInput input, ItemSet.Side side) throws UnknownEncodingException {
+        byte encoding = input.readByte();
+        if (encoding != 1) throw new UnknownEncodingException("CrossbowTexture", encoding);
+        loadBase2(input, side);
+        loadPullTextures2(input, side);
+        if (side == ItemSet.Side.EDITOR) {
+            this.arrowImage = loadImage(input, true);
+            this.fireworkImage = loadImage(input, true);
+        }
+    }
+
+    protected void loadPullTextures2(BitInput input, ItemSet.Side side) throws UnknownEncodingException {
+        int numPullTextures = input.readInt();
+        this.pullTextures = new ArrayList<>(numPullTextures);
+        for (int counter = 0; counter < numPullTextures; counter++) {
+            pullTextures.add(BowTextureEntry.load2(input, side));
+        }
+    }
+
     @Override
     public boolean equals(Object other) {
         if (other.getClass() == CrossbowTexture.class) {
@@ -70,22 +91,25 @@ public class CrossbowTexture extends KciTexture {
     }
 
     @Override
-    public void save(BitOutput output) {
-        output.addByte(ENCODING_CROSSBOW_1);
-        saveCrossbow1(output);
+    public void save(BitOutput output, ItemSet.Side targetSide) {
+        output.addByte(ENCODING_CROSSBOW_2);
+        saveCrossbow2(output, targetSide);
     }
 
-    protected void saveCrossbow1(BitOutput output) {
-        saveBase1(output);
-        savePullTextures1(output);
-        saveImage(output, arrowImage);
-        saveImage(output, fireworkImage);
+    protected void saveCrossbow2(BitOutput output, ItemSet.Side targetSide) {
+        output.addByte((byte) 1);
+        saveBase2(output, targetSide);
+        savePullTextures2(output, targetSide);
+        if (targetSide == ItemSet.Side.EDITOR) {
+            saveImage(output, arrowImage);
+            saveImage(output, fireworkImage);
+        }
     }
 
-    protected void savePullTextures1(BitOutput output) {
+    protected void savePullTextures2(BitOutput output, ItemSet.Side targetSide) {
         output.addInt(pullTextures.size());
         for (BowTextureEntry pullTexture : pullTextures) {
-            pullTexture.save(output);
+            pullTexture.save(output, targetSide);
         }
     }
 

@@ -2,6 +2,7 @@ package nl.knokko.customitems.nms;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
@@ -48,4 +49,8 @@ public interface KciNmsItems {
     void setCustomModelData(ItemMeta meta, int data);
 
     ItemStack translate(ItemStack item, String itemName, boolean translateDisplayName, int loreSize);
+
+    default void setEquippableAssetID(ItemMeta meta, EquipmentSlot slot, String id) {
+        throw new UnsupportedOperationException("This is only possible in MC 1.21+");
+    }
 }

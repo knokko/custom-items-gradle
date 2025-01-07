@@ -35,6 +35,7 @@ import static nl.knokko.customitems.serialization.TestBackward12.*;
 import static nl.knokko.customitems.serialization.TestBackward6.testProjectileCoversOld6;
 import static nl.knokko.customitems.serialization.TestBackward8.testArmorTexturesOld8;
 import static nl.knokko.customitems.serialization.TestBackward8.testFuelRegistriesOld8;
+import static nl.knokko.customitems.serialization.TestBackward9.assertNoGeyserModel;
 import static nl.knokko.customitems.serialization.TestBackward9.testTexturesNew9;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -42,11 +43,11 @@ public class TestBackward13 {
 
     @Test
     public void testBackwardCompatibility13() {
-        ItemSet[] oldPair = loadItemSet("backward13old", true);
+        ItemSet[] oldPair = loadItemSet("backward13old", true, true);
         for (ItemSet old13 : oldPair) {
             testExportSettings13Old(old13);
-            testTexturesOld10(old13, 4);
-            testArmorTexturesOld8(old13, 1);
+            testTexturesOld10(old13, 4, true);
+            testArmorTexturesOld8(old13, 1, true);
             testItemsOld13(old13, 52);
             testEquipmentSetsOld12(old13, 2);
             testDamageSourcesOld12(old13, 2);
@@ -54,18 +55,18 @@ public class TestBackward13 {
             testRecipesOld13(old13, 11);
             testBlockDropsOld13(old13, 5);
             testMobDropsOld13(old13, 4);
-            testProjectileCoversOld13(old13, 4);
+            testProjectileCoversOld13(old13, 4, true);
             testProjectilesOld13(old13, 5);
             testFuelRegistriesOld8(old13, 1);
             testContainersOld12(old13, 6);
             testEnergyTypesOld11(old13, 1);
             testSoundsOld11(old13, 1);
-            testCombinedResourcepacksOld12(old13, 1);
+            testCombinedResourcepacksOld12(old13, 1, true);
         }
 
-        ItemSet[] newPair = loadItemSet("backward13new", true);
+        ItemSet[] newPair = loadItemSet("backward13new", true, true);
         for (ItemSet newSet : newPair) {
-            testTexturesNew9(newSet, 2);
+            testTexturesNew9(newSet, 2, true);
             testItemsNew13(newSet, 10);
             testRecipesNew10(newSet, 2);
             testCookingRecipesNew13(newSet, 1);
@@ -75,21 +76,21 @@ public class TestBackward13 {
             testTreesNew12(newSet, 2);
         }
 
-        ItemSet[] fancyPair = loadItemSet("backward13fancy", true);
+        ItemSet[] fancyPair = loadItemSet("backward13fancy", true, true);
         for (ItemSet fancySet : fancyPair) {
             testFancyPantsTextures12(fancySet, 2);
             testItemsFancy13(fancySet, 3);
             testSmithingRecipesFancy13(fancySet, 1);
             testTreesFancy13(fancySet, 1);
-            testCombinedResourcepacksFancy13(fancySet, 1);
+            testCombinedResourcepacksFancy13(fancySet, 1, true);
             testExportSettingsFancy13(fancySet);
         }
     }
 
-    static void testProjectileCoversOld13(ItemSet itemSet, int numProjectileCovers) {
-        testProjectileCoversOld6(itemSet, numProjectileCovers);
+    static void testProjectileCoversOld13(ItemSet itemSet, int numProjectileCovers, boolean skipPlugin) {
+        testProjectileCoversOld6(itemSet, numProjectileCovers, skipPlugin);
 
-        if (itemSet.getSide() != ItemSet.Side.EDITOR) return;
+        if (itemSet.getSide() != ItemSet.Side.EDITOR && skipPlugin) return;
 
         SphereProjectileCover geyserSphere = (SphereProjectileCover) itemSet.projectileCovers.get("geyser_sphere").get();
         assertEquals("gun1", geyserSphere.getGeyserTexture().getName());
@@ -123,8 +124,8 @@ public class TestBackward13 {
         assertResourceEquals("nl/knokko/customitems/serialization/geyser/gmdl_aff65df.png", geyserModel.textureFile);
     }
 
-    static void testCombinedResourcepacksFancy13(ItemSet itemSet, int numPacks) {
-        if (itemSet.getSide() == ItemSet.Side.PLUGIN) return;
+    static void testCombinedResourcepacksFancy13(ItemSet itemSet, int numPacks, boolean ignorePlugin) {
+        if (itemSet.getSide() == ItemSet.Side.PLUGIN && ignorePlugin) return;
 
         assertEquals(numPacks, itemSet.combinedResourcepacks.size());
 
@@ -183,7 +184,7 @@ public class TestBackward13 {
 
         GeyserCustomModel geyserModel = item.getGeyserModel();
         if (side == ItemSet.Side.PLUGIN) {
-            assertNull(geyserModel);
+            assertNoGeyserModel(geyserModel);
             return;
         }
 
@@ -244,7 +245,7 @@ public class TestBackward13 {
         assertEquals(listOf("Dit is simpel."), dutch.getLore());
     }
 
-    private static void testExportSettings13Old(ItemSet itemSet) {
+    static void testExportSettings13Old(ItemSet itemSet) {
         testExportSettings12Old(itemSet);
         ExportSettings ex = itemSet.getExportSettings();
         assertEquals("http://localhost:21002/", ex.getHostAddress());
@@ -252,7 +253,7 @@ public class TestBackward13 {
         assertTrue(ex.shouldSkipResourcepack());
     }
 
-    private static void testItemsOld13(ItemSet itemSet, int numItems) {
+    static void testItemsOld13(ItemSet itemSet, int numItems) {
         testItemsOld12(itemSet, numItems);
 
         testWand5((KciWand) itemSet.items.get("wand5").get());
