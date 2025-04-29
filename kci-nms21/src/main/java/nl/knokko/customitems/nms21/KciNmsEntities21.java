@@ -7,9 +7,9 @@ import net.minecraft.world.entity.projectile.EntityTippedArrow;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import nl.knokko.customitems.nms20plus.KciNmsEntities20Plus;
-import org.bukkit.craftbukkit.v1_21_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_21_R3.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_21_R3.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_21_R4.CraftWorld;
+import org.bukkit.craftbukkit.v1_21_R4.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_21_R4.entity.CraftLivingEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 

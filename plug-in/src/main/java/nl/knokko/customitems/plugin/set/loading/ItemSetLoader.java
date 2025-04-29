@@ -7,6 +7,7 @@ import nl.knokko.customitems.itemset.ItemSet;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.data.PluginData;
+import nl.knokko.customitems.plugin.multisupport.floodgate.FloodgateSupport;
 import nl.knokko.customitems.plugin.multisupport.geyser.GeyserSupport;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.settings.ExportSettings;
@@ -90,7 +91,7 @@ public class ItemSetLoader implements Listener {
     @EventHandler
     public void forceResourcePack(PlayerResourcePackStatusEvent event) {
         // Geyser automatically rejects Java resourcepacks and has its own resourcepack system
-        if (GeyserSupport.isBedrock(event.getPlayer())) return;
+        if (GeyserSupport.isBedrock(event.getPlayer()) || FloodgateSupport.isBedrock(event.getPlayer())) return;
 
         ExportSettings settings = itemSet.get().getExportSettings();
 

@@ -4,6 +4,7 @@ import nl.knokko.customitems.item.VMaterial;
 import nl.knokko.customitems.item.KciItem;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
+import nl.knokko.customitems.plugin.multisupport.floodgate.FloodgateSupport;
 import nl.knokko.customitems.plugin.multisupport.geyser.GeyserSupport;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import nl.knokko.customitems.plugin.util.ItemUtils;
@@ -174,7 +175,7 @@ public class InventoryEventHandler implements Listener {
 
             // This block makes custom items stackable
             if (customCursor != null && customCursor == customCurrent && wrap(customCursor).needsStackingHelp() &&
-                    !GeyserSupport.isBedrock(event.getWhoClicked())
+                    !GeyserSupport.isBedrock(event.getWhoClicked()) && !FloodgateSupport.isBedrock(event.getWhoClicked())
             ) {
                 event.setResult(Event.Result.DENY);
                 if (event.isLeftClick()) {

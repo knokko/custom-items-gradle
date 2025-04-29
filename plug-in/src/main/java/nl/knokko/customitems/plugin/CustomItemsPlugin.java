@@ -7,6 +7,7 @@ import nl.knokko.customitems.plugin.command.CustomItemsTabCompletions;
 import nl.knokko.customitems.plugin.config.EnabledAreas;
 import nl.knokko.customitems.plugin.config.LanguageFile;
 import nl.knokko.customitems.plugin.events.*;
+import nl.knokko.customitems.plugin.multisupport.floodgate.FloodgateSupport;
 import nl.knokko.customitems.plugin.multisupport.geyser.GeyserSupport;
 import nl.knokko.customitems.plugin.recipe.CustomItemsRecipes;
 import nl.knokko.customitems.plugin.tasks.*;
@@ -136,6 +137,7 @@ public class CustomItemsPlugin extends JavaPlugin {
 			SkriptSupport.onEnable(this);
 			DenizenSupport.onEnable();
 			GeyserSupport.register();
+			FloodgateSupport.register();
 			PluginIndicators.init();
 			CustomElytraVelocityManager.start(itemSet, this);
 			TwoHandedEnforcer.start(this, itemSet);
