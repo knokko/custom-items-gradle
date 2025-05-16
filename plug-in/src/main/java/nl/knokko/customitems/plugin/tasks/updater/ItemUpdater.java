@@ -109,7 +109,7 @@ public class ItemUpdater {
 	
 	public ItemStack maybeUpdate(ItemStack originalStack) {
 		if (originalStack == null || originalStack.getAmount() == 0 || originalStack.getType() == Material.AIR) {
-			return null;
+			return originalStack;
 		}
 
 		// If players somehow obtain placeholder items, get rid of those!
