@@ -96,6 +96,9 @@ public class HelpSummon extends GuiMenu {
 				infoComponent.setText("Could not copy command to clipboard because: " + error);
 			}
 		}), 0.2f, 0.05f, 0.35f, 0.15f);
+
+		// TODO new command is /summon zombie ~ ~ ~ {equipment:{mainhand:{id:stick,components:{custom_data:{KnokkosCustomItems:{Name:quartzstick}}},count:1}}}
+		// TODO or /summon skeleton ~ ~ ~ {equipment:{feet:{id:stick,components:{custom_data:{KnokkosCustomItems:{Name:phoenix_boots}}},count:1}}}
 	}
 
 	static String getEquipmentTag(KciItem item) {
