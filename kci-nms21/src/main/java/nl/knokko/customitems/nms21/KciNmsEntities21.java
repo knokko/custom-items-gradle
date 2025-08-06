@@ -7,9 +7,9 @@ import net.minecraft.world.entity.projectile.EntityTippedArrow;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import nl.knokko.customitems.nms20plus.KciNmsEntities20Plus;
-import org.bukkit.craftbukkit.v1_21_R4.CraftWorld;
-import org.bukkit.craftbukkit.v1_21_R4.entity.CraftEntity;
-import org.bukkit.craftbukkit.v1_21_R4.entity.CraftLivingEntity;
+import org.bukkit.craftbukkit.v1_21_R5.CraftWorld;
+import org.bukkit.craftbukkit.v1_21_R5.entity.CraftEntity;
+import org.bukkit.craftbukkit.v1_21_R5.entity.CraftLivingEntity;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 
@@ -24,7 +24,7 @@ public class KciNmsEntities21 extends KciNmsEntities20Plus {
         fakeArrow.projectileSource = responsibleShooter;
 
         net.minecraft.world.entity.Entity nmsEntity = ((CraftEntity) toDamage).getHandle();
-        DamageSource indirectDamageSource = nmsEntity.dW().a(fakeArrow, ((CraftEntity) responsibleShooter).getHandle());
+        DamageSource indirectDamageSource = nmsEntity.ea().a(fakeArrow, ((CraftEntity) responsibleShooter).getHandle());
 
         nmsEntity.a(((CraftWorld) toDamage.getWorld()).getHandle(), indirectDamageSource, damage);
     }

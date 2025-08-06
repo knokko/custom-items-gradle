@@ -14,7 +14,7 @@ import nl.knokko.customitems.plugin.events.CustomContainerActionEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
-import java.util.*;
+import java.util.Optional;
 
 class KciContainerActionEvent extends KciContainerEvent implements Listener {
 

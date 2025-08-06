@@ -5,7 +5,6 @@ import ch.njol.skript.lang.Effect;
 import ch.njol.skript.lang.Expression;
 import ch.njol.skript.lang.SkriptParser;
 import ch.njol.util.Kleenean;
-import nl.knokko.customitems.plugin.CustomItemsApi;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 import nl.knokko.customitems.plugin.command.CommandCustomItemsGive;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;

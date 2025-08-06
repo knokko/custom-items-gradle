@@ -12,7 +12,10 @@ import com.denizenscript.denizencore.utilities.debugging.Debug;
 import com.denizenscript.denizencore.utilities.text.StringHolder;
 import nl.knokko.customitems.plugin.container.ContainerInstance;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 abstract class KciContainerEvent extends BukkitScriptEvent {
 

@@ -8,7 +8,6 @@ import ch.njol.skript.lang.util.SimpleExpression;
 import ch.njol.util.Kleenean;
 import nl.knokko.customitems.plugin.container.ContainerInstance;
 import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
 
 @SuppressWarnings("unused")
 public class ExprContainerFuelTime extends SimpleExpression<Integer> {

@@ -38,7 +38,7 @@ public class ClsContainer {
                         return "containerinstance(" + container.getType().getName() + ")";
                     }
 
-                    @Override
+                    //@Override
                     public String getVariableNamePattern() {
                         return "containerinstance(.*)";
                     }

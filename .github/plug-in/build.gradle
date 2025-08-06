@@ -5,7 +5,7 @@ plugins {
 
 allprojects {
     apply plugin: 'java'
-    
+
     group = 'nl.knokko.customitems'
 
     repositories {
@@ -60,11 +60,11 @@ project(':plug-in') {
         compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.0'
         compileOnly 'ru.endlesscode.mimic:mimic-bukkit-api:0.7.1'
         compileOnly 'com.github.jojodmo:ItemBridge:master-SNAPSHOT'
-        compileOnly 'com.github.SkriptLang:Skript:2.6'
-        compileOnly 'com.denizenscript:denizen:1.2.5-SNAPSHOT'
-        compileOnly 'com.elmakers.mine.bukkit:MagicAPI:7.5'
+        compileOnly 'com.github.SkriptLang:Skript:2.12.1'
+        compileOnly 'com.denizenscript:denizen:1.3.1-SNAPSHOT'
+        compileOnly 'com.elmakers.mine.bukkit:MagicAPI:9.3'
         compileOnly 'org.geysermc.geyser:api:2.2.0-SNAPSHOT'
-        implementation 'de.tr7zw:item-nbt-api:2.15.0'
+        implementation 'de.tr7zw:item-nbt-api:2.15.1'
 
         testImplementation project(':bit-helper')
         testImplementation 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'

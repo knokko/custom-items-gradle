@@ -7,9 +7,9 @@ import org.bukkit.Bukkit;
 
 import java.io.IOException;
 
-class CISkriptAddon {
+public class CISkriptAddon {
 
-    static void enable(CustomItemsPlugin plugin) {
+    public static void enable(CustomItemsPlugin plugin) {
         if (!Skript.isAcceptRegistrations()) {
             Bukkit.getLogger().warning("Failed to enable Skript support because Skript no longer accepts registrations");
             return;

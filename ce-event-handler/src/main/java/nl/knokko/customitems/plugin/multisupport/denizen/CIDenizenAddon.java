@@ -12,9 +12,9 @@ import nl.knokko.customitems.plugin.set.ItemSetWrapper;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 
-class CIDenizenAddon {
+public class CIDenizenAddon {
 
-    static void enable() {
+    public static void enable() {
         // <--[tag]
         // @attribute <ItemTag.is_kci_item>
         // @returns ElementTag(Boolean)
