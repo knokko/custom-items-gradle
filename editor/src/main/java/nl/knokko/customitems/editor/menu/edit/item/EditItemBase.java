@@ -141,8 +141,8 @@ public abstract class EditItemBase<V extends KciItem> extends GuiMenu {
 				LABEL_X, -0.04f, LABEL_X + 0.2f, 0.01f
 		);
 		addComponent(
-				new DynamicTextComponent("NBT: ", EditProps.LABEL),
-				LABEL_X, -0.1f, LABEL_X + 0.08f, -0.05f
+				new DynamicTextComponent("NBT [1.12 to 1.20]: ", EditProps.LABEL),
+				LABEL_X, -0.1f, LABEL_X + 0.2f, -0.05f
 		);
 		addComponent(
 				new DynamicTextComponent("Attack range multiplier: ", EditProps.LABEL),
@@ -205,7 +205,7 @@ public abstract class EditItemBase<V extends KciItem> extends GuiMenu {
 			}), 0.025f, 0.1f, 0.15f, 0.2f);
 		}
 		addComponent(errorComponent, 0.1f, 0.9f, 0.9f, 1f);
-		
+
 		// Renaming is no longer allowed!
 		if (toModify == null) {
 			addComponent(
@@ -418,7 +418,7 @@ public abstract class EditItemBase<V extends KciItem> extends GuiMenu {
 			));
 		}), BUTTON_X, 0.14f, BUTTON_X + 0.1f, 0.19f);
 	}
-	
+
 	private void addCommandsComponent() {
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			state.getWindow().setMainComponent(new EditCommandSystem(
@@ -426,7 +426,7 @@ public abstract class EditItemBase<V extends KciItem> extends GuiMenu {
 			));
 		}), BUTTON_X, 0.08f, BUTTON_X + 0.1f, 0.13f);
 	}
-	
+
 	protected ReplacementConditionEntry getExampleReplaceCondition() {
 		return ReplacementConditionEntry.createQuick(
 				ReplacementConditionEntry.ReplacementCondition.HASITEM,
@@ -436,7 +436,7 @@ public abstract class EditItemBase<V extends KciItem> extends GuiMenu {
 				null
 		);
 	}
-	
+
 	private void addReplaceComponent() {
 		addComponent(new DynamicTextButton("Change...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			if (!itemSet.items.isEmpty()) {
@@ -457,7 +457,7 @@ public abstract class EditItemBase<V extends KciItem> extends GuiMenu {
 	protected abstract KciItemType.Category getCategory();
 
 	protected boolean allowTexture(TextureReference texture) {
-		
+
 		// No subclasses such as bow textures
 		return texture.get().getClass() == KciTexture.class || texture.get().getClass() == AnimatedTexture.class;
 	}
