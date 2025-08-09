@@ -17,11 +17,13 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 import java.util.function.Consumer;
 
 import static nl.knokko.customitems.editor.menu.commandhelp.HelpSummon.getEquipmentTag;
+import static nl.knokko.customitems.editor.menu.commandhelp.HelpSummon.getNewEquipmentTag;
 
 public class HelpMobSpawner extends GuiMenu {
 
 	private final ItemSet set;
 	private final GuiComponent returnMenu;
+	private final TextComponent infoComponent;
 
 	private KciItem selectedMainHand, selectedOffHand, selectedHelmet, selectedChestplate, selectedLeggings,
 			selectedBoots;
@@ -29,6 +31,18 @@ public class HelpMobSpawner extends GuiMenu {
 	public HelpMobSpawner(ItemSet set, GuiComponent returnMenu) {
 		this.set = set;
 		this.returnMenu = returnMenu;
+		this.infoComponent = new TextComponent("", EditProps.LABEL);
+	}
+
+	private void putCommandOnClipboard(String command) {
+		String error = CommandBlockHelpOverview.setClipboard(command);
+		if (error == null) {
+			infoComponent.setProperties(EditProps.LABEL);
+			infoComponent.setText("Copied command to clipboard");
+		} else {
+			infoComponent.setProperties(EditProps.ERROR);
+			infoComponent.setText("Could not copy command to clipboard because: " + error);
+		}
 	}
 
 	@Override
@@ -50,7 +64,6 @@ public class HelpMobSpawner extends GuiMenu {
 
 	@Override
 	protected void addComponents() {
-		TextComponent infoComponent = new TextComponent("", EditProps.LABEL);
 		WrapperComponent<SimpleImageComponent> mainHandImage = new WrapperComponent<>(null);
 		WrapperComponent<SimpleImageComponent> offHandImage = new WrapperComponent<>(null);
 		WrapperComponent<SimpleImageComponent> helmetImage = new WrapperComponent<>(null);
@@ -105,29 +118,26 @@ public class HelpMobSpawner extends GuiMenu {
 						+ getEquipmentTag(selectedMainHand) + "," + getEquipmentTag(selectedOffHand)
 						+ "],ArmorItems:[" + getEquipmentTag(selectedBoots) + "," + getEquipmentTag(selectedLeggings)
 						+ "," + getEquipmentTag(selectedChestplate) + "," + getEquipmentTag(selectedHelmet) + "]},Delay:2}";
-			String error = CommandBlockHelpOverview.setClipboard(command);
-			if (error == null) {
-				infoComponent.setProperties(EditProps.LABEL);
-				infoComponent.setText("Copied command to clipboard");
-			} else {
-				infoComponent.setProperties(EditProps.ERROR);
-				infoComponent.setText("Could not copy command to clipboard because: " + error);
-			}
-		}), 0.2f, 0.05f, 0.45f, 0.15f);
+			putCommandOnClipboard(command);
+		}), 0.1f, 0.05f, 0.35f, 0.15f);
 		addComponent(new DynamicTextButton("Generate for minecraft 1.13+", EditProps.BUTTON, EditProps.HOVER, () -> {
 			String command = "/setblock ~ ~1 ~ spawner{SpawnData:{id:skeleton,HandItems:["
 						+ getEquipmentTag(selectedMainHand) + "," + getEquipmentTag(selectedOffHand)
 						+ "],ArmorItems:[" + getEquipmentTag(selectedBoots) + "," + getEquipmentTag(selectedLeggings)
 						+ "," + getEquipmentTag(selectedChestplate) + ","
 						+ getEquipmentTag(selectedHelmet) + "]},Delay:2} replace";
-			String error = CommandBlockHelpOverview.setClipboard(command);
-			if (error == null) {
-				infoComponent.setProperties(EditProps.LABEL);
-				infoComponent.setText("Copied command to clipboard");
-			} else {
-				infoComponent.setProperties(EditProps.ERROR);
-				infoComponent.setText("Could not copy command to clipboard because: " + error);
-			}
-		}), 0.55f, 0.05f, 0.8f, 0.15f);
+			putCommandOnClipboard(command);
+		}), 0.375f, 0.05f, 0.625f, 0.15f);
+		addComponent(new DynamicTextButton("Generate for minecraft 1.21+", EditProps.BUTTON, EditProps.HOVER, () -> {
+			String command = "/setblock ~ ~1 ~ spawner{SpawnData:{entity:{id:skeleton,equipment:{";
+			if (selectedMainHand != null) command += "mainhand:" + getNewEquipmentTag(selectedMainHand) + ",";
+			if (selectedOffHand != null) command += "offhand:" + getNewEquipmentTag(selectedOffHand) + ",";
+			if (selectedHelmet != null) command += "head:" + getNewEquipmentTag(selectedHelmet) + ",";
+			if (selectedChestplate != null) command += "chest:" + getNewEquipmentTag(selectedChestplate) + ",";
+			if (selectedLeggings != null) command += "legs:" + getNewEquipmentTag(selectedLeggings) + ",";
+			if (selectedBoots!= null) command += "feet:" + getNewEquipmentTag(selectedBoots) + ",";
+			if (command.endsWith(",")) command = command.substring(0, command.length() - 1);
+			putCommandOnClipboard(command + "}}}} replace");
+		}), 0.65f, 0.05f, 0.9f, 0.15f);
 	}
 }

@@ -8,6 +8,7 @@ import nl.knokko.gui.component.GuiComponent;
 import nl.knokko.gui.component.WrapperComponent;
 import nl.knokko.gui.component.image.SimpleImageComponent;
 import nl.knokko.gui.component.menu.GuiMenu;
+import nl.knokko.gui.component.text.ConditionalTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextButton;
 import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
@@ -26,6 +27,17 @@ public class HelpGive extends GuiMenu {
 		this.selectedItemImage = new WrapperComponent<>(null);
 		this.infoComponent = new DynamicTextComponent("", EditProps.LABEL);
 		this.selectedItem = null;
+	}
+
+	private void putCommandOnClipboard(String command) {
+		String error = CommandBlockHelpOverview.setClipboard(command);
+		if (error == null) {
+			infoComponent.setProperties(EditProps.LABEL);
+			infoComponent.setText("Copied command to clipboard");
+		} else {
+			infoComponent.setProperties(EditProps.ERROR);
+			infoComponent.setText("Could not copy command to clipboard because: " + error);
+		}
 	}
 
 	@Override
@@ -47,28 +59,18 @@ public class HelpGive extends GuiMenu {
 		addComponent(new DynamicTextButton("Select item...", EditProps.BUTTON, EditProps.HOVER, () -> {
 			HelpMobSpawner.goToItemSelectMenu(state, set, newItem -> this.selectedItem = newItem, selectedItemImage, this);
 		}), 0.7f, 0.8f, 0.85f, 0.9f);
-		addComponent(new DynamicTextButton("Generate for minecraft 1.12", EditProps.BUTTON, EditProps.HOVER, () -> {
+		addComponent(new ConditionalTextButton("Generate for minecraft 1.12", EditProps.BUTTON, EditProps.HOVER, () -> {
 			String command = "/give @p stick 1 0 {KnokkosCustomItems:{Name:" + selectedItem.getName() + "}}";
-			String error = CommandBlockHelpOverview.setClipboard(command);
-			if (error == null) {
-				infoComponent.setProperties(EditProps.LABEL);
-				infoComponent.setText("Copied command to clipboard");
-			} else {
-				infoComponent.setProperties(EditProps.ERROR);
-				infoComponent.setText("Could not copy command to clipboard because: " + error);
-			}
-		}), 0.2f, 0.05f, 0.45f, 0.15f);
-		addComponent(new DynamicTextButton("Generate for minecraft 1.13+", EditProps.BUTTON, EditProps.HOVER, () -> {
+			putCommandOnClipboard(command);
+		}, () -> selectedItem != null), 0.1f, 0.05f, 0.35f, 0.15f);
+		addComponent(new ConditionalTextButton("Generate for minecraft 1.13+", EditProps.BUTTON, EditProps.HOVER, () -> {
 			String command = "/give @p stick{KnokkosCustomItems:{Name:" + selectedItem.getName() + "}}";
-			String error = CommandBlockHelpOverview.setClipboard(command);
-			if (error == null) {
-				infoComponent.setProperties(EditProps.LABEL);
-				infoComponent.setText("Copied command to clipboard");
-			} else {
-				infoComponent.setProperties(EditProps.ERROR);
-				infoComponent.setText("Could not copy command to clipboard because: " + error);
-			}
-		}), 0.55f, 0.05f, 0.8f, 0.15f);
+			putCommandOnClipboard(command);
+		}, () -> selectedItem != null), 0.375f, 0.05f, 0.625f, 0.15f);
+		addComponent(new ConditionalTextButton("Generate for minecraft 1.21+", EditProps.BUTTON, EditProps.HOVER, () -> {
+			String command = "/give @p stick[custom_data={KnokkosCustomItems:{Name:" + selectedItem.getName() + "}}]";
+			putCommandOnClipboard(command);
+		}, () -> selectedItem != null), 0.65f, 0.05f, 0.9f, 0.15f);
 	}
 
 	@Override

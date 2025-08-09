@@ -16,6 +16,7 @@ public class HelpSummon extends GuiMenu {
 
 	private final ItemSet set;
 	private final GuiComponent returnMenu;
+	private final TextComponent infoComponent;
 
 	private KciItem selectedMainHand, selectedOffHand, selectedHelmet, selectedChestplate, selectedLeggings,
 			selectedBoots;
@@ -23,6 +24,7 @@ public class HelpSummon extends GuiMenu {
 	public HelpSummon(ItemSet set, GuiComponent returnMenu) {
 		this.set = set;
 		this.returnMenu = returnMenu;
+		this.infoComponent = new TextComponent("", EditProps.LABEL);
 	}
 
 	@Override
@@ -30,9 +32,19 @@ public class HelpSummon extends GuiMenu {
 		return EditProps.BACKGROUND;
 	}
 
+	private void putCommandOnClipboard(String command) {
+		String error = CommandBlockHelpOverview.setClipboard(command);
+		if (error == null) {
+			infoComponent.setProperties(EditProps.LABEL);
+			infoComponent.setText("Copied command to clipboard");
+		} else {
+			infoComponent.setProperties(EditProps.ERROR);
+			infoComponent.setText("Could not copy command to clipboard because: " + error);
+		}
+	}
+
 	@Override
 	protected void addComponents() {
-		TextComponent infoComponent = new TextComponent("", EditProps.LABEL);
 		WrapperComponent<SimpleImageComponent> mainHandImage = new WrapperComponent<>(null);
 		WrapperComponent<SimpleImageComponent> offHandImage = new WrapperComponent<>(null);
 		WrapperComponent<SimpleImageComponent> helmetImage = new WrapperComponent<>(null);
@@ -82,20 +94,28 @@ public class HelpSummon extends GuiMenu {
 		}), 0.75f, 0.175f, 0.9f, 0.275f);
 		addComponent(bootsImage, 0.9f, 0.175f, 1f, 0.275f);
 
-		addComponent(new DynamicTextButton("Generate", EditProps.BUTTON, EditProps.HOVER, () -> {
+		addComponent(new DynamicTextButton("Generate for 1.20-", EditProps.BUTTON, EditProps.HOVER, () -> {
 			String command = "/summon zombie ~ ~1 ~ {HandItems:[" + getEquipmentTag(selectedMainHand) + ","
 						+ getEquipmentTag(selectedOffHand) + "],ArmorItems:[" + getEquipmentTag(selectedBoots) + ","
 						+ getEquipmentTag(selectedLeggings) + "," + getEquipmentTag(selectedChestplate) + ","
 						+ getEquipmentTag(selectedHelmet) + "]}";
-			String error = CommandBlockHelpOverview.setClipboard(command);
-			if (error == null) {
-				infoComponent.setProperties(EditProps.LABEL);
-				infoComponent.setText("Copied command to clipboard");
-			} else {
-				infoComponent.setProperties(EditProps.ERROR);
-				infoComponent.setText("Could not copy command to clipboard because: " + error);
-			}
-		}), 0.2f, 0.05f, 0.35f, 0.15f);
+			putCommandOnClipboard(command);
+		}), 0.1f, 0.05f, 0.3f, 0.15f);
+		addComponent(new DynamicTextButton("Generate for 1.21+", EditProps.BUTTON, EditProps.HOVER, () -> {
+			String command = "/summon zombie ~ ~1 ~ {equipment:{";
+			if (selectedMainHand != null) command += "mainhand:" + getNewEquipmentTag(selectedMainHand) + ",";
+			if (selectedOffHand != null) command += "offhand:" + getNewEquipmentTag(selectedOffHand) + ",";
+			if (selectedHelmet != null) command += "head:" + getNewEquipmentTag(selectedHelmet) + ",";
+			if (selectedChestplate != null) command += "chest:" + getNewEquipmentTag(selectedChestplate) + ",";
+			if (selectedLeggings != null) command += "legs:" + getNewEquipmentTag(selectedLeggings) + ",";
+			if (selectedBoots!= null) command += "feet:" + getNewEquipmentTag(selectedBoots) + ",";
+			if (command.endsWith(",")) command = command.substring(0, command.length() - 1);
+			putCommandOnClipboard(command + "}}");
+		}), 0.4f, 0.05f, 0.6f, 0.15f);
+	}
+
+	static String getNewEquipmentTag(KciItem item) {
+		return item == null ? "{}" : "{id:stick,count:1,components:{custom_data:{KnokkosCustomItems:{Name:" + item.getName() + "}}}}";
 	}
 
 	static String getEquipmentTag(KciItem item) {
