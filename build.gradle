@@ -57,8 +57,8 @@ project(':plug-in') {
         runtimeOnly project(':kci-nms17')
         runtimeOnly project(':kci-nms18plus')
         runtimeOnly project(':kci-nms18')
-        runtimeOnly project(':kci-nms20plus')
         runtimeOnly project(':kci-nms20')
+        runtimeOnly project(':kci-nms21plus')
         runtimeOnly project(':kci-nms21')
         runtimeOnly project(':ce-event-handler')
         compileOnly project(':bit-helper')
@@ -240,7 +240,7 @@ project(':kci-nms19') {
     }
 }
 
-project(':kci-nms20plus') {
+project(':kci-nms20') {
     dependencies {
         compileOnly project(':kci-nms')
         compileOnly project(':kci-nms13plus')
@@ -252,14 +252,13 @@ project(':kci-nms20plus') {
     }
 }
 
-project(':kci-nms20') {
+project(':kci-nms21plus') {
     dependencies {
         compileOnly project(':kci-nms')
         compileOnly project(':kci-nms13plus')
         compileOnly project(':kci-nms16plus')
         compileOnly project(':kci-nms18plus')
-        compileOnly project(':kci-nms20plus')
-        compileOnly 'org.spigotmc:spigot:1.20.6-R0.1-SNAPSHOT'
+        compileOnly "io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT"
     }
 }
 
@@ -269,7 +268,7 @@ project(':kci-nms21') {
         compileOnly project(':kci-nms13plus')
         compileOnly project(':kci-nms16plus')
         compileOnly project(':kci-nms18plus')
-        compileOnly project(':kci-nms20plus')
+        compileOnly project(':kci-nms21plus')
         compileOnly 'org.spigotmc:spigot:1.21.8-R0.1-SNAPSHOT'
     }
 }

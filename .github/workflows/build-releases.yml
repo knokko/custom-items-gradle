@@ -184,11 +184,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: kci-nms20
-          path: kci-nms20/build/classes/java/main
-      - uses: actions/upload-artifact@v4
-        with:
-          name: kci-nms20plus
-          path: kci-nms20plus/build/libs/kci-nms20plus-all.jar
+          path: kci-nms20/build/libs/kci-nms20-all.jar
   mc1-21:
     runs-on: ubuntu-latest
     container:
@@ -202,6 +198,10 @@ jobs:
         with:
           name: kci-nms21
           path: kci-nms21/build/classes/java/main
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kci-nms21plus
+          path: kci-nms21plus/build/classes/java/main
   ce-event-handler:
     runs-on: ubuntu-latest
     steps:
@@ -276,18 +276,18 @@ jobs:
           path: combined
       - uses: actions/download-artifact@v4
         with:
-          name: kci-nms20plus
+          name: kci-nms20
           path: combined
       - uses: actions/download-artifact@v4
         with:
-          name: kci-nms20
+          name: kci-nms21plus
           path: combined
       - uses: actions/download-artifact@v4
         with:
           name: kci-nms21
           path: combined
-      - run: unzip -d combined combined/kci-nms20plus-all.jar
-      - run: rm combined/kci-nms20plus-all.jar
+      - run: unzip -d combined combined/kci-nms20-all.jar
+      - run: rm combined/kci-nms20-all.jar
       - run: unzip -d combined -o combined/plug-in-all.jar
       - run: rm combined/plug-in-all.jar
       - run: cd combined && zip -r CustomItems.jar * && cd ..

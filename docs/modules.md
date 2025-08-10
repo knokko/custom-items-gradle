@@ -67,7 +67,7 @@ Each `kci-nmsXX` module implements these interfaces
 for minecraft `1.XX`.
 
 The modules `kci-nms13plus`, `kci-nms16plus`,
-`kci-nms18plus`, and `kci-nms20plus` facilitate code reuse
+`kci-nms18plus`, and `kci-nms21plus` facilitate code reuse
 between their corresponding minecraft version,
 and later versions.
 
