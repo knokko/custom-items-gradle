@@ -31,7 +31,7 @@ public class KciNmsItems21 extends KciNmsItems20Plus {
     @Override
     public ItemStack translate(ItemStack item, String itemName, boolean translateDisplayName, int loreSize) {
         if (!item.editMeta(meta -> {
-            meta.customName(Component.text("test1234"));
+            meta.customName(item.effectiveName().append(Component.translatable("kci." + itemName + ".name")));
         })) {
             throw new RuntimeException("Failed to edit ItemMeta of " + item + " for " + itemName);
         }
