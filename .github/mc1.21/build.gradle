@@ -70,6 +70,6 @@ project(':kci-nms21') {
         compileOnly project(':kci-nms16plus')
         compileOnly project(':kci-nms18plus')
         compileOnly project(':kci-nms21plus')
-        compileOnly "io.spigotmc:spigot-api:1.21.8-R0.1-SNAPSHOT"
+        compileOnly 'org.spigotmc:spigot-api:1.21.8-R0.1-SNAPSHOT'
     }
 }
