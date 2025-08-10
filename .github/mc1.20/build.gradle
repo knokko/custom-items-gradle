@@ -55,14 +55,22 @@ project(':kci-nms18plus') {
     }
 }
 
-project(':kci-nms20plus') {
+project(':kci-nms21plus') {
+    dependencies {
+        compileOnly project(':kci-nms')
+        compileOnly project(':kci-nms13plus')
+        compileOnly project(':kci-nms16plus')
+        compileOnly project(':kci-nms18plus')
+    }
+}
+
+project(':kci-nms20') {
     apply plugin: 'io.github.goooler.shadow'
     dependencies {
         compileOnly project(':kci-nms')
         compileOnly project(':kci-nms13plus')
         compileOnly project(':kci-nms16plus')
         compileOnly project(':kci-nms18plus')
-        compileOnly 'org.spigotmc:spigot-api:1.20.6-R0.1-SNAPSHOT'
         compileOnly 'io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT'
         implementation("com.github.knokko:DataComponentAPI:b8f529f78e86b357b5d24ccad95408c9772ef4aa")
     }
@@ -70,15 +78,3 @@ project(':kci-nms20plus') {
         relocate('kr.toxicity.libraries.datacomponent', 'nl.knokko.customitems.plugin.shadow.datacomponent')
     }
 }
-
-project(':kci-nms20') {
-    dependencies {
-        compileOnly project(':kci-nms')
-        compileOnly project(':kci-nms13plus')
-        compileOnly project(':kci-nms16plus')
-        compileOnly project(':kci-nms18plus')
-        compileOnly project(':kci-nms20plus')
-        compileOnly 'org.spigotmc:spigot:1.20.6-R0.1-SNAPSHOT'
-    }
-}
-

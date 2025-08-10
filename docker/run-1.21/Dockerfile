@@ -20,7 +20,7 @@ RUN apk add zip
 COPY kci-nms13plus ./kci-nms13plus
 COPY kci-nms16plus ./kci-nms16plus
 COPY kci-nms18plus ./kci-nms18plus
-COPY kci-nms20plus ./kci-nms20plus
+COPY kci-nms21plus ./kci-nms21plus
 COPY kci-nms21 ./kci-nms21
 COPY .github/mc1.21/build.gradle ./
 COPY .github/mc1.21/settings.gradle ./
@@ -29,7 +29,7 @@ RUN mkdir combined
 RUN unzip -d combined -o kci-nms13plus/build/libs/kci-nms13plus.jar
 RUN unzip -d combined -o kci-nms16plus/build/libs/kci-nms16plus.jar
 RUN unzip -d combined -o kci-nms18plus/build/libs/kci-nms18plus.jar
-RUN unzip -d combined -o kci-nms20plus/build/libs/kci-nms20plus.jar
+RUN unzip -d combined -o kci-nms21plus/build/libs/kci-nms21plus.jar
 RUN unzip -d combined -o kci-nms21/build/libs/kci-nms21.jar
 COPY --from=build_plugin /custom-items/plug-in/build/libs/plug-in-all.jar ./plug-in-raw.jar
 RUN unzip -d combined -o plug-in-raw.jar
