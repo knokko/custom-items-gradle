@@ -68,7 +68,7 @@ project(':plug-in') {
         compileOnly 'com.github.jojodmo:ItemBridge:master-SNAPSHOT'
         compileOnly 'com.elmakers.mine.bukkit:MagicAPI:9.3'
         compileOnly 'org.geysermc.geyser:api:2.2.0-SNAPSHOT'
-        implementation 'de.tr7zw:item-nbt-api:2.15.1'
+        implementation 'de.tr7zw:item-nbt-api:2.15.2-SNAPSHOT'
 
         testImplementation project(':bit-helper')
         testImplementation 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
