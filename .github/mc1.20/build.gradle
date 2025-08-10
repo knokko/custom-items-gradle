@@ -62,6 +62,7 @@ project(':kci-nms20') {
         compileOnly project(':kci-nms13plus')
         compileOnly project(':kci-nms16plus')
         compileOnly project(':kci-nms18plus')
+        compileOnly 'org.spigotmc:spigot:1.20.6-R0.1-SNAPSHOT'
         compileOnly 'io.papermc.paper:paper-api:1.20.6-R0.1-SNAPSHOT'
         implementation("com.github.knokko:DataComponentAPI:b8f529f78e86b357b5d24ccad95408c9772ef4aa")
     }
