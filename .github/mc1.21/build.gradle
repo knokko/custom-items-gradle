@@ -59,7 +59,6 @@ project(':kci-nms21plus') {
         compileOnly project(':kci-nms16plus')
         compileOnly project(':kci-nms18plus')
         compileOnly 'io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT'
-        implementation("com.github.knokko:DataComponentAPI:b8f529f78e86b357b5d24ccad95408c9772ef4aa")
     }
 }
 
