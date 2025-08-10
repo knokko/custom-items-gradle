@@ -8,10 +8,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.components.EquippableComponent;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-
 public abstract class KciNmsItems21Plus extends KciNmsItems18Plus {
 
 	private static final boolean HAS_PAPER;
@@ -40,18 +36,6 @@ public abstract class KciNmsItems21Plus extends KciNmsItems18Plus {
 	@Override
 	public ItemStack translate(ItemStack item, String itemName, boolean translateDisplayName, int loreSize) {
 		if (!HAS_PAPER) return item;
-		if (!item.editMeta(meta -> {
-			if (translateDisplayName) {
-				meta.customName(net.kyori.adventure.text.Component.translatable("kci." + itemName + ".name"));
-			}
-			List<net.kyori.adventure.text.Component> loreComponents = new ArrayList<>(loreSize);
-			for (int index = 0; index < loreSize; index++) {
-				loreComponents.add(net.kyori.adventure.text.Component.translatable("kci." + itemName + ".lore." + index));
-			}
-			meta.lore(loreComponents);
-		})) {
-			Bukkit.getLogger().log(Level.WARNING, "Failed to translate custom item " + itemName);
-		}
-		return item;
+		return Translations21Plus.translate(item, itemName, translateDisplayName, loreSize);
 	}
 }
