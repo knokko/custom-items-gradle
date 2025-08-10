@@ -14,7 +14,7 @@ When you want to run a different minecraft version,
 you should replace the `run-1.12` in the first command
 with the desired minecraft version.
 
-Note: only MC 1.12 and 1.21 are supported right now.
+Note: only MC 1.12, 1.20, and 1.21 are supported right now.
 More versions may follow later.
 
 Note: do **not** run the second command with git bash,

@@ -1,6 +1,5 @@
 package nl.knokko.customitems.nms21plus;
 
-import net.kyori.adventure.text.Component;
 import nl.knokko.customitems.nms18plus.KciNmsItems18Plus;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
@@ -15,6 +14,20 @@ import java.util.logging.Level;
 
 public abstract class KciNmsItems21Plus extends KciNmsItems18Plus {
 
+	private static final boolean HAS_PAPER;
+
+	static {
+		boolean hasPaper;
+		try {
+			Class.forName("net.kyori.adventure.text.Component");
+			hasPaper = true;
+		} catch (ClassNotFoundException noPaper) {
+			hasPaper = false;
+			Bukkit.getLogger().warning("CustomItems translations in MC 1.20+ requires papermc");
+		}
+		HAS_PAPER = hasPaper;
+	}
+
 	@Override
 	@SuppressWarnings("UnstableApiUsage")
 	public void setEquippableAssetID(ItemMeta meta, EquipmentSlot slot, String id) {
@@ -26,13 +39,14 @@ public abstract class KciNmsItems21Plus extends KciNmsItems18Plus {
 
 	@Override
 	public ItemStack translate(ItemStack item, String itemName, boolean translateDisplayName, int loreSize) {
+		if (!HAS_PAPER) return item;
 		if (!item.editMeta(meta -> {
 			if (translateDisplayName) {
-				meta.customName(Component.translatable("kci." + itemName + ".name"));
+				meta.customName(net.kyori.adventure.text.Component.translatable("kci." + itemName + ".name"));
 			}
-			List<Component> loreComponents = new ArrayList<>(loreSize);
+			List<net.kyori.adventure.text.Component> loreComponents = new ArrayList<>(loreSize);
 			for (int index = 0; index < loreSize; index++) {
-				loreComponents.add(Component.translatable("kci." + itemName + ".lore." + index));
+				loreComponents.add(net.kyori.adventure.text.Component.translatable("kci." + itemName + ".lore." + index));
 			}
 			meta.lore(loreComponents);
 		})) {
