@@ -71,6 +71,6 @@ project(':kci-nms21') {
         compileOnly project(':kci-nms16plus')
         compileOnly project(':kci-nms18plus')
         compileOnly project(':kci-nms20plus')
-        compileOnly 'org.spigotmc:spigot:1.21.8-R0.1-SNAPSHOT'
+        compileOnly "io.papermc.paper:paper-api:1.21.8-R0.1-SNAPSHOT"
     }
 }
