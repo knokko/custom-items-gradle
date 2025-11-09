@@ -6,7 +6,7 @@ import nl.knokko.customitems.nms21plus.KciNmsEntities21Plus;
 @SuppressWarnings("unused")
 public class KciNms21 extends KciNms16Plus {
 
-    public static final String NMS_VERSION_STRING = "1_21_R5";
+    public static final String NMS_VERSION_STRING = "1_21_R6";
 
     public KciNms21() {
         super(new KciNmsEntities21Plus(), new KciNmsItems21());

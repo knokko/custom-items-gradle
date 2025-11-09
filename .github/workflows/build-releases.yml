@@ -188,7 +188,7 @@ jobs:
   mc1-21:
     runs-on: ubuntu-latest
     container:
-      image: knokkogator/kci:0.1.5-mc1.21
+      image: knokkogator/kci:0.1.6-mc1.21
     steps:
       - uses: actions/checkout@v4
       - run: cp .github/mc1.21/build.gradle build.gradle
