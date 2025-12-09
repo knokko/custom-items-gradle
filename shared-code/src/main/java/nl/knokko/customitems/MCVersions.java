@@ -17,6 +17,18 @@ public class MCVersions {
 	public static final int LAST_VERSION = VERSION1_21;
 
 	public static String createString(int version) {
+		switch (version) {
+			case 12: return "1.12.2";
+			case 13: return "1.13.2";
+			case 14: return "1.14.4";
+			case 15: return "1.15.2";
+			case 16: return "1.16.5";
+			case 17: return "1.17.1";
+			case 18: return "1.18.2";
+			case 19: return "1.19.4";
+			case 20: return "1.20.6";
+			case 21: return "1.21.10";
+		}
 		// This function might become more complicated in the future
 		return "1." + version;
 	}

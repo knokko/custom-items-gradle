@@ -57,7 +57,7 @@ public class ExportMenu extends GuiMenu {
         addComponent(CollectionSelect.createButton(
                 MC_VERSIONS, exportSettings::setMcVersion, MCVersions::createString,
                 exportSettings.getMcVersion(), false
-        ), 0.375f, 0.8f, 0.425f, 0.9f);
+        ), 0.375f, 0.8f, 0.45f, 0.9f);
 
         addComponent(new DynamicTextComponent("Export mode:", LABEL), 0.525f, 0.8f, 0.655f, 0.9f);
         addComponent(EnumSelect.createSelectButton(
