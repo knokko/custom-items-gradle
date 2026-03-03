@@ -27,7 +27,7 @@ public class MCVersions {
 			case 18: return "1.18.2";
 			case 19: return "1.19.4";
 			case 20: return "1.20.6";
-			case 21: return "1.21.10";
+			case 21: return "1.21.11";
 		}
 		// This function might become more complicated in the future
 		return "1." + version;

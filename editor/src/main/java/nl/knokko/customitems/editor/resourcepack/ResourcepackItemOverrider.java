@@ -168,10 +168,10 @@ class ResourcepackItemOverrider {
     ) throws IOException {
         List<JsonObject> entries = new ArrayList<>(dataAssignments.claimList.size());
         for (ItemDurabilityClaim claim : dataAssignments.claimList) {
-            entries.add(createArmorEntry(claim.resourcePath, claim.itemDamage, false));
+            entries.add(createCustomArmorEntry(claim.resourcePath, claim.itemDamage));
         }
 
-        overrideModernItemTemplate(output, createArmorEntry(vanillaTexturePath, -1, isLeather), entries);
+        overrideModernItemTemplate(output, createVanillaArmorEntry(vanillaTexturePath, isLeather), entries);
     }
 
     private void overrideModernTrident(PrintWriter output, ItemDurabilityAssignments dataAssignments) throws IOException {
@@ -296,8 +296,7 @@ class ResourcepackItemOverrider {
         return root;
     }
 
-    private JsonObject createArmorEntry(String texturePrefix, int threshold, boolean isLeather) {
-        JsonObject root = new JsonObject();
+    private JsonObject createVanillaArmorEntry(String texturePrefix, boolean isLeather) {
         JsonObject outerModel = new JsonObject();
 
         outerModel.put("type", "select");
@@ -313,8 +312,12 @@ class ResourcepackItemOverrider {
         }
         outerModel.put("cases", cases);
 
-        if (threshold == -1) return outerModel;
-        root.put("model", outerModel);
+        return outerModel;
+    }
+
+    private JsonObject createCustomArmorEntry(String texturePrefix, int threshold) {
+        JsonObject root = new JsonObject();
+        root.put("model", createArmorLeaf(texturePrefix, false));
         root.put("threshold", threshold);
         return root;
     }

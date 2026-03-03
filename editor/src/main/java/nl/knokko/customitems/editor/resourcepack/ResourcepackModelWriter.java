@@ -39,7 +39,7 @@ class ResourcepackModelWriter {
     }
 
     void writeCustomItemModels() throws IOException {
-        boolean supportsArmorTrims = itemSet.getExportSettings().getMcVersion() >= VERSION1_20;
+        boolean supportsArmorTrims = itemSet.getExportSettings().getMcVersion() == VERSION1_20;
         for (KciItem item : itemSet.items) {
 
             // Core item model
