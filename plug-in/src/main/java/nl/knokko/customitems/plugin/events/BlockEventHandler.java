@@ -285,7 +285,7 @@ public class BlockEventHandler implements Listener {
 
     public static boolean shouldRequiredItemsAccept(RequiredItems ri, ItemStack item, ItemSetWrapper itemSet) {
         if (item == null) return shouldRequiredItemsAccept(ri, VMaterial.AIR, null);
-        return shouldRequiredItemsAccept(ri, VMaterial.valueOf(item.getType().name()), itemSet.getItem(item));
+        return shouldRequiredItemsAccept(ri, VMaterial.getOrNull(item.getType().name()), itemSet.getItem(item));
     }
 
     public static boolean shouldRequiredItemsAccept(
@@ -366,7 +366,7 @@ public class BlockEventHandler implements Listener {
                     material = VMaterial.AIR;
                     customItem = null;
                 } else {
-                    material = VMaterial.valueOf(KciNms.instance.items.getMaterialName(item));
+                    material = VMaterial.getOrNull(KciNms.instance.items.getMaterialName(item));
                     customItem = itemSet.getItem(item);
                 }
 

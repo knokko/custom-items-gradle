@@ -549,12 +549,7 @@ public class ContainerEventHandler implements Listener {
 		if (event.getAction() == Action.LEFT_CLICK_BLOCK && event.getPlayer().isSneaking()) {
 			
 			String blockName = KciNms.instance.items.getMaterialName(event.getClickedBlock());
-			VMaterial blockType;
-			try {
-				blockType = VMaterial.valueOf(blockName);
-			} catch (IllegalArgumentException unknownBlockTpe) {
-				blockType = null;
-			}
+			VMaterial blockType = VMaterial.getOrNull(blockName);
 
 			VContainerType vanillaType = VContainerType.fromMaterial(blockType);
 			if (vanillaType != null) {

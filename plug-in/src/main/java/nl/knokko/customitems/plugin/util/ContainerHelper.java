@@ -12,13 +12,13 @@ public class ContainerHelper {
 
     public static boolean shouldHostAcceptBlock(String containerName, ContainerHost host, Block block) {
         if (host.getVanillaType() != null) {
-            VMaterial blockMaterial = VMaterial.valueOf(
+            VMaterial blockMaterial = VMaterial.getOrNull(
                     KciNms.instance.items.getMaterialName(block)
             );
             VContainerType vanillaType = VContainerType.fromMaterial(blockMaterial);
             return host.getVanillaType() == vanillaType;
         } else if (host.getVanillaMaterial() != null) {
-            VMaterial blockMaterial = VMaterial.valueOf(
+            VMaterial blockMaterial = VMaterial.getOrNull(
                     KciNms.instance.items.getMaterialName(block)
             );
             return host.getVanillaMaterial() == blockMaterial;

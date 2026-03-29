@@ -107,7 +107,7 @@ public class KciPopulator extends BlockPopulator {
     private boolean shouldAcceptBlock(Block block, ReplaceBlocks blocksToReplace) {
         KciBlock existingCustomBlock = MushroomBlockHelper.getMushroomBlock(block);
         boolean matchesCustomBlock = existingCustomBlock != null && blocksToReplace.contains(existingCustomBlock, itemSet.get());
-        boolean matchesVanillaBlock = blocksToReplace.contains(VMaterial.valueOf(KciNms.instance.items.getMaterialName(block)));
+        boolean matchesVanillaBlock = blocksToReplace.contains(VMaterial.getOrNull(KciNms.instance.items.getMaterialName(block)));
         return matchesCustomBlock || matchesVanillaBlock;
     }
 

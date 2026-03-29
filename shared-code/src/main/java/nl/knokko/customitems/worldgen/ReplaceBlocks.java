@@ -105,6 +105,7 @@ public class ReplaceBlocks extends ModelValues {
     }
 
     public boolean contains(VMaterial block) {
+        if (block == null) return false;
         return vanillaBlocks.contains(block);
     }
 

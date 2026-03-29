@@ -128,7 +128,7 @@ public class DropEventHandler implements Listener {
 
     private boolean isProjectileSource(ItemStack stack) {
         if (stack == null) return false;
-        VMaterial material = VMaterial.valueOf(stack.getType().name());
+        VMaterial material = VMaterial.getOrNull(stack.getType().name());
 
         KciItem customItem = itemSet.getItem(stack);
         return material == VMaterial.BOW || material == VMaterial.CROSSBOW || material == VMaterial.TRIDENT ||

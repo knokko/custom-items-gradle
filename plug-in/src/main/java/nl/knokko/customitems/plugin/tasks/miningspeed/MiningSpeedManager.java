@@ -64,7 +64,7 @@ public class MiningSpeedManager {
             }
 
             // If the mining speed is below -4, the block should be unbreakable
-            if (customBlock.getMiningSpeed().getSpeedFor(VMaterial.valueOf(tool.getType().name()), customTool) < -4) {
+            if (customBlock.getMiningSpeed().getSpeedFor(VMaterial.getOrNull(tool.getType().name()), customTool) < -4) {
                 event.setCancelled(true);
             }
         }
