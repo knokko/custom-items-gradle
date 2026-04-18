@@ -42,7 +42,7 @@ public class TestShapedRecipes {
         ItemStack customStick = new ItemStack(Material.STICK);
         customStick.addUnsafeEnchantment(Enchantment.DAMAGE_UNDEAD, 5);
 
-        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
+        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes(false);
         craftingRecipes.blockIngredients(new IngredientBlocker(
                 namespace -> namespace == null || !namespace.equals("minecraft"),
                 item -> item != null && item.getEnchantmentLevel(Enchantment.DAMAGE_UNDEAD) > 2
@@ -140,7 +140,7 @@ public class TestShapedRecipes {
         ItemStack sharpSword = new ItemStack(Material.IRON_SWORD);
         sharpSword.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 5);
 
-        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
+        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes(false);
 
         CustomShapedRecipe smiteRecipe = new CustomShapedRecipe(smiteSword, "i", "s");
         smiteRecipe.ingredientMap.put('i', new CustomIngredient(Material.IRON_INGOT));
@@ -190,7 +190,7 @@ public class TestShapedRecipes {
         JavaPlugin plugin = MockBukkit.createMockPlugin();
         Player player = server.addPlayer();
 
-        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
+        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes(false);
         CustomShapedRecipe customRecipe = new CustomShapedRecipe(new ItemStack(Material.BLAZE_ROD), "abc");
         customRecipe.ingredientMap.put('a', new CustomIngredient(
                 Material.BLAZE_POWDER, blazePowder -> true, 1, blaze -> new ItemStack(Material.GLOWSTONE_DUST)
@@ -276,7 +276,7 @@ public class TestShapedRecipes {
         JavaPlugin plugin = MockBukkit.createMockPlugin();
         Player player = server.addPlayer();
 
-        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
+        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes(false);
         CustomShapedRecipe customRecipe = new CustomShapedRecipe(new ItemStack(Material.GOLD_INGOT), "c");
         customRecipe.ingredientMap.put('c', new CustomIngredient(
                 Material.REDSTONE, redStone -> true, 5, redstone -> new ItemStack(Material.GLOWSTONE_DUST)
@@ -320,7 +320,7 @@ public class TestShapedRecipes {
         JavaPlugin plugin = MockBukkit.createMockPlugin();
         Player player = server.addPlayer();
 
-        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
+        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes(false);
         CustomShapedRecipe customRecipe = new CustomShapedRecipe(new ItemStack(Material.GOLD_INGOT), "a", "b", "c");
         customRecipe.ingredientMap.put('a', new CustomIngredient(
                 Material.REDSTONE, redStone -> true, 1, null
@@ -370,7 +370,7 @@ public class TestShapedRecipes {
         JavaPlugin plugin = MockBukkit.createMockPlugin();
         Player player = server.addPlayer();
 
-        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
+        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes(false);
         CustomShapedRecipe freeRecipe = new CustomShapedRecipe(new ItemStack(Material.GOLD_INGOT), "a");
         CustomShapedRecipe fixedRecipe = new CustomShapedRecipe(new ItemStack(Material.DIAMOND), "   ", " a ", "   ");
 
@@ -449,7 +449,7 @@ public class TestShapedRecipes {
         ItemStack[][] pExpectedIngredients = { null };
         int[] pCounter = { 0 };
 
-        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
+        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes(false);
         CustomShapedRecipe compactRecipe = new CustomShapedRecipe(ingredients -> {
             assertArrayEquals(pExpectedIngredients[0], ingredients);
             pCounter[0] += 1;
@@ -490,7 +490,7 @@ public class TestShapedRecipes {
         ItemStack[][] pExpectedIngredients = { null };
         int[] pCounter = { 0 };
 
-        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
+        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes(false);
         CustomShapedRecipe halfRecipe = new CustomShapedRecipe(ingredients -> {
             assertArrayEquals(pExpectedIngredients[0], ingredients);
             pCounter[0] += 1;
@@ -543,7 +543,7 @@ public class TestShapedRecipes {
         ItemStack[][] pExpectedIngredients = { null };
         int[] pCounter = { 0 };
 
-        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
+        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes(false);
         CustomShapedRecipe verticalRecipe = new CustomShapedRecipe(ingredients -> {
             assertArrayEquals(pExpectedIngredients[0], ingredients);
             pCounter[0] += 1;
@@ -622,7 +622,7 @@ public class TestShapedRecipes {
         );
         customRecipe.ingredientMap.put('a', new CustomIngredient(Material.FLINT));
 
-        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
+        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes(false);
         craftingRecipes.add(customRecipe);
         Set<NamespacedKey> keys = new HashSet<>();
         craftingRecipes.register(plugin, keys);

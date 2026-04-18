@@ -10,9 +10,7 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.inventory.InventoryAction;
-import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.*;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -23,6 +21,7 @@ import java.util.stream.Stream;
 
 public class CustomCraftingRecipes implements Listener {
 
+    private final boolean isVersion1point12;
     private final CustomShapedRecipes shaped = new CustomShapedRecipes();
     private final CustomShapelessRecipes shapeless = new CustomShapelessRecipes();
     private Map<WeakShapelessRecipe, List<String>> conflictingWeakKeys = new HashMap<>();
@@ -30,6 +29,10 @@ public class CustomCraftingRecipes implements Listener {
     private Consumer<ResultCollectorEvent> resultCollector;
     private JavaPlugin plugin;
     private boolean didRegister;
+
+    public CustomCraftingRecipes(boolean isVersion1point12) {
+        this.isVersion1point12 = isVersion1point12;
+    }
 
     public void setResultCollector(Consumer<ResultCollectorEvent> collector) {
         this.resultCollector = collector;
@@ -94,28 +97,68 @@ public class CustomCraftingRecipes implements Listener {
         handleCrafting(event.getRecipe(), event.getInventory(), event, event.getWhoClicked());
     }
 
-    private void handleCrafting(Recipe recipe, CraftingInventory inventory, CraftItemEvent craftEvent, HumanEntity crafter) {
-        if (recipe == null) return;
-        NamespacedKey key = null;
-
-        if (recipe instanceof Keyed) {
-            ((Keyed) recipe).getKey();
-            key = ((Keyed) recipe).getKey();
+    @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+    public void setCraftingResult(InventoryClickEvent event) {
+        if (isVersion1point12 && event.getInventory() instanceof CraftingInventory && event.getSlotType() == InventoryType.SlotType.RESULT) {
+            CraftItemEvent craftEvent = new CraftItemEvent(
+                    null, event.getView(), event.getSlotType(),
+                    0, event.getClick(), event.getAction()
+            );
+            handleCrafting(null, (CraftingInventory) event.getInventory(), craftEvent, event.getWhoClicked());
+            if (craftEvent.isCancelled()) {
+                event.setCancelled(true);
+            }
         }
+    }
 
+    private void handleCrafting(Recipe recipe, CraftingInventory inventory, CraftItemEvent craftEvent, HumanEntity crafter) {
         ItemStack[] matrix = inventory.getMatrix();
 
-        boolean isPluginRecipe = key != null && key.getNamespace().equals(plugin.getName().toLowerCase(Locale.ROOT));
+        boolean shouldCounterDuplicateGlitch = false;
+        boolean isShapedPluginRecipe = false;
+        boolean isShapelessPluginRecipe = false;
+        NamespacedKey recipeKey = null;
+        String key = null;
 
-        if (isPluginRecipe) {
-            Production production = null;
-            if (recipe instanceof ShapedRecipe) {
-                production = shaped.determineResult(key.getKey(), matrix, crafter);
+        if (recipe == null) {
+            if (!isVersion1point12) return;
+
+            WeakShapedRecipe weakShaped = shaped.guessWeakRecipe(matrix);
+            if (weakShaped != null) {
+                isShapedPluginRecipe = true;
+                key = CustomShapedRecipes.generateKey(weakShaped);
+                shouldCounterDuplicateGlitch = true;
+            } else {
+                WeakShapelessRecipe weakShapeless = shapeless.guessWeakRecipe(matrix);
+                if (weakShapeless != null) {
+                    isShapelessPluginRecipe = true;
+                    key = CustomShapelessRecipes.generateKey(weakShapeless);
+                    shouldCounterDuplicateGlitch = true;
+                }
             }
-            if (recipe instanceof ShapelessRecipe) {
-                production = shapeless.determineResult(key.getKey(), matrix, crafter);
+        } else {
+            if (recipe instanceof Keyed) {
+                ((Keyed) recipe).getKey();
+                recipeKey = ((Keyed) recipe).getKey();
+                key = recipeKey.getKey();
+            }
+
+            boolean isPluginRecipe = recipeKey != null && recipeKey.getNamespace().equals(plugin.getName().toLowerCase(Locale.ROOT));
+            if (isPluginRecipe) {
+                isShapedPluginRecipe = recipe instanceof ShapedRecipe;
+                isShapelessPluginRecipe = recipe instanceof ShapelessRecipe;
+            }
+        }
+
+        if (isShapedPluginRecipe || isShapelessPluginRecipe) {
+            Production production = null;
+            if (isShapedPluginRecipe) {
+                production = shaped.determineResult(key, matrix, crafter);
+            }
+            if (isShapelessPluginRecipe) {
+                production = shapeless.determineResult(key, matrix, crafter);
                 if (production == null) {
-                    WeakShapelessRecipe weakShapeless = shapeless.keyMap.get(key.getKey());
+                    WeakShapelessRecipe weakShapeless = shapeless.keyMap.get(key);
                     if (weakShapeless != null) {
                         for (String shapedKey : conflictingWeakKeys.get(weakShapeless)) {
                             production = shaped.determineResult(shapedKey, matrix, crafter);
@@ -142,7 +185,7 @@ public class CustomCraftingRecipes implements Listener {
                 int naturalConsumptionCount;
 
                 if (collectorEvent.actualProductionCount == -1 &&
-                        production.maximumCustomCount != production.maximumNaturalCount
+                        (production.maximumCustomCount != production.maximumNaturalCount || shouldCounterDuplicateGlitch)
                         && craftEvent.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY
                 ) {
                     new DefaultResultCollector().accept(collectorEvent);
@@ -164,8 +207,10 @@ public class CustomCraftingRecipes implements Listener {
                     }
                 }
 
-                if (naturalConsumptionCount == 0 && collectorEvent.actualProductionCount == 0) return;
-                if (naturalConsumptionCount == collectorEvent.actualProductionCount && !production.hasSpecialIngredients) return;
+                if (!shouldCounterDuplicateGlitch) {
+                    if (naturalConsumptionCount == 0 && collectorEvent.actualProductionCount == 0) return;
+                    if (naturalConsumptionCount == collectorEvent.actualProductionCount && !production.hasSpecialIngredients) return;
+                }
 
                 matrix = Arrays.copyOf(matrix, matrix.length);
                 for (int index = 0; index < matrix.length; index++) {
@@ -185,7 +230,7 @@ public class CustomCraftingRecipes implements Listener {
             }
         } else {
             ItemStack[] finalMatrix = matrix;
-            getRelevantBlockers(key != null ? key.getNamespace() : "").forEach(blockIngredient -> {
+            getRelevantBlockers(recipeKey != null ? recipeKey.getNamespace() : "").forEach(blockIngredient -> {
                 for (ItemStack ingredient : finalMatrix) {
                     if (blockIngredient.test(ingredient)) {
                         if (craftEvent != null) craftEvent.setCancelled(true);

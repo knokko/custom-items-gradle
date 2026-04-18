@@ -38,7 +38,7 @@ public class TestCraftingRecipes {
                 Material.COAL, coal -> coal.containsEnchantment(Enchantment.DAMAGE_ALL)
         ));
 
-        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
+        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes(false);
         craftingRecipes.add(customShaped);
         craftingRecipes.add(customShapeless);
 

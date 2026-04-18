@@ -24,6 +24,10 @@ class CustomShapedRecipes {
         recipes.add(recipe);
     }
 
+    static String generateKey(WeakShapedRecipe weak) {
+        return "weak-shaped-" + IdHelper.createHash(Arrays.deepToString(weak.shape));
+    }
+
     void register(JavaPlugin plugin, Set<NamespacedKey> keys) {
         this.recipes = Collections.unmodifiableList(recipes);
 
@@ -35,7 +39,7 @@ class CustomShapedRecipes {
 
         weakMap.forEach((weak, customRecipes) -> {
             CustomShapedRecipe firstRecipe = customRecipes.get(0);
-            String key = "weak-shaped-" + IdHelper.createHash(Arrays.deepToString(weak.shape));
+            String key = generateKey(weak);
             NamespacedKey fullKey = new NamespacedKey(plugin, key);
             ItemStack firstResult = firstRecipe.result.apply(null);
             if (firstResult == null) throw new NullPointerException("firstResult is null: result function was " + firstRecipe.result);
@@ -54,6 +58,15 @@ class CustomShapedRecipes {
         recipes = new ArrayList<>();
         weakMap = new HashMap<>();
         keyMap = new HashMap<>();
+    }
+
+    WeakShapedRecipe guessWeakRecipe(ItemStack[] matrix) {
+        for (WeakShapedRecipe weak : weakMap.keySet()) {
+            ShapedPlacement placement = determinePlacement(weak, matrix);
+            if (placement != null) return weak;
+        }
+
+        return null;
     }
 
     private static ShapedPlacement determinePlacement(WeakShapedRecipe weakRecipe, ItemStack[] matrix) {

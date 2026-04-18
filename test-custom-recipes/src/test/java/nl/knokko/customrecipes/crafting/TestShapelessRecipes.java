@@ -43,7 +43,7 @@ public class TestShapelessRecipes {
                 new ItemStack(Material.OAK_PLANKS, 4)
         );
 
-        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
+        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes(false);
         craftingRecipes.blockIngredients(new IngredientBlocker(
                 namespace -> namespace == null || !namespace.equals("minecraft"),
                 item -> item != null && item.getEnchantmentLevel(Enchantment.ARROW_FIRE) > 0
@@ -97,7 +97,7 @@ public class TestShapelessRecipes {
         ItemStack sharpSword = new ItemStack(Material.IRON_SWORD);
         sharpSword.addUnsafeEnchantment(Enchantment.DAMAGE_ALL, 5);
 
-        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
+        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes(false);
 
         CustomShapelessRecipe smiteRecipe = new CustomShapelessRecipe(
                 smiteSword, new CustomIngredient(Material.IRON_INGOT),
@@ -144,7 +144,7 @@ public class TestShapelessRecipes {
         JavaPlugin plugin = MockBukkit.createMockPlugin();
         Player player = server.addPlayer();
 
-        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
+        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes(false);
         CustomShapelessRecipe customRecipe = new CustomShapelessRecipe(
                 new ItemStack(Material.BLAZE_ROD),
                 new CustomIngredient(Material.BLAZE_POWDER, blaze -> true, 1, blazePowder -> {
@@ -226,7 +226,7 @@ public class TestShapelessRecipes {
         JavaPlugin plugin = MockBukkit.createMockPlugin();
         Player player = server.addPlayer();
 
-        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
+        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes(false);
         CustomShapelessRecipe customRecipe = new CustomShapelessRecipe(new ItemStack(Material.GOLD_INGOT), new CustomIngredient(
                 Material.REDSTONE, redstone -> true, 5, redstone -> new ItemStack(Material.GLOWSTONE_DUST)
         ));
@@ -269,7 +269,7 @@ public class TestShapelessRecipes {
         JavaPlugin plugin = MockBukkit.createMockPlugin();
         Player player = server.addPlayer();
 
-        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
+        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes(false);
         CustomShapelessRecipe customRecipe = new CustomShapelessRecipe(
                 new ItemStack(Material.GOLD_INGOT),
                 new CustomIngredient(Material.REDSTONE, redStone -> true, 1, null),
@@ -318,7 +318,7 @@ public class TestShapelessRecipes {
         ItemStack[][] pExpectedIngredients = { null };
         int[] pCounter = { 0 };
 
-        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
+        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes(false);
         CustomShapelessRecipe recipe = new CustomShapelessRecipe(ingredients -> {
             assertArrayEquals(pExpectedIngredients[0], ingredients);
             pCounter[0] += 1;
@@ -397,7 +397,7 @@ public class TestShapelessRecipes {
                 new CustomIngredient(Material.FLINT)
         );
 
-        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes();
+        CustomCraftingRecipes craftingRecipes = new CustomCraftingRecipes(false);
         craftingRecipes.add(customRecipe);
         Set<NamespacedKey> keys = new HashSet<>();
         craftingRecipes.register(plugin, keys);

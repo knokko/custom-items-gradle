@@ -37,7 +37,7 @@ public class CustomItemsRecipes {
 
     public CustomItemsRecipes(ItemSetWrapper itemSet, JavaPlugin plugin) {
         this.itemSet = itemSet;
-        this.customRecipes = new CustomRecipes(plugin);
+        this.customRecipes = new CustomRecipes(plugin, KciNms.mcVersion <= 12);
         this.plugin = plugin;
     }
 

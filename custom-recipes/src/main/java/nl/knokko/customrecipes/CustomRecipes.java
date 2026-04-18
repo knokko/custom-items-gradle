@@ -15,14 +15,15 @@ import java.util.*;
 public class CustomRecipes implements Listener {
 
     private final JavaPlugin plugin;
-    public final CustomCraftingRecipes crafting = new CustomCraftingRecipes();
+    public final CustomCraftingRecipes crafting;
     public final CustomCookingManager cooking = new CustomCookingManager();
     public final CustomSmithingRecipes smithing = new CustomSmithingRecipes();
 
     private Set<NamespacedKey> keys;
 
-    public CustomRecipes(JavaPlugin plugin) {
+    public CustomRecipes(JavaPlugin plugin, boolean isVersion1point12) {
         this.plugin = plugin;
+        this.crafting = new CustomCraftingRecipes(isVersion1point12);
     }
 
     private void removeRecipes() {

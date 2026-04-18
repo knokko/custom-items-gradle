@@ -23,6 +23,21 @@ class CustomShapelessRecipes {
         recipes.add(recipe);
     }
 
+    WeakShapelessRecipe guessWeakRecipe(ItemStack[] matrix) {
+        for (Map.Entry<WeakShapelessRecipe, List<CustomShapelessRecipe>> weakEntry : weakMap.entrySet()) {
+            for (CustomShapelessRecipe recipe : weakEntry.getValue()) {
+                ShapelessPlacement placement = ShapelessMatcher.match(recipe, matrix);
+                if (placement != null) return weakEntry.getKey();
+            }
+        }
+
+        return null;
+    }
+
+    static String generateKey(WeakShapelessRecipe weak) {
+        return "weak-shapeless-" + IdHelper.createHash(weak.ingredients.toString());
+    }
+
     void register(JavaPlugin plugin, Set<NamespacedKey> keys) {
         this.recipes = Collections.unmodifiableList(recipes);
 
@@ -34,7 +49,7 @@ class CustomShapelessRecipes {
 
         weakMap.forEach((weak, customRecipes) -> {
             CustomShapelessRecipe firstRecipe = customRecipes.get(0);
-            String key = "weak-shapeless-" + IdHelper.createHash(weak.ingredients.toString());
+            String key = generateKey(weak);
             NamespacedKey fullKey = new NamespacedKey(plugin, key);
             ShapelessRecipe bukkitRecipe = new ShapelessRecipe(fullKey, firstRecipe.result.apply(null));
             keys.add(fullKey);
