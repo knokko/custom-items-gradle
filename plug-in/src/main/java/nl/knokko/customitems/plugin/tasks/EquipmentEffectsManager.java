@@ -13,6 +13,8 @@ import org.bukkit.potion.PotionEffectType;
 
 import nl.knokko.customitems.item.KciAttributeModifier.Slot;
 
+import static nl.knokko.customitems.plugin.util.EffectConverter.vanillaEffectType;
+
 public class EquipmentEffectsManager {
 
 	public static void start() {
@@ -48,7 +50,7 @@ public class EquipmentEffectsManager {
 		if (item != null) {
 			for (EquippedPotionEffect effect : item.getEquippedEffects()) {
 				if (effect.getSlot() == slot) {
-					PotionEffectType effectType = PotionEffectType.getByName(effect.getType().name());
+					PotionEffectType effectType = vanillaEffectType(effect.getType());
 					boolean periodicEffect = effectType.equals(PotionEffectType.REGENERATION)
 							|| effectType.equals(PotionEffectType.POISON)
 							|| effectType.equals(PotionEffectType.WITHER);

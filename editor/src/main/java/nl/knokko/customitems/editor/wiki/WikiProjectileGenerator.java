@@ -147,7 +147,7 @@ class WikiProjectileGenerator {
             KciSound sound = ((PEPlaySound) effect).getSound();
 
             String soundName;
-            if (sound.getVanillaSound() != null) soundName = NameHelper.getNiceEnumName(sound.getVanillaSound().name());
+            if (sound.getVanillaSound() != null) soundName = NameHelper.getNiceEnumName(sound.getVanillaSound().key);
             else soundName = sound.getCustomSound().getName();
 
             output.println(tabs + "<li class=\"projectile-effect\">Play the " + soundName + " sound</li>");

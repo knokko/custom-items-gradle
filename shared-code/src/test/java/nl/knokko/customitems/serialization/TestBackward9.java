@@ -48,6 +48,7 @@ import static nl.knokko.customitems.serialization.TestBackward1.assertNoTexture;
 import static nl.knokko.customitems.serialization.TestBackward1.testExportSettings1;
 import static nl.knokko.customitems.serialization.TestBackward10.*;
 import static nl.knokko.customitems.serialization.TestBackward3.testTextures3;
+import static nl.knokko.customitems.serialization.TestBackward5.defaultItemFlags;
 import static nl.knokko.customitems.serialization.TestBackward6.*;
 import static nl.knokko.customitems.serialization.TestBackward8.*;
 import static nl.knokko.customitems.serialization.BackwardHelper.*;
@@ -193,9 +194,10 @@ public class TestBackward9 {
         assertEquals(listOf(
                 LeveledEnchantment.createQuick(VEnchantmentType.DURABILITY, 2)
         ), item.getDefaultEnchantments());
-        assertEquals(listOf(
-                false, false, true, true, false, false, false, false, false, false
-        ), item.getItemFlags());
+
+        List<Boolean> expectedFlags = defaultItemFlags();
+        expectedFlags.set(3, true);
+        assertEquals(expectedFlags, item.getItemFlags());
         assertEquals(listOf(
                 ChancePotionEffect.createQuick(VEffectType.REGENERATION, 100, 1, Chance.percentage(100))
         ), item.getOnHitPlayerEffects());
@@ -243,9 +245,12 @@ public class TestBackward9 {
         assertEquals(listOf(
                 LeveledEnchantment.createQuick(VEnchantmentType.PIERCING, 2)
         ), item.getDefaultEnchantments());
-        assertEquals(listOf(
-                true, true, true, true, true, true, false, false, false, false
-        ), item.getItemFlags());
+
+        List<Boolean> expectedFlags = defaultItemFlags();
+        for (int index = 0; index < 6; index++) {
+            expectedFlags.set(index, true);
+        }
+        assertEquals(expectedFlags, item.getItemFlags());
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("crossbow_texture", item.getTexture().getName());
         } else {
@@ -396,9 +401,10 @@ public class TestBackward9 {
         assertEquals(listOf(
                 LeveledEnchantment.createQuick(VEnchantmentType.SILK_TOUCH, 1)
         ), item.getDefaultEnchantments());
-        assertEquals(listOf(
-                false, true, true, false, false, false, false, false, false, false
-        ), item.getItemFlags());
+
+        List<Boolean> expectedFlags = defaultItemFlags();
+        expectedFlags.set(1, true);
+        assertEquals(expectedFlags, item.getItemFlags());
         if (set.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
         } else {
@@ -460,7 +466,10 @@ public class TestBackward9 {
         assertEquals(listOf(
                 LeveledEnchantment.createQuick(VEnchantmentType.DAMAGE_ARTHROPODS, 2)
         ), item.getDefaultEnchantments());
-        assertEquals(listOf(false, false, false, false, false, false, false, false, false, false), item.getItemFlags());
+
+        List<Boolean> expectedFlags = defaultItemFlags();
+        expectedFlags.set(2, false);
+        assertEquals(expectedFlags, item.getItemFlags());
         if (set.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
             assertStringResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", ((LegacyCustomItemModel) item.getModel()).getRawModel());
@@ -517,9 +526,12 @@ public class TestBackward9 {
         assertEquals(listOf(
                 LeveledEnchantment.createQuick(VEnchantmentType.LOOT_BONUS_BLOCKS, 2)
         ), item.getDefaultEnchantments());
-        assertEquals(listOf(
-                false, false, true, true, true, true, false, false, false, false
-        ), item.getItemFlags());
+
+        List<Boolean> expectedFlags = defaultItemFlags();
+        expectedFlags.set(3, true);
+        expectedFlags.set(4, true);
+        expectedFlags.set(5, true);
+        assertEquals(expectedFlags, item.getItemFlags());
         if (set.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
             assertStringResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", ((LegacyCustomItemModel) item.getModel()).getRawModel());

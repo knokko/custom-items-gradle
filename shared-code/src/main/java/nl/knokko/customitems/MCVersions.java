@@ -12,9 +12,10 @@ public class MCVersions {
 	public static final int VERSION1_19 = 19;
 	public static final int VERSION1_20 = 20;
 	public static final int VERSION1_21 = 21;
+	public static final int VERSION26 = 26;
 	
 	public static final int FIRST_VERSION = VERSION1_12;
-	public static final int LAST_VERSION = VERSION1_21;
+	public static final int LAST_VERSION = VERSION26;
 
 	public static String createString(int version) {
 		switch (version) {
@@ -28,8 +29,8 @@ public class MCVersions {
 			case 19: return "1.19.4";
 			case 20: return "1.20.6";
 			case 21: return "1.21.11";
+			case 26: return "26.1.2";
 		}
-		// This function might become more complicated in the future
-		return "1." + version;
+		throw new IllegalArgumentException("Unknown version " + version);
 	}
 }

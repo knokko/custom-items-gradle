@@ -27,7 +27,10 @@ public class ExportMenu extends GuiMenu {
     private static final List<Integer> MC_VERSIONS = new ArrayList<>(10);
 
     static {
-        for (int version = MCVersions.FIRST_VERSION; version <= MCVersions.LAST_VERSION; version++) {
+        for (int version = MCVersions.FIRST_VERSION; version <= MCVersions.VERSION1_21; version++) {
+            MC_VERSIONS.add(version);
+        }
+        for (int version = MCVersions.VERSION26; version <= MCVersions.LAST_VERSION; version++) {
             MC_VERSIONS.add(version);
         }
     }

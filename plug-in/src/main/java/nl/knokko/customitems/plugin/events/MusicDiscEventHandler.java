@@ -61,12 +61,16 @@ public class MusicDiscEventHandler implements Listener {
             SoundPlayer.playSound(block.getLocation(), music);
 
             Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
-                VSoundType undesiredSound = VSoundType.valueOf(customItem.getOtherMaterial().name());
+                String discName = customItem.getOtherMaterial().name();
+                if (KciNms.mcVersion >= 26) {
+                    discName = discName.toLowerCase(Locale.ROOT).replace("disc_", "disc.");
+                }
+                VSoundType undesiredSound = VSoundType.valueOf(discName);
                 SoundPlayer.stopSound(block.getLocation(), KciSound.createQuick(undesiredSound, 4f, 1f), true);
             }, 5);
 
             Bukkit.getScheduler().scheduleSyncDelayedTask(CustomItemsPlugin.getInstance(), () -> {
-                String soundName = music.getVanillaSound() != null ? music.getVanillaSound().name().toLowerCase(Locale.ROOT) : music.getCustomSound().getName();
+                String soundName = SoundPlayer.determineSoundName(music);
                 soundName = soundName.replace('_', ' ');
                 ActionBarAPISupport.sendActionBar(event.getPlayer(), ChatColor.GREEN + "Now playing: " + soundName);
             });

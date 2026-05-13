@@ -115,8 +115,11 @@ public class EnchantmentConstraint extends ModelValues {
     }
 
     public void validateExportVersion(int version) throws ValidationException {
-        if (enchantment.version > version) {
+        if (enchantment.firstVersion > version) {
             throw new ValidationException(enchantment + " doesn't exist yet in MC " + MCVersions.createString(version));
+        }
+        if (version > enchantment.lastVersion) {
+            throw new ValidationException(enchantment + " was renamed in MC " + MCVersions.createString(version));
         }
     }
 }

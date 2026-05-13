@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'io.github.goooler.shadow' version '8.1.5'
+    id 'com.gradleup.shadow' version '9.4.1'
 }
 
 allprojects {
@@ -49,7 +49,7 @@ project(':shared-code') {
 }
 
 project(':plug-in') {
-    apply plugin: 'io.github.goooler.shadow'
+    apply plugin: 'com.gradleup.shadow'
     dependencies {
         implementation project(':shared-code')
         implementation project(':kci-nms')
@@ -64,7 +64,7 @@ project(':plug-in') {
         compileOnly 'com.denizenscript:denizen:1.3.1-SNAPSHOT'
         compileOnly 'com.elmakers.mine.bukkit:MagicAPI:9.3'
         compileOnly 'org.geysermc.geyser:api:2.2.0-SNAPSHOT'
-        implementation 'de.tr7zw:item-nbt-api:2.15.5-SNAPSHOT'
+        implementation 'de.tr7zw:item-nbt-api:2.15.7'
 
         testImplementation project(':bit-helper')
         testImplementation 'org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT'
@@ -87,7 +87,7 @@ project(':kci-nms') {
 }
 
 project(':editor') {
-    apply plugin: 'io.github.goooler.shadow'
+    apply plugin: 'com.gradleup.shadow'
     dependencies {
         implementation project(':shared-code')
         implementation project(':bit-helper')

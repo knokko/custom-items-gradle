@@ -108,7 +108,7 @@ public class WikiHelper {
             output.println(tabs + "\tYour browser does not support (ogg) audio.");
             output.println(tabs + "</audio>");
         } else {
-            output.println(tabs + "Plays the vanilla sound " + NameHelper.getNiceEnumName(sound.getVanillaSound().name()));
+            output.println(tabs + "Plays the vanilla sound " + NameHelper.getNiceEnumName(sound.getVanillaSound().key));
         }
     }
 }

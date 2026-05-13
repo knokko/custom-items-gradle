@@ -1,0 +1,3 @@
+rootProject.name = 'custom-items'
+
+include 'bit-helper', 'shared-code', 'plug-in', 'kci-nms', 'custom-recipes'

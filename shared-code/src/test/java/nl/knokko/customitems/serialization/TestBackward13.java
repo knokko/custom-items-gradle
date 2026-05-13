@@ -26,12 +26,14 @@ import nl.knokko.customitems.worldgen.VTreeType;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
+import java.util.List;
 
 import static nl.knokko.customitems.serialization.BackwardHelper.*;
 import static nl.knokko.customitems.serialization.TestBackward10.*;
 import static nl.knokko.customitems.serialization.TestBackward11.testEnergyTypesOld11;
 import static nl.knokko.customitems.serialization.TestBackward11.testSoundsOld11;
 import static nl.knokko.customitems.serialization.TestBackward12.*;
+import static nl.knokko.customitems.serialization.TestBackward5.defaultItemFlags;
 import static nl.knokko.customitems.serialization.TestBackward6.testProjectileCoversOld6;
 import static nl.knokko.customitems.serialization.TestBackward8.testArmorTexturesOld8;
 import static nl.knokko.customitems.serialization.TestBackward8.testFuelRegistriesOld8;
@@ -178,9 +180,11 @@ public class TestBackward13 {
     }
 
     private static void testFlagged(ItemSet.Side side, KciItem item) {
-        assertEquals(listOf(
-                false, false, true, false, false, false, true, true, true, true
-        ), item.getItemFlags());
+        List<Boolean> expectedFlags = defaultItemFlags();
+        for (int index = 6; index < 10; index++) {
+            expectedFlags.set(index, true);
+        }
+        assertEquals(expectedFlags, item.getItemFlags());
 
         GeyserCustomModel geyserModel = item.getGeyserModel();
         if (side == ItemSet.Side.PLUGIN) {

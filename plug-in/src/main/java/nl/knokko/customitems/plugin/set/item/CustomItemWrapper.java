@@ -21,13 +21,13 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static nl.knokko.customitems.MCVersions.VERSION1_14;
 import static nl.knokko.customitems.MCVersions.VERSION1_20;
+import static nl.knokko.customitems.plugin.util.EffectConverter.vanillaEffect;
 
 public abstract class CustomItemWrapper {
 
@@ -194,22 +194,14 @@ public abstract class CustomItemWrapper {
         Random rng = new Random();
         for (ChancePotionEffect effect : this.item.getOnHitPlayerEffects()) {
             if (effect.getChance().apply(rng)) {
-                pe.add(new PotionEffect(
-                        PotionEffectType.getByName(effect.getType().name()),
-                        effect.getDuration() * 20,
-                        effect.getLevel() - 1)
-                );
+                pe.add(vanillaEffect(effect));
             }
         }
 
         Collection<PotionEffect> te = new ArrayList<>();
         for (ChancePotionEffect effect : this.item.getOnHitTargetEffects()) {
             if (effect.getChance().apply(rng)) {
-                te.add(new PotionEffect(
-                        PotionEffectType.getByName(effect.getType().name()),
-                        effect.getDuration() * 20,
-                        effect.getLevel() - 1)
-                );
+                te.add(vanillaEffect(effect));
             }
         }
 

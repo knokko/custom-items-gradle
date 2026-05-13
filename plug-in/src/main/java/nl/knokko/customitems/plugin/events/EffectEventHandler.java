@@ -23,6 +23,7 @@ import java.util.Random;
 
 import static nl.knokko.customitems.plugin.events.DurabilityEventHandler.determineUsedShield;
 import static nl.knokko.customitems.plugin.set.item.CustomItemWrapper.wrap;
+import static nl.knokko.customitems.plugin.util.EffectConverter.vanillaEffect;
 
 public class EffectEventHandler implements Listener {
 
@@ -56,12 +57,7 @@ public class EffectEventHandler implements Listener {
 
                         for (ChancePotionEffect effect : customHelmet.getOnHitPlayerEffects()) {
                             if (effect.getChance().apply(rng)) {
-                                pe.add(new org.bukkit.potion.PotionEffect(
-                                        org.bukkit.potion.PotionEffectType.getByName(
-                                                effect.getType().name()
-                                        ), effect.getDuration() * 20,
-                                        effect.getLevel() - 1)
-                                );
+                                pe.add(vanillaEffect(effect));
                             }
                         }
 
@@ -73,12 +69,7 @@ public class EffectEventHandler implements Listener {
                         Collection<org.bukkit.potion.PotionEffect> pe = new ArrayList<>();
                         for (ChancePotionEffect effect : customChest.getOnHitPlayerEffects()) {
                             if (effect.getChance().apply(rng)) {
-                                pe.add(new org.bukkit.potion.PotionEffect(
-                                        org.bukkit.potion.PotionEffectType.getByName(
-                                                effect.getType().name()
-                                        ), effect.getDuration() * 20,
-                                        effect.getLevel() - 1)
-                                );
+                                pe.add(vanillaEffect(effect));
                             }
                         }
                         target.addPotionEffects(pe);
@@ -89,12 +80,7 @@ public class EffectEventHandler implements Listener {
                         Collection<org.bukkit.potion.PotionEffect> pe = new ArrayList<>();
                         for (ChancePotionEffect effect : customLegs.getOnHitPlayerEffects()) {
                             if (effect.getChance().apply(rng)) {
-                                pe.add(new org.bukkit.potion.PotionEffect(
-                                        org.bukkit.potion.PotionEffectType.getByName(
-                                                effect.getType().name()
-                                        ), effect.getDuration() * 20,
-                                        effect.getLevel() - 1)
-                                );
+                                pe.add(vanillaEffect(effect));
                             }
                         }
                         target.addPotionEffects(pe);
@@ -105,12 +91,7 @@ public class EffectEventHandler implements Listener {
                         Collection<org.bukkit.potion.PotionEffect> pe = new ArrayList<>();
                         for (ChancePotionEffect effect : customBoots.getOnHitPlayerEffects()) {
                             if (effect.getChance().apply(rng)) {
-                                pe.add(new org.bukkit.potion.PotionEffect(
-                                        org.bukkit.potion.PotionEffectType.getByName(
-                                                effect.getType().name()
-                                        ), effect.getDuration() * 20,
-                                        effect.getLevel() - 1)
-                                );
+                                pe.add(vanillaEffect(effect));
                             }
                         }
                         target.addPotionEffects(pe);
@@ -133,48 +114,28 @@ public class EffectEventHandler implements Listener {
                     if (customHelmet != null) {
                         for (ChancePotionEffect effect : customHelmet.getOnHitTargetEffects()) {
                             if (effect.getChance().apply(rng)) {
-                                te.add(new PotionEffect(
-                                        org.bukkit.potion.PotionEffectType.getByName(
-                                                effect.getType().name()
-                                        ), effect.getDuration() * 20,
-                                        effect.getLevel() - 1)
-                                );
+                                te.add(vanillaEffect(effect));
                             }
                         }
                     }
                     if (customChest != null) {
                         for (ChancePotionEffect effect : customChest.getOnHitTargetEffects()) {
                             if (effect.getChance().apply(rng)) {
-                                te.add(new PotionEffect(
-                                        org.bukkit.potion.PotionEffectType.getByName(
-                                                effect.getType().name()
-                                        ), effect.getDuration() * 20,
-                                        effect.getLevel() - 1)
-                                );
+                                te.add(vanillaEffect(effect));
                             }
                         }
                     }
                     if (customLegs != null) {
                         for (ChancePotionEffect effect : customLegs.getOnHitTargetEffects()) {
                             if (effect.getChance().apply(rng)) {
-                                te.add(new PotionEffect(
-                                        org.bukkit.potion.PotionEffectType.getByName(
-                                                effect.getType().name()
-                                        ), effect.getDuration() * 20,
-                                        effect.getLevel() - 1)
-                                );
+                                te.add(vanillaEffect(effect));
                             }
                         }
                     }
                     if (customBoots != null) {
                         for (ChancePotionEffect effect : customBoots.getOnHitTargetEffects()) {
                             if (effect.getChance().apply(rng)) {
-                                te.add(new PotionEffect(
-                                        org.bukkit.potion.PotionEffectType.getByName(
-                                                effect.getType().name()
-                                        ), effect.getDuration() * 20,
-                                        effect.getLevel() - 1)
-                                );
+                                te.add(vanillaEffect(effect));
                             }
                         }
                     }

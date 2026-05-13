@@ -1,9 +1,9 @@
 FROM knokkogator/kci:0.1.2-mc1.13 AS build_base
 RUN mkdir /custom-items
 WORKDIR /custom-items
-COPY gradlew ./gradlew
+COPY legacy-gradle/gradlew ./gradlew
 RUN dos2unix ./gradlew
-COPY gradle ./gradle
+COPY legacy-gradle/gradle ./gradle
 COPY kci-nms ./kci-nms
 
 FROM build_base AS build_plugin
@@ -11,8 +11,8 @@ COPY bit-helper ./bit-helper
 COPY shared-code ./shared-code
 COPY plug-in ./plug-in
 COPY custom-recipes ./custom-recipes
-COPY .github/plug-in/build.gradle ./
-COPY .github/plug-in/settings.gradle ./
+COPY .github/plug-in-legacy/build.gradle ./
+COPY .github/plug-in-legacy/settings.gradle ./
 RUN ./gradlew shadowJar --no-daemon
 
 FROM build_base AS build_nms

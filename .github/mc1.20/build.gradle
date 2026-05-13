@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'io.github.goooler.shadow' version '8.1.5'
+    id 'com.gradleup.shadow' version '9.4.1'
 }
 
 allprojects {
@@ -56,7 +56,7 @@ project(':kci-nms18plus') {
 }
 
 project(':kci-nms20') {
-    apply plugin: 'io.github.goooler.shadow'
+    apply plugin: 'com.gradleup.shadow'
     dependencies {
         compileOnly project(':kci-nms')
         compileOnly project(':kci-nms13plus')

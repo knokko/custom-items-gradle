@@ -9,6 +9,8 @@ import nl.knokko.customitems.recipe.ingredient.NoIngredient;
 import nl.knokko.customitems.recipe.ingredient.SimpleVanillaIngredient;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+
 import static nl.knokko.customitems.serialization.TestBackward1.*;
 import static nl.knokko.customitems.serialization.TestBackward3.testTextures3;
 import static nl.knokko.customitems.serialization.TestBackward4.testItems4;
@@ -57,9 +59,13 @@ public class TestBackward5 {
                 )
         ), item.getAttributeModifiers());
         assertEquals(0, item.getDefaultEnchantments().size());
-        assertEquals(listOf(
-                false, false, true, false, true, true, false, false, false, false
-        ), item.getItemFlags());
+
+        ArrayList<Boolean> expectedFlags = new ArrayList<>();
+        for (int counter = 0; counter < 105; counter++) expectedFlags.add(false);
+        expectedFlags.set(2, true);
+        expectedFlags.set(4, true);
+        expectedFlags.set(5, true);
+        assertEquals(expectedFlags, item.getItemFlags());
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
         } else {
@@ -83,9 +89,7 @@ public class TestBackward5 {
         assertEquals(listOf(
                 LeveledEnchantment.createQuick(VEnchantmentType.SILK_TOUCH, 1)
         ), item.getDefaultEnchantments());
-        assertEquals(listOf(
-                false, false, true, false, false, false, false, false, false, false
-        ), item.getItemFlags());
+        assertEquals(defaultItemFlags(), item.getItemFlags());
         assertFalse(item.allowEnchanting());
         assertFalse(item.allowAnvilActions());
         assertEquals(500, (long) item.getMaxDurabilityNew());
@@ -107,9 +111,7 @@ public class TestBackward5 {
         assertEquals(0, item.getLore().size());
         assertEquals(0, item.getAttributeModifiers().size());
         assertEquals(0, item.getDefaultEnchantments().size());
-        assertEquals(listOf(
-                false, false, true, false, false, false, false, false, false, false
-        ), item.getItemFlags());
+        assertEquals(defaultItemFlags(), item.getItemFlags());
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("bow_one", item.getTexture().getName());
         } else {
@@ -144,9 +146,7 @@ public class TestBackward5 {
                 )
         ), item.getAttributeModifiers());
         assertEquals(0, item.getDefaultEnchantments().size());
-        assertEquals(listOf(
-                false, false, true, false, false, false, false, false, false, false
-        ), item.getItemFlags());
+        assertEquals(defaultItemFlags(), item.getItemFlags());
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
         } else {
@@ -168,10 +168,17 @@ public class TestBackward5 {
         }
     }
 
+    static ArrayList<Boolean> defaultItemFlags() {
+        boolean[] expected = new boolean[105];
+        assertEquals(expected.length, VItemFlag.getDefaultValues().length);
+        expected[2] = true;
+        ArrayList<Boolean> expectedList = new ArrayList<>();
+        for (boolean expectedFlag : expected) expectedList.add(expectedFlag);
+        return expectedList;
+    }
+
     static void testBaseDefault5(KciItem item) {
-        assertEquals(listOf(
-               false, false, true, false, false, false, false, false, false, false
-        ), item.getItemFlags());
+        assertEquals(defaultItemFlags(), item.getItemFlags());
         TestBackward6.testBaseDefault6(item);
     }
 

@@ -32,6 +32,7 @@ import java.util.logging.Level;
 
 import static nl.knokko.customitems.plugin.events.ReplacementEventHandler.checkBrokenCondition;
 import static nl.knokko.customitems.plugin.set.item.CustomToolWrapper.wrap;
+import static nl.knokko.customitems.plugin.util.EffectConverter.vanillaEffect;
 import static nl.knokko.customitems.plugin.util.SoundPlayer.playBreakSound;
 
 /**
@@ -221,11 +222,7 @@ public class BowEventHandler implements Listener {
                             Collection<PotionEffect> effects = new ArrayList<>();
                             for (ChancePotionEffect effect : customBowOrCrossbow.getOnHitTargetEffects()) {
                                 if (effect.getChance().apply(rng)) {
-                                    effects.add(new PotionEffect(
-                                            Objects.requireNonNull(PotionEffectType.getByName(effect.getType().name())),
-                                            effect.getDuration() * 20,
-                                            effect.getLevel() - 1
-                                    ));
+                                    effects.add(vanillaEffect(effect));
                                 }
                             }
                             target.addPotionEffects(effects);
@@ -241,11 +238,7 @@ public class BowEventHandler implements Listener {
                             Collection<org.bukkit.potion.PotionEffect> effects = new ArrayList<> ();
                             for (ChancePotionEffect effect : customBowOrCrossbow.getOnHitPlayerEffects()) {
                                 if (effect.getChance().apply(rng)) {
-                                    effects.add(new org.bukkit.potion.PotionEffect(
-                                            Objects.requireNonNull(PotionEffectType.getByName(effect.getType().name())),
-                                            effect.getDuration() * 20,
-                                            effect.getLevel() - 1
-                                    ));
+                                    effects.add(vanillaEffect(effect));
                                 }
                             }
 
@@ -293,10 +286,7 @@ public class BowEventHandler implements Listener {
                             Collection<PotionEffect> effects = new ArrayList<> ();
                             for (ChancePotionEffect effect : customTrident.getOnHitTargetEffects()) {
                                 if (effect.getChance().apply(rng)) {
-                                    effects.add(new PotionEffect(
-                                            Objects.requireNonNull(PotionEffectType.getByName(effect.getType().name())),
-                                            effect.getDuration() * 20, effect.getLevel() - 1)
-                                    );
+                                    effects.add(vanillaEffect(effect));
                                 }
                             }
                             target.addPotionEffects(effects);
@@ -308,10 +298,7 @@ public class BowEventHandler implements Listener {
                                 Collection<org.bukkit.potion.PotionEffect> effects = new ArrayList<> ();
                                 for (ChancePotionEffect effect : customTrident.getOnHitPlayerEffects()) {
                                     if (effect.getChance().apply(rng)) {
-                                        effects.add(new org.bukkit.potion.PotionEffect(
-                                                Objects.requireNonNull(PotionEffectType.getByName(effect.getType().name())),
-                                                effect.getDuration() * 20, effect.getLevel() - 1)
-                                        );
+                                        effects.add(vanillaEffect(effect));
                                     }
                                 }
                                 shooter.addPotionEffects(effects);

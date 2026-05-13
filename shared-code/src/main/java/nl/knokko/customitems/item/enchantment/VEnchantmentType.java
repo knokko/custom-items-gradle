@@ -51,7 +51,51 @@ public enum VEnchantmentType {
     DENSITY("density", VERSION1_21),
     BREACH("breach", VERSION1_21),
     WIND_BURST("wind_burst", VERSION1_21),
-	
+
+	efficiency(VERSION26, VERSION26),
+	sweeping_edge(VERSION26, VERSION26),
+	looting(VERSION26, VERSION26),
+	quick_charge(VERSION26, VERSION26),
+	silk_touch(VERSION26, VERSION26),
+	soul_speed(VERSION26, VERSION26),
+	breach(VERSION26, VERSION26),
+	density(VERSION26, VERSION26),
+	flame(VERSION26, VERSION26),
+	fortune(VERSION26, VERSION26),
+	aqua_affinity(VERSION26, VERSION26),
+	multishot(VERSION26, VERSION26),
+	channeling(VERSION26, VERSION26),
+	loyalty(VERSION26, VERSION26),
+	binding_curse(VERSION26, VERSION26),
+	punch(VERSION26, VERSION26),
+	power(VERSION26, VERSION26),
+	projectile_protection(VERSION26, VERSION26),
+	sharpness(VERSION26, VERSION26),
+	frost_walker(VERSION26, VERSION26),
+	fire_protection(VERSION26, VERSION26),
+	impaling(VERSION26, VERSION26),
+	luck_of_the_sea(VERSION26, VERSION26),
+	riptide(VERSION26, VERSION26),
+	mending(VERSION26, VERSION26),
+	protection(VERSION26, VERSION26),
+	respiration(VERSION26, VERSION26),
+	piercing(VERSION26, VERSION26),
+	feather_falling(VERSION26, VERSION26),
+	swift_sneak(VERSION26, VERSION26),
+	unbreaking(VERSION26, VERSION26),
+	fire_aspect(VERSION26, VERSION26),
+	lure(VERSION26, VERSION26),
+	smite(VERSION26, VERSION26),
+	knockback(VERSION26, VERSION26),
+	depth_strider(VERSION26, VERSION26),
+	lunge(VERSION26, VERSION26),
+	wind_burst(VERSION26, VERSION26),
+	infinity(VERSION26, VERSION26),
+	vanishing_curse(VERSION26, VERSION26),
+	bane_of_arthropods(VERSION26, VERSION26),
+	blast_protection(VERSION26, VERSION26),
+	thorns(VERSION26, VERSION26),
+
 	GEARS("Gears", CustomEnchantmentProvider.CRAZY_ENCHANTMENTS),
     WINGS("Wings", CustomEnchantmentProvider.CRAZY_ENCHANTMENTS),
     ROCKET("Rocket", CustomEnchantmentProvider.CRAZY_ENCHANTMENTS),
@@ -151,17 +195,19 @@ public enum VEnchantmentType {
     HELL_FORGED("HellForged", CustomEnchantmentProvider.CRAZY_ENCHANTMENTS);
 
 	private final String key;
-	public final int version;
+	public final int firstVersion, lastVersion;
 	public final CustomEnchantmentProvider provider;
 
 	VEnchantmentType(String key, int mcVersion) {
-		this.version = mcVersion;
+		this.firstVersion = mcVersion;
+		this.lastVersion = VERSION1_21;
 		this.key = key;
 		this.provider = null;
 	}
 
 	VEnchantmentType(String key, CustomEnchantmentProvider provider) {
-		this.version = VERSION1_12;
+		this.firstVersion = VERSION1_12;
+		this.lastVersion = LAST_VERSION;
 		this.key = key;
 		this.provider = provider;
 	}
@@ -169,10 +215,17 @@ public enum VEnchantmentType {
 	VEnchantmentType(String key) {
 		this(key, VERSION1_12);
 	}
-	
+
+	VEnchantmentType(int firstVersion, int lastVersion) {
+		this.key = this.name();
+		this.firstVersion = firstVersion;
+		this.lastVersion = lastVersion;
+		this.provider = null;
+	}
+
 	@Override
 	public String toString() {
-		if (provider == null) return NameHelper.getNiceEnumName(key, version, LAST_VERSION);
+		if (provider == null) return NameHelper.getNiceEnumName(key, firstVersion, lastVersion);
 		else if (provider == CustomEnchantmentProvider.CRAZY_ENCHANTMENTS) return key + " [CRAZY]";
 		else throw new Error("Unknown provider: " + provider);
 	}

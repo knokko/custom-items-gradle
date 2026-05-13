@@ -1,7 +1,6 @@
 package nl.knokko.customitems.plugin.worldgen;
 
 import nl.knokko.customitems.block.KciBlock;
-import nl.knokko.customitems.drops.VBiome;
 import nl.knokko.customitems.item.VMaterial;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.set.ItemSetWrapper;
@@ -20,6 +19,7 @@ import java.util.Random;
 import java.util.Set;
 
 import static nl.knokko.customitems.MCVersions.VERSION1_14;
+import static nl.knokko.customitems.plugin.util.BiomeConverter.fromVanillaBiome;
 
 public class KciPopulator extends BlockPopulator {
 
@@ -64,7 +64,7 @@ public class KciPopulator extends BlockPopulator {
                 if (y >= KciNms.instance.blocks.getMinHeight(world)) {
                     Block block = source.getBlock(x, y, z);
 
-                    if (!generator.getAllowedBiomes().isAllowed(VBiome.valueOf(block.getBiome().name()))) continue;
+                    if (!generator.getAllowedBiomes().isAllowed(fromVanillaBiome(block.getBiome()))) continue;
                     
                     int minDepth = generator.getMinimumDepth();
                     int maxDepth = generator.getMaximumDepth();
@@ -163,7 +163,7 @@ public class KciPopulator extends BlockPopulator {
 
                 Block initialBlock = source.getBlock(relativeX, y, relativeZ);
 
-                if (generator.getAllowedBiomes().isAllowed(VBiome.valueOf(initialBlock.getBiome().name()))) {
+                if (generator.getAllowedBiomes().isAllowed(fromVanillaBiome(initialBlock.getBiome()))) {
                     Location initialLocation = initialBlock.getLocation();
                     int x = initialLocation.getBlockX();
                     int z = initialLocation.getBlockZ();
@@ -238,7 +238,7 @@ public class KciPopulator extends BlockPopulator {
                         Block nextBlock = world.getBlockAt(nextX, nextY, nextZ);
 
                         // Don't generate the ore in forbidden biomes
-                        if (!generator.getAllowedBiomes().isAllowed(VBiome.valueOf(nextBlock.getBiome().name()))) {
+                        if (!generator.getAllowedBiomes().isAllowed(fromVanillaBiome(nextBlock.getBiome()))) {
                             continue;
                         }
 

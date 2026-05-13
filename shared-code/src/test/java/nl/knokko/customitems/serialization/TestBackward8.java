@@ -35,14 +35,13 @@ import nl.knokko.customitems.texture.ArmorTexture;
 import nl.knokko.customitems.util.Chance;
 import org.junit.jupiter.api.Test;
 
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.Scanner;
+import java.util.*;
 
 import static nl.knokko.customitems.serialization.TestBackward1.assertNoTexture;
 import static nl.knokko.customitems.serialization.TestBackward1.testExportSettings1;
 import static nl.knokko.customitems.serialization.TestBackward10.*;
 import static nl.knokko.customitems.serialization.TestBackward3.testTextures3;
+import static nl.knokko.customitems.serialization.TestBackward5.defaultItemFlags;
 import static nl.knokko.customitems.serialization.TestBackward6.*;
 import static nl.knokko.customitems.serialization.TestBackward7.testContainers7;
 import static nl.knokko.customitems.serialization.BackwardHelper.*;
@@ -97,9 +96,7 @@ public class TestBackward8 {
         assertEquals(0, item.getLore().size());
         assertEquals(0, item.getAttributeModifiers().size());
         assertEquals(0, item.getDefaultEnchantments().size());
-        assertEquals(listOf(
-                false, false, true, false, false, false, false, false, false, false
-        ), item.getItemFlags());
+        assertEquals(defaultItemFlags(), item.getItemFlags());
         if (set.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("quick_wand", item.getTexture().getName());
         } else {
@@ -292,9 +289,7 @@ public class TestBackward8 {
         assertEquals(0, item.getLore().size());
         assertEquals(0, item.getAttributeModifiers().size());
         assertEquals(0, item.getDefaultEnchantments().size());
-        assertEquals(listOf(
-                false, false, true, false, false, false, false, false, false, false
-        ), item.getItemFlags());
+        assertEquals(defaultItemFlags(), item.getItemFlags());
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
         } else {
@@ -335,9 +330,7 @@ public class TestBackward8 {
         assertEquals(0, item.getLore().size());
         assertEquals(0, item.getAttributeModifiers().size());
         assertEquals(0, item.getDefaultEnchantments().size());
-        assertEquals(listOf(
-                false, false, true, false, false, false, false, false, false, false
-        ), item.getItemFlags());
+        assertEquals(defaultItemFlags(), item.getItemFlags());
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
         } else {
@@ -373,9 +366,7 @@ public class TestBackward8 {
         assertEquals(0, item.getLore().size());
         assertEquals(0, item.getAttributeModifiers().size());
         assertEquals(0, item.getDefaultEnchantments().size());
-        assertEquals(listOf(
-                false, false, true, false, false, false, false, false, false, false
-        ), item.getItemFlags());
+        assertEquals(defaultItemFlags(), item.getItemFlags());
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
         } else {
@@ -416,9 +407,7 @@ public class TestBackward8 {
         assertEquals(0, item.getLore().size());
         assertEquals(0, item.getAttributeModifiers().size());
         assertEquals(0, item.getDefaultEnchantments().size());
-        assertEquals(listOf(
-                false, false, true, false, false, false, false, false, false, false
-        ), item.getItemFlags());
+        assertEquals(defaultItemFlags(), item.getItemFlags());
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
         } else {
@@ -460,9 +449,7 @@ public class TestBackward8 {
         assertEquals(0, item.getLore().size());
         assertEquals(0, item.getAttributeModifiers().size());
         assertEquals(0, item.getDefaultEnchantments().size());
-        assertEquals(listOf(
-                false, false, true, false, false, false, false, false, false, false
-        ), item.getItemFlags());
+        assertEquals(defaultItemFlags(), item.getItemFlags());
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
         } else {
@@ -516,9 +503,10 @@ public class TestBackward8 {
         assertEquals(listOf(
                 LeveledEnchantment.createQuick(VEnchantmentType.THORNS, 2)
         ), item.getDefaultEnchantments());
-        assertEquals(listOf(
-                true, false, true, false, false, false, false, false, false, false
-        ), item.getItemFlags());
+
+        List<Boolean> expectedFlags = defaultItemFlags();
+        expectedFlags.set(0, true);
+        assertEquals(expectedFlags, item.getItemFlags());
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
             assertStringResourceEquals("nl/knokko/customitems/serialization/model/blue_crossbow.json", ((LegacyCustomItemModel) item.getModel()).getRawModel());
@@ -573,9 +561,7 @@ public class TestBackward8 {
         assertEquals(0, item.getLore().size());
         assertEquals(0, item.getAttributeModifiers().size());
         assertEquals(0, item.getDefaultEnchantments().size());
-        assertEquals(listOf(
-                false, false, true, false, false, false, false, false, false, false
-        ), item.getItemFlags());
+        assertEquals(defaultItemFlags(), item.getItemFlags());
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("bow_one", item.getTexture().getName());
         } else {
@@ -625,9 +611,7 @@ public class TestBackward8 {
         assertEquals(0, item.getLore().size());
         assertEquals(0, item.getAttributeModifiers().size());
         assertEquals(0, item.getDefaultEnchantments().size());
-        assertEquals(listOf(
-                false, false, true, false, false, false, false, false, false, false
-        ), item.getItemFlags());
+        assertEquals(defaultItemFlags(), item.getItemFlags());
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
         } else {
@@ -683,9 +667,7 @@ public class TestBackward8 {
         assertEquals(0, item.getLore().size());
         assertEquals(0, item.getAttributeModifiers().size());
         assertEquals(0, item.getDefaultEnchantments().size());
-        assertEquals(listOf(
-                false, false, true, false, false, false, false, false, false, false
-        ), item.getItemFlags());
+        assertEquals(defaultItemFlags(), item.getItemFlags());
         if (itemSet.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
         } else {

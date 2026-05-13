@@ -13,8 +13,8 @@ public class NameHelper {
 	}
 	
 	public static String versionName(int version) {
-		// This dirty trick will work for now
-		return "1." + version;
+		if (version <= MCVersions.VERSION1_21) return "1." + version;
+		else return Integer.toString(version);
 	}
 	
 	public static String getNiceEnumName(String name, int firstMcVersion, int lastMcVersion) {

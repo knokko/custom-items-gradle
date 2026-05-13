@@ -35,6 +35,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static nl.knokko.customitems.plugin.recipe.RecipeHelper.convertResultToItemStack;
+import static nl.knokko.customitems.plugin.util.BiomeConverter.fromVanillaBiome;
 import static org.bukkit.enchantments.Enchantment.LOOT_BONUS_BLOCKS;
 import static org.bukkit.enchantments.Enchantment.SILK_TOUCH;
 
@@ -341,7 +342,7 @@ public class BlockEventHandler implements Listener {
 
             if (!shouldRequiredItemsAccept(blockDrop.getDrop().getRequiredHeldItems(), usedTool, itemSet)) continue;
 
-            if (!blockDrop.getDrop().getAllowedBiomes().isAllowed(VBiome.valueOf(location.getBlock().getBiome().name()))) continue;
+            if (!blockDrop.getDrop().getAllowedBiomes().isAllowed(fromVanillaBiome(location.getBlock().getBiome()))) continue;
 
             ItemStack itemToDrop = convertResultToItemStack(blockDrop.getDrop().getOutputTable().pickResult(rng));
             if (itemToDrop != null) {

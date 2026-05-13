@@ -17,6 +17,8 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.Random;
 
+import static nl.knokko.customitems.plugin.util.EffectConverter.vanillaEffect;
+
 public class AttackEffects {
 
     public static void apply(
@@ -48,11 +50,7 @@ public class AttackEffects {
             if (entity instanceof LivingEntity) {
 
                 AttackEffectPotion potionEffect = (AttackEffectPotion) effect;
-                ((LivingEntity) entity).addPotionEffect(new org.bukkit.potion.PotionEffect(
-                        Objects.requireNonNull(PotionEffectType.getByName(potionEffect.getPotionEffect().getType().name())),
-                        potionEffect.getPotionEffect().getDuration(),
-                        potionEffect.getPotionEffect().getLevel() - 1
-                ));
+                ((LivingEntity) entity).addPotionEffect(vanillaEffect(potionEffect.getPotionEffect()));
             }
         } else if (effect instanceof AttackEffectIgnite) {
             entity.setFireTicks(((AttackEffectIgnite) effect).getDuration());

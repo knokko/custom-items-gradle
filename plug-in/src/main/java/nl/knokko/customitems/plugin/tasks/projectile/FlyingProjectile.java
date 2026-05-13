@@ -1,6 +1,7 @@
 package nl.knokko.customitems.plugin.tasks.projectile;
 
 import static java.lang.Math.*;
+import static nl.knokko.customitems.plugin.util.EffectConverter.vanillaEffectType;
 
 import java.util.*;
 
@@ -288,7 +289,7 @@ class FlyingProjectile {
 						if (nearbyFactor > 0) {
 							aura.getEffects().forEach(ciEffect -> {
 
-								PotionEffectType bukkitType = PotionEffectType.getByName(ciEffect.getType().name());
+								PotionEffectType bukkitType = vanillaEffectType(ciEffect.getType());
 								if (bukkitType.isInstant()) {
 
 									// If it is instant, we should make the effect more powerful when closer to the projectile

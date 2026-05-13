@@ -80,7 +80,7 @@ public class KciSound extends ModelValues {
 
         output.addBoolean(vanillaSound != null);
         if (vanillaSound != null) {
-            output.addString(vanillaSound.name());
+            output.addString(vanillaSound.key);
         } else {
             output.addLong(customSound.get().getId().getMostSignificantBits());
             output.addLong(customSound.get().getId().getLeastSignificantBits());

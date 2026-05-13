@@ -90,8 +90,11 @@ public class LeveledEnchantment extends ModelValues  {
     }
 
     public void validateExportVersion(int version) throws ValidationException {
-        if (version < type.version) {
+        if (version < type.firstVersion) {
             throw new ValidationException(type + " doesn't exist in mc " + MCVersions.createString(version));
+        }
+        if (version > type.lastVersion) {
+            throw new ValidationException(type + " was renamed in mc " + MCVersions.createString(version));
         }
     }
 }

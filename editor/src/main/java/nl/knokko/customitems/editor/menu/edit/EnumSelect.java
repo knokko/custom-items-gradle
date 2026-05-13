@@ -13,9 +13,9 @@ import nl.knokko.gui.component.text.dynamic.DynamicTextComponent;
 
 import static java.lang.Float.min;
 
-public class EnumSelect<T extends Enum<?>> extends GuiMenu {
+public class EnumSelect<T> extends GuiMenu {
 	
-	public static <T extends Enum<?>> DynamicTextButton createSelectButton(Class<T> enumClass, Consumer<T> receiver, Predicate<T> filter, T current) {
+	public static <T> DynamicTextButton createSelectButton(Class<T> enumClass, Consumer<T> receiver, Predicate<T> filter, T current) {
 		String text = current == null ? "None" : current.toString();
 		return new DynamicTextButton(text, EditProps.BUTTON, EditProps.HOVER, null) {
 			
@@ -29,7 +29,7 @@ public class EnumSelect<T extends Enum<?>> extends GuiMenu {
 		};
 	}
 	
-	public static <T extends Enum<?>> DynamicTextButton createSelectButton(
+	public static <T> DynamicTextButton createSelectButton(
 			Class<T> enumClass, Consumer<T> receiver, T current
 	) {
 		return createSelectButton(enumClass, receiver, (T option) -> { return true; } , current);
@@ -96,6 +96,14 @@ public class EnumSelect<T extends Enum<?>> extends GuiMenu {
 		protected void addComponents() {
 			prevSearchText = searchField.getText();
 			T[] all = enumClass.getEnumConstants();
+			if (all == null) {
+				try {
+					//noinspection unchecked
+					all = (T[]) enumClass.getDeclaredMethod("values").invoke(null);
+				} catch (Exception noValuesMethod) {
+					throw new Error(noValuesMethod);
+				}
+			}
 
 			float x = 0.0f;
 			float y = 1f;

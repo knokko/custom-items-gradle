@@ -11,14 +11,13 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import nl.knokko.customitems.item.VMaterial;
 import nl.knokko.customitems.plugin.CustomItemsPlugin;
 
 import static nl.knokko.customitems.MCVersions.VERSION1_14;
+import static nl.knokko.customitems.plugin.util.EffectConverter.vanillaEffect;
 
 public class UpdateProjectileTask implements Runnable {
 
@@ -66,11 +65,7 @@ public class UpdateProjectileTask implements Runnable {
 					if (ray.getHitEntity() instanceof LivingEntity) {
 						LivingEntity living = (LivingEntity) ray.getHitEntity();
 						projectile.prototype.getImpactPotionEffects().forEach(
-								effect -> living.addPotionEffect(new PotionEffect(
-										PotionEffectType.getByName(effect.getType().name()),
-										effect.getDuration(),
-										effect.getLevel() - 1
-								))
+								effect -> living.addPotionEffect(vanillaEffect(effect))
 						);
 					}
 				}

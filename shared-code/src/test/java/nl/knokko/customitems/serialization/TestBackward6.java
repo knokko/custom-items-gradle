@@ -34,8 +34,11 @@ import nl.knokko.customitems.recipe.result.SimpleVanillaResult;
 import nl.knokko.customitems.util.Chance;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+
 import static nl.knokko.customitems.serialization.TestBackward1.*;
 import static nl.knokko.customitems.serialization.TestBackward3.testTextures3;
+import static nl.knokko.customitems.serialization.TestBackward5.defaultItemFlags;
 import static nl.knokko.customitems.serialization.TestBackward5.testItems5;
 import static nl.knokko.customitems.serialization.BackwardHelper.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -97,9 +100,7 @@ public class TestBackward6 {
         assertEquals(listOf(
                 LeveledEnchantment.createQuick(VEnchantmentType.DAMAGE_ARTHROPODS, 2)
         ), trident1.getDefaultEnchantments());
-        assertEquals(listOf(
-                false, false, true, false, false, false, false, false, false, false
-        ), trident1.getItemFlags());
+        assertEquals(defaultItemFlags(), trident1.getItemFlags());
         if (set.getSide() == ItemSet.Side.EDITOR) {
             assertEquals("quick_wand", trident1.getTexture().getName());
             assertStringResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", ((LegacyCustomItemModel) trident1.getModel()).getRawModel());
@@ -319,9 +320,10 @@ public class TestBackward6 {
         assertEquals(listOf(
                 LeveledEnchantment.createQuick(VEnchantmentType.MENDING, 1)
         ), item.getDefaultEnchantments());
-        assertEquals(listOf(
-                true, false, true, false, false, false, false, false, false, false
-        ), item.getItemFlags());
+
+        ArrayList<Boolean> expectedFlags = defaultItemFlags();
+        expectedFlags.set(0, true);
+        assertEquals(expectedFlags, item.getItemFlags());
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("gun1", item.getTexture().getName());
             assertStringResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", ((LegacyCustomItemModel) item.getModel()).getRawModel());
@@ -369,9 +371,10 @@ public class TestBackward6 {
         ), item.getLore());
         assertEquals(0, item.getAttributeModifiers().size());
         assertEquals(0, item.getDefaultEnchantments().size());
-        assertEquals(listOf(
-                true, true, true, false, false, false, false, false, false, false
-        ), item.getItemFlags());
+        ArrayList<Boolean> expectedFlags = defaultItemFlags();
+        expectedFlags.set(0, true);
+        expectedFlags.set(1, true);
+        assertEquals(expectedFlags, item.getItemFlags());
         if (side == ItemSet.Side.EDITOR) {
             assertEquals("test1", item.getTexture().getName());
             assertStringResourceEquals("nl/knokko/customitems/serialization/model/spear_diamond.json", ((LegacyCustomItemModel) item.getModel()).getRawModel());

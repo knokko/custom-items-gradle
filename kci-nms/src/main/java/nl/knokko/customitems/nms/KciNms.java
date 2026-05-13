@@ -1,7 +1,10 @@
 package nl.knokko.customitems.nms;
 
 import org.bukkit.Location;
+import org.bukkit.Sound;
+import org.bukkit.block.Biome;
 import org.bukkit.entity.Entity;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.lang.reflect.InvocationTargetException;
@@ -11,7 +14,7 @@ public abstract class KciNms {
     static {
         KciNms supportedInstance = null;
         int chosenMcVersion = -1;
-        int[] supportedMcVersions = { 12, 13, 14, 15, 16, 17, 18, 19, 20, 21 };
+        int[] supportedMcVersions = { 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 26 };
 
         for (int candidateVersion : supportedMcVersions) {
             try {
@@ -19,7 +22,11 @@ public abstract class KciNms {
                 String nmsVersion = (String) nmsClass.getField("NMS_VERSION_STRING").get(null);
 
                 // If the candidate version matches the actual NMS version of the server implementation, we are good to go
-                Class.forName("org.bukkit.craftbukkit.v" + nmsVersion + ".inventory.CraftItemStack");
+                if (nmsVersion.isEmpty()) {
+                    Class.forName("org.bukkit.craftbukkit.inventory.CraftItemStack");
+                } else {
+                    Class.forName("org.bukkit.craftbukkit.v" + nmsVersion + ".inventory.CraftItemStack");
+                }
                 supportedInstance = (KciNms) nmsClass.getConstructor().newInstance();
                 chosenMcVersion = candidateVersion;
                 if (!supportedInstance.isCompatible()) {
@@ -87,5 +94,17 @@ public abstract class KciNms {
 
     protected boolean isCompatible() {
         return true;
+    }
+
+    public Sound getVanillaSound(String key) {
+        return Sound.valueOf(key);
+    }
+
+    public PotionEffectType getVanillaEffectType(String key) {
+        return PotionEffectType.getByName(key);
+    }
+
+    public String getBiomeKey(Biome biome) {
+        return biome.name();
     }
 }

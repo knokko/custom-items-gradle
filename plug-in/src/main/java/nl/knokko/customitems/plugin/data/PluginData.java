@@ -45,6 +45,7 @@ import org.bukkit.potion.PotionEffectType;
 
 import static nl.knokko.customitems.plugin.recipe.RecipeHelper.convertResultToItemStack;
 import static nl.knokko.customitems.plugin.recipe.RecipeHelper.shouldIngredientAcceptItemStack;
+import static nl.knokko.customitems.plugin.util.EffectConverter.vanillaEffect;
 
 public class PluginData {
 	
@@ -268,11 +269,7 @@ public class PluginData {
 		if (!event.isCancelled()) {
 			player.setFoodLevel(player.getFoodLevel() + food.getFoodValue());
 			food.getEatEffects().forEach(eatEffect ->
-					player.addPotionEffect(new PotionEffect(
-							PotionEffectType.getByName(eatEffect.getType().name()),
-							eatEffect.getDuration(),
-							eatEffect.getLevel() - 1
-					))
+					player.addPotionEffect(vanillaEffect(eatEffect))
 			);
 			oldStack.setAmount(oldStack.getAmount() - 1);
 		}

@@ -4,6 +4,7 @@ import nl.knokko.customitems.item.enchantment.CustomEnchantmentProvider;
 import nl.knokko.customitems.item.enchantment.VEnchantmentType;
 import nl.knokko.customitems.nms.KciNms;
 import nl.knokko.customitems.plugin.multisupport.crazyenchantments.CrazyEnchantmentsSupport;
+import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 
@@ -14,12 +15,16 @@ public class BukkitEnchantments {
     private static Enchantment vanillaEnchantment(VEnchantmentType enchantment) {
         // Work around MULTSHOT typo
         String enchantmentName = enchantment == VEnchantmentType.MULTSHOT ? "MULTISHOT" : enchantment.name();
-        // Warning: do NOT use Enchantment.getByKey because that is not supported in minecraft 1.12
-        return Objects.requireNonNull(Enchantment.getByName(enchantmentName));
+        // Note that Enchantment.getByKey is not supported in minecraft 1.12
+        if (KciNms.mcVersion >= 26) {
+            return Enchantment.getByKey(NamespacedKey.minecraft(enchantment.getKey()));
+        } else {
+            return Objects.requireNonNull(Enchantment.getByName(enchantmentName));
+        }
     }
 
     private static boolean isForThisMcVersion(VEnchantmentType enchantment) {
-        return enchantment.provider != null || enchantment.version <= KciNms.mcVersion;
+        return enchantment.provider != null || (enchantment.firstVersion <= KciNms.mcVersion && enchantment.lastVersion >= KciNms.mcVersion);
     }
 
     /**
