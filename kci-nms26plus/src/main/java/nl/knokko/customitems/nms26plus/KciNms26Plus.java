@@ -16,7 +16,7 @@ public class KciNms26Plus extends KciNms21Plus {
 
 	@Override
 	public String getBiomeKey(Biome biome) {
-		NamespacedKey key = biome.getKeyOrNull();
+		NamespacedKey key = biome.getKey();
 		if (key == null) return null;
 		return key.getKey();
 	}
