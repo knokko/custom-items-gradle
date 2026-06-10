@@ -16,9 +16,15 @@ public class KciNms26Plus extends KciNms21Plus {
 
 	@Override
 	public String getBiomeKey(Biome biome) {
-		NamespacedKey key = biome.getKeyOrNull();
-		if (key == null) return null;
-		return key.getKey();
+		try {
+			NamespacedKey key = biome.getKeyOrNull();
+			if (key == null) return null;
+			return key.getKey();
+		} catch (NoSuchMethodError missesGetKeyOrNull) {
+			// For some reason, purpur doesn't have Biome.getKeyOrNull()
+			//noinspection deprecation
+			return biome.getKey().getKey();
+		}
 	}
 
 	@Override
