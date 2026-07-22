@@ -22,7 +22,7 @@ public class EvtContainerRecipeEnd extends SkriptEvent {
 					public ContainerInstance get(CustomContainerRecipeEndEvent event) {
 						return event.container;
 					}
-				}, 0
+				}
 		);
 		EventValues.registerEventValue(
 				CustomContainerRecipeEndEvent.class, ContainerRecipe.class, new Getter<ContainerRecipe, CustomContainerRecipeEndEvent>() {
@@ -30,7 +30,7 @@ public class EvtContainerRecipeEnd extends SkriptEvent {
 					public ContainerRecipe get(CustomContainerRecipeEndEvent event) {
 						return event.recipe;
 					}
-				}, 0
+				}
 		);
 		EventValues.registerEventValue(
 				CustomContainerRecipeEndEvent.class, Inventory.class, new Getter<Inventory, CustomContainerRecipeEndEvent>() {
@@ -38,7 +38,7 @@ public class EvtContainerRecipeEnd extends SkriptEvent {
 					public Inventory get(CustomContainerRecipeEndEvent event) {
 						return event.container.getInventory();
 					}
-				}, 0
+				}
 		);
 		Skript.registerEvent(
 				"Kci Container Recipe Ends", EvtContainerRecipeEnd.class, CustomContainerRecipeEndEvent.class,
