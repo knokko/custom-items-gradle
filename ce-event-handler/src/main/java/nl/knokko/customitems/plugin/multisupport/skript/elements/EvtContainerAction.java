@@ -23,7 +23,7 @@ public class EvtContainerAction extends SkriptEvent {
                     public ContainerInstance get(CustomContainerActionEvent event) {
                         return event.container;
                     }
-                }, 0
+                }
         );
         EventValues.registerEventValue(
                 CustomContainerActionEvent.class, Inventory.class, new Getter<Inventory, CustomContainerActionEvent>() {
@@ -31,7 +31,7 @@ public class EvtContainerAction extends SkriptEvent {
                     public Inventory get(CustomContainerActionEvent event) {
                         return event.container.getInventory();
                     }
-                }, 0
+                }
         );
         EventValues.registerEventValue(
                 CustomContainerActionEvent.class, ItemStack.class, new Getter<ItemStack, CustomContainerActionEvent>() {
@@ -39,7 +39,7 @@ public class EvtContainerAction extends SkriptEvent {
                     public ItemStack get(CustomContainerActionEvent event) {
                         return event.clickEvent.getCursor();
                     }
-                }, 0
+                }
         );
         EventValues.registerEventValue(
                 CustomContainerActionEvent.class, ClickType.class, new Getter<ClickType, CustomContainerActionEvent>() {
@@ -47,7 +47,7 @@ public class EvtContainerAction extends SkriptEvent {
                     public ClickType get(CustomContainerActionEvent event) {
                         return event.clickEvent.getClick();
                     }
-                }, 0
+                }
         );
         Skript.registerEvent(
                 "Kci Container Action", EvtContainerAction.class, CustomContainerActionEvent.class,
