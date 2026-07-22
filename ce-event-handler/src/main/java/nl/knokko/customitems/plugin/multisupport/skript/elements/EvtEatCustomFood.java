@@ -21,7 +21,7 @@ public class EvtEatCustomFood extends SkriptEvent {
                     public Player get(CustomFoodEatEvent event) {
                         return event.getPlayer();
                     }
-                }, 0
+                }
         );
         EventValues.registerEventValue(
                 CustomFoodEatEvent.class, ItemStack.class, new Getter<ItemStack, CustomFoodEatEvent>() {
@@ -29,7 +29,7 @@ public class EvtEatCustomFood extends SkriptEvent {
                     public ItemStack get(CustomFoodEatEvent event) {
                         return event.foodStack;
                     }
-                }, 0
+                }
         );
         Skript.registerEvent(
                 "Kci Eat Custom Food", EvtEatCustomFood.class, CustomFoodEatEvent.class,
